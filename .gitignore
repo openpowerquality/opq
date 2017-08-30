@@ -1,2 +1,7 @@
 *.pyc
+.idea/
+*.iml
+.DS_Store
+settings.production.json
+node_modules
 
