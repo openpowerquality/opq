@@ -1,0 +1,72 @@
+<template name="liveMeasurements">
+  <!--{{#if Template.subscriptionsReady}}-->
+  <div class="ui top attached segment">
+    <div class="ui basic mini buttons right floated" style="margin-top: -6px;">
+      <div id="1m" class="ui button">1 min.</div>
+      <div id="5m" class="ui button">5 min.</div>
+      <div id="10m" class="ui button">10 min.</div>
+    </div>
+
+    <h5 class="ui header">Live Device Monitor</h5>
+  </div>
+
+  <div class="ui bottom attached segment">
+      <div class="ui grid">
+        <div class="twelve wide column">
+          {{#let measurement = newestMeasurement}}
+
+            <div class="ui grid">
+              <div class="five wide column">
+                <div class="ui tiny orange statistic" style="margin-top: 15px; margin-left: 15px;">
+                  <div class="label">
+                    Voltage
+                  </div>
+                  <div class="value">
+                    {{formatDecimals 3 measurement.voltage}} V
+                  </div>
+                </div>
+              </div>
+              <div class="eleven wide column">
+                <div id="miniVoltagePlot-{{generateRandomIdString}}" style="height: 100px">{{deviceStatus}}</div>
+              </div>
+            </div>
+
+            <div class="ui divider"></div>
+
+            <div class="ui grid">
+              <div class="five wide column">
+                <div class="ui tiny orange statistic" style="margin-top: 15px; margin-left: 15px">
+                  <div class="label">
+                    Frequency
+                  </div>
+                  <div class="value">
+                    {{formatDecimals 3 measurement.frequency}} Hz
+                  </div>
+                </div>
+              </div>
+              <div class="eleven wide column">
+                <div id="miniFreqPlot-{{generateRandomIdString}}" style="height: 100px">{{deviceStatus}}</div>
+              </div>
+            </div>
+          {{/let}}
+        </div>
+
+        <div class="four wide column no-padding-top no-padding-right no-padding-bottom">
+          <h5 class="ui attached header" style="margin: 0px; border-right: 0px;">
+            Device Selection
+          </h5>
+          <div id="deviceSelection">
+            <div class="ui vertical basic fluid buttons" >
+              {{#each id in deviceIds}}
+                <button id="device-{{id}}" class="ui button">Device ID: {{id}}</button>
+              {{/each}}
+            </div>
+          </div>
+
+        </div>
+      </div>
+  </div>
+  <!--{{else}}-->
+  <!--{{> loading}}-->
+  <!--{{/if}}-->
+</template>

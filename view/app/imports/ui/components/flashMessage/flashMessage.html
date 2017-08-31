@@ -1,0 +1,16 @@
+<template name="flashMessage">
+  <div class="ui {{hidden}} {{messageType}} icon message">
+    {{#if isDismissible}}
+      <i class="close icon"></i>
+    {{/if}}
+    {{#if hasIcon}}
+      <i class="{{iconName}} icon"></i>
+    {{/if}}
+    <div class="content">
+      <div class="header">
+        {{messageHeader}}
+      </div>
+      <p>{{message}}</p>
+    </div>
+  </div>
+</template>

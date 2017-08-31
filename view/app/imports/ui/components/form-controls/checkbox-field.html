@@ -1,0 +1,26 @@
+<template name="Checkbox_Field">
+  {{!
+    Provides a single Semantic-UI checkbox field.
+
+    Params:
+      id, name, label, value, checkboxStyle (String)
+      isChecked (Boolean)
+
+    Label is required.
+    Id, name, and value default to label, but these should generally be given an explicit value.
+    CheckboxStyle defines the style of checkbox. There are 3 styles: 'slider', 'toggle' or the default (leave empty).
+  }}
+
+  <div class="field">
+    <div class="ui {{checkboxStyle}} checkbox">
+      <input type="checkbox"
+             name="{{#if name}}{{name}}{{else}}{{label}}{{/if}}"
+             id="{{#if id}}{{id}}{{else}}{{label}}{{/if}}"
+             value="{{#if value}}{{value}}{{else}}{{label}}{{/if}}"
+             checked={{#if isChecked}}"checked"{{/if}}
+             tabindex="0"
+             class="hidden">
+      <label>{{label}}</label>
+    </div>
+  </div>
+</template>

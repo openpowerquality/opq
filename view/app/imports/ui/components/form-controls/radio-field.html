@@ -1,0 +1,25 @@
+<template name="Radio_Field">
+  {{!
+    Provides a single Semantic-UI styled radio field.
+
+    Params:
+      id, name, label, value (String)
+      isChecked (Boolean)
+
+    Name and label are required.
+    Id and value default to label, but these should generally be given an explicit value.
+  }}
+
+  <div class="field">
+    <div class="ui radio checkbox">
+      <input type="radio"
+             name="{{name}}"
+             id="{{#if id}}{{id}}{{else}}{{label}}{{/if}}"
+             value="{{#if value}}{{value}}{{else}}{{label}}{{/if}}"
+             checked={{#if isChecked}}"checked"{{/if}}
+             tabindex="0"
+             class="hidden">
+      <label>{{label}}</label>
+    </div>
+  </div>
+</template>

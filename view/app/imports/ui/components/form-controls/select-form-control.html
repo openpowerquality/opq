@@ -1,0 +1,38 @@
+<template name="Select_Form_Control">
+  {{!
+    Provides a Semantic-UI styled dropdown select field.
+
+    Params:
+      id, name, label, errorMessage (String)
+      isRequired, isInline, multipleAllowed, isSearchable (Boolean)
+      options (Array[Object]) - Each object represents a single option field.
+        Options Params:
+          label, value (String)
+          isSelected (Boolean)
+
+    Label and options are required.
+    Name and id default to label, but these should generally be given an explicit value.
+  }}
+
+  <div class="{{#if isRequired}}required{{/if}} {{#if isInline}}inline{{/if}} {{#if errorMessage}}error{{/if}}field">
+    <label>{{label}}</label>
+    <select id="{{#if id}}{{id}}{{else}}{{label}}{{/if}}"
+            name="{{#if name}}{{name}}{{else}}{{label}}{{/if}}"
+            multiple={{#if multipleAllowed}}""{{/if}}
+            class="ui {{#if isSearchable}}search{{/if}} fluid dropdown">
+
+      <option value="">Select One{{#if multipleAllowed}} or More{{/if}}</option>
+      {{#each option in options}}
+        <option value="{{#if option.value}}{{option.value}}{{else}}{{option.label}}{{/if}}"
+                selected={{#if option.isSelected}}"selected"{{/if}}>{{option.label}}</option>
+      {{/each}}
+
+    </select>
+
+    {{#if errorMessage}}
+      <div class="ui pointing label">
+        {{errorMessage}}
+      </div>
+    {{/if}}
+  </div>
+</template>

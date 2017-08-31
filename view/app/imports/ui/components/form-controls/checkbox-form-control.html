@@ -1,0 +1,31 @@
+<template name="Checkbox_Form_Control">
+  {{!
+    Provides a group of Semantic-UI styled checkbox fields.
+
+    Params:
+      label, errorMessage (String)
+      isRequired, isInline (Boolean)
+      checkboxes (Array[Object]) - Each object represents a single checkbox field.
+                                   See the Checkbox_Field template for params.
+
+    Label and checkboxes are required.
+  }}
+
+  <div class="{{#if isRequired}}required{{/if}} {{#if isInline}}inline{{else}}grouped{{/if}} {{#if errorMessage}}error{{/if}} fields">
+    <label>{{label}}</label>
+    {{#each checkbox in checkboxes}}
+      {{> Checkbox_Field  id=checkbox.id
+                          name=checkbox.name
+                          label=checkbox.label
+                          value=checkbox.value
+                          isChecked=checkbox.isChecked
+                          checkboxStyle=checkbox.checkboxStyle}}
+    {{/each}}
+
+    {{#if errorMessage}}
+      <div class="ui pointing label">
+        {{errorMessage}}
+      </div>
+    {{/if}}
+  </div>
+</template>

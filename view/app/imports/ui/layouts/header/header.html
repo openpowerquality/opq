@@ -1,0 +1,46 @@
+<template name="header">
+  <div id="header-wrapper">
+  <div class="ui fixed menu">
+    <!--<div class="ui container">-->
+      <div class="header item">OPQView</div>
+      <div id="liveMeasurementsNavbar" class="ui item">
+        {{> liveMeasurementsNavbar}}
+      </div>
+      <div class="right menu">
+        <div class="item">
+          <div class="ui action left icon input">
+            <i class="search icon"></i>
+            <input type="text" placeholder="Search">
+            <button class="ui button">Submit</button>
+          </div>
+        </div>
+
+        <div class="ui dropdown item">
+          {{#if currentUser}}
+            <i class="user icon"></i>
+            {{currentUserEmail}}
+          {{else}}
+            Login / Sign Up
+          {{/if}}
+          <i class="dropdown icon"></i>
+          <div class="menu">
+            {{#if currentUser}}
+              <div class="item"><i class="user icon"></i> Account</div>
+              <div class="item"><i class="setting icon"></i> OPQBox Settings</div>
+              <div class="ui divider" style="margin: 0px;"></div>
+              <div class="item" id="logout-btn"><i class="sign out icon"></i> Log Out</div>
+            {{else}}
+              <div class="item" style="display: none;"></div> <!-- Hack: Need item for dropdown to work -->
+              <div style="padding: 15px;">
+                {{> login withEmptyDataContext}}
+              </div>
+            {{/if}}
+          </div>
+
+        </div>
+
+      </div>
+    <!--</div>-->
+  </div>
+  </div>
+</template>

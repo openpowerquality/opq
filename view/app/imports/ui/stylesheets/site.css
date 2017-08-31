@@ -1,0 +1,388 @@
+html {
+    height: 100%;
+}
+body {
+    height: 100%;
+}
+
+/* Interfering with bootstrap contextual highlight class */
+/*.success {*/
+    /*text-align: center;*/
+    /*font-weight: bold;*/
+    /*color: green;*/
+/*}*/
+
+.invalid {
+  text-align: center;
+  font-weight: bold;
+  color: red;
+}
+
+.panel-title {
+  text-align: left;
+}
+
+@-moz-document url-prefix() {
+  fieldset { display: table-cell; }
+}
+
+#login-dropdown {
+    margin-top: 10px;
+}
+
+.dropdown-upper-pad {
+    margin-top: 10px;
+}
+
+#dropdown-menu {
+    min-width: 260px;
+    padding: 15px;
+}
+
+.dropdown-input {
+    margin-left: 20px;
+}
+
+#public-map {
+  /*padding-left: 30px;*/
+  width: 100%;
+  height: 338px;
+}
+
+#public-map-right-col {
+  padding-left: 30px;
+}
+
+#events-table {
+  max-height: 295px;
+  overflow-y: scroll;
+}
+
+.global-stats {
+  margin-left: 5px;
+  margin-right: 10px;
+  margin-bottom: 5px;
+}
+
+.plot {
+  padding: 60px;
+  height: 200px;
+  /*width: 400px;*/
+    max-width: 100%;
+}
+
+.itic-badge {
+    /*margin-left: 10px;*/
+}
+
+.itic-no-interruption {
+    background: #008000;
+}
+
+.itic-no-damage {
+    background: #ffff00;
+}
+
+.itic-prohibited {
+    background: #ff0000;
+}
+
+.leaflet-num-icon {
+  text-align: center;
+  vertical-align: middle;
+  height: 40px;
+  width: auto;
+  border: solid 2px;
+  /*border-radius: 20px;*/
+  padding: 5px;
+  background: black;
+  font-weight: bold;
+  font-size: large;
+  background: rgba(0, 0, 0, 0.6);
+}
+
+.text-good {
+  color: #00FF00;
+}
+
+.text-ok {
+  color: #ffff00;
+}
+
+.text-bad {
+    color: #ff0000;
+}
+
+.leaflet-center-text {
+    color: #ffffff;
+    left: 5px;
+    top: 5px;
+}
+
+.leaflet-num-devices {
+  left: 5px;
+  top: 5px;
+  color: green;
+
+}
+
+.leaflet-num-events {
+  left: 5px;
+  top: -55px;
+  color: red;
+}
+
+.verror {
+  text-align: center;
+  color: red;
+  font-weight: bold;
+}
+
+/* Legend Styles */
+.info {
+  padding: 6px 8px;
+  font: 14px/16px Arial, Helvetica, sans-serif;
+  background: white;
+  background: rgba(255,255,255,0.8);
+  box-shadow: 0 0 15px rgba(0,0,0,0.2);
+  border-radius: 5px;
+}
+.info h4 {
+  margin: 0 0 5px;
+  color: #777;
+}
+
+.legend {
+  line-height: 18px;
+  color: #555;
+}
+.legend i {
+  width: 18px;
+  height: 18px;
+  float: left;
+  margin-right: 8px;
+  opacity: 0.7;
+}
+
+/* Bootstrap Styled Callouts - Source: http://cpratt.co/twitter-bootstrap-callout-css-styles */
+.bs-callout {
+    padding: 20px;
+    margin: 0px 0px 20px 0px;
+    border: 1px solid #eee;
+    border-left-width: 5px;
+    border-radius: 3px;
+}
+.bs-callout h4 {
+    margin-top: 0;
+    margin-bottom: 5px;
+}
+.bs-callout p:last-child {
+    margin-bottom: 0;
+}
+.bs-callout code {
+    border-radius: 3px;
+}
+.bs-callout+.bs-callout {
+    margin-top: -5px;
+}
+.bs-callout-default {
+    border-left-color: #777;
+}
+.bs-callout-default h4 {
+    color: #777;
+}
+.bs-callout-primary {
+    border-left-color: #428bca;
+}
+.bs-callout-primary h4 {
+    color: #428bca;
+}
+.bs-callout-success {
+    border-left-color: #5cb85c;
+}
+.bs-callout-success h4 {
+    color: #5cb85c;
+}
+.bs-callout-danger {
+    border-left-color: #d9534f;
+}
+.bs-callout-danger h4 {
+    color: #d9534f;
+}
+.bs-callout-warning {
+    border-left-color: #f0ad4e;
+}
+.bs-callout-warning h4 {
+    color: #f0ad4e;
+}
+.bs-callout-info {
+    border-left-color: #5bc0de;
+}
+.bs-callout-info h4 {
+    color: #5bc0de;
+}
+
+#deviceSelection {
+    height: 220px;
+    overflow-y: scroll;
+}
+
+#deviceSelection .ui.basic.buttons {
+    border-top: none;
+    border-right:none;
+    border-radius: 0px;
+}
+
+#deviceSelection .ui.vertical.buttons .button:first-child {
+    border-top-left-radius: 0px;
+    border-top-right-radius: 0px;
+}
+
+#deviceSelection .ui.vertical.buttons .button:last-child {
+    border-bottom-left-radius: 0px;
+    border-bottom-right-radius: 0px;
+}
+
+/* Some rules for removing padding. Useful for removing grid gutters when needed. */
+.no-padding {
+    padding: 0px !important;
+}
+
+.no-padding-top {
+    padding-top: 0px !important;
+}
+
+.no-padding-bottom {
+    padding-bottom: 0px !important;
+}
+
+.no-padding-left {
+    padding-left: 0px !important;
+}
+
+.no-padding-right {
+    padding-right: 0px !important;
+}
+
+.ui.segment .ui.header {
+    margin-top: 0px;
+}
+
+/* Leaflet's zoom controls has a very high default z-index of 1000 for some reason, resulting in the buttons being
+layered on top of the fixed navigation menu. */
+.leaflet-top, .leaflet-bottom {
+    z-index: 50;
+}
+
+#left-menu {
+    position: fixed;
+    height: 100%;
+    width: 96px;
+    padding-top: 50px;
+    border-right: 1px solid rgba(34, 36, 38, 0.15);
+    text-align: center;
+    box-shadow: 0px 1px 2px 0 rgba(34, 36, 38, 0.15);
+    z-index: 1; /* Need this for box-shadow to not be overlapped by main-content. Right-menu seems okay without it. */
+    /*background-color: green;*/
+}
+
+/* Left-menu expanded state. Be sure to add an equal amount of padding-left to main-content.expanded. */
+#left-menu.expanded {
+    width: 196px;
+}
+
+#left-menu .ui.menu {
+    max-height: 100%;
+    max-width: 100%;
+    border-radius: 0px;
+    border: 0px;
+    box-shadow: none;
+}
+
+
+#right-menu {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    height: 100%;
+    width: 100px;
+    padding-top: 50px;
+    border-left: 1px solid rgba(34, 36, 38, 0.15);
+    box-shadow: 0px 1px 2px 0 rgba(34, 36, 38, 0.15);
+    /*background-color: red;*/
+}
+
+#right-menu.expanded {
+    width: 200px;
+}
+
+#right-menu .ui.menu {
+    max-height: 100%;
+    max-width: 100%;
+    border-radius: 0px;
+    border: 0px;
+    box-shadow: none;
+}
+
+
+/*
+The top menu height is 50px. A 75px padding-top gives us a 25px margin between the top menu and the main-content div.
+The left-menu width is 96px. For a 25px margin between left-menu and main-content, we set padding-left to 121px;
+*/
+#main-content {
+    min-height: 100%;
+    padding-top: 50px;
+    padding-left: 96px; /* 25px greater than left-menu width */
+    padding-right: 100px; /* 25px greater than right-menu width */
+}
+
+#main-content .main-content-padded {
+    min-height: 100%;
+    padding-top: 75px;
+    padding-left: 121px; /* 25px greater than left-menu width */
+    padding-right: 125px; /* 25px greater than right-menu width */
+}
+
+/* Main-content expanded state. Be sure to add an equal amount of padding-left to main-content.expanded.
+Note in case of confusion: It's the left-menu that's being 'expanded'. This div is technically being shrunk in size, but
+we'll still call it expanded for naming consistency and simplicity.
+*/
+#main-content.left-expanded {
+    padding-left: 196px; /* 25px greater than left-menu.expanded width */
+}
+
+#main-content.right-expanded {
+    padding-right: 200px /* 25px greater than right-menu.expanded width */
+}
+
+#left-menu .ui.vertical.menu .item > i.icon {
+    float: none;
+    margin: 0px;
+}
+
+.ui.grid.no-side-margins {
+    margin-left: 0px;
+    margin-right: 0px;
+}
+
+#header-wrapper {
+    z-index: 1000;
+}
+
+#header-wrapper .ui.menu {
+    z-index: 1000;
+}
+
+/*#recent-events {*/
+    /*max-height: 300px;*/
+    /*overflow-y: scroll;*/
+/*}*/
+
+.float-left {
+    float: left !important;
+}
+
+.float-right {
+    float: right !important;
+}

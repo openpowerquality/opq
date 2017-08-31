@@ -1,0 +1,21 @@
+<template name="signup">
+  <div class="ui centered grid" style="margin-top: 20px;">
+    <div class="four wide column">
+      <div class="ui segment">
+        <form class="ui {{#if hasFormError}}error{{/if}} form signup-form">
+          {{> Text_Form_Control id="firstName" name="firstName" label="First Name" errorMessage=(fieldError "firstName")}}
+          {{> Text_Form_Control id="lastName" name="lastName" label="Last Name" errorMessage=(fieldError "lastName")}}
+          {{> Text_Form_Control id="email" name="email" label="E-Mail" errorMessage=(fieldError "email")}}
+          {{> Text_Form_Control id="password" name="password" label="Password" isPasswordField=true errorMessage=(fieldError "password")}}
+          {{> Text_Form_Control id="confirmPassword" name="confirmPassword" label="Confirm Password" isPasswordField=true errorMessage=(fieldError "confirmPassword")}}
+          <button class="ui button" type="submit">Sign Up</button>
+        </form>
+        {{#if formSubmissionErrors}}
+          <div class="ui error message">
+            <p>{{formSubmissionErrors}}</p>
+          </div>
+        {{/if}}
+      </div>
+    </div>
+  </div>
+</template>

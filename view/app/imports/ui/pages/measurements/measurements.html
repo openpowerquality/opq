@@ -1,0 +1,120 @@
+<template name="measurements">
+
+    <div class="ui padded grid">
+
+      <div class="sixteen wide column no-padding" style="background-color: red;">
+        {{> map mainMap=(getTemplateInstanceVariable 'mainMap')}}
+      </div>
+
+
+
+      <div class="eight wide column">
+          <h3 class="ui top attached header">
+            Recent Events
+          </h3>
+        <div class="ui segment bottom attached no-padding" style="max-height: 275px; overflow-y: scroll;">
+          <table id="recent-events" class="ui small selectable celled table" style="border: none;">
+            <thead>
+              <tr>
+                <th>Event Type</th>
+                <th>Timestamp</th>
+                <th>OPQBox ID</th>
+                <th>Coordinate(s)</th>
+                <th>ITIC</th>
+              </tr>
+            </thead>
+            <tbody>
+              {{#each event in simEvents}}
+                {{#if isEqual event.type 'Distributed'}}
+                  <tr id={{event._id.valueOf}}>
+                    <td colspan="5">Distributed Event<i class="arrow right icon" style="float: right;"></i></td>
+                  </tr>
+                {{else}}
+                  <tr id={{event._id.valueOf}}>
+                    <td>{{event.event_type}}</td>
+                    <td>{{formatDate event.timestamp_ms}}</td>
+                    <td>{{event.opqbox_id}}</td>
+                    <td><a href="" class="coords" lat={{event.lat}} lng={{event.lng}}>[{{event.lat}}, {{event.lng}}]</a></td>
+                    <td><span style="padding-left: 15px; margin-left: 15px;" class='badge itic-badge {{getIticBadge event.itic}}'>&nbsp;</span></td>
+                  </tr>
+                {{/if}}
+              {{/each}}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="eight wide column">
+        <h3 class="ui top attached header">
+          Selected Event
+        </h3>
+        <table id="selected-event" class="ui attached small selectable celled table">
+          <thead>
+            <tr>
+              <th>Event Type</th>
+              <th>Timestamp</th>
+              <th>OPQBox ID</th>
+              <th>Coordinate(s)</th>
+              <th>ITIC</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#let event=selectedEvent}}
+              {{#if event}}
+                {{#if isEqual event.type 'Distributed'}}
+                  {{#each subevent in event.events}}
+                    <tr>
+                      <td>{{subevent.event_type}}</td>
+                      <td>{{formatDate subevent.timestamp_ms}}</td>
+                      <td>{{subevent.opqbox_id}}</td>
+                      <td>[{{subevent.lat}}, {{subevent.lng}}]</td>
+                      <td><span style="padding-left: 15px; margin-left: 15px;" class='badge itic-badge {{getIticBadge subevent.itic}}'>&nbsp;</span></td>
+                    </tr>
+                    <tr>
+                      <td colspan="5" style="max-width: 1px;"><div id="waveform-{{subevent._id.valueOf}}" class="plot"></div></td>
+                    </tr>
+                  {{/each}}
+                {{else}}
+                  <tr>
+                    <td>{{event.event_type}}</td>
+                    <td>{{formatDate event.timestamp_ms}}</td>
+                    <td>{{event.opqbox_id}}</td>
+                    <td>[{{event.lat}}, {{event.lng}}]</td>
+                    <td><span style="padding-left: 15px; margin-left: 15px;" class='badge itic-badge {{getIticBadge event.itic}}'>&nbsp;</span></td>
+                  </tr>
+                  <tr>
+                    <td colspan="5" style="max-width: 1px;"><div id="waveform-{{event._id.valueOf}}" class="plot"></div></td>
+                  </tr>
+                {{/if}}
+              {{/if}}
+            {{/let}}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="sixteen wide column">
+        {{#each event in boxEvents}}
+          <p>
+            {{event._id}} - Event Start: {{event.eventStart}} - Event End: {{event.eventEnd}} - Request_id: {{event.reqId}}
+          </p>
+        {{/each}}
+      </div>
+
+      <div class="sixteen wide column">
+        {{#each reqId in requestIds}}
+          <p>
+            {{reqId}}
+          </p>
+        {{/each}}
+      </div>
+
+
+      <!--<div class="eleven wide column">-->
+        <!--{{> liveMeasurements withEmptyDataContext}}-->
+      <!--</div>-->
+    </div>
+
+  <!--{{> flashMessage flashMessageReactiveVar=(getTemplateInstanceVariable 'flashMessage')}}-->
+
+</template>
+

@@ -1,0 +1,48 @@
+<template name="appLayoutPublic">
+  {{> header}}
+
+  <div id="left-menu">
+    <div class="ui left vertical menu">
+      <a class="item">
+        <i class="home big icon"></i>Home
+      </a>
+      <a class="item">
+        <i class="desktop big icon"></i>Public Monitor
+      </a>
+      <a class="item">
+        <i class="setting big icon"></i>OPQBox Settings
+      </a>
+      <a class="item">
+        <i class="user big icon"></i>Account
+      </a>
+    </div>
+
+    <button id="left-menu-expand-toggle" class="ui icon basic mini button" style="margin-top: 10px;">
+      <i class="chevron right icon"></i>
+    </button>
+  </div>
+
+  <div id="right-wrapper">
+    <div id="main-content">
+      {{> Template.dynamic template=main}}
+    </div>
+
+    <div id="right-menu" >
+      <div class="ui right vertical menu">
+        <a class="item">
+          Menu
+        </a>
+        <a class="item">
+          Item 1
+        </a>
+        <a class="item">
+          Item 2
+        </a>
+      </div>
+
+      <button id="right-menu-expand-toggle" class="ui icon basic mini button" style="margin-left: 35px; margin-top: 10px;">
+        <i class="chevron left icon"></i>
+      </button>
+    </div>
+  </div>
+</template>

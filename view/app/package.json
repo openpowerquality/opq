@@ -1,0 +1,45 @@
+{
+  "name": "opqview2",
+  "version": "1.0.0",
+  "description": "OPQView2",
+  "main": "index.js",
+  "dependencies": {
+    "babel-runtime": "^6.20.0",
+    "chart.js": "^2.6.0",
+    "es6-mapify": "^1.0.0",
+    "faker": "^3.1.0",
+    "flatpickr": "^3.0.7",
+    "flot-charts": "^0.8.3",
+    "jsdoc": "^3.4.3",
+    "lodash": "^4.16.2",
+    "meteor-node-stubs": "^0.2.3",
+    "object-sizeof": "^1.1.1",
+    "point-in-polygon": "^1.0.1"
+  },
+  "devDependencies": {
+    "autoprefixer": "^6.3.1"
+  },
+  "postcss": {
+    "plugins": {
+      "autoprefixer": {
+        "browsers": [
+          "last 2 versions"
+        ]
+      }
+    }
+  },
+  "scripts": {
+    "test": "meteor test --once --driver-package dispatch:mocha",
+    "jsdoc": "./node_modules/.bin/jsdoc -c ./jsdoc.json -r ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/openpowerquality/opqview2.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/openpowerquality/opqview2/issues"
+  },
+  "homepage": "https://github.com/openpowerquality/opqview2#readme"
+}

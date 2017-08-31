@@ -1,0 +1,28 @@
+<template name="TextArea_Form_Control">
+  {{!
+    Provides a Semantic-UI styled textarea field.
+
+    Params:
+      id, name, label, value, errorMessage (String)
+      rows (Integer)
+      isRequired, isInline (Boolean)
+
+    Label is required.
+    Id, name, and placeholder default to label, but these should generally be given an explicit value.
+    Rows defaults to 5.
+  }}
+
+  <div class="{{#if isRequired}}required{{/if}} {{#if isInline}}inline{{/if}} {{#if errorMessage}}error{{/if}} field">
+    <label>{{label}}</label>
+    <textarea name="{{#if name}}{{name}}{{else}}{{label}}{{/if}}"
+              id="{{#if id}}{{id}}{{else}}{{label}}{{/if}}"
+              placeholder="{{#if placeholder}}{{placeholder}}{{else}}{{label}}{{/if}}"
+              rows="{{#if rows}}{{rows}}{{else}}5{{/if}}">{{value}}</textarea>
+
+    {{#if errorMessage}}
+      <div class="ui pointing label">
+        {{errorMessage}}
+      </div>
+    {{/if}}
+  </div>
+</template>

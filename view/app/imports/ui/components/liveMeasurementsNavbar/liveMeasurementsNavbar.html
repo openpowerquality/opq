@@ -1,0 +1,44 @@
+<template name="liveMeasurementsNavbar">
+  <div id="measurementsNavbar" class="ui grid" style="width: 135px;">
+    <div class="row">
+      <div class="fourteen wide column no-padding-top no-padding-bottom no-padding-right">
+        {{#let measurement = newestMeasurement}}
+        <div class="ui grid">
+          <div class="seven wide column no-padding-top no-padding-bottom no-padding-left no-padding-right">
+            <div id="voltagePlotNavbar" style="height: 20px; width: 50px; margin-left: 5px; padding: 0px;"></div>
+          </div>
+
+          <div class="nine wide column no-padding-top no-padding-bottom no-padding-left no-padding-right">
+            <p>{{formatDecimals 2 measurement.voltage}} V</p>
+          </div>
+
+
+          <div class="seven wide column no-padding-top no-padding-bottom no-padding-left no-padding-right">
+            <div id="freqPlotNavbar" style="height: 20px; width: 50px; margin-left: 5px; padding: 0px;"></div>
+          </div>
+
+          <div class="nine wide column no-padding-top no-padding-bottom no-padding-left no-padding-right">
+            <p>{{formatDecimals 2 measurement.frequency}} Hz</p>
+          </div>
+        </div>
+        {{/let}}
+
+      </div>
+
+      <div class="two wide column no-padding-top no-padding-bottom no-padding-left">
+        <i class="dropdown icon"></i>
+      </div>
+   </div>
+  </div>
+
+
+  <div id="measurementsPopup" class="ui popup">
+    <div style="width: 750px">
+      {{#if showPopup}}
+        {{> liveMeasurements selectedDeviceIdReactiveVar = (getTemplateInstanceVariable 'selectedDeviceId')}}
+      {{/if}}
+    </div>
+
+  </div>
+
+</template>

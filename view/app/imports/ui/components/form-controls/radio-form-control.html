@@ -1,0 +1,29 @@
+<template name="Radio_Form_Control">
+  {{!
+    Provides a group of Semantic-UI styled radio fields.
+
+    Params:
+      label, name, errorMessage (String)
+      isRequired, isInline (Boolean)
+      radios (Array[Object]) - Each object represents a single radio button. See Radio_Field template for params.
+
+    Label, name, and radios are required.
+  }}
+
+  <div class="{{#if isRequired}}required{{/if}} {{#if isInline}}inline{{else}}grouped{{/if}} {{#if errorMessage}}error{{/if}} fields">
+    <label>{{label}}</label>
+    {{#each radio in radios}}
+      {{> Radio_Field name=name
+                      id=radio.id
+                      label=radio.label
+                      value=radio.value
+                      isChecked=radio.isChecked}}
+    {{/each}}
+
+    {{#if errorMessage}}
+      <div class="ui pointing label">
+        {{errorMessage}}
+      </div>
+    {{/if}}
+  </div>
+</template>
