@@ -1,0 +1,26 @@
+{
+  "zmq.triggering.interface": "tcp://localhost:9881",
+  "zmq.mauka.pub.interface":  "tcp://localhost:9882",
+  "zmq.mauka.sub.interface":  "tcp://localhost:9883",
+  "zmq.makai.req.interface":  "tcp://localhost:9884",
+
+  "mongo.host": "emilia.ics.hawaii.edu",
+  "mongo.port": 27017,
+  "mongo.db": "opq",
+
+  "plugins.AcquisitionTrigger.waitForDataS": 15,
+
+  "plugins.AcquisitionTriggerPlugin.msBefore": 1000,
+  "plugins.AcquisitionTriggerPlugin.msAfter": 1000,
+  "plugins.AcquisitionTriggerPlugin.sDeadZoneAfterTrigger": 60,
+
+  "plugins.MeasurementPlugin.sample_every": 3.0,
+
+  "plugins.ThresholdPlugin.voltage.ref": 120.0,
+  "plugins.ThresholdPlugin.voltage.threshold.percent.low": 5.0,
+  "plugins.ThresholdPlugin.voltage.threshold.percent.high": 5.0,
+
+  "plugins.ThresholdPlugin.frequency.ref": 60.0,
+  "plugins.ThresholdPlugin.frequency.threshold.percent.low": 0.5,
+  "plugins.ThresholdPlugin.frequency.threshold.percent.high": 0.5
+}

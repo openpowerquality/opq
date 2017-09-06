@@ -1,0 +1,64 @@
+syntax = "proto2";
+
+package opq.proto;
+
+message Cycle{
+	required uint64 time = 1;
+	repeated int32 data = 2;
+	optional int32 last_gps = 3;
+	optional int32 current_count = 4;
+	optional int32 flags = 5;
+}
+
+message DataMessage{
+	required int32 id = 1;
+	repeated Cycle cycles = 3;
+}
+
+message TriggerMessage{
+	required int32 id = 1;
+	required uint64 time = 2;
+	required float frequency = 3;
+	required float rms = 4;
+	repeated int32 histogram = 5;
+	optional int32 last_gps = 6;
+	optional int32 current_count = 7;
+	optional int32 flags = 8;
+}
+
+message RequestDataMessage{
+	enum RequestType {
+	    PING = 1;
+	    PONG = 2;
+	    READ = 3;
+	    RESP = 4;
+	    ERROR = 5;
+ 	}
+	required RequestType type = 1;
+	required uint32 sequence_number = 2;
+	//Current time
+	optional uint32 boxId = 3;
+	optional uint64 time = 4;
+	optional uint64 back = 5;
+	optional uint64 forward = 6;
+	optional uint32 num_cycles = 7;
+}
+
+
+message RequestEventMessage {
+  enum TriggerType {
+    FREQUENCY_SAG = 1;
+    FREQUENCY_SWELL = 2;
+    VOLTAGE_SAG = 3;
+    VOLTAGE_SWELL = 4;
+    OTHER = 5;
+  }
+  required uint64 start_timestamp_ms_utc = 1;
+  required uint64 end_timestamp_ms_utc = 2;
+  required TriggerType trigger_type = 3;
+  required double percent_magnitude = 4;
+  repeated int32 box_ids = 5;
+  required string requestee = 6;
+  required string description = 7;
+  required bool request_data = 8;
+}
