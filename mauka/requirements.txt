@@ -1,3 +1,5 @@
 zmq
 redis
 lz4
+pymongo
+protobuf
