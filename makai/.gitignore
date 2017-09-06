@@ -1,8 +1,6 @@
 *.o
 CMakeCache.txt
 CMakeFiles/
-TriggeringBroker
-TriggeringBroker.cbp
 cmake_install.cmake
 Makefile
 .idea/
