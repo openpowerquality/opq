@@ -1,0 +1,100 @@
+#! /bin/bash
+### BEGIN INIT INFO
+# Provides:          opqbox_services
+# Required-Start:    $remote_fs $network $time $syslog
+# Required-Stop:     $remote_fs $network $time $syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Description:       opqbox_services = opqwifi, acquisition, triggering
+### END INIT INFO
+
+PATH=/sbin:/usr/sbin:/bin:/usr/bin
+NAME=opqbox_services
+RUN_DIR=/var/run
+
+#Paths to running services
+WIFI_PIDNAME=${RUN_DIR}/opqwifi
+ACQUISITION_PIDNAME=${RUN_DIR}/Acquisition
+TRIGGERING_PIDNAME=${RUN_DIR}/Triggering
+
+#Paths to service binaries
+WIFI_SERVICE=/usr/local/bin/opqwifi
+ACQUISITION_SERVICE=/usr/local/bin/Acquisition
+TRIGGERING_SERVICE=/usr/local/bin/Triggering
+
+#Paths to PID
+WIFI_PIDFILE=${RUN_DIR}/opqwifi.pid
+ACQUISITION_PIDFILE=${RUN_DIR}/Acquisition.pid
+TRIGGERING_PIDFILE=${RUN_DIR}/Triggering.pid
+
+USER=opquser
+
+
+# Load the VERBOSE setting and other rcS variables
+. /lib/init/vars.sh
+
+# Define LSB log_* functions.
+# Depend on lsb-base (>= 3.2-14) to ensure that this file is present
+# and status_of_proc is working.
+. /lib/lsb/init-functions
+
+#
+# Function that starts the services
+#
+do_start()
+{
+    log_daemon_msg "Starting ${NAME}..."
+    #Starts opqwifi as root, if not already running
+    echo "Starting wifi daemon"
+    /bin/rm -f /etc/NetworkManager/system-connections/OPQ
+    /usr/bin/nmcli connection reload
+    /usr/bin/nmcli device disconnect wlan0
+
+    while ! /usr/bin/nmcli dev wifi rescan 2> /dev/null; do
+        sleep 1
+    done
+
+    while ! /usr/bin/nmcli dev wifi rescan 2> /dev/null; do
+        sleep 1
+    done
+    echo "Network Manager Scan complete"
+
+    echo "Attempting to connect to a configured network"
+    if ! sudo nmcli device connect wlan0 2> /dev/null; then
+        echo "Could not connect to a configured network"
+    fi
+	start-stop-daemon --start --quiet --background --pidfile ${WIFI_PIDFILE} --make-pidfile --user root --chuid root --startas ${WIFI_SERVICE}
+	#Starts acquisition and triggering as opquser, if not already running
+	start-stop-daemon --start --quiet --background --pidfile ${ACQUISITION_PIDFILE} --make-pidfile --user ${USER} --chuid ${USER} --startas ${ACQUISITION_SERVICE}
+	start-stop-daemon --start --quiet --background --pidfile ${TRIGGERING_PIDFILE} --make-pidfile --user ${USER} --chuid ${USER} --startas ${TRIGGERING_SERVICE}
+	log_end_msg $?
+}
+
+#
+# Function that stops the services
+#
+do_stop()
+{
+	log_daemon_msg "Stopping ${NAME}..."
+	start-stop-daemon --stop --pidfile ${WIFI_PIDFILE} --quiet --retry 10
+	start-stop-daemon --stop --pidfile ${ACQUISITION_PIDFILE} --quiet --retry 10
+	start-stop-daemon --stop --pidfile ${TRIGGERING_PIDFILE} --quiet --retry 10
+	log_end_msg $?
+}
+
+
+case "$1" in
+	start|stop)
+		do_${1}
+		;;
+
+	restart)
+		do_stop
+		do_start
+		;;
+
+	*)
+		echo "Usage: $0 {start|stop|restart}"
+	
+esac
+

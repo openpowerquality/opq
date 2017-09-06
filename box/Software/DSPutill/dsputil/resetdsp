@@ -1,0 +1,5 @@
+#!/usr/bin/env python
+import dsputil.isp as isp
+
+isp.init()
+isp.reset_dsp()

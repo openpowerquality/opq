@@ -1,0 +1,88 @@
+*
+*
+G04 PADS VX.1.2 Build Number: 698008 generated Gerber (RS-274-X) file*
+G04 PC Version=2.1*
+*
+%IN "opqbox2.pcb"*%
+*
+%MOIN*%
+*
+%FSLAX35Y35*%
+*
+*
+*
+*
+G04 PC Standard Apertures*
+*
+*
+G04 Thermal Relief Aperture macro.*
+%AMTER*
+1,1,$1,0,0*
+1,0,$1-$2,0,0*
+21,0,$3,$4,0,0,45*
+21,0,$3,$4,0,0,135*
+%
+*
+*
+G04 Annular Aperture macro.*
+%AMANN*
+1,1,$1,0,0*
+1,0,$2,0,0*
+%
+*
+*
+G04 Odd Aperture macro.*
+%AMODD*
+1,1,$1,0,0*
+1,0,$1-0.005,0,0*
+%
+*
+*
+G04 PC Custom Aperture Macros*
+*
+*
+*
+*
+*
+*
+G04 PC Aperture Table*
+*
+%ADD010C,0.001*%
+%ADD013C,0.01*%
+*
+*
+*
+*
+G04 PC Circuitry*
+G04 Layer Name opqbox2.pcb - circuitry*
+%LPD*%
+*
+*
+G04 PC Custom Flashes*
+G04 Layer Name opqbox2.pcb - flashes*
+%LPD*%
+*
+*
+G04 PC Circuitry*
+G04 Layer Name opqbox2.pcb - circuitry*
+%LPD*%
+*
+G54D10*
+G54D13*
+G01X100000Y100000D02*
+Y493701D01*
+X493701*
+Y100000*
+X100000*
+X139370Y129528D02*
+G75*
+G03X139370I-9842J0D01*
+G01X474016D02*
+G03X474016I-9843J0D01*
+G01Y464173D02*
+G03X474016I-9843J0D01*
+G01X139370D02*
+G03X139370I-9842J0D01*
+G74*
+G01X0Y0D02*
+M02*

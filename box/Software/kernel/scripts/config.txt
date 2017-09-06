@@ -1,0 +1,7 @@
+#uncomment to overclock the arm. 700 MHz is the default.
+arm_freq=700
+
+# Uncomment some or all of these to enable the optional hardware interfaces
+dtparam=spi=on
+dtoverlay=opq
+

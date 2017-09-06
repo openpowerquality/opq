@@ -1,0 +1,13 @@
+{
+  "client_certs": "/etc/opq/curve/public_keys",
+  "server_cert": "/etc/opq/curve/private_keys/opqserver_secret",
+
+  "box_pub" : "tcp://*:8197",
+  "box_pull" : "tcp://*:8196",
+  "backend_rep" : "tcp://*:9884",
+  "backend_pub" : "tcp://localhost:9882",
+
+  "redis_host" : "127.0.0.1",
+  "redis_port" : 6379,
+  "redis_password" : "kalalau"
+}

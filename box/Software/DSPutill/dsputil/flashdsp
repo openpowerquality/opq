@@ -1,0 +1,5 @@
+#!/usr/bin/python
+from dsputil import isp
+import sys
+isp.init()
+isp.flash_dsp(sys.argv[1])

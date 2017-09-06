@@ -1,0 +1,22 @@
+#device ID
+box_id                      		:I  :2
+#Cycles per sample
+frames_per_measurement      		:I  :10
+#Calibration constant
+acquisition_calibration_constant	:F  :233.06
+#Triggering data host and port
+zmq.trigger_host                    	:S  :tcp://emilia.ics.hawaii.edu:9880
+zmq.acq_send_host                    	:S  :tcp://emilia.ics.hawaii.edu:8196
+zmq.acq_recv_host                       :S  :tcp://emilia.ics.hawaii.edu:8197
+zmq.server_cert             		:S  :/etc/opq/curve/public_keys/opqserver.key
+zmq.private_cert            		:S  :/etc/opq/curve/private_keys/opqclient_secret
+#Highres event storage
+redis.host                  		:S  :127.0.0.1
+redis.port                  		:I  :6379
+#redis.auth                  		:S  :kalalau
+redis.ttl.s                   		:I  :3600
+redis.gc.cnt				:I  :20
+redis.key.measurementsbuffer 		:S  :measurements_buffer
+#logging:
+log.trg_path                    	:S  :/var/log/opq/trg.log
+log.acq_path                    	:S  :/var/log/opq/acq.log
