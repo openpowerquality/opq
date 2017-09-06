@@ -51,7 +51,7 @@ int main (int argc, char **argv) {
     }
     cout << endl << "Loaded " << count<< " keys"<< endl;
     //Unencrypted end.
-    auto front = zmqpp::socket{ ctx, zmqpp::socket_type::xpublish };/home/tusk/temp/cs_fun
+    auto front = zmqpp::socket{ ctx, zmqpp::socket_type::xpublish };
     front.bind(config.backendPort());
 
     //Encrypted end.

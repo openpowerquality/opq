@@ -11,7 +11,7 @@
 
 class MongoDriver{
 public:
-    MongoDriver(std::string uri = "mongodb://localhost:27017");
+    MongoDriver(std::string uri = "mongodb://emilia.ics.hawaii.edu:27017");
     static bool init_mongo_client();
     bool create_event(opq::proto::RequestEventMessage &m, uint64_t ts, uint32_t event_num);
     bool append_data_to_event(std::vector<opq::proto::DataMessage> &m, uint32_t event_num);
