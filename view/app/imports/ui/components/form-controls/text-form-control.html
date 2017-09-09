@@ -3,20 +3,24 @@
     Implements a Semantic-UI styled text field.
 
     Params:
-      id, name, label, value, errorMessage (String)
+      id, name, label, value, errorMessage, leftLabel, rightLabel, leftIcon, rightIcon (String)
       isRequired, isInline, isPasswordField (Boolean)
 
     Label is required.
     Id, name, and placeholder default to label, but these should generally be given an explicit value.
   }}
 
-  <div class="{{#if isRequired}}required{{/if}} {{#if isInline}}inline{{/if}} {{#if errorMessage}}error{{/if}} field">
+  <div class="{{#if isRequired}}required{{/if}}{{#if isInline}}inline{{/if}}{{#if errorMessage}}error{{/if}} field">
+
     <label>{{label}}</label>
-    <input type="{{#if isPasswordField}}password{{else}}text{{/if}}"
-           name="{{#if name}}{{name}}{{else}}{{label}}{{/if}}"
-           id="{{#if id}}{{id}}{{else}}{{label}}{{/if}}"
-           placeholder="{{#if placeholder}}{{placeholder}}{{else}}{{label}}{{/if}}"
-           value="{{value}}">
+
+    {{#Input_Label_Block_Helper leftLabel=leftLabel rightLabel=rightLabel leftIcon=leftIcon rightIcon=rightIcon}}
+      <input type="{{#if isPasswordField}}password{{else}}text{{/if}}"
+             name="{{#if name}}{{name}}{{else}}{{label}}{{/if}}"
+             id="{{#if id}}{{id}}{{else}}{{label}}{{/if}}"
+             placeholder="{{#if placeholder}}{{placeholder}}{{else}}{{label}}{{/if}}"
+             value="{{value}}">
+    {{/Input_Label_Block_Helper}}
 
     {{#if errorMessage}}
       <div class="ui pointing label">
