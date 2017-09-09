@@ -1,0 +1,33 @@
+/* Compress the left side navbar */
+.book-summary ul.summary li a, .book-summary ul.summary li span {
+  padding: 5px 15px;
+}
+
+.book .book-summary .exc-trigger {
+  top: 6px;
+}
+
+/* Reduce the vertical space in headers and paragraphs. */
+.markdown-section h1, .markdown-section h2, .markdown-section h3, .markdown-section h4, .markdown-section h5, .markdown-section h6 {
+  margin-bottom: .40em;
+}
+
+.markdown-section {
+  line-height: 1.5;
+}
+
+/* Replace chevrons by carets. */
+.book .book-summary .expanded > a .exc-trigger:before, .book .book-summary .expanded > span .exc-trigger:before {
+  content: "\f0d7";
+}
+
+.book .book-summary .exc-trigger:before {
+  content: "\f0da";
+}
+
+/* Darken the section headers in the navbar. */
+.book-summary ul.summary li.header {
+  color: #364149;
+  background-color: lightgrey;
+  padding-top: 10px;
+}

@@ -1,3 +1,4 @@
 {
-	"root": "./gitbook"
+	"root": "./gitbook",
+  "plugins": ["-sharing", "anchors", "comment", "expandable-chapters"]
 }
