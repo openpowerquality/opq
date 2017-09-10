@@ -110,3 +110,31 @@ export const dataContextValidator = (templateInstance, baseSchema, nestedReactiv
     }
   });
 };
+
+/**
+ * Given a template instance or view, finds and returns the top-most/root template instance by traversing up
+ * the view tree.
+ * @param {(Blaze.TemplateInstance|Blaze.View)} templateOrView - The TemplateInstance or Blaze View to find the root template of.
+ * @returns {Blaze.TemplateInstance} - The root template instance.
+ */
+export const getRootTemplateInstance = (templateOrView) => {
+  let currentView = null;
+  if (templateOrView instanceof Blaze.View) {
+    currentView = templateOrView;
+  } else if (templateOrView instanceof Blaze.TemplateInstance) {
+    currentView = templateOrView.view; // Get its corresponding view
+  } else {
+    throw new Meteor.Error('Invalid arguments - Must be of type TemplateInstance or View');
+  }
+
+  // Find root template
+  let topMostView = null;
+  while (currentView) {
+    // Not all Views we are traversing will have a template associated with it - the ones that do have a template
+    // property associated with it.
+    if (currentView.template) topMostView = currentView;
+    currentView = currentView.parentView;
+  }
+
+  return topMostView.templateInstance();
+};
