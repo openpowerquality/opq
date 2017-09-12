@@ -58,7 +58,8 @@ class MaukaPlugin:
         self.zmq_producer = self.zmq_context.socket(zmq.PUB)
         self.zmq_producer.connect(self.config_get("zmq.mauka.pub.interface"))
 
-        # Statistics
+        # Heartbeat and statistics
+        self.heartbeat_interval_s = float(self.config_get("plugins.base.heartbeatIntervalS"))
         self.on_message_cnt = 0
         self.last_received = 0
 
@@ -80,7 +81,7 @@ class MaukaPlugin:
     def start_heartbeat(self):
         def heartbeat():
             self.produce("heartbeat".encode(), "{}:{}:{}:{}".format(self.name, self.on_message_cnt, self.last_received, self.get_status()).encode())
-            timer = threading.Timer(60.0, heartbeat)
+            timer = threading.Timer(self.heartbeat_interval_s, heartbeat)
             timer.start()
 
         threading.Timer(5.0, heartbeat).start()
@@ -111,6 +112,8 @@ class MaukaPlugin:
 
             if len(data) != 2:
                 _logger.error("Malformed data from ZMQ. Data size should = 2, but instead is {}".format(len(data)))
+                for d in data:
+                    _logger.error("{}".format(d.decode()))
                 break
 
             topic = data[0].decode()
