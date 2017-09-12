@@ -46,6 +46,6 @@
 ## OPQ Protocol
 
 * [Description](protocol/description.md)
-
+* [Installation](protocol/installation.md)
 
 
