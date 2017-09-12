@@ -13,35 +13,39 @@
 
 ## OPQ Box
 
-* [Description](opqbox/description.md)
-  * [Hardware](opqbox/description.md#hardware)
-  * [Schematics](opqbox/description.md#schematics)
-  * [Firmware](opqbox/descritpion.md#firmware)
-* [Installation](opqbox/installation.md)
+* [Description](box/description.md)
+  * [Hardware](box/description.md#hardware)
+  * [Schematics](box/description.md#schematics)
+  * [Firmware](box/descritpion.md#firmware)
+* [Installation](box/installation.md)
 
 ## OPQ View
 
-* [Description](opqview/description.md)
-  * [Software](opqview/description.md#software)
-  * [Use Cases](opqview/description.md#use-cases)
-* [Installation](opqview/installation.md)
-* [Page Level Documentation](opqview/documentation.md)
+* [Description](view/description.md)
+  * [Software](view/description.md#software)
+  * [Use Cases](view/description.md#use-cases)
+* [Installation](view/installation.md)
+* [Page Level Documentation](view/documentation.md)
 
 ## OPQ Mauka
 
-* [Description](opqmauka/description.md)
-  * [Software](opqmauka/description.md#software)
-  * [Use Cases](opqmauka/description.md#use-cases)
-* [Installation](opqmauka/installation.md)
-* [APIs](opqmauka/apis.md)
+* [Description](mauka/description.md)
+  * [Software](mauka/description.md#software)
+  * [Use Cases](mauka/description.md#use-cases)
+* [Installation](mauka/installation.md)
+* [APIs](mauka/apis.md)
 
 ## OPQ Makai
 
-* [Description](opqmakai/description.md)
-  * [Software](opqmakai/description.md#software)
-  * [Use Cases](opqmakai/description.md#use-cases)
-* [Installation](opqmakai/installation.md)
-* [APIs](opqmakai/apis.md)
+* [Description](makai/description.md)
+  * [Software](makai/description.md#software)
+  * [Use Cases](makai/description.md#use-cases)
+* [Installation](makai/installation.md)
+* [APIs](makai/apis.md)
+
+## OPQ Protocol
+
+* [Description](protocol/description.md)
 
 
 
