@@ -1,8 +1,12 @@
-import datetime
+"""
+This module provides classes and base functionality for building OPQMauka plugins.
+"""
+
 import json
 import logging
 import multiprocessing
 import threading
+import typing
 import time
 import os
 
@@ -20,8 +24,14 @@ logging.basicConfig(
 _logger.setLevel(logging.DEBUG)
 
 
-def run_plugin(plugin_class, config):
+def run_plugin(plugin_class, config: typing.Dict):
+    """Runs the given plugin using the given configuration dictionary
+
+    :param plugin_class: Name of the class of the plugin to be ran
+    :param config: Configuration dictionary
+    """
     def _run_plugin():
+        """Inner function that acts as target to multiprocess constructor"""
         plugin_instance = plugin_class(config)
         plugin_instance._run()
 
@@ -30,55 +40,118 @@ def run_plugin(plugin_class, config):
 
 
 def protobuf_decode_measurement(encoded_measurement):
+    """ Decodes and returns a serialized triggering message
+
+    :param encoded_measurement: The protobuf encoded triggering message
+    :return: The decoded TriggerMessage object
+    """
     trigger_message = opqpb.TriggerMessage()
     trigger_message.ParseFromString(encoded_measurement)
     return trigger_message
 
 
 class JSONEncoder(json.JSONEncoder):
+    """
+    This class allows us to serialize items with ObjectIds to JSON
+    """
     def default(self, o):
+        """If o is an object id, return the string of it, otherwise use the default encoder for this object
+
+        :param o: Object to serialize
+        :return: Serialized version of this object
+        """
         if isinstance(o, bson.ObjectId):
             return str(o)
         return json.JSONEncoder.default(self, o)
 
 
 class MaukaPlugin:
-    def __init__(self, config, subscriptions, name):
+    """
+    This is the base MaukaPlugin class that provides easy access to the database and also provides publish/subscribe
+    semantics and distributed processing primitives.
+    """
+    def __init__(self, config: typing.Dict, subscriptions: typing.List[str], name: str):
+        """ Initializes the base plugin
+
+        :param config: Configuration dictionary
+        :param subscriptions: List of subscriptions this plugin should subscribe to
+        :param name: The name of this plugin
+        """
+
         self.config = config
+        """Configuration dictionary"""
+
         self.subscriptions = subscriptions
+        """Plugin subscriptions"""
+
         self.name = name
+        """Plugin name"""
 
         self.mongo_client = self.get_mongo_client()
+        """MongoDB OPQ client"""
 
         self.zmq_context = zmq.Context()
+        """ZeroMQ context"""
+
         self.zmq_consumer = self.zmq_context.socket(zmq.SUB)
-        self.zmq_consumer.connect(self.config_get("zmq.triggering.interface"))
-        self.zmq_consumer.connect(self.config_get("zmq.mauka.sub.interface"))
+        """ZeroMQ consumer"""
 
         self.zmq_producer = self.zmq_context.socket(zmq.PUB)
+        """ZeroMQ producer"""
+
+        self.heartbeat_interval_s = float(self.config_get("plugins.base.heartbeatIntervalS"))
+        """How often in seconds this plugin should produce a heartbeat"""
+
+        self.on_message_cnt = 0
+        """Number of times this plugin has received a message since starting"""
+
+        self.last_received = 0
+        """Timestamp since this plugin has last received a message"""
+
+        self.zmq_consumer.connect(self.config_get("zmq.triggering.interface"))
+        self.zmq_consumer.connect(self.config_get("zmq.mauka.sub.interface"))
         self.zmq_producer.connect(self.config_get("zmq.mauka.pub.interface"))
 
-        # Heartbeat and statistics
-        self.heartbeat_interval_s = float(self.config_get("plugins.base.heartbeatIntervalS"))
-        self.on_message_cnt = 0
-        self.last_received = 0
 
-    def get_status(self):
+    def get_status(self) -> str:
+        """ Return the status of this plugin
+        :return: The status of this plugin
+        """
         return "N/A"
 
-    def to_json(self, obj):
+    def to_json(self, obj: object) -> str:
+        """Serializes the given object to json
+
+        :param obj: The object to serialize
+        :return: JSON representation of object
+        """
         return json.dumps(obj, cls=JSONEncoder)
 
-    def from_json(self, json_str):
+    def from_json(self, json_str: str) -> typing.Dict:
+        """Deserialize json into dictionary
+
+        :param json_str: JSON string to deserialize
+        :return: Dictionary from json
+        """
         return json.loads(json_str)
 
     def get_mongo_client(self):
+        """ Returns an OPQ mongo client
+
+        :return: An OPQ mongo client
+        """
         mongo_host = self.config_get("mongo.host")
         mongo_port = self.config_get("mongo.port")
         mongo_db = self.config_get("mongo.db")
         return mongo.mongo.OpqMongoClient(mongo_host, mongo_port, mongo_db)
 
     def start_heartbeat(self):
+        """
+        This is a recursive function that acts as a heartbeat.
+
+        This function calls itself over-and-over on a timer to produce heartbeat messages. The interval can be
+        configured is the configuration file.
+        """
         def heartbeat():
             self.produce("heartbeat".encode(), "{}:{}:{}:{}".format(self.name, self.on_message_cnt, self.last_received, self.get_status()).encode())
             timer = threading.Timer(self.heartbeat_interval_s, heartbeat)
@@ -86,22 +159,47 @@ class MaukaPlugin:
 
         threading.Timer(5.0, heartbeat).start()
 
-    def config_get(self, key):
+    def config_get(self, key: str) -> str:
+        """Retrieves a value from the configuration dictionary
+
+        :param key: The key associated with the value we're looking to retrieve
+        :return: The value associated with the provided key
+        :raises KeyError: When key is not in the configuration
+        """
         if key not in self.config:
             raise KeyError("Key {} not in config".format(key))
         else:
             return self.config[key]
 
-    def object_id(self, oid):
+    def object_id(self, oid: str) -> bson.objectid.ObjectId:
+        """Given the string representation of an object an id, return an instance of an ObjectID
+
+        :param oid: The oid to encode
+        :return: ObjectId from string
+        """
         return bson.objectid.ObjectId(oid)
 
     def on_message(self, topic, message):
+        """This gets called when a subscriber receives a message from a topic they are subscribed too.
+
+        This should be implemented in all subclasses.
+
+        :param topic: The topic this message is associated with
+        :param message: The message contents
+        """
         _logger.info("on_message not implemented")
 
     def produce(self, topic, message):
+        """Produces a message with a given topic to the system
+
+        :param topic: The topic to produce this message to
+        :param message: The message to produce
+        """
         self.zmq_producer.send_multipart((topic, message))
 
     def _run(self):
+        """This is the run loop for this plugin process"""
+
         for subscription in self.subscriptions:
             self.zmq_consumer.setsockopt_string(zmq.SUBSCRIBE, subscription)
 
@@ -119,7 +217,7 @@ class MaukaPlugin:
             topic = data[0].decode()
             message = data[1]
 
-            # Update statisics
+            # Update statistics
             self.on_message_cnt += 1
             self.last_received = time.time()
             self.on_message(topic, message)

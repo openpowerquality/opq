@@ -1,10 +1,19 @@
+"""
+This module contains a base plugin that allows us to check for threshold crossings over time
+"""
+
+import collections
+import typing
+
 import mongo.mongo
 import plugins.base
 
-import collections
 
+def run_plugin(config: typing.Dict):
+    """Runs this plugin using the given configuration
 
-def run_plugin(config):
+    :param config: Configuration dictionary
+    """
     plugins.base.run_plugin(ThresholdPlugin, config)
 
 
@@ -13,28 +22,64 @@ ThresholdEvent = collections.namedtuple("ThresholdEvent", "start "
                                                           "device_id "
                                                           "threshold_type "
                                                           "max_value")
+"""Define a named tuple for organizing threshold event data"""
 
 
 class ThresholdPlugin(plugins.base.MaukaPlugin):
-    def __init__(self, config, name):
+    """
+    This class contains a base plugin that allows us to check for threshold crossings over time
+    """
+
+    def __init__(self, config: typing.Dict, name: str):
+        """ Initializes this plugin
+
+        :param config: Configuration dictionary
+        :param name: Name of the threshold
+        """
         super().__init__(config, ["measurement"], name)
-        self.threshold_type = None
+
         self.measurement_value_fn = None
+        """Function that extracts measurement value from triggering measurement"""
+
         self.threshold_ref = None
+        """Steady state reference"""
+
         self.threshold_percent_low = None
+        """Low threshold percent"""
+
         self.threshold_percent_high = None
+        """High threshold percent"""
+
         self.subscribed = False
+        """Are we currently monitoring this threshold"""
+
         self.threshold_value_low = None
+        """Low threshold value (calculated from steady state and percent)"""
+
         self.threshold_value_high = None
+        """High threshold value (calculated from steady state and percent)"""
 
         self.box_events_collection = self.mongo_client.db[mongo.mongo.Collection.BOX_EVENTS]
+        """OPQ events collection"""
 
         self.device_id_to_low_events = {}
+        """Device id to current low events"""
+
         self.device_id_to_high_events = {}
+        """Device id to current high events"""
 
     def subscribe_threshold(self,
-                            measurement_value_fn, threshold_ref, threshold_percent_low,
-                            threshold_percent_high):
+                            measurement_value_fn: typing.Callable,
+                            threshold_ref: float,
+                            threshold_percent_low: float,
+                            threshold_percent_high: float):
+        """Setup the conditions for checking threshold values based off of steady state and threshold percentages
+
+        :param measurement_value_fn: Function that extracts measurement value from triggering measurement
+        :param threshold_ref: Steady state reference
+        :param threshold_percent_low: Low threshold percent
+        :param threshold_percent_high: High threshold percent
+        """
         self.subscribed = True
         self.measurement_value_fn = measurement_value_fn
         self.threshold_ref = threshold_ref
@@ -43,7 +88,15 @@ class ThresholdPlugin(plugins.base.MaukaPlugin):
         self.threshold_value_low = self.threshold_ref - (self.threshold_ref * (0.01 * self.threshold_percent_low))
         self.threshold_value_high = self.threshold_ref + (self.threshold_ref * (0.01 * self.threshold_percent_high))
 
-    def open_event(self, start, device_id, value, is_low_threshold):
+    def open_event(self, start: int, device_id, value: float, is_low_threshold: bool):
+        """ Start recording a threshold event
+
+        :param start: Start time of event
+        :param device_id: Device id that event is associated with
+        :param value: Max magnitude of the event
+        :param is_low_threshold: Is this a low or high threshold event?
+        :return: Partial event recording
+        """
         threshold_type = "LOW" if is_low_threshold else "HIGH"
         event = ThresholdEvent(start,
                                0,
@@ -57,6 +110,12 @@ class ThresholdPlugin(plugins.base.MaukaPlugin):
             self.device_id_to_high_events[device_id] = event
 
     def update_event(self, threshold_event, value):
+        """Update a threshold event with new information
+
+        :param threshold_event: The event to update
+        :param value: The new maximum magnitude value of the event
+        :return: The updated event
+        """
         event = ThresholdEvent(threshold_event.start,
                                threshold_event.end,
                                threshold_event.device_id,
@@ -68,7 +127,14 @@ class ThresholdPlugin(plugins.base.MaukaPlugin):
         else:
             self.device_id_to_high_events[event.device_id] = event
 
-    def close_event(self, threshold_event, end, value=None):
+    def close_event(self, threshold_event, end: int, value=None):
+        """Close out an existing threshold event, completing the event
+
+        :param threshold_event: The event to complete
+        :param end: The end timestamp
+        :param value: The maximum magnitude of the event
+        :return: The completed event
+        """
         if value is None:
             val = threshold_event.max_value
         else:
@@ -88,6 +154,14 @@ class ThresholdPlugin(plugins.base.MaukaPlugin):
         self.on_event(event)
 
     def on_message(self, topic, message):
+        """Subscribed messages occur async
+
+        Messages cause our FSM to be ran and can create new events, update events, and close out events
+
+        :param topic: The topic that this message is associated with
+        :param message: The message
+        """
+
         if not self.subscribed:
             pass
 
@@ -148,4 +222,8 @@ class ThresholdPlugin(plugins.base.MaukaPlugin):
             print("Unknown configuration", is_low, is_high, prev_low_event is None, prev_high_event is None)
 
     def on_event(self, threshold_event):
+        """This should be implemented in all child classes and is called async as events are completed
+
+        :param threshold_event: The completed event
+        """
         pass

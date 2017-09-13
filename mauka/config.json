@@ -8,6 +8,8 @@
   "mongo.port": 27017,
   "mongo.db": "opq",
 
+  "plugins.AcquisitionTriggerPlugin.msBefore": 1000,
+  "plugins.AcquisitionTriggerPlugin.msAfter": 1000,
   "plugins.AcquisitionTriggerPlugin.sDeadZoneAfterTrigger": 60,
 
   "plugins.base.heartbeatIntervalS": 60.0,

@@ -1,5 +1,5 @@
-zmq
-redis
-lz4
-pymongo
-protobuf
+lz4         # lz4 compression
+pymongo     # mongo db
+protobuf    # protocol buffers
+typing      # type hints for python < 3.5
+zmq         # ZeroMQ

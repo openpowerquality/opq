@@ -1,11 +1,16 @@
 #!/usr/bin/env python3
 
-import plugins
+"""
+This module is the entry point into the OPQMauka system.
+"""
 
 import json
 import logging
 import os
 import sys
+import typing
+
+import plugins
 
 _logger = logging.getLogger("app")
 logging.basicConfig(
@@ -15,10 +20,16 @@ _logger.setLevel(logging.DEBUG)
 
 
 def usage():
+    """Displays usage information"""
     _logger.info("Usage: ./OpqMauka.py [config file]")
 
 
-def load_config(path):
+def load_config(path: str) -> typing.Dict:
+    """Loads a configuration file from the file system
+
+    :param path: Path of configuration file
+    :return: Configuration dictionary
+    """
     _logger.info("Loading configuration from {}".format(path))
     try:
         with open(path, "r") as f:
