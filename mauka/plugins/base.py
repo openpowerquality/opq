@@ -109,8 +109,8 @@ class MaukaPlugin:
         """Timestamp since this plugin has last received a message"""
 
         self.zmq_consumer.connect(self.config_get("zmq.triggering.interface"))
-        self.zmq_consumer.connect(self.config_get("zmq.mauka.sub.interface"))
-        self.zmq_producer.connect(self.config_get("zmq.mauka.pub.interface"))
+        self.zmq_consumer.connect(self.config_get("zmq.mauka.plugin.sub.interface"))
+        self.zmq_producer.connect(self.config_get("zmq.mauka.plugin.pub.interface"))
 
 
     def get_status(self) -> str:

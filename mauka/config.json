@@ -1,8 +1,10 @@
 {
-  "zmq.triggering.interface": "tcp://localhost:9881",
-  "zmq.mauka.pub.interface":  "tcp://localhost:9882",
-  "zmq.mauka.sub.interface":  "tcp://localhost:9883",
-  "zmq.makai.req.interface":  "tcp://localhost:9884",
+  "zmq.triggering.interface"      : "tcp://localhost:9881",
+  "zmq.mauka.broker.pub.interface": "tcp://*:9883",
+  "zmq.mauka.broker.sub.interface": "tcp://*:9882",
+  "zmq.mauka.plugin.pub.interface": "tcp://localhost:9882",
+  "zmq.mauka.plugin.sub.interface": "tcp://localhost:9883",
+  "zmq.makai.req.interface"       : "tcp://localhost:9884",
 
   "mongo.host": "emilia.ics.hawaii.edu",
   "mongo.port": 27017,
