@@ -94,6 +94,20 @@ class PluginManager:
     def handle_tcp_request(self, request: str) -> str:
         if request == "ls":
             return self.cli_ls()
+        elif request == "help":
+            return """
+            exit
+                Exits the opq-mauka cli.
+                
+            ls
+                Display status of all loaded plugins.
+                
+            start [pluginName]
+                Start the named plugin.
+                
+            stop [pluginName]
+                Stop the named plugin.
+            """
         elif request.startswith("start"):
             plugin_name = request.strip().split(" ")[1]
             return self.cli_start(plugin_name)
