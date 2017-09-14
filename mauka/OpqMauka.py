@@ -88,14 +88,5 @@ if __name__ == "__main__":
         [plugins.StatusPlugin, True]
     ]
 
-    processes = []
-
-    for plugin_run in plugins_list:
-        plugin_class = plugin_run[0]
-        should_run = plugin_run[1]
-        if should_run:
-            try:
-                processes.append(plugins.run_plugin(plugin_class, config))
-            except KeyError as e:
-                _logger.error("Could not load plugin due to configuration error: {}".format(e))
-
+    plugin_manager = plugins.PluginManager(plugins_list, config)
+    plugin_manager.start_all_plugins()
