@@ -21,14 +21,14 @@ MAUKA_SCRIPT=/usr/local/bin/opq/OpqMauka/OpqMauka.py
 MAUKA_CONFIG=/etc/opq/opqmauka.config.json
 MAUKA_ARGS="${MAUKA_SCRIPT} ${MAUKA_CONFIG}"
 
-MAUKA_BROKER_SERVICE=/usr/local/bin/opq/Mauka_broker
-MAUKA_BROKER_CONFIG=/etc/opq/opqmauka.broker.config.json
-MAUKA_BROKER_ARGS=${MAUKA_BROKER_CONFIG}
+#MAUKA_BROKER_SERVICE=/usr/local/bin/opq/Mauka_broker
+#MAUKA_BROKER_CONFIG=/etc/opq/opqmauka.broker.config.json
+#MAUKA_BROKER_ARGS=${MAUKA_BROKER_CONFIG}
 
 #Paths to PID
 MONGOD_PIDFILE=${RUN_DIR}/mongod.pid
 MAUKA_PIDFILE=${RUN_DIR}/OpqMauka.pid
-MAUKA_BROKER_PIDFILE=${RUN_DIR}/OpqMaukaBroker.pid
+#MAUKA_BROKER_PIDFILE=${RUN_DIR}/OpqMaukaBroker.pid
 
 USER=opq
 
@@ -51,8 +51,8 @@ do_start()
     echo "Starting mongod"
     start-stop-daemon --start --quiet --background --pidfile ${MONGOD_PIDFILE} --make-pidfile --user ${USER} --chuid ${USER} --startas ${MONGOD_SERVICE} -- ${MONGOD_ARGS}
 
-    echo "Starting OpqMauka Broker"
-    start-stop-daemon --start --quiet --background --pidfile ${MAUKA_BROKER_PIDFILE} --make-pidfile --user ${USER} --chuid ${USER} --startas ${MAUKA_BROKER_SERVICE} -- ${MAUKA_BROKER_ARGS}
+#    echo "Starting OpqMauka Broker"
+#    start-stop-daemon --start --quiet --background --pidfile ${MAUKA_BROKER_PIDFILE} --make-pidfile --user ${USER} --chuid ${USER} --startas ${MAUKA_BROKER_SERVICE} -- ${MAUKA_BROKER_ARGS}
 
     echo "Starting OpqMauka"
     start-stop-daemon --start --quiet --background --pidfile ${MAUKA_PIDFILE} --make-pidfile --user ${USER} --chuid ${USER} --startas ${MAUKA_SERVICE} -- ${MAUKA_ARGS}
@@ -67,7 +67,7 @@ do_stop()
 {
     log_daemon_msg "Stopping ${NAME}..."
     start-stop-daemon --stop --pidfile ${MONGOD_PIDFILE} --quiet --retry 10
-    start-stop-daemon --stop --pidfile ${MAUKA_BROKER_PIDFILE} --quiet --retry 10
+#    start-stop-daemon --stop --pidfile ${MAUKA_BROKER_PIDFILE} --quiet --retry 10
     start-stop-daemon --stop --pidfile ${MAUKA_PIDFILE} --quiet --retry 10
     log_end_msg $?
 }

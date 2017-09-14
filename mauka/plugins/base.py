@@ -30,6 +30,7 @@ def run_plugin(plugin_class, config: typing.Dict):
     :param plugin_class: Name of the class of the plugin to be ran
     :param config: Configuration dictionary
     """
+
     def _run_plugin():
         """Inner function that acts as target to multiprocess constructor"""
         plugin_instance = plugin_class(config)
@@ -54,6 +55,7 @@ class JSONEncoder(json.JSONEncoder):
     """
     This class allows us to serialize items with ObjectIds to JSON
     """
+
     def default(self, o):
         """If o is an object id, return the string of it, otherwise use the default encoder for this object
 
@@ -70,7 +72,8 @@ class MaukaPlugin:
     This is the base MaukaPlugin class that provides easy access to the database and also provides publish/subscribe
     semantics and distributed processing primitives.
     """
-    def __init__(self, config: typing.Dict, subscriptions: typing.List[str], name: str):
+
+    def __init__(self, config: typing.Dict, subscriptions: typing.List[str], name: str, exit_event: multiprocessing.Event):
         """ Initializes the base plugin
 
         :param config: Configuration dictionary
@@ -86,6 +89,9 @@ class MaukaPlugin:
 
         self.name = name
         """Plugin name"""
+
+        self.exit_event = exit_event
+        """Multiprocessing primitive that when set allows us to easily exit a process or thread"""
 
         self.mongo_client = self.get_mongo_client()
         """MongoDB OPQ client"""
@@ -109,9 +115,11 @@ class MaukaPlugin:
         """Timestamp since this plugin has last received a message"""
 
         self.zmq_consumer.connect(self.config_get("zmq.triggering.interface"))
-        self.zmq_consumer.connect(self.config_get("zmq.mauka.sub.interface"))
-        self.zmq_producer.connect(self.config_get("zmq.mauka.pub.interface"))
+        self.zmq_consumer.connect(self.config_get("zmq.mauka.plugin.sub.interface"))
+        self.zmq_producer.connect(self.config_get("zmq.mauka.plugin.pub.interface"))
 
+        # Every plugin subscribes to itself to allow for plugin control
+        self.subscriptions.append(name)
 
     def get_status(self) -> str:
         """ Return the status of this plugin
@@ -152,8 +160,10 @@ class MaukaPlugin:
         This function calls itself over-and-over on a timer to produce heartbeat messages. The interval can be
         configured is the configuration file.
         """
+
         def heartbeat():
-            self.produce("heartbeat".encode(), "{}:{}:{}:{}".format(self.name, self.on_message_cnt, self.last_received, self.get_status()).encode())
+            self.produce("heartbeat".encode(), "{}:{}:{}:{}".format(self.name, self.on_message_cnt, self.last_received,
+                                                                    self.get_status()).encode())
             timer = threading.Timer(self.heartbeat_interval_s, heartbeat)
             timer.start()
 
@@ -197,6 +207,22 @@ class MaukaPlugin:
         """
         self.zmq_producer.send_multipart((topic, message))
 
+    def is_self_message(self, topic: str) -> bool:
+        """Determines if this is a message directed at this plugin. I.e. the topic is the name of the plugin.
+
+        :param topic: Topic of the message
+        :return: If this is a self message or not
+        """
+        return topic == self.name
+
+    def handle_self_message(self, message: str):
+        """Handles a self-message
+
+        :param message: The message to handle
+        """
+        if "EXIT" == message:
+            self.exit_event.set()
+
     def _run(self):
         """This is the run loop for this plugin process"""
 
@@ -205,7 +231,7 @@ class MaukaPlugin:
 
         self.start_heartbeat()
 
-        while True:
+        while not self.exit_event.is_set():
             data = self.zmq_consumer.recv_multipart()
 
             if len(data) != 2:
@@ -217,9 +243,13 @@ class MaukaPlugin:
             topic = data[0].decode()
             message = data[1]
 
-            # Update statistics
-            self.on_message_cnt += 1
-            self.last_received = time.time()
-            self.on_message(topic, message)
+            if self.is_self_message(topic):
+                _logger.info("Receive self message")
+                self.handle_self_message(message.decode())
+            else:
+                # Update statistics
+                self.on_message_cnt += 1
+                self.last_received = time.time()
+                self.on_message(topic, message)
 
         _logger.info("Exiting Mauka plugin: {}".format(self.name))

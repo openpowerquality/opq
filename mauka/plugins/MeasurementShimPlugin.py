@@ -3,17 +3,10 @@ This modules contains the measurement shim plugin who reads raw triggering messa
 measurement measurements that this system can use
 """
 
+import multiprocessing
 import typing
 
 import plugins.base
-
-
-def run_plugin(config: typing.Dict):
-    """Runs this plugin using the given configuration
-
-    :param config: Configuration dictionary
-    """
-    plugins.base.run_plugin(MeasurementShimPlugin, config)
 
 
 def is_measurement_topic(topic) -> bool:
@@ -37,12 +30,13 @@ class MeasurementShimPlugin(plugins.base.MaukaPlugin):
     This class contains the measurement shim plugin who reads raw triggering messages and converts them into
     measurement measurements that this system can use
     """
-    def __init__(self, config: typing.Dict):
+
+    def __init__(self, config: typing.Dict, exit_event: multiprocessing.Event):
         """ Initializes this plugin
 
         :param config: Configuration dictionary
         """
-        super().__init__(config, [""], "MeasurementShimPlugin")
+        super().__init__(config, [""], "MeasurementShimPlugin", exit_event)
 
     def on_message(self, topic, message):
         """Subscribed messages occur async
