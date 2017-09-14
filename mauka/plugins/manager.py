@@ -130,25 +130,16 @@ class PluginManager:
             request = zmq_reply_socket.recv_string()
             zmq_reply_socket.send_string(self.handle_tcp_request(request))
 
-
-def send_recv(cmd: str, config: typing.Dict) -> str:
+def run_cli(config: typing.Dict):
     zmq_context = zmq.Context()
     zmq_request_socket = zmq_context.socket(zmq.REQ)
     zmq_request_socket.connect(config["zmq.mauka.plugin.management.req.interface"])
-    zmq_request_socket.send_string(cmd)
-    return zmq_request_socket.recv_string()
-
-
-def run_cli(config: typing.Dict):
     prompt = "opq-mauka> "
-    i = input(prompt)
-    while i != "exit":
-        print(send_recv(i, config))
-        i = input(prompt)
-
-
-def usage():
-    pass
+    cmd = input(prompt)
+    while cmd != "exit":
+        zmq_request_socket.send_string(cmd)
+        print(zmq_request_socket.recv_string())
+        cmd = input(prompt)
 
 
 def load_config(path: str) -> typing.Dict:
@@ -163,11 +154,17 @@ def load_config(path: str) -> typing.Dict:
             return json.load(f)
     except FileNotFoundError as e:
         _logger.error(e)
-        usage()
+        _logger.error("usage: python3 -m plugins.manager config.json")
         exit(0)
 
 
 if __name__ == "__main__":
+    _logger.info("Starting OpqMauka CLI")
+    if len(sys.argv) <= 1:
+        _logger.error("Configuration file not supplied")
+        _logger.error("usage: python3 -m plugins.manager config.json")
+        exit(0)
+
     config_path = sys.argv[1]
     config = load_config(config_path)
     run_cli(config)
