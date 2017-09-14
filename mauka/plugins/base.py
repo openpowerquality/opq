@@ -227,6 +227,7 @@ class MaukaPlugin:
 
     def _run(self):
         """This is the run loop for this plugin process"""
+        _logger.info("Starting Mauka plugin: {}".format(self.name))
 
         for subscription in self.subscriptions:
             self.zmq_consumer.setsockopt_string(zmq.SUBSCRIBE, subscription)
