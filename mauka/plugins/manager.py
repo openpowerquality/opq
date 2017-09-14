@@ -23,6 +23,10 @@ class PluginManager:
         self.name_to_exit_event = {}
         self.name_to_enabled = {}
 
+        self.zmq_context = zmq.Context()
+        self.zmq_pub_socket = self.zmq_context.socket(zmq.PUB)
+        self.zmq_pub_socket.connect(self.config["zmq.mauka.plugin.pub.interface"])
+
     def register_plugin(self, plugin_class, enabled: bool = True):
         name = plugin_class.NAME
         self.name_to_plugin_class[name] = plugin_class
@@ -48,7 +52,7 @@ class PluginManager:
         self.name_to_process[plugin_name] = process
         self.name_to_exit_event[plugin_name] = exit_event
 
-    def ls(self):
+    def cli_ls(self) -> str:
         resp = ""
         for name in sorted(self.name_to_plugin_class):
             enabled = self.name_to_enabled[name]
@@ -60,6 +64,19 @@ class PluginManager:
 
         return resp
 
+    def cli_start(self, plugin_name: str) -> str:
+        return ""
+
+    def cli_stop(self, plugin_name: str) -> str:
+        if plugin_name not in self.name_to_plugin_class:
+            return "Plugin {} DNE".format(plugin_name)
+
+        self.zmq_pub_socket.send_multipart((plugin_name.encode(), b"EXIT"))
+        if plugin_name in self.name_to_exit_event:
+            self.name_to_exit_event[plugin_name].set()
+
+        return "OK"
+
     def run_all_plugins(self):
         _logger.info("Starting all plugins")
         for name in self.name_to_plugin_class:
@@ -68,7 +85,13 @@ class PluginManager:
 
     def handle_tcp_request(self, request: str) -> str:
         if request == "ls":
-            return self.ls()
+            return self.cli_ls()
+        elif request.startswith("start"):
+            plugin_name = request.strip().split(" ")[1]
+            return self.cli_start(plugin_name)
+        elif request.startswith("stop"):
+            plugin_name = request.strip().split(" ")[1]
+            return self.cli_stop(plugin_name)
         else:
             return "Unknown cmd {}".format(request)
 
