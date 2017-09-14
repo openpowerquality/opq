@@ -16,12 +16,12 @@ from plugins.StatusPlugin import StatusPlugin
 from plugins.VoltageThresholdPlugin import VoltageThresholdPlugin
 
 
-def run_plugin(plugin_class, config: typing.Dict) -> typing.Tuple[multiprocessing.Process, multiprocessing.Event]:
+def run_plugin(plugin_class, config: typing.Dict) -> typing.Tuple[str, multiprocessing.Process, multiprocessing.Event]:
     """Runs the given plugin using the given configuration dictionary
 
     :param plugin_class: Name of the class of the plugin to be ran
     :param config: Configuration dictionary
-    :return: Returns a tuple of process and exit event
+    :return: Returns a tuple of plugin name, process, and exit event
     """
 
     def _run_plugin(config: typing.Dict, exit_event: multiprocessing.Event):
@@ -33,4 +33,4 @@ def run_plugin(plugin_class, config: typing.Dict) -> typing.Tuple[multiprocessin
     process = multiprocessing.Process(target=_run_plugin, args=(config, exit_event))
     process.start()
 
-    return process, exit_event
+    return plugin_class.NAME, process, exit_event

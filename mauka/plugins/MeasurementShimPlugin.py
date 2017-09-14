@@ -31,12 +31,14 @@ class MeasurementShimPlugin(plugins.base.MaukaPlugin):
     measurement measurements that this system can use
     """
 
+    NAME = "MeasurementShimPlugin"
+
     def __init__(self, config: typing.Dict, exit_event: multiprocessing.Event):
         """ Initializes this plugin
 
         :param config: Configuration dictionary
         """
-        super().__init__(config, [""], "MeasurementShimPlugin", exit_event)
+        super().__init__(config, [""], MeasurementShimPlugin.NAME, exit_event)
 
     def on_message(self, topic, message):
         """Subscribed messages occur async

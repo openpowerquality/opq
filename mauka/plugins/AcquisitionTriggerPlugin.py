@@ -21,12 +21,14 @@ class AcquisitionTriggerPlugin(plugins.base.MaukaPlugin):
     This class subscribes to voltage and frequency event topics
     """
 
+    NAME = "AcquisitionTriggerPlugin"
+
     def __init__(self, config: typing.Dict, exit_event: multiprocessing.Event):
         """ Initializes this plugin
 
         :param config: Configuration dictionary
         """
-        super().__init__(config, ["VoltageEvent", "FrequencyEvent"], "AcquisitionTriggerPlugin", exit_event)
+        super().__init__(config, ["VoltageEvent", "FrequencyEvent"], AcquisitionTriggerPlugin.NAME, exit_event)
 
         self.zmq_req_ctx = zmq.Context()
         """ZeroMQ context"""

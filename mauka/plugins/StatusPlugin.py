@@ -12,12 +12,15 @@ class StatusPlugin(plugins.base.MaukaPlugin):
     """
     This module contains a plugin that reports and records the status of other plugins in the system
     """
+
+    NAME = "StatusPlugin"
+
     def __init__(self, config: typing.Dict, exit_event: multiprocessing.Event):
         """ Initializes this plugin
 
         :param config: Configuration dictionary
         """
-        super().__init__(config, ["heartbeat"], "StatusPlugin", exit_event)
+        super().__init__(config, ["heartbeat"], StatusPlugin.NAME, exit_event)
 
     def on_message(self, topic, message):
         """Subscribed messages occur async

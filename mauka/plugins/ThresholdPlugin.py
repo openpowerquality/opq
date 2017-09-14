@@ -22,6 +22,8 @@ class ThresholdPlugin(plugins.base.MaukaPlugin):
     This class contains a base plugin that allows us to check for threshold crossings over time
     """
 
+    NAME = "ThresholdPlugin"
+
     def __init__(self, config: typing.Dict, name: str, exit_event: multiprocessing.Event):
         """ Initializes this plugin
 

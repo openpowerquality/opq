@@ -24,12 +24,14 @@ class VoltageThresholdPlugin(plugins.ThresholdPlugin.ThresholdPlugin):
     This module contains the voltage threshold plugin which is responsible for classifying voltage dips and swells
     """
 
+    NAME = "VoltageThresholdPlugin"
+
     def __init__(self, config: typing.Dict, exit_event: multiprocessing.Event):
         """Initializes this plugin
 
         :param config: Configuration dictionary
         """
-        super().__init__(config, "VoltageThresholdPlugin", exit_event)
+        super().__init__(config, VoltageThresholdPlugin.NAME, exit_event)
 
         self.voltage_ref = float(self.config_get("plugins.ThresholdPlugin.voltage.ref"))
         """Reference frequency (steady state)"""

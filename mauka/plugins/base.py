@@ -73,6 +73,8 @@ class MaukaPlugin:
     semantics and distributed processing primitives.
     """
 
+    NAME = "MaukaPlugin"
+
     def __init__(self, config: typing.Dict, subscriptions: typing.List[str], name: str, exit_event: multiprocessing.Event):
         """ Initializes the base plugin
 

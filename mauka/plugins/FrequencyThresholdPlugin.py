@@ -24,12 +24,14 @@ class FrequencyThresholdPlugin(plugins.ThresholdPlugin.ThresholdPlugin):
     This class contains the frequency threshold plugin which is responsible for classifying frequency dips and swells
     """
 
+    NAME = "FrequencyThresholdPlugin"
+
     def __init__(self, config: typing.Dict, exit_event: multiprocessing.Event):
         """Initializes this plugin
 
         :param config: Configuration dictionary
         """
-        super().__init__(config, "FrequencyThresholdPlugin", exit_event)
+        super().__init__(config, FrequencyThresholdPlugin.NAME, exit_event)
 
         self.frequency_ref = float(self.config_get("plugins.ThresholdPlugin.frequency.ref"))
         """Reference frequency (steady state)"""
