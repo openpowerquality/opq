@@ -99,6 +99,9 @@ class PluginManager:
             exit
                 Exits the opq-mauka cli.
                 
+            help
+                Displays this message.
+                
             ls
                 Display status of all loaded plugins.
                 
