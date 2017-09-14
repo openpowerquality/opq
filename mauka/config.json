@@ -6,6 +6,9 @@
   "zmq.mauka.plugin.sub.interface": "tcp://localhost:9883",
   "zmq.makai.req.interface"       : "tcp://localhost:9884",
 
+  "zmq.mauka.plugin.management.rep.interface": "tcp://*:12000",
+  "zmq.mauka.plugin.management.req.interface": "tcp://localhost:12000",
+
   "mongo.host": "emilia.ics.hawaii.edu",
   "mongo.port": 27017,
   "mongo.db": "opq",

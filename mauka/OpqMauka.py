@@ -78,15 +78,15 @@ if __name__ == "__main__":
 
     pub_sub_server_process = start_mauka_pub_sub_broker(config)
 
-    plugins_list = [
-        [plugins.PrintPlugin, False],
-        [plugins.MeasurementShimPlugin, True],
-        [plugins.MeasurementPlugin, True],
-        [plugins.FrequencyThresholdPlugin, True],
-        [plugins.VoltageThresholdPlugin, True],
-        [plugins.AcquisitionTriggerPlugin, True],
-        [plugins.StatusPlugin, True]
-    ]
+    plugin_manger = plugins.PluginManager(config)
 
-    plugin_manager = plugins.PluginManager(plugins_list, config)
-    plugin_manager.start_all_plugins()
+    plugin_manger.register_plugin(plugins.PrintPlugin, enabled=False)
+    plugin_manger.register_plugin(plugins.MeasurementShimPlugin)
+    plugin_manger.register_plugin(plugins.MeasurementPlugin)
+    plugin_manger.register_plugin(plugins.FrequencyThresholdPlugin)
+    plugin_manger.register_plugin(plugins.VoltageThresholdPlugin)
+    plugin_manger.register_plugin(plugins.AcquisitionTriggerPlugin)
+    plugin_manger.register_plugin(plugins.StatusPlugin)
+
+    plugin_manger.run_all_plugins()
+    plugin_manger.start_tcp_server()
