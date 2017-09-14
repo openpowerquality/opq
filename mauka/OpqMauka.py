@@ -80,18 +80,18 @@ if __name__ == "__main__":
 
     plugins_list = [
         # plugins.PrintPlugin,
-        plugins.MeasurementShimPlugin,
-        plugins.MeasurementPlugin,
-        plugins.FrequencyThresholdPlugin,
-        plugins.VoltageThresholdPlugin,
-        plugins.AcquisitionTriggerPlugin,
-        plugins.StatusPlugin
+        plugins.MeasurementShimPlugin.MeasurementShimPlugin,
+        plugins.MeasurementPlugin.MeasurementPlugin,
+        plugins.FrequencyThresholdPlugin.FrequencyThresholdPlugin,
+        plugins.VoltageThresholdPlugin.VoltageThresholdPlugin,
+        plugins.AcquisitionTriggerPlugin.AcquisitionTriggerPlugin,
+        plugins.StatusPlugin.StatusPlugin
     ]
 
     processes = []
 
     for plugin in plugins_list:
         try:
-            plugin.run_plugin(config)
+            plugins.run_plugin(plugin, config)
         except KeyError as e:
             _logger.error("Could not load plugin due to configuration error: {}".format(e))

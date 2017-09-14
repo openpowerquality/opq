@@ -3,19 +3,11 @@ This module contains the frequency threshold plugin which is responsible for cla
 """
 
 import datetime
+import multiprocessing
 import typing
 
 import mongo.mongo
-import plugins.base
 import plugins.ThresholdPlugin
-
-
-def run_plugin(config: typing.Dict):
-    """Runs this plugin using the given configuration
-
-    :param config: Configuration dictionary
-    """
-    plugins.base.run_plugin(FrequencyThresholdPlugin, config)
 
 
 def extract_frequency(measurement) -> float:
@@ -31,20 +23,21 @@ class FrequencyThresholdPlugin(plugins.ThresholdPlugin.ThresholdPlugin):
     """
     This class contains the frequency threshold plugin which is responsible for classifying frequency dips and swells
     """
-    def __init__(self, config: typing.Dict):
+
+    def __init__(self, config: typing.Dict, exit_event: multiprocessing.Event):
         """Initializes this plugin
 
         :param config: Configuration dictionary
         """
-        super().__init__(config, "FrequencyThresholdPlugin")
+        super().__init__(config, "FrequencyThresholdPlugin", exit_event)
 
-        self.frequency_ref = self.config_get("plugins.ThresholdPlugin.frequency.ref")
+        self.frequency_ref = float(self.config_get("plugins.ThresholdPlugin.frequency.ref"))
         """Reference frequency (steady state)"""
 
-        self.frequency_percent_low = self.config_get("plugins.ThresholdPlugin.frequency.threshold.percent.low")
+        self.frequency_percent_low = float(self.config_get("plugins.ThresholdPlugin.frequency.threshold.percent.low"))
         """Percent below reference that is the low threshold"""
 
-        self.frequency_percent_high = self.config_get("plugins.ThresholdPlugin.frequency.threshold.percent.high")
+        self.frequency_percent_high = float(self.config_get("plugins.ThresholdPlugin.frequency.threshold.percent.high"))
         """Percent above reference that is the high threshold"""
 
         self.subscribe_threshold(extract_frequency, self.frequency_ref, self.frequency_percent_low,
@@ -59,7 +52,7 @@ class FrequencyThresholdPlugin(plugins.ThresholdPlugin.ThresholdPlugin):
         """
         type = threshold_event.threshold_type
 
-        if type =="LOW":
+        if type == "LOW":
             event_type = mongo.mongo.BoxEventType.FREQUENCY_DIP
         elif type == "HIGH":
             event_type = mongo.mongo.BoxEventType.FREQUENCY_SWELL

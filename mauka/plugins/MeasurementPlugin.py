@@ -2,30 +2,24 @@
 This module contains the measurement plugin which stores triggering message measurements
 """
 
+import multiprocessing
 import typing
 
 import mongo.mongo
 import plugins.base
 
 
-def run_plugin(config: typing.Dict):
-    """Runs this plugin using the given configuration
-
-    :param config: Configuration dictionary
-    """
-    plugins.base.run_plugin(MeasurementPlugin, config)
-
-
 class MeasurementPlugin(plugins.base.MaukaPlugin):
     """
     This class contains the measurement plugin which stores triggering message measurements
     """
-    def __init__(self, config: typing.Dict):
+
+    def __init__(self, config: typing.Dict, exit_event: multiprocessing.Event):
         """ Initializes this plugin
 
         :param config: Configuration dictionary
         """
-        super().__init__(config, ["measurement"], "MeasurementPlugin")
+        super().__init__(config, ["measurement"], "MeasurementPlugin", exit_event)
 
         self.sample_every = int(self.config_get("plugins.MeasurementPlugin.sample_every"))
         """Of all the triggering messages, how often should we sample values from the stream"""

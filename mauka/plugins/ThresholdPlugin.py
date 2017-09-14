@@ -3,19 +3,11 @@ This module contains a base plugin that allows us to check for threshold crossin
 """
 
 import collections
+import multiprocessing
 import typing
 
 import mongo.mongo
 import plugins.base
-
-
-def run_plugin(config: typing.Dict):
-    """Runs this plugin using the given configuration
-
-    :param config: Configuration dictionary
-    """
-    plugins.base.run_plugin(ThresholdPlugin, config)
-
 
 ThresholdEvent = collections.namedtuple("ThresholdEvent", "start "
                                                           "end "
@@ -30,13 +22,13 @@ class ThresholdPlugin(plugins.base.MaukaPlugin):
     This class contains a base plugin that allows us to check for threshold crossings over time
     """
 
-    def __init__(self, config: typing.Dict, name: str):
+    def __init__(self, config: typing.Dict, name: str, exit_event: multiprocessing.Event):
         """ Initializes this plugin
 
         :param config: Configuration dictionary
         :param name: Name of the threshold
         """
-        super().__init__(config, ["measurement"], name)
+        super().__init__(config, ["measurement"], name, exit_event)
 
         self.measurement_value_fn = None
         """Function that extracts measurement value from triggering measurement"""

@@ -2,29 +2,22 @@
 This module contains a plugin that reports and records the status of other plugins in the system
 """
 
+import multiprocessing
 import typing
 
 import plugins.base
-
-
-def run_plugin(config: typing.Dict):
-    """Runs this plugin using the given configuration
-
-    :param config: Configuration dictionary
-    """
-    plugins.base.run_plugin(StatusPlugin, config)
 
 
 class StatusPlugin(plugins.base.MaukaPlugin):
     """
     This module contains a plugin that reports and records the status of other plugins in the system
     """
-    def __init__(self, config: typing.Dict):
+    def __init__(self, config: typing.Dict, exit_event: multiprocessing.Event):
         """ Initializes this plugin
 
         :param config: Configuration dictionary
         """
-        super().__init__(config, ["heartbeat"], "StatusPlugin")
+        super().__init__(config, ["heartbeat"], "StatusPlugin", exit_event)
 
     def on_message(self, topic, message):
         """Subscribed messages occur async

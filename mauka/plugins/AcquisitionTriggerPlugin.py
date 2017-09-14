@@ -3,6 +3,7 @@ This module provides the acquisition trigger plugin whose job it is to look at i
 raw data when interesting events occur.
 """
 
+import multiprocessing
 import time
 import typing
 
@@ -12,13 +13,6 @@ import plugins.base
 import protobuf.opq_pb2
 
 
-def run_plugin(config: typing.Dict):
-    """ Runs this plugin
-    :param config: Configuration dictionary
-    """
-    plugins.base.run_plugin(AcquisitionTriggerPlugin, config)
-
-
 class AcquisitionTriggerPlugin(plugins.base.MaukaPlugin):
     """
     This class provides the acquisition trigger plugin whose job it is to look at interesting events and query for
@@ -26,12 +20,13 @@ class AcquisitionTriggerPlugin(plugins.base.MaukaPlugin):
 
     This class subscribes to voltage and frequency event topics
     """
-    def __init__(self, config: typing.Dict):
+
+    def __init__(self, config: typing.Dict, exit_event: multiprocessing.Event):
         """ Initializes this plugin
 
         :param config: Configuration dictionary
         """
-        super().__init__(config, ["VoltageEvent", "FrequencyEvent"], "AcquisitionTriggerPlugin")
+        super().__init__(config, ["VoltageEvent", "FrequencyEvent"], "AcquisitionTriggerPlugin", exit_event)
 
         self.zmq_req_ctx = zmq.Context()
         """ZeroMQ context"""
@@ -39,21 +34,19 @@ class AcquisitionTriggerPlugin(plugins.base.MaukaPlugin):
         self.req_socket = self.zmq_req_ctx.socket(zmq.REQ)
         """ZeroMQ request socket"""
 
-        self.ms_before = self.config_get("plugins.AcquisitionTriggerPlugin.msBefore")
+        self.ms_before = int(self.config_get("plugins.AcquisitionTriggerPlugin.msBefore"))
         """Number of ms before an event that we should also request data"""
 
-        self.ms_after = self.config_get("plugins.AcquisitionTriggerPlugin.msAfter")
+        self.ms_after = int(self.config_get("plugins.AcquisitionTriggerPlugin.msAfter"))
         """Number of ms after an event that we should also request data"""
 
-        self.s_dead_zone = self.config_get("plugins.AcquisitionTriggerPlugin.sDeadZoneAfterTrigger")
+        self.s_dead_zone = int(self.config_get("plugins.AcquisitionTriggerPlugin.sDeadZoneAfterTrigger"))
         """Number of seconds of deadzone that we should not request raw data after just requesting data"""
 
         self.event_type_to_last_event = {}
         """Store event types to the last event of that type"""
 
         self.req_socket.connect(self.config_get("zmq.makai.req.interface"))
-
-
 
     def request_event_message(self, start_ms: int, end_ms: int, trigger_type: str, percent_magnitude: float,
                               box_ids: typing.List[int], requestee: str, description: str, request_data: bool):
