@@ -66,3 +66,4 @@ if __name__ == "__main__":
             plugin.run_plugin(config)
         except KeyError as e:
             _logger.error("Could not load plugin due to configuration error: {}".format(e))
+
