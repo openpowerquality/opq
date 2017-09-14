@@ -95,6 +95,7 @@ if __name__ == "__main__":
         should_run = plugin_run[1]
         if should_run:
             try:
-                plugins.run_plugin(plugin_class, config)
+                processes.append(plugins.run_plugin(plugin_class, config))
             except KeyError as e:
                 _logger.error("Could not load plugin due to configuration error: {}".format(e))
+
