@@ -80,12 +80,12 @@ if __name__ == "__main__":
 
     plugins_list = [
         # plugins.PrintPlugin,
-        plugins.MeasurementShimPlugin.MeasurementShimPlugin,
-        plugins.MeasurementPlugin.MeasurementPlugin,
-        plugins.FrequencyThresholdPlugin.FrequencyThresholdPlugin,
-        plugins.VoltageThresholdPlugin.VoltageThresholdPlugin,
-        plugins.AcquisitionTriggerPlugin.AcquisitionTriggerPlugin,
-        plugins.StatusPlugin.StatusPlugin
+        plugins.MeasurementShimPlugin,
+        plugins.MeasurementPlugin,
+        plugins.FrequencyThresholdPlugin,
+        plugins.VoltageThresholdPlugin,
+        plugins.AcquisitionTriggerPlugin,
+        plugins.StatusPlugin
     ]
 
     processes = []

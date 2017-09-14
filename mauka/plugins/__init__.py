@@ -7,13 +7,13 @@ plugins individually.
 import multiprocessing
 import typing
 
-from plugins import AcquisitionTriggerPlugin
-from plugins import FrequencyThresholdPlugin
-from plugins import MeasurementPlugin
-from plugins import MeasurementShimPlugin
-from plugins import PrintPlugin
-from plugins import StatusPlugin
-from plugins import VoltageThresholdPlugin
+from plugins.AcquisitionTriggerPlugin import AcquisitionTriggerPlugin
+from plugins.FrequencyThresholdPlugin import FrequencyThresholdPlugin
+from plugins.MeasurementPlugin import MeasurementPlugin
+from plugins.MeasurementShimPlugin import MeasurementShimPlugin
+from plugins.PrintPlugin import PrintPlugin
+from plugins.StatusPlugin import StatusPlugin
+from plugins.VoltageThresholdPlugin import VoltageThresholdPlugin
 
 
 def run_plugin(plugin_class, config: typing.Dict) -> typing.Tuple[multiprocessing.Process, multiprocessing.Event]:
