@@ -60,12 +60,20 @@ class PluginManager:
             process_pid = process.pid if process != "N/A" else "N/A"
             exit_event = self.name_to_exit_event[name].is_set() if name in self.name_to_exit_event else "N/A"
 
-            resp += "name: {} enabled: {} process: {}[{}] exit_event: {}\n".format(name, enabled, process, process_pid, exit_event)
+            resp += "name: {} enabled: {} process: {}[{}] exit_event: {}\n".format(name, enabled, process, process_pid,
+                                                                                   exit_event)
 
         return resp
 
     def cli_start(self, plugin_name: str) -> str:
-        return ""
+        if plugin_name not in self.name_to_plugin_class:
+            return "Plugin {} DNE".format(plugin_name)
+
+        if not self.name_to_enabled[plugin_name]:
+            return "Plugin {} is not enabled".format(plugin_name)
+
+        self.run_plugin(plugin_name)
+        return "OK"
 
     def cli_stop(self, plugin_name: str) -> str:
         if plugin_name not in self.name_to_plugin_class:
