@@ -1,30 +1,23 @@
-#include "ZmqInterface.hpp"
-#include "RedisInterface.hpp"
+#include "ZmqAcqInterface.hpp"
 #include <zmqpp/zmqpp.hpp>
 #include <Settings.hpp>
-#include <regex>
-#include <fstream>
-#include <chrono>
-#include <thread>
+#include <boost/log/trivial.hpp>
 
 #include "opq.pb.h"
 
 using namespace std;
 
-pair<string, string> load_certificate(string const &path);
-inline uint64_t chrono_to_mili(std::chrono::time_point<std::chrono::high_resolution_clock > time);
-
-void zmq_loop() {
-    RedisInterface redis;
+void zmq_acq_loop(bool &running, opq::data::MeasurememntTimeSeries time_series) {
 
     auto settings = opq::Settings::Instance();
     auto ctx = zmqpp::context();
-    auto private_cert = load_certificate(settings->getString("zmq.private_cert"));
-    auto server_cert = load_certificate(settings->getString("zmq.server_cert"));
+    auto private_cert = opq::util::load_certificate(settings->getString("zmq.private_cert"));
+    auto server_cert = opq::util::load_certificate(settings->getString("zmq.server_cert"));
 
     auto recv_address = settings->getString("zmq.acq_recv_host");
     auto send_address = settings->getString("zmq.acq_send_host");
-
+    BOOST_LOG_TRIVIAL(info) << "Sending raw data to " << send_address;
+    BOOST_LOG_TRIVIAL(info) << "Recieving raw data request from " << recv_address;
     auto box_id = settings->getInt("box_id");
 
     auto recv = zmqpp::socket{ctx, zmqpp::socket_type::sub};
@@ -43,7 +36,7 @@ void zmq_loop() {
     send.connect(send_address);
 
     int reset_counter = 0;
-    while(true) {
+    while(running) {
         zmqpp::message request;
         if(!recv.receive(request, true)){
             std::this_thread::sleep_for(500ms);
@@ -66,10 +59,10 @@ void zmq_loop() {
 
         auto m = opq::proto::RequestDataMessage();
         if(!m.ParseFromString(request.get(1))){
-            cout << "Could not understand request from server" << endl;
+            BOOST_LOG_TRIVIAL(warning) << "Could not understand request from server";
             continue;
         }
-        m.set_time(chrono_to_mili(std::chrono::high_resolution_clock::now()));
+        m.set_time(opq::util::crono_to_mili(std::chrono::high_resolution_clock::now()));
         m.set_boxid(box_id);
         switch(m.type()){
             case m.PING:
@@ -81,9 +74,18 @@ void zmq_loop() {
                 zmqpp::message response;
                 m.set_type(m.RESP);
                 response.add(m.SerializeAsString());
-                auto cycles = redis.getMeasurementsForRange(m.back(), m.forward());
+                auto start = opq::util::mili_to_crono(m.back());
+                auto stop = opq::util::mili_to_crono(m.forward());
+                std::time_t ttp = std::chrono::system_clock::to_time_t(start);
+                std::cout << "start: " << std::ctime(&ttp) << " " <<m.back() << endl;
+
+                ttp = std::chrono::system_clock::to_time_t(stop);
+                std::cout << "stop: " << std::ctime(&ttp) << " " << m.forward() << endl;
+
+                auto cycles = time_series->getTimeRange(start, stop);
+                cout << cycles.size() << endl;
                 for (auto &cycle : cycles) {
-                    response.add(cycle);
+                    response.add(opq::util::serialize_to_protobuf(box_id, cycle));
                 }
                 send.send(response);
             }
@@ -97,35 +99,3 @@ void zmq_loop() {
     }
 
 }
-
-auto public_re = regex{R"r(public-key\s+=\s+"(.+)")r"};
-auto private_re = regex{R"r(secret-key\s+=\s+"(.+)")r"};
-
-pair<string, string> load_certificate(string const &path) {
-    std::ifstream file(path);
-    assert(file);
-
-    std::stringstream ss;
-    ss << file.rdbuf();
-    auto contents = ss.str();
-
-    auto public_sm = std::smatch(), private_sm = std::smatch();
-
-    pair<string, string> ret = make_pair("","");
-
-    if(regex_search(contents, public_sm, public_re)){
-        ret.first = public_sm[1];
-    }
-    if(regex_search(contents, private_sm, private_re)){
-        ret.second = private_sm[1];
-    }
-    return ret;
-}
-
-uint64_t chrono_to_mili(std::chrono::time_point<std::chrono::high_resolution_clock> time) {
-    std::chrono::time_point<std::chrono::high_resolution_clock > epoch;
-    auto elapsed = time - epoch;
-    return std::chrono::duration_cast<std::chrono::milliseconds>(elapsed).count();
-}
-
-

@@ -5,12 +5,12 @@
  * "Triggering data" to the OPQ acquisition network.
  */
 
-#ifndef ACQUISITION_VERSION_HPP
-#define ACQUISITION_VERSION_HPP
+#ifndef TRIGGERING_VERSION_HPP
+#define TRIGGERING_VERSION_HPP
 namespace opq {
     ///Major Acquisition version.
     static const unsigned int OPQ_TRG_MAJOR_VERSION = 0;
     ///Minor Acquisition version.
     static const unsigned int OPQ_TRG_MINOR_VERSION = 9;
 }
-#endif //ACQUISITION_VERSION_HPP
+#endif //TRIGGERING_VERSION_HPP

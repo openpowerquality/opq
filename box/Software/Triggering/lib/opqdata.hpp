@@ -7,6 +7,7 @@
 #include <unistd.h>
 #include <cmath>
 #include "SyncQueue.hpp"
+#include "TimeSeries.hpp"
 
 
 namespace opq {
@@ -40,7 +41,7 @@ namespace opq {
             uint32_t flags;
         } __attribute__((packed)) OPQCycle;
 
-        static const __uint32_t OPQ_GPS_THIS_FRAME=1;
+        static const uint32_t OPQ_GPS_THIS_FRAME=1;
 
         inline bool readCycle(int fd, opq::data::OPQCycle &cycle){
 #ifdef OPQ_DEBUG
@@ -88,6 +89,12 @@ namespace opq {
             return std::make_shared<SyncQueue<OPQMeasurementPtr> >();
         }
 
+        typedef std::shared_ptr< TimeSeries< OPQMeasurementPtr > > MeasurememntTimeSeries;
+
+        inline MeasurememntTimeSeries make_measurement_timeseries(size_t max_size) {
+            return std::make_shared<TimeSeries<OPQMeasurementPtr> >(max_size);
+        }
+
         ///@brief Result of the local analysis thread.
         typedef struct {
             ///Computed RMS.
@@ -123,6 +130,7 @@ namespace opq {
         inline AnalysisQueue make_analysis_queue() {
             return std::make_shared<SyncQueue<OPQAnalysisPtr> >();
         }
+
 
 
     }

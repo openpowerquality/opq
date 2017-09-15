@@ -6,15 +6,15 @@
 #include <algorithm>
 #include <iostream>
 #include <opqdata.hpp>
-#include "RedisSerializer.hpp"
 #include <boost/log/trivial.hpp>
 using namespace opq;
 using namespace opq::data;
 using namespace std;
 
-LocalAnalysis::LocalAnalysis(opq::data::MeasurementQueue inQ, opq::data::AnalysisQueue outQ) {
+LocalAnalysis::LocalAnalysis(opq::data::MeasurementQueue inQ, opq::data::AnalysisQueue outQ, opq::data::MeasurememntTimeSeries &time_series) {
     _inQ = inQ;
     _outQ = outQ;
+    _time_series = time_series;
     _state = INITIALIZING_DOWNSAMPLING_FILTER;
     AntialiasDownsamplingFilter_init(&adf);
     LowPassFilter_init(&lpf);
@@ -24,7 +24,6 @@ void LocalAnalysis::loop(bool &running) {
     auto settings = Settings::Instance();
     float calConstant = settings->getFloat("acquisition_calibration_constant");
 
-    RedisSerializer redis;
     BOOST_LOG_TRIVIAL(info) << "Analysis filter setup....";
     while (running) {
         opq::data::OPQMeasurementPtr measurement = _inQ->pop();
@@ -84,7 +83,9 @@ void LocalAnalysis::loop(bool &running) {
             analysis->flags |= frame.flags;
         }
         _outQ->push(analysis);
-        redis << measurement;
+
+        _time_series->addLatest(measurement->timestamps[0], measurement);
+        //redis << measurement;
     }
     BOOST_LOG_TRIVIAL(info) << "Analysis thread done";
 }

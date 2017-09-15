@@ -22,7 +22,7 @@ namespace opq {
          * @param inq ADC measuremement Queue.
          * @param outq Analysis queue.
          */
-        LocalAnalysis(opq::data::MeasurementQueue  inq, opq::data::AnalysisQueue outq);
+        LocalAnalysis(opq::data::MeasurementQueue  inq, opq::data::AnalysisQueue outq, opq::data::MeasurememntTimeSeries &time_series);
 
         /**
          * @brief main loop.
@@ -72,6 +72,8 @@ namespace opq {
         opq::data::MeasurementQueue _inQ;
         ///Output queue.
         opq::data::AnalysisQueue _outQ;
+        //Time series shared ptr.
+        opq::data::MeasurememntTimeSeries _time_series;
     };
 }
 

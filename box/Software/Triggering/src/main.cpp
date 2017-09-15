@@ -9,6 +9,7 @@
 #include <boost/log/utility/setup/common_attributes.hpp>
 #include <boost/log/sources/severity_logger.hpp>
 #include <boost/log/sources/record_ostream.hpp>
+#include <ZmqAcqInterface.hpp>
 
 #include "ZMQTrigger.hpp"
 #include "Reader.hpp"
@@ -86,20 +87,23 @@ int main(int argc, char** argv) {
     //Create the queues and threads.
     auto readerQueue = opq::data::make_measurement_queue();
     auto analysisQueue = opq::data::make_analysis_queue();
-
+    auto time_series = opq::data::make_measurement_timeseries(3600);
     pipeline::Slab readerSlab;
     opq::Reader reader(readerQueue);
 
     pipeline::Slab analysisSlab;
-    opq::LocalAnalysis analysis(readerQueue, analysisQueue);
+    opq::LocalAnalysis analysis(readerQueue, analysisQueue, time_series);
 
     pipeline::Slab triggerSlab;
     opq::ZMQTrigger trigger(analysisQueue);
+
+    pipeline::Slab acqSlab;
 
     //Start all the threads.
     triggerSlab.start([&trigger](bool &running) {trigger.loop(running);});
     readerSlab.start([&reader](bool &running) {reader.loop(running);});
     analysisSlab.start([&analysis](bool &running) {analysis.loop(running);});
+    acqSlab.start([&time_series](bool &running){zmq_acq_loop(running, time_series);});
     //Post Signal handler for the interrupt signal
     std::signal(SIGINT, bail_handler);
     //Sleep until we catch a signal.
@@ -110,5 +114,6 @@ int main(int argc, char** argv) {
     triggerSlab.stop();
     analysisSlab.stop();
     readerSlab.stop();
+    acqSlab.stop();
     return 0;
 }
