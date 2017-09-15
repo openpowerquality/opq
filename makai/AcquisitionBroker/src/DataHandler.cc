@@ -39,13 +39,14 @@ void DataHandler::handle_data_loop() {
         auto sequence_number = header.sequence_number();
         if(header.type() == header.RESP) {
             std::vector<opq::proto::DataMessage> messages;
+            std::cout << "Recieved " << zm.parts() << endl;
             //Push every part of the message except for the header to redis.
             for (size_t i = 1; i < zm.parts(); i++) {
                 opq::proto::DataMessage m;
                 m.ParseFromString(zm.get(i));
                 messages.push_back(m);
             }
-            mongo.append_data_to_event(messages, boxid);
+            mongo.append_data_to_event(messages, sequence_number);
         }
     }
 
