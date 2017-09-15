@@ -95,7 +95,6 @@ class AcquisitionTriggerPlugin(plugins.base.MaukaPlugin):
         """
         msg = self.from_json(message.decode())
         print(topic, msg)
-        event_id = msg["eventId"]
         event_type = msg["eventType"]
 
         now = time.time()

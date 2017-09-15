@@ -61,17 +61,8 @@ class VoltageThresholdPlugin(plugins.ThresholdPlugin.ThresholdPlugin):
             print("Unknown threshold type", type)
             return
 
-        voltage_event = {"eventStart": datetime.datetime.utcfromtimestamp(threshold_event.start / 1000.0),
-                         "eventEnd": datetime.datetime.utcfromtimestamp(threshold_event.end / 1000.0),
-                         "eventType": event_type,
-                         "percent": threshold_event.max_value,
-                         "deviceId": threshold_event.device_id}
-
-        event_id = self.box_events_collection.insert_one(voltage_event).inserted_id
-
         self.produce("VoltageEvent".encode(), self.to_json({"eventStart": threshold_event.start,
                                                             "eventEnd": threshold_event.end,
                                                             "eventType": event_type,
                                                             "percent": threshold_event.max_value,
-                                                            "deviceId": threshold_event.device_id,
-                                                            "eventId": event_id}).encode())
+                                                            "deviceId": threshold_event.device_id}).encode())
