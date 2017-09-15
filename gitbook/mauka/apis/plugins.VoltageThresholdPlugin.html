@@ -1,46 +1,12 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<html><head><title>Python: module plugins.VoltageThresholdPlugin</title>
+<html><head><title>Python: class VoltageThresholdPlugin</title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 </head><body bgcolor="#f0f0f8">
-
-<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
-<tr bgcolor="#7799ee">
-<td valign=bottom>&nbsp;<br>
-<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong><a href="plugins.html"><font color="#ffffff">plugins</font></a>.VoltageThresholdPlugin</strong></big></big></font></td
-><td align=right valign=bottom
-><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:/Users/anthony/Development/opq/mauka/plugins/VoltageThresholdPlugin.py">/Users/anthony/Development/opq/mauka/plugins/VoltageThresholdPlugin.py</a></font></td></tr></table>
-    <p><tt>This&nbsp;module&nbsp;contains&nbsp;the&nbsp;voltage&nbsp;threshold&nbsp;plugin&nbsp;which&nbsp;is&nbsp;responsible&nbsp;for&nbsp;classifying&nbsp;voltage&nbsp;dips&nbsp;and&nbsp;swells</tt></p>
 <p>
-<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
-<tr bgcolor="#aa55cc">
-<td colspan=3 valign=bottom>&nbsp;<br>
-<font color="#ffffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
-    
-<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
-<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="datetime.html">datetime</a><br>
-</td><td width="25%" valign=top><a href="mongo.html">mongo</a><br>
-</td><td width="25%" valign=top><a href="plugins.html">plugins</a><br>
-</td><td width="25%" valign=top><a href="typing.html">typing</a><br>
-</td></tr></table></td></tr></table><p>
-<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
-<tr bgcolor="#ee77aa">
-<td colspan=3 valign=bottom>&nbsp;<br>
-<font color="#ffffff" face="helvetica, arial"><big><strong>Classes</strong></big></font></td></tr>
-    
-<tr><td bgcolor="#ee77aa"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
-<td width="100%"><dl>
-<dt><font face="helvetica, arial"><a href="plugins.ThresholdPlugin.html#ThresholdPlugin">plugins.ThresholdPlugin.ThresholdPlugin</a>(<a href="plugins.base.html#MaukaPlugin">plugins.base.MaukaPlugin</a>)
-</font></dt><dd>
-<dl>
-<dt><font face="helvetica, arial"><a href="plugins.VoltageThresholdPlugin.html#VoltageThresholdPlugin">VoltageThresholdPlugin</a>
-</font></dt></dl>
-</dd>
-</dl>
- <p>
 <table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
 <tr bgcolor="#ffc8d8">
 <td colspan=3 valign=bottom>&nbsp;<br>
-<font color="#000000" face="helvetica, arial"><a name="VoltageThresholdPlugin">class <strong>VoltageThresholdPlugin</strong></a>(<a href="plugins.ThresholdPlugin.html#ThresholdPlugin">plugins.ThresholdPlugin.ThresholdPlugin</a>)</font></td></tr>
+<font color="#000000" face="helvetica, arial"><strong>plugins.VoltageThresholdPlugin</strong> = <a name="plugins.VoltageThresholdPlugin">class VoltageThresholdPlugin</a>(<a href="plugins.ThresholdPlugin.html#ThresholdPlugin">plugins.ThresholdPlugin.ThresholdPlugin</a>)</font></td></tr>
     
 <tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
 <td colspan=2><tt>This&nbsp;module&nbsp;contains&nbsp;the&nbsp;voltage&nbsp;threshold&nbsp;plugin&nbsp;which&nbsp;is&nbsp;responsible&nbsp;for&nbsp;classifying&nbsp;voltage&nbsp;dips&nbsp;and&nbsp;swells<br>&nbsp;</tt></td></tr>
@@ -53,7 +19,7 @@
 </dl>
 <hr>
 Methods defined here:<br>
-<dl><dt><a name="VoltageThresholdPlugin-__init__"><strong>__init__</strong></a>(self, config:Dict)</dt><dd><tt>Initializes&nbsp;this&nbsp;plugin<br>
+<dl><dt><a name="VoltageThresholdPlugin-__init__"><strong>__init__</strong></a>(self, config:Dict, exit_event:&lt;bound method BaseContext.Event of &lt;multiprocessing.context.DefaultContext object at 0x7f6ee8be1320&gt;&gt;)</dt><dd><tt>Initializes&nbsp;this&nbsp;plugin<br>
 &nbsp;<br>
 :param&nbsp;config:&nbsp;Configuration&nbsp;dictionary</tt></dd></dl>
 
@@ -62,6 +28,10 @@ Methods defined here:<br>
 This&nbsp;will&nbsp;produce&nbsp;a&nbsp;VoltageEvent&nbsp;message&nbsp;to&nbsp;the&nbsp;system.<br>
 &nbsp;<br>
 :param&nbsp;threshold_event:&nbsp;The&nbsp;recorded&nbsp;event</tt></dd></dl>
+
+<hr>
+Data and other attributes defined here:<br>
+<dl><dt><strong>NAME</strong> = 'VoltageThresholdPlugin'</dl>
 
 <hr>
 Methods inherited from <a href="plugins.ThresholdPlugin.html#ThresholdPlugin">plugins.ThresholdPlugin.ThresholdPlugin</a>:<br>
@@ -120,6 +90,15 @@ Methods inherited from <a href="plugins.base.html#MaukaPlugin">plugins.base.Mauk
 <dl><dt><a name="VoltageThresholdPlugin-get_status"><strong>get_status</strong></a>(self) -&gt; str</dt><dd><tt>Return&nbsp;the&nbsp;status&nbsp;of&nbsp;this&nbsp;plugin<br>
 :return:&nbsp;The&nbsp;status&nbsp;of&nbsp;this&nbsp;plugin</tt></dd></dl>
 
+<dl><dt><a name="VoltageThresholdPlugin-handle_self_message"><strong>handle_self_message</strong></a>(self, message:str)</dt><dd><tt>Handles&nbsp;a&nbsp;self-message<br>
+&nbsp;<br>
+:param&nbsp;message:&nbsp;The&nbsp;message&nbsp;to&nbsp;handle</tt></dd></dl>
+
+<dl><dt><a name="VoltageThresholdPlugin-is_self_message"><strong>is_self_message</strong></a>(self, topic:str) -&gt; bool</dt><dd><tt>Determines&nbsp;if&nbsp;this&nbsp;is&nbsp;a&nbsp;message&nbsp;directed&nbsp;at&nbsp;this&nbsp;plugin.&nbsp;I.e.&nbsp;the&nbsp;topic&nbsp;is&nbsp;the&nbsp;name&nbsp;of&nbsp;the&nbsp;plugin.<br>
+&nbsp;<br>
+:param&nbsp;topic:&nbsp;Topic&nbsp;of&nbsp;the&nbsp;message<br>
+:return:&nbsp;If&nbsp;this&nbsp;is&nbsp;a&nbsp;self&nbsp;message&nbsp;or&nbsp;not</tt></dd></dl>
+
 <dl><dt><a name="VoltageThresholdPlugin-object_id"><strong>object_id</strong></a>(self, oid:str) -&gt; bson.objectid.ObjectId</dt><dd><tt>Given&nbsp;the&nbsp;string&nbsp;representation&nbsp;of&nbsp;an&nbsp;object&nbsp;an&nbsp;id,&nbsp;return&nbsp;an&nbsp;instance&nbsp;of&nbsp;an&nbsp;ObjectID<br>
 &nbsp;<br>
 :param&nbsp;oid:&nbsp;The&nbsp;oid&nbsp;to&nbsp;encode<br>
@@ -148,19 +127,5 @@ Data descriptors inherited from <a href="plugins.base.html#MaukaPlugin">plugins.
 <dl><dt><strong>__weakref__</strong></dt>
 <dd><tt>list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object&nbsp;(if&nbsp;defined)</tt></dd>
 </dl>
-</td></tr></table></td></tr></table><p>
-<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
-<tr bgcolor="#eeaa77">
-<td colspan=3 valign=bottom>&nbsp;<br>
-<font color="#ffffff" face="helvetica, arial"><big><strong>Functions</strong></big></font></td></tr>
-    
-<tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
-<td width="100%"><dl><dt><a name="-extract_voltage"><strong>extract_voltage</strong></a>(measurement) -&gt; float</dt><dd><tt>Extracts&nbsp;the&nbsp;voltage&nbsp;value&nbsp;from&nbsp;the&nbsp;TriggeringMessage<br>
-&nbsp;<br>
-:param&nbsp;measurement:&nbsp;Deserialized&nbsp;triggering&nbsp;message&nbsp;instance<br>
-:return:&nbsp;The&nbsp;voltage&nbsp;rms&nbsp;value</tt></dd></dl>
- <dl><dt><a name="-run_plugin"><strong>run_plugin</strong></a>(config:Dict)</dt><dd><tt>Runs&nbsp;this&nbsp;plugin&nbsp;using&nbsp;the&nbsp;given&nbsp;configuration<br>
-&nbsp;<br>
-:param&nbsp;config:&nbsp;Configuration&nbsp;dictionary</tt></dd></dl>
 </td></tr></table>
 </body></html>
