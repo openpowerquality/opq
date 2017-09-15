@@ -12,7 +12,9 @@ template <typename T>
 
 class TimeSeries{
 public:
-    TimeSeries(size_t max_entries) {}
+    TimeSeries(size_t max_entries) {
+    _max_entries = max_entries;
+    }
 
     void addLatest(std::chrono::time_point<std::chrono::high_resolution_clock> ts, T item){
         std::lock_guard<std::mutex> guard(_lock);
