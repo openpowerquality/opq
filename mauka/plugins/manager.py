@@ -133,6 +133,9 @@ class PluginManager:
             return self.cli_enable(plugin_name)
         elif request == "help":
             return self.cli_help()
+        elif request.startswith("kill"):
+            plugin_name = request.split(" ")[1]
+            self.cli_kill(plugin_name)
         elif request.startswith("load"):
             plugin_name = request.split(" ")[1]
             return self.cli_load(plugin_name)
@@ -189,10 +192,11 @@ class PluginManager:
             help
                 Displays this message.
                 
+            kill [pluginName]
+                Kills the named plugin
+                
             load [pluginName]
                 Loads the named plugin from disk. 
-                Note: The plugin should be in the plugins directory.
-                Note: The plugin module and class must be the same name.
                 
             ls
                 Display status of all loaded plugins.
@@ -206,6 +210,22 @@ class PluginManager:
             unload [pluginName]
                 Unload the named plugin.
             """
+
+    def cli_kill(self, plugin_name: str) -> str:
+        """Kills the named plugin
+
+        :param plugin_name: The plugin to kill
+        :return: Server response
+        """
+
+        if plugin_name not in self.name_to_plugin_class:
+            return "Plugin {} DNE".format(plugin_name)
+
+        if plugin_name not in self.name_to_process:
+            return "Plugin {} does not have associated process".format(plugin_name)
+
+        self.name_to_process[plugin_name].terminate()
+        return "OK"
 
     def cli_load(self, plugin_name: str) -> str:
         """Attempts to load the given plugin from the plugins directory.
