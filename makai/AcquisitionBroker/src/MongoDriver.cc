@@ -78,7 +78,8 @@ bool MongoDriver::append_data_to_event(std::vector<opq::proto::DataMessage> &mes
 
     builder << "Box ID" << id
             << "time_start" << (int64_t)start_time
-            << "time_end" << (int64_t)end_time;
+            << "time_end" << (int64_t)end_time
+	    << "event_number" << (int32_t)event_num;
     auto time_array_context = builder << "time_stamps" << bsoncxx::builder::stream::open_array;
     for (auto &message : messages){
         for(auto &cycle : message.cycles()) {

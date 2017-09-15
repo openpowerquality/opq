@@ -1,6 +1,6 @@
 /*! @mainpage Data acquisition and local processing daemon
  * @section Introduction
- * OPQ Acquisition is a userland daemon which runs on the raspberry pi zero. It is responsible for transferring data
+ * OPQ Triggering is a userland daemon which runs on the raspberry pi zero. It is responsible for transferring data
  * from the kernel driver, processing it, storing the raw data in a local Redis server and sending the processed
  * "Triggering data" to the OPQ acquisition network.
  */
