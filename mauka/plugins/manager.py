@@ -19,11 +19,40 @@ logging.basicConfig(
         os.getpid()))
 _logger.setLevel(logging.DEBUG)
 
+OK = "OK"
+
+
+def ok(msg: str = "") -> str:
+    """An ok response
+
+    :return: An ok response
+    """
+    return OK if len(msg) == 0 else "{}. {}".format(OK, msg)
+
+
+def error(msg: str = "N/A") -> str:
+    """An error response
+
+    :param msg: An optional error message
+    :return: An error response
+    """
+    return "ERROR. {}".format(msg)
+
+
+def is_error(response: str) -> bool:
+    """Is the given response an error message?
+
+    :param response: Response to test
+    :return: Whether or not response is an error or not
+    """
+    return "ERROR" in response
+
 
 class PluginManager:
     """
     This class provides facilities for managing (stopping, starting, loading, reloading) plugin subprocesses.
     """
+
     def __init__(self, config: typing.Dict):
         """Initializes the plugin manager
 
@@ -166,10 +195,10 @@ class PluginManager:
         :return: Server response
         """
         if plugin_name not in self.name_to_plugin_class:
-            return "Plugin {} DNE".format(plugin_name)
+            return error("Plugin {} DNE".format(plugin_name))
 
         self.name_to_enabled[plugin_name] = False
-        return "OK"
+        return ok("Plugin {} disabled".format(plugin_name))
 
     def cli_enable_plugin(self, plugin_name: str) -> str:
         """Enables the given plugin
@@ -178,10 +207,10 @@ class PluginManager:
         :return: Server response
         """
         if plugin_name not in self.name_to_plugin_class:
-            return "Plugin {} DNE".format(plugin_name)
+            return error("Plugin {} DNE".format(plugin_name))
 
         self.name_to_enabled[plugin_name] = True
-        return "OK"
+        return ok("Plugin {} enabled".format(plugin_name))
 
     def cli_help(self) -> str:
         """Returns the available usage for the cli"""
@@ -220,13 +249,13 @@ class PluginManager:
         """
 
         if plugin_name not in self.name_to_plugin_class:
-            return "Plugin {} DNE".format(plugin_name)
+            return error("Plugin {} DNE".format(plugin_name))
 
         if plugin_name not in self.name_to_process:
-            return "Plugin {} does not have associated process".format(plugin_name)
+            return error("Plugin {} does not have associated process".format(plugin_name))
 
         self.name_to_process[plugin_name].terminate()
-        return "OK"
+        return ok("Plugin {} killed".format(plugin_name))
 
     def cli_load_config(self, config_path: str) -> str:
         """Loads new configuration values
@@ -237,13 +266,13 @@ class PluginManager:
         :return: Server response
         """
         if not os.path.isfile(config_path):
-            return "Path {} DNE".format(config_path)
+            return error("Path {} DNE".format(config_path))
 
         try:
             self.config = load_config(config_path)
-            return "OK"
+            return ok("Configuration loaded from {}".format(config_path))
         except Exception as e:
-            return "Exception occured while loading config: {}".format(e)
+            return error("Exception occurred while loading config: {}".format(e))
 
     def cli_load_plugin(self, plugin_name: str) -> str:
         """Attempts to load the given plugin from the plugins directory.
@@ -256,7 +285,7 @@ class PluginManager:
         """
         current_dir = os.path.dirname(os.path.realpath(__file__))
         if not os.path.isfile("{}/{}.py".format(current_dir, plugin_name)):
-            return "Plugin {} DNE".format(plugin_name)
+            return error("Plugin {} DNE".format(plugin_name))
 
         # First, let's see if this is already imported
         module_name = "plugins.{}".format(plugin_name)
@@ -265,12 +294,12 @@ class PluginManager:
             mod = sys.modules[module_name]
             importlib.reload(mod)
             self.register_plugin(self.get_class(mod, plugin_name))
-            return "RELOADED {}".format(plugin_name)
+            return ok("Plugin {} reloaded".format(plugin_name))
 
         importlib.invalidate_caches()
         mod = importlib.import_module(module_name)
         self.register_plugin(self.get_class(mod, plugin_name))
-        return "LOADED {}".format(plugin_name)
+        return ok("Plugin {} loaded".format(plugin_name))
 
     def cli_list_plugins(self) -> str:
         """Returns a list of loaded plugins"""
@@ -282,7 +311,7 @@ class PluginManager:
             exit_event = self.name_to_exit_event[name].is_set() if name in self.name_to_exit_event else "N/A"
 
             resp += "name:{} enabled:{} process:{} pid:{} exit_event:{}\n".format(name, enabled, process, process_pid,
-                                                                                   exit_event)
+                                                                                  exit_event)
 
         return resp
 
@@ -293,13 +322,13 @@ class PluginManager:
         :return: Server response
         """
         if plugin_name not in self.name_to_plugin_class:
-            return "Plugin {} DNE".format(plugin_name)
+            return error("Plugin {} DNE".format(plugin_name))
 
         if not self.name_to_enabled[plugin_name]:
-            return "Plugin {} is not enabled".format(plugin_name)
+            return error("Plugin {} is not enabled".format(plugin_name))
 
         self.run_plugin(plugin_name)
-        return "OK"
+        return ok("Plugin {} started".format(plugin_name))
 
     def cli_stop_plugin(self, plugin_name: str) -> str:
         """Stops the given plugin
@@ -308,13 +337,13 @@ class PluginManager:
         :return: Server response
         """
         if plugin_name not in self.name_to_plugin_class:
-            return "Plugin {} DNE".format(plugin_name)
+            return error("Plugin {} DNE".format(plugin_name))
 
         self.zmq_pub_socket.send_multipart((plugin_name.encode(), b"EXIT"))
         if plugin_name in self.name_to_exit_event:
             self.name_to_exit_event[plugin_name].set()
 
-        return "OK"
+        return ok("Plugin {} stopped".format(plugin_name))
 
     def cli_restart_plugin(self, plugin_name: str) -> str:
         """Restarts the given plugin
@@ -322,14 +351,15 @@ class PluginManager:
         :param plugin_name: Name of the plugin to restart
         :return: Server response
         """
-        resp = self.cli_stop_plugin(plugin_name)
-        if resp != "OK":
-            return resp
-        resp = self.cli_start_plugin(plugin_name)
-        if resp != "OK":
-            return resp
+        stop_resp = self.cli_stop_plugin(plugin_name)
+        start_resp = self.cli_start_plugin(plugin_name)
 
-        return "OK"
+        chained_resp = "{} {}".format(stop_resp, start_resp)
+
+        if is_error(stop_resp) or is_error(start_resp):
+            return error("{} ".format(plugin_name, chained_resp))
+        else:
+            return ok("Restarted {}. {}".format(plugin_name, chained_resp))
 
     def cli_unload_plugin(self, plugin_name: str) -> str:
         """Unload the given plugin
@@ -338,7 +368,7 @@ class PluginManager:
         :return: Server response
         """
         if plugin_name not in self.name_to_plugin_class:
-            return "Plugin {} DNE".format(plugin_name)
+            return error("Plugin {} DNE".format(plugin_name))
 
         if plugin_name in self.name_to_plugin_class:
             self.name_to_plugin_class.pop(plugin_name)
@@ -352,7 +382,7 @@ class PluginManager:
         if plugin_name in self.name_to_exit_event:
             self.name_to_exit_event.pop(plugin_name)
 
-        return "OK"
+        return ok("Unloaded plugin {}".format(plugin_name))
 
 
 def run_cli(config: typing.Dict):
