@@ -1,6 +1,7 @@
 """
 This module provides facilities for managing (stopping, starting, loading, reloading) plugin subprocesses.
 """
+import signal
 
 import importlib
 import inspect
@@ -390,6 +391,11 @@ def run_cli(config: typing.Dict):
 
     :param config: Configuration dictionary
     """
+
+    def signal_handler(signal, frame):
+        sys.exit(0)
+    signal.signal(signal.SIGINT, signal_handler)
+
     zmq_context = zmq.Context()
     zmq_request_socket = zmq_context.socket(zmq.REQ)
     zmq_request_socket.connect(config["zmq.mauka.plugin.management.req.interface"])
