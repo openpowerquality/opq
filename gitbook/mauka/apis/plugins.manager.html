@@ -1,0 +1,142 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module plugins.manager</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong><a href="plugins.html"><font color="#ffffff">plugins</font></a>.manager</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:/home/anthony/Development/opq/mauka/plugins/manager.py">/home/anthony/Development/opq/mauka/plugins/manager.py</a></font></td></tr></table>
+    <p><tt>This&nbsp;module&nbsp;provides&nbsp;facilities&nbsp;for&nbsp;managing&nbsp;(stopping,&nbsp;starting,&nbsp;loading,&nbsp;reloading)&nbsp;plugin&nbsp;subprocesses.</tt></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="importlib.html">importlib</a><br>
+<a href="inspect.html">inspect</a><br>
+<a href="json.html">json</a><br>
+</td><td width="25%" valign=top><a href="logging.html">logging</a><br>
+<a href="multiprocessing.html">multiprocessing</a><br>
+<a href="os.html">os</a><br>
+</td><td width="25%" valign=top><a href="sys.html">sys</a><br>
+<a href="typing.html">typing</a><br>
+<a href="zmq.html">zmq</a><br>
+</td><td width="25%" valign=top></td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ee77aa">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Classes</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#ee77aa"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl>
+<dt><font face="helvetica, arial"><a href="builtins.html#object">builtins.object</a>
+</font></dt><dd>
+<dl>
+<dt><font face="helvetica, arial"><a href="plugins.manager.html#PluginManager">PluginManager</a>
+</font></dt></dl>
+</dd>
+</dl>
+ <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="PluginManager">class <strong>PluginManager</strong></a>(<a href="builtins.html#object">builtins.object</a>)</font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt>This&nbsp;class&nbsp;provides&nbsp;facilities&nbsp;for&nbsp;managing&nbsp;(stopping,&nbsp;starting,&nbsp;loading,&nbsp;reloading)&nbsp;plugin&nbsp;subprocesses.<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="PluginManager-__init__"><strong>__init__</strong></a>(self, config:Dict)</dt><dd><tt>Initializes&nbsp;the&nbsp;plugin&nbsp;manager<br>
+&nbsp;<br>
+:param&nbsp;config:&nbsp;Configuration&nbsp;dictionary</tt></dd></dl>
+
+<dl><dt><a name="PluginManager-cli_disable"><strong>cli_disable</strong></a>(self, plugin_name:str) -&gt; str</dt><dd><tt>Disables&nbsp;the&nbsp;given&nbsp;plugin<br>
+&nbsp;<br>
+:param&nbsp;plugin_name:&nbsp;Name&nbsp;of&nbsp;the&nbsp;plugin&nbsp;to&nbsp;disable<br>
+:return:&nbsp;Server&nbsp;response</tt></dd></dl>
+
+<dl><dt><a name="PluginManager-cli_enable"><strong>cli_enable</strong></a>(self, plugin_name:str) -&gt; str</dt><dd><tt>Enables&nbsp;the&nbsp;given&nbsp;plugin<br>
+&nbsp;<br>
+:param&nbsp;plugin_name:&nbsp;Name&nbsp;of&nbsp;the&nbsp;plugin&nbsp;to&nbsp;enable<br>
+:return:&nbsp;Server&nbsp;response</tt></dd></dl>
+
+<dl><dt><a name="PluginManager-cli_help"><strong>cli_help</strong></a>(self) -&gt; str</dt><dd><tt>Returns&nbsp;the&nbsp;available&nbsp;usage&nbsp;for&nbsp;the&nbsp;cli</tt></dd></dl>
+
+<dl><dt><a name="PluginManager-cli_load"><strong>cli_load</strong></a>(self, plugin_name:str) -&gt; str</dt><dd><tt>Attempts&nbsp;to&nbsp;load&nbsp;the&nbsp;given&nbsp;plugin&nbsp;from&nbsp;the&nbsp;plugins&nbsp;directory.<br>
+&nbsp;<br>
+The&nbsp;plugin&nbsp;must&nbsp;reside&nbsp;in&nbsp;a&nbsp;class&nbsp;with&nbsp;the&nbsp;same&nbsp;name&nbsp;as&nbsp;its&nbsp;module&nbsp;within&nbsp;the&nbsp;plugins&nbsp;directory.<br>
+If&nbsp;the&nbsp;plugin&nbsp;is&nbsp;already&nbsp;in&nbsp;the&nbsp;namespace,&nbsp;we&nbsp;will&nbsp;reload&nbsp;the&nbsp;module.&nbsp;Otherwise,&nbsp;we&nbsp;load&nbsp;it&nbsp;fresh.<br>
+&nbsp;<br>
+:param&nbsp;plugin_name:&nbsp;Name&nbsp;of&nbsp;the&nbsp;plugin&nbsp;to&nbsp;load<br>
+:return:&nbsp;Server&nbsp;response</tt></dd></dl>
+
+<dl><dt><a name="PluginManager-cli_ls"><strong>cli_ls</strong></a>(self) -&gt; str</dt><dd><tt>Returns&nbsp;a&nbsp;list&nbsp;of&nbsp;loaded&nbsp;plugins</tt></dd></dl>
+
+<dl><dt><a name="PluginManager-cli_start"><strong>cli_start</strong></a>(self, plugin_name:str) -&gt; str</dt><dd><tt>Starts&nbsp;the&nbsp;given&nbsp;plugin&nbsp;if&nbsp;loaded&nbsp;and&nbsp;enabled<br>
+&nbsp;<br>
+:param&nbsp;plugin_name:&nbsp;Name&nbsp;of&nbsp;the&nbsp;plugin&nbsp;to&nbsp;start<br>
+:return:&nbsp;Server&nbsp;response</tt></dd></dl>
+
+<dl><dt><a name="PluginManager-cli_stop"><strong>cli_stop</strong></a>(self, plugin_name:str) -&gt; str</dt><dd><tt>Stops&nbsp;the&nbsp;given&nbsp;plugin<br>
+&nbsp;<br>
+:param&nbsp;plugin_name:&nbsp;Name&nbsp;of&nbsp;the&nbsp;plugin&nbsp;to&nbsp;stop<br>
+:return:&nbsp;Server&nbsp;response</tt></dd></dl>
+
+<dl><dt><a name="PluginManager-cli_unload"><strong>cli_unload</strong></a>(self, plugin_name:str) -&gt; str</dt><dd><tt>Unload&nbsp;the&nbsp;given&nbsp;plugin<br>
+&nbsp;<br>
+:param&nbsp;plugin_name:&nbsp;Plugin&nbsp;name&nbsp;to&nbsp;unload<br>
+:return:&nbsp;Server&nbsp;response</tt></dd></dl>
+
+<dl><dt><a name="PluginManager-get_class"><strong>get_class</strong></a>(self, mod, class_name:str)</dt><dd><tt>Given&nbsp;a&nbsp;module,&nbsp;return&nbsp;a&nbsp;class&nbsp;from&nbsp;that&nbsp;module&nbsp;with&nbsp;the&nbsp;given&nbsp;name<br>
+&nbsp;<br>
+:param&nbsp;mod:&nbsp;The&nbsp;module&nbsp;to&nbsp;search&nbsp;for&nbsp;the&nbsp;class&nbsp;in<br>
+:param&nbsp;class_name:&nbsp;The&nbsp;class&nbsp;name&nbsp;we&nbsp;are&nbsp;attempting&nbsp;to&nbsp;retrieve<br>
+:return:&nbsp;The&nbsp;class&nbsp;we&nbsp;are&nbsp;attempting&nbsp;to&nbsp;retrieve&nbsp;or&nbsp;None&nbsp;if&nbsp;the&nbsp;class&nbsp;DNE</tt></dd></dl>
+
+<dl><dt><a name="PluginManager-handle_tcp_request"><strong>handle_tcp_request</strong></a>(self, request:str) -&gt; str</dt><dd><tt>Handle&nbsp;TCP&nbsp;request&nbsp;messages<br>
+&nbsp;<br>
+:param&nbsp;request:&nbsp;The&nbsp;message&nbsp;to&nbsp;handle<br>
+:return:&nbsp;The&nbsp;response&nbsp;message</tt></dd></dl>
+
+<dl><dt><a name="PluginManager-register_plugin"><strong>register_plugin</strong></a>(self, plugin_class, enabled:bool=True)</dt><dd><tt>Registers&nbsp;a&nbsp;plugin&nbsp;with&nbsp;the&nbsp;manager<br>
+&nbsp;<br>
+:param&nbsp;plugin_class:&nbsp;Python&nbsp;class&nbsp;of&nbsp;plugin<br>
+:param&nbsp;enabled:&nbsp;Whether&nbsp;or&nbsp;not&nbsp;this&nbsp;plugin&nbsp;is&nbsp;enabled&nbsp;when&nbsp;loaded</tt></dd></dl>
+
+<dl><dt><a name="PluginManager-run_all_plugins"><strong>run_all_plugins</strong></a>(self)</dt><dd><tt>Run&nbsp;all&nbsp;loaded&nbsp;and&nbsp;enabled&nbsp;plugins</tt></dd></dl>
+
+<dl><dt><a name="PluginManager-run_plugin"><strong>run_plugin</strong></a>(self, plugin_name:str)</dt><dd><tt>Run&nbsp;the&nbsp;given&nbsp;plugin<br>
+&nbsp;<br>
+:param&nbsp;plugin_name:&nbsp;Name&nbsp;of&nbsp;the&nbsp;plugin</tt></dd></dl>
+
+<dl><dt><a name="PluginManager-start_tcp_server"><strong>start_tcp_server</strong></a>(self)</dt><dd><tt>Starts&nbsp;a&nbsp;TCP&nbsp;server&nbsp;backed&nbsp;by&nbsp;ZMQ.&nbsp;This&nbsp;server&nbsp;is&nbsp;connected&nbsp;to&nbsp;my&nbsp;out&nbsp;cli&nbsp;client</tt></dd></dl>
+
+<hr>
+Data descriptors defined here:<br>
+<dl><dt><strong>__dict__</strong></dt>
+<dd><tt>dictionary&nbsp;for&nbsp;instance&nbsp;variables&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+<dl><dt><strong>__weakref__</strong></dt>
+<dd><tt>list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+</td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#eeaa77">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Functions</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl><dt><a name="-load_config"><strong>load_config</strong></a>(path:str) -&gt; Dict</dt><dd><tt>Loads&nbsp;a&nbsp;configuration&nbsp;file&nbsp;from&nbsp;the&nbsp;file&nbsp;system<br>
+&nbsp;<br>
+:param&nbsp;path:&nbsp;Path&nbsp;of&nbsp;configuration&nbsp;file<br>
+:return:&nbsp;Configuration&nbsp;dictionary</tt></dd></dl>
+ <dl><dt><a name="-run_cli"><strong>run_cli</strong></a>(config:Dict)</dt><dd><tt>Starts&nbsp;the&nbsp;REPL&nbsp;and&nbsp;sends&nbsp;commands&nbsp;to&nbsp;the&nbsp;plugin&nbsp;manager&nbsp;over&nbsp;TCP&nbsp;using&nbsp;ZMQ<br>
+&nbsp;<br>
+:param&nbsp;config:&nbsp;Configuration&nbsp;dictionary</tt></dd></dl>
+</td></tr></table>
+</body></html>

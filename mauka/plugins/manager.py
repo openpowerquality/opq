@@ -1,3 +1,7 @@
+"""
+This module provides facilities for managing (stopping, starting, loading, reloading) plugin subprocesses.
+"""
+
 import importlib
 import inspect
 import json
@@ -17,24 +21,53 @@ _logger.setLevel(logging.DEBUG)
 
 
 class PluginManager:
+    """
+    This class provides facilities for managing (stopping, starting, loading, reloading) plugin subprocesses.
+    """
     def __init__(self, config: typing.Dict):
+        """Initializes the plugin manager
+
+        :param config: Configuration dictionary
+
+        """
         self.config = config
+        """Configuration dictionary"""
+
         self.name_to_plugin_class = {}
+        """Name of plugin to its corresponding Python class"""
 
         self.name_to_process = {}
+        """Name of plugin to its corresponding process (if it has one)"""
+
         self.name_to_exit_event = {}
+        """Name of plugin to its corresponding exit event object (if it has one)"""
+
         self.name_to_enabled = {}
+        """Name of plugin to whether or not the plugin is enabled"""
 
         self.zmq_context = zmq.Context()
+        """ZeroMQ context"""
+
         self.zmq_pub_socket = self.zmq_context.socket(zmq.PUB)
+        """ZeroMQ publishing socket (allows publishing messages to plugins)"""
+
         self.zmq_pub_socket.connect(self.config["zmq.mauka.plugin.pub.interface"])
 
     def register_plugin(self, plugin_class, enabled: bool = True):
+        """Registers a plugin with the manager
+
+        :param plugin_class: Python class of plugin
+        :param enabled: Whether or not this plugin is enabled when loaded
+        """
         name = plugin_class.NAME
         self.name_to_plugin_class[name] = plugin_class
         self.name_to_enabled[name] = enabled
 
     def run_plugin(self, plugin_name: str):
+        """Run the given plugin
+
+        :param plugin_name: Name of the plugin
+        """
         if plugin_name not in self.name_to_plugin_class:
             _logger.error("Plugin {} DNE".format(plugin_name))
             return
@@ -54,7 +87,95 @@ class PluginManager:
         self.name_to_process[plugin_name] = process
         self.name_to_exit_event[plugin_name] = exit_event
 
+    def run_all_plugins(self):
+        """Run all loaded and enabled plugins"""
+        _logger.info("Starting all plugins")
+        for name in self.name_to_plugin_class:
+            if self.name_to_enabled[name]:
+                self.run_plugin(name)
+
+    def get_class(self, mod, class_name: str):
+        """Given a module, return a class from that module with the given name
+
+        :param mod: The module to search for the class in
+        :param class_name: The class name we are attempting to retrieve
+        :return: The class we are attempting to retrieve or None if the class DNE
+        """
+        for name_val in inspect.getmembers(mod, inspect.isclass):
+            name = name_val[0]
+            val = name_val[1]
+            if name == class_name:
+                return val
+            return None
+
+    def start_tcp_server(self):
+        """Starts a TCP server backed by ZMQ. This server is connected to my out cli client"""
+        _logger.info("Starting plugin manager TCP server")
+        zmq_context = zmq.Context()
+        zmq_reply_socket = zmq_context.socket(zmq.REP)
+        zmq_reply_socket.bind(self.config["zmq.mauka.plugin.management.rep.interface"])
+
+        while True:
+            request = zmq_reply_socket.recv_string()
+            zmq_reply_socket.send_string(self.handle_tcp_request(request))
+
+    def handle_tcp_request(self, request: str) -> str:
+        """Handle TCP request messages
+
+        :param request: The message to handle
+        :return: The response message
+        """
+        if request.startswith("disable"):
+            plugin_name = request.split(" ")[1]
+            return self.cli_disable(plugin_name)
+        elif request.startswith("enable"):
+            plugin_name = request.split(" ")[1]
+            return self.cli_enable(plugin_name)
+        elif request == "help":
+            return self.cli_help()
+        elif request.startswith("load"):
+            plugin_name = request.split(" ")[1]
+            return self.cli_load(plugin_name)
+        elif request == "ls":
+            return self.cli_ls()
+        elif request.startswith("start"):
+            plugin_name = request.strip().split(" ")[1]
+            return self.cli_start(plugin_name)
+        elif request.startswith("stop"):
+            plugin_name = request.strip().split(" ")[1]
+            return self.cli_stop(plugin_name)
+        elif request.startswith("unload"):
+            plugin_name = request.split(" ")[1]
+            return self.cli_unload(plugin_name)
+        else:
+            return "Unknown cmd {}".format(request)
+
+    def cli_disable(self, plugin_name: str) -> str:
+        """Disables the given plugin
+
+        :param plugin_name: Name of the plugin to disable
+        :return: Server response
+        """
+        if plugin_name not in self.name_to_plugin_class:
+            return "Plugin {} DNE".format(plugin_name)
+
+        self.name_to_enabled[plugin_name] = False
+        return "OK"
+
+    def cli_enable(self, plugin_name: str) -> str:
+        """Enables the given plugin
+
+        :param plugin_name: Name of the plugin to enable
+        :return: Server response
+        """
+        if plugin_name not in self.name_to_plugin_class:
+            return "Plugin {} DNE".format(plugin_name)
+
+        self.name_to_enabled[plugin_name] = True
+        return "OK"
+
     def cli_help(self) -> str:
+        """Returns the available usage for the cli"""
         return """
             disable [pluginName]
                 Disables the named plugin.
@@ -86,62 +207,15 @@ class PluginManager:
                 Unload the named plugin.
             """
 
-    def cli_ls(self) -> str:
-        resp = ""
-        for name in sorted(self.name_to_plugin_class):
-            enabled = self.name_to_enabled[name]
-            process = self.name_to_process[name] if name in self.name_to_process else "N/A"
-            process_pid = process.pid if process != "N/A" else "N/A"
-            exit_event = self.name_to_exit_event[name].is_set() if name in self.name_to_exit_event else "N/A"
-
-            resp += "name: {} enabled: {} process: {}[{}] exit_event: {}\n".format(name, enabled, process, process_pid,
-                                                                                   exit_event)
-
-        return resp
-
-    def cli_start(self, plugin_name: str) -> str:
-        if plugin_name not in self.name_to_plugin_class:
-            return "Plugin {} DNE".format(plugin_name)
-
-        if not self.name_to_enabled[plugin_name]:
-            return "Plugin {} is not enabled".format(plugin_name)
-
-        self.run_plugin(plugin_name)
-        return "OK"
-
-    def cli_stop(self, plugin_name: str) -> str:
-        if plugin_name not in self.name_to_plugin_class:
-            return "Plugin {} DNE".format(plugin_name)
-
-        self.zmq_pub_socket.send_multipart((plugin_name.encode(), b"EXIT"))
-        if plugin_name in self.name_to_exit_event:
-            self.name_to_exit_event[plugin_name].set()
-
-        return "OK"
-
-    def cli_enable(self, plugin_name: str) -> str:
-        if plugin_name not in self.name_to_plugin_class:
-            return "Plugin {} DNE".format(plugin_name)
-
-        self.name_to_enabled[plugin_name] = True
-        return "OK"
-
-    def cli_disable(self, plugin_name: str) -> str:
-        if plugin_name not in self.name_to_plugin_class:
-            return "Plugin {} DNE".format(plugin_name)
-
-        self.name_to_enabled[plugin_name] = False
-        return "OK"
-    
-    def get_class(self, mod, class_name: str):
-        for name_val in inspect.getmembers(mod, inspect.isclass):
-            name = name_val[0]
-            val = name_val[1]
-            if name == class_name:
-                return val
-            return None
-
     def cli_load(self, plugin_name: str) -> str:
+        """Attempts to load the given plugin from the plugins directory.
+
+        The plugin must reside in a class with the same name as its module within the plugins directory.
+        If the plugin is already in the namespace, we will reload the module. Otherwise, we load it fresh.
+
+        :param plugin_name: Name of the plugin to load
+        :return: Server response
+        """
         current_dir = os.path.dirname(os.path.realpath(__file__))
         if not os.path.isfile("{}/{}.py".format(current_dir, plugin_name)):
             return "Plugin {} DNE".format(plugin_name)
@@ -160,8 +234,56 @@ class PluginManager:
         self.register_plugin(self.get_class(mod, plugin_name))
         return "LOADED {}".format(plugin_name)
 
+    def cli_ls(self) -> str:
+        """Returns a list of loaded plugins"""
+        resp = ""
+        for name in sorted(self.name_to_plugin_class):
+            enabled = self.name_to_enabled[name]
+            process = self.name_to_process[name] if name in self.name_to_process else "N/A"
+            process_pid = process.pid if process != "N/A" else "N/A"
+            exit_event = self.name_to_exit_event[name].is_set() if name in self.name_to_exit_event else "N/A"
+
+            resp += "name: {} enabled: {} process: {}[{}] exit_event: {}\n".format(name, enabled, process, process_pid,
+                                                                                   exit_event)
+
+        return resp
+
+    def cli_start(self, plugin_name: str) -> str:
+        """Starts the given plugin if loaded and enabled
+
+        :param plugin_name: Name of the plugin to start
+        :return: Server response
+        """
+        if plugin_name not in self.name_to_plugin_class:
+            return "Plugin {} DNE".format(plugin_name)
+
+        if not self.name_to_enabled[plugin_name]:
+            return "Plugin {} is not enabled".format(plugin_name)
+
+        self.run_plugin(plugin_name)
+        return "OK"
+
+    def cli_stop(self, plugin_name: str) -> str:
+        """Stops the given plugin
+
+        :param plugin_name: Name of the plugin to stop
+        :return: Server response
+        """
+        if plugin_name not in self.name_to_plugin_class:
+            return "Plugin {} DNE".format(plugin_name)
+
+        self.zmq_pub_socket.send_multipart((plugin_name.encode(), b"EXIT"))
+        if plugin_name in self.name_to_exit_event:
+            self.name_to_exit_event[plugin_name].set()
+
+        return "OK"
 
     def cli_unload(self, plugin_name: str) -> str:
+        """Unload the given plugin
+
+        :param plugin_name: Plugin name to unload
+        :return: Server response
+        """
         if plugin_name not in self.name_to_plugin_class:
             return "Plugin {} DNE".format(plugin_name)
 
@@ -179,50 +301,12 @@ class PluginManager:
 
         return "OK"
 
-    def run_all_plugins(self):
-        _logger.info("Starting all plugins")
-        for name in self.name_to_plugin_class:
-            if self.name_to_enabled[name]:
-                self.run_plugin(name)
-
-    def handle_tcp_request(self, request: str) -> str:
-        if request.startswith("disable"):
-            plugin_name = request.split(" ")[1]
-            return self.cli_disable(plugin_name)
-        elif request.startswith("enable"):
-            plugin_name = request.split(" ")[1]
-            return self.cli_enable(plugin_name)
-        elif request.startswith("load"):
-            plugin_name = request.split(" ")[1]
-            return self.cli_load(plugin_name)
-        elif request == "ls":
-            return self.cli_ls()
-        elif request == "help":
-            return self.cli_help()
-        elif request.startswith("start"):
-            plugin_name = request.strip().split(" ")[1]
-            return self.cli_start(plugin_name)
-        elif request.startswith("stop"):
-            plugin_name = request.strip().split(" ")[1]
-            return self.cli_stop(plugin_name)
-        elif request.startswith("unload"):
-            plugin_name = request.split(" ")[1]
-            return self.cli_unload(plugin_name)
-        else:
-            return "Unknown cmd {}".format(request)
-
-    def start_tcp_server(self):
-        _logger.info("Starting plugin manager TCP server")
-        zmq_context = zmq.Context()
-        zmq_reply_socket = zmq_context.socket(zmq.REP)
-        zmq_reply_socket.bind(self.config["zmq.mauka.plugin.management.rep.interface"])
-
-        while True:
-            request = zmq_reply_socket.recv_string()
-            zmq_reply_socket.send_string(self.handle_tcp_request(request))
-
 
 def run_cli(config: typing.Dict):
+    """Starts the REPL and sends commands to the plugin manager over TCP using ZMQ
+
+    :param config: Configuration dictionary
+    """
     zmq_context = zmq.Context()
     zmq_request_socket = zmq_context.socket(zmq.REQ)
     zmq_request_socket.connect(config["zmq.mauka.plugin.management.req.interface"])
@@ -251,6 +335,7 @@ def load_config(path: str) -> typing.Dict:
 
 
 if __name__ == "__main__":
+    """Entry point to plugin manager repl/cli"""
     _logger.info("Starting OpqMauka CLI")
     if len(sys.argv) <= 1:
         _logger.error("Configuration file not supplied")
