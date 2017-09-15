@@ -125,35 +125,38 @@ class PluginManager:
         :param request: The message to handle
         :return: The response message
         """
-        if request.startswith("disable"):
+        if request.startswith("disable-plugin"):
             plugin_name = request.split(" ")[1]
-            return self.cli_disable(plugin_name)
-        elif request.startswith("enable"):
+            return self.cli_disable_plugin(plugin_name)
+        elif request.startswith("enable-plugin"):
             plugin_name = request.split(" ")[1]
-            return self.cli_enable(plugin_name)
+            return self.cli_enable_plugin(plugin_name)
         elif request == "help":
             return self.cli_help()
-        elif request.startswith("kill"):
+        elif request.startswith("kill-plugin"):
             plugin_name = request.split(" ")[1]
-            self.cli_kill(plugin_name)
-        elif request.startswith("load"):
+            return self.cli_kill_plugin(plugin_name)
+        elif request.startswith("load-config"):
+            config_path = request.split(" ")[1]
+            return self.cli_load_config(config_path)
+        elif request.startswith("load-plugin"):
             plugin_name = request.split(" ")[1]
-            return self.cli_load(plugin_name)
-        elif request == "ls":
-            return self.cli_ls()
-        elif request.startswith("start"):
+            return self.cli_load_plugin(plugin_name)
+        elif request == "list-plugins":
+            return self.cli_list_plugins()
+        elif request.startswith("start-plugin"):
             plugin_name = request.strip().split(" ")[1]
-            return self.cli_start(plugin_name)
-        elif request.startswith("stop"):
+            return self.cli_start_plugin(plugin_name)
+        elif request.startswith("stop-plugin"):
             plugin_name = request.strip().split(" ")[1]
-            return self.cli_stop(plugin_name)
-        elif request.startswith("unload"):
+            return self.cli_stop_plugin(plugin_name)
+        elif request.startswith("unload-plugin"):
             plugin_name = request.split(" ")[1]
-            return self.cli_unload(plugin_name)
+            return self.cli_unload_plugin(plugin_name)
         else:
             return "Unknown cmd {}".format(request)
 
-    def cli_disable(self, plugin_name: str) -> str:
+    def cli_disable_plugin(self, plugin_name: str) -> str:
         """Disables the given plugin
 
         :param plugin_name: Name of the plugin to disable
@@ -165,7 +168,7 @@ class PluginManager:
         self.name_to_enabled[plugin_name] = False
         return "OK"
 
-    def cli_enable(self, plugin_name: str) -> str:
+    def cli_enable_plugin(self, plugin_name: str) -> str:
         """Enables the given plugin
 
         :param plugin_name: Name of the plugin to enable
@@ -180,38 +183,31 @@ class PluginManager:
     def cli_help(self) -> str:
         """Returns the available usage for the cli"""
         return """
-            disable [pluginName]
+            disable-plugin [plugin name]
                 Disables the named plugin.
-            
-            enable [pluginName]
+            enable-plugin [plugin name]
                 Enables the named plugin.
-                
             exit
                 Exits the opq-mauka cli.
-                
             help
                 Displays this message.
-                
-            kill [pluginName]
+            kill-plugin [plugin name]
                 Kills the named plugin
-                
-            load [pluginName]
+            load-config [configuration file path]
+                Reloads the configuration file
+            load-plugin [plugin name]
                 Loads the named plugin from disk. 
-                
-            ls
+            list-plugins
                 Display status of all loaded plugins.
-                
-            start [pluginName]
+            start-plugin [plugin name]
                 Start the named plugin.
-                
-            stop [pluginName]
+            stop-plugin [plugin name]
                 Stop the named plugin.
-                
-            unload [pluginName]
+            unload-plugin [plugin name]
                 Unload the named plugin.
             """
 
-    def cli_kill(self, plugin_name: str) -> str:
+    def cli_kill_plugin(self, plugin_name: str) -> str:
         """Kills the named plugin
 
         :param plugin_name: The plugin to kill
@@ -227,7 +223,17 @@ class PluginManager:
         self.name_to_process[plugin_name].terminate()
         return "OK"
 
-    def cli_load(self, plugin_name: str) -> str:
+    def cli_load_config(self, config_path: str) -> str:
+        if not os.path.isfile(config_path):
+            return "Path {} DNE".format(config_path)
+
+        try:
+            self.config = load_config(config_path)
+            return "OK"
+        except Exception as e:
+            return "Exception occured while loading config: {}".format(e)
+
+    def cli_load_plugin(self, plugin_name: str) -> str:
         """Attempts to load the given plugin from the plugins directory.
 
         The plugin must reside in a class with the same name as its module within the plugins directory.
@@ -243,7 +249,7 @@ class PluginManager:
         # First, let's see if this is already imported
         module_name = "plugins.{}".format(plugin_name)
         if module_name in sys.modules:
-            self.cli_unload(plugin_name)
+            self.cli_unload_plugin(plugin_name)
             mod = sys.modules[module_name]
             importlib.reload(mod)
             self.register_plugin(self.get_class(mod, plugin_name))
@@ -254,7 +260,7 @@ class PluginManager:
         self.register_plugin(self.get_class(mod, plugin_name))
         return "LOADED {}".format(plugin_name)
 
-    def cli_ls(self) -> str:
+    def cli_list_plugins(self) -> str:
         """Returns a list of loaded plugins"""
         resp = ""
         for name in sorted(self.name_to_plugin_class):
@@ -268,7 +274,7 @@ class PluginManager:
 
         return resp
 
-    def cli_start(self, plugin_name: str) -> str:
+    def cli_start_plugin(self, plugin_name: str) -> str:
         """Starts the given plugin if loaded and enabled
 
         :param plugin_name: Name of the plugin to start
@@ -283,7 +289,7 @@ class PluginManager:
         self.run_plugin(plugin_name)
         return "OK"
 
-    def cli_stop(self, plugin_name: str) -> str:
+    def cli_stop_plugin(self, plugin_name: str) -> str:
         """Stops the given plugin
 
         :param plugin_name: Name of the plugin to stop
@@ -298,7 +304,7 @@ class PluginManager:
 
         return "OK"
 
-    def cli_unload(self, plugin_name: str) -> str:
+    def cli_unload_plugin(self, plugin_name: str) -> str:
         """Unload the given plugin
 
         :param plugin_name: Plugin name to unload
