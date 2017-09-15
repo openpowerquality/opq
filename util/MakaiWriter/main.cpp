@@ -26,10 +26,14 @@ int main() {
 
     uint64_t now = chrono_to_mili_now();
 
-    m.set_type("TEST EVENT");
+    m.set_trigger_type(m.OTHER);
     m.set_description("This is a test event");
-    m.set_forward(now - 10000);
-    m.set_back(now - 20000);
+    m.set_end_timestamp_ms_utc(now - 10000);
+    m.set_start_timestamp_ms_utc(now - 20000);
+    m.set_percent_magnitude(50);
+    m.set_requestee("test");
+    m.set_description("Test event");
+    m.set_request_data(true);
     req.send(m.SerializeAsString());
     std::string out;
     req.receive(out);
