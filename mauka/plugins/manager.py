@@ -150,6 +150,9 @@ class PluginManager:
         elif request.startswith("stop-plugin"):
             plugin_name = request.strip().split(" ")[1]
             return self.cli_stop_plugin(plugin_name)
+        elif request.startswith("restart-plugin"):
+            plugin_name = request.strip().split(" ")[1]
+            return self.cli_restart_plugin(plugin_name)
         elif request.startswith("unload-plugin"):
             plugin_name = request.split(" ")[1]
             return self.cli_unload_plugin(plugin_name)
@@ -194,15 +197,17 @@ class PluginManager:
             kill-plugin [plugin name]
                 Kills the named plugin
             load-config [configuration file path]
-                Reloads the configuration file
+                Reloads the configuration file.
             load-plugin [plugin name]
-                Loads the named plugin from disk. 
+                Loads (or reloads) the named plugin from disk.
             list-plugins
                 Display status of all loaded plugins.
             start-plugin [plugin name]
                 Start the named plugin.
             stop-plugin [plugin name]
                 Stop the named plugin.
+            restart-plugin [plugin name]
+                Restarts the named plugin.
             unload-plugin [plugin name]
                 Unload the named plugin.
             """
@@ -224,6 +229,13 @@ class PluginManager:
         return "OK"
 
     def cli_load_config(self, config_path: str) -> str:
+        """Loads new configuration values
+
+        Plugins need to be restarted to take advantage of new values
+
+        :param config_path: Path to configuration file
+        :return: Server response
+        """
         if not os.path.isfile(config_path):
             return "Path {} DNE".format(config_path)
 
@@ -269,7 +281,7 @@ class PluginManager:
             process_pid = process.pid if process != "N/A" else "N/A"
             exit_event = self.name_to_exit_event[name].is_set() if name in self.name_to_exit_event else "N/A"
 
-            resp += "name: {} enabled: {} process: {}[{}] exit_event: {}\n".format(name, enabled, process, process_pid,
+            resp += "name:{} enabled:{} process:{} pid:{} exit_event:{}\n".format(name, enabled, process, process_pid,
                                                                                    exit_event)
 
         return resp
@@ -301,6 +313,21 @@ class PluginManager:
         self.zmq_pub_socket.send_multipart((plugin_name.encode(), b"EXIT"))
         if plugin_name in self.name_to_exit_event:
             self.name_to_exit_event[plugin_name].set()
+
+        return "OK"
+
+    def cli_restart_plugin(self, plugin_name: str) -> str:
+        """Restarts the given plugin
+
+        :param plugin_name: Name of the plugin to restart
+        :return: Server response
+        """
+        resp = self.cli_stop_plugin(plugin_name)
+        if resp != "OK":
+            return resp
+        resp = self.cli_start_plugin(plugin_name)
+        if resp != "OK":
+            return resp
 
         return "OK"
 
