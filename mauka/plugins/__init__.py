@@ -8,7 +8,7 @@ from plugins.AcquisitionTriggerPlugin import AcquisitionTriggerPlugin
 from plugins.FrequencyThresholdPlugin import FrequencyThresholdPlugin
 from plugins.MeasurementPlugin import MeasurementPlugin
 from plugins.MeasurementShimPlugin import MeasurementShimPlugin
-from plugins.PrintPlugin import PrintPlugin
+#from plugins.PrintPlugin import PrintPlugin
 from plugins.StatusPlugin import StatusPlugin
 from plugins.VoltageThresholdPlugin import VoltageThresholdPlugin
 

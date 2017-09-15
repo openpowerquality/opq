@@ -1,3 +1,5 @@
+import importlib
+import inspect
 import json
 import logging
 import multiprocessing
@@ -52,6 +54,38 @@ class PluginManager:
         self.name_to_process[plugin_name] = process
         self.name_to_exit_event[plugin_name] = exit_event
 
+    def cli_help(self) -> str:
+        return """
+            disable [pluginName]
+                Disables the named plugin.
+            
+            enable [pluginName]
+                Enables the named plugin.
+                
+            exit
+                Exits the opq-mauka cli.
+                
+            help
+                Displays this message.
+                
+            load [pluginName]
+                Loads the named plugin from disk. 
+                Note: The plugin should be in the plugins directory.
+                Note: The plugin module and class must be the same name.
+                
+            ls
+                Display status of all loaded plugins.
+                
+            start [pluginName]
+                Start the named plugin.
+                
+            stop [pluginName]
+                Stop the named plugin.
+                
+            unload [pluginName]
+                Unload the named plugin.
+            """
+
     def cli_ls(self) -> str:
         resp = ""
         for name in sorted(self.name_to_plugin_class):
@@ -85,6 +119,66 @@ class PluginManager:
 
         return "OK"
 
+    def cli_enable(self, plugin_name: str) -> str:
+        if plugin_name not in self.name_to_plugin_class:
+            return "Plugin {} DNE".format(plugin_name)
+
+        self.name_to_enabled[plugin_name] = True
+        return "OK"
+
+    def cli_disable(self, plugin_name: str) -> str:
+        if plugin_name not in self.name_to_plugin_class:
+            return "Plugin {} DNE".format(plugin_name)
+
+        self.name_to_enabled[plugin_name] = False
+        return "OK"
+    
+    def get_class(self, mod, class_name: str):
+        for name_val in inspect.getmembers(mod, inspect.isclass):
+            name = name_val[0]
+            val = name_val[1]
+            if name == class_name:
+                return val
+            return None
+
+    def cli_load(self, plugin_name: str) -> str:
+        current_dir = os.path.dirname(os.path.realpath(__file__))
+        if not os.path.isfile("{}/{}.py".format(current_dir, plugin_name)):
+            return "Plugin {} DNE".format(plugin_name)
+
+        # First, let's see if this is already imported
+        module_name = "plugins.{}".format(plugin_name)
+        if module_name in sys.modules:
+            self.cli_unload(plugin_name)
+            mod = sys.modules[module_name]
+            importlib.reload(mod)
+            self.register_plugin(self.get_class(mod, plugin_name))
+            return "RELOADED {}".format(plugin_name)
+
+        importlib.invalidate_caches()
+        mod = importlib.import_module(module_name)
+        self.register_plugin(self.get_class(mod, plugin_name))
+        return "LOADED {}".format(plugin_name)
+
+
+    def cli_unload(self, plugin_name: str) -> str:
+        if plugin_name not in self.name_to_plugin_class:
+            return "Plugin {} DNE".format(plugin_name)
+
+        if plugin_name in self.name_to_plugin_class:
+            self.name_to_plugin_class.pop(plugin_name)
+
+        if plugin_name in self.name_to_enabled:
+            self.name_to_enabled.pop(plugin_name)
+
+        if plugin_name in self.name_to_process:
+            self.name_to_process.pop(plugin_name)
+
+        if plugin_name in self.name_to_exit_event:
+            self.name_to_exit_event.pop(plugin_name)
+
+        return "OK"
+
     def run_all_plugins(self):
         _logger.info("Starting all plugins")
         for name in self.name_to_plugin_class:
@@ -92,31 +186,28 @@ class PluginManager:
                 self.run_plugin(name)
 
     def handle_tcp_request(self, request: str) -> str:
-        if request == "ls":
+        if request.startswith("disable"):
+            plugin_name = request.split(" ")[1]
+            return self.cli_disable(plugin_name)
+        elif request.startswith("enable"):
+            plugin_name = request.split(" ")[1]
+            return self.cli_enable(plugin_name)
+        elif request.startswith("load"):
+            plugin_name = request.split(" ")[1]
+            return self.cli_load(plugin_name)
+        elif request == "ls":
             return self.cli_ls()
         elif request == "help":
-            return """
-            exit
-                Exits the opq-mauka cli.
-                
-            help
-                Displays this message.
-                
-            ls
-                Display status of all loaded plugins.
-                
-            start [pluginName]
-                Start the named plugin.
-                
-            stop [pluginName]
-                Stop the named plugin.
-            """
+            return self.cli_help()
         elif request.startswith("start"):
             plugin_name = request.strip().split(" ")[1]
             return self.cli_start(plugin_name)
         elif request.startswith("stop"):
             plugin_name = request.strip().split(" ")[1]
             return self.cli_stop(plugin_name)
+        elif request.startswith("unload"):
+            plugin_name = request.split(" ")[1]
+            return self.cli_unload(plugin_name)
         else:
             return "Unknown cmd {}".format(request)
 
@@ -129,6 +220,7 @@ class PluginManager:
         while True:
             request = zmq_reply_socket.recv_string()
             zmq_reply_socket.send_string(self.handle_tcp_request(request))
+
 
 def run_cli(config: typing.Dict):
     zmq_context = zmq.Context()

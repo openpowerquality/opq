@@ -80,7 +80,7 @@ if __name__ == "__main__":
 
     plugin_manger = plugins.PluginManager(config)
 
-    plugin_manger.register_plugin(plugins.PrintPlugin, enabled=False)
+    #plugin_manger.register_plugin(plugins.PrintPlugin, enabled=False)
     plugin_manger.register_plugin(plugins.MeasurementShimPlugin)
     plugin_manger.register_plugin(plugins.MeasurementPlugin)
     plugin_manger.register_plugin(plugins.FrequencyThresholdPlugin)
