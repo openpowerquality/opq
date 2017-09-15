@@ -13,12 +13,14 @@ class PrintPlugin(plugins.base.MaukaPlugin):
     This class contains a plugin that prints every message
     """
 
+    NAME = "PrintPlugin"
+
     def __init__(self, config: typing.Dict, exit_event: multiprocessing.Event):
         """ Initializes this plugin
 
         :param config: Configuration dictionary
         """
-        super().__init__(config, [""], "PrintPlugin", exit_event)
+        super().__init__(config, [""], PrintPlugin.NAME, exit_event)
 
     def on_message(self, topic, message):
         """Subscribed messages occur async

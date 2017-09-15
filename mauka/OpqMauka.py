@@ -78,20 +78,15 @@ if __name__ == "__main__":
 
     pub_sub_server_process = start_mauka_pub_sub_broker(config)
 
-    plugins_list = [
-        # plugins.PrintPlugin,
-        plugins.MeasurementShimPlugin.MeasurementShimPlugin,
-        plugins.MeasurementPlugin.MeasurementPlugin,
-        plugins.FrequencyThresholdPlugin.FrequencyThresholdPlugin,
-        plugins.VoltageThresholdPlugin.VoltageThresholdPlugin,
-        plugins.AcquisitionTriggerPlugin.AcquisitionTriggerPlugin,
-        plugins.StatusPlugin.StatusPlugin
-    ]
+    plugin_manger = plugins.PluginManager(config)
 
-    processes = []
+    #plugin_manger.register_plugin(plugins.PrintPlugin, enabled=False)
+    plugin_manger.register_plugin(plugins.MeasurementShimPlugin)
+    plugin_manger.register_plugin(plugins.MeasurementPlugin)
+    plugin_manger.register_plugin(plugins.FrequencyThresholdPlugin)
+    plugin_manger.register_plugin(plugins.VoltageThresholdPlugin)
+    plugin_manger.register_plugin(plugins.AcquisitionTriggerPlugin)
+    plugin_manger.register_plugin(plugins.StatusPlugin)
 
-    for plugin in plugins_list:
-        try:
-            plugins.run_plugin(plugin, config)
-        except KeyError as e:
-            _logger.error("Could not load plugin due to configuration error: {}".format(e))
+    plugin_manger.run_all_plugins()
+    plugin_manger.start_tcp_server()
