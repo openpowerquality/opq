@@ -4,7 +4,6 @@ TRIGGERING_DOCS_DIR="./docs/Triggering"
 FIRMWARE_DIR="../Firmware"
 FIRMWARE_DOCS_DIR="./docs/Firmware"
 DSPutill_DIR="./DSPutill/"
-WIFI_DIR="./opqwifi/"
 PROTOCOL_DIR="../../protocol/"
 PROTOCOL_FILE="opq.proto"
 

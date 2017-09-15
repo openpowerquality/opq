@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 TRIGGERING_BUILD_DIR="./Triggering/build/"
 SRC_DIR=$(pwd)
+PROTOCOL_DIR="../../protocol/"
+PROTOCOL_FILE="opq.proto"
 
 #Building kernel files
 cd kernel
