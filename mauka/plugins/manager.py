@@ -9,6 +9,7 @@ import json
 import logging
 import multiprocessing
 import os
+import readline
 import sys
 import typing
 
@@ -391,20 +392,28 @@ def run_cli(config: typing.Dict):
 
     :param config: Configuration dictionary
     """
-
-    def signal_handler(signal, frame):
-        sys.exit(0)
-    signal.signal(signal.SIGINT, signal_handler)
-
     zmq_context = zmq.Context()
     zmq_request_socket = zmq_context.socket(zmq.REQ)
     zmq_request_socket.connect(config["zmq.mauka.plugin.management.req.interface"])
     prompt = "opq-mauka> "
-    cmd = input(prompt)
-    while cmd != "exit":
-        zmq_request_socket.send_string(cmd)
-        print(zmq_request_socket.recv_string())
-        cmd = input(prompt)
+
+    try:
+        while True:
+            cmd = input(prompt)
+
+            if cmd == "exit":
+                _logger.info("Exiting mauka-cli")
+                sys.exit(0)
+
+            zmq_request_socket.send_string(cmd)
+            print(zmq_request_socket.recv_string())
+    except (EOFError, KeyboardInterrupt) as e:
+        _logger.info("Exiting mauka-cli")
+        sys.exit(0)
+
+
+
+
 
 
 def load_config(path: str) -> typing.Dict:
