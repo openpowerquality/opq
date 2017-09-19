@@ -17,6 +17,7 @@
 #include "LocalAnalysis.hpp"
 #include "version.hpp"
 #include "Pipeline.hpp"
+#include "WebMonitor.hpp"
 
 using namespace std;
 using namespace opq;
@@ -99,11 +100,15 @@ int main(int argc, char** argv) {
 
     pipeline::Slab acqSlab;
 
+    WebMonitor monitor(readerQueue,analysisQueue,time_series);
+    pipeline::Slab monitorSlab;
+
     //Start all the threads.
     triggerSlab.start([&trigger](bool &running) {trigger.loop(running);});
     readerSlab.start([&reader](bool &running) {reader.loop(running);});
     analysisSlab.start([&analysis](bool &running) {analysis.loop(running);});
     acqSlab.start([&time_series](bool &running){zmq_acq_loop(running, time_series);});
+    monitorSlab.start([&monitor](bool &running){monitor.loop(running);});
     //Post Signal handler for the interrupt signal
     std::signal(SIGINT, bail_handler);
     //Sleep until we catch a signal.
@@ -115,5 +120,6 @@ int main(int argc, char** argv) {
     analysisSlab.stop();
     readerSlab.stop();
     acqSlab.stop();
+    monitorSlab.stop();
     return 0;
 }
