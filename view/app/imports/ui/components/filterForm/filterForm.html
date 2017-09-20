@@ -3,24 +3,24 @@
     <!--Frequency Range-->
     {{#if frequencyRange}}
       <div class="two fields">
-        {{> Text_Form_Control id="minFrequency" name="minFrequency" label="Min Frequency" rightLabel="Hz"}}
-        {{> Text_Form_Control id="maxFrequency" name="maxFrequency" label="Max Frequency" rightLabel="Hz"}}
+        {{> Text_Form_Control id="minFrequency" name="minFrequency" label="Min Frequency" rightLabel="Hz" errorMessage=(fieldError "minFrequency")}}
+        {{> Text_Form_Control id="maxFrequency" name="maxFrequency" label="Max Frequency" rightLabel="Hz" errorMessage=(fieldError "maxFrequency")}}
       </div>
     {{/if}}
 
     <!--Voltage Range-->
     {{#if voltageRange}}
       <div class="two fields">
-        {{> Text_Form_Control id="minVoltage" name="minVoltage" label="Min Voltage" rightLabel="V"}}
-        {{> Text_Form_Control id="maxVoltage" name="maxVoltage" label="Max Voltage" rightLabel="V"}}
+        {{> Text_Form_Control id="minVoltage" name="minVoltage" label="Min Voltage" rightLabel="V" errorMessage=(fieldError "minVoltage")}}
+        {{> Text_Form_Control id="maxVoltage" name="maxVoltage" label="Max Voltage" rightLabel="V" errorMessage=(fieldError "maxVoltage")}}
       </div>
     {{/if}}
 
     <!--Duration-->
     {{#if durationRange}}
       <div class="two fields">
-        {{> Text_Form_Control id="minDuration" name="minDuration" label="Min Duration" rightLabel="s"}}
-        {{> Text_Form_Control id="maxDuration" name="maxDuration" label="Max Duration" rightLabel="s"}}
+        {{> Text_Form_Control id="minDuration" name="minDuration" label="Min Duration" rightLabel="s" errorMessage=(fieldError "minDuration")}}
+        {{> Text_Form_Control id="maxDuration" name="maxDuration" label="Max Duration" rightLabel="s" errorMessage=(fieldError "maxDuration")}}
       </div>
     {{/if}}
 
@@ -29,14 +29,14 @@
     <!-- Time Inteval -->
     {{#if timeInterval}}
       <div class="two fields">
-        {{> Text_Form_Control id="startTime" name="startTime" label="Start Time" leftIcon="hourglass start"}}
-        {{> Text_Form_Control id="endTime" name="endTime" label="End Time" leftIcon="hourglass end"}}
+        {{> Text_Form_Control id="startTime" name="startTime" label="Start Time" leftIcon="hourglass start" errorMessage=(fieldError "startTime")}}
+        {{> Text_Form_Control id="endTime" name="endTime" label="End Time" leftIcon="hourglass end" errorMessage=(fieldError "endTime")}}
       </div>
     {{/if}}
 
     <!-- Day Picker -->
     {{#if dayPicker}}
-      {{> Text_Form_Control id="dayPicker" name="dayPicker" label="Day Selection" leftIcon="calendar"}}
+      {{> Text_Form_Control id="dayPicker" name="dayPicker" label="Day Selection" leftIcon="calendar" errorMessage=(fieldError "dayPicker")}}
     {{/if}}
 
     <!-- Submit -->
