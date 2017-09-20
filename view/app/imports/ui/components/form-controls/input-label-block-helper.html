@@ -1,0 +1,9 @@
+<template name="Input_Label_Block_Helper">
+  <div class="ui {{#if leftLabel}}labeled {{/if}}{{#if rightLabel}}right labeled {{/if}}{{#if rightIcon}}icon {{/if}}{{#if leftIcon}}left icon {{/if}}input">
+    {{#if leftLabel}}<div class="ui label">{{leftLabel}}</div>{{/if}}
+    {{#if leftIcon}}<i class="{{leftIcon}} icon"></i>{{/if}}
+    {{> Template.contentBlock}}
+    {{#if rightIcon}}<i class="{{rightIcon}} icon"></i>{{/if}}
+    {{#if rightLabel}}<div class="ui label">{{rightLabel}}</div>{{/if}}
+  </div>
+</template>

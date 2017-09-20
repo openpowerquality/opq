@@ -73,12 +73,21 @@
 
       <div class="eight wide column">
         <div class="ui top attached segment">
-          <h3 class="ui header">
-            Event Count
-          </h3>
+          <button id="eventCountChartFiltersButton" class="ui right floated icon basic button" style="margin-top: -6px;">
+            <i class="filter icon"></i> Filters
+          </button>
+          <div class="content">
+            <h3 class="ui header">Event Count</h3>
+          </div>
         </div>
         <div class="ui bottom attached segment">
-          {{> eventCountChart}}
+          {{> eventCountChart filters=(dataSink "eventCountChartFilters")}}
+        </div>
+      </div>
+
+      <div id="eventCountChartFiltersPopup" class="ui popup">
+        <div style="width: 200px;">
+          {{> Filter_Form dayPicker=true filterSource=(dataSource "eventCountChartFilters")}}
         </div>
       </div>
 

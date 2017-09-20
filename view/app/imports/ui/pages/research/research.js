@@ -11,7 +11,7 @@ import Chartjs from 'chart.js';
 import './research.html';
 import '../../components/liveMeasurements/liveMeasurements.js';
 import '../../components/eventCountChart/eventCountChart.js';
-
+import '../../components/filterForm/filterForm.js';
 
 
 Template.research.onCreated(function() {
@@ -173,7 +173,25 @@ Template.research.onCreated(function() {
 Template.research.onRendered(function() {
   const template = this;
 
-  template.$('.ui.checkbox').checkbox(); // Enable Semantic-UI toggle styled checkbox.
+  // Enable Semantic-UI toggle styled checkbox.
+  template.$('.ui.checkbox').checkbox();
+
+  // Setup filter form popup
+  template.$('#eventCountChartFiltersButton').popup({
+    popup : template.$('#eventCountChartFiltersPopup'),
+    on: 'click',
+    position: 'bottom right',
+    lastResort: true,
+    closable: false, // Need this because popup is closing on flatpickr usage.
+    onShow: function() {
+      //template.showPopup.set(true);
+      console.log('showing');
+    },
+    onHide: function() {
+      //template.showPopup.set(false);
+      console.log('hiding');
+    }
+  });
 
   // Plots waveform whenever an event is selected.
   template.autorun(function() {

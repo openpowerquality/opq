@@ -386,3 +386,14 @@ we'll still call it expanded for naming consistency and simplicity.
 .float-right {
     float: right !important;
 }
+
+.flatpickr-day-highlight {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    border-radius: 150px;
+    bottom: 3px;
+    left: calc(50% - 3px);
+    content: " ";
+    display: block;
+}

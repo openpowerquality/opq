@@ -3,20 +3,45 @@
     Implements a Semantic-UI styled text field.
 
     Params:
-      id, name, label, value, errorMessage (String)
+      id, name, label, value, errorMessage, leftLabel, rightLabel, leftIcon, rightIcon, gridWidth (String)
       isRequired, isInline, isPasswordField (Boolean)
 
     Label is required.
     Id, name, and placeholder default to label, but these should generally be given an explicit value.
+
+    Note on inline fields: Semantic-UI gives inline fields a default width that is quite small. Due to the way SUI
+    works, in order to specify a width for inline fields, you will need to wrap this template with an "inline fields"
+    div, and then explicitly specifying a gridWidth for each individual field. The isInline parameter is only needed
+    for the case where you want the default (tiny) width individual field (which you probably don't).
+
+    Inline fields have a default width that is quite small. As such, they should almost always be given a gridWidth.
+    Non-inline fields have a default width of 100% its container. This is just due to how SUI works. Non-inline fields
+    can also be given a specific gridWidth if needed.
+
+    E.g. Full width single inline field:
+    <div class="inline fields">
+      {> Text_Form_Control label="Hello World" gridWidth="sixteen"} (double brackets omitted due to comment notation)
+    </div>
+
+    E.g. Three inline fields in a group:
+    <div class="inline fields">
+      {> Text_Form_Control label="First Name" gridWidth="six"}
+      {> Text_Form_Control label="Middle Name" gridWidth="three"}
+      {> Text_Form_Control label="Last Name" gridWidth="seven"}
+    </div>
   }}
 
-  <div class="{{#if isRequired}}required{{/if}} {{#if isInline}}inline{{/if}} {{#if errorMessage}}error{{/if}} field">
+  <div class="{{#if isRequired}}required{{/if}}{{#if isInline}} inline{{/if}}{{#if errorMessage}} error{{/if}}{{#if gridWidth}} {{gridWidth}} wide{{/if}} field">
+
     <label>{{label}}</label>
-    <input type="{{#if isPasswordField}}password{{else}}text{{/if}}"
-           name="{{#if name}}{{name}}{{else}}{{label}}{{/if}}"
-           id="{{#if id}}{{id}}{{else}}{{label}}{{/if}}"
-           placeholder="{{#if placeholder}}{{placeholder}}{{else}}{{label}}{{/if}}"
-           value="{{value}}">
+
+    {{#Input_Label_Block_Helper leftLabel=leftLabel rightLabel=rightLabel leftIcon=leftIcon rightIcon=rightIcon}}
+      <input type="{{#if isPasswordField}}password{{else}}text{{/if}}"
+             name="{{#if name}}{{name}}{{else}}{{label}}{{/if}}"
+             id="{{#if id}}{{id}}{{else}}{{label}}{{/if}}"
+             placeholder="{{#if placeholder}}{{placeholder}}{{else}}{{label}}{{/if}}"
+             value="{{value}}">
+    {{/Input_Label_Block_Helper}}
 
     {{#if errorMessage}}
       <div class="ui pointing label">
