@@ -73,9 +73,6 @@ class MaukaCli:
         self.cli_subparsers = self.cli_parser.add_subparsers()
         self.cmd_names = []
 
-    def error(self, message):
-        raise RuntimeError(message)
-
     def add_cmd(self, name: str, help: str, cmd_fn: typing.Callable, arg: str = None, arg_help: str = None):
         self.cmd_names.append(name)
         cmd = self.cli_subparsers.add_parser(name, help=help)
@@ -476,6 +473,7 @@ def run_cli(config: typing.Dict):
                 completions = zmq_request_socket.recv_string()
                 vocabulary = set(completions.split(","))
                 readline.set_completer(make_completer(vocabulary))
+                print(ok("Completions updated"))
                 continue
 
             zmq_request_socket.send_string(cmd.strip())
