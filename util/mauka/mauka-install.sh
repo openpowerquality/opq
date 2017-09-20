@@ -13,8 +13,13 @@ update-rc.d mauka defaults
 cp mauka-cli.sh /usr/local/bin/mauka-cli
 chmod +x /usr/local/bin/mauka-cli
 
+mkdir -p /usr/local/bin/opq
+chown -R opq:opq /usr/local/bin/opq
 cd ../..
 cp -R mauka /usr/local/bin/opq/.
 cp mauka/config.json /etc/opq/mauka/config.json
+
+mkdir -p /var/log/opq
+chown -R opq:opq /var/log/opq
 
 set +o xtrace

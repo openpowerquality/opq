@@ -1,13 +1,16 @@
 """
 This module provides facilities for managing (stopping, starting, loading, reloading) plugin subprocesses.
 """
+import signal
 
+import argparse
 import importlib
 import inspect
 import json
 import logging
 import multiprocessing
 import os
+import readline
 import sys
 import typing
 
@@ -48,6 +51,52 @@ def is_error(response: str) -> bool:
     return "ERROR" in response
 
 
+class ArgumentParseError(Exception):
+    pass
+
+
+class ThrowingArgumentParser(argparse.ArgumentParser):
+    def error(self, message):
+        raise ArgumentParseError(message)
+
+    def print_usage(self, file=None):
+        raise ArgumentParseError(self.format_usage())
+
+    def print_help(self, file=None):
+        raise ArgumentParseError(self.format_help())
+
+
+class MaukaCli:
+    def __init__(self):
+        super().__init__()
+        self.cli_parser = ThrowingArgumentParser(prog="mauka-cli", add_help=False)
+        self.cli_subparsers = self.cli_parser.add_subparsers()
+        self.cmd_names = []
+
+    def add_cmd(self, name: str, help: str, cmd_fn: typing.Callable, arg: str = None, arg_help: str = None):
+        self.cmd_names.append(name)
+        cmd = self.cli_subparsers.add_parser(name, help=help)
+        cmd.set_defaults(func=cmd_fn)
+        if arg is not None:
+            cmd.add_argument(arg, help=arg_help)
+
+    def get_help(self):
+        return self.cli_parser.format_help()
+
+    def get_usage(self):
+        return self.cli_parser.format_usage()
+
+    def parse(self, args: typing.List[str]) -> str:
+        try:
+            args = self.cli_parser.parse_args(args)
+            if len(vars(args)) == 1:
+                return args.func()
+            else:
+                return args.func(args)
+        except ArgumentParseError as e:
+            return str(e)
+
+
 class PluginManager:
     """
     This class provides facilities for managing (stopping, starting, loading, reloading) plugin subprocesses.
@@ -80,7 +129,56 @@ class PluginManager:
         self.zmq_pub_socket = self.zmq_context.socket(zmq.PUB)
         """ZeroMQ publishing socket (allows publishing messages to plugins)"""
 
+        self.cli_parser = MaukaCli()
+
         self.zmq_pub_socket.connect(self.config["zmq.mauka.plugin.pub.interface"])
+        self.init_cli()
+
+    def init_cli(self):
+        self.cli_parser.add_cmd("completions", "Return a list of completions for autocomplete",
+                                self.cli_completions)
+
+        self.cli_parser.add_cmd("disable-plugin", "Disable the named plugin",
+                                self.cli_disable_plugin,
+                                "plugin_name", "Name of plugin to disable")
+
+        self.cli_parser.add_cmd("enable-plugin", "Enables the named plugin",
+                                self.cli_enable_plugin,
+                                "plugin_name", "Name of the plugin to enable")
+
+        self.cli_parser.add_cmd("help", "Displays this message",
+                                self.cli_parser.get_help)
+
+        self.cli_parser.add_cmd("kill-plugin", "Kills the named plugin",
+                                self.cli_kill_plugin,
+                                "plugin_name", "Name of the plugin to kill")
+
+        self.cli_parser.add_cmd("load-config", "Reloads a configuration from file",
+                                self.cli_load_config,
+                                "config_path", "Path of the configuration file")
+
+        self.cli_parser.add_cmd("load-plugin", "Loads (or reloads) a plugin from disk",
+                                self.cli_load_plugin,
+                                "plugin_name", "Name of the plugin to load")
+
+        self.cli_parser.add_cmd("list-plugins", "List all loaded plugins",
+                                self.cli_list_plugins)
+
+        self.cli_parser.add_cmd("start-plugin", "Start the named plugin",
+                                self.cli_start_plugin,
+                                "plugin_name", "Name of the plugin to start")
+
+        self.cli_parser.add_cmd("stop-plugin", "Stop the named plugin",
+                                self.cli_stop_plugin,
+                                "plugin_name", "Name of the plugin to stop")
+
+        self.cli_parser.add_cmd("restart-plugin", "Restarts the named plugin",
+                                self.cli_restart_plugin,
+                                "plugin_name", "Name of the plugin to restart")
+
+        self.cli_parser.add_cmd("unload-plugin", "Unloads the named plugin",
+                                self.cli_unload_plugin,
+                                "plugin_name", "Name of the plugin to unload")
 
     def register_plugin(self, plugin_class, enabled: bool = True):
         """Registers a plugin with the manager
@@ -149,105 +247,51 @@ class PluginManager:
             zmq_reply_socket.send_string(self.handle_tcp_request(request))
 
     def handle_tcp_request(self, request: str) -> str:
-        """Handle TCP request messages
+        return self.cli_parser.parse(request.split(" "))
 
-        :param request: The message to handle
-        :return: The response message
-        """
-        if request.startswith("disable-plugin"):
-            plugin_name = request.split(" ")[1]
-            return self.cli_disable_plugin(plugin_name)
-        elif request.startswith("enable-plugin"):
-            plugin_name = request.split(" ")[1]
-            return self.cli_enable_plugin(plugin_name)
-        elif request == "help":
-            return self.cli_help()
-        elif request.startswith("kill-plugin"):
-            plugin_name = request.split(" ")[1]
-            return self.cli_kill_plugin(plugin_name)
-        elif request.startswith("load-config"):
-            config_path = request.split(" ")[1]
-            return self.cli_load_config(config_path)
-        elif request.startswith("load-plugin"):
-            plugin_name = request.split(" ")[1]
-            return self.cli_load_plugin(plugin_name)
-        elif request == "list-plugins":
-            return self.cli_list_plugins()
-        elif request.startswith("start-plugin"):
-            plugin_name = request.strip().split(" ")[1]
-            return self.cli_start_plugin(plugin_name)
-        elif request.startswith("stop-plugin"):
-            plugin_name = request.strip().split(" ")[1]
-            return self.cli_stop_plugin(plugin_name)
-        elif request.startswith("restart-plugin"):
-            plugin_name = request.strip().split(" ")[1]
-            return self.cli_restart_plugin(plugin_name)
-        elif request.startswith("unload-plugin"):
-            plugin_name = request.split(" ")[1]
-            return self.cli_unload_plugin(plugin_name)
-        else:
-            return "Unknown cmd {}".format(request)
+    def cli_completions(self) -> str:
+        r = []
+        for cmd_name in self.cli_parser.cmd_names:
+            r.append(cmd_name)
+        for plugin_name in self.name_to_plugin_class:
+            r.append(plugin_name)
 
-    def cli_disable_plugin(self, plugin_name: str) -> str:
+        return ",".join(r)
+
+    def cli_disable_plugin(self, args) -> str:
         """Disables the given plugin
 
         :param plugin_name: Name of the plugin to disable
         :return: Server response
         """
+        plugin_name = args.plugin_name
         if plugin_name not in self.name_to_plugin_class:
             return error("Plugin {} DNE".format(plugin_name))
 
         self.name_to_enabled[plugin_name] = False
         return ok("Plugin {} disabled".format(plugin_name))
 
-    def cli_enable_plugin(self, plugin_name: str) -> str:
+    def cli_enable_plugin(self, args) -> str:
         """Enables the given plugin
 
         :param plugin_name: Name of the plugin to enable
         :return: Server response
         """
+        plugin_name = args.plugin_name
         if plugin_name not in self.name_to_plugin_class:
             return error("Plugin {} DNE".format(plugin_name))
 
         self.name_to_enabled[plugin_name] = True
         return ok("Plugin {} enabled".format(plugin_name))
 
-    def cli_help(self) -> str:
-        """Returns the available usage for the cli"""
-        return """
-            disable-plugin [plugin name]
-                Disables the named plugin.
-            enable-plugin [plugin name]
-                Enables the named plugin.
-            exit
-                Exits the opq-mauka cli.
-            help
-                Displays this message.
-            kill-plugin [plugin name]
-                Kills the named plugin
-            load-config [configuration file path]
-                Reloads the configuration file.
-            load-plugin [plugin name]
-                Loads (or reloads) the named plugin from disk.
-            list-plugins
-                Display status of all loaded plugins.
-            start-plugin [plugin name]
-                Start the named plugin.
-            stop-plugin [plugin name]
-                Stop the named plugin.
-            restart-plugin [plugin name]
-                Restarts the named plugin.
-            unload-plugin [plugin name]
-                Unload the named plugin.
-            """
-
-    def cli_kill_plugin(self, plugin_name: str) -> str:
+    def cli_kill_plugin(self, args) -> str:
         """Kills the named plugin
 
         :param plugin_name: The plugin to kill
         :return: Server response
         """
 
+        plugin_name = args.plugin_name
         if plugin_name not in self.name_to_plugin_class:
             return error("Plugin {} DNE".format(plugin_name))
 
@@ -257,7 +301,7 @@ class PluginManager:
         self.name_to_process[plugin_name].terminate()
         return ok("Plugin {} killed".format(plugin_name))
 
-    def cli_load_config(self, config_path: str) -> str:
+    def cli_load_config(self, args) -> str:
         """Loads new configuration values
 
         Plugins need to be restarted to take advantage of new values
@@ -265,6 +309,7 @@ class PluginManager:
         :param config_path: Path to configuration file
         :return: Server response
         """
+        config_path = args.config_path
         if not os.path.isfile(config_path):
             return error("Path {} DNE".format(config_path))
 
@@ -274,7 +319,7 @@ class PluginManager:
         except Exception as e:
             return error("Exception occurred while loading config: {}".format(e))
 
-    def cli_load_plugin(self, plugin_name: str) -> str:
+    def cli_load_plugin(self, args) -> str:
         """Attempts to load the given plugin from the plugins directory.
 
         The plugin must reside in a class with the same name as its module within the plugins directory.
@@ -283,6 +328,7 @@ class PluginManager:
         :param plugin_name: Name of the plugin to load
         :return: Server response
         """
+        plugin_name = args.plugin_name
         current_dir = os.path.dirname(os.path.realpath(__file__))
         if not os.path.isfile("{}/{}.py".format(current_dir, plugin_name)):
             return error("Plugin {} DNE".format(plugin_name))
@@ -315,12 +361,13 @@ class PluginManager:
 
         return resp
 
-    def cli_start_plugin(self, plugin_name: str) -> str:
+    def cli_start_plugin(self, args) -> str:
         """Starts the given plugin if loaded and enabled
 
         :param plugin_name: Name of the plugin to start
         :return: Server response
         """
+        plugin_name = args.plugin_name
         if plugin_name not in self.name_to_plugin_class:
             return error("Plugin {} DNE".format(plugin_name))
 
@@ -330,12 +377,13 @@ class PluginManager:
         self.run_plugin(plugin_name)
         return ok("Plugin {} started".format(plugin_name))
 
-    def cli_stop_plugin(self, plugin_name: str) -> str:
+    def cli_stop_plugin(self, args) -> str:
         """Stops the given plugin
 
         :param plugin_name: Name of the plugin to stop
         :return: Server response
         """
+        plugin_name = args.plugin_name
         if plugin_name not in self.name_to_plugin_class:
             return error("Plugin {} DNE".format(plugin_name))
 
@@ -345,12 +393,13 @@ class PluginManager:
 
         return ok("Plugin {} stopped".format(plugin_name))
 
-    def cli_restart_plugin(self, plugin_name: str) -> str:
+    def cli_restart_plugin(self, args) -> str:
         """Restarts the given plugin
 
         :param plugin_name: Name of the plugin to restart
         :return: Server response
         """
+        plugin_name = args.plugin_name
         stop_resp = self.cli_stop_plugin(plugin_name)
         start_resp = self.cli_start_plugin(plugin_name)
 
@@ -361,12 +410,13 @@ class PluginManager:
         else:
             return ok("Restarted {}. {}".format(plugin_name, chained_resp))
 
-    def cli_unload_plugin(self, plugin_name: str) -> str:
+    def cli_unload_plugin(self, args) -> str:
         """Unload the given plugin
 
         :param plugin_name: Plugin name to unload
         :return: Server response
         """
+        plugin_name = args.plugin_name
         if plugin_name not in self.name_to_plugin_class:
             return error("Plugin {} DNE".format(plugin_name))
 
@@ -384,6 +434,16 @@ class PluginManager:
 
         return ok("Unloaded plugin {}".format(plugin_name))
 
+# http://eli.thegreenplace.net/2016/basics-of-using-the-readline-library/
+def make_completer(vocabulary):
+    def custom_complete(text, state):
+        # None is returned for the end of the completion session.
+        results = [x for x in vocabulary if x.startswith(text)] + [None]
+        # A space is added to the completion since the Python readline doesn't
+        # do this on its own. When a word is fully completed we want to mimic
+        # the default readline library behavior of adding a space after it.
+        return results[state] + " "
+    return custom_complete
 
 def run_cli(config: typing.Dict):
     """Starts the REPL and sends commands to the plugin manager over TCP using ZMQ
@@ -394,11 +454,33 @@ def run_cli(config: typing.Dict):
     zmq_request_socket = zmq_context.socket(zmq.REQ)
     zmq_request_socket.connect(config["zmq.mauka.plugin.management.req.interface"])
     prompt = "opq-mauka> "
-    cmd = input(prompt)
-    while cmd != "exit":
-        zmq_request_socket.send_string(cmd)
-        print(zmq_request_socket.recv_string())
-        cmd = input(prompt)
+
+    try:
+        zmq_request_socket.send_string("completions")
+        completions = zmq_request_socket.recv_string()
+        vocabulary = set(completions.split(","))
+        readline.parse_and_bind("tab: complete")
+        readline.set_completer(make_completer(vocabulary))
+        while True:
+            cmd = input(prompt).strip()
+
+            if cmd == "exit":
+                _logger.info("Exiting mauka-cli")
+                sys.exit(0)
+
+            if cmd == "completions":
+                zmq_request_socket.send_string("completions")
+                completions = zmq_request_socket.recv_string()
+                vocabulary = set(completions.split(","))
+                readline.set_completer(make_completer(vocabulary))
+                print(ok("Completions updated"))
+                continue
+
+            zmq_request_socket.send_string(cmd.strip())
+            print(zmq_request_socket.recv_string())
+    except (EOFError, KeyboardInterrupt) as e:
+        _logger.info("Exiting mauka-cli")
+        sys.exit(0)
 
 
 def load_config(path: str) -> typing.Dict:

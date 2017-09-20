@@ -67,7 +67,7 @@ class AcquisitionTriggerPlugin(plugins.base.MaukaPlugin):
         msg = protobuf.opq_pb2.RequestEventMessage()
         msg.start_timestamp_ms_utc = start_ms - self.ms_before
         msg.end_timestamp_ms_utc = end_ms + self.ms_after
-        msg.trigger_type = protobuf.opq_pb2.RequestEventMessage.TriggerType.Value(trigger_type)
+        msg.trigger_type = trigger_type
         msg.percent_magnitude = percent_magnitude
         msg.box_ids.extend(box_ids)
         msg.requestee = requestee
