@@ -66,7 +66,6 @@ export const dataContextValidator = (templateInstance, baseSchema, nestedReactiv
     if (dataContext) {
       // Validate against base schema.
       baseSchema.validate(dataContext);
-      console.log('BaseSchema validated');
 
       /**
        * Validate all given ReactiveVar schemas with their respective data context objects. ReactiveVar values are
@@ -98,14 +97,12 @@ export const dataContextValidator = (templateInstance, baseSchema, nestedReactiv
             new SimpleSchema({
               _singleKeySchema: currentSchema // currentSchema, in this case, just holds the schema rules object. See above.
             }).validate({_singleKeySchema: reactiveValue});
-            console.log('single validation');
           } else {
             // Otherwise we have the 'normal' case where we can simply validate against the ReactiveVar's value.
             currentSchema.validate(reactiveValue);
-            console.log('regular validation');
           }
 
-          console.log(`${schemaKey} schema validated`);
+          // console.log(`${schemaKey} schema validated`);
         });
       }
     }
