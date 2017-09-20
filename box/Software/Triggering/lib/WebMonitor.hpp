@@ -12,7 +12,7 @@ public:
     opq::data::MeasurememntTimeSeries ts);
     void loop(bool & running);
 private:
-    void push_data_to_all_WebSocket_connections(std::string);
+    void push_data_to_all_WebSocket_connections();
     std::string buildMessage();
     bool is_websocket(const struct mg_connection *nc);
     bool _running;

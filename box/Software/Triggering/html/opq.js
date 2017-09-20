@@ -9,7 +9,8 @@ Graph.prototype.drawArray = function(array){
             break;
         }
         pixel_values.push({x : i*this.time_offset*this.unitX + this.AXISOFFSET ,
-        y : this.centerY - this.unitY*(array[i] - this.minY)})
+        y : this.centerY - this.unitY*(array[i] - this.minY),
+        v : array[i]});
     }
 
     context.moveTo((pixel_values[0].x), pixel_values[0].y);
@@ -23,7 +24,7 @@ Graph.prototype.drawArray = function(array){
         var cp_x2 = (x_mid + pixel_values[i+1].x) / 2;
         var cp_y2 = (y_mid + pixel_values[i+1].y) / 2;
         context.beginPath();
-        if(pixel_values[i].y < this.dangerMin || pixel_values[i].y > this.dangerMax) {
+        if(pixel_values[i].v < this.dangerMin || pixel_values[i].v > this.dangerMax) {
             context.strokeStyle = '#ff0000';
         }
         else {
@@ -33,6 +34,10 @@ Graph.prototype.drawArray = function(array){
         context.quadraticCurveTo(cp_x2,pixel_values[i+1].y ,pixel_values[i+1].x,pixel_values[i+1].y);
         context.stroke();
     }
+    context.textAlign = "right";
+    context.fillText(array[pixel_values.length - 1].toFixed(2) + this.labelY,
+        pixel_values[pixel_values.length - 1].x,
+        pixel_values[pixel_values.length - 1].y - 5);
     context.restore()
 };
 
@@ -73,6 +78,8 @@ Graph.prototype.drawXAxis = function() {
         unit += this.unitsPerTickX;
         xPos = Math.round(xPos + xPosIncrement);
     }
+    context.font = '12pt Calibri';
+    context.fillText(this.labelX, this.canvas.width - 20, this.canvas.height - this.AXISOFFSET +20);
     context.restore();
 };
 
@@ -111,6 +118,7 @@ Graph.prototype.drawYAxis = function() {
         unit += this.unitsPerTickY;
         yPos = Math.round(yPos - yPosIncrement);
     }
+
     context.restore();
 };
 
