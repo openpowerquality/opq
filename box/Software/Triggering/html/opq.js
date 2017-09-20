@@ -23,14 +23,14 @@ Graph.prototype.drawArray = function(array){
         var cp_x2 = (x_mid + pixel_values[i+1].x) / 2;
         var cp_y2 = (y_mid + pixel_values[i+1].y) / 2;
         context.beginPath();
-        context.quadraticCurveTo(cp_x1,pixel_values[i].y ,x_mid, y_mid);
-        context.quadraticCurveTo(cp_x2,pixel_values[i+1].y ,pixel_values[i+1].x,pixel_values[i+1].y);
         if(pixel_values[i].y < this.dangerMin || pixel_values[i].y > this.dangerMax) {
             context.strokeStyle = '#ff0000';
         }
         else {
             context.strokeStyle = '#000000';
         }
+        context.quadraticCurveTo(cp_x1,pixel_values[i].y ,x_mid, y_mid);
+        context.quadraticCurveTo(cp_x2,pixel_values[i+1].y ,pixel_values[i+1].x,pixel_values[i+1].y);
         context.stroke();
     }
     context.restore()

@@ -52,6 +52,7 @@ void LocalAnalysis::loop(bool &running) {
         analysis->RMS /= measurement->cycles.size();
         analysis->RMS /= calConstant;
 
+        settings->setSetting("v",opq::OPQSetting(analysis->RMS));
         std::vector<float> zeroCrossings;
         float last = FP_NAN;
         float next = 0;
@@ -75,6 +76,7 @@ void LocalAnalysis::loop(bool &running) {
                               DECIMATION_FACTOR /
                               accumulator;
 
+        settings->setSetting("f",opq::OPQSetting(analysis->frequency));
         analysis->start = measurement->timestamps.front();
         analysis->current_counter = measurement->cycles[measurement->cycles.size() - 1].current_counter;
         analysis->last_gps_counter = measurement->cycles[measurement->cycles.size() - 1].last_gps_counter;

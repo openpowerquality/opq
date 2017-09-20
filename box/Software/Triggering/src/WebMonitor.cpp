@@ -1,6 +1,6 @@
 #include "WebMonitor.hpp"
 #include "json.hpp"
-
+#include "Settings.hpp"
 WebMonitor::WebMonitor(opq::data::MeasurementQueue mq, opq::data::AnalysisQueue aq,
                        opq::data::MeasurememntTimeSeries ts) {
     _mq = mq;
@@ -54,8 +54,9 @@ std::string WebMonitor::buildMessage() {
             {"z", 0},
             {"d", _ts->getSize()*100.0/_ts->getMax()}
     };
-    j["v"] = 120;
-    j["f"] = 60;
+    auto settings = opq::Settings::Instance();
+    j["v"] = settings->getFloat("v");
+    j["f"] = settings->getFloat("f");
 
     return j.dump();
 
