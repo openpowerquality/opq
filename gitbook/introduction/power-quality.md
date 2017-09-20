@@ -1,9 +1,9 @@
-## Power Quality
+# Power Quality
 
-### What is Power Quality? {#what}
+## What is Power Quality? {#what}
 
-### Why Care About Power Quality? {#why}
+## Why Care About Power Quality? {#why}
 
-### Types of Power Quality Issues {#issues}
+## Types of Power Quality Issues {#issues}
 
-### How Distributed Renewables Affect Power Quality {#renewables}
+## How Distributed Renewables Affect Power Quality {#renewables}

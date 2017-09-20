@@ -1,4 +1,6 @@
-## OPQ Protocol
+# OPQ Protocol
+
+## Overview {#overview}
 
 Data and messages passed between components of the OPQ framework are serialized and standardized using version 2 of Google's Protocol Buffers (protobuf) library [https://developers.google.com/protocol-buffers/](https://developers.google.com/protocol-buffers/).
 

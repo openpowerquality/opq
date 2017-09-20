@@ -1,4 +1,7 @@
-## OPQMauka Description
+# OPQMauka
+
+## Overview {#overview}
+
 OPQMauka is a distributed plugin-based middleware for OPQ that provides higher level analytic capabilities. OPQMauka provides analytics for classification of PQ events, aggregation of triggering data for long term trend analysis, community detection, statistics, and metadata management.  
 
 ### Software {#software}
@@ -9,6 +12,7 @@ The OPQMauka processing pipeline is implemented as a directed acyclic graph (DAG
 Each OPQMauka Plugin provides a set of topics that it subscribes to and a set of topics that it produces. These topics form the edges between vertexes in our graph. Because each plugin is independent and only relies on retrieving and transmitting data over ZeroMQ, plugins can be implemented in any programming language and executed on any machine in a network. This design allows us to easily scale plugins across multiple machines in order to increase throughput.
 
 ### Use Cases {#use-cases}
+
 * Recording long term trends from triggering measurements
 * Classification of voltage dip/swells
 * Classification of frequency dip/swells
