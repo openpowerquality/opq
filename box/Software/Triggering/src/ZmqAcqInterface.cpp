@@ -18,7 +18,7 @@ void zmq_acq_loop(bool &running, opq::data::MeasurememntTimeSeries time_series) 
     auto send_address = settings->getString("zmq.acq_send_host");
     BOOST_LOG_TRIVIAL(info) << "Sending raw data to " << send_address;
     BOOST_LOG_TRIVIAL(info) << "Recieving raw data request from " << recv_address;
-    auto box_id = settings->getInt("box_id");
+    auto box_id = settings->getInt64("box_id");
 
     auto recv = zmqpp::socket{ctx, zmqpp::socket_type::sub};
     recv.set(zmqpp::socket_option::curve_server_key, server_cert.first);

@@ -49,7 +49,7 @@ OPQSetting Settings::getSetting(std::string key) {
     if (pos != _settings.end() && !(_settings.key_comp()(key, pos->first))) {
         return pos->second.setting;
     }
-    return "";
+    return OPQSetting(std::string{});
 }
 
 bool Settings::loadFromFile(std::string filename) {
@@ -70,7 +70,7 @@ bool Settings::loadFromFile(std::string filename) {
       switch(t) {
         case json::value_t::number_integer:
         case json::value_t::number_unsigned:
-          setSettingUnsafe(it.key(), (int)it.value());
+          setSettingUnsafe(it.key(), (int64_t)it.value());
           break;
 
         case json::value_t::number_float:
@@ -108,13 +108,13 @@ bool Settings::saveToFile(std::string filename) {
 
                     switch (val.which()) {
                         case 0: //uint64_t
-                            j[key] = boost::get<int>(val);
+                            j[key] = boost::get<uint64_t>(val);
                             break;
                         case 1: //float
                             j[key] = boost::get<float>(val);
                             break;
                         case 2: //int
-                            j[key] = boost::get<int>(val);
+                            j[key] = boost::get<int64_t >(val);
                             break;
                         case 3: //string
                             line += "S:" + boost::get<std::string>(val);
@@ -126,7 +126,7 @@ bool Settings::saveToFile(std::string filename) {
                             break;
                     }
                 }
-    j >> ofile;
+    ofile << j;
     BOOST_LOG_TRIVIAL(info) <<  "exported " << filename;
     return true;
 }
@@ -182,9 +182,9 @@ float Settings::getFloat(std::string key) {
     }
 }
 
-int Settings::getInt(std::string key) {
+int Settings::getInt64(std::string key) {
     try {
-        return boost::get<int>(getSetting(key));
+        return boost::get<int64_t>(getSetting(key));
     }
     catch (boost::bad_get &e) {
         badget(key);
