@@ -100,33 +100,33 @@ bool Settings::saveToFile(std::string filename) {
     if (!ofile.is_open())
         return false;
 
+    auto j = json{};
+
     for(const map_type::value_type &myPair: _settings) {
                     OPQSetting val = myPair.second.setting;
                     std::string key = myPair.first;
-                    line = key + ":";
+
                     switch (val.which()) {
                         case 0: //uint64_t
-                            line += "U:" + boost::lexical_cast<std::string>(boost::get<uint64_t>(val));
+                            j[key] = boost::get<int>(val);
                             break;
                         case 1: //float
-                            line += "F:" + boost::lexical_cast<std::string>(boost::get<float>(val));
+                            j[key] = boost::get<float>(val);
                             break;
                         case 2: //int
-                            line += "I:" + boost::lexical_cast<std::string>(boost::get<int>(val));
+                            j[key] = boost::get<int>(val);
                             break;
                         case 3: //string
                             line += "S:" + boost::get<std::string>(val);
+                            j[key] = boost::get<std::string>(val);
                             break;
                         case 4: //bool
                             line += "B:";
-                            if (boost::get<bool>(val))
-                                line += "TRUE";
-                            else
-                                line += "FALSE";
+                            j[key] = boost::get<bool>(val);
                             break;
                     }
-                    ofile << line << std::endl;
                 }
+    j >> ofile;
     BOOST_LOG_TRIVIAL(info) <<  "exported " << filename;
     return true;
 }
