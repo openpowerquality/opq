@@ -31,13 +31,9 @@ struct Config {
     string backend_interface_rep;
     //cloudside interfacce for receiving event numbers
     string backend_interface_pub;
-    //hosname for redis server
-    string redis_host;
-    //portname for redis server
-    int redis_port;
-    //redis password
-    string redis_pass;
 
+    //mongo URI
+    string mongo_uri;
 };
 
 #endif

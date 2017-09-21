@@ -15,7 +15,7 @@ void DataHandler::handle_data_loop() {
     //Socket for talking to Mauka
     auto backend_pub = zmqpp::socket(_ctx, zmqpp::socket_type::pub);
     backend_pub.connect(_config.backend_interface_pub);
-    MongoDriver mongo{};
+    MongoDriver mongo(_config.mongo_uri);
     //Socket that pulls data from boxes.
     auto box_pull = zmqpp::socket{_ctx, zmqpp::socket_type::pull};
     auto server_cert = load_certificate(_config.private_cert);
