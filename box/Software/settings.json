@@ -1,0 +1,18 @@
+{
+	"box_id"				: 0,
+
+	"frames_per_measurement"		: 10,
+	"acquisition_calibration_constant"	: 96.56,
+
+	"zmq.trigger_host"			: "tcp://127.0.0.1:9880",
+
+	"zmq.acq_send_host"			: "tcp://localhost:8196",
+	"zmq.acq_recv_host"			: "tcp://localhost:8197",
+
+
+	"zmq.server_cert"			: "/etc/opq/curve/public_keys/opqserver.key",
+	"zmq.private_cert"			: "/etc/opq/curve/private_keys/opqbox0_secret",
+
+	"log.trg_path"				: "./trg.log",
+	"log.acq_path"				: "./acq.log"
+}
