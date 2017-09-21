@@ -114,4 +114,7 @@ class AcquisitionTriggerPlugin(plugins.base.MaukaPlugin):
 
         event_msg = self.request_event_message(start_ts_ms_utc, end_ts_ms_utc, trigger_type, percent_magnitude,
                                                device_ids, requestee, description, request_data)
-        self.req_socket.send(event_msg)
+        try:
+            self.req_socket.send(event_msg)
+        except Exception as e:
+            self.logger.error("Error sending req to Makai: {}".format(str(e)))
