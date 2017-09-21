@@ -88,7 +88,10 @@ int main(int argc, char** argv) {
     //Create the queues and threads.
     auto readerQueue = opq::data::make_measurement_queue();
     auto analysisQueue = opq::data::make_analysis_queue();
-    auto time_series = opq::data::make_measurement_timeseries(3600);
+
+    uint64_t timeseries_size= settings->getInt64("timeseries.measurements_count");
+
+    auto time_series = opq::data::make_measurement_timeseries(timeseries_size);
     pipeline::Slab readerSlab;
     opq::Reader reader(readerQueue);
 

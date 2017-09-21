@@ -6,8 +6,6 @@
 
 #include "Settings.hpp"
 #include "Reader.hpp"
-#include "opqdata.hpp"
-
 #include <boost/log/trivial.hpp>
 
 using namespace std;

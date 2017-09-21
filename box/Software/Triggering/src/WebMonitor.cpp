@@ -1,3 +1,5 @@
+#include <boost/log/core.hpp>
+#include <boost/log/trivial.hpp>
 #include "WebMonitor.hpp"
 #include "json.hpp"
 #include "Settings.hpp"
@@ -28,15 +30,22 @@ void WebMonitor::push_data_to_all_WebSocket_connections() {
 }
 
 void WebMonitor::loop(bool& running) {
+
     static struct mg_serve_http_opts s_http_server_opts;
     mg_mgr_init(&_mgr, NULL);
-    _nc = mg_bind(&_mgr, "8080", [](struct mg_connection *nc, int ev, void *ev_data){
+
+
+    auto settings = opq::Settings::Instance();
+    std::string port = settings->getString("monitor.port");
+    std::string html_path = settings->getString("monitor.html");
+    BOOST_LOG_TRIVIAL(info) << "Monitor running on port " << port;
+    _nc = mg_bind(&_mgr, port.c_str(), [](struct mg_connection *nc, int ev, void *ev_data){
         if(ev == MG_EV_HTTP_REQUEST)
             mg_serve_http(nc, (struct http_message *) ev_data, s_http_server_opts);
     });
     if(!_nc) throw std::runtime_error("Could not serve http");
     mg_set_protocol_http_websocket(_nc);
-    s_http_server_opts.document_root = "/usr/local/opq/html/triggering";  // Serve current directory
+    s_http_server_opts.document_root = html_path.c_str();
     s_http_server_opts.enable_directory_listing = "no";
 
     std::chrono::system_clock::time_point last = std::chrono::system_clock::now();
