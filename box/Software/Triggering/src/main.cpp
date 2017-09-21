@@ -60,8 +60,8 @@ int main(int argc, char** argv) {
 
     string setting_file;
     if(argc < 2){
-        BOOST_LOG_TRIVIAL(warning) << "Started with no arguments. Attempting to load /etc/opq/settings.set";
-        setting_file = "/etc/opq/settings.set";
+        BOOST_LOG_TRIVIAL(warning) << "Started with no arguments. Attempting to load /etc/opq/settings.json";
+        setting_file = "/etc/opq/settings.json";
     } else {
         setting_file = argv[1];
     }

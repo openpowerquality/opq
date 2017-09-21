@@ -4,6 +4,7 @@
 #include <string>
 #include <map>
 #include <mutex>
+#include <functional>
 #include <boost/variant/variant.hpp>
 #include <boost/variant/get.hpp>
 
@@ -116,6 +117,8 @@ namespace opq {
         bool removeChangeCallback(std::string key, int id);
 
     private:
+        bool setSettingUnsafe(std::string key, OPQSetting value);
+
         Settings();
 
         Settings(Settings const &);
