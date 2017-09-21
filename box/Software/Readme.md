@@ -1,4 +1,4 @@
-##Raspberry Pi firmware for opqbox2.
+## Raspberry Pi firmware for opqbox2.
 Directory listing:
 
 - Acquisition : Main data acquisition and local processing. C++
