@@ -17,11 +17,15 @@ MAUKA_SERVICE=/usr/bin/python3
 MAUKA_SCRIPT=/usr/local/bin/opq/mauka/OpqMauka.py
 MAUKA_CONFIG=/etc/opq/mauka/config.json
 MAUKA_ARGS="${MAUKA_SCRIPT} ${MAUKA_CONFIG}"
+MAUKA_LOG=/var/log/opq/mauka.log
+
 
 #Paths to PID
 MAUKA_PIDFILE=${RUN_DIR}/OpqMauka.pid
 
 USER=opq
+
+
 
 # Load the VERBOSE setting and other rcS variables
 . /lib/init/vars.sh
@@ -39,7 +43,7 @@ do_start()
     log_daemon_msg "Starting ${NAME}..."
 
     echo "Starting OpqMauka"
-    start-stop-daemon --start --quiet --background --pidfile ${MAUKA_PIDFILE} --make-pidfile --user ${USER} --chuid ${USER} --startas ${MAUKA_SERVICE} -- ${MAUKA_ARGS}
+    start-stop-daemon --start --quiet --background --pidfile ${MAUKA_PIDFILE} --make-pidfile --user ${USER} --chuid ${USER} --startas ${MAUKA_SERVICE} --no-close  -- ${MAUKA_ARGS} >> ${MAUKA_LOG} 2>&1
 
     log_end_msg $?
 }

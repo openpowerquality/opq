@@ -16,6 +16,14 @@ public:
         _max_entries = max_entries;
     }
 
+    size_t getSize(){
+        return _store.size();
+    }
+
+    size_t getMax(){
+        return _max_entries;
+    }
+
     void addLatest(std::chrono::time_point<std::chrono::high_resolution_clock> ts, T item){
         std::lock_guard<std::mutex> guard(_lock);
         _store.push_back(std::make_pair(ts, item));

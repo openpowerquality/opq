@@ -228,3 +228,15 @@ Global.Schemas.UserSettings = new SimpleSchema([
 //     }
 //   }
 // ]);
+
+export const filterFormSchema = new SimpleSchema({
+  minFrequency: {type: Number, optional: true},
+  maxFrequency: {type: Number, optional: true},
+  minVoltage: {type: Number, optional: true},
+  maxVoltage: {type: Number, optional: true},
+  minDuration: {type: Number, optional: true},
+  maxDuration: {type: Number, optional: true},
+  startTime: {type: String, optional: true},
+  endTime: {type: String, optional: true},
+  dayPicker: {type: String, optional: true}
+});

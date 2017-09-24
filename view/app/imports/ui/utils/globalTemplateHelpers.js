@@ -1,5 +1,6 @@
 // Global template helpers
 import { createFlashAlertMsgObject } from '../components/flashAlert/flashAlert.js';
+import { getRootTemplateInstance } from '../../utils/utils.js';
 
 
 Template.registerHelper('getTemplateInstance', function() {
@@ -78,4 +79,53 @@ Template.registerHelper('formSubmissionErrors', () => {
   // Assumes there is a ReactiveVar on the template named formSubmissionErrors.
   const formSubmissionErrors = Template.instance().formSubmissionErrors.get();
   return formSubmissionErrors;
+});
+
+Template.registerHelper('dataSource', (uniqIdentifier) => {
+  const template = Template.instance();
+
+  // DataSources is an object mapping UIDs to their ReactiveVars.
+  // Each template can have a variable named 'dataSources' which keeps track of all RV sources attached to the current
+  // template. Subsequently, the dataSink() helper will be able to lookup data sources and retrieve their current data.
+  (template.dataSources) ? template.dataSources[uniqIdentifier] = new ReactiveVar()
+                         // DataSources obj does not exist yet for this template, so create it.
+                         : template.dataSources = {[uniqIdentifier]: new ReactiveVar()};
+  // console.log('dataSources: ', template.dataSources);
+  return template.dataSources[uniqIdentifier]; // Return the ReactiveVar reference (not value!)
+});
+
+Template.registerHelper('dataSink', (uniqIdentifier) => {
+  // We want this dataSink() helper to be able to access dataSources defined not only in the same template, but
+  // also across other templates and files. To accomplish this, we will search through every currently rendered
+  // template's dataSources object for the given source identifier using the Template.forEachCurrentlyRenderedInstance()
+  // function from the aldeed:template-extension package.
+  // However, since these global helpers are parsed before templates are actually rendered, we need a way to wait until
+  // all templates have been rendered. As a result, we've created and attached an _isRendered ReactiveVar to each
+  // template (see /imports/startup/client/index.js), which is set to true once the template is rendered. This is
+  // useful in itself because we now have a way to reactively detect when a template has been rendered. However, to
+  // know when ALL templates have been rendered, we can simply check if the top-most template has been rendered,
+  // because Blaze loads children templates first and works its way up the view tree. Once the top-most template has
+  // been rendered, we can go ahead and iterate through all rendered templates to search for the appropriate dataSource.
+
+  // Search each currently rendered template's dataSources object for the given source identifier.
+  // The top-most template is the last template to render, so once it's loaded, we know all templates are loaded.
+  const isAllTemplatesRendered = getRootTemplateInstance(Template.instance())._isRendered.get();
+
+  if (isAllTemplatesRendered) {
+    let sourceTemplate = null;
+    Template.forEachCurrentlyRenderedInstance(template => {
+      // console.log(template);
+      if (template.dataSources && template.dataSources[uniqIdentifier]) sourceTemplate = template;
+    });
+
+    if (sourceTemplate) {
+      return sourceTemplate.dataSources[uniqIdentifier].get();
+    } else {
+      // Should throw error, since there should never be a sink without a source.
+      throw new Error('DataSource Not Found');
+    }
+  }
+
+  // Initially return null. Templates have not yet finished loading at this point.
+  return null;
 });

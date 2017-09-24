@@ -1,6 +1,6 @@
-## OPQMauka Plugins
+# OPQMauka Plugins
 
-### Base Plugin {#base}
+## Base Plugin {#base}
 
 The [base plugin](https://github.com/openpowerquality/opq/blob/master/mauka/plugins/base.py) is a base class which implements common functionally across all plugins. This plugin in subclassed by all other OPQMauka plugins. The functionality this plugin provides includes:
 
@@ -10,19 +10,19 @@ The [base plugin](https://github.com/openpowerquality/opq/blob/master/mauka/plug
 * Python multiprocessing primitives 
 * Status/heartbeat notifications
 
-### Measurement Shim Plugin {#measurement-shim}
+## Measurement Shim Plugin {#measurement-shim}
 
 The [measurement shim plugin](https://github.com/openpowerquality/opq/blob/master/mauka/plugins/MeasurementShimPlugin.py) reads raw triggering messages and converts them into high level measurement messages which are then passed onto the Measurement Plugin. 
 
 Triggering messages themseves do not have a topic associated with them. Thus, we require a dedicated plugin that reads all messages and determines whether or not the message is a triggering message, and if it is, assign a topic and forward it to the measurement plugin.
 
-### Measurement Plugin {#measurement}
+## Measurement Plugin {#measurement}
 
 The [measurement plugin](https://github.com/openpowerquality/opq/blob/master/mauka/plugins/MeasurementPlugin.py) records raw triggering data and aggregates it into a measurements collection in our Mongo database. 
 
 These measurements are mainly used for analyzing long term trends and for display in OPQView. It's possible to control the sampling of raw triggering messages by setting the ```plugins.MeasurementPlugin.sample_every``` key in the configuration file.
 
-### Threshold Plugin
+## Threshold Plugin
 
 The [threshold plugin](https://github.com/openpowerquality/opq/blob/master/mauka/plugins/ThresholdPlugin.py) is a base plugin that implements functionality for determining preset threshold crossings over time. That is, this plugin, given a steady state, will detect deviations from the steady using percent deviation from the steady state as a discriminating factor. 
 
@@ -52,33 +52,39 @@ Internally, the threshold plugin looks at individual measurements and determines
 
 Event messages are produced by passing the contents of a recorded event to the ```on_event``` method call. This method call needs to be implemented in all subclassing plugins in order to deal with the recorded event.
 
-### Frequency Threshold Plugin {#frequency}
+## Frequency Threshold Plugin {#frequency}
+
 The [frequency threshold plugin](https://github.com/openpowerquality/opq/blob/master/mauka/plugins/FrequencyThresholdPlugin.py) subclasses the threshold plugin and classifies frequency dips and swells.
 
 By default, this plugin assumes a steady state of 60Hz and will detect dips and swells over 0.5% in either direction. The threholds can be configured by setting the keys ```plugins.ThresholdPlugin.frequency.ref```, ```plugins.ThresholdPlugin.frequency.threshold.percent.low```, and ```plugins.ThresholdPlugin.frequency.threshold.percent.high``` in the configuration file.
 
 When thresholds are tripped, frequency events are generated and published to the system. These are most importanlty used to generate event triggering requests to OPQMauka to request raw data from affected devices.
 
-### Voltage Threshold Plugin {#voltage}
+## Voltage Threshold Plugin {#voltage}
+
 The [voltage threshold plugin](https://github.com/openpowerquality/opq/blob/master/mauka/plugins/VoltageThresholdPlugin.py) subclasses the threshold plugin and classifies voltage dips and swells.
 
 By default, this plugin assumes a steady state of 120hz and will detect dips and swells over 5% in either direction. The threholds can be configured by setting the keys plugins.ThresholdPlugin.voltage.ref, plugins.ThresholdPlugin.voltage.threshold.percent.low, and plugins.ThresholdPlugin.voltage.threshold.percent.high in the configuration file.
 
 When thresholds are tripped, voltage events are generated and published to the system. These are most importanlty used to generate event triggering requests to OPQMauka to request raw data from affected devices.
 
-### Acquisition Trigger Plugin {#acquisition}
+## Acquisition Trigger Plugin {#acquisition}
+
 The [acquistion trigger plugin](https://github.com/openpowerquality/opq/blob/master/mauka/plugins/AcquisitionTriggerPlugin.py) subscribes to all events and forms event request messages to send to OPQMakai to enable the retrival of raw power data for higher level analytics.
 
 This plugin employs a deadzone between event messages to ensure that multiple requests for the same data are not sent in large bursts, overwhelming OPQBoxes or OPQMakai. The deadzone by default is set to 60 seconds, but can be configured by setting the ```plugins.AcquisitionTriggerPlugin.sDeadZoneAfterTrigger``` key in the configuration. If this plugin encounters an event while in a deadzone, a request is still generated and sent to OPQMakai, however a flag is set indicating to Makai that raw data should not be requested.
 
 
-### Status Plugin {#status}
+## Status Plugin {#status}
+
 The [status plugin](https://github.com/openpowerquality/opq/blob/master/mauka/plugins/StatusPlugin.py) subscribes to heatbeat messages and logs heartbeats from all other plugins (including itself).
 
-### Print Plugin {#print}
+## Print Plugin {#print}
+
 The [print plugin](https://github.com/openpowerquality/opq/blob/master/mauka/plugins/PrintPlugin.py) subscribes to all topics and prints every message. This plugin is generally disabled and mainly only useful for debuggin purposes.
 
-### Plugin Development {#development}
+## Plugin Development {#development}
+
 The following steps are required to create a new OPQMauka plugin:
 
 1. Create a new Python module for the plugin in the plugins package (i.e. MyFancyPlugin.py).

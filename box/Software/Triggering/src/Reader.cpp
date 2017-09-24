@@ -6,8 +6,6 @@
 
 #include "Settings.hpp"
 #include "Reader.hpp"
-#include "opqdata.hpp"
-
 #include <boost/log/trivial.hpp>
 
 using namespace std;
@@ -42,7 +40,7 @@ Reader::Reader(MeasurementQueue &q){
     srand(time(NULL));
 #endif
     auto settings = Settings::Instance();
-    _frames_per_measurement = settings->getInt("frames_per_measurement");
+    _frames_per_measurement = settings->getInt64("frames_per_measurement");
     _fpm_callback_id = settings->onChangeCallback("frames_per_measurement",
     [=](OPQSetting s){this->_onFramesPerMeasurementChange(s);}
     );
@@ -73,5 +71,5 @@ void Reader::loop(bool &running){
 }
 
 void Reader::_onFramesPerMeasurementChange(OPQSetting s) {
-    _frames_per_measurement = boost::get<int>(s);
+    _frames_per_measurement = boost::get<uint64_t >(s);
 }

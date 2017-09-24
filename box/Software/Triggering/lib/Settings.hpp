@@ -4,12 +4,13 @@
 #include <string>
 #include <map>
 #include <mutex>
+#include <functional>
 #include <boost/variant/variant.hpp>
 #include <boost/variant/get.hpp>
 
 namespace opq {
 
-    typedef boost::variant<uint64_t, float, int, std::string, bool> OPQSetting;
+    typedef boost::variant<uint64_t, float, int64_t, std::string, bool> OPQSetting;
 /**
  * @brief The Settings class synchronized singleton key value pair database.
  */
@@ -86,7 +87,7 @@ namespace opq {
         * @param key string identifier.
         * @return value.
         */
-        int getInt(std::string key);
+        int getInt64(std::string key);
         /**
          * @brief Get a string value for a key.
          * @param key string identifier.
@@ -116,6 +117,8 @@ namespace opq {
         bool removeChangeCallback(std::string key, int id);
 
     private:
+        bool setSettingUnsafe(std::string key, OPQSetting value);
+
         Settings();
 
         Settings(Settings const &);

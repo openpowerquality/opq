@@ -46,7 +46,7 @@ namespace opq {
         inline bool readCycle(int fd, opq::data::OPQCycle &cycle){
 #ifdef OPQ_DEBUG
             for(int i = 0; i< data::SAMPLES_PER_CYCLE; i++) {
-                cycle.data[i] = 16384*sin(2*M_PI*i/SAMPLES_PER_CYCLE) + rand()%200 - 100;
+                cycle.data[i] = 16384*sin(2*M_PI*i/SAMPLES_PER_CYCLE) + rand()%2000 - 1000;
             }
             cycle.current_counter = 100;
             cycle.last_gps_counter = 200;

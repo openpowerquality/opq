@@ -1,4 +1,6 @@
-## OPQBox Description
+# OPQBox Description
+
+## Overview {#overview}
 
 ### Hardware {#hardware}
 

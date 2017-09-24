@@ -10,28 +10,36 @@
   * [Description](introduction/overview.md#description)
   * [Features](introduction/overview.md#features)
   * [Roadmap](introduction/overview.md#roadmap)
+  
+## Installation
+
+* [Prerequisites](installation-prerequisites.md)
+* [OPQ Box](box/installation.md)
+* [OPQ View](view/installation.md)
+* [OPQ Mauka](mauka/installation.md)
+* [OPQ Makai](makai/installation.md)
+* [OPQ Protocol](protocol/installation.md)
 
 ## OPQ Box
 
-* [Description](box/description.md)
-  * [Hardware](box/description.md#hardware)
-  * [Schematics](box/description.md#schematics)
-  * [Firmware](box/descritpion.md#firmware)
-* [Installation](box/installation.md)
+* [Overview](box/description.md#overview)
+* [Hardware](box/description.md#hardware)
+* [Schematics](box/description.md#schematics)
+* [Firmware](box/description.md#firmware)
+
 
 ## OPQ View
 
-* [Description](view/description.md)
-  * [Software](view/description.md#software)
-  * [Use Cases](view/description.md#use-cases)
-* [Installation](view/installation.md)
+* [Overview](view/description.md#overview)
+* [Software](view/description.md#software)
+* [Use Cases](view/description.md#use-cases)
 * [Page Level Documentation](view/documentation.md)
 
 ## OPQ Mauka
 
-* [Description](mauka/description.md)
-  * [Software](mauka/description.md#software)
-  * [Use Cases](mauka/description.md#use-cases)
+* [Overview](mauka/description.md#overview)
+* [Software](mauka/description.md#software)
+* [Use Cases](mauka/description.md#use-cases)
 * [Plugins](mauka/plugins.md)
   * [Base Plugin](mauka/plugins.md#base)
   * [Measurement Shim Plugin](mauka/plugins.md#measurement-shim)
@@ -43,20 +51,17 @@
   * [Status Plugin](mauka/plugins.md#status)
   * [Print Plugin](mauka/plugins.md#print)
   * [Plugin Development](mauka/plugins.md#development)
-* [Installation](mauka/installation.md)
 * [APIs](mauka/apis.md)
 
 ## OPQ Makai
 
-* [Description](makai/description.md)
-  * [Software](makai/description.md#software)
-  * [Use Cases](makai/description.md#use-cases)
-* [Installation](makai/installation.md)
+* [Overview](makai/description.md#overview)
+* [Software](makai/description.md#software)
+* [Use Cases](makai/description.md#use-cases)
 * [APIs](makai/apis.md)
 
 ## OPQ Protocol
 
-* [Description](protocol/description.md)
-* [Installation](protocol/installation.md)
+* [Overview](protocol/description.md)
 
 

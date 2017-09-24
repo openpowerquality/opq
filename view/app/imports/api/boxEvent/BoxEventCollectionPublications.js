@@ -1,6 +1,7 @@
 import { Meteor } from 'meteor/meteor';
 import { BoxEvents } from './BoxEventCollection.js';
 import { EventData } from '../eventData/EventDataCollection.js';
+import { check, Match } from 'meteor/check';
 
 export const boxEventCollectionPublications = () => {
   Meteor.publish(BoxEvents.publicationNames.RECENT_BOX_EVENTS, function (numRecentEvents) {
@@ -30,5 +31,15 @@ export const boxEventCollectionPublications = () => {
     const paginatedRequestIds = requestIds.slice(0, numRecentEvents);
 
     return BoxEvents.find({reqId: {$in: paginatedRequestIds}}, {});
+  });
+
+  Meteor.publish(BoxEvents.publicationNames.GET_BOX_EVENTS, function({startTime, endTime}) {
+    check(startTime, Match.OneOf(Date, Number));
+    check(endTime, Match.OneOf(Date, Number, null, undefined));
+
+    const selector = BoxEvents.queryConstructors().getBoxEvents({startTime, endTime});
+    const events = BoxEvents.find(selector, {});
+
+    return events;
   });
 };

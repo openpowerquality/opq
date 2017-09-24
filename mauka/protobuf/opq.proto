@@ -36,7 +36,6 @@ message RequestDataMessage{
  	}
 	required RequestType type = 1;
 	required uint32 sequence_number = 2;
-	//Current time
 	optional uint32 boxId = 3;
 	optional uint64 time = 4;
 	optional uint64 back = 5;
@@ -44,7 +43,8 @@ message RequestDataMessage{
 	optional uint32 num_cycles = 7;
 }
 
-
+// A request from OPQMauka to OPQMakai for raw data possibly relating
+// to an event of interest.
 message RequestEventMessage {
   enum TriggerType {
     FREQUENCY_SAG = 1;
@@ -53,12 +53,39 @@ message RequestEventMessage {
     VOLTAGE_SWELL = 4;
     OTHER = 5;
   }
+
+  // Start time for raw data request in ms since the epoch utc
   required uint64 start_timestamp_ms_utc = 1;
+
+  // End time for raw data request in ms since the epoch utc
   required uint64 end_timestamp_ms_utc = 2;
+
+  // OPQMauka's reason for requesting data from OPQMakai
   required TriggerType trigger_type = 3;
+
+  // Percent value of voltage or frequency depending on event type
   required double percent_magnitude = 4;
+
+  // List of OPQBoxes that may have seen the same event trigger
   repeated int32 box_ids = 5;
+
+  // Which OPQMauka plugin is making the request
   required string requestee = 6;
+
+  // Human readable string of request generated my OPQMauka
   required string description = 7;
+
+  // Whether or not to actually request data.
+  // We send a request event message every time we see something interesting, 
+  // but in order to limit multiple requests within a small window, we may not
+  // request data for every event, but still want to log that something
+  // interesting happenen
   required bool request_data = 8;
 }
+
+
+
+
+
+
+

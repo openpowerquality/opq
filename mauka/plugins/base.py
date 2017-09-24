@@ -116,6 +116,8 @@ class MaukaPlugin:
         self.last_received = 0
         """Timestamp since this plugin has last received a message"""
 
+        self.logger = _logger
+
         self.zmq_consumer.connect(self.config_get("zmq.triggering.interface"))
         self.zmq_consumer.connect(self.config_get("zmq.mauka.plugin.sub.interface"))
         self.zmq_producer.connect(self.config_get("zmq.mauka.plugin.pub.interface"))
