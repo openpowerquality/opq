@@ -87,6 +87,9 @@ class AcquisitionTriggerPlugin(plugins.base.MaukaPlugin):
         else:
             return False
 
+    def get_status(self):
+        return str(self.event_type_to_last_event)
+
     def on_message(self, topic, message):
         """Subscribed messages appear here
 

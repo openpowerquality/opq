@@ -41,6 +41,9 @@ class MeasurementPlugin(plugins.base.MaukaPlugin):
         self.measurements_collection.create_index("device_id")
         self.measurements_collection.create_index("timestamp_ms")
 
+    def get_status(self):
+        return str(self.device_id_to_sample_cnt)
+
     def on_message(self, topic, message):
         """Subscribed messages occur async
 

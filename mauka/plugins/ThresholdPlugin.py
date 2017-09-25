@@ -147,6 +147,9 @@ class ThresholdPlugin(plugins.base.MaukaPlugin):
 
         self.on_event(event)
 
+    def get_status(self):
+        return "{} -- {}".format(self.device_id_to_low_events, self.device_id_to_high_events)
+
     def on_message(self, topic, message):
         """Subscribed messages occur async
 

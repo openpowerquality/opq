@@ -30,4 +30,4 @@ class StatusPlugin(plugins.base.MaukaPlugin):
         :param topic: The topic that this message is associated with
         :param message: The message
         """
-        print("status", topic, message)
+        self.logger.info("{}:{}",format(topic, message))
