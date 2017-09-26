@@ -404,12 +404,13 @@ class PluginManager:
 
         return ok("Plugin {} stopped".format(plugin_name))
 
-    def cli_stop_all_plugins(self, args) -> str:
-        results = []
-        for name in self.name_to_plugin_class:
-            results.append(self.cli_stop_plugin(name))
+    def cli_stop_all_plugins(self) -> str:
+        for plugin_name in self.name_to_plugin_class:
+            self.zmq_pub_socket.send_multipart((plugin_name.encode(), b"EXIT"))
+            if plugin_name in self.name_to_exit_event:
+                self.name_to_exit_event[plugin_name].set()
 
-        return ok(str(results))
+        return ok("Stopped all plugins")
 
     def cli_restart_plugin(self, args) -> str:
         """Restarts the given plugin

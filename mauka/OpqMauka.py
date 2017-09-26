@@ -72,12 +72,14 @@ if __name__ == "__main__":
 
         # 1) Stop all the plugins
         _logger.info("Stopping all plugins...")
-        _logger.info(zmq_request_socket.send_string("stop-all-plugins"))
+        zmq_request_socket.send_string("stop-all-plugins")
+        _logger.info(zmq_request_socket.recv_string())
         time.sleep(2)
 
         # 2) Stop the TCP server
         _logger.info("Stopping TCP server...")
-        _logger.info(zmq_request_socket.send_string("stop-tcp-server"))
+        zmq_request_socket.send_string("stop-tcp-server")
+        _logger.info(zmq_request_socket.recv_string())
         time.sleep(2)
 
         # 3) Kill broker process
@@ -91,5 +93,8 @@ if __name__ == "__main__":
     signal.signal(signal.SIGTERM, sigterm_handler)
     signal.signal(signal.SIGINT, sigterm_handler)
 
-    plugin_manger.run_all_plugins()
-    plugin_manger.start_tcp_server()
+    try:
+        plugin_manger.run_all_plugins()
+        plugin_manger.start_tcp_server()
+    except KeyboardInterrupt:
+        sigterm_handler(None, None)
