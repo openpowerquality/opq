@@ -7,6 +7,7 @@ This module is the entry point into the OPQMauka system.
 import json
 import logging
 import os
+import signal
 import sys
 import typing
 
@@ -49,16 +50,46 @@ if __name__ == "__main__":
 
     config = load_config(sys.argv[1])
 
-    pub_sub_server_process = plugins.start_mauka_pub_sub_broker(config)
-
     plugin_manger = plugins.PluginManager(config)
-
     plugin_manger.register_plugin(plugins.MeasurementShimPlugin)
     plugin_manger.register_plugin(plugins.MeasurementPlugin)
     plugin_manger.register_plugin(plugins.FrequencyThresholdPlugin)
     plugin_manger.register_plugin(plugins.VoltageThresholdPlugin)
     plugin_manger.register_plugin(plugins.AcquisitionTriggerPlugin)
     plugin_manger.register_plugin(plugins.StatusPlugin)
+
+    broker_process = plugins.start_mauka_pub_sub_broker(config)
+
+
+    # start-stop-daemon sends a SIGTERM, we need to handle it to gracefully shutdown mauka
+    def sigterm_handler(signum, frame):
+        _logger.info("Received exit signal")
+        import time
+        import zmq
+        zmq_context = zmq.Context()
+        zmq_request_socket = zmq_context.socket(zmq.REQ)
+        zmq_request_socket.connect(config["zmq.mauka.plugin.management.req.interface"])
+
+        # 1) Stop all the plugins
+        _logger.info("Stopping all plugins...")
+        _logger.info(zmq_request_socket.send_string("stop-all-plugins"))
+        time.sleep(2)
+
+        # 2) Stop the TCP server
+        _logger.info("Stopping TCP server...")
+        _logger.info(zmq_request_socket.send_string("stop-tcp-server"))
+        time.sleep(2)
+
+        # 3) Kill broker process
+        _logger.info("Stopping broker process...")
+        broker_process.terminate()
+        time.sleep(2)
+
+        _logger.info("Goodbye")
+
+
+    signal.signal(signal.SIGTERM, sigterm_handler)
+    signal.signal(signal.SIGINT, sigterm_handler)
 
     plugin_manger.run_all_plugins()
     plugin_manger.start_tcp_server()

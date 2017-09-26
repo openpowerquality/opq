@@ -172,6 +172,9 @@ class PluginManager:
                                 self.cli_stop_plugin,
                                 "plugin_name", "Name of the plugin to stop")
 
+        self.cli_parser.add_cmd("stop-all-plugins", "Stop all plugins",
+                                self.cli_stop_all_plugins)
+
         self.cli_parser.add_cmd("restart-plugin", "Restarts the named plugin",
                                 self.cli_restart_plugin,
                                 "plugin_name", "Name of the plugin to restart")
@@ -244,7 +247,15 @@ class PluginManager:
 
         while True:
             request = zmq_reply_socket.recv_string()
+
+            if request.strip() == "stop-tcp-server":
+                zmq_reply_socket.send_string(ok("Stopping TCP server"))
+                break
+
             zmq_reply_socket.send_string(self.handle_tcp_request(request))
+
+        _logger.info("Stopping plugin manager TCP server")
+
 
     def handle_tcp_request(self, request: str) -> str:
         return self.cli_parser.parse(request.split(" "))
@@ -392,6 +403,13 @@ class PluginManager:
             self.name_to_exit_event[plugin_name].set()
 
         return ok("Plugin {} stopped".format(plugin_name))
+
+    def cli_stop_all_plugins(self, args) -> str:
+        results = []
+        for name in self.name_to_plugin_class:
+            results.append(self.cli_stop_plugin(name))
+
+        return ok(str(results))
 
     def cli_restart_plugin(self, args) -> str:
         """Restarts the given plugin
