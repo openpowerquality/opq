@@ -40,9 +40,6 @@ def load_config(path: str) -> typing.Dict:
         exit(0)
 
 
-
-
-
 if __name__ == "__main__":
     _logger.info("Starting OpqMauka")
     if len(sys.argv) <= 1:
