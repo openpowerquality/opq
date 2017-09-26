@@ -60,41 +60,26 @@ if __name__ == "__main__":
 
     broker_process = plugins.start_mauka_pub_sub_broker(config)
 
-
     # start-stop-daemon sends a SIGTERM, we need to handle it to gracefully shutdown mauka
     def sigterm_handler(signum, frame):
         _logger.info("Received exit signal")
-        import time
-        import zmq
-        zmq_context = zmq.Context()
-        zmq_request_socket = zmq_context.socket(zmq.REQ)
-        zmq_request_socket.connect(config["zmq.mauka.plugin.management.req.interface"])
-
-        # 1) Stop all the plugins
-        _logger.info("Stopping all plugins...")
-        zmq_request_socket.send_string("stop-all-plugins")
-        _logger.info(zmq_request_socket.recv_string())
-        time.sleep(2)
-
-        # 2) Stop the TCP server
-        _logger.info("Stopping TCP server...")
-        zmq_request_socket.send_string("stop-tcp-server")
-        _logger.info(zmq_request_socket.recv_string())
-        time.sleep(2)
-
-        # 3) Kill broker process
-        _logger.info("Stopping broker process...")
-        broker_process.terminate()
-        time.sleep(2)
-
-        _logger.info("Goodbye")
+        plugin_manger.clean_exit()
+        #_logger.info("Stopping broker process...")
+        #broker_process.terminate()
+        #sys.exit(0)
 
 
     signal.signal(signal.SIGTERM, sigterm_handler)
     signal.signal(signal.SIGINT, sigterm_handler)
 
     try:
+
         plugin_manger.run_all_plugins()
         plugin_manger.start_tcp_server()
+        _logger.info("Killing broker process")
+        broker_process.terminate()
+
+        _logger.info("Goodbye")
+        sys.exit(0)
     except KeyboardInterrupt:
         sigterm_handler(None, None)

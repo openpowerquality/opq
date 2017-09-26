@@ -32,6 +32,8 @@ class MeasurementPlugin(plugins.base.MaukaPlugin):
         self.device_id_to_sample_cnt = {}
         """For each device, store how many samples its received"""
 
+        self.device_id_to_total_cnts = {}
+
         self.init_measurements_collection()
 
     def init_measurements_collection(self):
@@ -42,7 +44,7 @@ class MeasurementPlugin(plugins.base.MaukaPlugin):
         self.measurements_collection.create_index("timestamp_ms")
 
     def get_status(self):
-        return str(self.device_id_to_sample_cnt)
+        return str(self.device_id_to_total_cnts)
 
     def on_message(self, topic, message):
         """Subscribed messages occur async
@@ -58,6 +60,9 @@ class MeasurementPlugin(plugins.base.MaukaPlugin):
         if device_id not in self.device_id_to_sample_cnt:
             self.device_id_to_sample_cnt[device_id] = 0
 
+        if device_id not in self.device_id_to_total_cnts:
+            self.device_id_to_total_cnts[device_id] = 0
+
         if self.device_id_to_sample_cnt[device_id] == (self.sample_every - 1):
             self.device_id_to_sample_cnt[device_id] = 0
             measurement = {
@@ -69,3 +74,4 @@ class MeasurementPlugin(plugins.base.MaukaPlugin):
             self.measurements_collection.insert_one(measurement)
 
         self.device_id_to_sample_cnt[device_id] += 1
+        self.device_id_to_total_cnts[device_id] += 1

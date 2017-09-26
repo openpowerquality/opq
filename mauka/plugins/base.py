@@ -5,6 +5,7 @@ This module provides classes and base functionality for building OPQMauka plugin
 import json
 import logging
 import multiprocessing
+import signal
 import threading
 import typing
 import time
@@ -236,6 +237,8 @@ class MaukaPlugin:
     def _run(self):
         """This is the run loop for this plugin process"""
         _logger.info("Starting Mauka plugin: {}".format(self.name))
+        signal.signal(signal.SIGTERM, signal.SIG_IGN)
+        signal.signal(signal.SIGINT, signal.SIG_IGN)
 
         for subscription in self.subscriptions:
             self.zmq_consumer.setsockopt_string(zmq.SUBSCRIBE, subscription)

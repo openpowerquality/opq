@@ -5,6 +5,7 @@ import typing
 def start_mauka_pub_sub_broker(config: typing.Dict):
     def _run(config: typing.Dict):
         import logging
+        import signal
         import os
         import zmq
 
@@ -12,6 +13,8 @@ def start_mauka_pub_sub_broker(config: typing.Dict):
         logging.basicConfig(
             format="[%(levelname)s][%(asctime)s][{} %(filename)s:%(lineno)s - %(funcName)s() ] %(message)s".format(
                 os.getpid()))
+
+        signal.signal(signal.SIGINT, signal.SIG_IGN)
 
         zmq_pub_interface = config["zmq.mauka.broker.pub.interface"]
         zmq_sub_interface = config["zmq.mauka.broker.sub.interface"]
