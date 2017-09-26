@@ -23,7 +23,8 @@ logging.basicConfig(
         os.getpid()))
 _logger.setLevel(logging.DEBUG)
 
-OK = "OK"
+OK = "\033[1;32mOK\033[0;0m"
+ERROR = "\033[1;31mERROR\033[0;0m"
 
 
 def ok(msg: str = "") -> str:
@@ -40,7 +41,7 @@ def error(msg: str = "N/A") -> str:
     :param msg: An optional error message
     :return: An error response
     """
-    return "ERROR. {}".format(msg)
+    return "{}. {}".format(ERROR, msg)
 
 
 def is_error(response: str) -> bool:
