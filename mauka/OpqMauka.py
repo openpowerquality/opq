@@ -7,7 +7,6 @@ This module is the entry point into the OPQMauka system.
 import json
 import logging
 import os
-import multiprocessing
 import sys
 import typing
 
@@ -41,30 +40,7 @@ def load_config(path: str) -> typing.Dict:
         exit(0)
 
 
-def start_mauka_pub_sub_broker(config: typing.Dict):
-    def _run(config: typing.Dict):
-        import logging
-        import zmq
 
-        _logger = logging.getLogger("app")
-        logging.basicConfig(
-            format="[%(levelname)s][%(asctime)s][{} %(filename)s:%(lineno)s - %(funcName)s() ] %(message)s".format(
-                os.getpid()))
-
-        zmq_pub_interface = config["zmq.mauka.broker.pub.interface"]
-        zmq_sub_interface = config["zmq.mauka.broker.sub.interface"]
-        zmq_context = zmq.Context()
-        zmq_pub_socket = zmq_context.socket(zmq.PUB)
-        zmq_sub_socket = zmq_context.socket(zmq.SUB)
-        zmq_pub_socket.bind(zmq_pub_interface)
-        zmq_sub_socket.bind(zmq_sub_interface)
-        zmq_sub_socket.setsockopt(zmq.SUBSCRIBE, b"")
-        _logger.info("Starting Mauka pub/sub broker")
-        zmq.proxy(zmq_sub_socket, zmq_pub_socket)
-
-    process = multiprocessing.Process(target=_run, args=(config,))
-    process.start()
-    return process
 
 
 if __name__ == "__main__":
@@ -76,11 +52,10 @@ if __name__ == "__main__":
 
     config = load_config(sys.argv[1])
 
-    pub_sub_server_process = start_mauka_pub_sub_broker(config)
+    pub_sub_server_process = plugins.start_mauka_pub_sub_broker(config)
 
     plugin_manger = plugins.PluginManager(config)
 
-    #plugin_manger.register_plugin(plugins.PrintPlugin, enabled=False)
     plugin_manger.register_plugin(plugins.MeasurementShimPlugin)
     plugin_manger.register_plugin(plugins.MeasurementPlugin)
     plugin_manger.register_plugin(plugins.FrequencyThresholdPlugin)
