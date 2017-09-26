@@ -398,7 +398,9 @@ class PluginManager:
             process_pid = process.pid if process != "N/A" else "N/A"
             exit_event = self.name_to_exit_event[name].is_set() if name in self.name_to_exit_event else "N/A"
 
-            resp += "name:{} enabled:{} process:{} pid:{} exit_event:{}\n".format(name, enabled, process, process_pid,
+            process_str = "\033[1;32m" + str(process) + "\033[0;0m" if "started" in str(process) else "\033[1;31m" + str(process) + "\033[0;0m"
+            enabled_str = "\033[1;32mYes\033[0;0m" if enabled else "\033[1;31mNo\033[0;0m"
+            resp += "name:{:<30} enabled:{:<3} process:{} pid:{} exit_event:{}\n".format(name, enabled_str, process_str, process_pid,
                                                                                   exit_event)
 
         return resp
