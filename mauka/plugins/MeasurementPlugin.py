@@ -3,6 +3,7 @@ This module contains the measurement plugin which stores triggering message meas
 """
 
 import multiprocessing
+import protobuf.util
 import typing
 
 import mongo.mongo
@@ -54,7 +55,7 @@ class MeasurementPlugin(plugins.base.MaukaPlugin):
         :param topic: The topic that this message is associated with
         :param message: The message
         """
-        measurement = plugins.base.protobuf_decode_measurement(message)
+        measurement = protobuf.util.decode_trigger_message(message)
         device_id = measurement.id
 
         if device_id not in self.device_id_to_sample_cnt:

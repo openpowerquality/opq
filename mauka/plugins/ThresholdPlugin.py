@@ -4,6 +4,7 @@ This module contains a base plugin that allows us to check for threshold crossin
 
 import collections
 import multiprocessing
+import protobuf.util
 import typing
 
 import mongo.mongo
@@ -162,7 +163,7 @@ class ThresholdPlugin(plugins.base.MaukaPlugin):
         if not self.subscribed:
             pass
 
-        measurement = plugins.base.protobuf_decode_measurement(message)
+        measurement = protobuf.util.decode_trigger_message(message)
         device_id = measurement.id
         timestamp_ms = measurement.time
         value = self.measurement_value_fn(measurement)

@@ -40,18 +40,6 @@ def run_plugin(plugin_class, config: typing.Dict):
     process = multiprocessing.Process(target=_run_plugin)
     process.start()
 
-
-def protobuf_decode_measurement(encoded_measurement):
-    """ Decodes and returns a serialized triggering message
-
-    :param encoded_measurement: The protobuf encoded triggering message
-    :return: The decoded TriggerMessage object
-    """
-    trigger_message = opqpb.TriggerMessage()
-    trigger_message.ParseFromString(encoded_measurement)
-    return trigger_message
-
-
 class JSONEncoder(json.JSONEncoder):
     """
     This class allows us to serialize items with ObjectIds to JSON
