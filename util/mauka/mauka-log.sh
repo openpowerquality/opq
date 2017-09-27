@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-tail -f /var/log/opq/mauka.log
+less +F /var/log/opq/mauka.log
