@@ -7,10 +7,10 @@ plugins individually.
 from plugins.AcquisitionTriggerPlugin import AcquisitionTriggerPlugin
 from plugins.FrequencyThresholdPlugin import FrequencyThresholdPlugin
 from plugins.MeasurementPlugin import MeasurementPlugin
-from plugins.MeasurementShimPlugin import MeasurementShimPlugin
 from plugins.StatusPlugin import StatusPlugin
 from plugins.VoltageThresholdPlugin import VoltageThresholdPlugin
 
+from plugins.broker import start_makai_bridge
 from plugins.broker import start_mauka_pub_sub_broker
 from plugins.manager import PluginManager
 

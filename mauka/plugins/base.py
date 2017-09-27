@@ -109,7 +109,6 @@ class MaukaPlugin:
 
         self.producer_lock = multiprocessing.Lock()
 
-        self.zmq_consumer.connect(self.config_get("zmq.triggering.interface"))
         self.zmq_consumer.connect(self.config_get("zmq.mauka.plugin.sub.interface"))
         self.zmq_producer.connect(self.config_get("zmq.mauka.plugin.pub.interface"))
 
