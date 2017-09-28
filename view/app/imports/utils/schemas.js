@@ -236,7 +236,7 @@ export const filterFormSchema = new SimpleSchema({
   maxVoltage: {type: Number, optional: true},
   minDuration: {type: Number, optional: true},
   maxDuration: {type: Number, optional: true},
-  startTime: {type: String, optional: true},
-  endTime: {type: String, optional: true},
-  dayPicker: {type: String, optional: true}
+  startTime: {type: Number, optional: true},
+  endTime: {type: Number, optional: true},
+  dayPicker: {type: Number, optional: true}
 });
