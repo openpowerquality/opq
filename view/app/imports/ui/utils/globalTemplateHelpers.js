@@ -1,6 +1,7 @@
 // Global template helpers
 import { createFlashAlertMsgObject } from '../components/flashAlert/flashAlert.js';
 import { getRootTemplateInstance } from '../../utils/utils.js';
+import Moment from 'moment';
 
 
 Template.registerHelper('getTemplateInstance', function() {
@@ -13,7 +14,14 @@ Template.registerHelper('getTemplateInstanceVariable', function(varName) {
 });
 
 Template.registerHelper('formatDate', function(date) {
-  return (typeof date === 'number' || date instanceof Date) ? moment(date).format('HH:mm:ss [[]DD MMM YYYY[]]') : null;
+  return (typeof date === 'number' || date instanceof Date) ? Moment(date).format('HH:mm:ss [[]DD MMM YYYY[]]') : null;
+});
+
+Template.registerHelper('formatDateMDY', function(date) {
+  let dateString;
+  if (typeof date === 'number' || date instanceof Date) dateString = Moment(date).format('MMM D, YYYY');
+  if (date === 'today') dateString = Moment().format('MMM D, YYYY');
+  return dateString;
 });
 
 Template.registerHelper('formatDecimals', function(decimals, number) {
