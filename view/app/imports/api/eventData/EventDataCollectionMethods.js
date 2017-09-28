@@ -28,3 +28,18 @@ export const getRecentEventDataReqIds = new ValidatedMethod({
     }
   }
 });
+
+export const getEventData = new ValidatedMethod({
+  name: 'EventData.getEventData',
+  validate: new SimpleSchema({
+    event_number: {type: Number},
+    box_id: {type: Number}
+  }).validator({clean: true}),
+  run({ event_number, box_id}) {
+    if (!this.isSimulation) {
+      const eventData = EventData.findOne({event_number, box_id}, {});
+      if (!eventData) throw new Meteor.Error('EventData document not found', `Document not found for event_number: ${event_number}, box_id: ${box_id}`);
+      return eventData;
+    }
+  }
+});

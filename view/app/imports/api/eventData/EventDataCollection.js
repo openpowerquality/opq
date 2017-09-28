@@ -4,7 +4,7 @@ import BaseCollection from '../base/BaseCollection.js';
 class EventDataCollection extends BaseCollection {
 
   /**
-   * Creates the Measurements collection.
+   * Creates the collection.
    */
   constructor() {
     // Note: Event waveform data is stored in a variable named key in the format of 'events_requestId_deviceId'. As such
@@ -13,7 +13,12 @@ class EventDataCollection extends BaseCollection {
     super('EventData',
         'data', // Has to match the remote collection name, which is 'data' at the moment.
         new SimpleSchema({
-          request_id: {type: Number}
+          box_id: {type: Number},
+          event_start: {type: Number},
+          event_end: {type: Number},
+          event_number: {type: Number},
+          time_stamp: {type: [Number]}, // For research purposes; OPQView can ignore.
+          data: {type: [Number]} // These values need to be divided by device calibration constant.
         }),
         'mongodb://localhost:3002/opq'
     );
