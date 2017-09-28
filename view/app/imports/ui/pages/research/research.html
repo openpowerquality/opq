@@ -2,79 +2,38 @@
     <div class="ui padded grid">
       <div class="eight wide column">
         <div class="ui top attached segment">
-          <div id="toggleFullEvents" class="ui toggle checkbox" style="float: right;">
-            <input type="checkbox" tabindex="0" class="hidden">
-            <label>Show Full Events</label>
+          <button id="eventListFiltersButton" class="ui right floated icon basic button" style="margin-top: -6px;">
+            <i class="calendar icon"></i> {{#let filters=(dataSink "eventListFilters")}}{{formatDateMDY filters.startTime}} - {{#if filters.endTime}}{{formatDateMDY filters.endTime}}{{else}}Now{{/if}}{{/let}} <i class="angle down icon"></i>
+          </button>
+          <div class="content">
+            <h3 class="ui header">Events</h3>
           </div>
-          <h3 class="ui header">
-            Recent Events
-          </h3>
         </div>
         <div class="ui segment bottom attached no-padding" style="max-height: 275px; overflow-y: scroll;">
-          <table id="recent-events" class="ui small selectable celled table" style="border: none;">
-            <thead>
-              <tr>
-                <th>Device ID</th>
-                <th>Event Type</th>
-                <th>Percent</th>
-                <th>Request ID</th>
-                <th>Start Time</th>
-                <th>End Time</th>
-              </tr>
-            </thead>
-            <tbody>
-              {{#if isToggledFullEvents}}
-                {{#if isLoadingRecentEventDataReqIds}}
-                  <div style="margin-top: 100px;">
-                    {{> spinner}}
-                  </div>
-                {{else}}
-                  {{#each event in eventReqIds}}
-                    <tr id={{event.request_id}}>
-                      <td>Unavailable</td>
-                      <td>Unavailable</td>
-                      <td>Unavailable</td>
-                      <td>{{event.request_id}}</td>
-                      <td>Unavailable</td>
-                      <td>Unavailable</td>
-                    </tr>
-                  {{/each}}
-                {{/if}}
-              {{else}}
-                {{#each event in boxEvents}}
-                  <tr id={{event._id.valueOf}}>
-                  <!--<tr id={{event.reqId}}>-->
-                    <td>{{event.deviceId}}</td>
-                    <td>{{event.eventType}}</td>
-                    <td>{{formatDecimals 5 event.percent}}</td>
-                    <td>{{event.reqId}}</td>
-                    <td>{{formatDate event.eventStart}}</td>
-                    <td>{{formatDate event.eventEnd}}</td>
-                  </tr>
-                {{/each}}
-              {{/if}}
-            </tbody>
-          </table>
+          {{> eventList selectedEventRV=(dataSource "eventListSelectedEvent") filters=(dataSink "eventListFilters")}}
+        </div>
+        <div id="eventListFiltersPopup" class="ui popup">
+          <div style="width: 400px;">
+            {{> Filter_Form timeInterval=true filterSource=(dataSource "eventListFilters")}}
+          </div>
         </div>
       </div>
 
       <div class="eight wide column">
         <div class="ui top attached segment">
           <h3 class="ui header">
-            Selected Event
+            Selected Event Vrms Measurements
           </h3>
         </div>
         <div class="ui bottom attached segment">
-          {{#each deviceId in selectedEventDeviceIds}}
-            <div id="waveform-{{deviceId}}" class="plot"></div>
-          {{/each}}
+          <canvas id="selectedEventMeasurements"></canvas>
         </div>
       </div>
 
       <div class="eight wide column">
         <div class="ui top attached segment">
           <button id="eventCountChartFiltersButton" class="ui right floated icon basic button" style="margin-top: -6px;">
-            <i class="filter icon"></i> Filters
+            <i class="calendar icon"></i> {{#let filters=(dataSink "eventCountChartFilters")}}{{formatDateMDY filters.dayPicker}}{{/let}} <i class="angle down icon"></i>
           </button>
           <div class="content">
             <h3 class="ui header">Event Count</h3>
@@ -83,27 +42,24 @@
         <div class="ui bottom attached segment">
           {{> eventCountChart filters=(dataSink "eventCountChartFilters")}}
         </div>
-      </div>
-
-      <div id="eventCountChartFiltersPopup" class="ui popup">
-        <div style="width: 200px;">
-          {{> Filter_Form dayPicker=true filterSource=(dataSource "eventCountChartFilters")}}
+        <div id="eventCountChartFiltersPopup" class="ui popup">
+          <div style="width: 200px;">
+            {{> Filter_Form dayPicker=true filterSource=(dataSource "eventCountChartFilters")}}
+          </div>
         </div>
       </div>
 
       <div class="eight wide column">
-        <div class="ui top attached segment">
-          <h3 class="ui header">
-            Selected Event Measurements
-          </h3>
-        </div>
-        <div class="ui bottom attached segment">
-          <canvas id="selectedEventMeasurements"></canvas>
+        <div class="ui segments">
+          <div class="ui segment">
+            <h3 class="ui header">
+              Selected Event Waveforms
+            </h3>
+          </div>
+          {{> eventView eventMetaDataId=(dataSink "eventListSelectedEvent")}}
         </div>
       </div>
     </div>
-
-  <!--{{> flashMessage flashMessageReactiveVar=(getTemplateInstanceVariable 'flashMessage')}}-->
 
 </template>
 

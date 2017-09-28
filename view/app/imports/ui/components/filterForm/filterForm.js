@@ -6,6 +6,7 @@ import '../form-controls/text-form-control.html'
 import flatpickr from 'flatpickr';
 import '../../../../node_modules/flatpickr/dist/flatpickr.min.css';
 import { boxEventsCountMap } from '../../../api/boxEvent/BoxEventCollectionMethods.js';
+import { eventMetaDataCountMap, getMostRecentEventMetaData } from '../../../api/eventMetaData/EventMetaDataCollectionMethods.js';
 import { mapify } from 'es6-mapify';
 import Moment from 'moment';
 import { filterFormSchema } from '../../../utils/schemas.js'
@@ -33,25 +34,43 @@ Template.Filter_Form.onCreated(function() {
   // Form Validation Context
   template.validationContext = filterFormSchema.namedContext('Filter_Form');
 
+  template.defaultDate = new ReactiveVar();
+
   // Holds the timestamp of the beginning of month. Initial value is the current month.
-  template.dayPickerCurrentMonth = new ReactiveVar(Moment().startOf('month').toDate());
+  template.dayPickerCurrentMonth = new ReactiveVar(Moment().startOf('month').valueOf());
 
   // Holds most recent event count map/dict.
-  template.currentBoxEventsCountMap = new ReactiveVar();
+  template.currentEventMetaDataCountMap = new ReactiveVar();
 
   // When month changes, retrieve event count for that month. This data will be inserted to dayPicker widget.
   template.autorun(() => {
     const currentMonth = template.dayPickerCurrentMonth.get();
     if (currentMonth) {
-      const endOfMonth = Moment(currentMonth).endOf('month').toDate();
-      boxEventsCountMap.call({timeUnit: 'dayOfMonth', startTime: currentMonth, stopTime: endOfMonth}, (error, eventCountMap) => {
+      const endOfMonth = Moment(currentMonth).endOf('month').valueOf();
+      eventMetaDataCountMap.call({timeUnit: 'dayOfMonth', startTime: currentMonth, stopTime: endOfMonth}, (error, eventCountMap) => {
         if (error) {
-          console.log(error)
+          console.log(error);
         } else {
           const ecm = mapify(eventCountMap); // Had to be demapified (aka serialized) before being sent from server.
-          template.currentBoxEventsCountMap.set(ecm);
+          template.currentEventMetaDataCountMap.set(ecm);
         }
       });
+    }
+  });
+
+  // Find most recent day that had an event.
+  getMostRecentEventMetaData.call((error, mostRecentEvent) => {
+    if (error) {
+      console.log(error);
+    } else {
+      const startOfDay = Moment(mostRecentEvent.event_start).startOf('day').valueOf();
+      template.defaultDate.set(startOfDay);
+
+      // Set default values, causing all components to be triggered with initial data.
+      template.filterSource.set({
+        startTime: startOfDay,
+        dayPicker: startOfDay,
+      })
     }
   });
 
@@ -62,25 +81,27 @@ Template.Filter_Form.onRendered(function() {
   const dataContext = template.data;
 
   // Instantiate flatpickr for startTime and endTime
-  if (dataContext.timeInterval) {
-    const flatpickrConfig = {
-      enableTime: true,
-      enableSeconds: true
-    };
-    template.startTimeFlatpickr = flatpickr('#startTime', flatpickrConfig);
-    template.endTimeFlatpickr = flatpickr('#endTime', flatpickrConfig);
-  }
+  // if (dataContext.timeInterval) {
+  //   const flatpickrConfig = {
+  //     enableTime: true,
+  //     enableSeconds: true
+  //   };
+  //   template.startTimeFlatpickr = flatpickr('#startTime', flatpickrConfig);
+  //   template.endTimeFlatpickr = flatpickr('#endTime', flatpickrConfig);
+  // }
 
   // Instantiate flatpickr widget for dayPicker.
   // Config here is a bit complicated - but serves as a proof of concept on how to reactively associate data with the
   // flatpickr widget.
-  if (dataContext.dayPicker) {
+  if (dataContext.dayPicker || dataContext.timeInterval) {
     template.autorun(() => {
       const currentMonth = template.dayPickerCurrentMonth.get();
-      const eventsCountMap = template.currentBoxEventsCountMap.get();
+      const eventsCountMap = template.currentEventMetaDataCountMap.get();
+      const defaultDate = template.defaultDate.get();
 
-      if (currentMonth && eventsCountMap && template.subscriptionsReady()) {
+      if (defaultDate && currentMonth && eventsCountMap && template.subscriptionsReady()) {
         const flatpickrConfig = {
+          // defaultDate: defaultDate,
           onDayCreate: function(dObj, dStr, fp, dayElem) {
             const computation = template.autorun(() => {
               const currDate = dayElem.dateObj;
@@ -89,7 +110,7 @@ Template.Filter_Form.onRendered(function() {
 
               // Ignore the prevMonthDays and nextMonthDays on calendar.
               if (currMonth === fp.currentMonth) {
-                const eventsCountMap = template.currentBoxEventsCountMap.get();
+                const eventsCountMap = template.currentEventMetaDataCountMap.get();
                 const eventCount = eventsCountMap.get(timeUnitKey);
 
                 if (eventsCountMap && eventCount && template.subscriptionsReady()) {
@@ -110,18 +131,27 @@ Template.Filter_Form.onRendered(function() {
             oldComputations.forEach(comp => comp.stop());
 
             // Set RV to new month (which will trigger autorun to method call for new event counts).
-            const date = Moment().month(fpInstance.currentMonth).year(fpInstance.currentYear).startOf('month').toDate();
+            const date = Moment().month(fpInstance.currentMonth).year(fpInstance.currentYear).startOf('month').valueOf();
             template.dayPickerCurrentMonth.set(date);
           }
         };
 
         // Only instantiate once.
-        if (!template.dayPicker) template.dayPicker = flatpickr('#dayPicker', flatpickrConfig);
+        if (!template.dayPicker) {
+          flatpickrConfig.defaultDate = new Date(defaultDate);
+          template.dayPicker = flatpickr('#dayPicker', flatpickrConfig);
+        }
+        if (!template.startTimeFlatpickr) {
+          flatpickrConfig.defaultDate = new Date(defaultDate);
+          template.startTimeFlatpickr = flatpickr('#startTime', flatpickrConfig);
+        }
+        if (!template.endTimeFlatpickr) {
+          flatpickrConfig.defaultDate = null;
+          template.endTimeFlatpickr = flatpickr('#endTime', flatpickrConfig);
+        }
       }
     });
   }
-
-
 });
 
 Template.Filter_Form.events({
@@ -139,10 +169,12 @@ Template.Filter_Form.events({
     if (event.target.minDuration) formData.minDuration = event.target.minDuration.value;
     if (event.target.maxDuration) formData.maxDuration = event.target.maxDuration.value;
 
-    if (event.target.startTime) formData.startTime = event.target.startTime.value;
-    if (event.target.endTime) formData.endTime = event.target.endTime.value;
+    // Flatpickr empty values are empty strings, which would normally be handled by the simple-schema clean function,
+    // however, Moment cannot take empty string values, so we much check for a real value before passing to Moment.
+    if (event.target.startTime && event.target.startTime.value.length) formData.startTime = Moment(event.target.startTime.value).valueOf();
+    if (event.target.endTime && event.target.endTime.value.length) formData.endTime = Moment(event.target.endTime.value).valueOf();
 
-    if (event.target.dayPicker) formData.dayPicker = event.target.dayPicker.value;
+    if (event.target.dayPicker && event.target.dayPicker.value.length) formData.dayPicker = Moment(event.target.dayPicker.value).valueOf();
 
     // Clean and validate form data.
     template.validationContext.resetValidation();
