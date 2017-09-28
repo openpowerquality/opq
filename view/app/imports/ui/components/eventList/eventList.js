@@ -64,5 +64,7 @@ Template.eventList.events({
     const tr = event.currentTarget;
     const selEvent_id = new Mongo.ObjectID(tr.id);
     template.selectedEvent.set(selEvent_id);
+    template.$('#event-list > tbody > tr').removeClass('active');
+    template.$(`#event-list tr#${selEvent_id}`).addClass('active');
   }
 });
