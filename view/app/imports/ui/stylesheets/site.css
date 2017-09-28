@@ -397,3 +397,8 @@ we'll still call it expanded for naming consistency and simplicity.
     content: " ";
     display: block;
 }
+
+.dygraph-legend {
+    text-align: right;
+    background: none;
+}
