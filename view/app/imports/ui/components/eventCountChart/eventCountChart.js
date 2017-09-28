@@ -1,5 +1,4 @@
 import { Template } from 'meteor/templating';
-import { BoxEvents } from '../../../api/boxEvent/BoxEventCollection.js';
 import { EventMetaData } from '../../../api/eventMetaData/EventMetaDataCollection.js';
 import Chartjs from 'chart.js';
 import Moment from 'moment';
