@@ -1,0 +1,28 @@
+<template name="eventList">
+  <table id="event-list" class="ui small selectable celled table" style="border: none;">
+    <thead>
+    <tr>
+      <th>Event ID</th>
+      <th>Type</th>
+      <th>Boxes Triggered</th>
+      <th>Boxes Received</th>
+      <th>Description</th>
+      <th>Start Time</th>
+      <th>End Time</th>
+    </tr>
+    </thead>
+    <tbody>
+      {{#each event in eventMetaData}}
+        <tr id={{event._id.valueOf}}>
+          <td>{{event.event_number}}</td>
+          <td>{{event.type}}</td>
+          <td>{{event.boxes_triggered}}</td>
+          <td>{{event.boxes_received}}</td>
+          <td>{{event.description}}</td>
+          <td>{{formatDate event.event_start}}</td>
+          <td>{{formatDate event.event_end}}</td>
+        </tr>
+      {{/each}}
+    </tbody>
+  </table>
+</template>
