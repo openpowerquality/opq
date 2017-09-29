@@ -6,7 +6,7 @@
  */
 
 import './global.js';
-import { Persons } from '../api/persons/persons.js';
+import { Persons } from '../api/person/PersonCollection.js';
 import { SimpleSchema} from 'meteor/aldeed:simple-schema';
 // import '../api/opqDevices/opqDevices.js';
 // import '../api/locations/locations.js';

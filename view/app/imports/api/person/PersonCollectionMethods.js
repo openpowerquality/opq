@@ -2,7 +2,7 @@ import { Meteor } from 'meteor/meteor';
 import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import { Roles } from 'meteor/alanning:roles';
-import { Persons } from './persons.js';
+import { Persons } from './PersonCollection.js';
 
 
 export const createPerson = new ValidatedMethod({
