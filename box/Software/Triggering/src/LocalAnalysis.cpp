@@ -1,11 +1,7 @@
 #include "LocalAnalysis.hpp"
-#include "opqdata.hpp"
 #include "Settings.hpp"
 
 #include <math.h>
-#include <algorithm>
-#include <iostream>
-#include <opqdata.hpp>
 #include <boost/log/trivial.hpp>
 using namespace opq;
 using namespace opq::data;

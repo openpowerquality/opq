@@ -60,8 +60,8 @@ int main(int argc, char** argv) {
 
     string setting_file;
     if(argc < 2){
-        BOOST_LOG_TRIVIAL(warning) << "Started with no arguments. Attempting to load /etc/opq/settings.set";
-        setting_file = "/etc/opq/settings.set";
+        BOOST_LOG_TRIVIAL(warning) << "Started with no arguments. Attempting to load /etc/opq/settings.json";
+        setting_file = "/etc/opq/settings.json";
     } else {
         setting_file = argv[1];
     }
@@ -88,7 +88,10 @@ int main(int argc, char** argv) {
     //Create the queues and threads.
     auto readerQueue = opq::data::make_measurement_queue();
     auto analysisQueue = opq::data::make_analysis_queue();
-    auto time_series = opq::data::make_measurement_timeseries(3600);
+
+    uint64_t timeseries_size= settings->getInt64("timeseries.measurements_count");
+
+    auto time_series = opq::data::make_measurement_timeseries(timeseries_size);
     pipeline::Slab readerSlab;
     opq::Reader reader(readerQueue);
 

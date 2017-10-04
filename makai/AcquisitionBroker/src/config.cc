@@ -25,9 +25,7 @@ Config::Config(string fname) {
         box_interface_pull = j["box_pull"].get<string>();
         backend_interface_rep = j["backend_rep"].get<string>();
         backend_interface_pub = j["backend_pub"].get<string>();
-        redis_host = j["redis_host"].get<string>();
-        redis_port = j["redis_port"].get<int>();
-        redis_pass = j["redis_password"].get<string>();
+        mongo_uri = j["mongo_uri"].get<string>();
     }
     catch(const std::domain_error& e){
         throw std::runtime_error("Malformed config file");

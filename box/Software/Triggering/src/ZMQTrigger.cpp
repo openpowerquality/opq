@@ -1,10 +1,7 @@
 #include "ZMQTrigger.hpp"
 #include "ZMQSerializer.hpp"
 #include "Settings.hpp"
-#include "opq.pb.h"
 #include "util.hpp"
-#include <opqdata.hpp>
-#include <string>
 #include <boost/log/trivial.hpp>
 using namespace opq;
 

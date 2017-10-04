@@ -7,3 +7,4 @@ import '../../api/simulatedEvents';
 import '../../api/persons';
 import '../../api/boxEvent';
 import '../../api/eventData';
+import '../../api/eventMetaData';

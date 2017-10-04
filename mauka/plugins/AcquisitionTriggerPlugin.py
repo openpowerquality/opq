@@ -87,6 +87,9 @@ class AcquisitionTriggerPlugin(plugins.base.MaukaPlugin):
         else:
             return False
 
+    def get_status(self):
+        return str(self.event_type_to_last_event)
+
     def on_message(self, topic, message):
         """Subscribed messages appear here
 
@@ -114,4 +117,8 @@ class AcquisitionTriggerPlugin(plugins.base.MaukaPlugin):
 
         event_msg = self.request_event_message(start_ts_ms_utc, end_ts_ms_utc, trigger_type, percent_magnitude,
                                                device_ids, requestee, description, request_data)
-        self.req_socket.send(event_msg)
+        try:
+            self.req_socket.send(event_msg)
+            self.logger.info(self.req_socket.recv())
+        except Exception as e:
+            self.logger.error("Error sending req to Makai: {}".format(str(e)))

@@ -73,8 +73,8 @@ void RequestHandler::handle_request_loop() {
         }
 
         //current time
-        uint64_t event_time = chrono_to_mili_now();
-        uint64_t data_time = (request_event.end_timestamp_ms_utc() + request_event.start_timestamp_ms_utc())/2;
+        //uint64_t request_time = chrono_to_mili_now();
+        uint64_t event_time = (request_event.end_timestamp_ms_utc() + request_event.start_timestamp_ms_utc())/2;
 
         mongo.create_event(request_event, event_time, event_number);
 

@@ -1,5 +1,6 @@
 #include "Settings.hpp"
 #include "util.hpp"
+#include "json.hpp"
 #include <string.h>
 #include <fstream>
 
@@ -10,6 +11,8 @@
 #include <boost/log/trivial.hpp>
 
 using namespace opq;
+
+using json = nlohmann::json;
 
 Settings *Settings::_instance = NULL;
 
@@ -22,19 +25,22 @@ Settings *Settings::Instance() {
     return _instance;
 }
 
+bool Settings::setSettingUnsafe(std::string key, OPQSetting value) {
+  std::map<std::string, SettingStruct>::iterator pos = _settings.lower_bound(key);
+  if (pos == _settings.end() || (_settings.key_comp()(key, pos->first)))
+    _settings[key].lastId = 0;
+  _settings[key].setting = value;
+  for(auto &func: _settings[key].callbacks){
+    func.second(value);
+  }
+  return true;
+}
+
 bool Settings::setSetting(std::string key, OPQSetting value) {
     boost::algorithm::trim(key);
     std::unique_lock<std::mutex> mlock(_mutex);
-
-    std::map<std::string, SettingStruct>::iterator pos = _settings.lower_bound(key);
-    if (pos == _settings.end() || (_settings.key_comp()(key, pos->first)))
-        _settings[key].lastId = 0;
-    _settings[key].setting = value;
-    for(auto &func: _settings[key].callbacks){
-                    func.second(value);
-    }
-    return true;
-}
+    return setSettingUnsafe(key, value);
+  }
 
 OPQSetting Settings::getSetting(std::string key) {
     boost::algorithm::trim(key);
@@ -43,7 +49,7 @@ OPQSetting Settings::getSetting(std::string key) {
     if (pos != _settings.end() && !(_settings.key_comp()(key, pos->first))) {
         return pos->second.setting;
     }
-    return "";
+    return OPQSetting(std::string{});
 }
 
 bool Settings::loadFromFile(std::string filename) {
@@ -54,55 +60,36 @@ bool Settings::loadFromFile(std::string filename) {
         return false;
     }
     std::unique_lock<std::mutex> mlock(_mutex);
-    while (std::getline(infile, line)) {
-        std::vector<std::string> strs;
-        if (line[0] == '#')
-            continue;
-        boost::split(strs, line, boost::is_any_of(":"));
-        if (strs.size() < 3)
-            continue;
-        std::string key = strs[0];
-        std::string type = strs[1];
-        std::string value = strs[2];
-        for (size_t i = 3; i < strs.size(); i++) {
-            value += ":" + strs[i];
-        }
-        boost::algorithm::trim(key);
-        boost::algorithm::trim(type);
-        boost::algorithm::trim(value);
-        if (key.length() == 0 || type.length() == 0 || value.length() == 0)
-            continue;
-        OPQSetting setValue;
-        try {
-            switch (type.at(0)) {
-                case 'U':
-                    setValue = boost::lexical_cast<uint64_t>(value);
-                    break;
-                case 'F':
-                    setValue = boost::lexical_cast<float>(value);
-                    break;
-                case 'I':
-                    setValue = boost::lexical_cast<int>(value);
-                    break;
-                case 'S':
-                    setValue = value;
-                    break;
-                case 'B':
-                    if (value == "TRUE")
-                        setValue = true;
-                    else
-                        setValue = false;
-                    break;
-                default:
-                    BOOST_LOG_TRIVIAL(warning) <<  filename + " bad line: " + line;
-                    throw boost::bad_lexical_cast();
-            }
-        }
-        catch (boost::bad_lexical_cast &e) {
-            continue;
-        }
-        _settings[key].setting = setValue;
+
+    auto settings_json = json{};
+    infile >> settings_json;
+
+    for(auto it = settings_json.begin(); it != settings_json.end(); ++it) {
+      auto t = it.value().type();
+
+      switch(t) {
+        case json::value_t::number_integer:
+        case json::value_t::number_unsigned:
+          setSettingUnsafe(it.key(), (int64_t)it.value());
+          break;
+
+        case json::value_t::number_float:
+          setSettingUnsafe(it.key(), (float)it.value());
+          break;
+
+        case json::value_t::string:
+          setSettingUnsafe(it.key(), it.value().get<std::string>());
+          break;
+
+        case json::value_t::boolean:
+          setSettingUnsafe(it.key(), (bool)it.value());
+          break;
+
+        default:
+          throw std::runtime_error{"unknown json type"};
+      }
     }
+
     return true;
 }
 
@@ -113,33 +100,33 @@ bool Settings::saveToFile(std::string filename) {
     if (!ofile.is_open())
         return false;
 
+    auto j = json{};
+
     for(const map_type::value_type &myPair: _settings) {
                     OPQSetting val = myPair.second.setting;
                     std::string key = myPair.first;
-                    line = key + ":";
+
                     switch (val.which()) {
                         case 0: //uint64_t
-                            line += "U:" + boost::lexical_cast<std::string>(boost::get<uint64_t>(val));
+                            j[key] = boost::get<uint64_t>(val);
                             break;
                         case 1: //float
-                            line += "F:" + boost::lexical_cast<std::string>(boost::get<float>(val));
+                            j[key] = boost::get<float>(val);
                             break;
                         case 2: //int
-                            line += "I:" + boost::lexical_cast<std::string>(boost::get<int>(val));
+                            j[key] = boost::get<int64_t >(val);
                             break;
                         case 3: //string
                             line += "S:" + boost::get<std::string>(val);
+                            j[key] = boost::get<std::string>(val);
                             break;
                         case 4: //bool
                             line += "B:";
-                            if (boost::get<bool>(val))
-                                line += "TRUE";
-                            else
-                                line += "FALSE";
+                            j[key] = boost::get<bool>(val);
                             break;
                     }
-                    ofile << line << std::endl;
                 }
+    ofile << j;
     BOOST_LOG_TRIVIAL(info) <<  "exported " << filename;
     return true;
 }
@@ -195,9 +182,9 @@ float Settings::getFloat(std::string key) {
     }
 }
 
-int Settings::getInt(std::string key) {
+int Settings::getInt64(std::string key) {
     try {
-        return boost::get<int>(getSetting(key));
+        return boost::get<int64_t>(getSetting(key));
     }
     catch (boost::bad_get &e) {
         badget(key);

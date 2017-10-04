@@ -5,6 +5,7 @@ This module provides classes and base functionality for building OPQMauka plugin
 import json
 import logging
 import multiprocessing
+import signal
 import threading
 import typing
 import time
@@ -38,18 +39,6 @@ def run_plugin(plugin_class, config: typing.Dict):
 
     process = multiprocessing.Process(target=_run_plugin)
     process.start()
-
-
-def protobuf_decode_measurement(encoded_measurement):
-    """ Decodes and returns a serialized triggering message
-
-    :param encoded_measurement: The protobuf encoded triggering message
-    :return: The decoded TriggerMessage object
-    """
-    trigger_message = opqpb.TriggerMessage()
-    trigger_message.ParseFromString(encoded_measurement)
-    return trigger_message
-
 
 class JSONEncoder(json.JSONEncoder):
     """
@@ -116,7 +105,10 @@ class MaukaPlugin:
         self.last_received = 0
         """Timestamp since this plugin has last received a message"""
 
-        self.zmq_consumer.connect(self.config_get("zmq.triggering.interface"))
+        self.logger = _logger
+
+        self.producer_lock = multiprocessing.Lock()
+
         self.zmq_consumer.connect(self.config_get("zmq.mauka.plugin.sub.interface"))
         self.zmq_producer.connect(self.config_get("zmq.mauka.plugin.pub.interface"))
 
@@ -163,13 +155,15 @@ class MaukaPlugin:
         configured is the configuration file.
         """
 
+        start_after_seconds = 5.0
+
         def heartbeat():
             self.produce("heartbeat".encode(), "{}:{}:{}:{}".format(self.name, self.on_message_cnt, self.last_received,
                                                                     self.get_status()).encode())
             timer = threading.Timer(self.heartbeat_interval_s, heartbeat)
             timer.start()
 
-        threading.Timer(5.0, heartbeat).start()
+        threading.Timer(start_after_seconds, heartbeat).start()
 
     def config_get(self, key: str) -> str:
         """Retrieves a value from the configuration dictionary
@@ -207,7 +201,9 @@ class MaukaPlugin:
         :param topic: The topic to produce this message to
         :param message: The message to produce
         """
-        self.zmq_producer.send_multipart((topic, message))
+        with self.producer_lock:
+            self.zmq_producer.send_multipart((topic, message))
+
 
     def is_self_message(self, topic: str) -> bool:
         """Determines if this is a message directed at this plugin. I.e. the topic is the name of the plugin.
@@ -228,6 +224,8 @@ class MaukaPlugin:
     def _run(self):
         """This is the run loop for this plugin process"""
         _logger.info("Starting Mauka plugin: {}".format(self.name))
+        signal.signal(signal.SIGTERM, signal.SIG_IGN)
+        signal.signal(signal.SIGINT, signal.SIG_IGN)
 
         for subscription in self.subscriptions:
             self.zmq_consumer.setsockopt_string(zmq.SUBSCRIBE, subscription)

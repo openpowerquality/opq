@@ -3,8 +3,6 @@
 #include <Settings.hpp>
 #include <boost/log/trivial.hpp>
 
-#include "opq.pb.h"
-
 using namespace std;
 
 void zmq_acq_loop(bool &running, opq::data::MeasurememntTimeSeries time_series) {
@@ -18,7 +16,7 @@ void zmq_acq_loop(bool &running, opq::data::MeasurememntTimeSeries time_series) 
     auto send_address = settings->getString("zmq.acq_send_host");
     BOOST_LOG_TRIVIAL(info) << "Sending raw data to " << send_address;
     BOOST_LOG_TRIVIAL(info) << "Recieving raw data request from " << recv_address;
-    auto box_id = settings->getInt("box_id");
+    auto box_id = settings->getInt64("box_id");
 
     auto recv = zmqpp::socket{ctx, zmqpp::socket_type::sub};
     recv.set(zmqpp::socket_option::curve_server_key, server_cert.first);
@@ -36,6 +34,7 @@ void zmq_acq_loop(bool &running, opq::data::MeasurememntTimeSeries time_series) 
     send.connect(send_address);
 
     int reset_counter = 0;
+    bool lost_connection = false;
     while(running) {
         zmqpp::message request;
         if(!recv.receive(request, true)){
@@ -50,11 +49,17 @@ void zmq_acq_loop(bool &running, opq::data::MeasurememntTimeSeries time_series) 
                 recv.set(zmqpp::socket_option::zap_domain, "global" );
 				recv.connect(recv_address);
                 recv.subscribe("");
-		        cout << "reset" << endl;
+                if(lost_connection == false) {
+                    BOOST_LOG_TRIVIAL(warning) << "Lost connection with Makai. (no ping message for 60s)";
+                    lost_connection = true;
+                }
             }
             continue;
         }
-
+        if(lost_connection == true) {
+            BOOST_LOG_TRIVIAL(warning) << "Established connection with Makai.";
+            lost_connection = false;
+        }
         reset_counter = 0;
 
         auto m = opq::proto::RequestDataMessage();

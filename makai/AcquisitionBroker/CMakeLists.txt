@@ -5,19 +5,9 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
 include_directories(${AcquisitionBroker_SOURCE_DIR}/proto)
 include_directories(${AcquisitionBroker_SOURCE_DIR}/lib)
 
-if(EXISTS ${AcquisitionBroker_SOURCE_DIR}/proto)
-    execute_process(
-            WORKING_DIRECTORY ${AcquisitionBroker_SOURCE_DIR}/proto
-            COMMAND git pull
-    )
-else()
-    execute_process(
-        WORKING_DIRECTORY ${AcquisitionBroker_SOURCE_DIR}
-        COMMAND git clone https://github.com/openpowerquality/opq-proto.git proto
-)
-endif()
 execute_process(
-        COMMAND protoc -I=proto/ --cpp_out=proto/ proto/opq.proto
+        COMMAND mkdir -p proto
+	COMMAND	protoc -I=../../protocol/ --cpp_out=proto/ ../../protocol//opq.proto
         WORKING_DIRECTORY ${AcquisitionBroker_SOURCE_DIR}
 )
 
