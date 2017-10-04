@@ -82,7 +82,7 @@ void RequestHandler::handle_request_loop() {
         zmqpp::message z_reply_event;
         z_reply_event.add(to_string(event_number));
         backend_rep.send(z_reply_event);
-
+        if(!request_event.request_data()) continue;
         //Compose a message to the opqboxes
         zmqpp::message z_request_data;
         opq::proto::RequestDataMessage request_data;
