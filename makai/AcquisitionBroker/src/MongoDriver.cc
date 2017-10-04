@@ -5,6 +5,7 @@
 #include "MongoDriver.h"
 #include "util.h"
 #include <mongocxx/instance.hpp>
+#include <mongocxx/exception/write_exception.hpp>
 
 using bsoncxx::builder::stream::close_array;
 using bsoncxx::builder::stream::close_document;
@@ -65,24 +66,33 @@ bool MongoDriver::create_event(opq::proto::RequestEventMessage &m, uint64_t ts, 
     builder << EVENT_START_FIELD << (int64_t)m.start_timestamp_ms_utc()
             << EVENT_END_FIELD << (int64_t)m.end_timestamp_ms_utc();
     bsoncxx::document::value doc_value = builder << finalize;
-
-    auto result = _event_collection.insert_one(doc_value.view());
+    try {
+        auto result = _event_collection.insert_one(doc_value.view());
+    }
+    catch(const mongocxx::write_exception &e){
+        std::cout << e.what() << std::endl;
+    }
 }
 
 bool MongoDriver::append_data_to_event(std::vector<opq::proto::DataMessage> &messages, uint32_t event_num) {
     if(messages.size() == 0)
         return false;
     int32_t id = messages.front().id();
-    _event_collection.update_one(document{}
-                                         << EVENT_NUMBER_FIELD << (int32_t)event_num
-                                         << finalize,
-                                 document{}
-                                         << "$push"
-                                         << open_document
-                                               <<BOXES_RECEIVED_FIELD << id
-                                               <<TIME_STAMP_FIELD << (int64_t)chrono_to_mili_now()
-                                         << close_document
-                                         << finalize);
+    try {
+        _event_collection.update_one(document{}
+                                             << EVENT_NUMBER_FIELD << (int32_t) event_num
+                                             << finalize,
+                                     document{}
+                                             << "$push"
+                                             << open_document
+                                             << BOXES_RECEIVED_FIELD << id
+                                             << TIME_STAMP_FIELD << (int64_t) chrono_to_mili_now()
+                                             << close_document
+                                             << finalize);
+    }
+    catch(const mongocxx::write_exception &e){
+        std::cout << e.what() << std::endl;
+    }
     auto builder = bsoncxx::builder::stream::document{};
     auto start_time = messages.front().cycles().Get(0).time();
     size_t cycle_size = (size_t)messages.front().cycles().size();
@@ -110,5 +120,10 @@ bool MongoDriver::append_data_to_event(std::vector<opq::proto::DataMessage> &mes
     data_array_context << close_array;
 
     bsoncxx::document::value doc_value = builder  << bsoncxx::builder::stream::finalize;
-    auto result = _data_collection.insert_one(doc_value.view());
+    try {
+        auto result = _data_collection.insert_one(doc_value.view());
+    }
+    catch(const mongocxx::write_exception &e){
+        std::cout << e.what() << std::endl;
+    }
 }
