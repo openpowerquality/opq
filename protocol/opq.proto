@@ -2,44 +2,78 @@ syntax = "proto2";
 
 package opq.proto;
 
+//A data structure holding a single cycle of raw data.
 message Cycle{
+	//64 bit timestamp of when the cycle was read out.
 	required uint64 time = 1;
+	//16 bit signed data values.
 	repeated int32 data = 2;
+	//A counter stamp driven by a 10kHz clock of the last GPS PPS.
 	optional int32 last_gps = 3;
+	//Current counter stamp.
 	optional int32 current_count = 4;
+	// Cycle flags. Currently unused
 	optional int32 flags = 5;
 }
 
+//A data structure holding a collection of cycles from a box.
 message DataMessage{
+	//Device ID
 	required int32 id = 1;
+	//Cycles in this message
 	repeated Cycle cycles = 3;
 }
 
+//A trigger message from the box to the server.
 message TriggerMessage{
+	//Device ID
 	required int32 id = 1;
+	//64 bit timestamp of when the cycle was read out.
 	required uint64 time = 2;
+	//Frequency measurement.
 	required float frequency = 3;
+	//RMS votage measurement.
 	required float rms = 4;
+	//unused
 	repeated int32 histogram = 5;
+	//A counter stamp driven by a 10kHz clock of the last GPS PPS.
 	optional int32 last_gps = 6;
+	//Current counter stamp.
 	optional int32 current_count = 7;
+	//Trigger flags currently unused.
 	optional int32 flags = 8;
 }
 
+
+//A request message from the makai cloud service to the boxen.
+//Also a reply message from the box to the makai service.
 message RequestDataMessage{
+	//Request type
 	enum RequestType {
+	    //ping request
 	    PING = 1;
+	    //pong responce
 	    PONG = 2;
+	    //read data
 	    READ = 3;
+	    //response with data
 	    RESP = 4;
+	    //Box could not understand the request.
 	    ERROR = 5;
  	}
+	//Request type
 	required RequestType type = 1;
+	//Event number
 	required uint32 sequence_number = 2;
+	//device ID for response
 	optional uint32 boxId = 3;
+	//64 bit timestamp of when the message was sent out.
 	optional uint64 time = 4;
+	//64 bit timestamp. Begining of the time range for raw data.
 	optional uint64 back = 5;
+	//End of the time range
 	optional uint64 forward = 6;
+	//Number of cycles read out from the box
 	optional uint32 num_cycles = 7;
 }
 
