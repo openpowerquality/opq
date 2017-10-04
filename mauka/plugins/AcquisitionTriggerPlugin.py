@@ -28,7 +28,7 @@ class AcquisitionTriggerPlugin(plugins.base.MaukaPlugin):
 
         :param config: Configuration dictionary
         """
-        super().__init__(config, ["VoltageEvent", "FrequencyEvent"], AcquisitionTriggerPlugin.NAME, exit_event)
+        super().__init__(config, ["VoltageEvent", "FrequencyEvent", "OtherEvent"], AcquisitionTriggerPlugin.NAME, exit_event)
 
         self.zmq_req_ctx = zmq.Context()
         """ZeroMQ context"""
