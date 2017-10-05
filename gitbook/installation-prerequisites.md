@@ -21,4 +21,4 @@ The OPQ system requires version 3.4 of MongoDB for cloud based data storage and 
 
 ## Satisfy OS and hardware prerequisites
 
-The OPQ system installs on modern Linux based systems and has been tested on Debian 8.
+The OPQ system installs on modern Linux based systems and has been tested on Debian 8. Selected OPQ components such as Mauka and View can also be ran and tested on Macintosh based systems.
