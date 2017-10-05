@@ -4,15 +4,15 @@
 The OPQ system consists of open source hardware and software components that provide end-to-end support for the capture, triggering, analysis, and reporting of consumer level local and global PQ events.
 
 ### Components
-**Box** is an open source hardware platform for capturing and transferring PQ events to our cloud services.
+**[Box](box/description.md#overview)** is an open source hardware platform for capturing and transferring PQ events to our cloud services.
 
-**Makai** is a cloud based middleware responsible for analyzing low fidelity data in order to request bandwidth limited high fidelity data from boxes for further analysis.
+**[Makai](makai/description.md#overview)** is a cloud based middleware responsible for analyzing low fidelity data in order to request bandwidth limited high fidelity data from boxes for further analysis.
 
-**Mauka** is a cloud based middleware responsible for higher-level analytics of PQ data. Mauka provides various algorithms for classifying PQ events.  
+**[Mauka](mauka/description.md#overview)** is a cloud based middleware responsible for higher-level analytics of PQ data. Mauka provides various algorithms for classifying PQ events.  
 
-**View** is a cloud based web server and visualization platform which provides reporting of PQ events collected by the other OPQ System components.
+**[View](view/description.md#overview)** is a cloud based web server and visualization platform which provides reporting of PQ events collected by the other OPQ System components.
 
-**Protocol** provides a data serialization standard that is used to provide internal and external communication between the various APIs of the OPQ system components.
+**[Protocol](protocol/description.md)** provides a data serialization standard that is used to provide internal and external communication between the various APIs of the OPQ system components.
 
 **Misc. Utilities** are provided in the form of shell and Python scripts and perform tasks such as installation, documentation generation, signing/variation, key generation, etc.
 
@@ -30,30 +30,30 @@ The OPQ system consists of open source hardware and software components that pro
 ## Features {#features}
 OPQ system features organized by component.
 
-##### Box
+##### [Box](box/description.md#overview)
 * Capture sampled power waveform
 * Local feature extraction
 * Data is transferred securely to our cloud services via user's WiFi
 * Optional GPS synchronization
 * Optional battery backup
 
-##### Makai
+##### [Makai](makai/description.md#overview)
 * Analyze low fidelity feature extracted PQ data received from Boxes
 * Trigger appropriate Boxes for raw data for further analysis
 * Scalable plugin based architecture
 
-##### Mauka
+##### [Mauka](mauka/description.md#overview)
 * Classification of PQ events
 * Localization of PQ events
 * Storage and analysis of long term PQ trends
 * Scalable plugin based architecture
 
-##### View
+##### [View](view/description.md#overview)
 * Public display and visualization of local and global PQ events
 * Per user management of Boxes, preferences, and personal data
 * *Expert mode* for access to raw data and more advanced analytics/reports
 
-##### Protocol
+##### [Protocol](protocol/description.md)
 * Provides a serialization standard between OPQ system components
 * Utilizes Google's Protocol Buffers https://developers.google.com/protocol-buffers/ which provides a programming language agnostic way of (de)serializing data
 
