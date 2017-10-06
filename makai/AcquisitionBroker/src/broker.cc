@@ -3,14 +3,13 @@
 #include <memory>
 
 #include <experimental/filesystem>
-#include "zmqpp/zmqpp.hpp"
-#include <thread>
 #include <MongoDriver.h>
+#include "zmqpp/zmqpp.hpp"
+#include "zmqpp/z85.hpp"
 #include "DataHandler.h"
 #include "RequestHandler.h"
 #include "util.h"
 #include "config.h"
-
 namespace fs = std::experimental::filesystem;
 
 using namespace std;
