@@ -29,7 +29,7 @@ void RequestHandler::handle_request_loop() {
 
     //Get the last event number from mongo.
     uint32_t event_number = mongo.get_next_event_number();
-    cout << "Last event number " << event_number;
+    cout << "Next event number will be " << event_number << endl;
 
     //Encrypted/Box End
     auto box_pub = zmqpp::socket{ _ctx, zmqpp::socket_type::pub };

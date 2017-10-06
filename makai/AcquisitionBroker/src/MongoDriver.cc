@@ -139,8 +139,6 @@ bool MongoDriver::append_data_to_event(std::vector<opq::proto::DataMessage> &mes
             //file_data.insert(file_data.end(),cycle.data().begin(), cycle.data().end());
         }
     }
-
-    std::cout << file_data.size() << std::endl;
     uploader.write(file_data.data(), file_data.size());
     auto result = uploader.close();
 }
