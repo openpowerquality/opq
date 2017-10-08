@@ -48,7 +48,6 @@ void bail_handler( int signum )
 
 int main(int argc, char** argv) {
     gSignalStatus = 1;
-    https://github.com/openpowerquality/opqbox2.git
     //Enable logging to console while we set up the log.
     logging::core::get()->set_filter(
             logging::trivial::severity >= logging::trivial::info

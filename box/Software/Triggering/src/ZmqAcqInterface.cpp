@@ -82,13 +82,10 @@ void zmq_acq_loop(bool &running, opq::data::MeasurememntTimeSeries time_series) 
                 auto start = opq::util::mili_to_crono(m.back());
                 auto stop = opq::util::mili_to_crono(m.forward());
                 std::time_t ttp = std::chrono::system_clock::to_time_t(start);
-                std::cout << "start: " << std::ctime(&ttp) << " " <<m.back() << endl;
-
+                BOOST_LOG_TRIVIAL(info) << "New event request start_time: " << std::ctime(&ttp);
                 ttp = std::chrono::system_clock::to_time_t(stop);
-                std::cout << "stop: " << std::ctime(&ttp) << " " << m.forward() << endl;
-
+                BOOST_LOG_TRIVIAL(info) << "New event request stop_time: " << std::ctime(&ttp);
                 auto cycles = time_series->getTimeRange(start, stop);
-                cout << cycles.size() << endl;
                 for (auto &cycle : cycles) {
                     response.add(opq::util::serialize_to_protobuf(box_id, cycle));
                 }

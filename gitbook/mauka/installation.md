@@ -6,28 +6,39 @@ First, install the [prerequisites](../installation-prerequisites.html).
 
 ## Install Python
 
-OPQ Mauka requires version XX of Python, available [here ??](??).
-
-## Compile the OPQMauka ZMQ broker
-
-1. Run ```make``` in the ```mauka/MaukaBroker``` directory
-2. Set MaukaBroker to run as a service and start the service
+OPQ Mauka requires version **3.5 or greater** of Python. It's suggested that you use your distribution's package manager to install Python 3.5 or greater if its available. Python 3.5 or greater can also be downloaded [here](https://www.python.org/).
 
 ## Install the Python dependencies
 
-1. Use pip to automatically install the dependecies for this project by referencing the ```mauka/requirements.txt``` file
+1. Use pip to automatically install the dependencies for this project by referencing the ```mauka/requirements.txt``` file
 ```
 pip install -r requirements.txt
 ```
 
-## Run OPQMauka
+## Install the OPQ Mauka service (Debian based systems)
+If you would like Mauka to start at boot, you must create a service for it. This documentation assumes that SysVinit is used and the start-stop-daemon binary is available (most modern Debian based distributions).
 
-1. Either create a service or run OpqMauka.py in a screen or tmux session
-2. Don't forget to pass a configuration file as a first argument when running
+1. Run the script ```util/mauka/mauka-install.sh``` as root
+2. The service will now start automatically at boot
+3. To start the service type ```sudo service mauka start```
+4. To stop the service type ```sudo service mauka stop```
+5. To restart the service type ```suer service mauka restart```
+
+
+*Note: If you successfully create services for OS X or systemd, please let us know!*
+
+## Running OPQ Mauka (non-Debian based systems)
+1. Run ```mauka/OpqMauka.py```
 ```
-python OpqMauka.py config.json
+# Enter the opq/mauka directory
+cd mauka
+
+# Run Mauka
+python3 OpqMauka.py path_to_config.json
+
 ```
+
+## Testing OPQ Mauka
 
 ## Regarding protobuf
-
-OPQMauka will always keep a compiled version of the protobuf library in the repo and up-to-date. This way when you pull from github or download a release, you don't need to worry about installing or compiling protobuf yourself.
+Users do not need to compile protobuf for this component. The Mauka Python protobuf wrapper will be kept up to date with the source by the maintainers.

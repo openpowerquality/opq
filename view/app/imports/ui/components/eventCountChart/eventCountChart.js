@@ -1,13 +1,14 @@
 import { Template } from 'meteor/templating';
-import { BoxEvents } from '../../../api/boxEvent/BoxEventCollection.js';
+import { EventMetaData } from '../../../api/eventMetaData/EventMetaDataCollection.js';
 import Chartjs from 'chart.js';
 import Moment from 'moment';
 import { Random } from 'meteor/random';
 import { filterFormSchema } from "../../../utils/schemas.js";
+import { dataContextValidator } from "../../../utils/utils.js";
 
 // Templates and Sub-Template Inclusions
 import './eventCountChart.html';
-import { dataContextValidator } from "../../../utils/utils.js";
+
 
 
 Template.eventCountChart.onCreated(function () {
@@ -24,16 +25,16 @@ Template.eventCountChart.onCreated(function () {
   template.autorun(() => {
     const dataContext = Template.currentData();
     (dataContext && dataContext.filters) ? template.currentDay.set(dataContext.filters.dayPicker)
-                                         : template.currentDay.set(new Date());
+                                         : template.currentDay.set(Moment().valueOf());
   });
 
   // Subscription
   template.autorun(() => {
     const currentDay = template.currentDay.get();
     if (currentDay) {
-      const startOfDay = Moment(currentDay).startOf('day').toDate(); // Ensure selected day is start of day timestamp.
-      const endOfDay = Moment(currentDay).endOf('day').toDate();
-      template.subscribe(BoxEvents.publicationNames.GET_BOX_EVENTS, {startTime: startOfDay, endTime: endOfDay});
+      const startOfDay = Moment(currentDay).startOf('day').valueOf(); // Ensure selected day is start of day timestamp.
+      const endOfDay = Moment(currentDay).endOf('day').valueOf();
+      template.subscribe(EventMetaData.publicationNames.GET_EVENT_META_DATA, {startTime: startOfDay, endTime: endOfDay});
     }
   });
 });
@@ -46,10 +47,10 @@ Template.eventCountChart.onRendered(function () {
     // Ignore the 24th hour so it doesn't get grouped with the current hour.
     const currentDay = template.currentDay.get();
     if (currentDay) {
-      const startOfDay = Moment(currentDay).startOf('day').toDate(); // Ensure selected day is start of day timestamp.
-      const endOfDay = Moment(currentDay).endOf('day').toDate();
-      const boxEventsSelector = BoxEvents.queryConstructors().getBoxEvents({startTime: startOfDay, endTime: endOfDay});
-      const boxEvents = BoxEvents.find(boxEventsSelector, {sort: {eventEnd: -1}});
+      const startOfDay = Moment(currentDay).startOf('day').valueOf(); // Ensure selected day is start of day timestamp.
+      const endOfDay = Moment(currentDay).endOf('day').valueOf();
+      const eventMetaDataSelector = EventMetaData.queryConstructors().getEventMetaData({startTime: startOfDay, endTime: endOfDay});
+      const eventMetaData = EventMetaData.find(eventMetaDataSelector, {sort: {event_end: -1}});
 
       // Calculate labels. Floor of current hour, then get last 23 hours.
       const currHour = new Date().getHours();
@@ -62,16 +63,21 @@ Template.eventCountChart.onRendered(function () {
 
       // Count events. Place into 1 hour groups per deviceId.
       const eventCountMap = {};
-      boxEvents.forEach(event => {
-        const hour = new Date(event.eventEnd).getHours();
+      eventMetaData.forEach(event => {
+        const hour = new Date(event.event_end).getHours();
 
-        // Check for deviceId.
-        if (eventCountMap[event.deviceId]) {
-          // Update hour count.
-          (eventCountMap[event.deviceId][hour]) ? eventCountMap[event.deviceId][hour]++ : eventCountMap[event.deviceId][hour] = 1;
-        } else {
-          eventCountMap[event.deviceId] = {[hour]: 1}; // Create new object to keep track of hour count.
-        }
+        // Note that we are only counting the initial triggering device so that our event count matches the calendar count.
+        // If we later decide to count all boxes_triggered per event, just uncomment the forEach block below.
+        const box_id = event.boxes_triggered[0];
+        // event.boxes_triggered.forEach(box_id => {
+          // Check for deviceId.
+          if (eventCountMap[box_id]) {
+            // Update hour count.
+            (eventCountMap[box_id][hour]) ? eventCountMap[box_id][hour]++ : eventCountMap[box_id][hour] = 1;
+          } else {
+            eventCountMap[box_id] = {[hour]: 1}; // Create new object to keep track of hour count.
+          }
+        // });
       });
 
       // Create dataset
@@ -84,8 +90,6 @@ Template.eventCountChart.onRendered(function () {
         dataset.data = hours.map(hour => eventCountMap[deviceId][hour]);
         chartDatasets.push(dataset);
       });
-
-      // console.log(chartDatasets);
 
       // Create chart
       const ctx = template.$('#eventCountChart');
@@ -102,7 +106,7 @@ Template.eventCountChart.onRendered(function () {
               stacked: true,
               scaleLabel: {
                 display: true,
-                labelString: 'Hour (past 24 hours)'
+                labelString: 'Hour of Day'
               }
             }],
             yAxes: [{

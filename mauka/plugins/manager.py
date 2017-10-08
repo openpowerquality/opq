@@ -14,6 +14,7 @@ import readline
 import sys
 import typing
 
+import time
 import zmq
 
 _logger = logging.getLogger("app")
@@ -22,7 +23,8 @@ logging.basicConfig(
         os.getpid()))
 _logger.setLevel(logging.DEBUG)
 
-OK = "OK"
+OK = "\033[1;32mOK\033[0;0m"
+ERROR = "\033[1;31mERROR\033[0;0m"
 
 
 def ok(msg: str = "") -> str:
@@ -39,7 +41,7 @@ def error(msg: str = "N/A") -> str:
     :param msg: An optional error message
     :return: An error response
     """
-    return "ERROR. {}".format(msg)
+    return "{}. {}".format(ERROR, msg)
 
 
 def is_error(response: str) -> bool:
@@ -131,6 +133,8 @@ class PluginManager:
 
         self.cli_parser = MaukaCli()
 
+        self.tcp_server_exit_event = multiprocessing.Event()
+
         self.zmq_pub_socket.connect(self.config["zmq.mauka.plugin.pub.interface"])
         self.init_cli()
 
@@ -171,6 +175,9 @@ class PluginManager:
         self.cli_parser.add_cmd("stop-plugin", "Stop the named plugin",
                                 self.cli_stop_plugin,
                                 "plugin_name", "Name of the plugin to stop")
+
+        self.cli_parser.add_cmd("stop-all-plugins", "Stop all plugins",
+                                self.cli_stop_all_plugins)
 
         self.cli_parser.add_cmd("restart-plugin", "Restarts the named plugin",
                                 self.cli_restart_plugin,
@@ -235,16 +242,52 @@ class PluginManager:
                 return val
             return None
 
+    def clean_exit(self):
+        # First, stop all the plugins
+        _logger.info("Stopping all plugins...")
+        for plugin_name in self.name_to_plugin_class:
+            self.zmq_pub_socket.send_multipart((plugin_name.encode(), "EXIT".encode()))
+            if plugin_name in self.name_to_exit_event:
+                self.name_to_exit_event[plugin_name].set()
+
+        time.sleep(2.5)
+
+        # Next, stop the tcp server
+        _logger.info("Stopping tcp server...")
+        self.tcp_server_exit_event.set()
+
+
+
     def start_tcp_server(self):
         """Starts a TCP server backed by ZMQ. This server is connected to my out cli client"""
+        # def _start_tcp_server():
         _logger.info("Starting plugin manager TCP server")
         zmq_context = zmq.Context()
         zmq_reply_socket = zmq_context.socket(zmq.REP)
         zmq_reply_socket.bind(self.config["zmq.mauka.plugin.management.rep.interface"])
+        zmq_reply_socket.setsockopt(zmq.RCVTIMEO, 1)
 
-        while True:
-            request = zmq_reply_socket.recv_string()
-            zmq_reply_socket.send_string(self.handle_tcp_request(request))
+        while not self.tcp_server_exit_event.is_set():
+            try:
+                request = zmq_reply_socket.recv_string()
+                _logger.debug("Recv req {}".format(request))
+
+                if request.strip() == "stop-tcp-server":
+                    resp = ok("Stopping TCP server")
+                    zmq_reply_socket.send_string(resp)
+                    self.tcp_server_exit_event.set()
+                    break
+
+                zmq_reply_socket.send_string(self.handle_tcp_request(request))
+            except zmq.error.Again:
+                continue
+
+
+        _logger.info("Stopping plugin manager TCP server")
+
+        # process = multiprocessing.Process(target=_start_tcp_server)
+        # process.start()
+        # return process
 
     def handle_tcp_request(self, request: str) -> str:
         return self.cli_parser.parse(request.split(" "))
@@ -356,7 +399,9 @@ class PluginManager:
             process_pid = process.pid if process != "N/A" else "N/A"
             exit_event = self.name_to_exit_event[name].is_set() if name in self.name_to_exit_event else "N/A"
 
-            resp += "name:{} enabled:{} process:{} pid:{} exit_event:{}\n".format(name, enabled, process, process_pid,
+            process_str = "\033[1;32m" + str(process) + "\033[0;0m" if "started" in str(process) else "\033[1;31m" + str(process) + "\033[0;0m"
+            enabled_str = "\033[1;32mYes\033[0;0m" if enabled else "\033[1;31mNo\033[0;0m"
+            resp += "name:{:<30} enabled:{:<3} process:{} pid:{} exit_event:{}\n".format(name, enabled_str, process_str, process_pid,
                                                                                   exit_event)
 
         return resp
@@ -392,6 +437,14 @@ class PluginManager:
             self.name_to_exit_event[plugin_name].set()
 
         return ok("Plugin {} stopped".format(plugin_name))
+
+    def cli_stop_all_plugins(self) -> str:
+        for plugin_name in self.name_to_plugin_class:
+            self.zmq_pub_socket.send_multipart((plugin_name.encode(), b"EXIT"))
+            # if plugin_name in self.name_to_exit_event:
+            #     self.name_to_exit_event[plugin_name].set()
+
+        return ok("Stopped all plugins")
 
     def cli_restart_plugin(self, args) -> str:
         """Restarts the given plugin

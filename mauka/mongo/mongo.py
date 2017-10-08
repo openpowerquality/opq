@@ -7,6 +7,7 @@ class BoxEventType:
     FREQUENCY_SWELL = "FREQUENCY_SWELL"
     VOLTAGE_DIP = "VOLTAGE_SAG"
     VOLTAGE_SWELL = "VOLTAGE_SWELL"
+    OTHER = "OTHER"
 
 
 class Collection:

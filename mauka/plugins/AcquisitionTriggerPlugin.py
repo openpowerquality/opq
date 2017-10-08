@@ -28,7 +28,7 @@ class AcquisitionTriggerPlugin(plugins.base.MaukaPlugin):
 
         :param config: Configuration dictionary
         """
-        super().__init__(config, ["VoltageEvent", "FrequencyEvent"], AcquisitionTriggerPlugin.NAME, exit_event)
+        super().__init__(config, ["VoltageEvent", "FrequencyEvent", "OtherEvent"], AcquisitionTriggerPlugin.NAME, exit_event)
 
         self.zmq_req_ctx = zmq.Context()
         """ZeroMQ context"""
@@ -87,6 +87,9 @@ class AcquisitionTriggerPlugin(plugins.base.MaukaPlugin):
         else:
             return False
 
+    def get_status(self):
+        return str(self.event_type_to_last_event)
+
     def on_message(self, topic, message):
         """Subscribed messages appear here
 
@@ -116,5 +119,6 @@ class AcquisitionTriggerPlugin(plugins.base.MaukaPlugin):
                                                device_ids, requestee, description, request_data)
         try:
             self.req_socket.send(event_msg)
+            self.logger.info(self.req_socket.recv())
         except Exception as e:
             self.logger.error("Error sending req to Makai: {}".format(str(e)))

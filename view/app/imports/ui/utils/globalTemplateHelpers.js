@@ -1,6 +1,7 @@
 // Global template helpers
 import { createFlashAlertMsgObject } from '../components/flashAlert/flashAlert.js';
 import { getRootTemplateInstance } from '../../utils/utils.js';
+import Moment from 'moment';
 
 
 Template.registerHelper('getTemplateInstance', function() {
@@ -13,7 +14,14 @@ Template.registerHelper('getTemplateInstanceVariable', function(varName) {
 });
 
 Template.registerHelper('formatDate', function(date) {
-  return (typeof date === 'number' || date instanceof Date) ? moment(date).format('HH:mm:ss [[]DD MMM YYYY[]]') : null;
+  return (typeof date === 'number' || date instanceof Date) ? Moment(date).format('HH:mm:ss [[]DD MMM YYYY[]]') : null;
+});
+
+Template.registerHelper('formatDateMDY', function(date) {
+  let dateString;
+  if (typeof date === 'number' || date instanceof Date) dateString = Moment(date).format('MMM D, YYYY');
+  if (date === 'today') dateString = Moment().format('MMM D, YYYY');
+  return dateString;
 });
 
 Template.registerHelper('formatDecimals', function(decimals, number) {
@@ -87,10 +95,15 @@ Template.registerHelper('dataSource', (uniqIdentifier) => {
   // DataSources is an object mapping UIDs to their ReactiveVars.
   // Each template can have a variable named 'dataSources' which keeps track of all RV sources attached to the current
   // template. Subsequently, the dataSink() helper will be able to lookup data sources and retrieve their current data.
-  (template.dataSources) ? template.dataSources[uniqIdentifier] = new ReactiveVar()
-                         // DataSources obj does not exist yet for this template, so create it.
-                         : template.dataSources = {[uniqIdentifier]: new ReactiveVar()};
-  // console.log('dataSources: ', template.dataSources);
+  if (template.dataSources) {
+    // Create ReactiveVar for the UID if it does not yet exist. If it does already exist, we don't need to do
+    // anything; it will be returned at the end of function.
+    if (!template.dataSources[uniqIdentifier]) template.dataSources[uniqIdentifier] = new ReactiveVar();
+  } else {
+    // DataSources obj does not exist yet for this template, so create it.
+    template.dataSources = {[uniqIdentifier]: new ReactiveVar()}
+  }
+
   return template.dataSources[uniqIdentifier]; // Return the ReactiveVar reference (not value!)
 });
 
@@ -122,7 +135,7 @@ Template.registerHelper('dataSink', (uniqIdentifier) => {
       return sourceTemplate.dataSources[uniqIdentifier].get();
     } else {
       // Should throw error, since there should never be a sink without a source.
-      throw new Error('DataSource Not Found');
+      throw new Error(`${uniqIdentifier} dataSource not found.`);
     }
   }
 
