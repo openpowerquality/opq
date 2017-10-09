@@ -97,13 +97,15 @@ class AcquisitionTriggerPlugin(plugins.base.MaukaPlugin):
         :param message: The message
         """
         msg = self.from_json(message.decode())
-        print(topic, msg)
+        self.logger.info("Recv: {} {}".format(topic, msg))
         event_type = msg["eventType"]
 
         now = time.time()
         if self.is_deadzone(event_type, now):
+            self.logger.debug("In deadzone")
             request_data = False
         else:
+            self.logger.debug("Not in deadzone")
             request_data = True
             self.event_type_to_last_event[event_type] = now
 
@@ -118,6 +120,7 @@ class AcquisitionTriggerPlugin(plugins.base.MaukaPlugin):
         event_msg = self.request_event_message(start_ts_ms_utc, end_ts_ms_utc, trigger_type, percent_magnitude,
                                                device_ids, requestee, description, request_data)
         try:
+            self.logger.info("Sending event msg: {}".format(event_msg))
             self.req_socket.send(event_msg)
             self.logger.info(self.req_socket.recv())
         except Exception as e:
