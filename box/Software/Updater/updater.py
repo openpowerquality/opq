@@ -4,8 +4,6 @@ from os import remove
 import json_util
 import tarfile
 
-# def run_script_file(relative_path):
-#     exec(open(relative_path).read())
 # TODO - Putting ./downloads in front of everything is kind of a bummer
 # TODO - Should I just download everything into current directory?
 
