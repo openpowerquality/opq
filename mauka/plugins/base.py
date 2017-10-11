@@ -39,6 +39,7 @@ def run_plugin(plugin_class, config: typing.Dict):
 
     process = multiprocessing.Process(target=_run_plugin)
     process.start()
+    return process
 
 class JSONEncoder(json.JSONEncoder):
     """
