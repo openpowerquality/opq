@@ -30,5 +30,3 @@ def load_event(event_id: int, mongo_client=None):
     return {"event": event,
             "event_data": event_data}
 
-
-print(load_event(9186))
