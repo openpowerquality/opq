@@ -2,11 +2,12 @@ import { Meteor } from 'meteor/meteor';
 import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import { Roles } from 'meteor/alanning:roles';
+import { Accounts } from 'meteor/accounts-base';
 import { Persons } from './PersonCollection.js';
 
 
 export const createPerson = new ValidatedMethod({
-  name: 'personsMethods.createPerson',
+  name: 'Persons.createPerson',
   validate: Persons.getSchema().validator({clean: true}),
   run(person) {
     // Make sure userId exists before inserting.
@@ -18,6 +19,65 @@ export const createPerson = new ValidatedMethod({
     Roles.addUsersToRoles(person.userId, 'user', 'user-type');
 
     return Persons.define(person); // Document id is returned on success.
+  }
+});
+
+export const getCurrentPerson = new ValidatedMethod({
+  name: 'Persons.getCurrentPerson',
+  validate: null,
+  run() {
+    // Get currently logged in user.
+    const userId = this.userId;
+    if (!userId) {
+      throw new Meteor.Error('Persons.getCurrentPerson.notLoggedIn', 'User not logged in.');
+    }
+    const person = Persons.findOne({userId}, {});
+    return person;
+  }
+});
+
+export const updatePerson = new ValidatedMethod({
+  name: 'Persons.updatePerson',
+  validate: Persons.getSchema().validator({clean: true}),
+  run(person) {
+    const userId = this.userId;
+
+    if (!userId) throw new Meteor.Error('Persons.updatePerson.notLoggedIn', 'User not logged in.');
+    if (userId !== person.userId) throw new Meteor.Error('Persons.updatePerson.userMismatch', 'Unauthorized user.');
+
+    return Persons.update({userId}, {$set: person});
+  }
+});
+
+export const updateEmail = new ValidatedMethod({
+  name: 'Persons.updateEmail',
+  validate: new SimpleSchema({
+    userId: {type: String},
+    newEmail: {type: String}
+  }).validator({clean: true}),
+  run({userId, newEmail}) {
+    if (!this.isSimulation) {
+      const currentUser = Meteor.user();
+      const currentUserId = currentUser._id;
+      const currentEmail = currentUser.emails[0].address;
+
+      if (!currentUserId) throw new Meteor.Error('Persons.updateEmail.notLoggedIn', 'User not logged in.');
+      if (currentUserId !== userId) throw new Meteor.Error('Persons.updateEmail.userMismatch', 'Unauthorized user.');
+
+      // Meteor does not provide a changeEmail function, so we instead have to separately use the addEmail and
+      // removeEmail functions to get the job done.
+      // First we need to check if the new email is taken already.
+      const existingUser = Accounts.findUserByEmail(newEmail);
+      if (existingUser && existingUser._id != currentUserId) {
+        throw new Meteor.Error('Persons.updateEmail.emailUnavailable', 'That e-mail address is already in use.');
+      }
+
+      if (!existingUser) {
+        // Note, these functions do not take a callback for some reason.
+        Accounts.addEmail(currentUserId, newEmail);
+        Accounts.removeEmail(currentUserId, currentEmail);
+      }
+    }
   }
 });
 
