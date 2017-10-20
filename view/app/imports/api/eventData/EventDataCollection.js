@@ -18,7 +18,8 @@ class EventDataCollection extends BaseCollection {
           event_end: {type: Number},
           event_number: {type: Number},
           time_stamp: {type: [Number]}, // For research purposes; OPQView can ignore.
-          data: {type: [Number]} // These values need to be divided by device calibration constant.
+          //data: {type: [Number]} // These values need to be divided by device calibration constant.
+          data: {type: String} // Stores the GridFs filename. Format is 'event_eventNumber_boxId'
         }),
         'mongodb://localhost:3002/opq'
     );
