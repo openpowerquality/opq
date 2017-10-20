@@ -1,5 +1,6 @@
 import { Template } from 'meteor/templating';
 import { dataContextValidator } from '../../../utils/utils.js';
+import { getEventDataFSData } from '../../../api/eventDataFS/EventDataFSCollectionMethods.js';
 import Dygraph from 'dygraphs';
 import './eventWaveformChart.html';
 
@@ -30,7 +31,7 @@ Template.eventWaveformChart.onRendered(function() {
 
       const calibConstant = boxCalibrationConstants[eventData.box_id] || 1;
 
-      const dyPlotPoints = eventData.data.map((val, index) => {
+      const dyPlotPoints = eventData.waveform.map((val, index) => {
         return [index, val/calibConstant];
         // return `${index}, ${val/calibConstant}\n`;
       });
