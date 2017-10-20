@@ -179,6 +179,33 @@ export const signupPageSchema = new SimpleSchema([
   }
 ]);
 
+export const userAdminPageSchema = new SimpleSchema([
+  Persons.getSchema().pick(['userId', 'firstName', 'lastName']),
+  {
+    email: { // Accounts-password
+      type: String,
+      label: "E-mail *",
+      regEx: SimpleSchema.RegEx.Email
+    },
+    password: { // Accounts-password
+      type: String
+    },
+    newPassword: {
+      type: String,
+      optional: true
+    },
+    confirmNewPassword: {
+      type: String,
+      optional: true,
+      custom: function () {
+        if (this.value !== this.field('newPassword').value) {
+          return "passwordMismatch";
+        }
+      }
+    }
+  }
+]);
+
 
 /**
  * Schema for "both" forms on the  user settings page (it's actually one form disguised as two).

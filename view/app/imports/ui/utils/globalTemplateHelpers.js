@@ -142,3 +142,7 @@ Template.registerHelper('dataSink', (uniqIdentifier) => {
   // Initially return null. Templates have not yet finished loading at this point.
   return null;
 });
+
+Template.registerHelper('getRoutePath', (routeName) => {
+  return FlowRouter.path(routeName);
+});
