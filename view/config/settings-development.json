@@ -1,0 +1,6 @@
+{
+	"public": {
+
+	},
+	"opqRemoteMongoUrl": "mongodb://localhost:3002/opq"
+}
