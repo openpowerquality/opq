@@ -23,7 +23,7 @@ class EventMetaDataCollection extends BaseCollection {
           event_end: {type: Number},
           time_stamp: {type: [Number]} // For research data; OpqView can ignore this.
         }),
-        'mongodb://localhost:3002/opq'
+        Meteor.settings.opqRemoteMongoUrl
     );
 
     this.publicationNames = {
