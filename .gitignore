@@ -2,6 +2,6 @@
 .idea/
 *.iml
 .DS_Store
-settings.production.json
+settings-production.*
 node_modules
 _book

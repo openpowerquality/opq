@@ -18,7 +18,7 @@ class BoxEventCollection extends BaseCollection {
           percent: {type: Number},
           reqId: {type: Number}
         }),
-        'mongodb://localhost:3002/opq'
+        Meteor.settings.opqRemoteMongoUrl
     );
 
     this.publicationNames = {

@@ -3,6 +3,7 @@ import { dataContextValidator } from '../../../utils/utils.js';
 import { getEventDataFSData } from '../../../api/eventDataFS/EventDataFSCollectionMethods.js';
 import Dygraph from 'dygraphs';
 import './eventWaveformChart.html';
+import Moment from 'moment';
 
 Template.eventWaveformChart.onCreated(function() {
   const template = this;
@@ -32,16 +33,28 @@ Template.eventWaveformChart.onRendered(function() {
       const calibConstant = boxCalibrationConstants[eventData.box_id] || 1;
 
       const dyPlotPoints = eventData.waveform.map((val, index) => {
-        return [index, val/calibConstant];
-        // return `${index}, ${val/calibConstant}\n`;
+        const timestamp = eventData.event_start + (index * (1.0/12.0));
+        return [timestamp, val/calibConstant];
       });
-
-      // const joinedDyPlotPoints = ['Time, Voltage\n'].concat(dyPlotPoints).join('\n');
 
       const ctx = template.$('.dygraphEventWaveform').get(0); // Dygraphs requires the raw DOM element.
 
       // Dygraphs
-      template.graph = new Dygraph(ctx, dyPlotPoints, {labels: ['Time', 'Voltage']});
+      template.graph = new Dygraph(ctx, dyPlotPoints, {
+        labels: ['Timestamp', 'Voltage'],
+        axes: {
+          x: {
+            valueFormatter: (millis, opts, seriesName, dygraph, row, col) => {
+              // We must separately calculate the microseconds and concatenate it to the date string.
+              return Moment(millis).format('[[]MM-DD-YYYY[]] HH:mm:ss.SSS').toString() + ((row * (1.0/12.0)) % 1).toFixed(3).substring(2);
+            },
+            axisLabelFormatter: (timestamp) => {
+              return Moment(timestamp).format('HH:mm:ss.SSS');
+            }
+          }
+        }
+
+      });
 
       // Sync Graph
       Template.currentData().dygraphSync(template.graph);

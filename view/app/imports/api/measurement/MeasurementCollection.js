@@ -15,7 +15,7 @@ class MeasurementCollection extends BaseCollection {
           voltage: {type: Number},
           frequency: {type: Number}
         }),
-        'mongodb://localhost:3002/opq'
+        Meteor.settings.opqRemoteMongoUrl
     );
 
     this.publicationNames = {
