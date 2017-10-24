@@ -13,7 +13,7 @@ def main():
 
     job = my_cron.new(command=command+pipe, comment='run_updater')
 
-    job.day.every(1)
+    job.hour.every(24)
 
     my_cron.write()
 
