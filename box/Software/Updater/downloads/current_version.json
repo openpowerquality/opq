@@ -1,7 +1,0 @@
-{
-  "version": 1,
-  "release": 1507063807,
-  "package": "opq.box.updates.tar.gz",
-  "signature": "opq.box.updates.tar.gz.sig",
-  "public_key": "opq-signing-public.pem"
-}
