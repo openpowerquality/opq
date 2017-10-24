@@ -69,6 +69,11 @@ class BaseCollection {
     return this._collection.findOne(theSelector, options);
   }
 
+  update(selector, modifier) {
+    const theSelector = (typeof selector === 'undefined')? {} : selector;
+    return this._collection.update(theSelector, modifier);
+  }
+
   /**
    * Default publication of collection (publishes entire collection). Derived classes should typically just write
    * their own publish() method, as its generally a bad idea to publish the entire collection to the client.

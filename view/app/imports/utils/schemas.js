@@ -6,7 +6,7 @@
  */
 
 import './global.js';
-import { Persons } from '../api/persons/persons.js';
+import { Persons } from '../api/person/PersonCollection.js';
 import { SimpleSchema} from 'meteor/aldeed:simple-schema';
 // import '../api/opqDevices/opqDevices.js';
 // import '../api/locations/locations.js';
@@ -172,6 +172,33 @@ export const signupPageSchema = new SimpleSchema([
       type: String,
       custom: function () {
         if (this.value !== this.field('password').value) {
+          return "passwordMismatch";
+        }
+      }
+    }
+  }
+]);
+
+export const userAdminPageSchema = new SimpleSchema([
+  Persons.getSchema().pick(['userId', 'firstName', 'lastName']),
+  {
+    email: { // Accounts-password
+      type: String,
+      label: "E-mail *",
+      regEx: SimpleSchema.RegEx.Email
+    },
+    password: { // Accounts-password
+      type: String
+    },
+    newPassword: {
+      type: String,
+      optional: true
+    },
+    confirmNewPassword: {
+      type: String,
+      optional: true,
+      custom: function () {
+        if (this.value !== this.field('newPassword').value) {
           return "passwordMismatch";
         }
       }

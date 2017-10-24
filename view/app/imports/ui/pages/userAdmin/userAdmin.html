@@ -1,0 +1,57 @@
+<template name="userAdmin">
+  <div class="ui padded grid" style="margin-top: 20px;">
+    <div class="sixteen wide column">
+      <h1 class="ui header">Settings</h1>
+
+      <div class="ui secondary pointing menu">
+        <a class="active item" href={{getRoutePath 'accountRoute'}}>
+          Account
+        </a>
+        <a class="item" href={{getRoutePath 'devicesRoute'}}>
+          Device Management
+        </a>
+        <a class="item">
+          Notifications
+        </a>
+        <a class="item">
+          Reports
+        </a>
+      </div>
+    </div>
+
+    <div class="sixteen wide column">
+      <h3 class="ui header">
+        Account Settings
+        <div class="sub header">Change your account settings and preferences</div>
+      </h3>
+
+      <!--<h3 class="ui header">-->
+        <!--<i class="user icon"></i>-->
+        <!--<div class="content">-->
+          <!--Account Settings-->
+          <!--<div class="sub header">Manage your account settings and preferences</div>-->
+        <!--</div>-->
+      <!--</h3>-->
+    </div>
+
+    <div class="six wide column">
+      <div class="ui segment">
+        <form id="userForm" class="ui {{#if hasFormError}}error{{/if}} form">
+          {{> Text_Form_Control id="firstName" name="firstName" label="First Name" value=(userDataField 'firstName') errorMessage=(fieldError "firstName")}}
+          {{> Text_Form_Control id="lastName" name="lastName" label="Last Name" value=(userDataField 'lastName') errorMessage=(fieldError "lastName")}}
+          {{> Text_Form_Control id="email" name="email" label="E-Mail" value=(userDataField 'email') errorMessage=(fieldError "email")}}
+          {{> Text_Form_Control id="password" name="password" label="Password" isPasswordField=true errorMessage=(fieldError "password")}}
+          {{> Text_Form_Control id="newPassword" name="newPassword" label="New Password" isPasswordField=true errorMessage=(fieldError "newPassword")}}
+          {{> Text_Form_Control id="confirmNewPassword" name="confirmNewPassword" label="Confirm New Password" isPasswordField=true errorMessage=(fieldError "confirmNewPassword")}}
+          {{> Hidden_Field id="userId" name="userId" value=(userDataField 'userId')}}
+          <button class="ui button" type="submit">Update</button>
+        </form>
+        {{#if formSubmissionErrors}}
+          <div class="ui error message">
+            <p>{{formSubmissionErrors}}</p>
+          </div>
+        {{/if}}
+      </div>
+    </div>
+  </div>
+</template>

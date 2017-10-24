@@ -4,7 +4,8 @@ import '../../utils/schemas.js';
 
 import '../../api/measurement';
 import '../../api/simulatedEvents';
-import '../../api/persons';
+import '../../api/person';
 import '../../api/boxEvent';
 import '../../api/eventData';
 import '../../api/eventMetaData';
+import '../../api/eventDataFS';
