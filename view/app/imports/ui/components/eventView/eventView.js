@@ -3,6 +3,7 @@ import { Mongo } from 'meteor/mongo';
 import { dataContextValidator } from '../../../utils/utils.js';
 import { getEventMetaDataById } from '../../../api/eventMetaData/EventMetaDataCollectionMethods.js'
 import { getEventData } from '../../../api/eventData/EventDataCollectionMethods.js';
+import { getEventDataFSData } from '../../../api/eventDataFS/EventDataFSCollectionMethods.js';
 import Dygraph from 'dygraphs';
 import '../../../../client/lib/misc/dygraphSynchronizer.js';
 import './eventView.html';
@@ -56,9 +57,17 @@ Template.eventView.onCreated(function() {
           if (error) {
             console.log(error);
           } else {
-            const currentEventData = template.currentEventData.get();
-            currentEventData.push(eventData);
-            template.currentEventData.set(currentEventData);
+            // Now have to get waveform data from GridFs.
+            getEventDataFSData.call({filename: eventData.data}, (error, result) => {
+              if (error) {
+                console.log(error);
+              } else {
+                eventData.waveform = result;
+                const currentEventData = template.currentEventData.get();
+                currentEventData.push(eventData);
+                template.currentEventData.set(currentEventData);
+              }
+            });
           }
         });
       });
@@ -84,7 +93,7 @@ Template.eventView.helpers({
       template.dygraphSync = Dygraph.synchronize(template.dygraphInstances);
     }
   },
-  calibratedWaveformData(box_id, data) {
+  calibratedWaveformData(box_id, waveformData) {
     // Need to store these values in db.
     const boxCalibrationConstants = {
       1: 152.1,
@@ -92,7 +101,7 @@ Template.eventView.helpers({
       4: 146.46
     };
     const constant = boxCalibrationConstants[box_id] || 1;
-    const calibratedData = data.map(val => val/constant);
+    const calibratedData = waveformData.map(val => val/constant);
     return calibratedData;
   },
   isLoadingEventData() {

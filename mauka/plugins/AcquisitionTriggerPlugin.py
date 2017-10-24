@@ -45,6 +45,9 @@ class AcquisitionTriggerPlugin(plugins.base.MaukaPlugin):
         self.s_dead_zone = int(self.config_get("plugins.AcquisitionTriggerPlugin.sDeadZoneAfterTrigger"))
         """Number of seconds of deadzone that we should not request raw data after just requesting data"""
 
+        self.event_type_to_last_event_timestamp = {}
+        """Store event types to the last event timestamp of that type"""
+
         self.event_type_to_last_event = {}
         """Store event types to the last event of that type"""
 
@@ -82,13 +85,14 @@ class AcquisitionTriggerPlugin(plugins.base.MaukaPlugin):
         :param now: The current time
         :return: If we are currently in a deadzone or not
         """
-        if event_type in self.event_type_to_last_event:
-            return now - self.event_type_to_last_event[event_type] <= self.s_dead_zone
+        if event_type in self.event_type_to_last_event_timestamp:
+            return now - self.event_type_to_last_event_timestamp[event_type] <= self.s_dead_zone
         else:
             return False
 
     def get_status(self):
-        return str(self.event_type_to_last_event)
+        # return str(self.event_type_to_last_event_timestamp)
+        return "{} {}".format(self.event_type_to_last_event_timestamp, self.event_type_to_last_event)
 
     def on_message(self, topic, message):
         """Subscribed messages appear here
@@ -97,15 +101,17 @@ class AcquisitionTriggerPlugin(plugins.base.MaukaPlugin):
         :param message: The message
         """
         msg = self.from_json(message.decode())
-        print(topic, msg)
+        self.logger.info("Recv: {} {}".format(topic, msg))
         event_type = msg["eventType"]
 
         now = time.time()
         if self.is_deadzone(event_type, now):
+            self.logger.debug("In deadzone")
             request_data = False
         else:
+            self.logger.debug("Not in deadzone")
             request_data = True
-            self.event_type_to_last_event[event_type] = now
+            self.event_type_to_last_event_timestamp[event_type] = now
 
         start_ts_ms_utc = msg["eventStart"]
         end_ts_ms_utc = msg["eventEnd"]
@@ -117,7 +123,9 @@ class AcquisitionTriggerPlugin(plugins.base.MaukaPlugin):
 
         event_msg = self.request_event_message(start_ts_ms_utc, end_ts_ms_utc, trigger_type, percent_magnitude,
                                                device_ids, requestee, description, request_data)
+        self.event_type_to_last_event[event_type] = str(event_msg)
         try:
+            self.logger.info("Sending event msg: {}".format(event_msg))
             self.req_socket.send(event_msg)
             self.logger.info(self.req_socket.recv())
         except Exception as e:

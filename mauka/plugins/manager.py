@@ -526,11 +526,11 @@ def run_cli(config: typing.Dict):
                 completions = zmq_request_socket.recv_string()
                 vocabulary = set(completions.split(","))
                 readline.set_completer(make_completer(vocabulary))
-                print(ok("Completions updated"))
+                _logger.debug(ok("Completions updated"))
                 continue
 
             zmq_request_socket.send_string(cmd.strip())
-            print(zmq_request_socket.recv_string())
+            _logger.debug(zmq_request_socket.recv_string())
     except (EOFError, KeyboardInterrupt) as e:
         _logger.info("Exiting mauka-cli")
         sys.exit(0)

@@ -17,10 +17,10 @@
           <i class="dropdown icon"></i>
           <div class="menu">
             {{#if currentUser}}
-              <div class="item"><i class="user icon"></i> Account</div>
-              <div class="item"><i class="setting icon"></i> OPQBox Settings</div>
+              <a class="item" href={{getRoutePath 'accountRoute'}}><i class="user icon"></i> Account</a>
+              <a class="item"><i class="setting icon"></i> OPQBox Settings</a>
               <div class="ui divider" style="margin: 0px;"></div>
-              <div class="item" id="logout-btn"><i class="sign out icon"></i> Log Out</div>
+              <a class="item" id="logout-btn"><i class="sign out icon"></i> Log Out</a>
             {{else}}
               <div class="item" style="display: none;"></div> <!-- Hack: Need item for dropdown to work -->
               <div style="padding: 15px;">

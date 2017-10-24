@@ -5,7 +5,7 @@ import { ReactiveVar } from 'meteor/reactive-var';
 import './signup.html';
 import '../../components/form-controls/text-form-control.html';
 import { signupPageSchema } from '../../../utils/schemas.js';
-import { createPerson } from '../../../api/persons/personsMethods.js';
+import { createPerson } from '../../../api/person/PersonCollectionMethods.js';
 
 Template.signup.onCreated(function signupOnCreated() {
   const template = this;

@@ -1,4 +1,5 @@
 import pymongo
+import gridfs
 
 
 class BoxEventType:
@@ -15,6 +16,7 @@ class Collection:
     MEASUREMENTS = "measurements"
     BOX_EVENTS = "boxEvents"
     DATA = "data"
+    EVENTS = "events"
 
 
 class OpqMongoClient:
@@ -22,6 +24,7 @@ class OpqMongoClient:
     def __init__(self, host="127.0.0.1", port=27017, db="opq"):
         self.client = pymongo.MongoClient(host, port)
         self.db = self.client[db]
+        self.fs = gridfs.GridFS(self.db)
 
     def get_collection(self, collection: str):
         """ Returns a mongo collection by name
@@ -62,4 +65,7 @@ class OpqMongoClient:
 
         """
         self.db[collection].drop_indexes()
+
+    def read_file(self, fid):
+        return self.fs.find_one({"filename": fid}).read()
 

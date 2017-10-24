@@ -43,3 +43,5 @@ practicalmeteor:mocha
 dispatch:mocha
 mdg:validated-method
 aldeed:template-extension
+cfs:standard-packages
+cfs:gridfs

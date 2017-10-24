@@ -58,11 +58,13 @@ class VoltageThresholdPlugin(plugins.ThresholdPlugin.ThresholdPlugin):
         elif type == "HIGH":
             event_type = mongo.mongo.BoxEventType.VOLTAGE_SWELL
         else:
-            print("Unknown threshold type", type)
+            self.logger.error("Unknown threshold type {}".format(type))
             return
 
-        self.produce("VoltageEvent".encode(), self.to_json({"eventStart": threshold_event.start,
-                                                            "eventEnd": threshold_event.end,
-                                                            "eventType": event_type,
-                                                            "percent": threshold_event.max_value,
-                                                            "deviceId": threshold_event.device_id}).encode())
+        event = {"eventStart": threshold_event.start,
+                 "eventEnd": threshold_event.end,
+                 "eventType": event_type,
+                 "percent": threshold_event.max_value,
+                 "deviceId": threshold_event.device_id}
+        self.logger.info("Event: {}".format(str(event)))
+        self.produce("VoltageEvent".encode(), self.to_json(event).encode())

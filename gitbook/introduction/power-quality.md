@@ -44,6 +44,7 @@ When the frequency fluctuates around the standard value
 
 
 ##### Total Harmonic Distortion (THD)
+When the fraction of power in the sub-harmonics in respect to the main harmonic grow beyond a certain threshold
  
 
 ## How Distributed Renewables Affect Power Quality {#renewables}
