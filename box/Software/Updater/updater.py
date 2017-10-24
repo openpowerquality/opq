@@ -6,7 +6,7 @@ from os import makedirs
 import json_util
 import tarfile
 
-download_dir_path = '/home/evan/Documents/test/'
+download_dir_path = '/var/opq/updater'
 version_file = 'version.json'
 public_key = 'opq-signing-public.pem'
 update_package = 'opq.box.updates.tar.gz'

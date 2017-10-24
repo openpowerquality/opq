@@ -2,19 +2,18 @@ from crontab import CronTab
 
 def main():
     # computer username
-    my_cron = CronTab(user='evan')
+    my_cron = CronTab(user='root')
 
     for job in my_cron:
         if job.comment == 'run_updater':
-            print("hello world")
             my_cron.remove(job)
 
-    command = 'python3 /home/evan/Documents/Code/git/opq/box/Software/Updater/updater.py'
-    pipe = ' >> /home/evan/Documents/test.txt'
+    command = 'python3 /usr/local/bin/updater.py'
+    pipe = ' >> /var/log/opq/updater.log'
 
     job = my_cron.new(command=command+pipe, comment='run_updater')
 
-    job.minute.every(1)
+    job.day.every(1)
 
     my_cron.write()
 
