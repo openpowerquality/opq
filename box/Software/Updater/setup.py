@@ -7,6 +7,5 @@ setup(name='updater',
       author='Evan Hataishi',
       author_email='evanhata@hawaii.edu',
       license='MIT',
-      packages=['Updater'],
-      package_data={'Updater': ['*.py']}
+      py_modules=['updater.py', 'json_util.py']
       )
