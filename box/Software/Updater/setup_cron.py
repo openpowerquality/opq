@@ -2,7 +2,7 @@ from crontab import CronTab
 
 def main():
     # computer username
-    my_cron = CronTab(user='root')
+    my_cron = CronTab(user='evan')
 
     for job in my_cron:
         if job.comment == 'run_updater':
@@ -13,7 +13,8 @@ def main():
 
     job = my_cron.new(command=command+pipe, comment='run_updater')
 
-    job.hour.every(24)
+    job.hour.on(0)
+    job.minute.on(0)
 
     my_cron.write()
 
