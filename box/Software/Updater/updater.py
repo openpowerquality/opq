@@ -3,16 +3,20 @@ import subprocess
 from os import remove
 from os import path
 from os import makedirs
-import json_util
+import json
 import tarfile
 
-download_dir_path = '/var/opq/updater/'
+download_dir_path = '/home/evan/Documents/var/opq/updater/'
+server_url = 'http://emilia.ics.hawaii.edu:8151/'
 version_file = 'version.json'
 public_key = 'opq-signing-public.pem'
 update_package = 'opq.box.updates.tar.gz'
 signature = 'opq.box.updates.tar.gz.sig'
+config_file = 'config.json'
 
 def main():
+    set_config(config_file)
+
     check_download_path()
 
     if (is_latest_version(version_file)):
@@ -29,14 +33,28 @@ def main():
     else:
         print('Error: Unable to verify package')
 
+def set_config(file_name):
+    try:
+        config_json = file_to_dict(file_name)
+        download_dir_path = config_json['download_dir_path']
+        server_url = config_json['server_url']
+        version_file = config_json['version_file']
+        public_key = config_json['public_key']
+        update_package = config_json['update_package']
+        signature = config_json['signature']
+    except Exception as e:
+        print('Error setting up default configurations: ' + str(e))
+        quit()
+
+
 def check_download_path():
     if not path.exists(download_dir_path):
         makedirs(download_dir_path)
 
 def is_latest_version(version_file):
     download_file_from_emilia(version_file)
-    server_version = json_util.file_to_dict(download_dir_path + version_file)
-    local_version = json_util.file_to_dict(download_dir_path + 'local_version.json')
+    server_version = file_to_dict(download_dir_path + version_file)
+    local_version = file_to_dict(download_dir_path + 'local_version.json')
     # local version is invalid or doesn't exist -> run update
     if not local_version or not 'version' in local_version:
         return False
@@ -55,7 +73,7 @@ def download_files(public_key, update_package, signature):
 
 def download_file_from_emilia(file_name):
     try:
-        url = 'http://emilia.ics.hawaii.edu:8151/' + file_name
+        url = server_url + file_name
         urllib.request.urlretrieve(url, download_dir_path + file_name)
     except Exception as e:
         print('Error downloading \'' + file_name + '\': ' + str(e))
@@ -98,6 +116,20 @@ def run_update():
         subprocess.call(download_dir_path + 'update.sh')
     except Exception as e:
         print('Error running update: ' + str(e))
+
+# Returns .json file as a dict
+def file_to_dict(file_name):
+    try:
+        with open(file_name) as opened_file:
+            json_data = json.load(opened_file)
+            return json_data
+    except:
+        return {}
+
+# Turns http response obj into dict
+def http_response_to_dict(response):
+    data = json.loads(response.read().decode(response.info().get_param('charset') or 'utf-8'))
+    return data
 
 if __name__ == '__main__':
     main()
