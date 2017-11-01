@@ -8,6 +8,7 @@ import tarfile
 import logging
 import traceback
 
+# Set default loggin format and options
 logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s', \
     datefmt='%m/%d/%Y %I:%M:%S %p', level=logging.DEBUG)
 
@@ -32,6 +33,7 @@ def main():
     else:
         logging.error('Unable to verify package')
 
+# Read config.json to get file names and download path
 def set_config(file_name):
     logging.info('set_config(%s)', file_name)
     try:
@@ -50,12 +52,17 @@ def set_config(file_name):
         logging.exception(e)
         quit()
 
-
+# Checks if download_dir_path exists -> build it if not
 def check_download_path():
     logging.info('check_download_path(): ' + download_dir_path)
     if not path.exists(download_dir_path):
         makedirs(download_dir_path)
 
+# Downloads version file from server
+# Compares compares local and server version numbers
+# Note - If local version file not found -> run update
+# Note - Also checks if dict fields were expected
+# Note - If expected fields not found, returns false or exits program
 def is_latest_version(version_file):
     logging.info('is_latest_version(%s)', version_file)
     download_file_from_emilia(version_file)
@@ -72,12 +79,14 @@ def is_latest_version(version_file):
         return False
     return True
 
+# Downloads public_key, update_package, signature
 def download_files(public_key, update_package, signature):
     logging.info('download_files(%s, %s, %s)' % (public_key, update_package, signature))
     download_file_from_emilia(public_key)
     download_file_from_emilia(update_package)
     download_file_from_emilia(signature)
 
+# Sends http request for file, as well as error handling
 def download_file_from_emilia(file_name):
     logging.info('download_file_from_emilia(%s)', file_name)
     try:
@@ -88,6 +97,8 @@ def download_file_from_emilia(file_name):
         logging.exception(e)
         quit()
 
+# Runs ssl script to verify package
+# Renames downloaded version file to local_version for use by next update
 def verify_package(public_key, update_package, signature, version_file):
     logging.info('verify_package(%s, %s, %s)' % (public_key, update_package, signature))
     try:
@@ -105,6 +116,7 @@ def verify_package(public_key, update_package, signature, version_file):
         subprocess.call(['mv', download_dir_path + version_file, \
             download_dir_path + 'local_version.json'])
 
+        # ssl script returns this string if success
         if 'Verified OK' in str(verified):
             return True
         return False
@@ -112,6 +124,7 @@ def verify_package(public_key, update_package, signature, version_file):
         logging.exception(e)
         quit()
 
+# Opens the tar package and handles errors
 def open_package(update_package):
     logging.info('open_package(%s)',update_package)
     try:
@@ -121,6 +134,7 @@ def open_package(update_package):
         logging.exception(e)
         quit()
 
+# Calls/runs the shell script file
 def run_update():
     logging.info('run_update()')
     try:
