@@ -8,12 +8,13 @@ def main():
         if job.comment == 'run_updater':
             my_cron.remove(job)
 
-    command = 'python3 /usr/local/bin/updater.py'
-    pipe = ' >> /var/log/opq/updater.log'
+    command = 'python3 /usr/local/bin/box_updater.py'
+    pipe = ' >> /var/log/opq/box_updater.log'
 
     job = my_cron.new(command=command+pipe, comment='run_updater')
 
-    job.hour.every(24)
+    job.hour.on(0)
+    job.minute.on(0)
 
     my_cron.write()
 
