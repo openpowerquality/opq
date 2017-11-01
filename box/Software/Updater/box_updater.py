@@ -5,53 +5,59 @@ from os import path
 from os import makedirs
 import json
 import tarfile
+import logging
+import traceback
 
-download_dir_path = '/home/evan/Documents/var/opq/updater/'
-server_url = 'http://emilia.ics.hawaii.edu:8151/'
-version_file = 'version.json'
-public_key = 'opq-signing-public.pem'
-update_package = 'opq.box.updates.tar.gz'
-signature = 'opq.box.updates.tar.gz.sig'
-config_file = 'config.json'
+logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s', \
+    datefmt='%m/%d/%Y %I:%M:%S %p', level=logging.DEBUG)
 
 def main():
-    set_config(config_file)
+    logging.info('main()')
+
+    version_file, public_key, update_package, signature = set_config('config.json')
 
     check_download_path()
 
     if (is_latest_version(version_file)):
-        print('Box already up to date')
+        logging.info('Box already up to date')
         quit()
 
     download_files(public_key, update_package, signature)
 
-    is_verified = verify_package(public_key, signature, update_package)
+    is_verified = verify_package(public_key, update_package, signature, version_file)
 
     if is_verified:
         open_package(update_package)
         run_update()
     else:
-        print('Error: Unable to verify package')
+        logging.error('Unable to verify package')
 
 def set_config(file_name):
+    logging.info('set_config(%s)', file_name)
     try:
         config_json = file_to_dict(file_name)
+        global download_dir_path
         download_dir_path = config_json['download_dir_path']
+        global server_url
         server_url = config_json['server_url']
         version_file = config_json['version_file']
         public_key = config_json['public_key']
         update_package = config_json['update_package']
         signature = config_json['signature']
+        return version_file, public_key, \
+            update_package, signature
     except Exception as e:
-        print('Error setting up default configurations: ' + str(e))
+        logging.exception(e)
         quit()
 
 
 def check_download_path():
+    logging.info('check_download_path(): ' + download_dir_path)
     if not path.exists(download_dir_path):
         makedirs(download_dir_path)
 
 def is_latest_version(version_file):
+    logging.info('is_latest_version(%s)', version_file)
     download_file_from_emilia(version_file)
     server_version = file_to_dict(download_dir_path + version_file)
     local_version = file_to_dict(download_dir_path + 'local_version.json')
@@ -60,26 +66,30 @@ def is_latest_version(version_file):
         return False
     # Server version is invalid -> don't update
     elif not server_version or not 'version' in server_version:
-        print('Server version has invalid format or does not exist')
-        return True
+        logging.error('Server %s has invalid format or does not exist', version_file)
+        quit()
     elif local_version['version'] < server_version['version']:
         return False
     return True
 
 def download_files(public_key, update_package, signature):
+    logging.info('download_files(%s, %s, %s)' % (public_key, update_package, signature))
     download_file_from_emilia(public_key)
     download_file_from_emilia(update_package)
     download_file_from_emilia(signature)
 
 def download_file_from_emilia(file_name):
+    logging.info('download_file_from_emilia(%s)', file_name)
     try:
         url = server_url + file_name
+        print(url)
         urllib.request.urlretrieve(url, download_dir_path + file_name)
     except Exception as e:
-        print('Error downloading \'' + file_name + '\': ' + str(e))
+        logging.exception(e)
         quit()
 
-def verify_package(public_key, signature, update_package):
+def verify_package(public_key, update_package, signature, version_file):
+    logging.info('verify_package(%s, %s, %s)' % (public_key, update_package, signature))
     try:
         subprocess.call(['openssl', 'base64', '-d', \
             '-in', download_dir_path + signature, \
@@ -99,23 +109,25 @@ def verify_package(public_key, signature, update_package):
             return True
         return False
     except Exception as e:
-        print('Error verifying package: ' + str(e))
+        logging.exception(e)
         quit()
 
 def open_package(update_package):
+    logging.info('open_package(%s)',update_package)
     try:
         with tarfile.open(download_dir_path + update_package) as tar:
             tar.extractall(download_dir_path)
-            print('Extracted package')
     except Exception as e:
-        print('Error opening package: ' + str(e))
+        logging.exception(e)
         quit()
 
 def run_update():
+    logging.info('run_update()')
     try:
         subprocess.call(download_dir_path + 'update.sh')
     except Exception as e:
-        print('Error running update: ' + str(e))
+        logging.exception(e)
+        quit()
 
 # Returns .json file as a dict
 def file_to_dict(file_name):
@@ -128,7 +140,8 @@ def file_to_dict(file_name):
 
 # Turns http response obj into dict
 def http_response_to_dict(response):
-    data = json.loads(response.read().decode(response.info().get_param('charset') or 'utf-8'))
+    data = json.loads(response.read().decode(response.info().get_param('charset')  \
+        or 'utf-8'))
     return data
 
 if __name__ == '__main__':
