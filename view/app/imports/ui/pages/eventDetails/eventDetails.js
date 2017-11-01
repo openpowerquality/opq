@@ -7,7 +7,6 @@ import Moment from 'moment';
 import '../../../../client/lib/misc/dygraphSynchronizer.js';
 import './eventDetails.html';
 import '../../components/eventWaveformChart/eventWaveformChart.js'
-import '../../components/eventRMSChart/eventRMSChart.js';
 import '../../components/dygraph/dygraph.js';
 
 Template.Event_Details_Page.onCreated(function() {
