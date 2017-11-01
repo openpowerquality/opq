@@ -6,5 +6,6 @@ setup(name='updater',
       author='Evan Hataishi',
       author_email='evanhata@hawaii.edu',
       license='MIT',
-      scripts={'updater.py': ['*']}
+      scripts={'updater.py': ['*']},
+      data_files=[('config.json'), ('requirements.txt')]
       )
