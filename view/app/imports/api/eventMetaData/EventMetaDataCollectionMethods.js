@@ -53,6 +53,17 @@ export const getEventMetaDataById = new ValidatedMethod({
   }
 });
 
+export const getEventMetaDataByEventNumber = new ValidatedMethod({
+  name: 'EventMetaData.getEventMetaDataByEventNumber',
+  validate: new SimpleSchema({
+    event_number: {type: Number}
+  }).validator({clean: true}),
+  run({ event_number }) {
+    const eventMetaData = EventMetaData.findOne({event_number}, {});
+    return eventMetaData;
+  }
+});
+
 export const getMostRecentEventMetaData = new ValidatedMethod({
   name: 'EventMetaData.getMostRecentEventMetaData',
   validate: new SimpleSchema({}).validator({clean: true}),

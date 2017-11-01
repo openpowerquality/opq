@@ -146,3 +146,12 @@ Template.registerHelper('dataSink', (uniqIdentifier) => {
 Template.registerHelper('getRoutePath', (routeName) => {
   return FlowRouter.path(routeName);
 });
+
+/**
+ * Given a set of key-val pairs, will return an object with those key-val pairs.
+ * Usage: {{> someTemplate someParam=(object key1="value1" key2="value2")}}
+ * See http://blazejs.org/guide/spacebars.html#Calling-helpers-with-arguments on how this works.
+ */
+Template.registerHelper('object', ({ hash }) => {
+  return hash;
+});

@@ -398,7 +398,23 @@ we'll still call it expanded for naming consistency and simplicity.
     display: block;
 }
 
+/**
+    The default rules from dygraph.css cause issues with our template. The 'initial' keyword sets the browser
+    default values for each rule, which we need to do in order to override the rules from the dygraph.css file.
+ */
 .dygraph-legend {
-    text-align: right;
+    position: initial;
+    font-size: 12px;
+    z-index: initial;
+    width: initial;  /* labelsDivWidth */
+    /*
+    dygraphs determines these based on the presence of chart labels.
+    It might make more sense to create a wrapper div around the chart proper.
+    top: 0px;
+    right: 2px;
+    */
     background: none;
+    line-height: initial;
+    text-align: right;
+    overflow: initial;
 }

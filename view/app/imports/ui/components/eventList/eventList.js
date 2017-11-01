@@ -59,12 +59,18 @@ Template.eventList.helpers({
 });
 
 Template.eventList.events({
-  'click #event-list tr': function(event, template) {
-    event.preventDefault();
-    const tr = event.currentTarget;
-    const selEvent_id = new Mongo.ObjectID(tr.id);
-    template.selectedEvent.set(selEvent_id);
-    template.$('#event-list > tbody > tr').removeClass('active');
-    template.$(`#event-list tr#${selEvent_id}`).addClass('active');
-  }
+  // 'click #event-list tr td a': function(event, template) {
+  //   event.preventDefault();
+  //   const route = FlowRouter.path('eventDetailsRoute');
+  //   console.log(route);
+  //   // FlowRouter.go(Flow)
+  // },
+  // 'click #event-list tr': function(event, template) {
+  //   event.preventDefault();
+  //   const tr = event.currentTarget;
+  //   const selEvent_id = new Mongo.ObjectID(tr.id);
+  //   template.selectedEvent.set(selEvent_id);
+  //   template.$('#event-list > tbody > tr').removeClass('active');
+  //   template.$(`#event-list tr#${selEvent_id}`).addClass('active');
+  // }
 });

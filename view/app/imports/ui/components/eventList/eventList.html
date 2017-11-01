@@ -9,6 +9,7 @@
       <th>Description</th>
       <th>Start Time</th>
       <th>End Time</th>
+      <th>Details</th>
     </tr>
     </thead>
     <tbody>
@@ -21,6 +22,11 @@
           <td>{{event.description}}</td>
           <td>{{formatDate event.event_start}}</td>
           <td>{{formatDate event.event_end}}</td>
+          <td>
+            <a href="{{getRoutePath 'eventDetailsRoute'}}/{{event.event_number}}" class="ui basic button">
+              View
+            </a>
+          </td>
         </tr>
       {{/each}}
     </tbody>

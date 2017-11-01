@@ -8,6 +8,7 @@ import '../../ui/pages/signup/signup.js';
 import '../../ui/pages/research/research.js';
 import '../../ui/pages/userAdmin/userAdmin.js';
 import '../../ui/pages/deviceAdmin/deviceAdmin.js';
+import '../../ui/pages/eventDetails/eventDetails.js'
 
 
 FlowRouter.route('/measurements', {
@@ -59,6 +60,15 @@ FlowRouter.route('/settings/devices', {
   action: function() {
     BlazeLayout.render('appLayoutPublic', {
       main: 'deviceAdmin'
+    });
+  }
+});
+
+FlowRouter.route('/event/:eventNumber', {
+  name: 'eventDetailsRoute',
+  action: function() {
+    BlazeLayout.render('appLayoutPublic', {
+      main: 'Event_Details_Page'
     });
   }
 });

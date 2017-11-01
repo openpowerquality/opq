@@ -1,0 +1,122 @@
+<template name="Event_Details_Page">
+  <div class="ui padded grid">
+    <div class="sixteen wide column">
+      {{#if isLoadingEventData}}
+        {{> spinner}}
+      {{else}}
+        {{#each event in eventDatas}}
+          <div class="ui segment">
+            <div class="ui divided grid">
+              <div class="three wide column">
+                <div class="ui divided list">
+                  <div class="item">
+                    <i class="large hashtag middle aligned icon"></i>
+                    <div class="content">
+                      <div class="header">Event Number</div>
+                      <div class="description">{{event.event_number}}</div>
+                    </div>
+                  </div>
+                  <div class="item">
+                    <i class="large disk outline middle aligned icon"></i>
+                    <div class="content">
+                      <div class="header">Device ID</div>
+                      <div class="description">{{event.box_id}}</div>
+                    </div>
+                  </div>
+                  <div class="item">
+                    <i class="large hourglass start middle aligned icon"></i>
+                    <div class="content">
+                      <div class="header">Start Time</div>
+                      <div class="description">{{event.event_start}}</div>
+                    </div>
+                  </div>
+                  <div class="item">
+                    <i class="large hourglass end middle aligned icon"></i>
+                    <div class="content">
+                      <div class="header">End Time</div>
+                      <div class="description">{{event.event_end}}</div>
+                    </div>
+                  </div>
+                  <div class="item">
+                    <i class="large clock middle aligned icon"></i>
+                    <div class="content">
+                      <div class="header">Duration</div>
+                      <div class="description">{{event.duration}} ms</div>
+                    </div>
+                  </div>
+                  <div class="item">
+                    <i class="large download middle aligned icon"></i>
+                    <div class="content">
+                      <div class="header">Export Data</div>
+                      <div class="description">
+                        <button class="ui mini button">CSV</button>
+                        <button class="ui mini button">JSON</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="three wide column">
+                <div class="ui grid">
+                  <div class="sixteen wide column">
+                    <div style="height: 100px;">
+                      <!--Voltage RMS-->
+                      {{> dygraph dygraphData=event.measurements.voltages dygraphOptions=(dygraphRMSOptions 'Voltage') dygraphSync=dygraphSynchronizer}}
+                    </div>
+                  </div>
+                  <div class="sixteen wide column">
+                    <div style="height: 100px;">
+                      <!--Frequency RMS-->
+                      {{> dygraph dygraphData=event.measurements.frequencies dygraphOptions=(dygraphRMSOptions 'Frequency') dygraphSync=dygraphSynchronizer}}
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+              <div class="ten wide column">
+                <div style="height: 225px;">
+                  {{> dygraph dygraphData=event.graphData dygraphOptions=dygraphWaveformOptions dygraphSync=dygraphSynchronizer}}
+                  <!--{{> eventWaveformChart eventData=event dygraphSync=dygraphSynchronizer}}-->
+                </div>
+
+              </div>
+            </div>
+          </div>
+
+
+
+
+          <!--<div class="ui horizontal segments">-->
+            <!--<div class="ui segment">Event #: {{event.event_number}}</div>-->
+            <!--<div class="ui segment">Box ID: {{event.box_id}}</div>-->
+            <!--<div class="ui segment">Start Time: {{event.event_start}}</div>-->
+            <!--<div class="ui segment">End Time: {{event.event_end}}</div>-->
+            <!--<div class="ui segment">-->
+              <!--<button id="{{event.box_id}}-button" class="ui tiny button">Export Data</button>-->
+            <!--</div>-->
+          <!--</div>-->
+          <!--<div class="ui segment">-->
+            <!--{{> eventWaveformChart eventData=event dygraphSync=dygraphSynchronizer}}-->
+          <!--</div>-->
+
+          <!--<div id="{{event.box_id}}-modal" class="ui modal">-->
+            <!--<div class="header">-->
+              <!--Waveform Data (Event #: {{event.event_number}}, Box ID: {{event.box_id}})-->
+            <!--</div>-->
+            <!--<div class="content">-->
+              <!--<div class="ui form">-->
+                <!--<div class="field">-->
+                  <!--<label>Waveform Data</label>-->
+                  <!--<textarea>-->
+                    <!--{{calibratedWaveformData event.box_id event.waveform}}-->
+                  <!--</textarea>-->
+                <!--</div>-->
+              <!--</div>-->
+            <!--</div>-->
+          <!--</div>-->
+
+        {{/each}}
+      {{/if}}
+    </div>
+  </div>
+</template>

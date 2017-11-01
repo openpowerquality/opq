@@ -29,7 +29,6 @@ kadira:flow-router
 kadira:blaze-layout
 reactive-var@1.0.11
 reactive-dict@1.1.8
-aldeed:autoform
 shell-server@0.2.1
 mrt:flot
 dburles:factory
@@ -43,5 +42,4 @@ practicalmeteor:mocha
 dispatch:mocha
 mdg:validated-method
 aldeed:template-extension
-cfs:standard-packages
-cfs:gridfs
+aldeed:autoform@5.8.1
