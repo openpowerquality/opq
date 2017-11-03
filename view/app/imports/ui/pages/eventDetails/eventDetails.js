@@ -8,6 +8,8 @@ import '../../../../client/lib/misc/dygraphSynchronizer.js';
 import './eventDetails.html';
 import '../../components/eventWaveformChart/eventWaveformChart.js'
 import '../../components/dygraph/dygraph.js';
+import Filesaver from 'file-saver';
+import Papaparse from 'papaparse';
 
 Template.Event_Details_Page.onCreated(function() {
   const template = this;
@@ -80,8 +82,8 @@ Template.Event_Details_Page.onCreated(function() {
 
                   // Calculate Vrms. Note the RMS window size is equal to one cycle worth of samples.
                   if (vrmsWindowValues.push(calibratedSample) > SAMPLES_PER_CYCLE) vrmsWindowValues.shift();
-                  const vSumSquared = vrmsWindowValues.reduce((sum, curr) => sum + Math.pow(curr, 2));
-                  const vRms = Math.sqrt(vSumSquared / vrmsWindowValues.length);
+                  const vSquaredSum = vrmsWindowValues.reduce((sum, curr) => sum + Math.pow(curr, 2));
+                  const vRms = Math.sqrt(vSquaredSum / vrmsWindowValues.length);
 
                   return [timestamp, calibratedSample, vRms];
                 });
@@ -273,6 +275,48 @@ Template.Event_Details_Page.events({
   'click .ui.button': function(event, template) {
     const box_id = event.currentTarget.id.replace('-button', '');
     template.$(`#${box_id}-modal`).modal({detachable: false}).modal('show');
+  },
+  'click .data-export': function(event, template) {
+    event.preventDefault();
+    const event_number = event.currentTarget.dataset.event_number;
+    const box_id = event.currentTarget.dataset.box_id;
+    const export_type = event.currentTarget.dataset.export_type;
+
+    console.log(export_type, event_number, box_id, event.currentTarget.dataset);
+    console.log(typeof event_number);
+
+    const eventData = template.currentEventData.get(); // Array of all event data.
+    if (eventData) {
+      const event = eventData.find(event => event.event_number === Number(event_number) && event.box_id === Number(box_id));
+      if (event) {
+        event.waveformCalibrated = event.waveform.map((sample, index) => {
+          // Need to store these values in db.
+          const boxCalibrationConstants = {
+            1: 152.1,
+            3: 154.20,
+            4: 146.46
+          };
+          const constant = boxCalibrationConstants[eventData.box_id] || 1;
+          const timestamp = event.event_start + (index * (1.0/12.0));
+          const calibratedSample = sample/constant;
+
+          // return [timestamp, calibratedSample];
+          return calibratedSample;
+        });
+
+        const eventPicked = _.pick(event, 'event_number', 'box_id', 'event_start', 'event_end', 'waveformCalibrated');
+        if (export_type === 'json') {
+          const json = JSON.stringify(eventPicked, null, 2);
+          const blob = new Blob([json], {type: "application/json; charset=utf-8"});
+          Filesaver.saveAs(blob, `event-${eventPicked.event_number}-device-${eventPicked.box_id}`);
+        }
+        else if (export_type === 'csv') {
+          const csv = Papaparse.unparse([eventPicked]);
+          const blob = new Blob([csv], {type: "text/csv; charset=utf-8"});
+          Filesaver.saveAs(blob, `event-${eventPicked.event_number}-device-${eventPicked.box_id}`);
+        }
+      }
+    }
   }
 });
 
