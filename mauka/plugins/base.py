@@ -14,6 +14,7 @@ import os
 
 import bson
 import bson.objectid
+import numpy
 import zmq
 
 import constants
@@ -118,14 +119,14 @@ class MaukaPlugin:
         # Every plugin subscribes to itself to allow for plugin control
         self.subscriptions.append(name)
 
-    def calibrate_waveform(self, waveform: typing.List[float], calibration_constant: float = 1.0) -> typing.List[float]:
-        return list(map(lambda v: v / calibration_constant, waveform))
+    def calibrate_waveform(self, waveform: numpy.ndarray, calibration_constant: float = 1.0) -> numpy.ndarray:
+        return waveform / calibration_constant
 
-    def vrms(self, samples: typing.List[float]) -> float:
-        summed_sqs = sum(map(lambda sample: sample * sample, samples))
+    def vrms(self, samples: numpy.ndarray) -> float:
+        summed_sqs = numpy.sum(numpy.square(samples))
         return math.sqrt(summed_sqs / len(samples))
 
-    def vrms_waveform(self, waveform: typing.List[float], window_size: int = constants.SAMPLES_PER_CYCLE) -> typing.List[float]:
+    def vrms_waveform(self, waveform: numpy.ndarray, window_size: int = constants.SAMPLES_PER_CYCLE) -> numpy.ndarray:
         v = []
         while len(waveform) >= window_size:
             samples = waveform[:window_size]
@@ -135,7 +136,7 @@ class MaukaPlugin:
         if len(waveform) > 0:
             v.append(self.vrms(waveform))
 
-        return v
+        return numpy.array(v)
 
     def get_status(self) -> str:
         """ Return the status of this plugin

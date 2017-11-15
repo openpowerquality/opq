@@ -154,8 +154,8 @@ class IticPlugin(plugins.base.MaukaPlugin):
     def __init__(self, config: typing.Dict, exit_event: multiprocessing.Event):
         super().__init__(config, ["RequestDataEvent"], IticPlugin.NAME, exit_event)
 
-    def itic(self, waveform: typing.List[float]) -> str:
-        vrms_vals = numpy.array(self.vrms_waveform(waveform))
+    def itic(self, waveform: numpy.ndarray) -> str:
+        vrms_vals = self.vrms_waveform(waveform)
         duration_ms = (len(waveform) / constants.SAMPLE_RATE_HZ) * 1000
         vrms_min = numpy.min(vrms_vals)
         vrms_max = numpy.max(vrms_vals)
@@ -169,7 +169,8 @@ class IticPlugin(plugins.base.MaukaPlugin):
         event_data = mongo.mongo.load_event(event_id, self.mongo_client)
         for device_data in event_data["event_data"]:
             if "data" in device_data:
-                waveform = device_data["data"]
+                box_id = device_data["box_id"]
+                waveform = self.calibrate_waveform(device_data["data"], constants.get_calibration_constant(box_id))
                 itic_region = self.itic(waveform)
                 document_id = device_data["_id"]
                 self.mongo_client.data_collection.update({'_id', self.object_id(document_id)}, {"$set", {"itic": itic_region}})
