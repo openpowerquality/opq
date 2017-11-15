@@ -4,12 +4,14 @@ This plugin calculates the ITIC region of a voltage, duration pair.
 import enum
 import typing
 import multiprocessing
+import threading
 
+import constants
+import mongo.mongo
 import plugins.base
 
 import numpy
 import matplotlib.path
-
 
 class IticRegion(enum.Enum):
     """
@@ -152,8 +154,33 @@ class IticPlugin(plugins.base.MaukaPlugin):
     def __init__(self, config: typing.Dict, exit_event: multiprocessing.Event):
         super().__init__(config, ["RequestDataEvent"], IticPlugin.NAME, exit_event)
 
+    def itic(self, waveform: typing.List[float]) -> str:
+        vrms_vals = numpy.array(self.vrms_waveform(waveform))
+        duration_ms = (len(waveform) / constants.SAMPLE_RATE_HZ) * 1000
+        vrms_min = numpy.min(vrms_vals)
+        vrms_max = numpy.max(vrms_vals)
+
+        if numpy.abs(vrms_min - 120.0) > numpy.abs(vrms_max - 120.0):
+            return itic_region(vrms_min, duration_ms).name
+        else:
+            return itic_region(vrms_max, duration_ms).name
+
+    def perform_itic_calculation(self, event_id: int):
+        event_data = mongo.mongo.load_event(event_id, self.mongo_client)
+        for device_data in event_data["event_data"]:
+            if "data" in device_data:
+                waveform = device_data["data"]
+                itic_region = self.itic(waveform)
+                document_id = device_data["_id"]
+                self.mongo_client.data_collection.update({'_id', self.object_id(document_id)}, {"$set", {"itic": itic_region}})
+
+
     def on_message(self, topic, message):
-        self.logger.info("IticPlugin {}".format(message))
+        event_id = int(message)
+        timer = threading.Timer(10, self.perform_itic_calculation, (event_id,))
+        timer.start()
+
+
 
 
 if __name__ == "__main__":
