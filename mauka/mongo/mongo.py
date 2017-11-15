@@ -103,16 +103,16 @@ class OpqMongoClient:
         return self.fs.find_one({"filename": fid}).read()
 
     def export_data(self, out_dir: str, start_ts_ms_utc: int, end_ts_ms_utc: int):
-        # measurements = self.measurements_collection.find({"$and": [{"timestamp_ms": {"$gte": start_ts_ms_utc}}, {"timestamp_ms": {"$lte": end_ts_ms_utc}}]}, {"_id": False})
-        # device_id_to_measurements = collections.defaultdict(list)
+        measurements = self.measurements_collection.find({"$and": [{"timestamp_ms": {"$gte": start_ts_ms_utc}}, {"timestamp_ms": {"$lte": end_ts_ms_utc}}]}, {"_id": False})
+        device_id_to_measurements = collections.defaultdict(list)
 
-        # for measurement in measurements:
-        #     device_id_to_measurements[measurement["device_id"]].append(measurement)
-        #
-        # for device_id, measurements in device_id_to_measurements.items():
-        #     path = out_dir + "/measurements_" + str(device_id) + "_" + str(start_ts_ms_utc) + "_" + str(end_ts_ms_utc) + ".txt"
-        #     with open(path, "w") as out:
-        #         out.writelines(map(lambda m: str(m["timestamp_ms"]) + "," + str(m["frequency"]) + "," + str(m["voltage"]) + "\n", measurements))
+        for measurement in measurements:
+            device_id_to_measurements[measurement["device_id"]].append(measurement)
+
+        for device_id, measurements in device_id_to_measurements.items():
+            path = out_dir + "/measurements_" + str(device_id) + "_" + str(start_ts_ms_utc) + "_" + str(end_ts_ms_utc) + ".txt"
+            with open(path, "w") as out:
+                out.writelines(map(lambda m: str(m["timestamp_ms"]) + "," + str(m["frequency"]) + "," + str(m["voltage"]) + "\n", measurements))
 
         event_ids = map(lambda event: event["event_number"], self.events_collection.find({"$and": [{"event_start": {"$gte": start_ts_ms_utc}}, {"event_start": {"$lte": end_ts_ms_utc}}]}, ["event_number"]))
         events = map(lambda event_id: load_event(event_id, self), event_ids)
@@ -128,7 +128,7 @@ class OpqMongoClient:
                 # out.write(str(event_data) + "\n")
                 if len(event_data) > 0:
                     for ed in event_data:
-                        out.write(str(ed["box_id"]) + " " + str(len(ed["data"])) + "\n")
+                        out.write(str(ed["box_id"]) + "," + str(len(ed["data"])) + "," + str(ed["event_start"]) + "," + str(ed["event_end"]) + "\n")
                         for datum in ed["data"]:
                             out.write(str(datum) + "\n")
 
@@ -139,5 +139,5 @@ if __name__ == "__main__":
     start_ts_ms_utc = 1508781600000 # Oct 23 8AM HST
     end_ts_ms_utc   = 1508868000000 # Oct 24 8AM HST
 
-    mongo_client.export_data("/home/anthony/Development/opq/mauka/scrap", start_ts_ms_utc, end_ts_ms_utc)
+    mongo_client.export_data("/Users/anthony/Development/opq/mauka/scrap", start_ts_ms_utc, end_ts_ms_utc)
 
