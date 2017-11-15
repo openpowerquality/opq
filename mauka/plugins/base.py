@@ -118,6 +118,9 @@ class MaukaPlugin:
         # Every plugin subscribes to itself to allow for plugin control
         self.subscriptions.append(name)
 
+    def calibrate_waveform(self, waveform: typing.List[float], calibration_constant: float = 1.0) -> typing.List[float]:
+        return list(map(lambda v: v / calibration_constant, waveform))
+
     def vrms(self, samples: typing.List[float]) -> float:
         summed_sqs = sum(map(lambda sample: sample * sample, samples))
         return math.sqrt(summed_sqs / len(samples))
