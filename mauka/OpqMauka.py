@@ -56,6 +56,7 @@ if __name__ == "__main__":
     plugin_manger.register_plugin(plugins.VoltageThresholdPlugin)
     plugin_manger.register_plugin(plugins.AcquisitionTriggerPlugin)
     plugin_manger.register_plugin(plugins.StatusPlugin)
+    plugin_manger.register_plugin(plugins.IticPlugin)
 
     broker_process = plugins.start_mauka_pub_sub_broker(config)
     makai_bridge_process = plugins.start_makai_bridge(config)
