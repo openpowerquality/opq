@@ -4,6 +4,7 @@ This module provides classes and base functionality for building OPQMauka plugin
 
 import json
 import logging
+import math
 import multiprocessing
 import signal
 import threading
@@ -15,6 +16,7 @@ import bson
 import bson.objectid
 import zmq
 
+import constants
 import mongo.mongo
 import protobuf.opq_pb2 as opqpb
 
@@ -115,6 +117,22 @@ class MaukaPlugin:
 
         # Every plugin subscribes to itself to allow for plugin control
         self.subscriptions.append(name)
+
+    def vrms(self, samples: typing.List[float]) -> float:
+        summed_sqs = sum(map(lambda sample: sample * sample, samples))
+        return math.sqrt(summed_sqs / len(samples))
+
+    def vrms_waveform(self, waveform: typing.List[float], window_size: int = constants.SAMPLES_PER_CYCLE) -> typing.List[float]:
+        v = []
+        while len(waveform) >= window_size:
+            samples = waveform[:window_size]
+            waveform = waveform[window_size:]
+            v.append(self.vrms(samples))
+
+        if len(waveform) > 0:
+            v.append(self.vrms(waveform))
+
+        return v
 
     def get_status(self) -> str:
         """ Return the status of this plugin
