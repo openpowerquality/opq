@@ -3,5 +3,6 @@ matplotlib  # Plotting and point-in-polygon algorithms
 numpy       # numpy
 pymongo     # mongo db
 protobuf    # protocol buffers
+scipy       # Scientific python
 typing      # type hints for python < 3.5
 zmq         # ZeroMQ
