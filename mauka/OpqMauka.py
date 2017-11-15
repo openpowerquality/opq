@@ -50,13 +50,14 @@ if __name__ == "__main__":
 
     config = load_config(sys.argv[1])
 
-    plugin_manger = plugins.PluginManager(config)
-    plugin_manger.register_plugin(plugins.MeasurementPlugin)
-    plugin_manger.register_plugin(plugins.FrequencyThresholdPlugin)
-    plugin_manger.register_plugin(plugins.VoltageThresholdPlugin)
-    plugin_manger.register_plugin(plugins.AcquisitionTriggerPlugin)
-    plugin_manger.register_plugin(plugins.StatusPlugin)
-    plugin_manger.register_plugin(plugins.IticPlugin)
+    plugin_manager = plugins.PluginManager(config)
+    plugin_manager.register_plugin(plugins.MeasurementPlugin)
+    plugin_manager.register_plugin(plugins.FrequencyThresholdPlugin)
+    plugin_manager.register_plugin(plugins.VoltageThresholdPlugin)
+    plugin_manager.register_plugin(plugins.AcquisitionTriggerPlugin)
+    plugin_manager.register_plugin(plugins.StatusPlugin)
+    plugin_manager.register_plugin(plugins.ThdPlugin)
+    plugin_manager.register_plugin(plugins.IticPlugin)
 
     broker_process = plugins.start_mauka_pub_sub_broker(config)
     makai_bridge_process = plugins.start_makai_bridge(config)
@@ -64,7 +65,7 @@ if __name__ == "__main__":
     # start-stop-daemon sends a SIGTERM, we need to handle it to gracefully shutdown mauka
     def sigterm_handler(signum, frame):
         _logger.info("Received exit signal")
-        plugin_manger.clean_exit()
+        plugin_manager.clean_exit()
         #_logger.info("Stopping broker process...")
         #broker_process.terminate()
         #sys.exit(0)
@@ -75,8 +76,8 @@ if __name__ == "__main__":
 
     try:
 
-        plugin_manger.run_all_plugins()
-        plugin_manger.start_tcp_server()
+        plugin_manager.run_all_plugins()
+        plugin_manager.start_tcp_server()
         _logger.info("Killing broker process")
         broker_process.terminate()
         _logger.info("Killing makai bridge process")
