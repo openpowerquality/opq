@@ -10,10 +10,12 @@ def to_s16bit(data):
     return numpy.frombuffer(data, numpy.int16)
 
 
-def get_box_calibration_constants(mongo_client=None) -> typing.Dict[int, float]:
+def get_box_calibration_constants(mongo_client=None, defaults={}) -> typing.Dict[int, float]:
     _mongo_client = mongo_client if mongo_client is not None else OpqMongoClient()
-    calibration_constants = _mongo_client.get_collection(Collection.CALIBRATION_CONSTANTS).find({}, {'_id', False})
+    calibration_constants = _mongo_client.calibration_constants_collection.find(projection={'_id': False})
     r = {}
+    for k, v in defaults.items():
+        r[k] = v
     for device_constant in calibration_constants:
         r[device_constant["device_id"]] = device_constant["calibration_constant"]
     return r
@@ -72,6 +74,7 @@ class OpqMongoClient:
         self.events_collection = self.get_collection(Collection.EVENTS)
         self.measurements_collection = self.get_collection(Collection.MEASUREMENTS)
         self.data_collection = self.get_collection(Collection.DATA)
+        self.calibration_constants_collection = self.get_collection(Collection.CALIBRATION_CONSTANTS)
 
     def get_collection(self, collection: str):
         """ Returns a mongo collection by name
