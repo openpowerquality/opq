@@ -150,10 +150,10 @@ class IticPlugin(plugins.base.MaukaPlugin):
     NAME = "IticPlugin"
 
     def __init__(self, config: typing.Dict, exit_event: multiprocessing.Event):
-        super().__init__(config, ["VoltageEvent"], IticPlugin.NAME, exit_event)
+        super().__init__(config, ["RequestDataEvent"], IticPlugin.NAME, exit_event)
 
     def on_message(self, topic, message):
-        pass
+        self.logger.info("IticPlugin {}".format(message))
 
 
 if __name__ == "__main__":
