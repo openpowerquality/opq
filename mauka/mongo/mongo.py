@@ -1,3 +1,7 @@
+"""
+This module contains classes and functions for querying and manipulating data within a mongo database.
+"""
+
 import collections
 import typing
 
@@ -6,11 +10,23 @@ import pymongo
 import gridfs
 
 
-def to_s16bit(data):
+def to_s16bit(data: bytes) -> numpy.ndarray:
+    """
+    Converts raw bytes into an array of 16 bit integers.
+    :param data:
+    :return:
+    """
     return numpy.frombuffer(data, numpy.int16)
 
 
-def get_box_calibration_constants(mongo_client=None, defaults={}) -> typing.Dict[int, float]:
+def get_box_calibration_constants(mongo_client: pymongo.MongoClient = None, defaults: typing.Dict[int, float] = {}) -> typing.Dict[int, float]:
+    """
+    Loads calibration constants from the mongo database a a dictionary from box id to calibration constant.
+    Default values can be passed in if needed.
+    :param mongo_client: Optional mongo db opq client
+    :param defaults: Default values supplied as a mapping from box id to calibration constant.
+    :return: A dictionary mapping of box_id to calibration constant
+    """
     _mongo_client = mongo_client if mongo_client is not None else OpqMongoClient()
     calibration_constants = _mongo_client.calibration_constants_collection.find(projection={'_id': False})
     r = {}
@@ -21,7 +37,14 @@ def get_box_calibration_constants(mongo_client=None, defaults={}) -> typing.Dict
     return r
 
 
-def get_data(mongo_client, event_data):
+def get_data(mongo_client: pymongo.MongoClient, event_data: typing.List[typing.Dict]):
+    """
+    Attempt to retrieve raw waveform for specific event.
+    Updates the event_data pass by reference.
+    If raw data is found, this will replace the value stored at the data key with the actual waveform.
+    :param mongo_client: The mongo client required to perform the retrieval
+    :param event_data: Dictionary of event metadata
+    """
     if "data" in event_data:
         data = mongo_client.read_file(event_data["data"])
         event_data["data"] = to_s16bit(data)
@@ -29,7 +52,15 @@ def get_data(mongo_client, event_data):
         print("No data pointer in event metadata")
 
 
-def load_event(event_id: int, mongo_client=None):
+def load_event(event_id: int, mongo_client : pymongo.MongoClient = None) -> typing.Dict[str, typing.Dict]:
+    """
+    Queries the mongo database and combines all event information from both the events and data collection for a
+    specified event.
+    :param event_id: The event number to load data from
+    :param mongo_client: An optional mongo client to use to make the query.
+    :return: A dictionary which contains event and event_data information from mongo. If raw data is available, the
+    data field is updated to include the raw data loaded via gridfs.
+    """
     _mongo_client = mongo_client if mongo_client is not None else OpqMongoClient()
 
     events_collection = _mongo_client.get_collection(Collection.EVENTS)
@@ -66,15 +97,34 @@ class Collection:
 class OpqMongoClient:
     """Convenience mongo client for easily operating on OPQ data"""
 
-    def __init__(self, host="127.0.0.1", port=27017, db="opq"):
+    def __init__(self, host: str = "127.0.0.1", port: int = 27017, db: str = "opq"):
+        """
+        Initializes an OpqMongoClient.
+        :param host: Host of mongo database
+        :param port: Port of mongo database
+        :param db: The name of the database on mongo
+        """
+
         self.client = pymongo.MongoClient(host, port)
+        """MongoDB client"""
+
         self.db = self.client[db]
+        """MongoDB"""
+
         self.fs = gridfs.GridFS(self.db)
+        """Access to MongoDB gridfs"""
 
         self.events_collection = self.get_collection(Collection.EVENTS)
+        """Events collections"""
+
         self.measurements_collection = self.get_collection(Collection.MEASUREMENTS)
+        """Measurements collection"""
+
         self.data_collection = self.get_collection(Collection.DATA)
+        """Data collection"""
+
         self.calibration_constants_collection = self.get_collection(Collection.CALIBRATION_CONSTANTS)
+        """Calibration constants collection"""
 
     def get_collection(self, collection: str):
         """ Returns a mongo collection by name
@@ -116,10 +166,21 @@ class OpqMongoClient:
         """
         self.db[collection].drop_indexes()
 
-    def read_file(self, fid):
+    def read_file(self, fid: str) -> bytes:
+        """
+        Loads a file from gridfs as an array of bytes
+        :param fid: The file name to open stored in gridfs
+        :return: A list of bytes from reading the file
+        """
         return self.fs.find_one({"filename": fid}).read()
 
     def export_data(self, out_dir: str, start_ts_ms_utc: int, end_ts_ms_utc: int):
+        """
+        Export CSV data to the specified directory.
+        :param out_dir: Diretory to write data files to
+        :param start_ts_ms_utc: Start timestamp of when to export data from
+        :param end_ts_ms_utc: End timestamp of when to export data to
+        """
         measurements = self.measurements_collection.find(
                 {"$and": [{"timestamp_ms": {"$gte": start_ts_ms_utc}}, {"timestamp_ms": {"$lte": end_ts_ms_utc}}]},
                 {"_id": False})
@@ -160,11 +221,3 @@ class OpqMongoClient:
                         for datum in ed["data"]:
                             out.write(str(datum) + "\n")
 
-
-if __name__ == "__main__":
-    mongo_client = OpqMongoClient()
-
-    start_ts_ms_utc = 1508781600000  # Oct 23 8AM HST
-    end_ts_ms_utc = 1508868000000  # Oct 24 8AM HST
-
-    mongo_client.export_data("/Users/anthony/Development/opq/mauka/scrap", start_ts_ms_utc, end_ts_ms_utc)
