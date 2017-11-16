@@ -139,6 +139,9 @@ class PluginManager:
         self.init_cli()
 
     def init_cli(self):
+        """
+        Initializes the CLI with commands and help texts.
+        """
         self.cli_parser.add_cmd("completions", "Return a list of completions for autocomplete",
                                 self.cli_completions)
 
@@ -293,6 +296,9 @@ class PluginManager:
         return self.cli_parser.parse(request.split(" "))
 
     def cli_completions(self) -> str:
+        """
+        Returns a list of completable commands.
+        """
         r = []
         for cmd_name in self.cli_parser.cmd_names:
             r.append(cmd_name)
@@ -439,10 +445,12 @@ class PluginManager:
         return ok("Plugin {} stopped".format(plugin_name))
 
     def cli_stop_all_plugins(self) -> str:
+        """
+        Stop all plugins.
+        :return: Server response.
+        """
         for plugin_name in self.name_to_plugin_class:
             self.zmq_pub_socket.send_multipart((plugin_name.encode(), b"EXIT"))
-            # if plugin_name in self.name_to_exit_event:
-            #     self.name_to_exit_event[plugin_name].set()
 
         return ok("Stopped all plugins")
 
