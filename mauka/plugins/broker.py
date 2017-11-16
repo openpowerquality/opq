@@ -1,8 +1,17 @@
+"""
+This module provides a publish subscribe broker for Mauka plugins to use and also a Makai bridge which brings triggering
+data from Makai in the Mauka environment.
+"""
+
 import multiprocessing
 import typing
 
 
 def start_mauka_pub_sub_broker(config: typing.Dict):
+    """
+    Starts an instance of a mauka pub/sub broker in a separate process
+    :param config: Configuration dictionary
+    """
     def _run(config: typing.Dict):
         import logging
         import signal
@@ -35,6 +44,10 @@ def start_mauka_pub_sub_broker(config: typing.Dict):
 
 
 def start_makai_bridge(config: typing.Dict):
+    """
+    Starts an instance of the makai bridge to bring makai triggering data into mauka as a separate process
+    :param config: Configuration dictionary
+    """
     def _run(config: typing.Dict):
         import logging
         import signal
