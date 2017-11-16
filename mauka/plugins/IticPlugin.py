@@ -13,6 +13,7 @@ import plugins.base
 import numpy
 import matplotlib.path
 
+
 class IticRegion(enum.Enum):
     """
     Enumerations of ITIC regions.
@@ -33,6 +34,7 @@ def c_to_ms(c: float) -> float:
 
 
 HUNDREDTH_OF_A_CYCLE = c_to_ms(0.01)
+"""Hundredth of a power cycle in milliseconds"""
 
 prohibited_region_polygon = [
     [HUNDREDTH_OF_A_CYCLE, 500],
@@ -46,6 +48,7 @@ prohibited_region_polygon = [
     [10000, 500],
     [HUNDREDTH_OF_A_CYCLE, 500]
 ]
+"""Polygon representing the prohibited region"""
 
 no_damage_region_polygon = [
     [20, 0],
@@ -58,6 +61,7 @@ no_damage_region_polygon = [
     [10000, 0],
     [20, 0]
 ]
+"""Polygon representing the no damage region"""
 
 no_interruption_region_polygon = [
     [0, 0],
@@ -79,6 +83,7 @@ no_interruption_region_polygon = [
     [20, 0],
     [0, 0]
 ]
+"""Polygon representing the no interruption region"""
 
 
 def point_in_polygon(x: float, y: float, polygon: typing.List[typing.List[float]]) -> bool:
@@ -149,12 +154,25 @@ def itic_region(rms_voltage: float, duration_ms: float) -> enum.Enum:
 
 
 class IticPlugin(plugins.base.MaukaPlugin):
+    """
+    Mauka plugin that calculates ITIC for any event that includes a raw waveform
+    """
     NAME = "IticPlugin"
 
     def __init__(self, config: typing.Dict, exit_event: multiprocessing.Event):
+        """
+        Initializes this plugin
+        :param config: Configuration dictionary
+        :param exit_event: Exit event
+        """
         super().__init__(config, ["RequestDataEvent"], IticPlugin.NAME, exit_event)
 
     def itic(self, waveform: numpy.ndarray) -> str:
+        """
+        Returns the ITIC region as a string given a waveform.
+        :param waveform: The waveform to measure.
+        :return: ITIC region name for specified waveform
+        """
         vrms_vals = self.vrms_waveform(waveform)
         duration_ms = (len(waveform) / constants.SAMPLE_RATE_HZ) * 1000
         vrms_min = numpy.min(vrms_vals)
@@ -166,6 +184,11 @@ class IticPlugin(plugins.base.MaukaPlugin):
             return itic_region(vrms_max, duration_ms).name
 
     def perform_itic_calculation(self, event_id: int):
+        """
+        Called on a timer in a seperate thread to allow raw data to be acquired first by makai.
+        When raw waveforms are found, ITIC calculations are performed and the result is stored back to data collection.
+        :param event_id: The event id to perform itic calculations for.
+        """
         event_data = mongo.mongo.load_event(event_id, self.mongo_client)
         for device_data in event_data["event_data"]:
             if "data" in device_data:
@@ -173,28 +196,15 @@ class IticPlugin(plugins.base.MaukaPlugin):
                 waveform = self.calibrate_waveform(device_data["data"], constants.get_calibration_constant(box_id))
                 itic_region = self.itic(waveform)
                 document_id = device_data["_id"]
-                self.mongo_client.data_collection.update({'_id', self.object_id(document_id)}, {"$set", {"itic": itic_region}})
-
+                self.mongo_client.data_collection.update({'_id', self.object_id(document_id)},
+                                                         {"$set", {"itic": itic_region}})
 
     def on_message(self, topic, message):
+        """
+        Called async when a topic this plugin subscribes to produces a message
+        :param topic: The topic that is producing the message
+        :param message: The message that was produced
+        """
         event_id = int(message)
         timer = threading.Timer(10, self.perform_itic_calculation, (event_id,))
         timer.start()
-
-
-
-
-if __name__ == "__main__":
-    from matplotlib.patches import PathPatch
-    import matplotlib.pyplot as plt
-
-    poly = prohibited_region_polygon
-    path = matplotlib.path.Path(vertices=numpy.array(poly), closed=True)
-    pathpatch = PathPatch(path)
-    fig, ax = plt.subplots()
-    ax.add_patch(pathpatch)
-
-    ax.dataLim.update_from_data_xy(poly)
-    ax.autoscale_view()
-
-    plt.show()
