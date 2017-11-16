@@ -18,7 +18,7 @@
 </dl>
 <hr>
 Methods defined here:<br>
-<dl><dt><a name="StatusPlugin-__init__"><strong>__init__</strong></a>(self, config:Dict, exit_event:&lt;bound method BaseContext.Event of &lt;multiprocessing.context.DefaultContext object at 0x7f7efe0f62e8&gt;&gt;)</dt><dd><tt>Initializes&nbsp;this&nbsp;plugin<br>
+<dl><dt><a name="StatusPlugin-__init__"><strong>__init__</strong></a>(self, config:Dict, exit_event:&lt;bound method BaseContext.Event of &lt;multiprocessing.context.DefaultContext object at 0x1086d6c18&gt;&gt;)</dt><dd><tt>Initializes&nbsp;this&nbsp;plugin<br>
 &nbsp;<br>
 :param&nbsp;config:&nbsp;Configuration&nbsp;dictionary</tt></dd></dl>
 
@@ -35,6 +35,11 @@ Data and other attributes defined here:<br>
 
 <hr>
 Methods inherited from <a href="plugins.base.html#MaukaPlugin">plugins.base.MaukaPlugin</a>:<br>
+<dl><dt><a name="StatusPlugin-calibrate_waveform"><strong>calibrate_waveform</strong></a>(self, waveform:numpy.ndarray, calibration_constant:float=1.0) -&gt; numpy.ndarray</dt><dd><tt>Returns&nbsp;a&nbsp;calibrated&nbsp;waveform&nbsp;given&nbsp;a&nbsp;non-calibrated&nbsp;waveform&nbsp;and&nbsp;a&nbsp;constant.<br>
+:param&nbsp;waveform:&nbsp;The&nbsp;uncalibrated&nbsp;waveform<br>
+:param&nbsp;calibration_constant:&nbsp;The&nbsp;calibration&nbsp;constant&nbsp;for&nbsp;a&nbsp;specific&nbsp;box<br>
+:return:&nbsp;The&nbsp;calibrated&nbsp;waveform</tt></dd></dl>
+
 <dl><dt><a name="StatusPlugin-config_get"><strong>config_get</strong></a>(self, key:str) -&gt; str</dt><dd><tt>Retrieves&nbsp;a&nbsp;value&nbsp;from&nbsp;the&nbsp;configuration&nbsp;dictionary<br>
 &nbsp;<br>
 :param&nbsp;key:&nbsp;The&nbsp;key&nbsp;associated&nbsp;with&nbsp;the&nbsp;value&nbsp;we're&nbsp;looking&nbsp;to&nbsp;retrieve<br>
@@ -81,6 +86,16 @@ configured&nbsp;is&nbsp;the&nbsp;configuration&nbsp;file.</tt></dd></dl>
 &nbsp;<br>
 :param&nbsp;obj:&nbsp;The&nbsp;object&nbsp;to&nbsp;serialize<br>
 :return:&nbsp;JSON&nbsp;representation&nbsp;of&nbsp;object</tt></dd></dl>
+
+<dl><dt><a name="StatusPlugin-vrms"><strong>vrms</strong></a>(self, samples:numpy.ndarray) -&gt; float</dt><dd><tt>Calculates&nbsp;the&nbsp;Voltage&nbsp;root-mean-square&nbsp;of&nbsp;the&nbsp;supplied&nbsp;samples<br>
+:param&nbsp;samples:&nbsp;Samples&nbsp;to&nbsp;calculate&nbsp;Vrms&nbsp;over.<br>
+:return:&nbsp;The&nbsp;Vrms&nbsp;value&nbsp;of&nbsp;the&nbsp;provided&nbsp;samples.</tt></dd></dl>
+
+<dl><dt><a name="StatusPlugin-vrms_waveform"><strong>vrms_waveform</strong></a>(self, waveform:numpy.ndarray, window_size:int=200.0) -&gt; numpy.ndarray</dt><dd><tt>Calculated&nbsp;Vrms&nbsp;of&nbsp;a&nbsp;waveform&nbsp;using&nbsp;a&nbsp;given&nbsp;window&nbsp;size.&nbsp;In&nbsp;most&nbsp;cases,&nbsp;our&nbsp;window&nbsp;size&nbsp;should&nbsp;be&nbsp;the<br>
+number&nbsp;of&nbsp;samples&nbsp;in&nbsp;a&nbsp;cycle.<br>
+:param&nbsp;waveform:&nbsp;The&nbsp;waveform&nbsp;to&nbsp;find&nbsp;Vrms&nbsp;values&nbsp;for.<br>
+:param&nbsp;window_size:&nbsp;The&nbsp;size&nbsp;of&nbsp;the&nbsp;window&nbsp;used&nbsp;to&nbsp;compute&nbsp;Vrms&nbsp;over&nbsp;the&nbsp;waveform.<br>
+:return:&nbsp;An&nbsp;array&nbsp;of&nbsp;vrms&nbsp;values&nbsp;calculated&nbsp;for&nbsp;a&nbsp;given&nbsp;waveform.</tt></dd></dl>
 
 <hr>
 Data descriptors inherited from <a href="plugins.base.html#MaukaPlugin">plugins.base.MaukaPlugin</a>:<br>

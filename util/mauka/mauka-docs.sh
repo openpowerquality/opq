@@ -5,14 +5,17 @@ cd ../../mauka
 echo "Generating static HTML documentation..."
 python3 -m pydoc -w OpqMauka &&
 python3 -m pydoc -w plugins &&
+python3 -m pydoc -w plugins.AcquisitionTriggerPlugin &&
 python3 -m pydoc -w plugins.FrequencyThresholdPlugin &&
+python3 -m pydoc -w plugins.IticPlugin &&
 python3 -m pydoc -w plugins.MeasurementPlugin &&
-python3 -m pydoc -w plugins.MeasurementShimPlugin &&
 python3 -m pydoc -w plugins.PrintPlugin &&
 python3 -m pydoc -w plugins.StatusPlugin &&
+python3 -m pydoc -w plugins.ThdPlugin &&
 python3 -m pydoc -w plugins.ThresholdPlugin &&
 python3 -m pydoc -w plugins.VoltageThresholdPlugin &&
 python3 -m pydoc -w plugins.base &&
+python3 -m pydoc -w plugins.broker &&
 python3 -m pydoc -w plugins.manager &&
 
 echo "Moving files to gitbook..."

@@ -8,7 +8,7 @@
 <td valign=bottom>&nbsp;<br>
 <font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong><a href="plugins.html"><font color="#ffffff">plugins</font></a>.base</strong></big></big></font></td
 ><td align=right valign=bottom
-><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:/home/anthony/Development/opq/mauka/plugins/base.py">/home/anthony/Development/opq/mauka/plugins/base.py</a></font></td></tr></table>
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:/Users/anthony/Development/opq/mauka/plugins/base.py">/Users/anthony/Development/opq/mauka/plugins/base.py</a></font></td></tr></table>
     <p><tt>This&nbsp;module&nbsp;provides&nbsp;classes&nbsp;and&nbsp;base&nbsp;functionality&nbsp;for&nbsp;building&nbsp;OPQMauka&nbsp;plugins.</tt></p>
 <p>
 <table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
@@ -18,15 +18,19 @@
     
 <tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
 <td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="bson.html">bson</a><br>
+<a href="constants.html">constants</a><br>
 <a href="json.html">json</a><br>
 <a href="logging.html">logging</a><br>
-</td><td width="25%" valign=top><a href="mongo.html">mongo</a><br>
+</td><td width="25%" valign=top><a href="math.html">math</a><br>
+<a href="mongo.html">mongo</a><br>
 <a href="multiprocessing.html">multiprocessing</a><br>
-<a href="protobuf.opq_pb2.html">protobuf.opq_pb2</a><br>
-</td><td width="25%" valign=top><a href="os.html">os</a><br>
+<a href="numpy.html">numpy</a><br>
+</td><td width="25%" valign=top><a href="protobuf.opq_pb2.html">protobuf.opq_pb2</a><br>
+<a href="os.html">os</a><br>
+<a href="signal.html">signal</a><br>
 <a href="threading.html">threading</a><br>
-<a href="time.html">time</a><br>
-</td><td width="25%" valign=top><a href="typing.html">typing</a><br>
+</td><td width="25%" valign=top><a href="time.html">time</a><br>
+<a href="typing.html">typing</a><br>
 <a href="zmq.html">zmq</a><br>
 </td></tr></table></td></tr></table><p>
 <table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
@@ -149,11 +153,16 @@ Data and other attributes inherited from <a href="json.encoder.html#JSONEncoder"
 semantics&nbsp;and&nbsp;distributed&nbsp;processing&nbsp;primitives.<br>&nbsp;</tt></td></tr>
 <tr><td>&nbsp;</td>
 <td width="100%">Methods defined here:<br>
-<dl><dt><a name="MaukaPlugin-__init__"><strong>__init__</strong></a>(self, config:Dict, subscriptions:List[str], name:str, exit_event:&lt;bound method BaseContext.Event of &lt;multiprocessing.context.DefaultContext object at 0x7f91664322e8&gt;&gt;)</dt><dd><tt>Initializes&nbsp;the&nbsp;base&nbsp;plugin<br>
+<dl><dt><a name="MaukaPlugin-__init__"><strong>__init__</strong></a>(self, config:Dict, subscriptions:List[str], name:str, exit_event:&lt;bound method BaseContext.Event of &lt;multiprocessing.context.DefaultContext object at 0x10db4bcc0&gt;&gt;)</dt><dd><tt>Initializes&nbsp;the&nbsp;base&nbsp;plugin<br>
 &nbsp;<br>
 :param&nbsp;config:&nbsp;Configuration&nbsp;dictionary<br>
 :param&nbsp;subscriptions:&nbsp;List&nbsp;of&nbsp;subscriptions&nbsp;this&nbsp;plugin&nbsp;should&nbsp;subscribe&nbsp;to<br>
 :param&nbsp;name:&nbsp;The&nbsp;name&nbsp;of&nbsp;this&nbsp;plugin</tt></dd></dl>
+
+<dl><dt><a name="MaukaPlugin-calibrate_waveform"><strong>calibrate_waveform</strong></a>(self, waveform:numpy.ndarray, calibration_constant:float=1.0) -&gt; numpy.ndarray</dt><dd><tt>Returns&nbsp;a&nbsp;calibrated&nbsp;waveform&nbsp;given&nbsp;a&nbsp;non-calibrated&nbsp;waveform&nbsp;and&nbsp;a&nbsp;constant.<br>
+:param&nbsp;waveform:&nbsp;The&nbsp;uncalibrated&nbsp;waveform<br>
+:param&nbsp;calibration_constant:&nbsp;The&nbsp;calibration&nbsp;constant&nbsp;for&nbsp;a&nbsp;specific&nbsp;box<br>
+:return:&nbsp;The&nbsp;calibrated&nbsp;waveform</tt></dd></dl>
 
 <dl><dt><a name="MaukaPlugin-config_get"><strong>config_get</strong></a>(self, key:str) -&gt; str</dt><dd><tt>Retrieves&nbsp;a&nbsp;value&nbsp;from&nbsp;the&nbsp;configuration&nbsp;dictionary<br>
 &nbsp;<br>
@@ -209,6 +218,16 @@ configured&nbsp;is&nbsp;the&nbsp;configuration&nbsp;file.</tt></dd></dl>
 :param&nbsp;obj:&nbsp;The&nbsp;<a href="builtins.html#object">object</a>&nbsp;to&nbsp;serialize<br>
 :return:&nbsp;JSON&nbsp;representation&nbsp;of&nbsp;<a href="builtins.html#object">object</a></tt></dd></dl>
 
+<dl><dt><a name="MaukaPlugin-vrms"><strong>vrms</strong></a>(self, samples:numpy.ndarray) -&gt; float</dt><dd><tt>Calculates&nbsp;the&nbsp;Voltage&nbsp;root-mean-square&nbsp;of&nbsp;the&nbsp;supplied&nbsp;samples<br>
+:param&nbsp;samples:&nbsp;Samples&nbsp;to&nbsp;calculate&nbsp;Vrms&nbsp;over.<br>
+:return:&nbsp;The&nbsp;Vrms&nbsp;value&nbsp;of&nbsp;the&nbsp;provided&nbsp;samples.</tt></dd></dl>
+
+<dl><dt><a name="MaukaPlugin-vrms_waveform"><strong>vrms_waveform</strong></a>(self, waveform:numpy.ndarray, window_size:int=200.0) -&gt; numpy.ndarray</dt><dd><tt>Calculated&nbsp;Vrms&nbsp;of&nbsp;a&nbsp;waveform&nbsp;using&nbsp;a&nbsp;given&nbsp;window&nbsp;size.&nbsp;In&nbsp;most&nbsp;cases,&nbsp;our&nbsp;window&nbsp;size&nbsp;should&nbsp;be&nbsp;the<br>
+number&nbsp;of&nbsp;samples&nbsp;in&nbsp;a&nbsp;cycle.<br>
+:param&nbsp;waveform:&nbsp;The&nbsp;waveform&nbsp;to&nbsp;find&nbsp;Vrms&nbsp;values&nbsp;for.<br>
+:param&nbsp;window_size:&nbsp;The&nbsp;size&nbsp;of&nbsp;the&nbsp;window&nbsp;used&nbsp;to&nbsp;compute&nbsp;Vrms&nbsp;over&nbsp;the&nbsp;waveform.<br>
+:return:&nbsp;An&nbsp;array&nbsp;of&nbsp;vrms&nbsp;values&nbsp;calculated&nbsp;for&nbsp;a&nbsp;given&nbsp;waveform.</tt></dd></dl>
+
 <hr>
 Data descriptors defined here:<br>
 <dl><dt><strong>__dict__</strong></dt>
@@ -228,11 +247,7 @@ Data and other attributes defined here:<br>
 <font color="#ffffff" face="helvetica, arial"><big><strong>Functions</strong></big></font></td></tr>
     
 <tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
-<td width="100%"><dl><dt><a name="-protobuf_decode_measurement"><strong>protobuf_decode_measurement</strong></a>(encoded_measurement)</dt><dd><tt>Decodes&nbsp;and&nbsp;returns&nbsp;a&nbsp;serialized&nbsp;triggering&nbsp;message<br>
-&nbsp;<br>
-:param&nbsp;encoded_measurement:&nbsp;The&nbsp;protobuf&nbsp;encoded&nbsp;triggering&nbsp;message<br>
-:return:&nbsp;The&nbsp;decoded&nbsp;TriggerMessage&nbsp;<a href="builtins.html#object">object</a></tt></dd></dl>
- <dl><dt><a name="-run_plugin"><strong>run_plugin</strong></a>(plugin_class, config:Dict)</dt><dd><tt>Runs&nbsp;the&nbsp;given&nbsp;plugin&nbsp;using&nbsp;the&nbsp;given&nbsp;configuration&nbsp;dictionary<br>
+<td width="100%"><dl><dt><a name="-run_plugin"><strong>run_plugin</strong></a>(plugin_class, config:Dict)</dt><dd><tt>Runs&nbsp;the&nbsp;given&nbsp;plugin&nbsp;using&nbsp;the&nbsp;given&nbsp;configuration&nbsp;dictionary<br>
 &nbsp;<br>
 :param&nbsp;plugin_class:&nbsp;Name&nbsp;of&nbsp;the&nbsp;class&nbsp;of&nbsp;the&nbsp;plugin&nbsp;to&nbsp;be&nbsp;ran<br>
 :param&nbsp;config:&nbsp;Configuration&nbsp;dictionary</tt></dd></dl>
