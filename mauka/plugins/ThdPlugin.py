@@ -14,7 +14,7 @@ class ThdPlugin(plugins.base.MaukaPlugin):
     NAME = "ThdPlugin"
 
     def __init__(self, config: typing.Dict, exit_event: multiprocessing.Event):
-        super().__init__(config, ["RequestDataEvent"], ThdPlugin.NAME, exit_event)
+        super().__init__(config, ["RequestDataEvent", "ThdRequestEvent"], ThdPlugin.NAME, exit_event)
         self.get_data_after_s = self.config["plugins.ThdPlugin.getDataAfterS"]
 
     def sq(self, num: float) -> float:
@@ -59,6 +59,7 @@ class ThdPlugin(plugins.base.MaukaPlugin):
                 waveform = self.calibrate_waveform(device_data["data"], constants.get_calibration_constant(box_id))
                 thd = self.thd(waveform)
                 document_id = device_data["_id"]
+                self.logger.debug("Calculated THD for " + str(event_id) + ":" + str(box_id))
                 self.mongo_client.data_collection.update({'_id', self.object_id(document_id)}, {"$set", {"thd": thd}})
 
     def on_message(self, topic, message):
