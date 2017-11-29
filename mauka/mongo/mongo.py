@@ -19,7 +19,8 @@ def to_s16bit(data: bytes) -> numpy.ndarray:
     return numpy.frombuffer(data, numpy.int16)
 
 
-def get_box_calibration_constants(mongo_client: pymongo.MongoClient = None, defaults: typing.Dict[int, float] = {}) -> typing.Dict[int, float]:
+def get_box_calibration_constants(mongo_client: pymongo.MongoClient = None, defaults: typing.Dict[int, float] = {}) -> \
+typing.Dict[int, float]:
     """
     Loads calibration constants from the mongo database a a dictionary from box id to calibration constant.
     Default values can be passed in if needed.
@@ -52,7 +53,7 @@ def get_data(mongo_client: pymongo.MongoClient, event_data: typing.List[typing.D
         print("No data pointer in event metadata")
 
 
-def load_event(event_id: int, mongo_client : pymongo.MongoClient = None) -> typing.Dict[str, typing.Dict]:
+def load_event(event_id: int, mongo_client: pymongo.MongoClient = None) -> typing.Dict[str, typing.Dict]:
     """
     Queries the mongo database and combines all event information from both the events and data collection for a
     specified event.
@@ -191,11 +192,12 @@ class OpqMongoClient:
 
         for device_id, measurements in device_id_to_measurements.items():
             path = out_dir + "/measurements_" + str(device_id) + "_" + str(start_ts_ms_utc) + "_" + str(
-                end_ts_ms_utc) + ".txt"
+                    end_ts_ms_utc) + ".txt"
             with open(path, "w") as out:
                 out.writelines(
-                    map(lambda m: str(m["timestamp_ms"]) + "," + str(m["frequency"]) + "," + str(m["voltage"]) + "\n",
-                        measurements))
+                        map(lambda m: str(m["timestamp_ms"]) + "," + str(m["frequency"]) + "," + str(
+                                m["voltage"]) + "\n",
+                            measurements))
 
         event_ids = map(lambda event: event["event_number"], self.events_collection.find(
                 {"$and": [{"event_start": {"$gte": start_ts_ms_utc}}, {"event_start": {"$lte": end_ts_ms_utc}}]},
@@ -216,8 +218,15 @@ class OpqMongoClient:
                 if len(event_data) > 0:
                     for ed in event_data:
                         out.write(
-                            str(ed["box_id"]) + "," + str(len(ed["data"])) + "," + str(ed["event_start"]) + "," + str(
-                                    ed["event_end"]) + "\n")
+                                str(ed["box_id"]) + "," + str(len(ed["data"])) + "," + str(
+                                        ed["event_start"]) + "," + str(
+                                        ed["event_end"]) + "\n")
                         for datum in ed["data"]:
                             out.write(str(datum) + "\n")
 
+
+def get_default_client(mongo_client: OpqMongoClient = None) -> OpqMongoClient:
+    if mongo_client is None:
+        return OpqMongoClient()
+    else:
+        return mongo_client
