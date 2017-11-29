@@ -19,7 +19,11 @@
 
   "plugins.base.heartbeatIntervalS": 600.0,
 
+  "plugins.IticPlugin.getDataAfterS": 10.0,
+
   "plugins.MeasurementPlugin.sample_every": 3.0,
+
+  "plugins.ThdPlugin.getDataAfterS": 10.0,
 
   "plugins.ThresholdPlugin.voltage.ref": 120.0,
   "plugins.ThresholdPlugin.voltage.threshold.percent.low": 5.0,

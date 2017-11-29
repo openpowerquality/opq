@@ -15,6 +15,7 @@ class ThdPlugin(plugins.base.MaukaPlugin):
 
     def __init__(self, config: typing.Dict, exit_event: multiprocessing.Event):
         super().__init__(config, ["RequestDataEvent"], ThdPlugin.NAME, exit_event)
+        self.get_data_after_s = self.config["plugins.ThdPlugin.getDataAfterS"]
 
     def sq(self, num: float) -> float:
         return num * num
@@ -62,5 +63,5 @@ class ThdPlugin(plugins.base.MaukaPlugin):
 
     def on_message(self, topic, message):
         event_id = int(message)
-        timer = threading.Timer(10, self.perform_thd_calculation, (event_id,))
+        timer = threading.Timer(self.get_data_after_s, self.perform_thd_calculation, (event_id,))
         timer.start()

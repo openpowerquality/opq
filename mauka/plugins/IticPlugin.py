@@ -166,6 +166,7 @@ class IticPlugin(plugins.base.MaukaPlugin):
         :param exit_event: Exit event
         """
         super().__init__(config, ["RequestDataEvent"], IticPlugin.NAME, exit_event)
+        self.get_data_after_s = self.config["plugins.IticPlugin.getDataAfterS"]
 
     def itic(self, waveform: numpy.ndarray) -> str:
         """
@@ -206,5 +207,5 @@ class IticPlugin(plugins.base.MaukaPlugin):
         :param message: The message that was produced
         """
         event_id = int(message)
-        timer = threading.Timer(10, self.perform_itic_calculation, (event_id,))
+        timer = threading.Timer(self.get_data_after_s, self.perform_itic_calculation, (event_id,))
         timer.start()
