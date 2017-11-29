@@ -41,7 +41,7 @@ def update_events_thd(config: typing.Dict, mongo_client: mongo.mongo.OpqMongoCli
             continue
         seen_already.add(event_num)
         plugins.mock.produce(broker, "ThdRequestEvent", str(event_num))
-        time.sleep(10)
+        time.sleep(2.5)
 
 
 def update_events_itic():
