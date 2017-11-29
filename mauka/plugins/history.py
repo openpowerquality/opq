@@ -31,13 +31,15 @@ def load_config(path: str) -> typing.Dict:
 
 
 def update_events_thd(config: typing.Dict, mongo_client: mongo.mongo.OpqMongoClient = None):
+    seen_already = set()
     client = mongo.mongo.get_default_client(mongo_client)
     broker = config["zmq.mauka.plugin.pub.interface"]
     event_ids_sans_thd = client.data_collection.find({"thd": {"$exists": False}})
     for event_id in event_ids_sans_thd:
         event_num = event_id["event_number"]
-        if int(event_num < 10000):
+        if int(event_num < 10000) or event_num in seen_already:
             continue
+        seen_already.add(event_num)
         plugins.mock.produce(broker, "ThdRequestEvent", str(event_num))
         time.sleep(10)
 
