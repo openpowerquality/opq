@@ -35,8 +35,11 @@ def update_events_thd(config: typing.Dict, mongo_client: mongo.mongo.OpqMongoCli
     broker = config["zmq.mauka.plugin.pub.interface"]
     event_ids_sans_thd = client.data_collection.find({"thd": {"$exists": False}})
     for event_id in event_ids_sans_thd:
-        plugins.mock.produce(broker, "ThdRequestEvent", str(event_id))
-        time.sleep(1)
+        event_num = event_id["event_number"]
+        if int(event_num < 10000):
+            continue
+        plugins.mock.produce(broker, "ThdRequestEvent", str(event_num))
+        time.sleep(10)
 
 
 def update_events_itic():

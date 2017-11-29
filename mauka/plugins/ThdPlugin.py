@@ -54,15 +54,16 @@ class ThdPlugin(plugins.base.MaukaPlugin):
     def perform_thd_calculation(self, event_id: int):
         event_data = mongo.mongo.load_event(event_id, self.mongo_client)
         for device_data in event_data["event_data"]:
-            if "data" in device_data:
+            if "data" in device_data and "thd" not in device_data:
                 box_id = device_data["box_id"]
                 waveform = self.calibrate_waveform(device_data["data"], constants.get_calibration_constant(box_id))
                 thd = self.thd(waveform)
                 document_id = device_data["_id"]
                 self.logger.debug("Calculated THD for " + str(event_id) + ":" + str(box_id))
-                self.mongo_client.data_collection.update({'_id', self.object_id(document_id)}, {"$set", {"thd": thd}})
+                self.mongo_client.data_collection.update_one({'_id': self.object_id(document_id)}, {"$set": {"thd": thd}})
 
     def on_message(self, topic, message):
         event_id = int(message)
+        print(topic, message)
         timer = threading.Timer(self.get_data_after_s, self.perform_thd_calculation, (event_id,))
         timer.start()
