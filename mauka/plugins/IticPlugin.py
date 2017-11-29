@@ -165,7 +165,7 @@ class IticPlugin(plugins.base.MaukaPlugin):
         :param config: Configuration dictionary
         :param exit_event: Exit event
         """
-        super().__init__(config, ["RequestDataEvent"], IticPlugin.NAME, exit_event)
+        super().__init__(config, ["RequestDataEvent", "IticRequestEvent"], IticPlugin.NAME, exit_event)
         self.get_data_after_s = self.config["plugins.IticPlugin.getDataAfterS"]
 
     def itic(self, waveform: numpy.ndarray) -> str:
@@ -197,8 +197,8 @@ class IticPlugin(plugins.base.MaukaPlugin):
                 waveform = self.calibrate_waveform(device_data["data"], constants.get_calibration_constant(box_id))
                 itic_region = self.itic(waveform)
                 document_id = device_data["_id"]
-                self.mongo_client.data_collection.update({'_id', self.object_id(document_id)},
-                                                         {"$set", {"itic": itic_region}})
+                self.mongo_client.data_collection.update_one({'_id': self.object_id(document_id)},
+                                                         {"$set": {"itic": itic_region}})
 
     def on_message(self, topic, message):
         """
