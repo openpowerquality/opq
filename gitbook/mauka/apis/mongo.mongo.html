@@ -1,0 +1,188 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module mongo.mongo</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong><a href="mongo.html"><font color="#ffffff">mongo</font></a>.mongo</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:/home/anthony/Development/opq/mauka/mongo/mongo.py">/home/anthony/Development/opq/mauka/mongo/mongo.py</a></font></td></tr></table>
+    <p><tt>This&nbsp;module&nbsp;contains&nbsp;classes&nbsp;and&nbsp;functions&nbsp;for&nbsp;querying&nbsp;and&nbsp;manipulating&nbsp;data&nbsp;within&nbsp;a&nbsp;mongo&nbsp;database.</tt></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="collections.html">collections</a><br>
+<a href="gridfs.html">gridfs</a><br>
+</td><td width="25%" valign=top><a href="numpy.html">numpy</a><br>
+<a href="pymongo.html">pymongo</a><br>
+</td><td width="25%" valign=top><a href="typing.html">typing</a><br>
+</td><td width="25%" valign=top></td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ee77aa">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Classes</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#ee77aa"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl>
+<dt><font face="helvetica, arial"><a href="builtins.html#object">builtins.object</a>
+</font></dt><dd>
+<dl>
+<dt><font face="helvetica, arial"><a href="mongo.mongo.html#BoxEventType">BoxEventType</a>
+</font></dt><dt><font face="helvetica, arial"><a href="mongo.mongo.html#Collection">Collection</a>
+</font></dt><dt><font face="helvetica, arial"><a href="mongo.mongo.html#OpqMongoClient">OpqMongoClient</a>
+</font></dt></dl>
+</dd>
+</dl>
+ <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="BoxEventType">class <strong>BoxEventType</strong></a>(<a href="builtins.html#object">builtins.object</a>)</font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt>String&nbsp;enumerations&nbsp;and&nbsp;constants&nbsp;for&nbsp;event&nbsp;types<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%">Data descriptors defined here:<br>
+<dl><dt><strong>__dict__</strong></dt>
+<dd><tt>dictionary&nbsp;for&nbsp;instance&nbsp;variables&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+<dl><dt><strong>__weakref__</strong></dt>
+<dd><tt>list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+<hr>
+Data and other attributes defined here:<br>
+<dl><dt><strong>FREQUENCY_DIP</strong> = 'FREQUENCY_SAG'</dl>
+
+<dl><dt><strong>FREQUENCY_SWELL</strong> = 'FREQUENCY_SWELL'</dl>
+
+<dl><dt><strong>OTHER</strong> = 'OTHER'</dl>
+
+<dl><dt><strong>VOLTAGE_DIP</strong> = 'VOLTAGE_SAG'</dl>
+
+<dl><dt><strong>VOLTAGE_SWELL</strong> = 'VOLTAGE_SWELL'</dl>
+
+</td></tr></table> <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="Collection">class <strong>Collection</strong></a>(<a href="builtins.html#object">builtins.object</a>)</font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt>String&nbsp;enumerations&nbsp;and&nbsp;constants&nbsp;for&nbsp;collection&nbsp;names<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%">Data descriptors defined here:<br>
+<dl><dt><strong>__dict__</strong></dt>
+<dd><tt>dictionary&nbsp;for&nbsp;instance&nbsp;variables&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+<dl><dt><strong>__weakref__</strong></dt>
+<dd><tt>list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+<hr>
+Data and other attributes defined here:<br>
+<dl><dt><strong>BOX_EVENTS</strong> = 'boxEvents'</dl>
+
+<dl><dt><strong>CALIBRATION_CONSTANTS</strong> = 'CalibrationConstants'</dl>
+
+<dl><dt><strong>DATA</strong> = 'data'</dl>
+
+<dl><dt><strong>EVENTS</strong> = 'events'</dl>
+
+<dl><dt><strong>MEASUREMENTS</strong> = 'measurements'</dl>
+
+</td></tr></table> <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="OpqMongoClient">class <strong>OpqMongoClient</strong></a>(<a href="builtins.html#object">builtins.object</a>)</font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt>Convenience&nbsp;mongo&nbsp;client&nbsp;for&nbsp;easily&nbsp;operating&nbsp;on&nbsp;OPQ&nbsp;data<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="OpqMongoClient-__init__"><strong>__init__</strong></a>(self, host:str='127.0.0.1', port:int=27017, db:str='opq')</dt><dd><tt>Initializes&nbsp;an&nbsp;<a href="#OpqMongoClient">OpqMongoClient</a>.<br>
+:param&nbsp;host:&nbsp;Host&nbsp;of&nbsp;mongo&nbsp;database<br>
+:param&nbsp;port:&nbsp;Port&nbsp;of&nbsp;mongo&nbsp;database<br>
+:param&nbsp;db:&nbsp;The&nbsp;name&nbsp;of&nbsp;the&nbsp;database&nbsp;on&nbsp;mongo</tt></dd></dl>
+
+<dl><dt><a name="OpqMongoClient-drop_collection"><strong>drop_collection</strong></a>(self, collection:str)</dt><dd><tt>Drops&nbsp;a&nbsp;collection&nbsp;by&nbsp;name<br>
+&nbsp;<br>
+Parameters<br>
+----------<br>
+collection&nbsp;:&nbsp;str<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Name&nbsp;of&nbsp;the&nbsp;collection</tt></dd></dl>
+
+<dl><dt><a name="OpqMongoClient-drop_indexes"><strong>drop_indexes</strong></a>(self, collection:str)</dt><dd><tt>Drop&nbsp;all&nbsp;indexes&nbsp;of&nbsp;a&nbsp;particular&nbsp;named&nbsp;collection<br>
+&nbsp;<br>
+Parameters<br>
+----------<br>
+collection&nbsp;:&nbsp;str<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Name&nbsp;of&nbsp;the&nbsp;collection<br>
+&nbsp;<br>
+Returns<br>
+-------</tt></dd></dl>
+
+<dl><dt><a name="OpqMongoClient-export_data"><strong>export_data</strong></a>(self, out_dir:str, start_ts_ms_utc:int, end_ts_ms_utc:int)</dt><dd><tt>Export&nbsp;CSV&nbsp;data&nbsp;to&nbsp;the&nbsp;specified&nbsp;directory.<br>
+:param&nbsp;out_dir:&nbsp;Diretory&nbsp;to&nbsp;write&nbsp;data&nbsp;files&nbsp;to<br>
+:param&nbsp;start_ts_ms_utc:&nbsp;Start&nbsp;timestamp&nbsp;of&nbsp;when&nbsp;to&nbsp;export&nbsp;data&nbsp;from<br>
+:param&nbsp;end_ts_ms_utc:&nbsp;End&nbsp;timestamp&nbsp;of&nbsp;when&nbsp;to&nbsp;export&nbsp;data&nbsp;to</tt></dd></dl>
+
+<dl><dt><a name="OpqMongoClient-get_collection"><strong>get_collection</strong></a>(self, collection:str)</dt><dd><tt>Returns&nbsp;a&nbsp;mongo&nbsp;collection&nbsp;by&nbsp;name<br>
+&nbsp;<br>
+Parameters<br>
+----------<br>
+collection&nbsp;:&nbsp;str<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Name&nbsp;of&nbsp;collection<br>
+&nbsp;<br>
+Returns<br>
+-------<br>
+A&nbsp;mongo&nbsp;collection</tt></dd></dl>
+
+<dl><dt><a name="OpqMongoClient-read_file"><strong>read_file</strong></a>(self, fid:str) -&gt; bytes</dt><dd><tt>Loads&nbsp;a&nbsp;file&nbsp;from&nbsp;gridfs&nbsp;as&nbsp;an&nbsp;array&nbsp;of&nbsp;bytes<br>
+:param&nbsp;fid:&nbsp;The&nbsp;file&nbsp;name&nbsp;to&nbsp;open&nbsp;stored&nbsp;in&nbsp;gridfs<br>
+:return:&nbsp;A&nbsp;list&nbsp;of&nbsp;bytes&nbsp;from&nbsp;reading&nbsp;the&nbsp;file</tt></dd></dl>
+
+<hr>
+Data descriptors defined here:<br>
+<dl><dt><strong>__dict__</strong></dt>
+<dd><tt>dictionary&nbsp;for&nbsp;instance&nbsp;variables&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+<dl><dt><strong>__weakref__</strong></dt>
+<dd><tt>list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+</td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#eeaa77">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Functions</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl><dt><a name="-get_box_calibration_constants"><strong>get_box_calibration_constants</strong></a>(mongo_client:pymongo.mongo_client.MongoClient=None, defaults:Dict[int, float]={}) -&gt; Dict[int, float]</dt><dd><tt>Loads&nbsp;calibration&nbsp;constants&nbsp;from&nbsp;the&nbsp;mongo&nbsp;database&nbsp;a&nbsp;a&nbsp;dictionary&nbsp;from&nbsp;box&nbsp;id&nbsp;to&nbsp;calibration&nbsp;constant.<br>
+Default&nbsp;values&nbsp;can&nbsp;be&nbsp;passed&nbsp;in&nbsp;if&nbsp;needed.<br>
+:param&nbsp;mongo_client:&nbsp;Optional&nbsp;mongo&nbsp;db&nbsp;opq&nbsp;client<br>
+:param&nbsp;defaults:&nbsp;Default&nbsp;values&nbsp;supplied&nbsp;as&nbsp;a&nbsp;mapping&nbsp;from&nbsp;box&nbsp;id&nbsp;to&nbsp;calibration&nbsp;constant.<br>
+:return:&nbsp;A&nbsp;dictionary&nbsp;mapping&nbsp;of&nbsp;box_id&nbsp;to&nbsp;calibration&nbsp;constant</tt></dd></dl>
+ <dl><dt><a name="-get_data"><strong>get_data</strong></a>(mongo_client:pymongo.mongo_client.MongoClient, event_data:List[Dict])</dt><dd><tt>Attempt&nbsp;to&nbsp;retrieve&nbsp;raw&nbsp;waveform&nbsp;for&nbsp;specific&nbsp;event.<br>
+Updates&nbsp;the&nbsp;event_data&nbsp;pass&nbsp;by&nbsp;reference.<br>
+If&nbsp;raw&nbsp;data&nbsp;is&nbsp;found,&nbsp;this&nbsp;will&nbsp;replace&nbsp;the&nbsp;value&nbsp;stored&nbsp;at&nbsp;the&nbsp;data&nbsp;key&nbsp;with&nbsp;the&nbsp;actual&nbsp;waveform.<br>
+:param&nbsp;mongo_client:&nbsp;The&nbsp;mongo&nbsp;client&nbsp;required&nbsp;to&nbsp;perform&nbsp;the&nbsp;retrieval<br>
+:param&nbsp;event_data:&nbsp;Dictionary&nbsp;of&nbsp;event&nbsp;metadata</tt></dd></dl>
+ <dl><dt><a name="-get_default_client"><strong>get_default_client</strong></a>(mongo_client:mongo.mongo.OpqMongoClient=None) -&gt; mongo.mongo.OpqMongoClient</dt><dd><tt>Creates&nbsp;a&nbsp;new&nbsp;mongo&nbsp;client&nbsp;or&nbsp;reuses&nbsp;a&nbsp;passed&nbsp;in&nbsp;mongo&nbsp;client<br>
+:param&nbsp;mongo_client:&nbsp;Mongo&nbsp;client<br>
+:return:&nbsp;Mongo&nbsp;client</tt></dd></dl>
+ <dl><dt><a name="-load_event"><strong>load_event</strong></a>(event_id:int, mongo_client:pymongo.mongo_client.MongoClient=None) -&gt; Dict[str, Dict]</dt><dd><tt>Queries&nbsp;the&nbsp;mongo&nbsp;database&nbsp;and&nbsp;combines&nbsp;all&nbsp;event&nbsp;information&nbsp;from&nbsp;both&nbsp;the&nbsp;events&nbsp;and&nbsp;data&nbsp;collection&nbsp;for&nbsp;a<br>
+specified&nbsp;event.<br>
+:param&nbsp;event_id:&nbsp;The&nbsp;event&nbsp;number&nbsp;to&nbsp;load&nbsp;data&nbsp;from<br>
+:param&nbsp;mongo_client:&nbsp;An&nbsp;optional&nbsp;mongo&nbsp;client&nbsp;to&nbsp;use&nbsp;to&nbsp;make&nbsp;the&nbsp;query.<br>
+:return:&nbsp;A&nbsp;dictionary&nbsp;which&nbsp;contains&nbsp;event&nbsp;and&nbsp;event_data&nbsp;information&nbsp;from&nbsp;mongo.&nbsp;If&nbsp;raw&nbsp;data&nbsp;is&nbsp;available,&nbsp;the<br>
+data&nbsp;field&nbsp;is&nbsp;updated&nbsp;to&nbsp;include&nbsp;the&nbsp;raw&nbsp;data&nbsp;loaded&nbsp;via&nbsp;gridfs.</tt></dd></dl>
+ <dl><dt><a name="-to_s16bit"><strong>to_s16bit</strong></a>(data:bytes) -&gt; numpy.ndarray</dt><dd><tt>Converts&nbsp;raw&nbsp;bytes&nbsp;into&nbsp;an&nbsp;array&nbsp;of&nbsp;16&nbsp;bit&nbsp;integers.<br>
+:param&nbsp;data:<br>
+:return:</tt></dd></dl>
+</td></tr></table>
+</body></html>

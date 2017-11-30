@@ -13,6 +13,11 @@ def start_mauka_pub_sub_broker(config: typing.Dict):
     :param config: Configuration dictionary
     """
     def _run(config: typing.Dict):
+        """
+        This is the target function that will run as its own process.
+        :param config: OPQ Mauka config file
+        :return: The process object.
+        """
         import logging
         import signal
         import os

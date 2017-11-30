@@ -1,3 +1,6 @@
+"""
+This plugin calculates total harmonic distortion (THD) over waveforms.
+"""
 import math
 import multiprocessing
 import threading
@@ -10,22 +13,47 @@ import plugins.base
 import numpy
 import scipy.fftpack
 
+
 class ThdPlugin(plugins.base.MaukaPlugin):
+    """
+    Mauka plugin that calculates THD over raw waveforms.
+    """
     NAME = "ThdPlugin"
 
     def __init__(self, config: typing.Dict, exit_event: multiprocessing.Event):
+        """
+        Initializes this plugin
+        :param config: Mauka configuration
+        :param exit_event: Exit event that can disable this plugin from parent process
+        """
         super().__init__(config, ["RequestDataEvent", "ThdRequestEvent"], ThdPlugin.NAME, exit_event)
         self.get_data_after_s = self.config["plugins.ThdPlugin.getDataAfterS"]
 
     def sq(self, num: float) -> float:
+        """
+        Squares a number
+        :param num: Number to square
+        :return: Squared number
+        """
         return num * num
 
     def closest_idx(self, array: numpy.ndarray, val: float) -> int:
+        """
+        Finds the index in a sorted array whose value is closest to the value we are searching for "val".
+        :param array: The array to search through.
+        :param val: The value that we want to compare to each element.
+        :return: The index of the closest value to val.
+        """
         return numpy.argmin(numpy.abs(array - val))
 
     def thd(self, waveform: numpy.ndarray) -> float:
+        """
+        Calculated THD by first taking the FFT and then taking the peaks of the harmonics (sans the fundamental).
+        :param waveform:
+        :return:
+        """
         y = scipy.fftpack.fft(waveform)
-        x = numpy.fft.fftfreq(y.size, 1/constants.SAMPLE_RATE_HZ)
+        x = numpy.fft.fftfreq(y.size, 1 / constants.SAMPLE_RATE_HZ)
 
         new_x = []
         new_y = []
@@ -52,6 +80,10 @@ class ThdPlugin(plugins.base.MaukaPlugin):
         return _thd
 
     def perform_thd_calculation(self, event_id: int):
+        """
+        Extract waveforms associated with event_id, perform thd calculations, and store resulds back to data base.
+        :param event_id: Event id that we are getting waveforms from.
+        """
         event_data = mongo.mongo.load_event(event_id, self.mongo_client)
         for device_data in event_data["event_data"]:
             if "data" in device_data and "thd" not in device_data:
@@ -61,13 +93,19 @@ class ThdPlugin(plugins.base.MaukaPlugin):
                     thd = self.thd(waveform)
                     document_id = device_data["_id"]
                     self.logger.debug("Calculated THD for " + str(event_id) + ":" + str(box_id))
-                    self.mongo_client.data_collection.update_one({'_id': self.object_id(document_id)}, {"$set": {"thd": thd}})
+                    self.mongo_client.data_collection.update_one({'_id': self.object_id(document_id)},
+                                                                 {"$set": {"thd": thd}})
                 except Exception as e:
                     print(e.message)
                     continue
 
-
     def on_message(self, topic, message):
+        """
+        Fired when this plugin receives a message. This will wait a certain amount of time to make sure that data
+        is in the database before starting thd calculations.
+        :param topic: Topic of the message.
+        :param message: Contents of the message.
+        """
         event_id = int(message)
         print(topic, message)
         timer = threading.Timer(self.get_data_after_s, self.perform_thd_calculation, (event_id,))

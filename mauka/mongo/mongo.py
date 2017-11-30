@@ -226,6 +226,11 @@ class OpqMongoClient:
 
 
 def get_default_client(mongo_client: OpqMongoClient = None) -> OpqMongoClient:
+    """
+    Creates a new mongo client or reuses a passed in mongo client
+    :param mongo_client: Mongo client
+    :return: Mongo client
+    """
     if mongo_client is None:
         return OpqMongoClient()
     else:

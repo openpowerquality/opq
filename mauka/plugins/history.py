@@ -1,3 +1,8 @@
+"""
+This module contains utilities for running new plugins over historical data.
+This is mainly achieved my injecting messages into a live system that cause plugins to run over specific historic data.
+"""
+
 import mongo.mongo
 import plugins.mock
 
@@ -31,6 +36,11 @@ def load_config(path: str) -> typing.Dict:
 
 
 def update_events_thd(config: typing.Dict, mongo_client: mongo.mongo.OpqMongoClient = None):
+    """
+    Update THD values for all events with data that do not have a THD calculation.
+    :param config: Mauka configuration.
+    :param mongo_client: Instance of a mongo client
+    """
     seen_already = set()
     client = mongo.mongo.get_default_client(mongo_client)
     broker = config["zmq.mauka.plugin.pub.interface"]
@@ -45,6 +55,11 @@ def update_events_thd(config: typing.Dict, mongo_client: mongo.mongo.OpqMongoCli
 
 
 def update_events_itic(config: typing.Dict, mongo_client: mongo.mongo.OpqMongoClient = None):
+    """
+    Update ITIC values for all events with data that do not have a ITIC calculation.
+    :param config: Mauka configuration.
+    :param mongo_client: Instance of a mongo client
+    """
     seen_already = set()
     client = mongo.mongo.get_default_client(mongo_client)
     broker = config["zmq.mauka.plugin.pub.interface"]
@@ -60,6 +75,9 @@ def update_events_itic(config: typing.Dict, mongo_client: mongo.mongo.OpqMongoCl
 
 
 if __name__ == "__main__":
+    """
+    Entry point when ran as a script.
+    """
     config = load_config(sys.argv[1])
     mongo_client = mongo.mongo.get_default_client()
     update_events_thd(config, mongo_client)

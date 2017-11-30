@@ -1,0 +1,47 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module plugins.history</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong><a href="plugins.html"><font color="#ffffff">plugins</font></a>.history</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:/home/anthony/Development/opq/mauka/plugins/history.py">/home/anthony/Development/opq/mauka/plugins/history.py</a></font></td></tr></table>
+    <p><tt>This&nbsp;module&nbsp;contains&nbsp;utilities&nbsp;for&nbsp;running&nbsp;new&nbsp;plugins&nbsp;over&nbsp;historical&nbsp;data.<br>
+This&nbsp;is&nbsp;mainly&nbsp;achieved&nbsp;my&nbsp;injecting&nbsp;messages&nbsp;into&nbsp;a&nbsp;live&nbsp;system&nbsp;that&nbsp;cause&nbsp;plugins&nbsp;to&nbsp;run&nbsp;over&nbsp;specific&nbsp;historic&nbsp;data.</tt></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="json.html">json</a><br>
+<a href="logging.html">logging</a><br>
+</td><td width="25%" valign=top><a href="mongo.html">mongo</a><br>
+<a href="os.html">os</a><br>
+</td><td width="25%" valign=top><a href="plugins.html">plugins</a><br>
+<a href="sys.html">sys</a><br>
+</td><td width="25%" valign=top><a href="time.html">time</a><br>
+<a href="typing.html">typing</a><br>
+</td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#eeaa77">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Functions</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl><dt><a name="-load_config"><strong>load_config</strong></a>(path:str) -&gt; Dict</dt><dd><tt>Loads&nbsp;a&nbsp;configuration&nbsp;file&nbsp;from&nbsp;the&nbsp;file&nbsp;system<br>
+&nbsp;<br>
+:param&nbsp;path:&nbsp;Path&nbsp;of&nbsp;configuration&nbsp;file<br>
+:return:&nbsp;Configuration&nbsp;dictionary</tt></dd></dl>
+ <dl><dt><a name="-update_events_itic"><strong>update_events_itic</strong></a>(config:Dict, mongo_client:mongo.mongo.OpqMongoClient=None)</dt><dd><tt>Update&nbsp;ITIC&nbsp;values&nbsp;for&nbsp;all&nbsp;events&nbsp;with&nbsp;data&nbsp;that&nbsp;do&nbsp;not&nbsp;have&nbsp;a&nbsp;ITIC&nbsp;calculation.<br>
+:param&nbsp;config:&nbsp;Mauka&nbsp;configuration.<br>
+:param&nbsp;mongo_client:&nbsp;Instance&nbsp;of&nbsp;a&nbsp;mongo&nbsp;client</tt></dd></dl>
+ <dl><dt><a name="-update_events_thd"><strong>update_events_thd</strong></a>(config:Dict, mongo_client:mongo.mongo.OpqMongoClient=None)</dt><dd><tt>Update&nbsp;THD&nbsp;values&nbsp;for&nbsp;all&nbsp;events&nbsp;with&nbsp;data&nbsp;that&nbsp;do&nbsp;not&nbsp;have&nbsp;a&nbsp;THD&nbsp;calculation.<br>
+:param&nbsp;config:&nbsp;Mauka&nbsp;configuration.<br>
+:param&nbsp;mongo_client:&nbsp;Instance&nbsp;of&nbsp;a&nbsp;mongo&nbsp;client</tt></dd></dl>
+</td></tr></table>
+</body></html>

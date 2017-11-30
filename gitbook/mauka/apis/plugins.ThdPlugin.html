@@ -9,8 +9,7 @@
 <font color="#000000" face="helvetica, arial"><strong>plugins.ThdPlugin</strong> = <a name="plugins.ThdPlugin">class ThdPlugin</a>(<a href="plugins.base.html#MaukaPlugin">plugins.base.MaukaPlugin</a>)</font></td></tr>
     
 <tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
-<td colspan=2><tt>This&nbsp;is&nbsp;the&nbsp;base&nbsp;MaukaPlugin&nbsp;class&nbsp;that&nbsp;provides&nbsp;easy&nbsp;access&nbsp;to&nbsp;the&nbsp;database&nbsp;and&nbsp;also&nbsp;provides&nbsp;publish/subscribe<br>
-semantics&nbsp;and&nbsp;distributed&nbsp;processing&nbsp;primitives.<br>&nbsp;</tt></td></tr>
+<td colspan=2><tt>Mauka&nbsp;plugin&nbsp;that&nbsp;calculates&nbsp;THD&nbsp;over&nbsp;raw&nbsp;waveforms.<br>&nbsp;</tt></td></tr>
 <tr><td>&nbsp;</td>
 <td width="100%"><dl><dt>Method resolution order:</dt>
 <dd><a href="plugins.ThdPlugin.html#ThdPlugin">ThdPlugin</a></dd>
@@ -19,26 +18,30 @@ semantics&nbsp;and&nbsp;distributed&nbsp;processing&nbsp;primitives.<br>&nbsp;</
 </dl>
 <hr>
 Methods defined here:<br>
-<dl><dt><a name="ThdPlugin-__init__"><strong>__init__</strong></a>(self, config:Dict, exit_event:&lt;bound method BaseContext.Event of &lt;multiprocessing.context.DefaultContext object at 0x10e0d1c18&gt;&gt;)</dt><dd><tt>Initializes&nbsp;the&nbsp;base&nbsp;plugin<br>
-&nbsp;<br>
-:param&nbsp;config:&nbsp;Configuration&nbsp;dictionary<br>
-:param&nbsp;subscriptions:&nbsp;List&nbsp;of&nbsp;subscriptions&nbsp;this&nbsp;plugin&nbsp;should&nbsp;subscribe&nbsp;to<br>
-:param&nbsp;name:&nbsp;The&nbsp;name&nbsp;of&nbsp;this&nbsp;plugin</tt></dd></dl>
+<dl><dt><a name="ThdPlugin-__init__"><strong>__init__</strong></a>(self, config:Dict, exit_event:&lt;bound method BaseContext.Event of &lt;multiprocessing.context.DefaultContext object at 0x7fe54b1976a0&gt;&gt;)</dt><dd><tt>Initializes&nbsp;this&nbsp;plugin<br>
+:param&nbsp;config:&nbsp;Mauka&nbsp;configuration<br>
+:param&nbsp;exit_event:&nbsp;Exit&nbsp;event&nbsp;that&nbsp;can&nbsp;disable&nbsp;this&nbsp;plugin&nbsp;from&nbsp;parent&nbsp;process</tt></dd></dl>
 
-<dl><dt><a name="ThdPlugin-closest_idx"><strong>closest_idx</strong></a>(self, array:numpy.ndarray, val:float) -&gt; int</dt></dl>
+<dl><dt><a name="ThdPlugin-closest_idx"><strong>closest_idx</strong></a>(self, array:numpy.ndarray, val:float) -&gt; int</dt><dd><tt>Finds&nbsp;the&nbsp;index&nbsp;in&nbsp;a&nbsp;sorted&nbsp;array&nbsp;whose&nbsp;value&nbsp;is&nbsp;closest&nbsp;to&nbsp;the&nbsp;value&nbsp;we&nbsp;are&nbsp;searching&nbsp;for&nbsp;"val".<br>
+:param&nbsp;array:&nbsp;The&nbsp;array&nbsp;to&nbsp;search&nbsp;through.<br>
+:param&nbsp;val:&nbsp;The&nbsp;value&nbsp;that&nbsp;we&nbsp;want&nbsp;to&nbsp;compare&nbsp;to&nbsp;each&nbsp;element.<br>
+:return:&nbsp;The&nbsp;index&nbsp;of&nbsp;the&nbsp;closest&nbsp;value&nbsp;to&nbsp;val.</tt></dd></dl>
 
-<dl><dt><a name="ThdPlugin-on_message"><strong>on_message</strong></a>(self, topic, message)</dt><dd><tt>This&nbsp;gets&nbsp;called&nbsp;when&nbsp;a&nbsp;subscriber&nbsp;receives&nbsp;a&nbsp;message&nbsp;from&nbsp;a&nbsp;topic&nbsp;they&nbsp;are&nbsp;subscribed&nbsp;too.<br>
-&nbsp;<br>
-This&nbsp;should&nbsp;be&nbsp;implemented&nbsp;in&nbsp;all&nbsp;subclasses.<br>
-&nbsp;<br>
-:param&nbsp;topic:&nbsp;The&nbsp;topic&nbsp;this&nbsp;message&nbsp;is&nbsp;associated&nbsp;with<br>
-:param&nbsp;message:&nbsp;The&nbsp;message&nbsp;contents</tt></dd></dl>
+<dl><dt><a name="ThdPlugin-on_message"><strong>on_message</strong></a>(self, topic, message)</dt><dd><tt>Fired&nbsp;when&nbsp;this&nbsp;plugin&nbsp;receives&nbsp;a&nbsp;message.&nbsp;This&nbsp;will&nbsp;wait&nbsp;a&nbsp;certain&nbsp;amount&nbsp;of&nbsp;time&nbsp;to&nbsp;make&nbsp;sure&nbsp;that&nbsp;data<br>
+is&nbsp;in&nbsp;the&nbsp;database&nbsp;before&nbsp;starting&nbsp;thd&nbsp;calculations.<br>
+:param&nbsp;topic:&nbsp;Topic&nbsp;of&nbsp;the&nbsp;message.<br>
+:param&nbsp;message:&nbsp;Contents&nbsp;of&nbsp;the&nbsp;message.</tt></dd></dl>
 
-<dl><dt><a name="ThdPlugin-perform_thd_calculation"><strong>perform_thd_calculation</strong></a>(self, event_id:int)</dt></dl>
+<dl><dt><a name="ThdPlugin-perform_thd_calculation"><strong>perform_thd_calculation</strong></a>(self, event_id:int)</dt><dd><tt>Extract&nbsp;waveforms&nbsp;associated&nbsp;with&nbsp;event_id,&nbsp;perform&nbsp;thd&nbsp;calculations,&nbsp;and&nbsp;store&nbsp;resulds&nbsp;back&nbsp;to&nbsp;data&nbsp;base.<br>
+:param&nbsp;event_id:&nbsp;Event&nbsp;id&nbsp;that&nbsp;we&nbsp;are&nbsp;getting&nbsp;waveforms&nbsp;from.</tt></dd></dl>
 
-<dl><dt><a name="ThdPlugin-sq"><strong>sq</strong></a>(self, num:float) -&gt; float</dt></dl>
+<dl><dt><a name="ThdPlugin-sq"><strong>sq</strong></a>(self, num:float) -&gt; float</dt><dd><tt>Squares&nbsp;a&nbsp;number<br>
+:param&nbsp;num:&nbsp;Number&nbsp;to&nbsp;square<br>
+:return:&nbsp;Squared&nbsp;number</tt></dd></dl>
 
-<dl><dt><a name="ThdPlugin-thd"><strong>thd</strong></a>(self, waveform:numpy.ndarray) -&gt; float</dt></dl>
+<dl><dt><a name="ThdPlugin-thd"><strong>thd</strong></a>(self, waveform:numpy.ndarray) -&gt; float</dt><dd><tt>Calculated&nbsp;THD&nbsp;by&nbsp;first&nbsp;taking&nbsp;the&nbsp;FFT&nbsp;and&nbsp;then&nbsp;taking&nbsp;the&nbsp;peaks&nbsp;of&nbsp;the&nbsp;harmonics&nbsp;(sans&nbsp;the&nbsp;fundamental).<br>
+:param&nbsp;waveform:<br>
+:return:</tt></dd></dl>
 
 <hr>
 Data and other attributes defined here:<br>
