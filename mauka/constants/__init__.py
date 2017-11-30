@@ -10,6 +10,7 @@ SAMPLES_PER_CYCLE = 200.0
 SAMPLE_RATE_HZ = 12000.0
 """Sample rate of OPQ box"""
 
+
 def get_calibration_constant(box_id: int) -> float:
     """
     Return the calibration constant for a specified box id.
