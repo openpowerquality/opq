@@ -52,6 +52,7 @@
   * [Status Plugin](mauka/plugins.md#status)
   * [Print Plugin](mauka/plugins.md#print)
   * [Plugin Development](mauka/plugins.md#development)
+* [Message Injection]()
 * [APIs](mauka/apis.md)
 
 ## OPQ Makai
