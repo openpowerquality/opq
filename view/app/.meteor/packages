@@ -4,42 +4,43 @@
 # 'meteor add' and 'meteor remove' will edit this file for you,
 # but you can also edit it by hand.
 
-meteor-base@1.0.4             # Packages every Meteor app needs to have
-mobile-experience@1.0.4       # Packages for a great mobile UX
-mongo@1.1.14                   # The database Meteor supports right now
+meteor-base@1.2.0             # Packages every Meteor app needs to have
+mobile-experience@1.0.5       # Packages for a great mobile UX
+mongo@1.3.0                   # The database Meteor supports right now
 blaze-html-templates@1.0.4    # Compile .html files into Meteor Blaze views
 session@1.1.7                 # Client-side reactive dictionary for your app
 jquery@1.11.10                  # Helpful client-side library
-tracker@1.1.1                 # Meteor's client-side reactive programming library
+tracker@1.1.3                 # Meteor's client-side reactive programming library
 
 es5-shim@4.6.15                # ECMAScript 5 compatibility for older browsers.
-ecmascript@0.6.1              # Enable ECMAScript2015+ syntax in app code
+ecmascript@0.9.0              # Enable ECMAScript2015+ syntax in app code
 
 underscore@1.0.10
 sacha:spin
 aldeed:collection2
-accounts-password@1.3.3
-ejson@1.0.13
-check@1.2.4
+accounts-password@1.5.0
+ejson@1.1.0
+check@1.2.5
 fortawesome:fontawesome
 tsega:bootstrap3-datetimepicker
 momentjs:moment
-standard-minifier-js@1.2.1
+standard-minifier-js@2.2.0
 kadira:flow-router
 kadira:blaze-layout
 reactive-var@1.0.11
-reactive-dict@1.1.8
-shell-server@0.2.1
+reactive-dict@1.2.0
+shell-server@0.3.0
 mrt:flot
 dburles:factory
 alanning:roles
-less
+less@2.7.11
 juliancwirko:postcss
 semantic:ui
-random
+random@1.0.10
 bevanhunt:leaflet
 practicalmeteor:mocha
 dispatch:mocha
 mdg:validated-method
 aldeed:template-extension
 aldeed:autoform@5.8.1
+dynamic-import
