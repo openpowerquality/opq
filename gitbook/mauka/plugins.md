@@ -10,12 +10,6 @@ The [base plugin](https://github.com/openpowerquality/opq/blob/master/mauka/plug
 * Python multiprocessing primitives 
 * Status/heartbeat notifications
 
-## Measurement Shim Plugin {#measurement-shim}
-
-The [measurement shim plugin](https://github.com/openpowerquality/opq/blob/master/mauka/plugins/MeasurementShimPlugin.py) reads raw triggering messages and converts them into high level measurement messages which are then passed onto the Measurement Plugin. 
-
-Triggering messages themseves do not have a topic associated with them. Thus, we require a dedicated plugin that reads all messages and determines whether or not the message is a triggering message, and if it is, assign a topic and forward it to the measurement plugin.
-
 ## Measurement Plugin {#measurement}
 
 The [measurement plugin](https://github.com/openpowerquality/opq/blob/master/mauka/plugins/MeasurementPlugin.py) records raw triggering data and aggregates it into a measurements collection in our Mongo database. 
@@ -56,21 +50,38 @@ Event messages are produced by passing the contents of a recorded event to the `
 
 The [frequency threshold plugin](https://github.com/openpowerquality/opq/blob/master/mauka/plugins/FrequencyThresholdPlugin.py) subclasses the threshold plugin and classifies frequency dips and swells.
 
-By default, this plugin assumes a steady state of 60Hz and will detect dips and swells over 0.5% in either direction. The threholds can be configured by setting the keys ```plugins.ThresholdPlugin.frequency.ref```, ```plugins.ThresholdPlugin.frequency.threshold.percent.low```, and ```plugins.ThresholdPlugin.frequency.threshold.percent.high``` in the configuration file.
+By default, this plugin assumes a steady state of 60Hz and will detect dips and swells over 0.5% in either direction. The thresholds can be configured by setting the keys ```plugins.ThresholdPlugin.frequency.ref```, ```plugins.ThresholdPlugin.frequency.threshold.percent.low```, and ```plugins.ThresholdPlugin.frequency.threshold.percent.high``` in the configuration file.
 
-When thresholds are tripped, frequency events are generated and published to the system. These are most importanlty used to generate event triggering requests to OPQMauka to request raw data from affected devices.
+When thresholds are tripped, frequency events are generated and published to the system. These are most importantly used to generate event triggering requests to OPQMauka to request raw data from affected devices.
 
 ## Voltage Threshold Plugin {#voltage}
 
 The [voltage threshold plugin](https://github.com/openpowerquality/opq/blob/master/mauka/plugins/VoltageThresholdPlugin.py) subclasses the threshold plugin and classifies voltage dips and swells.
 
-By default, this plugin assumes a steady state of 120hz and will detect dips and swells over 5% in either direction. The threholds can be configured by setting the keys plugins.ThresholdPlugin.voltage.ref, plugins.ThresholdPlugin.voltage.threshold.percent.low, and plugins.ThresholdPlugin.voltage.threshold.percent.high in the configuration file.
+By default, this plugin assumes a steady state of 120hz and will detect dips and swells over 5% in either direction. The thresholds can be configured by setting the keys plugins.ThresholdPlugin.voltage.ref, plugins.ThresholdPlugin.voltage.threshold.percent.low, and plugins.ThresholdPlugin.voltage.threshold.percent.high in the configuration file.
 
-When thresholds are tripped, voltage events are generated and published to the system. These are most importanlty used to generate event triggering requests to OPQMauka to request raw data from affected devices.
+When thresholds are tripped, voltage events are generated and published to the system. These are most importantly used to generate event triggering requests to OPQMauka to request raw data from affected devices.
+
+## Total Harmonic Distortion Plugin {#thd}
+The [total harmonic distortion (THD) plugin](https://github.com/openpowerquality/opq/blob/master/mauka/plugins/ThdPlugin.py) subscribes to all events that request data, waits until the data is realized, performs THD calculations over the data, and then stores the results back to the database.
+
+This plugin subscribes to events that request data and also THD specific messages so that this plugin can be triggered to run over historic data as well. The amount of time from when this plugin receives a message until it assumes the data is in the database can be configured in the configuration file. 
+
+The THD calculations are computed in a separate thread and the results are stored back to the database. 
+
+## ITIC Plugin {#itic}
+The [ITIC plugin](https://github.com/openpowerquality/opq/blob/master/mauka/plugins/IticPlugin.py) subscribes to all events that request data, waits until the data is realized, performs ITIC calculations over the data, and then stores the results back to the database.
+
+This plugin subscribes to events that request data and also ITIC specific messages so that this plugin can be triggered to run over historic data as well. The amount of time from when this plugin receives a message until it assumes the data is in the database can be configured in the configuration file. 
+
+The ITIC calculations are computed in a separate thread and the results are stored back to the database. 
+
+ITIC regions are determined by plotting the curve and performing a point in polygon algorithm to determine which curve the point falls within.
+
 
 ## Acquisition Trigger Plugin {#acquisition}
 
-The [acquistion trigger plugin](https://github.com/openpowerquality/opq/blob/master/mauka/plugins/AcquisitionTriggerPlugin.py) subscribes to all events and forms event request messages to send to OPQMakai to enable the retrival of raw power data for higher level analytics.
+The [acquistion trigger plugin](https://github.com/openpowerquality/opq/blob/master/mauka/plugins/AcquisitionTriggerPlugin.py) subscribes to all events and forms event request messages to send to OPQMakai to enable the retrieval of raw power data for higher level analytics.
 
 This plugin employs a deadzone between event messages to ensure that multiple requests for the same data are not sent in large bursts, overwhelming OPQBoxes or OPQMakai. The deadzone by default is set to 60 seconds, but can be configured by setting the ```plugins.AcquisitionTriggerPlugin.sDeadZoneAfterTrigger``` key in the configuration. If this plugin encounters an event while in a deadzone, a request is still generated and sent to OPQMakai, however a flag is set indicating to Makai that raw data should not be requested.
 
