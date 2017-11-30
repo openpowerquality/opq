@@ -16,7 +16,13 @@ python3 -m pydoc -w plugins.ThresholdPlugin &&
 python3 -m pydoc -w plugins.VoltageThresholdPlugin &&
 python3 -m pydoc -w plugins.base &&
 python3 -m pydoc -w plugins.broker &&
+python3 -m pydoc -w plugins.history &&
 python3 -m pydoc -w plugins.manager &&
+python3 -m pydoc -w plugins.mock &&
+
+python3 -m pydoc -w mongo.mongo &&
+
+python3 -m pydoc -w constants &&
 
 echo "Moving files to gitbook..."
 mv *.html ../gitbook/mauka/apis/. &&
