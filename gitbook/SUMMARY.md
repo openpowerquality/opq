@@ -66,4 +66,6 @@
 
 * [Overview](protocol/description.md)
 
+## OPQ Data Model
 
+* [Overview](datamodel/description.md)
