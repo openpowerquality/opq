@@ -1,0 +1,38 @@
+{
+  "parserOptions": {
+    "ecmaVersion": 2017,
+    "sourceType": "module"
+  },
+  "plugins": [
+    "meteor"
+  ],
+  "extends": [
+    "airbnb/base",
+    "plugin:meteor/recommended"
+  ],
+  "rules": {
+    "meteor/eventmap-params": [
+      2,
+      {
+        "eventParamName": "event",
+        "templateInstanceParamName": "instance"
+      }
+    ],
+    "meteor/template-names": "off",
+    "prefer-arrow-callback": "off",
+    "arrow-parens": "off",
+    "no-plusplus": "off",
+    "func-names": "off",
+    "linebreak-style": "off",
+    "object-property-newline": "off",
+    "no-underscore-dangle": "off",
+    "object-shorthand": "off",
+    "max-len": ["error", 120],
+    "import/no-absolute-path": "off",
+    "import/no-unresolved": "off",
+    "import/extensions": "off",
+    "import/imports-first": "off",
+    "import/prefer-default-export": "off",
+    "import/no-extraneous-dependencies": "off"
+  }
+}
