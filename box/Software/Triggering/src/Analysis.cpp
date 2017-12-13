@@ -20,7 +20,35 @@ MeasurementFFT::~MeasurementFFT(){
 	fftwf_destroy_plan(dft_plan);
 }
 
-fftwf_complex* MeasurementFFT::execute(opq::data::OPQMeasurementPtr m){
+
+float MeasurementFFT::compute_thd_and_filter_harmonics(){
+    using namespace opq::data;
+    float fft_resolution = 1.0*SAMPLING_RATE/count;
+
+    size_t sixty_hz_bin = 60.0/(fft_resolution);
+
+    if (sixty_hz_bin > count)
+        return 0;
+
+    float sixty_hz_power = out_buffer[sixty_hz_bin][0]* out_buffer[sixty_hz_bin][0]+
+			out_buffer[sixty_hz_bin][1]*out_buffer[sixty_hz_bin][1];
+    sixty_hz_power = sqrt(sixty_hz_power);
+	out_buffer[sixty_hz_bin][0] = 0;
+	out_buffer[sixty_hz_bin][1] = 0;
+
+    float harmonics = 0;
+
+    for (size_t i = sixty_hz_bin*2; i < count; i += sixty_hz_bin){
+        harmonics += out_buffer[i][0]* out_buffer[i][0]+
+				out_buffer[i][1]*out_buffer[i][1];
+		out_buffer[i][0] = 0;
+		out_buffer[i][1] = 0;
+    }
+    return sqrt(harmonics)/sixty_hz_power;
+}
+
+
+void MeasurementFFT::transform(opq::data::OPQMeasurementPtr m){
 	size_t index = 0;
 	for(auto && frame : m->cycles){
 		for(size_t sample = 0; sample < opq::data::SAMPLES_PER_CYCLE; sample++){
@@ -29,9 +57,11 @@ fftwf_complex* MeasurementFFT::execute(opq::data::OPQMeasurementPtr m){
 		}
 	}
 	fftwf_execute(dft_plan);
-	return out_buffer;
 }
 
+fftwf_complex * MeasurementFFT::last_result() {
+    return out_buffer;
+}
 //IFFT
 
 MeasurementIFFT::MeasurementIFFT(size_t window_count){
@@ -58,4 +88,3 @@ float* MeasurementIFFT::execute(fftwf_complex* buf){
 	fftwf_execute(dft_plan);
 	return out_buffer;
 }
-

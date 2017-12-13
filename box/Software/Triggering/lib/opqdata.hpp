@@ -21,7 +21,8 @@ namespace opq {
         const static int CYCLES_PER_SEC = 60;
         ///Sampling rate per cycle
         const static int SAMPLES_PER_CYCLE = 200;
-        const static int HISTOGRAM_BINS = 100;
+        //Sampling rate:
+        const static int SAMPLING_RATE = CYCLES_PER_SEC * SAMPLES_PER_CYCLE;
 
         /** @struct OPQCycle
         *  @brief This structure represents an AC cycle
@@ -46,7 +47,8 @@ namespace opq {
         inline bool readCycle(int fd, opq::data::OPQCycle &cycle){
 #ifdef OPQ_DEBUG
             for(int i = 0; i< data::SAMPLES_PER_CYCLE; i++) {
-                cycle.data[i] = 16384*sin(2*M_PI*i/SAMPLES_PER_CYCLE) + rand()%2000 - 1000;
+                cycle.data[i] = 16384*sin(2*M_PI*i/SAMPLES_PER_CYCLE) +
+                16384/2*sin(4*M_PI*i/SAMPLES_PER_CYCLE);
             }
             cycle.current_counter = 100;
             cycle.last_gps_counter = 200;
@@ -101,7 +103,8 @@ namespace opq {
             float RMS;
             ///Computed frequency.
             float frequency;
-            uint16_t hist[HISTOGRAM_BINS];
+            ///Computed total harmonic distortion
+            float thd;
             ///UNIX timestamp of the first opqcycle rtransfer.
             std::chrono::time_point<std::chrono::high_resolution_clock> start;
             uint16_t  last_gps_counter;

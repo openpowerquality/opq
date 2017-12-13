@@ -41,13 +41,6 @@ namespace opq {
         LocalAnalysisState _state;
 
 
-        /**
-         * Calculates true rms voltage.
-         * @param data adc samples.
-         * @return rms voltage.
-         */
-        float rmsVoltage(int16_t data[]);
-
         ///How many samples get tossed during downsampling
         static const uint16_t DECIMATION_FACTOR = 10;
 
@@ -64,9 +57,14 @@ namespace opq {
         AntialiasDownsamplingFilter adf;
         LowPassFilter lpf;
 
-        //Buffer used for the lpf.
-        std::vector<float> _downSampled;
-        void calculateFrequency();
+        float calculateFrequency(opq::data::OPQMeasurementPtr measurement);
+        float calculateVoltage(opq::data::OPQMeasurementPtr measurement,float calConstant);
+        /**
+         * Calculates true rms voltage.
+         * @param data adc samples.
+         * @return rms voltage.
+        */
+        float rmsVoltage(int16_t data[]);
 
         ///Input queue.
         opq::data::MeasurementQueue _inQ;
