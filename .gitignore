@@ -5,3 +5,4 @@
 settings-production.*
 node_modules
 _book
+app/private/database/production
