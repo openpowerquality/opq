@@ -2,5 +2,5 @@
 	"public": {
 
 	},
-	"opqRemoteMongoUrl": "mongodb://localhost:3002/opq"
+	"mongoUrl": "mongodb://localhost:3001/meteor"
 }
