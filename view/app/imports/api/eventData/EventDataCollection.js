@@ -19,9 +19,11 @@ class EventDataCollection extends BaseCollection {
           event_number: {type: Number},
           time_stamp: {type: [Number]}, // For research purposes; OPQView can ignore.
           //data: {type: [Number]} // These values need to be divided by device calibration constant.
-          data: {type: String} // Stores the GridFs filename. Format is 'event_eventNumber_boxId'
+          data: {type: String}, // Stores the GridFs filename. Format is 'event_eventNumber_boxId'
+          thd: {type: Number},
+          itic: {type: String}
         }),
-        Meteor.settings.opqRemoteMongoUrl
+        Meteor.settings.mongoUrl
     );
 
     this.publicationNames = {
