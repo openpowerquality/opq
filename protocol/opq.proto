@@ -34,8 +34,8 @@ message TriggerMessage{
 	required float frequency = 3;
 	//RMS votage measurement.
 	required float rms = 4;
-	//unused
-	repeated int32 histogram = 5;
+	//optional Totoal Harmonic Distortion.
+	optional float thd = 5;
 	//A counter stamp driven by a 10kHz clock of the last GPS PPS.
 	optional int32 last_gps = 6;
 	//Current counter stamp.
