@@ -58,6 +58,9 @@ int main(int argc, char** argv) {
         sub.receive(msg);
         opq::proto::TriggerMessage tm;
         tm.ParseFromString(msg.get(1));
-        cout << msg.get(0) << " " << tm.time() << " " << tm.rms() << " " <<tm.frequency() << endl;
+        cout << msg.get(0) << " " << tm.time() << " " << tm.rms() << " " <<tm.frequency();
+	if(tm.has_thd())
+		cout << " " << tm.thd()*100;
+	cout << endl;
     }
 }
