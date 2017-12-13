@@ -1,0 +1,26 @@
+{
+  "collectionName": "EventMetaData",
+  "contents": [
+    {
+      "type": "VOLTAGE_SAG",
+      "event_number": 9355,
+      "description": "3 1508825920687-1508825920853",
+      "boxes_triggered": [
+        1
+      ],
+      "boxes_received": [
+        3,
+        1,
+        4
+      ],
+      "event_start": 1508825919687,
+      "event_end": 1508825921853,
+      "time_stamp": [
+        1508825921702,
+        1508825922047,
+        1508825925670
+      ]
+    }
+  ]
+}
+

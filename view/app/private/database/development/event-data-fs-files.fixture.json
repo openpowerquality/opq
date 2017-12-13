@@ -1,0 +1,29 @@
+{
+  "collectionName": "fs.files",
+  "contents": [
+    {
+      "_id" : ObjectId("59eedb41aafcc64e992d6b2d"),
+      "length": 40000,
+      "chunkSize": 261120,
+      "uploadDate": "2017-10-24T06:18:41.704Z",
+      "md5": "b28e8b58e78f2647140826792fb06809",
+      "filename": "event_9355_3"
+    },
+    {
+      "_id" : ObjectId("59eedb42aafcc64e992d6b30"),
+      "length" : 48000,
+      "chunkSize" : 261120,
+      "uploadDate" : "2017-10-24T06:18:42.051Z",
+      "md5" : "bc91ed330a3cab149f206b56b56da9b9",
+      "filename" : "event_9355_1"
+    },
+    {
+      "_id" : ObjectId("59eedb45aafcc64e992d6b3c"),
+      "length" : 52000,
+      "chunkSize" : 261120,
+      "uploadDate" : "2017-10-24T06:18:45.673Z",
+      "md5" : "0e45f0ce3ae00d5d21bbe6553a2bd25c",
+      "filename" : "event_9355_4"
+    }
+  ]
+}
