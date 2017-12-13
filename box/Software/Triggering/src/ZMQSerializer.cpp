@@ -11,7 +11,6 @@ using std::pair;
 
 ZMQSerializer::ZMQSerializer() :  _ctx(),_client(_ctx, zmqpp::socket_type::pub) {
     Settings *set = Settings::Instance();
-
     _boxId = set->getInt64("box_id");
     _idString = std::to_string(_boxId);
 

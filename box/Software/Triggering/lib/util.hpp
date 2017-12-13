@@ -50,6 +50,7 @@ namespace opq{
             protomessage.set_current_count(message->current_counter);
             protomessage.set_last_gps(message->last_gps_counter);
             protomessage.set_flags(message->flags);
+            protomessage.set_thd(message->thd);
             protomessage.SerializeToString(&out);
             return out;
         }
