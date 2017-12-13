@@ -33,7 +33,7 @@
     }
   },
   "scripts": {
-    "start": "meteor --settings ../config/settings-development.json",
+    "start": "meteor --settings ../config/settings-development.json --no-release-check",
     "test": "meteor test --once --driver-package dispatch:mocha",
     "jsdoc": "./node_modules/.bin/jsdoc -c ./jsdoc.json -r ."
   },
