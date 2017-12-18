@@ -8,12 +8,12 @@ The following section will provide a high-level overview of OPQ's data model.
 ## Data Model
 
 The OPQ system utilizes the following collections:
-* **[Measurements](#measurements):** Provides low-fidelity OPQBox data
-* **[Events](#events):** Provides detected events
-* **[Box_Events](#box_events):** Provides high-fidelity event data
-* **[FS.Files](#fs.files) and [FS.Chunks](#fs.chunks)** Internal to GridFS. Stores box_event binary waveform data.
-* **[Opq_Boxes](#opq_boxes):** Provides individual OPQBox information
-* **[Users](#users):** Provides user information
+* **[measurements](#measurements):** Provides low-fidelity OPQBox data
+* **[events](#events):** Provides detected events
+* **[box_events](#box_events):** Provides high-fidelity event data
+* **[fs.files](#fs.files) and [fs.chunks](#fs.chunks)** Internal to GridFS. Stores box_event binary waveform data.
+* **[opq_boxes](#opq_boxes):** Provides individual OPQBox information
+* **[users](#users):** Provides user information
 
 ### Naming Conventions
 The OPQ system comprises of a multitude of different tools and libraries. 
@@ -41,7 +41,15 @@ The **events** collection provides events detected by the OPQ System. These docu
 
 The **event_id** field is a unique integer value generated for each event. 
 
-The **type** field indicates the classification of the event, as determined by OPQMauka. (*Anthony: Do we have a list of all possible event types somewhere?*)
+The **type** field indicates the classification of the event, as determined by OPQMauka.
+Valid event types currently are:
+* "FREQUENCY_SAG"
+* "FREQUENCY_SWELL"
+* "VOLTAGE_SAG"
+* "VOLTAGE_SWELL"
+* "THD"
+* "OTHER"
+
 
 The **description** field indicates additional information about the event (*Serge: Clarify on this?*)
 
