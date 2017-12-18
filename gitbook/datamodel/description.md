@@ -15,6 +15,12 @@ The OPQ system utilizes the following collections:
 * **[Opq_Boxes](#opq_boxes):** Provides individual OPQBox information
 * **[Users](#users):** Provides user information
 
+### Naming Conventions
+The OPQ system comprises of a multitude of different tools and libraries. 
+In order to minimize confusion, we follow a basic set of naming conventions for our collections and documents that we feel will keep things as simple as possible:
+* All collection names and documents fields are in lower-case
+* Collection names should always be plural
+* Use underscores over camel-case to separate words
 
 ### Measurements {#measurements}
 
