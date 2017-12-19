@@ -109,7 +109,7 @@ The **opq_boxes** collection provides the information of each individual OPQBox 
 
 The **box_id** field is a unique string identifier for the OPQBox. This value is always referenced throughout the data model when we need to store a box_id value within a document.
 
-The **name** field is a unique user-friendly string identifier for the OPQBox. Unlike the **box_id** value, which is often use internally throughout the data model, the **name** value should be thought of as the external representation of the OPQBox.
+The **name** field is a unique user-friendly string identifier for the OPQBox. Unlike the **box_id** value, which is often used internally throughout the data model, the **name** value should be thought of as the external representation of the OPQBox.
 
 The **description** field is optional and can be used to further describe an OPQBox.
 
