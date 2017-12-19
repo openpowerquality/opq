@@ -107,8 +107,11 @@ The **opq_boxes** collection provides the information of each individual OPQBox 
 
 ![OPQBoxes Collection](images/opqboxes-collection.png)
 
-The **box_id** field is a unique integer specifying the identification value of the OPQBox.
-(*Question to Philip: Should we be referencing this value in the other collections, or rather the Mongo _id of this document instead?*)
+The **box_id** field is a unique string identifier for the OPQBox. This value is always referenced throughout the data model when we need to store a box_id value within a document.
+
+The **name** field is a unique user-friendly string identifier for the OPQBox. Unlike the **box_id** value, which is often use internally throughout the data model, the **name** value should be thought of as the external representation of the OPQBox.
+
+The **description** field is optional and can be used to further describe an OPQBox.
 
 The **calibration_constant** field is the box specific value that is used to calculate the actual waveform data values. (*Serge: Is this correct?*)
 
