@@ -92,7 +92,7 @@ We have domain knowledge in measurement/DSP, but not PSU design and consumer pro
 
 We recently produced an engineering sample of this design:
 
-![](https://raw.githubusercontent.com/openpowerquality/opqbox2/master/images/opqbox2-engineering-sample.JPG)
+![](https://raw.githubusercontent.com/openpowerquality/opqbox2/master/images/opqbox_pcb.jpg)
 
 # Additional design documents
 
