@@ -35,14 +35,14 @@ We performed a [pilot study of our first generation hardware and software](http:
 OPQBox2 is a complete redesign from the previous generation. It replaces the voltage sensing transformer with an isolation amplifier. The sampling rate has increased from 4kSPS to up to 100kSPS. In order to keep up with the faster acquisition a dedicated ARM DSP is used to control the sampling and realtime processing. Here is a summary of component changes in OPQBox2:
 
  
-                | OPQBox1 | OPQBox2
---------------- | ------- | -------
-**Voltage sensing/Isolation** | 12V transformer wall plug transformer | Isolation amplifier.
-**Power**       | 12V transformer | Isolated 5V AC-DC,  Isolated 5V DC-DC
-**ADC**         | 4KSPS 16Bit ADC | 100 KSPS 16Bit ADC
-**Processing**  | Raspberry Pi for processing/WiFi | Dedicated ARM DSP for real time processing.
-                |         | Raspberry PI for communication and configuration only.
-                |         | PI can be replaced with CAN/RF/Ethernet/GSM module
+|                | OPQBox1 | OPQBox2|
+|--------------- | ------- | -------|
+|**Voltage sensing/Isolation** | 12V transformer wall plug transformer | Isolation amplifier.|
+|**Power**       | 12V transformer | Isolated 5V AC-DC,  Isolated 5V DC-DC |
+|**ADC**         | 4KSPS 16Bit ADC | 100 KSPS 16Bit ADC |
+|**Processing**  | Raspberry Pi for processing/WiFi | Dedicated ARM DSP for real time processing. |
+|                |         | Raspberry PI for communication and configuration only. |
+|                |         | PI can be replaced with CAN/RF/Ethernet/GSM module |
 
 
 # PSU Design
@@ -70,21 +70,14 @@ Design notes:
 
 PCB layout is available in the schematics folder. It is provided as a PADs Layout file, as well as gerbers and pdf/image files. This design calls for a 4 layer FR4 board, and measures 100mm by 100mm.  PCB is manufactued and is undergoing testing. This device is intended as an engineering sample. We expect to go through several iterations refining the design. 
 
-### Full Layout
-
-
-![layout](https://raw.githubusercontent.com/openpowerquality/opqbox2/master/images/opqbox2,5full.png)
-
-The Isolation barrier is clearly visible. Perhaps a cutout is appropriate to improve isolation?
-
 ### Top copper, soldermask, and silkscreen
 
 
-![layout](https://raw.githubusercontent.com/openpowerquality/opqbox2/master/images/opqbox2.5Top.png)
+![layout](https://github.com/openpowerquality/opq/blob/master/box/images/layout_top.png)
 
 ### Bottom copper, soldermask and silkscreen
 
-![layout](https://raw.githubusercontent.com/openpowerquality/opqbox2/master/images/opqbox2.5Bottom.png)
+![layout](https://github.com/openpowerquality/opq/blob/master/box/images/layout_bottom.png)
 
 # Safety
 
@@ -99,7 +92,7 @@ We have domain knowledge in measurement/DSP, but not PSU design and consumer pro
 
 We recently produced an engineering sample of this design:
 
-![](https://raw.githubusercontent.com/openpowerquality/opqbox2/master/images/opqbox2-engineering-sample.JPG)
+![](https://github.com/openpowerquality/opq/blob/master/box/images/opqbox_pcb.jpg)
 
 # Additional design documents
 
