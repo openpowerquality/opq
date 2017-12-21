@@ -7,9 +7,6 @@
   * [Types of Power Quality Issues](introduction/power-quality.md#issues)
   * [How Distributed Renewables Affect Power Quality](introduction/power-quality.md#renewables)
 * [OPQ System Overview](introduction/overview.md)
-  * [Description](introduction/overview.md#description)
-  * [Features](introduction/overview.md#features)
-  * [Roadmap](introduction/overview.md#roadmap)
   
 ## Installation
 
@@ -22,10 +19,16 @@
 
 ## OPQ Box
 
-* [Overview](box/description.md#overview)
-* [Hardware](box/description.md#hardware)
-* [Schematics](box/description.md#schematics)
-* [Firmware](box/description.md#firmware)
+* [Design](box/description.md)
+  * [Hardware components](box/description.md#hardware)
+  * [Software components](box/description.md#software)
+  * [Frequency calculation](box/description.md#frequency)
+  * [Voltage calculation](box/description.md#voltage)
+  * [Data transmission](box/description.md#transmission)
+  * [Synchronization](box/description.md#synchronization)
+* [Manufacturing](box/manufacturing)
+* [Firmware doxygen](https://open-power-quality.gitbooks.io/open-power-quality-manual/content/box/firmware/)
+* [Triggering doxygen](https://open-power-quality.gitbooks.io/open-power-quality-manual/content/box/triggering/)
 
 
 ## OPQ View
