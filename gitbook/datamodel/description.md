@@ -76,9 +76,6 @@ The **thd** and **itic** fields correspond to the total harmonic distortion and 
 
 The **location** field is an object indicating OPQBox location information. See [Location](#location) for details.
 
-The **location.zipcode** field stores the OPQBox zipcode location. Note how the **location** field is an object, with a **zipcode** sub-property.
-This **location** object (and its sub-properties) should always match the location object stored in the **opq_boxes** collection.
-
 The **data_fs_filename** field indicates the GridFS filename that holds the box_event's actual raw waveform data.
 
 ### GridFS
@@ -117,7 +114,7 @@ The **calibration_constant** field is the box specific value that is used to cal
 The **locations** field is an *array* of objects, with each object representing an individual *location*.
 As an OPQBox's location can change over time, this approach is necessary in order to keep a historical reference of its location changes.
 
-A **location** {#location} has the following fields:
+A **location** <a name="location"></a> has the following fields:
 * start_time
 * zipcode
 
