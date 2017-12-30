@@ -1,7 +1,7 @@
 import { Meteor } from 'meteor/meteor';
 import BaseCollection from '../base/BaseCollection.js';
 
-class MeasurementCollection extends BaseCollection {
+class MeasurementsCollection extends BaseCollection {
 
   /**
    * Creates the Measurements collection.
@@ -10,7 +10,7 @@ class MeasurementCollection extends BaseCollection {
     super('Measurement',
         'measurements',
         new SimpleSchema({
-          device_id: {type: String},
+          box_id: {type: String},
           timestamp_ms: {type: Number},
           voltage: {type: Number},
           frequency: {type: Number}
@@ -21,6 +21,34 @@ class MeasurementCollection extends BaseCollection {
     this.publicationNames = {
       RECENT_MEASUREMENTS: 'recent_measurements'
     };
+  }
+
+  /**
+   * Defines a new Measurement document.
+   * @param {String} box_id - The OPQBox's id value (not Mongo ID)
+   * @param {Number} timestamp_ms - The unix timestamp (millis) of the measurement.
+   * @param {Number} voltage - The voltage measurement.
+   * @param {Number} frequency - The frequency measurement.
+   * @returns The newly created document ID.
+   */
+  define({ box_id, timestamp_ms, voltage, frequency }) {
+    const docID = this._collection.insert({ box_id, timestamp_ms, voltage, frequency });
+    return docID;
+  }
+
+  /**
+   * Returns an object representing a single Measurement.
+   * @param {Object} docID - The Mongo.ObjectID of the Measurement.
+   * @returns {Object} - An object representing a single Measurement.
+   */
+  dumpOne(docID) {
+    const doc = this.findDoc(docID);
+    const box_id = doc.box_id;
+    const timestamp_ms = doc.timestamp_ms;
+    const voltage = doc.voltage;
+    const frequency = doc.frequency;
+
+    return { box_id, timestamp_ms, voltage, frequency }
   }
 
   /**
@@ -38,6 +66,6 @@ class MeasurementCollection extends BaseCollection {
 
 /**
  * Provides the singleton instance of this class.
- * @type {MeasurementCollection}
+ * @type {MeasurementsCollection}
  */
-export const Measurements = new MeasurementCollection();
+export const Measurements = new MeasurementsCollection();

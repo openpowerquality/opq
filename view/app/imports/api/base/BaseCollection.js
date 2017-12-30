@@ -70,7 +70,7 @@ class BaseCollection {
   }
 
   update(selector, modifier) {
-    const theSelector = (typeof selector === 'undefined')? {} : selector;
+    const theSelector = (typeof selector === 'undefined') ? {} : selector;
     return this._collection.update(theSelector, modifier);
   }
 
@@ -99,6 +99,40 @@ class BaseCollection {
       return subscribeFn(publicationName, ...subscriptionArgs);
     }
   }
-}
 
+  /**
+   * Returns an object representing the definition of docID in a format appropriate to the restoreOne function.
+   * Must be overridden by each collection.
+   * @param docID - A docID from this collection.
+   * @returns { Object } - An object representing this document.
+   */
+  dumpOne(docID) {
+    throw new Meteor.Error(`Default dumpOne method invoked by collection ${this._collectionName}`);
+  }
+
+  /**
+   * Dumps the entire collection as a single object with two fields: name and contents.
+   * The name is the name of the collection.
+   * The contents is an array of all documents within the collection. These documents are generated using the
+   * dumpOne() method and subsequently are meant to be used with the restore() method.
+   * @returns {Object} An object representing the contents of this collection.
+   */
+  dumpAll() {
+    const dumpObject = { name: this._collectionName, contents: this.find().map(doc => this.dumpOne(doc._id)) };
+    return dumpObject;
+  }
+
+  /**
+   * Finds and returns the entire document of the given docID.
+   * @param {Object} docID - The Mongo.ObjectID of the document to find.
+   * @returns {Object} - The found document.
+   */
+  findDoc(docID) {
+    const doc = this.findOne({_id: docID}, {});
+    if (!doc) {
+      throw new Meteor.Error(`Could not find a document with docID: ${docID} in the collection: ${this._collectionName}.`)
+    }
+    return doc
+  }
+}
 export default BaseCollection;
