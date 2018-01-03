@@ -11,8 +11,7 @@ class OpqBoxesCollection extends BaseCollection {
    * Creates the collection.
    */
   constructor() {
-    super('OpqBoxes',
-        'opq_boxes',
+    super('opq_boxes',
         new SimpleSchema({
           box_id: {type: String},
           name: {type: String},
@@ -56,16 +55,35 @@ class OpqBoxesCollection extends BaseCollection {
     return { box_id, name, description, calibration_constant, locations }
   }
 
+  checkIntegrity() {
+    const problems = [];
+    const schema = this.getSchema();
+
+    this.find().forEach(doc => {
+      // Validate doc against the defined schema.
+      try {
+        schema.validate(doc);
+      } catch (e) {
+        if (e instanceof ValidationError) {
+          problems.push(`OpqBox document failed schema validation: ${doc}`);
+        }
+      }
+
+      // Ensure box_id field is unique
+      if (this.find({box_id: doc.box_id}).count() > 1) problems.push(`OpqBox box_id is not unique: ${doc.box_id}`);
+
+      // Ensure name field is unique
+      if (this.find({name: doc.name}).count() > 1) problems.push(`OpqBox name is not unique: ${doc.name}`);
+    });
+
+    return problems;
+  }
+
   /**
    * Loads all publications related to this collection.
-   * Note: We conditionally import the publications file only on the server as a way to hide publication code from
-   * being sent to the client.
    */
   publish() {
-    if (Meteor.isServer) {
-      const eventDataPublications = require('./EventDataCollectionPublications.js').eventDataCollectionPublications;
-      eventDataPublications();
-    }
+
   }
 }
 
@@ -73,4 +91,4 @@ class OpqBoxesCollection extends BaseCollection {
  * Provides the singleton instance of this class.
  * @type {OpqBoxesCollection}
  */
-export const OpqBoxesCollection = new OpqBoxesCollection();
+export const OpqBoxes = new OpqBoxesCollection();
