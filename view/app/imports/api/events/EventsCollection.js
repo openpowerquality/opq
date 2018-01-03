@@ -83,8 +83,13 @@ class EventsCollection extends BaseCollection {
    */
   publish() {
     if (Meteor.isServer) {
-      const eventMetaDataCollectionPublications = require('./EventMetaDataCollectionPublications.js').eventMetaDataCollectionPublications;
-      eventMetaDataCollectionPublications();
+      Meteor.publish(this.publicationNames.GET_EVENT_META_DATA, function({startTime, endTime}) {
+        check(startTime, Match.Maybe(Number));
+        check(endTime, Match.Maybe(Number));
+
+        const selector = this.queryConstructors().getEventMetaData({startTime, endTime});
+        return this.find(selector, {});
+      });
     }
   }
 
