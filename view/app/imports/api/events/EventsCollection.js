@@ -6,22 +6,20 @@ import { check, Match } from 'meteor/check';
  * Collection class for the events collection.
  * Docs: https://open-power-quality.gitbooks.io/open-power-quality-manual/content/datamodel/description.html#events
  */
-class EventMetaDataCollection extends BaseCollection {
+class EventsCollection extends BaseCollection {
 
   /**
    * Creates the collection.
    */
   constructor() {
-    super('EventMetaData',
-        'events', // Must match remote collection name, which is 'events'.
+    super('events',
         new SimpleSchema({
           event_id: {type: Number},
           type: {type: String},
           description: {type: String},
           boxes_triggered: {type: [Number]}, // List of box_id's
-          latencies: {type: [Number]} // For research data; OpqView can ignore this.
-        }),
-        Meteor.settings.opqRemoteMongoUrl
+          latencies: {type: [Number]}
+        })
     );
 
     this.publicationNames = {
@@ -59,6 +57,24 @@ class EventMetaDataCollection extends BaseCollection {
     return { event_id, type, description, boxes_triggered, latencies }
   }
 
+  checkIntegrity() {
+    const problems = [];
+    const schema = this.getSchema();
+
+    this.find().forEach(doc => {
+      // Validate doc against the defined schema.
+      try {
+        schema.validate(doc);
+      } catch (e) {
+        if (e instanceof ValidationError) {
+          problems.push(`Event document failed schema validation: ${doc}`);
+        }
+      }
+    });
+
+    return problems;
+  }
+
 
   /**
    * Loads all publications related to this collection.
@@ -91,6 +107,6 @@ class EventMetaDataCollection extends BaseCollection {
 
 /**
  * Provides the singleton instance of this class.
- * @type {EventMetaDataCollection}
+ * @type {EventsCollection}
  */
-export const EventMetaData = new EventMetaDataCollection();
+export const Events = new EventsCollection();

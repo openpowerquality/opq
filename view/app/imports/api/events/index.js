@@ -1,2 +1,2 @@
-import './EventMetaDataCollection.js';
+import './EventsCollection.js';
 import './EventMetaDataCollectionMethods.js';

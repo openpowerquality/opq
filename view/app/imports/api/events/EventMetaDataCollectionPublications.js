@@ -1,6 +1,6 @@
 import { Meteor } from 'meteor/meteor';
-import { EventData } from '../eventData/EventDataCollection.js';
-import { EventMetaData } from './EventMetaDataCollection.js'
+import { BoxEvents } from '../box-events/BoxEventsCollection.js';
+import { EventMetaData } from './EventsCollection.js'
 import { check, Match } from 'meteor/check';
 
 export const eventMetaDataCollectionPublications = () => {

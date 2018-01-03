@@ -1,7 +1,7 @@
 import { Mongo } from 'meteor/mongo';
 import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
-import { EventMetaData } from './EventMetaDataCollection.js';
+import { EventMetaData } from './EventsCollection.js';
 import Moment from 'moment';
 import { demapify } from 'es6-mapify';
 import { timeUnitString } from "../../utils/utils.js";
