@@ -2,8 +2,8 @@ import { Meteor } from 'meteor/meteor';
 import { Mongo } from 'meteor/mongo';
 import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
-import { Measurements } from './MeasurementCollection.js';
-import { EventMetaData } from '../eventMetaData/EventMetaDataCollection.js';
+import { Measurements } from './MeasurementsCollection.js';
+import { EventMetaData } from '../events/EventsCollection.js';
 
 export const getActiveDeviceIdsVM = new ValidatedMethod({
   name: 'Measurements.getActiveDeviceIds',
