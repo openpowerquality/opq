@@ -1,21 +1,18 @@
 import { Meteor } from 'meteor/meteor';
 import BaseCollection from '../base/BaseCollection.js';
+import { Events } from '../events/EventsCollection';
 
 /**
  * Collection class for the box_events collection.
  * Docs: https://open-power-quality.gitbooks.io/open-power-quality-manual/content/datamodel/description.html#box_events
  */
-class EventDataCollection extends BaseCollection {
+class BoxEventsCollection extends BaseCollection {
 
   /**
    * Creates the collection.
    */
   constructor() {
-    // Note: Event waveform data is stored in a variable named key in the format of 'events_requestId_deviceId'. As such
-    // we cannot enforce these keys with SimpleSchema. Also note that each EventData document can contain multiple
-    // device waveform data.
-    super('BoxEvents',
-        'box_events', // Has to match the remote collection name, which is 'data' at the moment.
+    super('box_events',
         new SimpleSchema({
           event_id: {type: Number},
           box_id: {type: String},
@@ -28,8 +25,7 @@ class EventDataCollection extends BaseCollection {
           'location.start_time': {type: Number},
           'location.zipcode': {type: Number},
           data_fs_filename: {type: String} // Stores the GridFs filename. Format is 'event_eventNumber_boxId'
-        }),
-        Meteor.settings.opqRemoteMongoUrl
+        })
     );
 
     this.publicationNames = {
@@ -76,6 +72,29 @@ class EventDataCollection extends BaseCollection {
     return { event_id, box_id, event_start, event_end, window_timestamps, thd, itic, location, data_fs_filename }
   }
 
+  checkIntegrity() {
+    const problems = [];
+    const schema = this.getSchema();
+
+    this.find().forEach(doc => {
+      // Validate doc against the defined schema.
+      try {
+        schema.validate(doc);
+      } catch (e) {
+        if (e instanceof ValidationError) {
+          problems.push(`BoxEvent document failed schema validation: ${doc}`);
+        }
+      }
+
+      // Ensure event_id points to an existing Event document.
+      if (Events.find({event_id: doc.event_id}).count() < 1) {
+        problems.push(`BoxEvent event_id does not exist in Events collection: ${doc}`);
+      }
+    });
+
+    return problems;
+  }
+
   /**
    * Loads all publications related to this collection.
    * Note: We conditionally import the publications file only on the server as a way to hide publication code from
@@ -91,6 +110,6 @@ class EventDataCollection extends BaseCollection {
 
 /**
  * Provides the singleton instance of this class.
- * @type {EventDataCollection}
+ * @type {BoxEventsCollection}
  */
-export const EventData = new EventDataCollection();
+export const BoxEvents = new BoxEventsCollection();
