@@ -1,11 +1,13 @@
 import bson
 import pymongo
 
+
 # Migrating from original data model to documented one at
 # https://open-power-quality.gitbooks.io/open-power-quality-manual/content/datamodel/description.html
 
 def oid(oid_str: str) -> bson.ObjectId:
     return bson.ObjectId(oid_str)
+
 
 print("Connecting to OPQ mongodb...", end=" ")
 database_name = "opq"
@@ -18,26 +20,26 @@ print("Connected.")
 # measurements
 # 1. Rename device_id -> box_id
 # 2. Change box_id value to str
-# print("Migrating measurements...")
-# measurements = db.measurements
-# total_measurements = measurements.count()
-# i = 0
-# for measurement in measurements.find({}, ["_id", "device_id", "box_id"]):
-#     _id = oid(measurement["_id"])
-#     if "device_id" in measurement and "box_id" not in measurement:
-#         measurements.update_one({"_id": _id},
-#                                 {"$rename": {"device_id": "box_id"},
-#                                  "$set": {"box_id": str(int(measurement["box_id"]))}})
-#     else:
-#         measurements.update_one({"_id": _id},
-#                                 {"$set": {"box_id": str(int(measurement["box_id"]))}})
-#
-#     if i % 100000 == 0:
-#         print("Migrating measurements", str(float(i)/float(total_measurements)*100.0), "%")
-#
-#     i += 1
-#
-# print("Done.")
+print("Migrating measurements...")
+measurements = db.measurements
+total_measurements = measurements.count()
+i = 0
+for measurement in measurements.find({}, ["_id", "device_id", "box_id"]):
+    _id = oid(measurement["_id"])
+
+    if "device_id" in measurement and "box_id" not in measurement:
+        measurements.update_one({"_id": _id},
+                                {"$rename": {"device_id": "box_id"}})
+
+    measurements.update_one({"_id": _id},
+                            {"$set": {"box_id": str(int(measurement["box_id"]))}})
+
+    if i % 100000 == 0:
+        print("Migrating measurements", str(float(i) / float(total_measurements) * 100.0), "%")
+
+    i += 1
+
+print("Done.")
 
 # opq_boxes
 # 1. Create opq_boxes collection from CalibrationConstants collection
