@@ -29,8 +29,7 @@ class BoxEventsCollection extends BaseCollection {
     );
 
     this.publicationNames = {
-      EVENT_DATA: 'event_data',
-      RECENT_EVENT_DATA: 'recent_event_data'
+      EVENT_DATA: 'event_data'
     };
   }
 
@@ -97,13 +96,10 @@ class BoxEventsCollection extends BaseCollection {
 
   /**
    * Loads all publications related to this collection.
-   * Note: We conditionally import the publications file only on the server as a way to hide publication code from
-   * being sent to the client.
    */
   publish() {
     if (Meteor.isServer) {
-      const eventDataPublications = require('./EventDataCollectionPublications.js').eventDataCollectionPublications;
-      eventDataPublications();
+
     }
   }
 }

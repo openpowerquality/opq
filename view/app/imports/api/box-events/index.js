@@ -1,2 +1,2 @@
 import './BoxEventsCollection.js';
-import './EventDataCollectionMethods.js';
+import './BoxEventsCollectionMethods.js';
