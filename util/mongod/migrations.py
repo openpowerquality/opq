@@ -17,67 +17,67 @@ print("Connected.")
 
 # Migration plan
 
-# measurements
-# 1. Rename device_id -> box_id
-# 2. Change box_id value to str
-print("Migrating measurements...")
-measurements = db.measurements
-total_measurements = measurements.count()
-i = 0
-for measurement in measurements.find({}, ["_id", "device_id", "box_id"]):
-    _id = oid(measurement["_id"])
-
-    if "device_id" in measurement and "box_id" not in measurement:
-        measurements.update_one({"_id": _id},
-                                {"$rename": {"device_id": "box_id"}})
-
-    measurements.update_one({"_id": _id},
-                            {"$set": {"box_id": str(int(measurement["box_id"]))}})
-
-    if i % 100000 == 0:
-        print("Migrating measurements", str(float(i) / float(total_measurements) * 100.0), "%")
-
-    i += 1
-
-print("Done.")
-
-# opq_boxes
-# 1. Create opq_boxes collection from CalibrationConstants collection
-# 2. Rename device_id -> box_id
-# 3. Update type of box_id from number -> string
-# 4. Add blank fields for rest of opq_box documents
-print("Migrating CalibrationConstants to opq_boxes...", end=" ")
-opq_boxes = db.CalibrationConstants
-opq_boxes.rename("opq_boxes")
-opq_boxes = db.opq_boxes
-for opq_box in opq_boxes.find({}):
-    _id = oid(opq_box["_id"])
-    box_id = str(int(opq_box["device_id"]))
-    opq_boxes.update_one({"_id": _id},
-                         {"$rename": {"device_id": "box_id"}})
-    opq_boxes.update_one({"_id": _id},
-                         {"$set": {"box_id": box_id,
-                                   "name": "",
-                                   "description": "",
-                                   "locations": []}})
-print("Done.")
-
-# # events
-# # 1. Rename event_number -> event_id
-# # 2. Rename time_stamp -> latencies
-# # 3. Remove boxes_received
-# # 4. Remove event_start
-# # 5. Remove event_end
-# print("Migrating events...", end=" ")
-# events = db.events
-# events.upate_many({}, {"$rename": {"event_number": "event_id",
-#                                    "time_stamp": "latencies"},
-#                        "$unset": {"boxes_received": "",
-#                                   "event_start": "",
-#                                   "event_end": ""}})
+# # measurements
+# # 1. Rename device_id -> box_id
+# # 2. Change box_id value to str
+# print("Migrating measurements...")
+# measurements = db.measurements
+# total_measurements = measurements.count()
+# i = 0
+# for measurement in measurements.find({}, ["_id", "device_id", "box_id"]):
+#     _id = oid(measurement["_id"])
+#
+#     if "device_id" in measurement and "box_id" not in measurement:
+#         measurements.update_one({"_id": _id},
+#                                 {"$rename": {"device_id": "box_id"}})
+#
+#     measurements.update_one({"_id": _id},
+#                             {"$set": {"box_id": str(int(measurement["box_id"]))}})
+#
+#     if i % 100000 == 0:
+#         print("Migrating measurements", str(float(i) / float(total_measurements) * 100.0), "%")
+#
+#     i += 1
 #
 # print("Done.")
 #
+# # opq_boxes
+# # 1. Create opq_boxes collection from CalibrationConstants collection
+# # 2. Rename device_id -> box_id
+# # 3. Update type of box_id from number -> string
+# # 4. Add blank fields for rest of opq_box documents
+# print("Migrating CalibrationConstants to opq_boxes...", end=" ")
+# opq_boxes = db.CalibrationConstants
+# opq_boxes.rename("opq_boxes")
+# opq_boxes = db.opq_boxes
+# for opq_box in opq_boxes.find({}):
+#     _id = oid(opq_box["_id"])
+#     box_id = str(int(opq_box["device_id"]))
+#     opq_boxes.update_one({"_id": _id},
+#                          {"$rename": {"device_id": "box_id"}})
+#     opq_boxes.update_one({"_id": _id},
+#                          {"$set": {"box_id": box_id,
+#                                    "name": "",
+#                                    "description": "",
+#                                    "locations": []}})
+# print("Done.")
+
+# events
+# 1. Rename event_number -> event_id
+# 2. Rename time_stamp -> latencies
+# 3. Remove boxes_received
+# 4. Remove event_start
+# 5. Remove event_end
+print("Migrating events...", end=" ")
+events = db.events
+events.update_many({}, {"$rename": {"event_number": "event_id",
+                                   "time_stamp": "latencies"},
+                        "$unset": {#"boxes_received": "",
+                                  "event_start": "",
+                                  "event_end": ""}})
+
+print("Done.")
+
 # # box_events
 # # . Rename fields
 # # 1. Populate box_events from original data collection
