@@ -134,5 +134,24 @@ class BaseCollection {
   checkIntegrity() {
     return ['There is no integrity checker defined for this collection.'];
   }
+
+  /**
+   * Defines a single collection document represented by dumpObject.
+   * @returns {String} - The newly created document ID.
+   */
+  restoreOne(dumpObject) {
+    if (typeof this.define === 'function') {
+      return this.define(dumpObject);
+    }
+    return null;
+  }
+
+  /**
+   * Defines each collection entity given by the passed array of dumpObjects.
+   * @param dumpObjects - The array of objects representing entities of the collection.
+   */
+  restoreAll(dumpObjects) {
+    _.each(dumpObjects, dumpObject => this.restoreOne(dumpObject));
+  }
 }
 export default BaseCollection;
