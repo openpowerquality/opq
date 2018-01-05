@@ -299,14 +299,64 @@ def thd(waveform: numpy.ndarray) -> float:
     return _thd
 
 
+parallel_client = None
+parallel_db = None
+parallel_fs = None
+
+
+def init_parallel_client():
+    global parallel_client
+    global parallel_db
+    global parallel_fs
+    parallel_client = pymongo.MongoClient()
+    parallel_db = parallel_client.opq
+    parallel_fs = gridfs.GridFS(parallel_db)
+
+def parallel_migrate_measurements(measurement: typing.Dict):
+    _id = oid(measurement["_id"])
+    measurements = parallel_db.measurements
+    measurements.update_one({"_id": _id},
+                            {"$rename": {"device_id": "box_id"}})
+    measurements.update_one({"_id": _id},
+                            {"$set": {"box_id": str(int(measurement["box_id"]))}})
+
+def parallel_raw_waveforms_to_gridfs_fn(box_event: typing.Dict):
+    fs = parallel_fs
+    box_events = parallel_db.box_events
+
+    _id = oid(box_event["_id"])
+    _data = box_event["data"]
+    data = struct.pack("<{}h".format(len(_data)), *_data)
+
+    _filename = filename(box_event)
+    fs.put(data, filename=_filename)
+    box_events.update_one({"_id": _id},
+                          {"$unset": {"data": ""},
+                           "$set": {"data_fs_filename": _filename}})
+
+
+def parallel_finalize_box_events_migration_fn(box_event: typing.Dict):
+    box_events = parallel_db.box_events
+    _id = oid(box_event["_id"])
+    box_id = str(int(box_event["box_id"]))
+    box_events.update_one({"_id": _id},
+                          {"$rename": {"event_number": "event_id",
+                                       "time_stamp": "window_timestamps_ms",
+                                       "event_start": "event_start_timestamp_ms",
+                                       "event_end": "event_end_timestamp_ms",
+                                       "data": "data_fs_filename"},
+                           "$set": {"box_id": box_id,
+                                    "location": {}}})
+
+
 def parallel_thd_itic_fn(box_event: typing.Dict):
-    client = pymongo.MongoClient()
-    db = client.opq
+    db = parallel_db
     box_events = db.box_events
     opq_boxes = db.opq_boxes
-    fs = gridfs.GridFS(db)
+    fs = parallel_fs
     calibration_constants = dict()
-    _id = box_event["_id"]
+    _id = oid(box_event["_id"])
+
     data_fs_filename = box_event["data_fs_filename"]
     box_id = box_event["box_id"]
     waveform = waveform_from_file(fs, data_fs_filename)
@@ -324,6 +374,16 @@ def parallel_thd_itic_fn(box_event: typing.Dict):
                                     "thd": _thd}})
 
 
+def parallel_update_fs_files_metadata_fn(box_event: typing.Dict):
+    fs_files = parallel_db["fs.files"]
+    event_id = box_event["event_id"]
+    box_id = box_event["box_id"]
+    data_fs_filename = box_event["data_fs_filename"]
+    fs_files.update_one({"filename": data_fs_filename},
+                        {"$set": {"metadata": {"event_id": event_id,
+                                               "box_id": box_id}}})
+
+
 if __name__ == "__main__":
     print("Connecting to OPQ mongodb...", end=" ", flush=True)
     database_name = "opq"
@@ -336,26 +396,17 @@ if __name__ == "__main__":
     # # measurements
     # # 1. Rename device_id -> box_id
     # # 2. Change box_id value to str
-    # print("Migrating measurements...")
-    # measurements = db.measurements
-    # total_measurements = measurements.count()
-    # i = 0
-    # for measurement in measurements.find({}, ["_id", "device_id", "box_id"]):
-    #     _id = oid(measurement["_id"])
-    #
-    #     if "device_id" in measurement and "box_id" not in measurement:
-    #         measurements.update_one({"_id": _id},
-    #                                 {"$rename": {"device_id": "box_id"}})
-    #
-    #     measurements.update_one({"_id": _id},
-    #                             {"$set": {"box_id": str(int(measurement["box_id"]))}})
-    #
-    #     if i % 100000 == 0:
-    #         print("Migrating measurements", str(float(i) / float(total_measurements) * 100.0), "%")
-    #
-    #     i += 1
-    #
-    # print("Done.")
+    print("Migrating measurements...", end=" ", flush=True)
+    measurements = db.measurements
+    total_meansurements = measurements.count()
+    i = 0
+    pool = multiprocessing.Pool(6, initializer=init_parallel_client)
+    for v in pool.imap_unordered(parallel_migrate_measurements, measurements.find({}, ["_id", "device_id"])):
+        if i % 10000 == 0:
+            print("\rMigrating measurements...", float(i) / float(total_meansurements) * 100.0, "%", end="", flush=True)
+        i += 1
+    pool.close()
+    print("\rMigrating measurements... Done.")
 
     # opq_boxes
     # 1. Create opq_boxes collection from CalibrationConstants collection
@@ -393,20 +444,19 @@ if __name__ == "__main__":
                                 "event_end": ""}})
 
     print("Done.")
-
-    # box_events
-    # 1. Rename data collection to box_events collection
-    # 2. Rename fields of old-old events
-    # 3. Create files for old events
-    # 4. Rename event_number -> event_id
-    # 5. Rename time_stamp -> window_timestamps_ms
-    # 6. Rename event_start -> event_start_timestamp_ms
-    # 7. Rename event_end -> event_end_timestamp_ms
-    # 8. Rename data -> data_fs_filename
-    # 9. Change type box_id int -> str
-    # 10. Make sure ITIC is updated for all box_events
-    # 11. Make sure THD is updated for all box_events
-    print("Migrating data to box_events...")
+    #
+    # # box_events
+    # # 1. Rename data collection to box_events collection
+    # # 2. Rename fields of old-old events
+    # # 3. Create files for old events
+    # # 4. Rename event_number -> event_id
+    # # 5. Rename time_stamp -> window_timestamps_ms
+    # # 6. Rename event_start -> event_start_timestamp_ms
+    # # 7. Rename event_end -> event_end_timestamp_ms
+    # # 8. Rename data -> data_fs_filename
+    # # 9. Change type box_id int -> str
+    # # 10. Make sure ITIC is updated for all box_events
+    # # 11. Make sure THD is updated for all box_events
     box_events = db.data
     box_events.rename("box_events")
     box_events = db.box_events
@@ -426,93 +476,84 @@ if __name__ == "__main__":
     # Next, some of our box events store the raw waveform directly in the collection, but they should be stored in
     # separate files. Go through, and make sure these documents get converted to mongo gridfs file storage. File
     # names should be of the form "event_[event_id]_[box_id]"
-    print("Migrating raw waveform data from documents to gridfs...", end=" ", flush=True)
-    fs = gridfs.GridFS(db)
+    print("Migrating raw waveform data from documents to gridfs...", end=' ', flush=True)
+    total_arrays = box_events.count({"data": {"$type": "array"}})
+    i = 0
+    pool = multiprocessing.Pool(6, initializer=init_parallel_client)
+    for v in pool.imap_unordered(parallel_raw_waveforms_to_gridfs_fn, box_events.find({"data": {"$type": "array"}})):
+        if i % 50 == 0:
+            print("\rMigrating raw waveform data from documents to gridfs...", float(i) / float(total_arrays) * 100.0, "%", end="", flush=True)
+        i += 1
+    pool.close()
+    print("\rMigrating raw waveform data from documents to gridfs... Done.")
 
-    for box_event in box_events.find({"data": {"$type": "array"}}):
-        _id = oid(box_event["_id"])
-        _data = box_event["data"]
-        data = struct.pack("<{}h".format(len(_data)), *_data)
-
-        _filename = filename(box_event)
-        fs.put(data, filename=_filename)
-        box_events.update_one({"_id": _id},
-                              {"$unset": {"data": ""},
-                               "$set": {"data_fs_filename": _filename}})
-    print("Done.")
-
-    # Finally, now that everything has been migrated to a common schema, we can perform the final migration for box_events.
+    # Finally, now that everything has been migrated to a common schema, we can perform the final migration for
+    # box_events.
     print("Performing final migration of box_events...", end=" ", flush=True)
-    for box_event in box_events.find({}):
-        _id = oid(box_event["_id"])
-        box_id = str(int(box_event["box_id"]))
-        box_events.update_one({"_id": _id},
-                              {"$rename": {"event_number": "event_id",
-                                           "time_stamp": "window_timestamps_ms",
-                                           "event_start": "event_start_timestamp_ms",
-                                           "event_end": "event_end_timestamp_ms",
-                                           "data": "data_fs_filename"},
-                               "$set": {"box_id": box_id,
-                                        "location": {}}})
-
-    print("Done.")
+    total = box_events.count()
+    i = 0
+    pool = multiprocessing.Pool(6, initializer=init_parallel_client)
+    for v in pool.imap_unordered(parallel_finalize_box_events_migration_fn, box_events.find()):
+        if i % 50 == 0:
+            print("\rPerforming final migration of box_events...", float(i) / float(total) * 100.0, "%", end="", flush=True)
+        i += 1
+    pool.close()
+    print("\rPerforming final migration of box_events... Done.")
 
     # THD & ITIC
-    print("Updating THD and ITIC values...")
-
+    print("Updating THD and ITIC values...", end=" ", flush=True)
     total_events = box_events.count()
     i = 0
-
-    pool = multiprocessing.Pool(6)
-    for v in pool.imap(parallel_thd_itic_fn, box_events.find({}, ["_id", "data_fs_filename", "box_id"])):
+    pool = multiprocessing.Pool(6, initializer=init_parallel_client)
+    for v in pool.imap_unordered(parallel_thd_itic_fn, box_events.find({}, ["_id", "data_fs_filename", "box_id"])):
         if i % 50 == 0:
-            print(float(i)/float(total_events)*100.0, "%")
+            print("\rUpdating THD and ITIC values...", float(i) / float(total_events) * 100.0, "%", end="", flush=True)
         i += 1
-    pool.join()
-
-    print("Done.")
+    pool.close()
+    print("\rUpdating THD and ITIC values... Done.")
 
     # fs.files
     # 1. Add metadata.event_id
     # 2. Add metadata.box_id
     print("Migrating fs.files...", end=" ", flush=True)
-    fs_files = db["fs.files"]
-    for box_event in box_events.find({}, ["event_id", "box_id", "data_fs_filename"]):
-        event_id = box_event["event_id"]
-        box_id = box_event["box_id"]
-        data_fs_filename = box_event["data_fs_filename"]
-        fs_files.update_one({"filename": data_fs_filename},
-                            {"$set": {"metadata": {"event_id": event_id,
-                                                   "box_id": box_id}}})
-    print("Done.")
+    total_events = box_events.count()
+    i = 0
+    pool = multiprocessing.Pool(6, initializer=init_parallel_client)
+    for v in pool.imap_unordered(parallel_update_fs_files_metadata_fn,
+                                 box_events.find({}, ["event_id", "box_id", "data_fs_filename"])):
+        if i % 50 == 0:
+            print("\rMigrating fs.files...", float(i) / float(total_events) * 100.0, "%", end="", flush=True)
+        i += 1
+    pool.close()
+    print("\rMigrating fs.files... Done.")
 
-    # Ensure all the indexes we want exist
-    print("Ensuring measurements indexes...", end=" ", flush=True)
-
-    print("Done.")
-
-    print("Ensuring opq_boxes indexes...", end=" ", flush=True)
-
-    print("Done.")
-
-    print("Ensuring events indexes...", end=" ", flush=True)
-
-    print("Done.")
-
-    print("Ensuring box_events indexes...", end=" ", flush=True)
-
-    print("Done.")
-
-    print("Ensuring fs.files indexes...", end=" ", flush=True)
-
-    print("Done.")
-
-    # Cleanup
-    # 1. Drop deprecated boxEvents collection
-    print("Cleaning up....")
-    print("Dropping boxEvents collection...")
-    db.boxEvents.drop()
-    print("Done.")
+    # # Ensure all the indexes we want exist
+    # print("Ensuring measurements indexes...", end=" ", flush=True)
+    #
+    # print("Done.")
+    #
+    # print("Ensuring opq_boxes indexes...", end=" ", flush=True)
+    #
+    # print("Done.")
+    #
+    # print("Ensuring events indexes...", end=" ", flush=True)
+    #
+    # print("Done.")
+    #
+    # print("Ensuring box_events indexes...", end=" ", flush=True)
+    #
+    # print("Done.")
+    #
+    # print("Ensuring fs.files indexes...", end=" ", flush=True)
+    #
+    # print("Done.")
+    #
+    # # Cleanup
+    # # 1. Drop deprecated boxEvents collection
+    # print("Cleaning up....")
+    # print("Dropping boxEvents collection...")
+    # db.boxEvents.drop()
+    # print("Done.")
 
     print("Disconnecting from mongodb...", end=" ", flush=True)
     client.close()
