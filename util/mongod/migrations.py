@@ -11,13 +11,8 @@ import numpy
 import pymongo
 import scipy.fftpack
 
-# from mauka.plugins.IticPlugin import itic_region
-# from mauka.constants import SAMPLE_RATE_HZ, SAMPLES_PER_CYCLE
-
-
 # Migrating from original data model to documented one at
 # https://open-power-quality.gitbooks.io/open-power-quality-manual/content/datamodel/description.html
-
 
 SAMPLES_PER_CYCLE = 200.0
 """Number of samples per electrical cycle for OPQ box"""
@@ -393,9 +388,9 @@ if __name__ == "__main__":
 
     # Migration plan
 
-    # # measurements
-    # # 1. Rename device_id -> box_id
-    # # 2. Change box_id value to str
+    # measurements
+    # 1. Rename device_id -> box_id
+    # 2. Change box_id value to str
     print("Migrating measurements...", end=" ", flush=True)
     measurements = db.measurements
     total_meansurements = measurements.count()
@@ -442,21 +437,20 @@ if __name__ == "__main__":
                             "$unset": {  # "boxes_received": "", # May be needed
                                 "event_start": "",
                                 "event_end": ""}})
-
     print("Done.")
-    #
-    # # box_events
-    # # 1. Rename data collection to box_events collection
-    # # 2. Rename fields of old-old events
-    # # 3. Create files for old events
-    # # 4. Rename event_number -> event_id
-    # # 5. Rename time_stamp -> window_timestamps_ms
-    # # 6. Rename event_start -> event_start_timestamp_ms
-    # # 7. Rename event_end -> event_end_timestamp_ms
-    # # 8. Rename data -> data_fs_filename
-    # # 9. Change type box_id int -> str
-    # # 10. Make sure ITIC is updated for all box_events
-    # # 11. Make sure THD is updated for all box_events
+
+    # box_events
+    # 1. Rename data collection to box_events collection
+    # 2. Rename fields of old-old events
+    # 3. Create files for old events
+    # 4. Rename event_number -> event_id
+    # 5. Rename time_stamp -> window_timestamps_ms
+    # 6. Rename event_start -> event_start_timestamp_ms
+    # 7. Rename event_end -> event_end_timestamp_ms
+    # 8. Rename data -> data_fs_filename
+    # 9. Change type box_id int -> str
+    # 10. Make sure ITIC is updated for all box_events
+    # 11. Make sure THD is updated for all box_events
     box_events = db.data
     box_events.rename("box_events")
     box_events = db.box_events
@@ -527,33 +521,42 @@ if __name__ == "__main__":
     pool.close()
     print("\rMigrating fs.files... Done.")
 
-    # # Ensure all the indexes we want exist
-    # print("Ensuring measurements indexes...", end=" ", flush=True)
-    #
-    # print("Done.")
-    #
-    # print("Ensuring opq_boxes indexes...", end=" ", flush=True)
-    #
-    # print("Done.")
-    #
-    # print("Ensuring events indexes...", end=" ", flush=True)
-    #
-    # print("Done.")
-    #
-    # print("Ensuring box_events indexes...", end=" ", flush=True)
-    #
-    # print("Done.")
-    #
-    # print("Ensuring fs.files indexes...", end=" ", flush=True)
-    #
-    # print("Done.")
-    #
-    # # Cleanup
-    # # 1. Drop deprecated boxEvents collection
-    # print("Cleaning up....")
-    # print("Dropping boxEvents collection...")
-    # db.boxEvents.drop()
-    # print("Done.")
+    # Ensure all the indexes we want exist
+    print("Ensuring measurements indexes...", end=" ", flush=True)
+    db.measurements.create_indexes([pymongo.IndexModel("box_id"),
+                                    pymongo.IndexModel("timestamp_ms")])
+    print("Done.")
+
+    print("Ensuring opq_boxes indexes...", end=" ", flush=True)
+    db.opq_boxes.create_index("box_id")
+    print("Done.")
+
+    print("Ensuring events indexes...", end=" ", flush=True)
+    db.events.create_indexes([pymongo.IndexModel("event_id"),
+                              pymongo.IndexModel("type")])
+    print("Done.")
+
+    print("Ensuring box_events indexes...", end=" ", flush=True)
+    db.box_events.create_indexes([pymongo.IndexModel("event_id"),
+                                  pymongo.IndexModel("box_id"),
+                                  pymongo.IndexModel("event_start_timestamp_ms"),
+                                  pymongo.IndexModel("event_end_timestamp_ms"),
+                                  pymongo.IndexModel("data_fs_filename"),
+                                  pymongo.IndexModel("thd"),
+                                  pymongo.IndexModel("itic")])
+    print("Done.")
+
+    print("Ensuring fs.files indexes...", end=" ", flush=True)
+    db.fs.files.create_indexes([pymongo.IndexModel("metadata.box_id"),
+                                pymongo.IndexModel("metadata.event_id")])
+    print("Done.")
+
+    # Cleanup
+    # 1. Drop deprecated boxEvents collection
+    print("Cleaning up....")
+    print("Dropping boxEvents collection...")
+    db.boxEvents.drop()
+    print("Done.")
 
     print("Disconnecting from mongodb...", end=" ", flush=True)
     client.close()
