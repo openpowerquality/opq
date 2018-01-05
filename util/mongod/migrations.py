@@ -6,6 +6,7 @@ import typing
 
 import bson
 import gridfs
+import gridfs.errors
 import matplotlib.path
 import numpy
 import pymongo
@@ -310,10 +311,15 @@ def init_parallel_client():
 def parallel_migrate_measurements(measurement: typing.Dict):
     _id = oid(measurement["_id"])
     measurements = parallel_db.measurements
+    if "device_id" in measurement and "box_id" not in measurement:
+        box_id = measurement["device_id"]
+        measurements.update_one({"_id": _id},
+                                {"$rename": {"device_id": "box_id"}})
+    else:
+        box_id = measurement["box_id"]
+
     measurements.update_one({"_id": _id},
-                            {"$rename": {"device_id": "box_id"}})
-    measurements.update_one({"_id": _id},
-                            {"$set": {"box_id": str(int(measurement["box_id"]))}})
+                            {"$set": {"box_id": str(int(box_id))}})
 
 def parallel_raw_waveforms_to_gridfs_fn(box_event: typing.Dict):
     fs = parallel_fs
@@ -345,28 +351,32 @@ def parallel_finalize_box_events_migration_fn(box_event: typing.Dict):
 
 
 def parallel_thd_itic_fn(box_event: typing.Dict):
-    db = parallel_db
-    box_events = db.box_events
-    opq_boxes = db.opq_boxes
-    fs = parallel_fs
-    calibration_constants = dict()
-    _id = oid(box_event["_id"])
+    try:
+        db = parallel_db
+        box_events = db.box_events
+        opq_boxes = db.opq_boxes
+        fs = parallel_fs
+        calibration_constants = dict()
+        _id = oid(box_event["_id"])
 
-    data_fs_filename = box_event["data_fs_filename"]
-    box_id = box_event["box_id"]
-    waveform = waveform_from_file(fs, data_fs_filename)
+        data_fs_filename = box_event["data_fs_filename"]
+        box_id = box_event["box_id"]
+        waveform = waveform_from_file(fs, data_fs_filename)
 
-    if box_id not in calibration_constants:
-        calibration_constants[box_id] = get_calibration_constant(opq_boxes, box_id)
+        if box_id not in calibration_constants:
+            calibration_constants[box_id] = get_calibration_constant(opq_boxes, box_id)
 
-    calibrated_waveform = waveform / calibration_constants[box_id]
+        calibrated_waveform = waveform / calibration_constants[box_id]
 
-    _itic = itic(calibrated_waveform)
-    _thd = thd(calibrated_waveform)
+        _itic = itic(calibrated_waveform)
+        _thd = thd(calibrated_waveform)
 
-    box_events.update_one({"_id": _id},
-                          {"$set": {"itic": _itic,
-                                    "thd": _thd}})
+        box_events.update_one({"_id": _id},
+                              {"$set": {"itic": _itic,
+                                        "thd": _thd}})
+
+    except gridfs.errors.NoFile as e:
+        pass
 
 
 def parallel_update_fs_files_metadata_fn(box_event: typing.Dict):
@@ -396,7 +406,7 @@ if __name__ == "__main__":
     total_meansurements = measurements.count()
     i = 0
     pool = multiprocessing.Pool(6, initializer=init_parallel_client)
-    for v in pool.imap_unordered(parallel_migrate_measurements, measurements.find({}, ["_id", "device_id"])):
+    for v in pool.imap_unordered(parallel_migrate_measurements, measurements.find({}, ["_id", "device_id", "box_id"])):
         if i % 10000 == 0:
             print("\rMigrating measurements...", float(i) / float(total_meansurements) * 100.0, "%", end="", flush=True)
         i += 1
