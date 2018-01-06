@@ -2,6 +2,8 @@
 This module contains constants relating to the OPQ project or methods for accessing constants.
 """
 
+import typing
+
 from mongo.mongo import get_box_calibration_constants
 
 SAMPLES_PER_CYCLE = 200.0
@@ -22,3 +24,19 @@ def get_calibration_constant(box_id: int) -> float:
         return calibration_constants[box_id]
     else:
         return 1.0
+
+
+def memoize(fn: typing.Callable) -> typing.Callable:
+    cache = {}
+
+    def helper(v):
+        if v in cache:
+            return cache[v]
+        else:
+            cache[v] = fn(v)
+            return cache[v]
+
+    return helper
+
+
+cached_calibration_constant = memoize(get_calibration_constant)
