@@ -19,9 +19,8 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='opq.proto',
   package='opq.proto',
   syntax='proto2',
-  serialized_pb=_b('\n\topq.proto\x12\topq.proto\"[\n\x05\x43ycle\x12\x0c\n\x04time\x18\x01 \x02(\x04\x12\x0c\n\x04\x64\x61ta\x18\x02 \x03(\x05\x12\x10\n\x08last_gps\x18\x03 \x01(\x05\x12\x15\n\rcurrent_count\x18\x04 \x01(\x05\x12\r\n\x05\x66lags\x18\x05 \x01(\x05\";\n\x0b\x44\x61taMessage\x12\n\n\x02id\x18\x01 \x02(\x05\x12 \n\x06\x63ycles\x18\x03 \x03(\x0b\x32\x10.opq.proto.Cycle\"\x95\x01\n\x0eTriggerMessage\x12\n\n\x02id\x18\x01 \x02(\x05\x12\x0c\n\x04time\x18\x02 \x02(\x04\x12\x11\n\tfrequency\x18\x03 \x02(\x02\x12\x0b\n\x03rms\x18\x04 \x02(\x02\x12\x11\n\thistogram\x18\x05 \x03(\x05\x12\x10\n\x08last_gps\x18\x06 \x01(\x05\x12\x15\n\rcurrent_count\x18\x07 \x01(\x05\x12\r\n\x05\x66lags\x18\x08 \x01(\x05\"\xf8\x01\n\x12RequestDataMessage\x12\x37\n\x04type\x18\x01 \x02(\x0e\x32).opq.proto.RequestDataMessage.RequestType\x12\x17\n\x0fsequence_number\x18\x02 \x02(\r\x12\r\n\x05\x62oxId\x18\x03 \x01(\r\x12\x0c\n\x04time\x18\x04 \x01(\x04\x12\x0c\n\x04\x62\x61\x63k\x18\x05 \x01(\x04\x12\x0f\n\x07\x66orward\x18\x06 \x01(\x04\x12\x12\n\nnum_cycles\x18\x07 \x01(\r\"@\n\x0bRequestType\x12\x08\n\x04PING\x10\x01\x12\x08\n\x04PONG\x10\x02\x12\x08\n\x04READ\x10\x03\x12\x08\n\x04RESP\x10\x04\x12\t\n\x05\x45RROR\x10\x05\"\xe5\x02\n\x13RequestEventMessage\x12\x1e\n\x16start_timestamp_ms_utc\x18\x01 \x02(\x04\x12\x1c\n\x14\x65nd_timestamp_ms_utc\x18\x02 \x02(\x04\x12@\n\x0ctrigger_type\x18\x03 \x02(\x0e\x32*.opq.proto.RequestEventMessage.TriggerType\x12\x19\n\x11percent_magnitude\x18\x04 \x02(\x01\x12\x0f\n\x07\x62ox_ids\x18\x05 \x03(\x05\x12\x11\n\trequestee\x18\x06 \x02(\t\x12\x13\n\x0b\x64\x65scription\x18\x07 \x02(\t\x12\x14\n\x0crequest_data\x18\x08 \x02(\x08\"d\n\x0bTriggerType\x12\x11\n\rFREQUENCY_SAG\x10\x01\x12\x13\n\x0f\x46REQUENCY_SWELL\x10\x02\x12\x0f\n\x0bVOLTAGE_SAG\x10\x03\x12\x11\n\rVOLTAGE_SWELL\x10\x04\x12\t\n\x05OTHER\x10\x05')
+  serialized_pb=_b('\n\topq.proto\x12\topq.proto\"[\n\x05\x43ycle\x12\x0c\n\x04time\x18\x01 \x02(\x04\x12\x0c\n\x04\x64\x61ta\x18\x02 \x03(\x05\x12\x10\n\x08last_gps\x18\x03 \x01(\x05\x12\x15\n\rcurrent_count\x18\x04 \x01(\x05\x12\r\n\x05\x66lags\x18\x05 \x01(\x05\";\n\x0b\x44\x61taMessage\x12\n\n\x02id\x18\x01 \x02(\x05\x12 \n\x06\x63ycles\x18\x03 \x03(\x0b\x32\x10.opq.proto.Cycle\"\x8f\x01\n\x0eTriggerMessage\x12\n\n\x02id\x18\x01 \x02(\x05\x12\x0c\n\x04time\x18\x02 \x02(\x04\x12\x11\n\tfrequency\x18\x03 \x02(\x02\x12\x0b\n\x03rms\x18\x04 \x02(\x02\x12\x0b\n\x03thd\x18\x05 \x01(\x02\x12\x10\n\x08last_gps\x18\x06 \x01(\x05\x12\x15\n\rcurrent_count\x18\x07 \x01(\x05\x12\r\n\x05\x66lags\x18\x08 \x01(\x05\"\xf8\x01\n\x12RequestDataMessage\x12\x37\n\x04type\x18\x01 \x02(\x0e\x32).opq.proto.RequestDataMessage.RequestType\x12\x17\n\x0fsequence_number\x18\x02 \x02(\r\x12\r\n\x05\x62oxId\x18\x03 \x01(\r\x12\x0c\n\x04time\x18\x04 \x01(\x04\x12\x0c\n\x04\x62\x61\x63k\x18\x05 \x01(\x04\x12\x0f\n\x07\x66orward\x18\x06 \x01(\x04\x12\x12\n\nnum_cycles\x18\x07 \x01(\r\"@\n\x0bRequestType\x12\x08\n\x04PING\x10\x01\x12\x08\n\x04PONG\x10\x02\x12\x08\n\x04READ\x10\x03\x12\x08\n\x04RESP\x10\x04\x12\t\n\x05\x45RROR\x10\x05\"\xe5\x02\n\x13RequestEventMessage\x12\x1e\n\x16start_timestamp_ms_utc\x18\x01 \x02(\x04\x12\x1c\n\x14\x65nd_timestamp_ms_utc\x18\x02 \x02(\x04\x12@\n\x0ctrigger_type\x18\x03 \x02(\x0e\x32*.opq.proto.RequestEventMessage.TriggerType\x12\x19\n\x11percent_magnitude\x18\x04 \x02(\x01\x12\x0f\n\x07\x62ox_ids\x18\x05 \x03(\x05\x12\x11\n\trequestee\x18\x06 \x02(\t\x12\x13\n\x0b\x64\x65scription\x18\x07 \x02(\t\x12\x14\n\x0crequest_data\x18\x08 \x02(\x08\"d\n\x0bTriggerType\x12\x11\n\rFREQUENCY_SAG\x10\x01\x12\x13\n\x0f\x46REQUENCY_SWELL\x10\x02\x12\x0f\n\x0bVOLTAGE_SAG\x10\x03\x12\x11\n\rVOLTAGE_SWELL\x10\x04\x12\t\n\x05OTHER\x10\x05')
 )
-_sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
 
 
@@ -54,8 +53,8 @@ _REQUESTDATAMESSAGE_REQUESTTYPE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   options=None,
-  serialized_start=515,
-  serialized_end=579,
+  serialized_start=509,
+  serialized_end=573,
 )
 _sym_db.RegisterEnumDescriptor(_REQUESTDATAMESSAGE_REQUESTTYPE)
 
@@ -88,8 +87,8 @@ _REQUESTEVENTMESSAGE_TRIGGERTYPE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   options=None,
-  serialized_start=839,
-  serialized_end=939,
+  serialized_start=833,
+  serialized_end=933,
 )
 _sym_db.RegisterEnumDescriptor(_REQUESTEVENTMESSAGE_TRIGGERTYPE)
 
@@ -227,9 +226,9 @@ _TRIGGERMESSAGE = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='histogram', full_name='opq.proto.TriggerMessage.histogram', index=4,
-      number=5, type=5, cpp_type=1, label=3,
-      has_default_value=False, default_value=[],
+      name='thd', full_name='opq.proto.TriggerMessage.thd', index=4,
+      number=5, type=2, cpp_type=6, label=1,
+      has_default_value=False, default_value=float(0),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
@@ -267,7 +266,7 @@ _TRIGGERMESSAGE = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=179,
-  serialized_end=328,
+  serialized_end=322,
 )
 
 
@@ -340,8 +339,8 @@ _REQUESTDATAMESSAGE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=331,
-  serialized_end=579,
+  serialized_start=325,
+  serialized_end=573,
 )
 
 
@@ -421,8 +420,8 @@ _REQUESTEVENTMESSAGE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=582,
-  serialized_end=939,
+  serialized_start=576,
+  serialized_end=933,
 )
 
 _DATAMESSAGE.fields_by_name['cycles'].message_type = _CYCLE
@@ -435,6 +434,7 @@ DESCRIPTOR.message_types_by_name['DataMessage'] = _DATAMESSAGE
 DESCRIPTOR.message_types_by_name['TriggerMessage'] = _TRIGGERMESSAGE
 DESCRIPTOR.message_types_by_name['RequestDataMessage'] = _REQUESTDATAMESSAGE
 DESCRIPTOR.message_types_by_name['RequestEventMessage'] = _REQUESTEVENTMESSAGE
+_sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
 Cycle = _reflection.GeneratedProtocolMessageType('Cycle', (_message.Message,), dict(
   DESCRIPTOR = _CYCLE,
