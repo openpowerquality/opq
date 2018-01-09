@@ -26,7 +26,7 @@
   * [Voltage calculation](box/description.md#voltage)
   * [Data transmission](box/description.md#transmission)
   * [Synchronization](box/description.md#synchronization)
-* [Manufacturing](box/manufacturing)
+* [Manufacturing](box/manufacturing.md)
 * [Firmware doxygen](https://open-power-quality.gitbooks.io/open-power-quality-manual/content/box/firmware/)
 * [Triggering doxygen](https://open-power-quality.gitbooks.io/open-power-quality-manual/content/box/triggering/)
 
