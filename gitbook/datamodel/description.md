@@ -70,7 +70,7 @@ The **box_id** field indicates the OPQBox from which this data was produced.
 As an event can be associated with multiple OPQBoxes, it is therefore important to understand that there can be (and often are) multiple box_event documents with the same event_id.
 Together, the **event_id** and **box_id** fields are what one would query on in order to find data for a given OPQBox for a specific event.
 
-The **event_start_ms** and **event_end_ms** fields are unix timestamps indicating the start and end time of the event.
+The **event_start_timestamp_ms** and **event_end_timestamp_ms** fields are unix timestamps indicating the start and end time of the event.
 
 The **window_timestamps_ms** field is an array of unix timestamps that correlate with every 2000 samples (10 grid cycles) of recorded box data. This can be useful for debugging purposes, as we can determine the continuity of box data.
 
