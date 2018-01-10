@@ -18,17 +18,17 @@ using bsoncxx::builder::stream::open_document;
 
 static const std::string OPQ_DB = "opq";
 static const std::string OPQ_EVENT_COLLECTION = "events";
-static const std::string OPQ_DATA_COLLECTION = "data";
+static const std::string OPQ_DATA_COLLECTION = "box_events";
 static const std::string BOX_ID_FIELD = "box_id";
-static const std::string EVENT_NUMBER_FIELD = "event_number";
+static const std::string EVENT_NUMBER_FIELD = "event_id";
 static const std::string EVENT_TYPE_FIELD = "type";
 static const std::string DESCRIPTION_FIELD = "description";
 static const std::string BOXES_TRIGGERED_FIELD = "boxes_triggered";
 static const std::string BOXES_RECEIVED_FIELD = "boxes_received";
-static const std::string EVENT_START_FIELD = "event_start";
-static const std::string EVENT_END_FIELD = "event_end";
-static const std::string TIME_STAMP_FIELD = "time_stamp";
-static const std::string TIME_DATA_FIELD = "data";
+static const std::string EVENT_START_FIELD = "event_start_timestamp_ms";
+static const std::string EVENT_END_FIELD = "event_end_timestamp_ms";
+static const std::string TIME_STAMP_FIELD = "event_requested_timestamp_ms";
+static const std::string TIME_DATA_FIELD = "data_fs_filename";
 
 
 
