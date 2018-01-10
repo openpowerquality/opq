@@ -1,8 +1,8 @@
 import { Template } from 'meteor/templating';
-import { getEventMetaDataByEventNumber } from '../../../api/eventMetaData/EventMetaDataCollectionMethods.js'
-import { getEventData } from '../../../api/eventData/EventDataCollectionMethods.js';
+import { getEventMetaDataByEventNumber } from '../../../api/events/EventsCollectionMethods.js'
+import { getEventData } from '../../../api/box-events/BoxEventsCollectionMethods.js';
 import { getEventDataFSData } from '../../../api/eventDataFS/EventDataFSCollectionMethods.js';
-import { getEventMeasurements, dygraphMergeDatasets } from '../../../api/measurement/MeasurementCollectionMethods.js';
+import { getEventMeasurements, dygraphMergeDatasets } from '../../../api/measurements/MeasurementsCollectionMethods.js';
 import Moment from 'moment';
 import '../../../../client/lib/misc/dygraphSynchronizer.js';
 import './eventDetails.html';

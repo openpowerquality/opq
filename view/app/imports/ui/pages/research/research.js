@@ -1,11 +1,10 @@
 import { Template } from 'meteor/templating';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import { ReactiveVar } from 'meteor/reactive-var';
-import { BoxEvents } from '../../../api/boxEvent/BoxEventCollection.js';
-import { EventMetaData } from '../../../api/eventMetaData/EventMetaDataCollection.js';
-import { EventData } from '../../../api/eventData/EventDataCollection.js';
-import { getRecentEventDataReqIds } from '../../../api/eventData/EventDataCollectionMethods.js';
-import { getEventMeasurements } from '../../../api/measurement/MeasurementCollectionMethods.js';
+import { EventMetaData } from '../../../api/events/EventsCollection.js';
+import { BoxEvents } from '../../../api/box-events/BoxEventsCollection.js';
+import { getRecentEventDataReqIds } from '../../../api/box-events/BoxEventsCollectionMethods.js';
+import { getEventMeasurements } from '../../../api/measurements/MeasurementsCollectionMethods.js';
 import Chartjs from 'chart.js';
 
 // Templates and Sub-Template Inclusions

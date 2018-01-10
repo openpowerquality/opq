@@ -5,7 +5,7 @@ import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import { ReactiveVar } from 'meteor/reactive-var';
 import SimulatedEvents from '../../../api/simulatedEvents/simulatedEvents.js';
 import { BoxEvents } from '../../../api/boxEvent/BoxEventCollection.js';
-import { getRecentEventDataReqIds } from '../../../api/eventData/EventDataCollectionMethods.js'
+import { getRecentEventDataReqIds } from '../../../api/box-events/BoxEventsCollectionMethods.js'
 
 // Templates and Sub-Template Inclusions
 import './measurements.html';

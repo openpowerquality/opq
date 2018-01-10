@@ -1,8 +1,8 @@
 import { Meteor } from 'meteor/meteor';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import { ReactiveVar } from 'meteor/reactive-var';
-import { Measurements } from '../../../api/measurement/MeasurementCollection.js';
-import { getActiveDeviceIdsVM } from '../../../api/measurement/MeasurementCollectionMethods.js';
+import { Measurements } from '../../../api/measurements/MeasurementsCollection.js';
+import { getActiveDeviceIdsVM } from '../../../api/measurements/MeasurementsCollectionMethods.js';
 import { jQueryPromise } from '../../../utils/utils.js';
 
 // Templates

@@ -1,5 +1,5 @@
 import { Template } from 'meteor/templating';
-import { EventMetaData } from '../../../api/eventMetaData/EventMetaDataCollection.js';
+import { EventMetaData } from '../../../api/events/EventsCollection.js';
 import Chartjs from 'chart.js';
 import Moment from 'moment';
 import { Random } from 'meteor/random';

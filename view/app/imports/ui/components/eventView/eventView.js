@@ -1,8 +1,8 @@
 import { Template } from 'meteor/templating';
 import { Mongo } from 'meteor/mongo';
 import { dataContextValidator } from '../../../utils/utils.js';
-import { getEventMetaDataById } from '../../../api/eventMetaData/EventMetaDataCollectionMethods.js'
-import { getEventData } from '../../../api/eventData/EventDataCollectionMethods.js';
+import { getEventMetaDataById } from '../../../api/events/EventsCollectionMethods.js'
+import { getEventData } from '../../../api/box-events/BoxEventsCollectionMethods.js';
 import { getEventDataFSData } from '../../../api/eventDataFS/EventDataFSCollectionMethods.js';
 import Dygraph from 'dygraphs';
 import '../../../../client/lib/misc/dygraphSynchronizer.js';

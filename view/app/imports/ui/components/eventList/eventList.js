@@ -1,6 +1,6 @@
 import { Template } from 'meteor/templating';
 import { Mongo } from 'meteor/mongo';
-import { EventMetaData } from '../../../api/eventMetaData/EventMetaDataCollection.js'
+import { EventMetaData } from '../../../api/events/EventsCollection.js'
 import { dataContextValidator } from '../../../utils/utils.js';
 import { filterFormSchema } from '../../../utils/schemas.js';
 import Moment from 'moment';

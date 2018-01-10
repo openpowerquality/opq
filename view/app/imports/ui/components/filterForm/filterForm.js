@@ -6,7 +6,7 @@ import '../form-controls/text-form-control.html'
 import flatpickr from 'flatpickr';
 import '../../../../node_modules/flatpickr/dist/flatpickr.min.css';
 import { boxEventsCountMap } from '../../../api/boxEvent/BoxEventCollectionMethods.js';
-import { eventMetaDataCountMap, getMostRecentEventMetaData } from '../../../api/eventMetaData/EventMetaDataCollectionMethods.js';
+import { eventMetaDataCountMap, getMostRecentEventMetaData } from '../../../api/events/EventsCollectionMethods.js';
 import { mapify } from 'es6-mapify';
 import Moment from 'moment';
 import { filterFormSchema } from '../../../utils/schemas.js'

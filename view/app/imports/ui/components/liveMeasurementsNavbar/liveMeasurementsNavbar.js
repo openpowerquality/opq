@@ -1,6 +1,6 @@
 import './liveMeasurementsNavbar.html';
-import { Measurements } from '../../../api/measurement/MeasurementCollection.js';
-import { getActiveDeviceIdsVM } from '../../../api/measurement/MeasurementCollectionMethods.js';
+import { Measurements } from '../../../api/measurements/MeasurementsCollection.js';
+import { getActiveDeviceIdsVM } from '../../../api/measurements/MeasurementsCollectionMethods.js';
 import { jQueryPromise } from '../../../utils/utils.js';
 
 import '../liveMeasurements/liveMeasurements.js';
