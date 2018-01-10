@@ -6,7 +6,7 @@
  */
 
 import './global.js';
-import { Persons } from '../api/person/PersonCollection.js';
+// import { Persons } from '../api/person/PersonCollection.js';
 import { SimpleSchema} from 'meteor/aldeed:simple-schema';
 // import '../api/opqDevices/opqDevices.js';
 // import '../api/locations/locations.js';
@@ -122,125 +122,125 @@ Global.Schemas.AddOpqBox = new SimpleSchema({
   }
 });
 
-/**
- * Signup form schema, extends a portion of the Persons schema. Email and Password fields are manually added, as there
- * is no defined schema for the Accounts-Password meteor package, for which these fields are required.
- * @type {SimpleSchema}
- */
-Global.Schemas.Signup = new SimpleSchema([
-  Persons.getSchema().pick(['firstName', 'lastName', 'alertEmail', 'smsCarrier', 'smsNumber']),
-  {
-    email: { // Accounts-password
-      type: String,
-      label: "E-mail *",
-      regEx: SimpleSchema.RegEx.Email
-    },
-    password: { // Accounts-password
-      type: String,
-      label: "Password *",
-      autoform: { // Need this since using quickForm
-        type: 'password'
-      }
-    },
-    confirmPassword: {
-      type: String,
-      label: "Confirm Password *",
-      autoform: {
-        type: 'password'
-      },
-      custom: function () {
-        if (this.value !== this.field('password').value) {
-          return "passwordMismatch";
-        }
-      }
-    }
-  }
-]);
-
-export const signupPageSchema = new SimpleSchema([
-  Persons.getSchema().pick(['firstName', 'lastName']),
-  {
-    email: { // Accounts-password
-      type: String,
-      label: "E-mail *",
-      regEx: SimpleSchema.RegEx.Email
-    },
-    password: { // Accounts-password
-      type: String
-    },
-    confirmPassword: {
-      type: String,
-      custom: function () {
-        if (this.value !== this.field('password').value) {
-          return "passwordMismatch";
-        }
-      }
-    }
-  }
-]);
-
-export const userAdminPageSchema = new SimpleSchema([
-  Persons.getSchema().pick(['userId', 'firstName', 'lastName']),
-  {
-    email: { // Accounts-password
-      type: String,
-      label: "E-mail *",
-      regEx: SimpleSchema.RegEx.Email
-    },
-    password: { // Accounts-password
-      type: String
-    },
-    newPassword: {
-      type: String,
-      optional: true
-    },
-    confirmNewPassword: {
-      type: String,
-      optional: true,
-      custom: function () {
-        if (this.value !== this.field('newPassword').value) {
-          return "passwordMismatch";
-        }
-      }
-    }
-  }
-]);
-
-
-/**
- * Schema for "both" forms on the  user settings page (it's actually one form disguised as two).
- * Extends entire Persons schema with email and password field for Accounts-Password Users collection.
- * @type {SimpleSchema}
- */
-Global.Schemas.UserSettings = new SimpleSchema([
-  Persons.getSchema(),
-  {
-  email: { // Accounts-password
-    type: String,
-    label: "E-mail",
-    regEx: SimpleSchema.RegEx.Email
-  },
-  oldPassword: { // Accounts-password
-    type: String,
-    label: "Old Password",
-    optional: true
-  },
-  newPassword: { // Accounts-password
-    type: String,
-    label: "New Password",
-    optional: true
-  },
-  confirmNewPassword: {
-    type: String,
-    label: "Confirm New Password",
-    custom: function () {
-      if (this.value !== this.field('newPassword').value) {
-        return "passwordMismatch";
-      }
-    },
-    optional: true
-  }
-}]);
+// /**
+//  * Signup form schema, extends a portion of the Persons schema. Email and Password fields are manually added, as there
+//  * is no defined schema for the Accounts-Password meteor package, for which these fields are required.
+//  * @type {SimpleSchema}
+//  */
+// Global.Schemas.Signup = new SimpleSchema([
+//   Persons.getSchema().pick(['firstName', 'lastName', 'alertEmail', 'smsCarrier', 'smsNumber']),
+//   {
+//     email: { // Accounts-password
+//       type: String,
+//       label: "E-mail *",
+//       regEx: SimpleSchema.RegEx.Email
+//     },
+//     password: { // Accounts-password
+//       type: String,
+//       label: "Password *",
+//       autoform: { // Need this since using quickForm
+//         type: 'password'
+//       }
+//     },
+//     confirmPassword: {
+//       type: String,
+//       label: "Confirm Password *",
+//       autoform: {
+//         type: 'password'
+//       },
+//       custom: function () {
+//         if (this.value !== this.field('password').value) {
+//           return "passwordMismatch";
+//         }
+//       }
+//     }
+//   }
+// ]);
+//
+// export const signupPageSchema = new SimpleSchema([
+//   Persons.getSchema().pick(['firstName', 'lastName']),
+//   {
+//     email: { // Accounts-password
+//       type: String,
+//       label: "E-mail *",
+//       regEx: SimpleSchema.RegEx.Email
+//     },
+//     password: { // Accounts-password
+//       type: String
+//     },
+//     confirmPassword: {
+//       type: String,
+//       custom: function () {
+//         if (this.value !== this.field('password').value) {
+//           return "passwordMismatch";
+//         }
+//       }
+//     }
+//   }
+// ]);
+//
+// export const userAdminPageSchema = new SimpleSchema([
+//   Persons.getSchema().pick(['userId', 'firstName', 'lastName']),
+//   {
+//     email: { // Accounts-password
+//       type: String,
+//       label: "E-mail *",
+//       regEx: SimpleSchema.RegEx.Email
+//     },
+//     password: { // Accounts-password
+//       type: String
+//     },
+//     newPassword: {
+//       type: String,
+//       optional: true
+//     },
+//     confirmNewPassword: {
+//       type: String,
+//       optional: true,
+//       custom: function () {
+//         if (this.value !== this.field('newPassword').value) {
+//           return "passwordMismatch";
+//         }
+//       }
+//     }
+//   }
+// ]);
+//
+//
+// /**
+//  * Schema for "both" forms on the  user settings page (it's actually one form disguised as two).
+//  * Extends entire Persons schema with email and password field for Accounts-Password Users collection.
+//  * @type {SimpleSchema}
+//  */
+// Global.Schemas.UserSettings = new SimpleSchema([
+//   Persons.getSchema(),
+//   {
+//   email: { // Accounts-password
+//     type: String,
+//     label: "E-mail",
+//     regEx: SimpleSchema.RegEx.Email
+//   },
+//   oldPassword: { // Accounts-password
+//     type: String,
+//     label: "Old Password",
+//     optional: true
+//   },
+//   newPassword: { // Accounts-password
+//     type: String,
+//     label: "New Password",
+//     optional: true
+//   },
+//   confirmNewPassword: {
+//     type: String,
+//     label: "Confirm New Password",
+//     custom: function () {
+//       if (this.value !== this.field('newPassword').value) {
+//         return "passwordMismatch";
+//       }
+//     },
+//     optional: true
+//   }
+// }]);
 
 // Global.Schemas.DeviceadminForm = new SimpleSchema([
 //   OpqDevices.simpleSchema().pick(['deviceId', 'accessKey', 'description', 'sharingData']),
