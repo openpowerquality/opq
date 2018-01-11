@@ -62,9 +62,11 @@ The **description** field indicates additional information about the event (*Ser
 
 The **boxes_triggered** array is a list of all OPQBoxes associated with the given event - however it is important to note that this does not always correspond to all of the OPQBoxes for which we have received actual data from for the event.
 
+The **boxes_received** array is a list of all OPQBoxes from which high fidelity data was received for the event.
+
 The **latencies_ms** field is an array of timestamps (milliseconds since epoch) indicating the time when data from each OPQBox was received. Maintains a 1 to 1 correlation with boxes_received. (Update: We removed boxes_received, does it make sense to still have this field?)
 
-**event_start_timestamp_ms** and **event_end_timestamp_ms** fields are unix timestamps indicating the requested start time and end time for the high fidelity data. (David A: please add these fields to the diagram.)
+The **target_event_start_timestamp_ms** and **target_event_end_timestamp_ms** fields are unix timestamps indicating the requested start time and end time for the high fidelity data.
 
 #### Box Events {#box_events}
 
