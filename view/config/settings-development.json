@@ -1,5 +1,6 @@
 {
 	"public": {
-
+		"integrityCheckCollections": ["events", "box_events", "opq_boxes"],
+		"dbRestoreFilename": ""
 	}
 }
