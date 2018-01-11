@@ -18,10 +18,10 @@ class BoxEventsCollection extends BaseCollection {
           box_id: {type: String},
           event_start_timestamp_ms: {type: Number},
           event_end_timestamp_ms: {type: Number},
-          window_timestamps: {type: [Number]}, // For research purposes.
+          window_timestamps_ms: {type: [Number]}, // For research purposes.
           thd: {type: Number},
           itic: {type: String},
-          location: {type: Object},
+          location: {type: Object, optional: true},
           'location.start_time': {type: Number},
           'location.zipcode': {type: Number},
           data_fs_filename: {type: String} // Stores the GridFs filename. Format is 'event_eventNumber_boxId'
@@ -80,6 +80,7 @@ class BoxEventsCollection extends BaseCollection {
       try {
         schema.validate(doc);
       } catch (e) {
+        console.log('BoxEvent document failed schema validation: ', doc);
         // if (e instanceof ValidationError) {
           problems.push(`BoxEvent document failed schema validation: ${doc}`);
         // }
