@@ -62,9 +62,9 @@ class MeasurementsCollection extends BaseCollection {
       try {
         schema.validate(doc);
       } catch (e) {
-        if (e instanceof ValidationError) {
+        // if (e instanceof ValidationError) {
           problems.push(`Measurement document failed schema validation: ${doc}`);
-        }
+        // }
       }
 
       // Ensure box_id of the measurement exists in opq_boxes collection.

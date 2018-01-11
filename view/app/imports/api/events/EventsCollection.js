@@ -66,9 +66,9 @@ class EventsCollection extends BaseCollection {
       try {
         schema.validate(doc);
       } catch (e) {
-        if (e instanceof ValidationError) {
+        // if (e instanceof ValidationError) {
           problems.push(`Event document failed schema validation: ${doc}`);
-        }
+        // }
       }
     });
 

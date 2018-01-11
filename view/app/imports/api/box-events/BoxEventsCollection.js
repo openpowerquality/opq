@@ -16,8 +16,8 @@ class BoxEventsCollection extends BaseCollection {
         new SimpleSchema({
           event_id: {type: Number},
           box_id: {type: String},
-          event_start: {type: Number},
-          event_end: {type: Number},
+          event_start_timestamp_ms: {type: Number},
+          event_end_timestamp_ms: {type: Number},
           window_timestamps: {type: [Number]}, // For research purposes.
           thd: {type: Number},
           itic: {type: String},
@@ -80,9 +80,9 @@ class BoxEventsCollection extends BaseCollection {
       try {
         schema.validate(doc);
       } catch (e) {
-        if (e instanceof ValidationError) {
+        // if (e instanceof ValidationError) {
           problems.push(`BoxEvent document failed schema validation: ${doc}`);
-        }
+        // }
       }
 
       // Ensure event_id points to an existing Event document.

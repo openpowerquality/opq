@@ -64,9 +64,9 @@ class OpqBoxesCollection extends BaseCollection {
       try {
         schema.validate(doc);
       } catch (e) {
-        if (e instanceof ValidationError) {
+        // if (e instanceof ValidationError) {
           problems.push(`OpqBox document failed schema validation: ${doc}`);
-        }
+        // }
       }
 
       // Ensure box_id field is unique
