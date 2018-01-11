@@ -13,8 +13,7 @@ class UsersCollection extends BaseCollection {
    * Creates the collection.
    */
   constructor() {
-    super('OpqBoxes',
-        'opq_boxes',
+    super('usersCollection',
         new SimpleSchema({
           email: {type: String},
           password: {type: String},
@@ -74,7 +73,7 @@ class UsersCollection extends BaseCollection {
     });
 
     // Set user role.
-    // We are using group-based roles; 'opq-view' is the default group and can either be 'user' or 'admin'.
+    // We are using group-based roles; 'opq-view' is the default group used for general-purpose app permissions.
     if (userId) {
       Roles.addUsersToRoles(userId, [role], 'opq-view');
     }
@@ -116,4 +115,4 @@ class UsersCollection extends BaseCollection {
  * Provides the singleton instance of this class.
  * @type {UsersCollection}
  */
-export const UsersCollection = new UsersCollection();
+export const Users = new UsersCollection();
