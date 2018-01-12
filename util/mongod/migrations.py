@@ -442,11 +442,10 @@ if __name__ == "__main__":
     # 5. Remove event_end
     print("Migrating events...", end=" ", flush=True)
     events = db.events
-    events.update_many({}, {"$rename": {"event_number": "event_id",
-                                        "time_stamp": "latencies_ms"},
-                            "$unset": {  # "boxes_received": "", # May be needed
-                                "event_start": "",
-                                "event_end": ""}})
+    events.update_many({}, {"$rename": {"event_number"  : "event_id",
+                                        "time_stamp"    : "latencies_ms",
+                                        "event_start"   : "target_event_start_timestamp_ms",
+                                        "event_end"     : "target_event_end_timestamp_ms"}})
     print("Done.")
 
     # box_events
