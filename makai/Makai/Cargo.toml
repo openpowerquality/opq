@@ -1,0 +1,16 @@
+[package]
+name = "makai"
+version = "0.1.0"
+authors = ["Serge <sin8@hawaii.edu>"]
+
+[build-dependencies]
+protoc-rust = "1.4"
+
+[dependencies]
+zmq = "0.8"
+protobuf="1.3"
+bson = "0.10"
+mongodb = "0.3"
+chrono = "0.4"
+time = "0.1"
+pub-sub = "*"
