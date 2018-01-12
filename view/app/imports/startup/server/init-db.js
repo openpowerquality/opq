@@ -1,4 +1,4 @@
-import { checkIntegrity, getCollection, totalDBDocCount } from '../../modules/integrityChecker';
+import { initIntegrityChecks, getCollection, totalDBDocCount } from '../../modules/integrityChecker';
 
 function loadDatabase() {
   const dbFilename = Meteor.settings.public.dbRestoreFilename;
@@ -17,7 +17,7 @@ function loadDatabase() {
 
 Meteor.startup(() => {
   loadDatabase();
-  const integrityResult = checkIntegrity();
-  console.log(result.messages);
+  const result = initIntegrityChecks();
+  console.log(result.messages); // Print integrity check results.
 });
 

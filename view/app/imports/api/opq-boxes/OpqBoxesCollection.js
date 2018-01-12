@@ -1,5 +1,6 @@
 import { Meteor } from 'meteor/meteor';
 import BaseCollection from '../base/BaseCollection.js';
+import { progressBarSetup } from '../../modules/utils';
 
 /**
  * Collection class for the opq_boxes collection.
@@ -57,17 +58,19 @@ class OpqBoxesCollection extends BaseCollection {
 
   checkIntegrity() {
     const problems = [];
-    const schema = this.getSchema();
+    const totalCount = this.count();
+    const validationContext = this.getSchema().namedContext('opqBoxesIntegrity');
+    const pb = progressBarSetup(totalCount, 2000, `Checking ${this._collectionName} collection: `);
 
-    this.find().forEach(doc => {
-      // Validate doc against the defined schema.
-      try {
-        schema.validate(doc);
-      } catch (e) {
-        // if (e instanceof ValidationError) {
-          problems.push(`OpqBox document failed schema validation: ${doc}`);
-        // }
+    this.find().forEach((doc, index) => {
+      pb.updateBar(index); // Update progress bar.
+
+      // Validate each document against the collection schema.
+      validationContext.validate(doc);
+      if (!validationContext.isValid) {
+        problems.push(`OpqBox document failed schema validation: ${doc._id} (Invalid keys: ${validationContext.invalidKeys()})`);
       }
+      validationContext.resetValidation();
 
       // Ensure box_id field is unique
       if (this.find({box_id: doc.box_id}).count() > 1) problems.push(`OpqBox box_id is not unique: ${doc.box_id}`);
@@ -76,6 +79,7 @@ class OpqBoxesCollection extends BaseCollection {
       if (this.find({name: doc.name}).count() > 1) problems.push(`OpqBox name is not unique: ${doc.name}`);
     });
 
+    pb.clearInterval();
     return problems;
   }
 

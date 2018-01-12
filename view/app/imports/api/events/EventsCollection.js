@@ -1,6 +1,7 @@
 import { Meteor } from 'meteor/meteor';
 import BaseCollection from '../base/BaseCollection.js';
 import { check, Match } from 'meteor/check';
+import { progressBarSetup } from '../../modules/utils';
 
 /**
  * Collection class for the events collection.
@@ -59,19 +60,22 @@ class EventsCollection extends BaseCollection {
 
   checkIntegrity() {
     const problems = [];
-    const schema = this.getSchema();
+    const totalCount = this.count();
+    const validationContext = this.getSchema().namedContext('eventsIntegrity');
+    const pb = progressBarSetup(totalCount, 2000, `Checking ${this._collectionName} collection: `);
 
-    this.find().forEach(doc => {
-      // Validate doc against the defined schema.
-      try {
-        schema.validate(doc);
-      } catch (e) {
-        // if (e instanceof ValidationError) {
-          problems.push(`Event document failed schema validation: ${doc}`);
-        // }
+    this.find().forEach((doc, index) => {
+      pb.updateBar(index); // Update progress bar.
+
+      // Validate each document against the collection schema.
+      validationContext.validate(doc);
+      if (!validationContext.isValid) {
+        problems.push(`Events document failed schema validation: ${doc._id} (Invalid keys: ${validationContext.invalidKeys()})`);
       }
+      validationContext.resetValidation();
     });
 
+    pb.clearInterval();
     return problems;
   }
 

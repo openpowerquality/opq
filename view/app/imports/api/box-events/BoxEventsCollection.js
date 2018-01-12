@@ -1,6 +1,7 @@
 import { Meteor } from 'meteor/meteor';
 import BaseCollection from '../base/BaseCollection.js';
 import { Events } from '../events/EventsCollection';
+import { progressBarSetup } from "../../modules/utils";
 
 /**
  * Collection class for the box_events collection.
@@ -73,25 +74,27 @@ class BoxEventsCollection extends BaseCollection {
 
   checkIntegrity() {
     const problems = [];
-    const schema = this.getSchema();
+    const totalCount = this.count();
+    const validationContext = this.getSchema().namedContext('boxEventsIntegrity');
+    const pb = progressBarSetup(totalCount, 2000, `Checking ${this._collectionName} collection: `);
 
-    this.find().forEach(doc => {
-      // Validate doc against the defined schema.
-      try {
-        schema.validate(doc);
-      } catch (e) {
-        console.log('BoxEvent document failed schema validation: ', doc);
-        // if (e instanceof ValidationError) {
-          problems.push(`BoxEvent document failed schema validation: ${doc}`);
-        // }
+    this.find().forEach((doc, index) => {
+      pb.updateBar(index); // Update progress bar.
+
+      // Validate each document against the collection schema.
+      validationContext.validate(doc);
+      if (!validationContext.isValid) {
+        problems.push(`BoxEvent document failed schema validation: ${doc._id} (Invalid keys: ${validationContext.invalidKeys()})`);
       }
+      validationContext.resetValidation();
 
       // Ensure event_id points to an existing Event document.
       if (Events.find({event_id: doc.event_id}).count() < 1) {
-        problems.push(`BoxEvent event_id does not exist in Events collection: ${doc}`);
+        problems.push(`BoxEvent event_id does not exist in Events collection: ${doc._id}`);
       }
     });
 
+    pb.clearInterval();
     return problems;
   }
 

@@ -5,24 +5,24 @@ import { OpqBoxes } from '../api/opq-boxes/OpqBoxesCollection';
 import { Users } from '../api/users/UsersCollection';
 import { FSFiles, FSChunks } from '../api/eventDataFS/EventDataFSCollection';
 
-export function checkIntegrity() {
+export function initIntegrityChecks() {
   let messages = 'Integrity check results:';
   let errorCount = 0;
 
   const collectionNames = Meteor.settings.public.integrityCheckCollections;
   collectionNames.forEach(colName => {
     const collection = getCollection(colName);
-    console.log(`Starting Integrity check for collection: ${collection._collectionName} (Document count: ${collection.count()})`);
+    console.log(`Starting integrity check for collection: ${collection._collectionName} (Document Count: ${collection.count()})`);
     const result = collection.checkIntegrity();
     errorCount += result.length;
-    messages += `\n *** Results for collection: ${collection._collectionName} (Collection Count: ${collection.count()}) (Error Count: ${result.length}) ***`;
-
+    messages += `\n\n *** Results for collection: ${collection._collectionName} (Collection Count: ${collection.count()}) (Error Count: ${result.length}) ***\n`;
     result.forEach(resultMsg => {
       messages += `\n ${resultMsg}`;
     });
+
+    console.log(`Finished integrity check for collection: ${collection._collectionName} (Error Count: ${result.length})`);
   });
 
-  console.log(`\n Integrity check complete! Total error count: ${errorCount}`);
   messages += `\n Integrity check complete! Total error count: ${errorCount}`;
 
   return {messages, errorCount};

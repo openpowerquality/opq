@@ -1,6 +1,7 @@
 import { Meteor } from 'meteor/meteor';
 import BaseCollection from '../base/BaseCollection.js';
 import { OpqBoxes } from '../opq-boxes/OpqBoxesCollection';
+import { progressBarSetup } from '../../modules/utils';
 
 class MeasurementsCollection extends BaseCollection {
 
@@ -52,20 +53,22 @@ class MeasurementsCollection extends BaseCollection {
 
   checkIntegrity() {
     const problems = [];
-    const schema = this.getSchema();
+    const totalCount = this.count();
+    const validationContext = this.getSchema().namedContext('measurementsIntegrity');
+    const pb = progressBarSetup(totalCount, 2000, `Checking ${this._collectionName} collection: `);
 
     // Get all OpqBox IDs.
     const boxIDs = OpqBoxes.find().map(doc => doc.box_id);
 
-    this.find().forEach(doc => {
-      // Validate doc against the defined schema.
-      try {
-        schema.validate(doc);
-      } catch (e) {
-        // if (e instanceof ValidationError) {
-          problems.push(`Measurement document failed schema validation: ${doc}`);
-        // }
+    this.find().forEach((doc, index) => {
+      pb.updateBar(index); // Update progress bar.
+
+      // Validate each document against the collection schema.
+      validationContext.validate(doc);
+      if (!validationContext.isValid) {
+        problems.push(`Measurements document failed schema validation: ${doc._id} (Invalid keys: ${validationContext.invalidKeys()})`);
       }
+      validationContext.resetValidation();
 
       // Ensure box_id of the measurement exists in opq_boxes collection.
       if (!boxIDs.includes(doc.box_id)) {
@@ -73,6 +76,7 @@ class MeasurementsCollection extends BaseCollection {
       }
     });
 
+    pb.clearInterval();
     return problems;
   }
 
