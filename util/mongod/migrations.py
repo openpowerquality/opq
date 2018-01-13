@@ -308,6 +308,7 @@ def init_parallel_client():
     parallel_db = parallel_client.opq
     parallel_fs = gridfs.GridFS(parallel_db)
 
+
 def parallel_migrate_measurements(measurement: typing.Dict):
     _id = oid(measurement["_id"])
     measurements = parallel_db.measurements
@@ -320,6 +321,43 @@ def parallel_migrate_measurements(measurement: typing.Dict):
 
     measurements.update_one({"_id": _id},
                             {"$set": {"box_id": str(int(box_id))}})
+
+
+def parallel_migrate_and_decimate_measurements(device_id: int):
+    prev_ts = 0
+    ids_to_delete = []
+    total_measurements = parallel_db.measurements.count({"device_id": device_id})
+    i = 0
+
+    for measurement in parallel_db.measurements.find({"device_id": device_id},
+                                                     ["device_id", "timestamp_ms", "box_id"]).sort("timestamp_ms"):
+
+        if i % 10_000 == 0:
+            print("Migrating and decimating measurements for box", device_id, (float(i) / float(total_measurements) * 100.0), "%")
+
+
+        _id = oid(measurement["_id"])
+        ts = measurement["timestamp_ms"]
+
+        if ts - prev_ts < 60_000:
+            ids_to_delete.append(_id)
+        else:
+            if "device_id" in measurement and "box_id" not in measurement:
+                box_id = measurement["device_id"]
+                measurements.update_one({"_id": _id},
+                                        {"$rename": {"device_id": "box_id"}})
+            else:
+                box_id = measurement["box_id"]
+
+            measurements.update_one({"_id": _id},
+                                    {"$set": {"box_id": str(int(box_id))}})
+
+            prev_ts = ts
+            measurements.delete_many({"_id": {"$in": ids_to_delete}})
+            ids_to_delete.clear()
+
+        i += 1
+
 
 def parallel_raw_waveforms_to_gridfs_fn(box_event: typing.Dict):
     fs = parallel_fs
@@ -404,13 +442,33 @@ if __name__ == "__main__":
     print("Migrating measurements...", end=" ", flush=True)
     measurements = db.measurements
     total_meansurements = measurements.count()
-    i = 0
-    pool = multiprocessing.Pool(6, initializer=init_parallel_client)
-    for v in pool.imap_unordered(parallel_migrate_measurements, measurements.find({}, ["_id", "device_id", "box_id"])):
-        if i % 10000 == 0:
-            print("\rMigrating measurements...", float(i) / float(total_meansurements) * 100.0, "%", end="", flush=True)
-        i += 1
+    device_ids = [1, 2, 3, 4, 5]
+    pool = multiprocessing.Pool(initializer=init_parallel_client)
+    pool.imap_unordered(parallel_migrate_and_decimate_measurements, device_ids)
     pool.close()
+
+    # i = 0
+    # pool = multiprocessing.Pool(6, initializer=init_parallel_client)
+    # for v in pool.imap_unordered(parallel_migrate_measurements, measurements.find({}, ["_id", "device_id",
+    # "box_id"])):
+    #     if i % 10000 == 0:
+    #         print("\rMigrating measurements...", float(i) / float(total_meansurements) * 100.0, "%", end="",
+    # flush=True)
+    #     i += 1
+    # pool.close()
+
+    # for measurement in measurements.find({}, ["_id", "device_id", "box_id"]):
+    #     _id = oid(measurement["_id"])
+    #     if "device_id" in measurement and "box_id" not in measurement:
+    #         box_id = measurement["device_id"]
+    #         measurements.update_one({"_id": _id},
+    #                                 {"$rename": {"device_id": "box_id"}})
+    #     else:
+    #         box_id = measurement["box_id"]
+    #
+    #     measurements.update_one({"_id": _id},
+    #                             {"$set": {"box_id": str(int(box_id))}})
+
     print("\rMigrating measurements... Done.")
 
     # opq_boxes
@@ -443,10 +501,9 @@ if __name__ == "__main__":
     print("Migrating events...", end=" ", flush=True)
     events = db.events
     events.update_many({}, {"$rename": {"event_number": "event_id",
-                                        "time_stamp": "latencies_ms"},
-                            "$unset": {  # "boxes_received": "", # May be needed
-                                "event_start": "",
-                                "event_end": ""}})
+                                        "time_stamp": "latencies_ms",
+                                        "event_start": "target_event_start_timestamp_ms",
+                                        "event_end": "target_event_end_timestamp_ms"}})
     print("Done.")
 
     # box_events
@@ -486,7 +543,8 @@ if __name__ == "__main__":
     pool = multiprocessing.Pool(6, initializer=init_parallel_client)
     for v in pool.imap_unordered(parallel_raw_waveforms_to_gridfs_fn, box_events.find({"data": {"$type": "array"}})):
         if i % 50 == 0:
-            print("\rMigrating raw waveform data from documents to gridfs...", float(i) / float(total_arrays) * 100.0, "%", end="", flush=True)
+            print("\rMigrating raw waveform data from documents to gridfs...", float(i) / float(total_arrays) * 100.0,
+                  "%", end="", flush=True)
         i += 1
     pool.close()
     print("\rMigrating raw waveform data from documents to gridfs... Done.")
@@ -499,7 +557,8 @@ if __name__ == "__main__":
     pool = multiprocessing.Pool(6, initializer=init_parallel_client)
     for v in pool.imap_unordered(parallel_finalize_box_events_migration_fn, box_events.find()):
         if i % 50 == 0:
-            print("\rPerforming final migration of box_events...", float(i) / float(total) * 100.0, "%", end="", flush=True)
+            print("\rPerforming final migration of box_events...", float(i) / float(total) * 100.0, "%", end="",
+                  flush=True)
         i += 1
     pool.close()
     print("\rPerforming final migration of box_events... Done.")
