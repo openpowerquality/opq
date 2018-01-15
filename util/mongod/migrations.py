@@ -326,10 +326,11 @@ def parallel_migrate_measurements(measurement: typing.Dict):
 def parallel_migrate_and_decimate_measurements(device_id: int):
     prev_ts = 0
     ids_to_delete = []
-    total_measurements = parallel_db.measurements.count({"device_id": device_id})
+    measurements = parallel_db.measurements
+    total_measurements = measurements.count({"device_id": device_id})
     i = 0
 
-    for measurement in parallel_db.measurements.find({"device_id": device_id},
+    for measurement in measurements.find({"device_id": device_id},
                                                      ["device_id", "timestamp_ms", "box_id"]).sort("timestamp_ms"):
 
         if i % 10_000 == 0:
@@ -444,7 +445,10 @@ if __name__ == "__main__":
     total_meansurements = measurements.count()
     device_ids = [1, 2, 3, 4, 5]
     pool = multiprocessing.Pool(initializer=init_parallel_client)
-    pool.imap_unordered(parallel_migrate_and_decimate_measurements, device_ids)
+    j = 0
+    for i in pool.imap_unordered(parallel_migrate_and_decimate_measurements, device_ids):
+        print("Measurement status", j)
+        j += 1
     pool.close()
 
     # i = 0
@@ -520,6 +524,7 @@ if __name__ == "__main__":
     # 11. Make sure THD is updated for all box_events
     box_events = db.data
     box_events.rename("box_events")
+
     box_events = db.box_events
 
     # Some of our earliest box events used a different schema, unfortunately these were never updated or migrated
