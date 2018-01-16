@@ -8,6 +8,9 @@ extern crate pub_sub;
 extern crate chrono;
 extern crate time;
 
+extern crate num;
+
+
 use mongodb::{Client, ThreadedClient};
 
 
@@ -22,6 +25,9 @@ use zmqreader::ZmqReader;
 
 mod mongo;
 use mongo::MongoMeasurements;
+
+mod filter;
+
 
 fn main() {
     //DB
