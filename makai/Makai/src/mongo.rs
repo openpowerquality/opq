@@ -46,11 +46,11 @@ struct MeasurementDecimator {
 
 
 impl MeasurementDecimator {
-    pub fn new(msg : &TriggerMessage) -> MeasurementDecimator {
+    pub fn new() -> MeasurementDecimator {
         let mut ret = MeasurementDecimator {
-            v_filter: LowPass::new(msg.get_rms()),
-            f_filter: LowPass::new(msg.get_frequency()),
-            thd_filter: LowPass::new(msg.get_thd()),
+            v_filter: LowPass::new(),
+            f_filter: LowPass::new(),
+            thd_filter: LowPass::new(),
             v_measurement: None,
             f_measurement: None,
             thd_measurement: None,
@@ -96,7 +96,7 @@ impl MeasurementDecimator {
         }
         match self.f_measurement {
             None => { self.f_measurement = Some(MeasurementStatistics { min: f, max: f }) }
-            Some(ref mut f_m) => f_m.update(rms)
+            Some(ref mut f_m) => f_m.update(f)
         }
 
         if msg.has_thd() {
@@ -199,10 +199,12 @@ impl MongoMeasurements {
             let msg = self.sub_chan.recv().unwrap();
             let doc = MongoMeasurements::generate_document(&msg);
             self.live_coll.insert_one(doc, None).ok().expect("Could not insert");
-            let box_stat = map.entry(msg.get_id()).or_insert(MeasurementDecimator::new(&msg));
+            let box_stat = map.entry(msg.get_id()).or_insert(MeasurementDecimator::new());
             box_stat.process_message(&msg);
             if box_stat.last_insert + Duration::seconds(MONGO_LONG_TERM_MEASUREMENTS_HOW_OFTEN) < Utc::now() {
-                let doc = box_stat.generate_document_and_reset();
+                let mut doc = box_stat.generate_document_and_reset();
+                doc.insert(MONGO_BOX_ID_FIELD, msg.get_id().to_string());
+                doc.insert(MONGO_TIMESTAMP_FIELD, msg.get_time());
                 self.slow_coll.insert_one(doc, None).ok().expect("Could not insert");
             }
         }

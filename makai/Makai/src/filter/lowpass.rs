@@ -9,9 +9,9 @@ pub struct LowPass {
 
 impl LowPass{
     /// Creates a new `LowPass` biquad filter.
-    pub fn new(initial : f32) -> Self {
+    pub fn new() -> Self {
         LowPass {
-            biquad: Biquad2::<f32>::new(initial)
+            biquad: Biquad2::<f32>::new()
         }
     }
 

@@ -25,11 +25,11 @@ pub struct Biquad2<T> {
 
 impl<T> Biquad2<T> where T: Float {
 
-    pub fn new(initial : T) -> Self {
+    pub fn new() -> Self {
         Biquad2 {
             z1: num::zero(),
             z2: num::zero(),
-            output: initial,
+            output: num::zero(),
             b0: num::one(),
             b1: num::zero(),
             b2: num::zero(),
