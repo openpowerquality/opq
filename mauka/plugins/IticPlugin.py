@@ -184,26 +184,28 @@ class IticPlugin(plugins.base.MaukaPlugin):
         else:
             return itic_region(vrms_max, duration_ms).name
 
-    def perform_itic_calculation(self, event_id: int):
+    def perform_itic_calculations(self, event_id: int):
         """
-        Called on a timer in a seperate thread to allow raw data to be acquired first by makai.
-        When raw waveforms are found, ITIC calculations are performed and the result is stored back to data collection.
-        :param event_id: The event id to perform itic calculations for.
+        Called on a timer in a separate thread to allow raw data to be acquired first by makai.
+        When raw waveforms are found, ITIC calculations are performed and the result is stored back to box_events collection.
+        :param event_id: Event id to calculate itic over.
         """
-        event_data = mongo.mongo.load_event(event_id, self.mongo_client)
-        for device_data in event_data["event_data"]:
-            if "data" in device_data and "itic" not in device_data:
-                try:
-                    box_id = device_data["box_id"]
-                    waveform = self.calibrate_waveform(device_data["data"], constants.get_calibration_constant(box_id))
-                    itic_region = self.itic(waveform)
-                    document_id = device_data["_id"]
-                    self.logger.debug("Calculated ITIC for " + str(event_id) + ":" + str(box_id))
-                    self.mongo_client.data_collection.update_one({'_id': self.object_id(document_id)},
-                                                             {"$set": {"itic": itic_region}})
-                except Exception as e:
-                    print(e.message)
-                    continue
+        try:
+            box_events = self.mongo_client.box_events_collection.find({"event_id": event_id})
+            for box_event in box_events:
+                _id = self.object_id(box_event["_id"])
+                box_id = box_event["box_id"]
+                waveform = mongo.mongo.get_waveform(self.mongo_client, box_event["data_fs_filename"])
+                calibrated_waveform = self.calibrate_waveform(waveform, constants.cached_calibration_constant(box_id))
+                itic_region_str = self.itic(calibrated_waveform)
+
+                self.mongo_client.box_events.update_one({"_id": _id},
+                                                        {"$set": {"itic": itic_region_str}})
+
+                self.logger.debug("Calculated ITIC for " + str(event_id) + ":" + str(box_id) + ":" + itic_region_str)
+        except Exception as e:
+            self.logger.error("Error performing itic calculation: " + str(e))
+            pass
 
     def on_message(self, topic, message):
         """
@@ -212,5 +214,5 @@ class IticPlugin(plugins.base.MaukaPlugin):
         :param message: The message that was produced
         """
         event_id = int(message)
-        timer = threading.Timer(self.get_data_after_s, self.perform_itic_calculation, (event_id,))
+        timer = threading.Timer(self.get_data_after_s, self.perform_itic_calculations, (event_id,))
         timer.start()

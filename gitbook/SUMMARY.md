@@ -33,10 +33,9 @@
 
 ## OPQ View
 
-* [Overview](view/description.md#overview)
-* [Software](view/description.md#software)
-* [Use Cases](view/description.md#use-cases)
-* [Page Level Documentation](view/documentation.md)
+* [Installation](view/installation.md)
+* [Coding Standards](view/codingstandards.md)
+* [Design](view/design.md)
 
 ## OPQ Mauka
 
