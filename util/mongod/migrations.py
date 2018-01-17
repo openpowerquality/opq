@@ -661,11 +661,6 @@ if __name__ == "__main__":
     print("\rMigrating fs.files... Done.")
 
     # Ensure all the indexes we want exist
-    print("Ensuring measurements indexes...", end=" ", flush=True)
-    db.measurements.create_indexes([pymongo.IndexModel("box_id"),
-                                    pymongo.IndexModel("timestamp_ms")])
-    print("Done.")
-
     print("Ensuring opq_boxes indexes...", end=" ", flush=True)
     db.opq_boxes.create_index("box_id")
     print("Done.")
