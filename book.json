@@ -1,4 +1,4 @@
 {
 	"root": "./gitbook",
-  "plugins": ["-sharing", "anchors", "comment", "expandable-chapters"]
+  "plugins": ["-sharing", "anchors", "comment", "expandable-chapters", "mathjax"]
 }

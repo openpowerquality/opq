@@ -66,13 +66,17 @@ class MeasurementPlugin(plugins.base.MaukaPlugin):
 
         if self.device_id_to_sample_cnt[device_id] == (self.sample_every - 1):
             self.device_id_to_sample_cnt[device_id] = 0
-            measurement = {
-                "device_id": device_id,
+            measurement_dict = {
+                "box_id": str(device_id),
                 "timestamp_ms": measurement.time,
                 "frequency": measurement.frequency,
                 "voltage": measurement.rms
             }
-            self.measurements_collection.insert_one(measurement)
+
+            if measurement.HasField("thd"):
+                measurement_dict["thd"] = measurement.thd
+
+            self.measurements_collection.insert_one(measurement_dict)
 
         self.device_id_to_sample_cnt[device_id] += 1
         self.device_id_to_total_cnts[device_id] += 1

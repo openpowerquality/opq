@@ -51,7 +51,7 @@ if __name__ == "__main__":
     config = load_config(sys.argv[1])
 
     plugin_manager = plugins.PluginManager(config)
-    plugin_manager.register_plugin(plugins.MeasurementPlugin)
+    #plugin_manager.register_plugin(plugins.MeasurementPlugin)
     plugin_manager.register_plugin(plugins.FrequencyThresholdPlugin)
     plugin_manager.register_plugin(plugins.VoltageThresholdPlugin)
     plugin_manager.register_plugin(plugins.AcquisitionTriggerPlugin)

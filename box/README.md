@@ -2,33 +2,7 @@
 
 The mission of the Open Power Quality project is to design and implement open source hardware, software, and data for low cost, crowd-sourced power quality monitoring, storage, and analysis. For more details, please see our [home page](http://openpowerquality.org).
 
-This repository provides the proposed schematics for the second generation Open Power Quality metering device (OPQBox2). 
-
-OPQBox2 is in the final design stage.  We are circulating this design to solicit feedback and make improvements prior to production. We greatly appreciate your willingness to provide us with feedback.
-
-# Goal
-
-The goal of OPQBox is to monitor voltage and frequency and detect departures from nominal levels.  It accomplishes this by sampling the waveform 256 times per cycle, extracting power quality measures (including frequency, RMS voltage, and THD), and then uploading data about these measures to the OPQHub service. 
-
-OPQBox can be configured to send a "heartbeat" message to OPQHub to indicate that it is connected and functioning. This message normally includes low resolution voltage and frequency data.   
-
-When a power quality disturbance is detected by OPQBox, it sends a message to OPQHub that includes high resolution voltage and frequency data. 
-
-We plan for OPQBox timestamp data to be synchronized to within 1 millisecond, though we are currently experimenting to determine the best technique to accomplish this. Synchronization enables data from multiple OPQBoxes to be used to generate a global perspective on the state of the grid.  As a simple example, it can enable users to determine if their event is local to their own residence or instead grid-wide. 
-
-# Operational requirements
-
-The design of OPQBox2 is influenced by our experience with the first generation OPQBox (OPQBox1).  Design information about our first generation hardware is available at the [OPQBox1 repository](https://github.com/openpowerquality/opqbox1). 
-
-We performed a [pilot study of our first generation hardware and software](http://openpowerquality.org/technology/g1-pilot-study.html), and one of the results of this study are the following major enhancements for OPQBox2:
-
- * **Safety.**  OPQBox2 is meant to bypass power filters and surge protectors. Thus it incorporates extra protection elements to keep the device operating safely during power disruptions. Fuses will disable OPQBox2 in case of a fault. All of the user accesible components are isolated from the mains power.
-
- * **Satisfy IEEE PQ standards.**  OPQBox2 can be plugged into a standard U.S. two prong outlet with expected power at a frequency of 60 Hz and with a voltage of 120 V. It can operate under a frequency range of 50 Hz to 70 Hz and under a voltage range of 80 Vac to 400 Vac. Sampling is phase locked to the utility frequency. The 16 bit 100KSPS ADC allows for 5mV resolution with over 1024 points per grid cycle. On board ARM floating point DSP is able to perform the IEEE 1159 outlined analysis, as well as user defined code.
-
- * **Support event recording upon power failure.** OPQBox2 adds a super capacitor circuit designed to provide power during service interuptions. 
-
-* **Connectivity.** OPQBox2 is designed to be the deployed as a part of a distributed real-time power quality monitoring network. As such it offers a large number of interface options, including serial, USB, WIFI and cellular network. The initial development will focus on WIFI, and serial communication.
+This repository provides the schematics for the second generation Open Power Quality metering device (OPQBox2). 
   
 # Changes From OPQBox Version 1
 
@@ -102,17 +76,3 @@ We recently produced an engineering sample of this design:
   * [Mentor graphics PADS schematic of OPQBOX2](https://github.com/openpowerquality/opqbox2/blob/master/Schematics/opqbox2.sch?raw=true)
   * [PADS library](https://github.com/openpowerquality/opqbox2/tree/master/Schematics/Library)
   
-
-
-# Summary of questions for review
-
-Here are the issues we are most concerned about.
-
-  * Should we use a cut-out to improve isolation? 
-  * Do you have any other recommendations to improve safety?
-  * Do you have any other recommendations to improve measurement accuracy, precision, or reliability?
-  * Do you have any recommendations for certifications? (UL, IEEE, IEC, etc)
-  
-If you would like to meet in person or via teleconference to discuss this design, we would be happy to arrange that. If you can reply with comments to johnson@hawaii.edu, that would be great. 
-
-Thanks so much for your time!  

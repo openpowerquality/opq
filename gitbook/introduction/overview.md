@@ -1,60 +1,25 @@
 # OPQ System Overview
 
-## Description {#description}
-The OPQ system consists of open source hardware and software components that provide end-to-end support for the capture, triggering, analysis, and reporting of consumer level local and global PQ events.
+The OPQ system consists of four major open source hardware and software components that provide end-to-end support for the capture, triggering, analysis, and reporting of consumer level local and global PQ events. 
 
-### Components
-**[Box](box/description.md#overview)** is an open source hardware platform for capturing and transferring PQ events to our cloud services.
+  1. OPQBox is a hardware device that detects the electrical waveform from a standard residential outlet and communicates both low and high fidelity representations of the waveform to other OPQ system components. 
+  2. OPQMakai monitors incoming low fidelity data from OPQBoxes, requests high fidelity data when necessary, and stores the results in a MongoDB database.
+  3. OPQMauka analyzes data, creates "events" when it detects anomolies, and can tell OPQMakai to request high fidelity data from one or more OPQBoxes to facilitate analysis.
+  4. OPQView is a visualization platform for displaying the results for data capture and analysis.
+  
 
-**[Makai](makai/description.md#overview)** is a cloud based middleware responsible for analyzing low fidelity data in order to request bandwidth limited high fidelity data from boxes for further analysis.
+The following image illustrates how these components work together to take information from wall outlets (on the left side) to the display of analyses in a browser (on the right hand side):
 
-**[Mauka](mauka/description.md#overview)** is a cloud based middleware responsible for higher-level analytics of PQ data. Mauka provides various algorithms for classifying PQ events.  
+<img src="system-diagram.png" width="100%">
 
-**[View](view/description.md#overview)** is a cloud based web server and visualization platform which provides reporting of PQ events collected by the other OPQ System components.
+This image illustrates the following high level data and control flow:
 
-**[Protocol](protocol/description.md)** provides a data serialization standard that is used to provide internal and external communication between the various APIs of the OPQ system components.
-
-**Misc. Utilities** are provided in the form of shell and Python scripts and perform tasks such as installation, documentation generation, signing/variation, key generation, etc.
-
-### Data Flow
-1. Power data is collected on Boxes
-2. Boxes perform feature extraction locally, and send low fidelity data to Makai
-3. Makai analyzes the low fidelity feature extracted data for interesting features
-4. When interesting features are found, Makai requests appropriate Boxes for raw data
-5. Requested Boxes send raw data back to Makai, where it is stored in a Mongo database
-6. Mauka utilizes the stored data to perform classification of PQ events and determine if PQ events are local or globally distributed
-7. Classification products/results are stored back to a Mongo database where they are interpreted and visualized by View 
-
-![https://raw.githubusercontent.com/openpowerquality/ieee-cyber-2017/master/paper-presentation/resources/system-diagram.png](https://raw.githubusercontent.com/openpowerquality/ieee-cyber-2017/master/paper-presentation/resources/system-diagram.png)
-
-## Features {#features}
-OPQ system features organized by component.
-
-##### [Box](box/description.md#overview)
-* Capture sampled power waveform
-* Local feature extraction
-* Data is transferred securely to our cloud services via user's WiFi
-* Optional GPS synchronization
-* Optional battery backup
-
-##### [Makai](makai/description.md#overview)
-* Analyze low fidelity feature extracted PQ data received from Boxes
-* Trigger appropriate Boxes for raw data for further analysis
-* Scalable plugin based architecture
-
-##### [Mauka](mauka/description.md#overview)
-* Classification of PQ events
-* Localization of PQ events
-* Storage and analysis of long term PQ trends
-* Scalable plugin based architecture
-
-##### [View](view/description.md#overview)
-* Public display and visualization of local and global PQ events
-* Per user management of Boxes, preferences, and personal data
-* *Expert mode* for access to raw data and more advanced analytics/reports
-
-##### [Protocol](protocol/description.md)
-* Provides a serialization standard between OPQ system components
-* Utilizes Google's Protocol Buffers https://developers.google.com/protocol-buffers/ which provides a programming language agnostic way of (de)serializing data
-
-## Roadmap {#roadmap}
+  * OPQBoxes analyze power from wall outlets, and send low fidelity measurements to OPQMakai.
+  * OPQMakai analyzes low fidelity measurements, and requests high fidelity waveforms when desirable.
+  * Both measurements and waveforms are saved in a MongoDB database.
+  * OPQMauka analyzes low and high fidelity data, and creates "events" to represent anomalies.
+  * OPQView notifies users of events and allows them to drill down into low and high fidelity data.
+  
+OPQMakai, OPQMauka, and OPQView are all cloud-based software services that collectively form a single "instance" with respect to data transmission, storage, analysis, and visualization.  We refer to this collection of software-side components as OPQCloud.  Every OPQBox connects to a single instance of an OPQCloud.  It is possible to have multiple OPQCloud instances. For example, a company might install an OPQCloud instance behind their firewall along with OPQBoxes to provide a private mechanism for collecting and analyzing power quality data. 
+  
+Our approach has a number of benefits. The combination of low and high fidelity data reduces both network overhead and storage requirements, which increases the scalability of the system in terms of the number of OPQBoxes that can be tied to a single OPQCloud instance. OPQMakai and OPQMauka have a plugin architecture, making it easier to extend their functionality to incorporate new triggers for high quality data (in the case of OPQMakai) and new events and analyses (in the case of OPQMauka). Finally, the open source licensing of both hardware and software makes it possible to incorporate new ideas, bug fixes, and enhancements from technologists across the power quality community.
