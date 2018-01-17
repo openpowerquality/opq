@@ -1,5 +1,6 @@
 import { Meteor } from 'meteor/meteor';
 import { Measurements } from '../api/measurements/MeasurementsCollection';
+import { Trends } from '../api/trends/TrendsCollection';
 import { Events } from '../api/events/EventsCollection';
 import { BoxEvents } from '../api/box-events/BoxEventsCollection';
 import { OpqBoxes } from '../api/opq-boxes/OpqBoxesCollection';
@@ -12,6 +13,9 @@ export function getCollection(collectionName) {
   switch (collectionName) {
     case 'measurements':
       collection = Measurements;
+      break;
+    case 'trends':
+      collection = Trends;
       break;
     case 'events':
       collection = Events;

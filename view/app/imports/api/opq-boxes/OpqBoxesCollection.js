@@ -14,7 +14,7 @@ class OpqBoxesCollection extends BaseCollection {
   constructor() {
     super('opq_boxes', new SimpleSchema({
       box_id: { type: String },
-      name: { type: String },
+      name: { type: String, optional: true },
       description: { type: String, optional: true },
       calibration_constant: { type: Number },
       locations: { type: [Object] },
@@ -76,8 +76,9 @@ class OpqBoxesCollection extends BaseCollection {
       // Ensure box_id field is unique
       if (this.find({ box_id: doc.box_id }).count() > 1) problems.push(`OpqBox box_id is not unique: ${doc.box_id}`);
 
-      // Ensure name field is unique
-      if (this.find({ name: doc.name }).count() > 1) problems.push(`OpqBox name is not unique: ${doc.name}`);
+      // Ensure name field is unique (not counting an unset name - represented by empty strings)
+      // eslint-disable-next-line max-len
+      if (doc.name && this.find({ name: doc.name }).count() > 1) problems.push(`OpqBox name is not unique: ${doc.name}`);
     });
 
     pb.clearInterval();

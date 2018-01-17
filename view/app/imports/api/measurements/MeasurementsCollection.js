@@ -78,7 +78,7 @@ class MeasurementsCollection extends BaseCollection {
 
       // Ensure box_id of the measurement exists in opq_boxes collection.
       if (!boxIDs.includes(doc.box_id)) {
-        problems.push(`Measurement box_id does not exist in opq_boxes collection: ${doc}`);
+        problems.push(`Measurements box_id does not exist in opq_boxes collection: ${doc.box_id} (docID: ${doc._id})`);
       }
     });
 
