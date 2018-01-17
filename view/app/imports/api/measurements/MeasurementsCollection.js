@@ -16,6 +16,7 @@ class MeasurementsCollection extends BaseCollection {
       timestamp_ms: { type: Number },
       voltage: { type: Number },
       frequency: { type: Number },
+      thd: { type: Number },
     }));
 
     this.publicationNames = {
@@ -29,10 +30,11 @@ class MeasurementsCollection extends BaseCollection {
    * @param {Number} timestamp_ms - The unix timestamp (millis) of the measurement.
    * @param {Number} voltage - The voltage measurement.
    * @param {Number} frequency - The frequency measurement.
+   * @param {Number} thd - The thd measurement.
    * @returns The newly created document ID.
    */
-  define({ box_id, timestamp_ms, voltage, frequency }) {
-    const docID = this._collection.insert({ box_id, timestamp_ms, voltage, frequency });
+  define({ box_id, timestamp_ms, voltage, frequency, thd }) {
+    const docID = this._collection.insert({ box_id, timestamp_ms, voltage, frequency, thd });
     return docID;
   }
 
@@ -48,8 +50,9 @@ class MeasurementsCollection extends BaseCollection {
     const timestamp_ms = doc.timestamp_ms;
     const voltage = doc.voltage;
     const frequency = doc.frequency;
+    const thd = doc.thd;
 
-    return { box_id, timestamp_ms, voltage, frequency };
+    return { box_id, timestamp_ms, voltage, frequency, thd };
     /* eslint-enable camelcase */
   }
 
