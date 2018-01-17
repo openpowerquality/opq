@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `file_descriptor_proto_data` static in crate `makai`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, file_descriptor_proto_data">
+
+    <title>makai::opq::file_descriptor_proto_data - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../../normalize.css">
+    <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../../main.css">
+    
+
+    
+    
+</head>
+<body class="rustdoc static">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'><a href='../index.html'>makai</a>::<wbr><a href='index.html'>opq</a></p><script>window.sidebarCurrent = {name: 'file_descriptor_proto_data', ty: 'static', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content">
+<h1 class='fqn'><span class='in-band'>Static <a href='../index.html'>makai</a>::<wbr><a href='index.html'>opq</a>::<wbr><a class="static" href=''>file_descriptor_proto_data</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a class='srclink' href='../../src/makai/opq.rs.html#2265-2298' title='goto source code'>[src]</a></span></h1>
+<pre class='rust static'>static file_descriptor_proto_data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.slice.html">&amp;'static [</a><a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a><a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.slice.html">]</a><code> = </code><code>b&quot;\n\topq.proto\x12\topq.proto\&quot;\x85\x01\n\x05Cycle\x12\x12\n\x04time\x18\x01 \x02(\x04R\x04time\x12\x12\n\x04data\x18\x02 \x03(\x05R\x04data\x12\x19\n\x08last_gps\x18\x03 \x01(\x05R\x07lastGps\x12#\n\rcurrent_count\x18\x04 \x01(\x05R\x0ccurrentCount\x12\x14\n\x05flags\x18\x05 \x01(\x05R\x05flags\&quot;G\n\x0bDataMessage\x12\x0e\n\x02id\x18\x01 \x02(\x05R\x02id\x12(\n\x06cycles\x18\x03 \x03(\x0b2\x10.opq.proto.CycleR\x06cycles\&quot;\xcc\x01\n\x0eTriggerMessage\x12\x0e\n\x02id\x18\x01 \x02(\x05R\x02id\x12\x12\n\x04time\x18\x02 \x02(\x04R\x04time\x12\x1c\n\tfrequency\x18\x03 \x02(\x02R\tfrequency\x12\x10\n\x03rms\x18\x04 \x02(\x02R\x03rms\x12\x10\n\x03thd\x18\x05 \x01(\x02R\x03thd\x12\x19\n\x08last_gps\x18\x06 \x01(\x05R\x07lastGps\x12#\n\rcurrent_count\x18\x07 \x01(\x05R\x0ccurrentCount\x12\x14\n\x05flags\x18\x08 \x01(\x05R\x05flags\&quot;\xb5\x02\n\x12RequestDataMessage\x12=\n\x04type\x18\x01 \x02(\x0e2).opq.proto.RequestDataMessage.RequestTypeR\x04type\x12\&#39;\n\x0fsequence_number\x18\x02 \x02(\rR\x0esequenceNumber\x12\x14\n\x05boxId\x18\x03 \x01(\rR\x05boxId\x12\x12\n\x04time\x18\x04 \x01(\x04R\x04time\x12\x12\n\x04back\x18\x05 \x01(\x04R\x04back\x12\x18\n\x07forward\x18\x06 \x01(\x04R\x07forward\x12\x1d\n\nnum_cycles\x18\x07 \x01(\rR\tnumCycles\&quot;@\n\x0bRequestType\x12\x08\n\x04PING\x10\x01\x12\x08\n\x04PONG\x10\x02\x12\x08\n\x04READ\x10\x03\x12\x08\n\x04RESP\x10\x04\x12\t\n\x05ERROR\x10\x05\&quot;\xd9\x03\n\x13RequestEventMessage\x123\n\x16start_timestamp_ms_utc\x18\x01 \x02(\x04R\x13startTimestampMsUtc\x12/\n\x14end_timestamp_ms_utc\x18\x02 \x02(\x04R\x11endTimestampMsUtc\x12M\n\x0ctrigger_type\x18\x03 \x02(\x0e2*.opq.proto.RequestEventMessage.TriggerTypeR\x0btriggerType\x12+\n\x11percent_magnitude\x18\x04 \x02(\x01R\x10percentMagnitude\x12\x17\n\x07box_ids\x18\x05 \x03(\x05R\x06boxIds\x12\x1c\n\trequestee\x18\x06 \x02(\tR\trequestee\x12 \n\x0bdescription\x18\x07 \x02(\tR\x0bdescription\x12!\n\x0crequest_data\x18\x08 \x02(\x08R\x0brequestData\&quot;d\n\x0bTriggerType\x12\x11\n\rFREQUENCY_SAG\x10\x01\x12\x13\n\x0fFREQUENCY_SWELL\x10\x02\x12\x0f\n\x0bVOLTAGE_SAG\x10\x03\x12\x11\n\rVOLTAGE_SWELL\x10\x04\x12\t\n\x05OTHER\x10\x05&quot;</code></pre></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                    <dt>+</dt>
+                    <dd>Collapse/expand all sections</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../../";
+        window.currentCrate = "makai";
+    </script>
+    <script src="../../main.js"></script>
+    <script defer src="../../search-index.js"></script>
+</body>
+</html>
