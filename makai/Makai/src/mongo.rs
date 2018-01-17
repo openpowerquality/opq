@@ -46,11 +46,11 @@ struct MeasurementDecimator {
 
 
 impl MeasurementDecimator {
-    pub fn new() -> MeasurementDecimator {
+    pub fn new(msg : &TriggerMessage) -> MeasurementDecimator {
         let mut ret = MeasurementDecimator {
-            v_filter: LowPass::new(),
-            f_filter: LowPass::new(),
-            thd_filter: LowPass::new(),
+            v_filter: LowPass::new(msg.get_rms()),
+            f_filter: LowPass::new(msg.get_frequency()),
+            thd_filter: LowPass::new(msg.get_thd()),
             v_measurement: None,
             f_measurement: None,
             thd_measurement: None,
@@ -111,7 +111,6 @@ impl MeasurementDecimator {
 
     pub fn generate_document_and_reset(&mut self) -> Document {
         let mut ret = Document::new();
-
         match self.v_measurement {
             None => {}
             Some(ref mut v_m) => {
@@ -200,9 +199,9 @@ impl MongoMeasurements {
             let msg = self.sub_chan.recv().unwrap();
             let doc = MongoMeasurements::generate_document(&msg);
             self.live_coll.insert_one(doc, None).ok().expect("Could not insert");
-            let box_stat = map.entry(msg.get_id()).or_insert(MeasurementDecimator::new());
+            let box_stat = map.entry(msg.get_id()).or_insert(MeasurementDecimator::new(&msg));
             box_stat.process_message(&msg);
-            if box_stat.last_insert + Duration::seconds(MONGO_LONG_TERM_MEASUREMENTS_HOW_OFTEN) > Utc::now() {
+            if box_stat.last_insert + Duration::seconds(MONGO_LONG_TERM_MEASUREMENTS_HOW_OFTEN) < Utc::now() {
                 let doc = box_stat.generate_document_and_reset();
                 self.slow_coll.insert_one(doc, None).ok().expect("Could not insert");
             }
