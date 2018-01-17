@@ -48,6 +48,7 @@ export function initIntegrityChecks() {
   /* eslint-disable no-console, max-len */
   let messages = 'Integrity check results:';
   let errorCount = 0;
+  const resultStatsArr = ['Final Result Statistics\n'];
 
   const collectionNames = Meteor.settings.public.integrityCheckCollections;
   collectionNames.forEach(colName => {
@@ -55,7 +56,9 @@ export function initIntegrityChecks() {
     console.log(`Starting integrity check for collection: ${collection._collectionName} (Document Count: ${collection.count()})`);
     const result = collection.checkIntegrity();
     errorCount += result.length;
-    messages += `\n\n *** Results for collection: ${collection._collectionName} (Collection Count: ${collection.count()}) (Error Count: ${result.length}) ***\n`;
+    const resultStatistics = `Results for collection: ${collection._collectionName} (Collection Count: ${collection.count()}) (Error Count: ${result.length})`;
+    resultStatsArr.push(resultStatistics);
+    messages += `\n\n *** ${resultStatistics} ***\n`;
     result.forEach(resultMsg => {
       messages += `\n ${resultMsg}`;
     });
@@ -65,7 +68,12 @@ export function initIntegrityChecks() {
 
   messages += `\n\n **Integrity check complete! Total error count: ${errorCount}**\n`;
 
-  return { messages, errorCount };
+  let resultStats = '';
+  resultStatsArr.forEach(stats => {
+    resultStats = `${resultStats}\n${stats}\n`;
+  });
+
+  return { messages, errorCount, resultStats };
   /* eslint-enable no-console, max-len */
 }
 

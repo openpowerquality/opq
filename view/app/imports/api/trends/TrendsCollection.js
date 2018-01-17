@@ -1,5 +1,4 @@
-import { Meteor } from 'meteor/meteor';
-import { check } from 'meteor/check';
+import { Mongo } from 'meteor/mongo';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import BaseCollection from '../base/BaseCollection.js';
 import { OpqBoxes } from '../opq-boxes/OpqBoxesCollection';
@@ -12,20 +11,21 @@ class TrendsCollection extends BaseCollection {
    */
   constructor() {
     super('trends', new SimpleSchema({
+      _id: { type: Mongo.ObjectID },
       box_id: { type: String },
       timestamp_ms: { type: Number },
       voltage: { type: Object },
-      'voltage.min': { type: Number },
-      'voltage.max': { type: Number },
-      'voltage.average': { type: Number },
+      'voltage.min': { type: Number, decimal: true },
+      'voltage.max': { type: Number, decimal: true },
+      'voltage.average': { type: Number, decimal: true },
       frequency: { type: Object },
-      'frequency.min': { type: Number },
-      'frequency.max': { type: Number },
-      'frequency.average': { type: Number },
+      'frequency.min': { type: Number, decimal: true },
+      'frequency.max': { type: Number, decimal: true },
+      'frequency.average': { type: Number, decimal: true },
       thd: { type: Object },
-      'thd.min': { type: Number },
-      'thd.max': { type: Number },
-      'thd.average': { type: Number },
+      'thd.min': { type: Number, decimal: true },
+      'thd.max': { type: Number, decimal: true },
+      'thd.average': { type: Number, decimal: true },
     }));
 
     this.publicationNames = {
@@ -78,9 +78,9 @@ class TrendsCollection extends BaseCollection {
 
       // Validate each document against the collection schema.
       validationContext.validate(doc);
-      if (!validationContext.isValid) {
+      if (!validationContext.isValid()) {
         // eslint-disable-next-line max-len
-        problems.push(`Trends document failed schema validation: ${doc._id} (Invalid keys: ${validationContext.invalidKeys()})`);
+        problems.push(`Trends document failed schema validation: ${doc._id} (Invalid keys: ${JSON.stringify(validationContext.invalidKeys(), null, 2)})`);
       }
       validationContext.resetValidation();
 

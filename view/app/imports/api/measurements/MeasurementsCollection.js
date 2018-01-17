@@ -1,4 +1,5 @@
 import { Meteor } from 'meteor/meteor';
+import { Mongo } from 'meteor/mongo';
 import { check } from 'meteor/check';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import BaseCollection from '../base/BaseCollection.js';
@@ -12,11 +13,13 @@ class MeasurementsCollection extends BaseCollection {
    */
   constructor() {
     super('measurements', new SimpleSchema({
+      _id: { type: Mongo.ObjectID },
       box_id: { type: String },
       timestamp_ms: { type: Number },
-      voltage: { type: Number },
-      frequency: { type: Number },
-      thd: { type: Number },
+      voltage: { type: Number, decimal: true },
+      frequency: { type: Number, decimal: true },
+      thd: { type: Number, decimal: true },
+      expireAt: { type: Date },
     }));
 
     this.publicationNames = {
@@ -70,9 +73,9 @@ class MeasurementsCollection extends BaseCollection {
 
       // Validate each document against the collection schema.
       validationContext.validate(doc);
-      if (!validationContext.isValid) {
+      if (!validationContext.isValid()) {
         // eslint-disable-next-line max-len
-        problems.push(`Measurements document failed schema validation: ${doc._id} (Invalid keys: ${validationContext.invalidKeys()})`);
+        problems.push(`Measurements document failed schema validation: ${doc._id} (Invalid keys: ${JSON.stringify(validationContext.invalidKeys(), null, 2)})`);
       }
       validationContext.resetValidation();
 

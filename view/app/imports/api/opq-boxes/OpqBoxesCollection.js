@@ -1,3 +1,4 @@
+import { Mongo } from 'meteor/mongo';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import BaseCollection from '../base/BaseCollection.js';
 import { progressBarSetup } from '../../modules/utils';
@@ -13,6 +14,7 @@ class OpqBoxesCollection extends BaseCollection {
    */
   constructor() {
     super('opq_boxes', new SimpleSchema({
+      _id: { type: Mongo.ObjectID },
       box_id: { type: String },
       name: { type: String, optional: true },
       description: { type: String, optional: true },
@@ -67,9 +69,9 @@ class OpqBoxesCollection extends BaseCollection {
 
       // Validate each document against the collection schema.
       validationContext.validate(doc);
-      if (!validationContext.isValid) {
+      if (!validationContext.isValid()) {
         // eslint-disable-next-line max-len
-        problems.push(`OpqBox document failed schema validation: ${doc._id} (Invalid keys: ${validationContext.invalidKeys()})`);
+        problems.push(`OpqBox document failed schema validation: ${doc._id} (Invalid keys: ${JSON.stringify(validationContext.invalidKeys(), null, 2)})`);
       }
       validationContext.resetValidation();
 

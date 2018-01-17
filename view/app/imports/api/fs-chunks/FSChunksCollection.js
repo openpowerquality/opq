@@ -16,9 +16,10 @@ class FSChunksCollection extends BaseCollection {
    */
   constructor() {
     super('fs.chunks', new SimpleSchema({
+      _id: { type: Mongo.ObjectID },
       files_id: { type: Mongo.ObjectID },
       n: { type: Number },
-      data: { type: Object, blackbox: true },
+      data: { type: Uint8Array },
     }));
 
     this.publicationNames = {
@@ -64,9 +65,9 @@ class FSChunksCollection extends BaseCollection {
 
       // Validate each document against the collection schema.
       validationContext.validate(doc);
-      if (!validationContext.isValid) {
+      if (!validationContext.isValid()) {
         // eslint-disable-next-line max-len
-        problems.push(`FS.Files document failed schema validation: ${doc._id} (Invalid keys: ${validationContext.invalidKeys()})`);
+        problems.push(`FS.Chunks document failed schema validation: ${doc._id} (Invalid keys: ${JSON.stringify(validationContext.invalidKeys(), null, 2)})`);
       }
       validationContext.resetValidation();
 

@@ -1,4 +1,5 @@
 import { Meteor } from 'meteor/meteor';
+import { Mongo } from 'meteor/mongo';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import BaseCollection from '../base/BaseCollection.js';
 import { Events } from '../events/EventsCollection';
@@ -16,6 +17,7 @@ class FSFilesCollection extends BaseCollection {
    */
   constructor() {
     super('fs.files', new SimpleSchema({
+      _id: { type: Mongo.ObjectID },
       filename: { type: String },
       length: { type: Number },
       chunkSize: { type: Number },
@@ -75,8 +77,9 @@ class FSFilesCollection extends BaseCollection {
 
       // Validate each document against the collection schema.
       validationContext.validate(doc);
-      if (!validationContext.isValid) {
+      if (!validationContext.isValid()) {
         // eslint-disable-next-line max-len
+        problems.push(`FS.Files document failed schema validation: ${doc._id} (Invalid keys: ${JSON.stringify(validationContext.invalidKeys(), null, 2)})`);
         problems.push(`FS.Files document failed schema validation: ${doc._id} (Invalid keys: ${validationContext.invalidKeys()})`);
       }
       validationContext.resetValidation();

@@ -1,4 +1,5 @@
 import { Meteor } from 'meteor/meteor';
+import { Mongo } from 'meteor/mongo';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import BaseCollection from '../base/BaseCollection.js';
 import { Events } from '../events/EventsCollection';
@@ -15,6 +16,7 @@ class BoxEventsCollection extends BaseCollection {
    */
   constructor() {
     super('box_events', new SimpleSchema({
+      _id: { type: Mongo.ObjectID },
       event_id: { type: Number },
       box_id: { type: String },
       event_start_timestamp_ms: { type: Number },
@@ -86,15 +88,16 @@ class BoxEventsCollection extends BaseCollection {
 
       // Validate each document against the collection schema.
       validationContext.validate(doc);
-      if (!validationContext.isValid) {
+      if (!validationContext.isValid()) {
         // eslint-disable-next-line max-len
-        problems.push(`BoxEvent document failed schema validation: ${doc._id} (Invalid keys: ${validationContext.invalidKeys()})`);
+        problems.push(`BoxEvent document failed schema validation: ${doc._id} (Invalid keys: ${JSON.stringify(validationContext.invalidKeys(), null, 2)})`);
       }
       validationContext.resetValidation();
 
       // Ensure event_id points to an existing Event document.
       if (Events.find({ event_id: doc.event_id }).count() < 1) {
-        problems.push(`BoxEvent event_id does not exist in Events collection: ${doc._id}`);
+        // eslint-disable-next-line max-len
+        problems.push(`BoxEvent's event_id does not exist in Events collection: ${doc._id} (event_id: ${doc.event_id})`);
       }
     });
 
