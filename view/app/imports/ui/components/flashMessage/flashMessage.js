@@ -1,5 +1,8 @@
 import { Meteor } from 'meteor/meteor';
+import { Template } from 'meteor/templating';
 import { ReactiveVar } from 'meteor/reactive-var';
+import { check } from 'meteor/check';
+import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import { dataContextValidator } from '../../../utils/utils.js';
 import './flashMessage.html';
 
@@ -7,17 +10,20 @@ Template.flashMessage.onCreated(function flashMessageOnCreated() {
   const template = this;
 
   dataContextValidator(template, new SimpleSchema({
-    type: {type: String},
-    expireAtMillisFromEpoch: {type: Number, optional: true},
-    message: {type: String},
-    messageHeader: {type: String, optional: true},
-    messageIcon: {type: String, optional: true},
-    isDismissible: {type: Boolean, optional: true}
+    type: { type: String },
+    expireAtMillisFromEpoch: { type: Number, optional: true },
+    message: { type: String },
+    messageHeader: { type: String, optional: true },
+    messageIcon: { type: String, optional: true },
+    isDismissible: { type: Boolean, optional: true },
   }), null);
 
 
   // FlashMessage references either the given ReactiveVar or a newly created ReactiveVar wrapping the data context.
-  template.flashMessage = (Template.currentData().flashMessageReactiveVar) ? Template.currentData().flashMessageReactiveVar : new ReactiveVar();
+  template.flashMessage = (Template.currentData().flashMessageReactiveVar)
+      ? Template.currentData().flashMessageReactiveVar
+      : new ReactiveVar();
+
   // In the case where we wrap the given data context, we update it whenever the data context changes.
   template.autorun(() => {
     const currentData = Template.currentData();
@@ -26,17 +32,23 @@ Template.flashMessage.onCreated(function flashMessageOnCreated() {
     }
   });
 
+  // eslint-disable-next-line max-len
   // template.isActive = (Template.currentData().expireAtMillisFromEpoch) ? new ReactiveVar(false) : new ReactiveVar(true);
-  template.isActive = (template.flashMessage.get().expireAtMillisFromEpoch) ? new ReactiveVar(false) : new ReactiveVar(true);
+  template.isActive = (template.flashMessage.get().expireAtMillisFromEpoch)
+      ? new ReactiveVar(false)
+      : new ReactiveVar(true);
 
   // Hide message when it expires.
   template.autorun(() => {
     const flashMessage = template.flashMessage.get();
-    const expireFromNowMs = (flashMessage.expireAtMillisFromEpoch) ? flashMessage.expireAtMillisFromEpoch - Date.now() : 0;
+    const expireFromNowMs = (flashMessage.expireAtMillisFromEpoch)
+        ? flashMessage.expireAtMillisFromEpoch - Date.now()
+        : 0;
+
     if (expireFromNowMs > 0 && !template.isActive.get()) {
       template.isActive.set(true);
 
-      Meteor.setTimeout(function() {
+      Meteor.setTimeout(function () {
         template.isActive.set(false); // Hide template contents after timeout.
       }, expireFromNowMs);
     }
@@ -89,8 +101,8 @@ Template.flashMessage.onRendered(function flashMessageOnRendered() {
   // if the 'isDismissible' boolean field is set to true on the flashMessage object - which by default is an optional
   // field and therefore false.
   template.$('.message .close')
-    .on('click', function() {
-      $(this)
+    .on('click', function () {
+      $(this) // eslint-disable-line no-undef
         .closest('.message')
         .transition('fade')
       ;
@@ -130,31 +142,33 @@ Template.flashMessage.helpers({
     const template = Template.instance();
     const message = template.flashMessage.get().message;
     // const message = template.flashMessage.message;
-    return (message) ? message : '';
+    return message || '';
   },
   messageHeader() {
     const template = Template.instance();
     const messageHeader = template.flashMessage.get().messageHeader;
     // const messageHeader = template.flashMessage.messageHeader;
-    return (messageHeader) ? messageHeader : '';
+    return messageHeader || '';
   },
   hasIcon() {
     const template = Template.instance();
     const messageIcon = template.flashMessage.get().messageIcon;
     // const messageIcon = template.flashMessage.messageIcon;
-    return (messageIcon) ? true : false;
+    // return (messageIcon) ? true : false;
+    return !!messageIcon;
   },
   iconName() {
     const template = Template.instance();
     const messageIcon = template.flashMessage.get().messageIcon;
     // const messageIcon = template.flashMessage.messageIcon;
-    return (messageIcon) ? messageIcon : '';
+    return messageIcon || '';
   },
   isDismissible() {
     const template = Template.instance();
     const isDismissible = template.flashMessage.get().isDismissible;
-    return (isDismissible) ? true : false;
-  }
+    // return (isDismissible) ? true : false;
+    return !!isDismissible;
+  },
 });
 
 export const createFlashMessageMsgObject = (type, durationSeconds, message, messageHeader = '', messageIcon = '') => {
@@ -164,26 +178,28 @@ export const createFlashMessageMsgObject = (type, durationSeconds, message, mess
   check(messageHeader, String);
   check(messageIcon, String);
 
+  // eslint-disable-next-line no-param-reassign
   if (durationSeconds > 60) durationSeconds = 60; // Set max time limit of 1 minute.
   const expireAtMillisFromEpoch = Date.now() + (durationSeconds * 1000); // Milliseconds
 
-  return {type, expireAtMillisFromEpoch, message, messageHeader, messageIcon};
+  return { type, expireAtMillisFromEpoch, message, messageHeader, messageIcon };
 };
 
 
-export const setFlashAlert = (flashAlertMsgObj, flashAlertRV) => {
-  check(flashAlertRV, {
-    message: String,
-    type: String,
-    expireAtMillis: Number
-  });
-  check(flashAlertRV, ReactiveVar);
-
-  flashAlertRV.set(flashAlertObj);
-
-  return flashAlertObj;
-};
-
-export const flashMessageConstructor = (templateInstance) => {
-  templateInstance.flashMessage = new ReactiveVar(createFlashMessageMsgObject('negative', 20, 'testing 123', 'Hi!!', 'feed'));
-};
+// export const setFlashAlert = (flashAlertMsgObj, flashAlertRV) => {
+//   check(flashAlertRV, {
+//     message: String,
+//     type: String,
+//     expireAtMillis: Number,
+//   });
+//   check(flashAlertRV, ReactiveVar);
+//
+//   flashAlertRV.set(flashAlertObj);
+//
+//   return flashAlertObj;
+// };
+//
+// export const flashMessageConstructor = (templateInstance) => {
+//   templateInstance.flashMessage = new ReactiveVar(
+//       createFlashMessageMsgObject('negative', 20, 'testing 123', 'Hi!!', 'feed'));
+// };

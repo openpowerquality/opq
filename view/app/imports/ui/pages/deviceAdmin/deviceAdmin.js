@@ -1,15 +1,18 @@
 import { Meteor } from 'meteor/meteor';
 import { Template } from 'meteor/templating';
+import { ReactiveVar } from 'meteor/reactive-var';
+import { Accounts } from 'meteor/accounts-base';
 import { FlowRouter } from 'meteor/kadira:flow-router';
-import { getCurrentPerson, updatePerson, updateEmail } from '../../../api/person/PersonCollectionMethods.js'
+import _ from 'lodash';
+import { getCurrentPerson, updatePerson, updateEmail } from '../../../api/person/PersonCollectionMethods.js';
 import { userAdminPageSchema } from '../../../utils/schemas';
 import '../../components/form-controls/text-form-control.html';
 import '../../components/form-controls/hidden-field.html';
 import './deviceAdmin.html';
 
-Template.deviceAdmin.onCreated(function() {
-  const template= this;
-  template.currentUser;
+Template.deviceAdmin.onCreated(function () {
+  const template = this;
+  template.currentUser; // eslint-disable-line no-unused-expressions
   template.currentPerson = new ReactiveVar();
 
   template.validationContext = userAdminPageSchema.namedContext('UserAdmin_Page');
@@ -22,22 +25,22 @@ Template.deviceAdmin.onCreated(function() {
 
     getCurrentPerson.call({}, (err, person) => {
       if (err) {
-        console.log(err);
+        console.log(err); // eslint-disable-line no-console
         // Redirect to login/signup page if not logged in or other problem occurs.
         if (!template.currentUser) {
           FlowRouter.go('/signup');
         }
       } else {
         template.currentPerson.set(person);
-        console.log('currUser: ', template.currentUser);
-        console.log('currPerson: ', person);
+        console.log('currUser: ', template.currentUser); // eslint-disable-line no-console
+        console.log('currPerson: ', person); // eslint-disable-line no-console
       }
     });
   });
 });
 
-Template.deviceAdmin.onRendered(function() {
-  const template = this;
+Template.deviceAdmin.onRendered(function () {
+  // const template = this;
 
 });
 
@@ -57,6 +60,7 @@ Template.deviceAdmin.helpers({
       console.log('userData: ', userData);
       return userData;
     }
+    return null;
   },
   userDataField(fieldName) {
     const template = Template.instance();
@@ -68,17 +72,18 @@ Template.deviceAdmin.helpers({
         email: user.emails[0].address,
         firstName: person.firstName,
         lastName: person.lastName,
-        userId: person.userId
+        userId: person.userId,
       };
 
       return userData[fieldName];
     }
-  }
-
+    return null;
+  },
 });
 
 Template.deviceAdmin.events({
-  'submit #userForm': function(event) {
+  'submit #userForm': function (event) {
+    /* eslint-disable no-console */
     event.preventDefault();
     const template = Template.instance();
     console.log(template.validationContext);
@@ -91,7 +96,7 @@ Template.deviceAdmin.events({
     const newPassword = event.target.newPassword.value;
     const confirmNewPassword = event.target.confirmNewPassword.value;
 
-    const formData = {userId, firstName, lastName, email, password, newPassword, confirmNewPassword};
+    const formData = { userId, firstName, lastName, email, password, newPassword, confirmNewPassword };
     console.log(formData);
 
     // Clear old validation errors, clean data, and re-validate.
@@ -106,7 +111,7 @@ Template.deviceAdmin.events({
     if (template.validationContext.isValid()) {
       // Change email if needed.
       if (formData.email) {
-        updateEmail.call({userId, newEmail: email}, (error, result) => {
+        updateEmail.call({ userId, newEmail: email }, (error, result) => { // eslint-disable-line no-unused-vars
           if (error) {
             console.log(error);
             template.formSubmissionErrors.set(error);
@@ -117,7 +122,9 @@ Template.deviceAdmin.events({
       }
 
       // Change password if needed.
-      if (formData.password && formData.newPassword && formData.confirmNewPassword && (formData.newPassword === formData.confirmNewPassword)) {
+      if (formData.password && formData.newPassword && formData.confirmNewPassword
+          && (formData.newPassword === formData.confirmNewPassword)) {
+        // eslint-disable-next-line no-unused-vars
         Accounts.changePassword(formData.password, formData.newPassword, (error, result) => {
           if (error) {
             console.log(error);
@@ -131,7 +138,7 @@ Template.deviceAdmin.events({
 
       // Update Person
       const personObj = _.pick(formData, 'firstName', 'lastName', 'userId');
-      updatePerson.call(personObj, (error, result) => {
+      updatePerson.call(personObj, (error, result) => { // eslint-disable-line no-unused-vars
         if (error) {
           console.log(error);
           template.formSubmissionErrors.set(error);
@@ -140,5 +147,6 @@ Template.deviceAdmin.events({
         }
       });
     }
-  }
+    /* eslint-enable no-console */
+  },
 });

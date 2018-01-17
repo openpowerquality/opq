@@ -1,6 +1,9 @@
 import { Meteor } from 'meteor/meteor';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import { Template } from 'meteor/templating';
+import { Blaze } from 'meteor/blaze';
+import { ReactiveVar } from 'meteor/reactive-var';
+import { check } from 'meteor/check';
 import Moment from 'moment';
 
 /**
@@ -13,13 +16,15 @@ import Moment from 'moment';
  * @param templateInstance - The template instance from which to select an element.
  * @returns {Promise} - A Promise of a jQuery object matching the given selector.
  */
+// eslint-disable-next-line arrow-body-style
 export const jQueryPromise = (selector, intervalMs, timeoutMs, templateInstance) => {
-  return new Promise(function(resolve, reject) {
+  return new Promise(function (resolve, reject) {
+    // eslint-disable-next-line no-param-reassign
     timeoutMs = (timeoutMs > 60000) ? 60000 : timeoutMs; // 60 second max timeout.
     const totalRuns = timeoutMs / intervalMs;
     let currentRun = 0;
     let jQueryElement;
-    let timer = Meteor.setInterval(() => {
+    let timer = Meteor.setInterval(() => { // eslint-disable-line prefer-const
       if (currentRun < totalRuns) {
         currentRun++; // Should be placed up top in case function has runtime error, otherwise infinite loop will occur.
 
@@ -32,14 +37,14 @@ export const jQueryPromise = (selector, intervalMs, timeoutMs, templateInstance)
           Meteor.clearInterval(timer);
         }
 
-        // Still need to check if template has been destroyed because JS functions always run to completion unless error thrown.
+        // Still need to check if template has been destroyed because JS functions always run to completion
+        // unless error thrown.
         jQueryElement = (!templateInstance.view.isDestroyed) ? templateInstance.$(selector) : null;
-        if (!!jQueryElement) {
+        if (!!jQueryElement) { // eslint-disable-line
           resolve(jQueryElement);
           Meteor.clearInterval(timer);
         }
-      }
-      else {
+      } else {
         reject(`Unable to select: ${selector}`);
         Meteor.clearInterval(timer);
       }
@@ -75,7 +80,8 @@ export const dataContextValidator = (templateInstance, baseSchema, nestedReactiv
         Object.keys(nestedReactiveVarSchemas).forEach((schemaKey) => {
           const currentSchema = nestedReactiveVarSchemas[schemaKey];
 
-          // Ensure that the corresponding data context key actually references a ReactiveVar, before we call get() on it.
+          // Ensure that the corresponding data context key actually references a ReactiveVar, before we call
+          // get() on it.
           if (!(dataContext[schemaKey] instanceof ReactiveVar)) {
             throw new Meteor.Error('not-reactive-var', 'The reactive var schema key name was not found in the given ' +
                 'data context object.');
@@ -95,8 +101,9 @@ export const dataContextValidator = (templateInstance, baseSchema, nestedReactiv
              * against an object with key, val pairs.
              */
             new SimpleSchema({
-              _singleKeySchema: currentSchema // currentSchema, in this case, just holds the schema rules object. See above.
-            }).validate({_singleKeySchema: reactiveValue});
+              // currentSchema, in this case, just holds the schema rules object. See above.
+              _singleKeySchema: currentSchema,
+            }).validate({ _singleKeySchema: reactiveValue });
           } else {
             // Otherwise we have the 'normal' case where we can simply validate against the ReactiveVar's value.
             currentSchema.validate(reactiveValue);
@@ -112,7 +119,8 @@ export const dataContextValidator = (templateInstance, baseSchema, nestedReactiv
 /**
  * Given a template instance or view, finds and returns the top-most/root template instance by traversing up
  * the view tree.
- * @param {(Blaze.TemplateInstance|Blaze.View)} templateOrView - The TemplateInstance or Blaze View to find the root template of.
+ * @param {(Blaze.TemplateInstance|Blaze.View)} templateOrView - The TemplateInstance or Blaze View to find the
+ * root template of.
  * @returns {Blaze.TemplateInstance} - The root template instance.
  */
 export const getRootTemplateInstance = (templateOrView) => {
@@ -157,7 +165,7 @@ export const colorQuantify = (dataValue, minValue, maxValue, colorRange) => {
 
   let resultColor = null;
   for (let i = 0; i < colorRange.length; i++) {
-    if (dataValue < minValue + (dataDomainIncrement * (i+1))) {
+    if (dataValue < minValue + (dataDomainIncrement * (i + 1))) {
       resultColor = colorRange[i];
       break;
     }
@@ -165,7 +173,7 @@ export const colorQuantify = (dataValue, minValue, maxValue, colorRange) => {
 
   // Takes care of case where dataValue is larger than maxValue (chooses the last color). Note that the above loop
   // will take care of the case where dataValue is smaller than minValue (chooses the first color)
-  if (!resultColor) resultColor = colorRange[colorRange.length-1];
+  if (!resultColor) resultColor = colorRange[colorRange.length - 1];
 
   return resultColor;
 };
@@ -173,7 +181,8 @@ export const colorQuantify = (dataValue, minValue, maxValue, colorRange) => {
 /**
  * Returns a unique string representation of the given date 'rounded' to the desired unit of time.
  * @param {Date} date - The date object to evaluate.
- * @param timeUnit - The unit of time to round to. Allowed values: 'year', 'month', 'week', 'day', 'dayOfMonth', 'hourOfDay'
+ * @param timeUnit - The unit of time to round to. Allowed values: 'year', 'month', 'week', 'day',
+ * 'dayOfMonth', 'hourOfDay'
  * @returns {String} - The appropriate string value of the given Date, based on the given unit of time.
  */
 export const timeUnitString = (date, timeUnit) => {
@@ -187,7 +196,7 @@ export const timeUnitString = (date, timeUnit) => {
 
   // All keys are appended with year to ensure uniqueness of key (in case we're given a long time range).
   let timeUnitKey;
-  switch(timeUnit) {
+  switch (timeUnit) {
     case 'hourOfDay':
       // Hour of day. Format: hour-day-year. E.g. 23-365-2014, 4-125-1999, etc.
       timeUnitKey = `${hour}-${day}-${year}`;
@@ -211,6 +220,8 @@ export const timeUnitString = (date, timeUnit) => {
     case 'year':
       // 4 digit year. Format: year. E.g. 1945, 1999, 2017, etc.
       timeUnitKey = year;
+      break;
+    default:
       break;
   }
 

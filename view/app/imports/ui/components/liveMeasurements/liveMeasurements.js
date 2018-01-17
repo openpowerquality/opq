@@ -1,8 +1,8 @@
-import { Meteor } from 'meteor/meteor';
+import { Template } from 'meteor/templating';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import { ReactiveVar } from 'meteor/reactive-var';
-import { Measurements } from '../../../api/measurement/MeasurementCollection.js';
-import { getActiveDeviceIdsVM } from '../../../api/measurement/MeasurementCollectionMethods.js';
+import { Measurements } from '../../../api/measurements/MeasurementsCollection.js';
+import { getActiveDeviceIdsVM } from '../../../api/measurements/MeasurementsCollectionMethods.js';
 import { jQueryPromise } from '../../../utils/utils.js';
 
 // Templates
@@ -14,21 +14,24 @@ Template.liveMeasurements.onCreated(function liveMeasurementsOnCreated() {
   // Validate data context
   template.autorun(() => {
     new SimpleSchema({
-      selectedDeviceIdReactiveVar: {type: ReactiveVar, optional: true}
+      selectedDeviceIdReactiveVar: { type: ReactiveVar, optional: true },
     }).validate(template.data);
   });
 
-  template.selectedDeviceId = (template.data.selectedDeviceIdReactiveVar) ? template.data.selectedDeviceIdReactiveVar : new ReactiveVar();
+  template.selectedDeviceId = (template.data.selectedDeviceIdReactiveVar)
+      ? template.data.selectedDeviceIdReactiveVar
+      : new ReactiveVar();
+
   template.activeDeviceIds = new ReactiveVar();
   template.measurementStartTimeSecondsAgo = new ReactiveVar(60);
 
   // Retrieve list of active device ids (active within last minute). Selects initial device for monitoring.
-  template.autorun(function() {
+  template.autorun(function () {
     const selectedDeviceId = template.selectedDeviceId.get();
 
     if (template.subscriptionsReady()) {
       getActiveDeviceIdsVM.call({
-        startTimeMs: Date.now() - (60 * 1000)
+        startTimeMs: Date.now() - (60 * 1000),
       }, (err, deviceIds) => {
         if (err) console.log(err);
         if (deviceIds && deviceIds.length > 0) {
@@ -40,7 +43,7 @@ Template.liveMeasurements.onCreated(function liveMeasurementsOnCreated() {
   });
 
   // Subscription
-  template.autorun(function() {
+  template.autorun(function () {
     const selectedDeviceId = template.selectedDeviceId.get();
     const secondsAgo = template.measurementStartTimeSecondsAgo.get();
 
@@ -52,10 +55,9 @@ Template.liveMeasurements.onCreated(function liveMeasurementsOnCreated() {
       Measurements.subscribe(Measurements.publicationNames.RECENT_MEASUREMENTS, template, secondsAgo, selectedDeviceId);
     }
   });
-
 });
 
-Template.liveMeasurements.onRendered(function() {
+Template.liveMeasurements.onRendered(function () {
   const template = this;
 
   // Highlights the 1-minute button on the live device monitor.
@@ -66,7 +68,7 @@ Template.liveMeasurements.onRendered(function() {
   }
 
   // Ensures selected device is highlighted.
-  template.autorun(function() {
+  template.autorun(function () {
     const selectedDeviceId = template.selectedDeviceId.get();
 
     if (selectedDeviceId && template.subscriptionsReady()) {
@@ -82,7 +84,7 @@ Template.liveMeasurements.onRendered(function() {
   });
 
   // Handles graph plotting.
-  template.autorun(function() {
+  template.autorun(function () {
     const selectedDeviceId = template.selectedDeviceId.get();
     const measurementStartTimeSecondsAgo = template.measurementStartTimeSecondsAgo.get();
     const timeZoneOffset = new Date().getTimezoneOffset() * 60 * 1000; // Positive if -UTC, negative if +UTC.
@@ -97,18 +99,14 @@ Template.liveMeasurements.onRendered(function() {
       // Also of note: It's much faster to simply filter() on the resulting mongo query result, rather than to query
       // with {timestamp_ms: {$gte: startTime}}. Meteor's Minimongo implementation isn't very efficient.
       const startTime = Date.now() - (measurementStartTimeSecondsAgo * 1000);
-      const measurements = Measurements.find({device_id: selectedDeviceId}, {sort: {timestamp_ms: 1}})
+      const measurements = Measurements.find({ device_id: selectedDeviceId }, { sort: { timestamp_ms: 1 } })
           .fetch()
           .filter(measurement => measurement.timestamp_ms >= startTime);
 
       if (measurements.length > 0) {
-        const voltages = measurements.map(data => {
-          return [data.timestamp_ms - timeZoneOffset, data.voltage];
-        });
+        const voltages = measurements.map(data => [data.timestamp_ms - timeZoneOffset, data.voltage]);
 
-        const frequencies = measurements.map(data => {
-          return [data.timestamp_ms - timeZoneOffset, data.frequency];
-        });
+        const frequencies = measurements.map(data => [data.timestamp_ms - timeZoneOffset, data.frequency]);
 
         // Calculate tick size for graph.
         // const tickSize = template.measurementStartTimeSecondsAgo.get() / 5;
@@ -121,31 +119,30 @@ Template.liveMeasurements.onRendered(function() {
         const voltagePlotId = template.$('[id^=miniVoltagePlot]').attr('id');
         const freqPlotId = template.$('[id^=miniFreqPlot]').attr('id');
 
-        $.plot(`#${voltagePlotId}`, [voltages], {
+        $.plot(`#${voltagePlotId}`, [voltages], { // eslint-disable-line no-undef
           xaxis: {
             mode: 'time',
             timeformat: '%H:%M:%S',
-            tickSize: [tickSize, 'second']
+            tickSize: [tickSize, 'second'],
           },
           yaxis: {
-            tickDecimals: 2
-          }
+            tickDecimals: 2,
+          },
         });
 
-        $.plot(`#${freqPlotId}`, [frequencies], {
+        $.plot(`#${freqPlotId}`, [frequencies], { // eslint-disable-line no-undef
           xaxis: {
             mode: 'time',
             timeformat: '%H:%M:%S',
-            tickSize: [tickSize, 'second']
+            tickSize: [tickSize, 'second'],
           },
           yaxis: {
-            tickDecimals: 3
-          }
+            tickDecimals: 3,
+          },
         });
       }
     }
   });
-
 });
 
 Template.liveMeasurements.helpers({
@@ -154,18 +151,23 @@ Template.liveMeasurements.helpers({
     const selectedDeviceId = template.selectedDeviceId.get();
 
     if (selectedDeviceId && template.subscriptionsReady()) {
-      const measurements = Measurements.find({device_id: selectedDeviceId}, {sort: {timestamp_ms: -1}, limit: 10});
+      const measurements = Measurements.find(
+          { device_id: selectedDeviceId },
+          { sort: { timestamp_ms: -1 }, limit: 10 },
+      );
       return measurements;
     }
+    return null;
   },
   newestMeasurement() {
     const template = Template.instance();
     const selectedDeviceId = template.selectedDeviceId.get();
 
     if (selectedDeviceId && template.subscriptionsReady()) {
-      const measurement = Measurements.findOne({device_id: selectedDeviceId}, {sort: {timestamp_ms: -1}});
+      const measurement = Measurements.findOne({ device_id: selectedDeviceId }, { sort: { timestamp_ms: -1 } });
       return measurement;
     }
+    return null;
   },
   deviceIds() {
     const template = Template.instance();
@@ -178,38 +180,39 @@ Template.liveMeasurements.helpers({
     const activeDeviceIds = template.activeDeviceIds.get();
     // return (activeDeviceIds && activeDeviceIds.length > 0) ? 'Device Online' : 'Device Offline';
     return (activeDeviceIds && activeDeviceIds.length > 0) ? null : 'Device Offline';
-  }
+  },
 });
 
 Template.liveMeasurements.events({
-  'click #1m': function(event) {
+  /* eslint-disable no-unused-vars */
+  'click #1m': function (event) {
     const template = Template.instance();
     template.$('#1m').addClass('active');
     template.$('#5m').removeClass('active');
     template.$('#10m').removeClass('active');
     template.measurementStartTimeSecondsAgo.set(60);
   },
-  'click #5m': function(event) {
+  'click #5m': function (event) {
     const template = Template.instance();
     template.$('#5m').addClass('active');
     template.$('#1m').removeClass('active');
     template.$('#10m').removeClass('active');
     template.measurementStartTimeSecondsAgo.set(60 * 5);
-
   },
-  'click #10m': function(event) {
+  'click #10m': function (event) {
     const template = Template.instance();
     template.$('#10m').addClass('active');
     template.$('#1m').removeClass('active');
     template.$('#5m').removeClass('active');
     template.measurementStartTimeSecondsAgo.set(60 * 10);
   },
-  'click #deviceSelection button': function(event) {
+  'click #deviceSelection button': function (event) {
     const template = Template.instance();
     const deviceId = Number(event.currentTarget.id.replace('device-', ''));
     // $('#deviceSelection > button.active').removeClass('active');
     // $(`#device-${deviceId}`).addClass('active');
     template.selectedDeviceId.set(deviceId);
-  }
+  },
+  /* eslint-enable no-unused-vars */
 });
 

@@ -1,48 +1,48 @@
-// Global template helpers
+import { Template } from 'meteor/templating';
+import { check } from 'meteor/check';
+import { ReactiveVar } from 'meteor/reactive-var';
+import { FlowRouter } from 'meteor/kadira:flow-router';
+import _ from 'lodash';
+import Moment from 'moment';
 import { createFlashAlertMsgObject } from '../components/flashAlert/flashAlert.js';
 import { getRootTemplateInstance } from '../../utils/utils.js';
-import Moment from 'moment';
 
-
-Template.registerHelper('getTemplateInstance', function() {
+Template.registerHelper('getTemplateInstance', function () {
   return Template.instance();
 });
 
-Template.registerHelper('getTemplateInstanceVariable', function(varName) {
+Template.registerHelper('getTemplateInstanceVariable', function (varName) {
   const templateVar = Template.instance()[varName];
   return templateVar; // Returns the variable reference or undefined if does not exist.
 });
 
-Template.registerHelper('formatDate', function(date) {
+Template.registerHelper('formatDate', function (date) {
   return (typeof date === 'number' || date instanceof Date) ? Moment(date).format('HH:mm:ss [[]DD MMM YYYY[]]') : null;
 });
 
-Template.registerHelper('formatDateMDY', function(date) {
+Template.registerHelper('formatDateMDY', function (date) {
   let dateString;
   if (typeof date === 'number' || date instanceof Date) dateString = Moment(date).format('MMM D, YYYY');
   if (date === 'today') dateString = Moment().format('MMM D, YYYY');
   return dateString;
 });
 
-Template.registerHelper('formatDecimals', function(decimals, number) {
+Template.registerHelper('formatDecimals', function (decimals, number) {
   return (typeof number === 'number' && typeof decimals === 'number') ? number.toFixed(decimals) : null;
 });
 
-Template.registerHelper('showFlashAlert', function(templateInstance) {
+Template.registerHelper('showFlashAlert', function (templateInstance) {
   const message = templateInstance.flashAlert.get();
-  if (message) {
-    return message;
-  }
-  return (message) ? message : null;
+  return message || null;
 });
 
 export const setFlashAlert = (message, templateInstance) => {
   check(message, String);
-  templateInstance.flashAlert = new ReactiveVar(message);
+  templateInstance.flashAlert = new ReactiveVar(message); // eslint-disable-line no-param-reassign
 };
 
-Template.registerHelper('consoleLog', function(obj) {
-  console.log(obj);
+Template.registerHelper('consoleLog', function (obj) {
+  console.log(obj); // eslint-disable-line no-console
 });
 
 Template.registerHelper('flashAlertMsgObj', createFlashAlertMsgObject);
@@ -57,17 +57,13 @@ Template.registerHelper('flashAlertMsgObj', createFlashAlertMsgObject);
  * example) is because in an object is required for the template-level data context validation that we perform on
  * our templates.
  */
-Template.registerHelper('withEmptyDataContext', () => {
+Template.registerHelper('withEmptyDataContext', () => { // eslint-disable-line arrow-body-style
   return {};
 });
 
-Template.registerHelper('generateRandomIdString', () => {
-  return Random.id();
-});
+Template.registerHelper('generateRandomIdString', () => Random.id()); // eslint-disable-line no-undef
 
-Template.registerHelper('isEqual', (first, second) => {
-  return first === second;
-});
+Template.registerHelper('isEqual', (first, second) => first === second);
 
 Template.registerHelper('fieldError', (fieldName) => {
   const validationContext = Template.instance().validationContext;
@@ -101,7 +97,7 @@ Template.registerHelper('dataSource', (uniqIdentifier) => {
     if (!template.dataSources[uniqIdentifier]) template.dataSources[uniqIdentifier] = new ReactiveVar();
   } else {
     // DataSources obj does not exist yet for this template, so create it.
-    template.dataSources = {[uniqIdentifier]: new ReactiveVar()}
+    template.dataSources = { [uniqIdentifier]: new ReactiveVar() };
   }
 
   return template.dataSources[uniqIdentifier]; // Return the ReactiveVar reference (not value!)
@@ -133,7 +129,7 @@ Template.registerHelper('dataSink', (uniqIdentifier) => {
 
     if (sourceTemplate) {
       return sourceTemplate.dataSources[uniqIdentifier].get();
-    } else {
+    } else { // eslint-disable-line no-else-return
       // Should throw error, since there should never be a sink without a source.
       throw new Error(`${uniqIdentifier} dataSource not found.`);
     }
@@ -143,15 +139,11 @@ Template.registerHelper('dataSink', (uniqIdentifier) => {
   return null;
 });
 
-Template.registerHelper('getRoutePath', (routeName) => {
-  return FlowRouter.path(routeName);
-});
+Template.registerHelper('getRoutePath', (routeName) => FlowRouter.path(routeName));
 
 /**
  * Given a set of key-val pairs, will return an object with those key-val pairs.
  * Usage: {{> someTemplate someParam=(object key1="value1" key2="value2")}}
  * See http://blazejs.org/guide/spacebars.html#Calling-helpers-with-arguments on how this works.
  */
-Template.registerHelper('object', ({ hash }) => {
-  return hash;
-});
+Template.registerHelper('object', ({ hash }) => hash);

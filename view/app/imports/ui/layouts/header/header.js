@@ -1,10 +1,13 @@
+import { Meteor } from 'meteor/meteor';
+import { Template } from 'meteor/templating';
+import { FlowRouter } from 'meteor/kadira:flow-router';
 import './header.html';
 
 // Sub-Template Inclusions
 import '../../components/login/login.js';
 import '../../components/liveMeasurementsNavbar/liveMeasurementsNavbar.js';
 
-Template.header.onRendered(function() {
+Template.header.onRendered(function () {
   const template = this;
 
   template.$('.ui.dropdown').dropdown();
@@ -32,17 +35,17 @@ Template.header.helpers({
   },
   pathForMeasurements() {
     return FlowRouter.path('measurementsRoute');
-  }
+  },
 });
 
 Template.header.events({
-  'click #logout-btn': function(event) {
-    Meteor.logout(function(error) {
+  'click #logout-btn': function (event) { // eslint-disable-line no-unused-vars
+    Meteor.logout(function (error) {
       if (error) {
         console.log(error);
       } else {
         console.log('Logged out');
       }
     });
-  }
+  },
 });

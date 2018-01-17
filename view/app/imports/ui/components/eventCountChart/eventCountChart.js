@@ -1,21 +1,22 @@
 import { Template } from 'meteor/templating';
-import { EventMetaData } from '../../../api/eventMetaData/EventMetaDataCollection.js';
+import { ReactiveVar } from 'meteor/reactive-var';
+import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import Chartjs from 'chart.js';
 import Moment from 'moment';
 import { Random } from 'meteor/random';
-import { filterFormSchema } from "../../../utils/schemas.js";
-import { dataContextValidator } from "../../../utils/utils.js";
+import { EventMetaData } from '../../../api/events/EventsCollection.js';
+import { filterFormSchema } from '../../../utils/schemas.js';
+import { dataContextValidator } from '../../../utils/utils.js';
 
 // Templates and Sub-Template Inclusions
 import './eventCountChart.html';
-
 
 
 Template.eventCountChart.onCreated(function () {
   const template = this;
 
   dataContextValidator(template, new SimpleSchema({
-    filters: {type: filterFormSchema, optional: true} // Optional because data context not available immediately.
+    filters: { type: filterFormSchema, optional: true }, // Optional because data context not available immediately.
   }), null);
 
   template.eventCountChart = null;
@@ -24,8 +25,11 @@ Template.eventCountChart.onCreated(function () {
   // Set currentDay reactive var.
   template.autorun(() => {
     const dataContext = Template.currentData();
-    (dataContext && dataContext.filters) ? template.currentDay.set(dataContext.filters.dayPicker)
-                                         : template.currentDay.set(Moment().valueOf());
+    if (dataContext && dataContext.filters) {
+      template.currentDay.set(dataContext.filters.dayPicker);
+    } else {
+      template.currentDay.set(Moment().valueOf());
+    }
   });
 
   // Subscription
@@ -34,7 +38,10 @@ Template.eventCountChart.onCreated(function () {
     if (currentDay) {
       const startOfDay = Moment(currentDay).startOf('day').valueOf(); // Ensure selected day is start of day timestamp.
       const endOfDay = Moment(currentDay).endOf('day').valueOf();
-      template.subscribe(EventMetaData.publicationNames.GET_EVENT_META_DATA, {startTime: startOfDay, endTime: endOfDay});
+      template.subscribe(EventMetaData.publicationNames.GET_EVENT_META_DATA, {
+        startTime: startOfDay,
+        endTime: endOfDay,
+      });
     }
   });
 });
@@ -49,15 +56,22 @@ Template.eventCountChart.onRendered(function () {
     if (currentDay) {
       const startOfDay = Moment(currentDay).startOf('day').valueOf(); // Ensure selected day is start of day timestamp.
       const endOfDay = Moment(currentDay).endOf('day').valueOf();
-      const eventMetaDataSelector = EventMetaData.queryConstructors().getEventMetaData({startTime: startOfDay, endTime: endOfDay});
-      const eventMetaData = EventMetaData.find(eventMetaDataSelector, {sort: {event_end: -1}});
+      const eventMetaDataSelector = EventMetaData.queryConstructors().getEventMetaData({
+        startTime: startOfDay,
+        endTime: endOfDay,
+      });
+      const eventMetaData = EventMetaData.find(eventMetaDataSelector, { sort: { event_end: -1 } });
 
       // Calculate labels. Floor of current hour, then get last 23 hours.
       const currHour = new Date().getHours();
       const hours = [];
       for (let i = 0; i < 24; i++) {
         const hour = currHour - i;
-        (hour < 0) ? hours.push(24 + hour) : hours.push(hour);
+        if (hour < 0) {
+          hours.push(24 + hour);
+        } else {
+          hours.push(hour);
+        }
       }
       hours.reverse(); // Reverse array in-place, so that most recent hour is at the end of the array.
 
@@ -66,17 +80,21 @@ Template.eventCountChart.onRendered(function () {
       eventMetaData.forEach(event => {
         const hour = new Date(event.event_end).getHours();
 
-        // Note that we are only counting the initial triggering device so that our event count matches the calendar count.
-        // If we later decide to count all boxes_triggered per event, just uncomment the forEach block below.
-        const box_id = event.boxes_triggered[0];
+        // Note that we are only counting the initial triggering device so that our event count matches the calendar
+        // count. If we later decide to count all boxes_triggered per event, just uncomment the forEach block below.
+        const boxId = event.boxes_triggered[0];
         // event.boxes_triggered.forEach(box_id => {
-          // Check for deviceId.
-          if (eventCountMap[box_id]) {
-            // Update hour count.
-            (eventCountMap[box_id][hour]) ? eventCountMap[box_id][hour]++ : eventCountMap[box_id][hour] = 1;
+        // Check for deviceId.
+        if (eventCountMap[boxId]) {
+          // Update hour count.
+          if (eventCountMap[boxId][hour]) {
+            eventCountMap[boxId][hour]++;
           } else {
-            eventCountMap[box_id] = {[hour]: 1}; // Create new object to keep track of hour count.
+            eventCountMap[boxId][hour] = 1;
           }
+        } else {
+          eventCountMap[boxId] = { [hour]: 1 }; // Create new object to keep track of hour count.
+        }
         // });
       });
 
@@ -98,7 +116,7 @@ Template.eventCountChart.onRendered(function () {
         type: 'bar',
         data: {
           labels: hours,
-          datasets: chartDatasets
+          datasets: chartDatasets,
         },
         options: {
           scales: {
@@ -106,21 +124,21 @@ Template.eventCountChart.onRendered(function () {
               stacked: true,
               scaleLabel: {
                 display: true,
-                labelString: 'Hour of Day'
-              }
+                labelString: 'Hour of Day',
+              },
             }],
             yAxes: [{
               ticks: {
-                beginAtZero:true
+                beginAtZero: true,
               },
               stacked: true,
               scaleLabel: {
                 display: true,
-                labelString: 'Event Count'
-              }
-            }]
-          }
-        }
+                labelString: 'Event Count',
+              },
+            }],
+          },
+        },
       });
     }
   });

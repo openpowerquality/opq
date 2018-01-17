@@ -1,18 +1,24 @@
+import { Meteor } from 'meteor/meteor';
+import { Template } from 'meteor/templating';
+import { check } from 'meteor/check';
+import { SimpleSchema } from 'meteor/aldeed:simple-schema';
+import { ReactiveVar } from 'meteor/reactive-var';
 import './flashAlert.html';
 
-Template.flashAlert.onCreated(function() {
+Template.flashAlert.onCreated(function () {
   const template = this;
-  
+
   // Validate data context.
   template.autorun(() => {
     new SimpleSchema({
-      flashAlertReactiveVar: {type: ReactiveVar},
-      withMarginTop: {type: Boolean, optional: true}
+      flashAlertReactiveVar: { type: ReactiveVar },
+      withMarginTop: { type: Boolean, optional: true },
     }).validate(Template.currentData());
   });
 
   template.isActive = new ReactiveVar(false);
-  template.flashAlert = template.data.flashAlertReactiveVar; // ReactiveVar from parent template. {message, type, expireAtMillis}.
+  // ReactiveVar from parent template. {message, type, expireAtMillis}.
+  template.flashAlert = template.data.flashAlertReactiveVar;
 
   // Bootstrap alerts by default have margin-bottom: 20px and no margin-top, because alerts usually start displaying at
   // the top of the page. Setting this variable to 'true' will reverse the margins (20px top, 0px bottom). Useful for
@@ -20,7 +26,7 @@ Template.flashAlert.onCreated(function() {
   template.withMarginTop = template.data.withMarginTop;
 
   // Autorun responsible for displaying and hiding alerts when they expire.
-  template.autorun(function() {
+  template.autorun(function () {
     const alert = template.flashAlert.get();
 
     if (alert) {
@@ -28,12 +34,12 @@ Template.flashAlert.onCreated(function() {
       if (expireFromNowMs > 0) {
         template.isActive.set(true); // Un-hides template contents.
 
-        Meteor.setTimeout(function() {
+        Meteor.setTimeout(function () {
           template.isActive.set(false); // Hide template contents after timeout.
         }, expireFromNowMs);
       }
     }
-  })
+  });
 });
 
 Template.flashAlert.helpers({
@@ -65,8 +71,8 @@ Template.flashAlert.helpers({
   },
   withMarginTop() {
     const template = Template.instance();
-    return (template.withMarginTop === true) ? "margin-top: 20px; margin-bottom: 0px" : "";
-  }
+    return (template.withMarginTop === true) ? 'margin-top: 20px; margin-bottom: 0px' : '';
+  },
 });
 
 export const createFlashAlertMsgObject = (message, type, durationSeconds) => {
@@ -74,22 +80,23 @@ export const createFlashAlertMsgObject = (message, type, durationSeconds) => {
   check(type, String);
   check(durationSeconds, Number);
 
+  // eslint-disable-next-line no-param-reassign
   if (durationSeconds > 60) durationSeconds = 60; // Set max time limit of 1 minute.
   const expireAtMillis = Date.now() + (durationSeconds * 1000); // Milliseconds
 
-  return {message, type, expireAtMillis};
+  return { message, type, expireAtMillis };
 };
 
 
-export const setFlashAlert = (flashAlertMsgObj, flashAlertRV) => {
-  check(flashAlertRV, {
-    message: String,
-    type: String,
-    expireAtMillis: Number
-  });
-  check(flashAlertRV, ReactiveVar);
-
-  flashAlertRV.set(flashAlertObj);
-
-  return flashAlertObj;
-};
+// export const setFlashAlert = (flashAlertMsgObj, flashAlertRV) => {
+//   check(flashAlertRV, {
+//     message: String,
+//     type: String,
+//     expireAtMillis: Number,
+//   });
+//   check(flashAlertRV, ReactiveVar);
+//
+//   flashAlertRV.set(flashAlertObj);
+//
+//   return flashAlertObj;
+// };

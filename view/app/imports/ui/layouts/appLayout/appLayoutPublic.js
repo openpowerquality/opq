@@ -1,3 +1,4 @@
+import { Template } from 'meteor/templating';
 // import { BlazeLayout } from 'meteor/kadira:blaze-layout';
 import './appLayoutPublic.html';
 
@@ -16,12 +17,12 @@ Template.appLayoutPublic.onRendered(function appLayoutPublicOnRendered() {
 
   template.$('#main-body .ui.sidebar')
       .sidebar({
-        context: $('#main-body')
+        context: $('#main-body'), // eslint-disable-line no-undef
       });
 });
 
 Template.appLayoutPublic.events({
-  'click #left-menu-expand-toggle': function(event) {
+  'click #left-menu-expand-toggle': function (event) { // eslint-disable-line no-unused-vars
     const template = Template.instance();
 
     if (template.leftMenuIsExpanded) {
@@ -38,7 +39,7 @@ Template.appLayoutPublic.events({
 
     template.leftMenuIsExpanded = !template.leftMenuIsExpanded;
   },
-  'click #right-menu-expand-toggle': function(event) {
+  'click #right-menu-expand-toggle': function (event) { // eslint-disable-line no-unused-vars
     const template = Template.instance();
 
     if (template.rightMenuIsExpanded) {
@@ -54,5 +55,5 @@ Template.appLayoutPublic.events({
     }
 
     template.rightMenuIsExpanded = !template.rightMenuIsExpanded;
-  }
+  },
 });

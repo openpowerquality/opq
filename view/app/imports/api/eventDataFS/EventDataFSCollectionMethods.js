@@ -1,18 +1,19 @@
 import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
-import {EventDataFSFiles, EventDataFSChunks } from './EventDataFSCollection.js';
+import { FSFiles, FSChunks } from './EventDataFSCollection.js';
 
 export const getEventDataFSData = new ValidatedMethod({
   name: 'EventDataFS.getEventDataFSData',
   validate: new SimpleSchema({
-    filename: {type: String}
-  }).validator({clean: true}),
-  run({filename}) {
+    filename: { type: String },
+  }).validator({ clean: true }),
+  run({ filename }) {
     if (!this.isSimulation) {
       // Get file and chunks
-      const file = EventDataFSFiles.findOne({filename});
-      const chunks = EventDataFSChunks.find({files_id: file._id}, {sort: {n: 1}}).fetch();
+      const file = FSFiles.findOne({ filename });
+      const chunks = FSChunks.find({ files_id: file._id }, { sort: { n: 1 } }).fetch();
 
+      // Gridfs seems to store chunks as
       // Need to parse binary data chunks as 16-bit signed int.
       const int16Chunks = []; // Array of chunks.
       let totalSize = 0;
@@ -33,5 +34,6 @@ export const getEventDataFSData = new ValidatedMethod({
 
       return Array.from(combinedInt16Chunks); // Return data as regular array.
     }
-  }
+    return null;
+  },
 });
