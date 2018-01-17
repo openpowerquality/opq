@@ -15,7 +15,7 @@ pub static MONGO_EXPIRE_FIELD: &str = "expireAt";
 
 //Mongo Measurements
 ///Mongo measurements collection.
-pub static MONGO_MEASUREMENT_COLLECTION: &str = "Measurements";
+pub static MONGO_MEASUREMENT_COLLECTION: &str = "measurements";
 ///Mongo measurements collection voltage field.
 pub static MONGO_MEASUREMENTS_VOLTAGE_FIELD: &str = "voltage";
 ///Mongo measurements collection frequency field.
@@ -28,7 +28,7 @@ pub static MONGO_MEASUREMENTS_EXPIRE_TIME_SECONDS: i64 = 60*60*24;
 
 //Mongo Measurements long term
 ///Mongo long term measurements collection
-pub static MONGO_LONG_TERM_MEASUREMENT_COLLECTION: &str = "Trends";
+pub static MONGO_LONG_TERM_MEASUREMENT_COLLECTION: &str = "trends";
 ///Mongo long term measurements collection voltage field.
 pub static MONGO_LONG_TERM_MEASUREMENTS_VOLTAGE_FIELD: &str = "voltage";
 ///Mongo long term measurements collection frequency field.
@@ -45,4 +45,5 @@ pub static MONGO_LONG_TERM_MEASUREMENTS_FILTERED_FIELD: &str = "average";
 
 ///Mongo long term measurements collection update interval.
 pub static MONGO_LONG_TERM_MEASUREMENTS_UPDATE_INTERVAL: i64 = 60;
+
 
