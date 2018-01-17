@@ -117,7 +117,7 @@ bool MongoDriver::append_data_to_event(std::vector<opq::proto::DataMessage> &mes
                                      document{}
                                              << "$push"
                                              << open_document
-                                             << BOXES_RECEIVED_FIELD << to_string(id)
+                                             << BOXES_RECEIVED_FIELD << std::to_string(id)
                                              << TIME_STAMP_FIELD << (int64_t) chrono_to_mili_now()
                                              << close_document
                                              << finalize);
