@@ -37,7 +37,7 @@ static const std::string BOX_EVENT_START_FIELD = "event_start_timestamp_ms";
 static const std::string BOX_EVENT_END_FIELD = "event_end_timestamp_ms";
 
 static const std::string TIME_STAMP_FIELD = "latencies_ms";
-static const std::string WINDOW_TIME_STAMP_FIELD = "window_timestamp_ms";
+static const std::string WINDOW_TIME_STAMP_FIELD = "window_timestamps_ms";
 static const std::string TIME_DATA_FIELD = "data_fs_filename";
 
 static const std::string LOCATION_OPQ_BOXES_FIELD = "locations";
@@ -117,7 +117,7 @@ bool MongoDriver::append_data_to_event(std::vector<opq::proto::DataMessage> &mes
                                      document{}
                                              << "$push"
                                              << open_document
-                                             << BOXES_RECEIVED_FIELD << id
+                                             << BOXES_RECEIVED_FIELD << to_string(id)
                                              << TIME_STAMP_FIELD << (int64_t) chrono_to_mili_now()
                                              << close_document
                                              << finalize);
