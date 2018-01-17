@@ -324,41 +324,98 @@ def parallel_migrate_measurements(measurement: typing.Dict):
 
 
 def parallel_migrate_and_decimate_measurements(device_id: int):
+
+    #Last time we inserted into the db for this box.
+    prev_insert_ts = 0
+    #Last ts processed.
     prev_ts = 0
-    ids_to_delete = []
+
     measurements = parallel_db.measurements
     total_measurements = measurements.count({"device_id": device_id})
+
+    #Trends collection
+    trends = parallel_db.trends
+
     i = 0
 
-    for measurement in measurements.find({"device_id": device_id},
-                                                     ["device_id", "timestamp_ms", "box_id"]).sort("timestamp_ms"):
+    # Mins and maxes
+    v_min = 0.
+    v_max = 0.
+
+    f_min = 0.
+    f_max = 0.
+
+    thd_min = 0.
+    thd_max = 0.
+
+    #Accumulators
+    v_accum = 0.
+    f_accum = 0.
+    thd_accum = 0.
+
+    #Counters
+    v_cnt = 0
+    f_cnt = 0
+    thd_cnt = 0
+
+    #Does this window have THD?
+    has_thd = False
+
+    for measurement in measurements.find({"device_id": device_id}).sort("timestamp_ms"):
 
         if i % 10_000 == 0:
             print("Migrating and decimating measurements for box", device_id, (float(i) / float(total_measurements) * 100.0), "%")
 
-
-        _id = oid(measurement["_id"])
         ts = measurement["timestamp_ms"]
 
-        if ts - prev_ts < 60_000:
-            ids_to_delete.append(_id)
-        else:
-            if "device_id" in measurement and "box_id" not in measurement:
-                box_id = measurement["device_id"]
-                measurements.update_one({"_id": _id},
-                                        {"$rename": {"device_id": "box_id"}})
-            else:
-                box_id = measurement["box_id"]
+        if ts - prev_insert_ts > 60_000:
+            doc["box_id"] = str(device_ids)
+            doc["timestamp_ms"] = prev_ts
+            doc = {
+                "voltage" : {
+                    "max" : v_max,
+                    "min" : v_min,
+                    "average" : v_accum /v_cnt
+                },
+                "frequency" : {
+                    "max" : f_max,
+                    "min" : f_min,
+                    "average" : f_accum /f_cnt
+                }
+            }
+            if has_thd:
+                doc["thd"] = {
+                    "max" : thd_max,
+                    "min" : thd_min,
+                    "average" : thd_accum/thd_cnt
+                }
+            trends.insert_one(doc)
+            v_min = 0.
+            v_max = 0.
+            f_min = 0.
+            f_max = 0.
+            thd_min = 0.
+            thd_max = 0.
+            v_accum = 0.
+            f_accum = 0.
+            thd_accum = 0.
+            v_cnt = 0
+            f_cnt = 0
+            thd_cnt = 0
+            has_thd = False
+            prev_insert_ts = ts
 
-            measurements.update_one({"_id": _id},
-                                    {"$set": {"box_id": str(int(box_id))}})
-
-            prev_ts = ts
-            measurements.delete_many({"_id": {"$in": ids_to_delete}})
-            ids_to_delete.clear()
+        v_accum += measurement["voltage"]
+        f_accum += measurement["frequency"]
+        v_cnt +=1
+        f_cnt +=1
+        if "thd" in measurement:
+            thd_accum += measurement["thd"]
+            thd_cnt += 1
+            has_thd = True
+        prev_ts = ts
 
         i += 1
-
 
 def parallel_raw_waveforms_to_gridfs_fn(box_event: typing.Dict):
     fs = parallel_fs
