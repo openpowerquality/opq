@@ -41,35 +41,27 @@ def update_events_thd(config: typing.Dict, mongo_client: mongo.mongo.OpqMongoCli
     :param config: Mauka configuration.
     :param mongo_client: Instance of a mongo client
     """
-    seen_already = set()
     client = mongo.mongo.get_default_client(mongo_client)
     broker = config["zmq.mauka.plugin.pub.interface"]
-    event_ids_sans_thd = client.data_collection.find({"thd": {"$exists": False}})
-    for event_id in event_ids_sans_thd:
-        event_num = event_id["event_number"]
-        if event_num in seen_already:
-            continue
-        seen_already.add(event_num)
-        plugins.mock.produce(broker, "ThdRequestEvent", str(event_num))
+    box_events = client.box_events_collection.find({"thd": {"$exists": False}},
+                                                         ["event_id"])
+
+    unique_event_ids = set(list(map(lambda box_event: box_event["event_id"], box_events)))
+    for event_id in unique_event_ids:
+        plugins.mock.produce(broker, "ThdRequestEvent", str(event_id))
         time.sleep(.25)
 
 
+
 def update_events_itic(config: typing.Dict, mongo_client: mongo.mongo.OpqMongoClient = None):
-    """
-    Update ITIC values for all events with data that do not have a ITIC calculation.
-    :param config: Mauka configuration.
-    :param mongo_client: Instance of a mongo client
-    """
-    seen_already = set()
     client = mongo.mongo.get_default_client(mongo_client)
     broker = config["zmq.mauka.plugin.pub.interface"]
-    event_ids_sans_thd = client.data_collection.find({"itic": {"$exists": False}})
-    for event_id in event_ids_sans_thd:
-        event_num = event_id["event_number"]
-        if event_num in seen_already:
-            continue
-        seen_already.add(event_num)
-        plugins.mock.produce(broker, "IticRequestEvent", str(event_num))
+    box_events = client.box_events_collection.find({"itic": {"$exists": False}},
+                                                   ["event_id"])
+
+    unique_event_ids = set(list(map(lambda box_event: box_event["event_id"], box_events)))
+    for event_id in unique_event_ids:
+        plugins.mock.produce(broker, "IticRequestEvent", str(event_id))
         time.sleep(.25)
 
 

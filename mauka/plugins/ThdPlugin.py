@@ -81,23 +81,25 @@ class ThdPlugin(plugins.base.MaukaPlugin):
 
     def perform_thd_calculation(self, event_id: int):
         """
-        Extract waveforms associated with event_id, perform thd calculations, and store resulds back to data base.
-        :param event_id: Event id that we are getting waveforms from.
+        Extract waveforms associated with event_id, perform thd calculations, and store results back to mongodb.
+        :param event_id: Event to calculate THD for.
         """
-        event_data = mongo.mongo.load_event(event_id, self.mongo_client)
-        for device_data in event_data["event_data"]:
-            if "data" in device_data and "thd" not in device_data:
-                try:
-                    box_id = device_data["box_id"]
-                    waveform = self.calibrate_waveform(device_data["data"], constants.get_calibration_constant(box_id))
-                    thd = self.thd(waveform)
-                    document_id = device_data["_id"]
-                    self.logger.debug("Calculated THD for " + str(event_id) + ":" + str(box_id))
-                    self.mongo_client.data_collection.update_one({'_id': self.object_id(document_id)},
-                                                                 {"$set": {"thd": thd}})
-                except Exception as e:
-                    print(e.message)
-                    continue
+        try:
+            box_events = self.mongo_client.box_events_collection.find({"event_id": event_id})
+            for box_event in box_events:
+                _id = self.object_id(box_event["_id"])
+                box_id = box_event["box_id"]
+                waveform = mongo.mongo.get_waveform(self.mongo_client, box_event["data_fs_filename"])
+                calibrated_waveform = self.calibrate_waveform(waveform, constants.cached_calibration_constant(box_id))
+                thd = self.thd(calibrated_waveform)
+
+                self.mongo_client.box_events.update_one({"_id": _id},
+                                                        {"$set": {"thd": thd}})
+
+                self.logger.debug("Calculated THD for " + str(event_id) + ":" + str(box_id) + ":" + str(thd))
+        except Exception as e:
+            self.logger.error("Error performing THD calculation: " + str(e))
+            pass
 
     def on_message(self, topic, message):
         """
@@ -107,6 +109,5 @@ class ThdPlugin(plugins.base.MaukaPlugin):
         :param message: Contents of the message.
         """
         event_id = int(message)
-        print(topic, message)
         timer = threading.Timer(self.get_data_after_s, self.perform_thd_calculation, (event_id,))
         timer.start()
