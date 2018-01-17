@@ -6,6 +6,7 @@
 #include "util.h"
 #include <mongocxx/instance.hpp>
 #include <mongocxx/exception/write_exception.hpp>
+#include <mongocxx/exception/query_exception.hpp>
 #include <bsoncxx/builder/stream/document.hpp>
 
 
@@ -18,24 +19,32 @@ using bsoncxx::builder::stream::open_document;
 
 static const std::string OPQ_DB = "opq";
 static const std::string OPQ_EVENT_COLLECTION = "events";
-static const std::string OPQ_DATA_COLLECTION = "data";
+static const std::string OPQ_DATA_COLLECTION = "box_events";
+static const std::string OPQ_BOX_COLLECTION = "opq_boxes";
+
 static const std::string BOX_ID_FIELD = "box_id";
-static const std::string EVENT_NUMBER_FIELD = "event_number";
+static const std::string EVENT_NUMBER_FIELD = "event_id";
 static const std::string EVENT_TYPE_FIELD = "type";
 static const std::string DESCRIPTION_FIELD = "description";
 static const std::string BOXES_TRIGGERED_FIELD = "boxes_triggered";
 static const std::string BOXES_RECEIVED_FIELD = "boxes_received";
-static const std::string EVENT_START_FIELD = "event_start";
-static const std::string EVENT_END_FIELD = "event_end";
-static const std::string TIME_STAMP_FIELD = "time_stamp";
-static const std::string TIME_DATA_FIELD = "data";
+static const std::string EVENT_START_FIELD = "event_start_timestamp_ms";
+static const std::string EVENT_END_FIELD = "event_end_timestamp_ms";
 
+static const std::string BOX_EVENT_START_FIELD = "event_start_timestamp_ms";
+static const std::string BOX_EVENT_END_FIELD = "event_end_timestamp_ms";
 
+static const std::string TIME_STAMP_FIELD = "latencies_ms";
+static const std::string TIME_DATA_FIELD = "data_fs_filename";
+
+static const std::string LOCATION_OPQ_BOXES_FIELD = "locations";
+static const std::string LOCATION_BOX_EVENT_FIELD = "location";
 
 MongoDriver::MongoDriver(std::string uri) : _client(mongocxx::uri(uri)){
     _db = _client[OPQ_DB];
     _event_collection = _db[OPQ_EVENT_COLLECTION];
     _data_collection = _db[OPQ_DATA_COLLECTION];
+    _box_collection = _db[OPQ_BOX_COLLECTION];
     _bucket = _db.gridfs_bucket();
 }
 
@@ -62,10 +71,11 @@ bool MongoDriver::create_event(opq::proto::RequestEventMessage &m, uint64_t ts, 
 
     auto box_array = builder << BOXES_TRIGGERED_FIELD << open_array;
     std::for_each(m.box_ids().begin(), m.box_ids().end(),
-                  [&box_array](int box){box_array << box;});
+                  [&box_array](int box){box_array << std::to_string(box);});
 
     box_array << close_array;
     builder << BOXES_RECEIVED_FIELD << open_array << close_array;
+    builder << TIME_STAMP_FIELD << open_array << close_array;
     builder << EVENT_START_FIELD << (int64_t)m.start_timestamp_ms_utc()
             << EVENT_END_FIELD << (int64_t)m.end_timestamp_ms_utc();
     bsoncxx::document::value doc_value = builder << finalize;
@@ -102,11 +112,11 @@ bool MongoDriver::append_data_to_event(std::vector<opq::proto::DataMessage> &mes
 
     auto builder = bsoncxx::builder::stream::document{};
     auto start_time = messages.front().cycles().Get(0).time();
-    size_t cycle_size = (size_t) messages.front().cycles().size();
+    auto cycle_size = (size_t) messages.front().cycles().size();
     auto end_time = messages.front().cycles().Get(cycle_size - 1).time();
-    builder << BOX_ID_FIELD << id
-            << EVENT_START_FIELD << (int64_t) start_time
-            << EVENT_END_FIELD << (int64_t) end_time
+    builder << BOX_ID_FIELD << std::to_string(id)
+            << BOX_EVENT_START_FIELD << (int64_t) start_time
+            << BOX_EVENT_END_FIELD << (int64_t) end_time
             << EVENT_NUMBER_FIELD << (int32_t) event_num;
     auto time_array_context = builder << TIME_STAMP_FIELD << bsoncxx::builder::stream::open_array;
     for (auto &message : messages) {
@@ -116,7 +126,27 @@ bool MongoDriver::append_data_to_event(std::vector<opq::proto::DataMessage> &mes
     }
     time_array_context << close_array;
     builder << TIME_DATA_FIELD << data_file;
-    bsoncxx::document::value doc_value = builder << bsoncxx::builder::stream::finalize;
+
+    //Fill in location.
+    try {
+        mongocxx::options::find opts{};
+        opts.projection(document{} << LOCATION_OPQ_BOXES_FIELD << open_document << "$slice" << "-1" << close_document << finalize);
+
+        auto locations = _box_collection.find_one(document{} << BOX_ID_FIELD << std::to_string(id) << finalize,
+                                                 opts
+        );
+        if(locations){
+            auto location = ((*locations).view())[LOCATION_OPQ_BOXES_FIELD][0];
+            if(location){
+                builder << LOCATION_BOX_EVENT_FIELD << location.get_value();
+            }
+        }
+    }
+    catch (const mongocxx::query_exception &e) {
+        std::cout << e.what() << std::endl;
+    }
+
+    bsoncxx::document::value doc_value = builder << finalize;
 
     try {
         auto result = _data_collection.insert_one(doc_value.view());
