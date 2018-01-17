@@ -1,7 +1,8 @@
 import { Meteor } from 'meteor/meteor';
+import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import BaseCollection from '../base/BaseCollection.js';
 import { Events } from '../events/EventsCollection';
-import { progressBarSetup } from "../../modules/utils";
+import { progressBarSetup } from '../../modules/utils';
 
 /**
  * Collection class for the box_events collection.
@@ -13,24 +14,22 @@ class BoxEventsCollection extends BaseCollection {
    * Creates the collection.
    */
   constructor() {
-    super('box_events',
-        new SimpleSchema({
-          event_id: {type: Number},
-          box_id: {type: String},
-          event_start_timestamp_ms: {type: Number},
-          event_end_timestamp_ms: {type: Number},
-          window_timestamps_ms: {type: [Number]}, // For research purposes.
-          thd: {type: Number},
-          itic: {type: String},
-          location: {type: Object, optional: true},
-          'location.start_time': {type: Number},
-          'location.zipcode': {type: Number},
-          data_fs_filename: {type: String} // Stores the GridFs filename. Format is 'event_eventNumber_boxId'
-        })
-    );
+    super('box_events', new SimpleSchema({
+      event_id: { type: Number },
+      box_id: { type: String },
+      event_start_timestamp_ms: { type: Number },
+      event_end_timestamp_ms: { type: Number },
+      window_timestamps_ms: { type: [Number] }, // For research purposes.
+      thd: { type: Number },
+      itic: { type: String },
+      location: { type: Object, optional: true },
+      'location.start_time': { type: Number },
+      'location.zipcode': { type: Number },
+      data_fs_filename: { type: String }, // Stores the GridFs filename. Format is 'event_eventNumber_boxId'
+    }));
 
     this.publicationNames = {
-      EVENT_DATA: 'event_data'
+      EVENT_DATA: 'event_data',
     };
   }
 
@@ -48,7 +47,9 @@ class BoxEventsCollection extends BaseCollection {
    * @returns The newly created document ID.
    */
   define({ event_id, box_id, event_start, event_end, window_timestamps, thd, itic, location, data_fs_filename }) {
-    const docID = this._collection.insert({ event_id, box_id, event_start, event_end, window_timestamps, thd, itic, location, data_fs_filename });
+    const docID = this._collection.insert({
+      event_id, box_id, event_start, event_end, window_timestamps, thd, itic, location, data_fs_filename,
+    });
     return docID;
   }
 
@@ -58,6 +59,7 @@ class BoxEventsCollection extends BaseCollection {
    * @returns {Object} - An object representing a single BoxEvent.
    */
   dumpOne(docID) {
+    /* eslint-disable camelcase */
     const doc = this.findDoc(docID);
     const event_id = doc.event_id;
     const box_id = doc.box_id;
@@ -69,7 +71,8 @@ class BoxEventsCollection extends BaseCollection {
     const location = doc.location;
     const data_fs_filename = doc.data_fs_filename;
 
-    return { event_id, box_id, event_start, event_end, window_timestamps, thd, itic, location, data_fs_filename }
+    return { event_id, box_id, event_start, event_end, window_timestamps, thd, itic, location, data_fs_filename };
+    /* eslint-enable camelcase */
   }
 
   checkIntegrity() {
@@ -84,12 +87,13 @@ class BoxEventsCollection extends BaseCollection {
       // Validate each document against the collection schema.
       validationContext.validate(doc);
       if (!validationContext.isValid) {
+        // eslint-disable-next-line max-len
         problems.push(`BoxEvent document failed schema validation: ${doc._id} (Invalid keys: ${validationContext.invalidKeys()})`);
       }
       validationContext.resetValidation();
 
       // Ensure event_id points to an existing Event document.
-      if (Events.find({event_id: doc.event_id}).count() < 1) {
+      if (Events.find({ event_id: doc.event_id }).count() < 1) {
         problems.push(`BoxEvent event_id does not exist in Events collection: ${doc._id}`);
       }
     });
@@ -101,9 +105,8 @@ class BoxEventsCollection extends BaseCollection {
   /**
    * Loads all publications related to this collection.
    */
-  publish() {
-    if (Meteor.isServer) {
-
+  publish() { // eslint-disable-line class-methods-use-this
+    if (Meteor.isServer) { // eslint-disable-line no-empty
     }
   }
 }

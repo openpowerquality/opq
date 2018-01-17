@@ -1,8 +1,10 @@
 import { Meteor } from 'meteor/meteor';
+import { SimpleSchema } from 'meteor/aldeed:simple-schema';
+import { Accounts } from 'meteor/accounts-base';
+import { Roles } from 'meteor/alanning:roles';
 import BaseCollection from '../base/BaseCollection.js';
 import { OpqBoxes } from '../opq-boxes/OpqBoxesCollection';
-import  { Accounts } from 'meteor/accounts-base';
-import { Roles } from 'meteor/alanning:roles';
+
 /**
  * Collection class for the users collection.
  * Docs: https://open-power-quality.gitbooks.io/open-power-quality-manual/content/datamodel/description.html#users
@@ -13,28 +15,26 @@ class UsersCollection extends BaseCollection {
    * Creates the collection.
    */
   constructor() {
-    super('usersCollection',
-        new SimpleSchema({
-          email: {type: String},
-          password: {type: String},
-          first_name: {type: String},
-          last_name: {type: String},
-          boxes: {type: [Number]}, // Array of box_id's
-          role: {type: String}
-        })
-    );
+    super('usersCollection', new SimpleSchema({
+      email: { type: String },
+      password: { type: String },
+      first_name: { type: String },
+      last_name: { type: String },
+      boxes: { type: [Number] }, // Array of box_id's
+      role: { type: String },
+    }));
 
     Accounts.onCreateUser((options, userDoc) => {
-      if (options.first_name) userDoc.first_name = options.first_name;
-      if (options.last_name) userDoc.last_name = options.last_name;
-      (options.boxes && options.boxes.length > 0) ? userDoc.boxes = options.boxes : userDoc.boxes = [];
-      return userDoc;
+      const modifiedUserDoc = Object.assign({}, userDoc); // Clone userDoc so we don't mutate it directly.
+      if (options.first_name) modifiedUserDoc.first_name = options.first_name;
+      if (options.last_name) modifiedUserDoc.last_name = options.last_name;
+      modifiedUserDoc.boxes = (options.boxes && options.boxes.length > 0) ? options.boxes : [];
+      return modifiedUserDoc;
     });
 
     this.publicationNames = {
 
     };
-
   }
 
   /**
@@ -46,13 +46,14 @@ class UsersCollection extends BaseCollection {
    * @param {[Number]} boxes - The OPQBoxes this user has acccess to.
    * @param {String} role - The role of the user.
    */
+  // eslint-disable-next-line class-methods-use-this
   define({ email, password, first_name, last_name, boxes = [], role = 'user' }) {
     // const docID = this._collection.insert({ email, password, first_name, last_name, boxes, role });
 
     // Verify that boxes array contains valid OpqBox ids.
-    boxes.forEach(box_id => {
-      const box = OpqBoxes.findOne({box_id: box_id});
-      if (!box) throw new Meteor.Error(`Boxes contains an invalid box_id: ${box_id}`);
+    boxes.forEach(boxId => {
+      const box = OpqBoxes.findOne({ box_id: boxId });
+      if (!box) throw new Meteor.Error(`Boxes contains an invalid box_id: ${boxId}`);
     });
 
     // Ensure that role is either 'user' or 'admin'.
@@ -69,7 +70,7 @@ class UsersCollection extends BaseCollection {
       password: password,
       first_name: first_name,
       last_name: last_name,
-      boxes: boxes
+      boxes: boxes,
     });
 
     // Set user role.
@@ -77,7 +78,7 @@ class UsersCollection extends BaseCollection {
     if (userId) {
       Roles.addUsersToRoles(userId, [role], 'opq-view');
     }
-    
+
     return userId;
   }
 
@@ -87,6 +88,7 @@ class UsersCollection extends BaseCollection {
    * @returns {Object} - An object representing a single User.
    */
   dumpOne(docID) {
+    /* eslint-disable camelcase */
     const doc = this.findDoc(docID);
     const email = doc.email;
     const password = doc.password;
@@ -95,7 +97,8 @@ class UsersCollection extends BaseCollection {
     const boxes = doc.boxes;
     const role = doc.roles;
 
-    return { email, password, first_name, last_name, boxes, role }
+    return { email, password, first_name, last_name, boxes, role };
+    /* eslint-enable camelcase */
   }
 
   /**
@@ -103,10 +106,8 @@ class UsersCollection extends BaseCollection {
    * Note: We conditionally import the publications file only on the server as a way to hide publication code from
    * being sent to the client.
    */
-  publish() {
-    if (Meteor.isServer) {
-      const eventDataPublications = require('./EventDataCollectionPublications.js').eventDataCollectionPublications;
-      eventDataPublications();
+  publish() { // eslint-disable-line class-methods-use-this
+    if (Meteor.isServer) { // eslint-disable-line no-empty
     }
   }
 }

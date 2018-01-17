@@ -1,6 +1,7 @@
 import { Meteor } from 'meteor/meteor';
 import { Mongo } from 'meteor/mongo';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
+import _ from 'lodash';
 
 /**
  * BaseCollection is an abstract superclass of all other collection classes.
@@ -19,7 +20,7 @@ class BaseCollection {
 
     this._collectionName = collectionName;
     this._schema = schema;
-    this._collection = new Mongo.Collection(collectionName, {idGeneration: 'MONGO'});
+    this._collection = new Mongo.Collection(collectionName, { idGeneration: 'MONGO' });
     this._collection.attachSchema(schema);
   }
 
@@ -52,7 +53,8 @@ class BaseCollection {
 
   /**
    * Calls the MongoDB native findOne() on this collection.
-   * @see {@link http://docs.meteor.com/api/collections.html#Mongo-Collection-findOne|Meteor Docs Mongo.Collection.findOne()}
+   * @see {@link http://docs.meteor.com/api/collections.html#Mongo-Collection-findOne|
+   * Meteor Docs Mongo.Collection.findOne()}
    * @param {Object} selector - A MongoDB selector object.
    * @param {Object} options - A MongoDB options object.
    * @returns {Object} - The document containing the results of the query.
@@ -82,13 +84,14 @@ class BaseCollection {
    * @param {String} publicationName - The name of the publication.
    * @param {Object} templateInstance - The template instance.
    * @param {...*} subscriptionArgs - The arguments to pass to the subscription function call.
-   * @returns {Object} - The subscription handle object.
+   * @returns {Object} - The subscription handle object, or null if the subscription could not be established.
    */
-  subscribe(publicationName, templateInstance, ...subscriptionArgs) {
+  subscribe(publicationName, templateInstance, ...subscriptionArgs) { // eslint-disable-line class-methods-use-this
     if (Meteor.isClient) {
       const subscribeFn = (templateInstance) ? templateInstance.subscribe.bind(templateInstance) : Meteor.subscribe;
       return subscribeFn(publicationName, ...subscriptionArgs);
     }
+    return null;
   }
 
   /**
@@ -97,7 +100,7 @@ class BaseCollection {
    * @param docID - A docID from this collection.
    * @returns { Object } - An object representing this document.
    */
-  dumpOne(docID) {
+  dumpOne(docID) { // eslint-disable-line no-unused-vars
     throw new Meteor.Error(`Default dumpOne method invoked by collection ${this._collectionName}`);
   }
 
@@ -119,11 +122,12 @@ class BaseCollection {
    * @returns {Object} - The found document.
    */
   findDoc(docID) {
-    const doc = this.findOne({_id: docID}, {});
+    const doc = this.findOne({ _id: docID }, {});
     if (!doc) {
-      throw new Meteor.Error(`Could not find a document with docID: ${docID} in the collection: ${this._collectionName}.`)
+      // eslint-disable-next-line max-len
+      throw new Meteor.Error(`Could not find a document with docID: ${docID} in the collection: ${this._collectionName}.`);
     }
-    return doc
+    return doc;
   }
 
   /**
@@ -131,7 +135,7 @@ class BaseCollection {
    * their own integrity checker, if it is needed.
    * @returns {[String]} - Array containing a string indicating the use of the default integrity checker.
    */
-  checkIntegrity() {
+  checkIntegrity() { // eslint-disable-line class-methods-use-this
     return ['There is no integrity checker defined for this collection.'];
   }
 

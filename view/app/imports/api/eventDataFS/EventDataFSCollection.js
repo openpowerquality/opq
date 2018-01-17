@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { Meteor } from 'meteor/meteor';
 
 // export const EventDataFSFiles = (Meteor.isServer) ? new Mongo.Collection('fs.files', {idGeneration: 'MONGO', _driver: new MongoInternals.RemoteCollectionDriver(Meteor.settings.opqRemoteMongoUrl)})

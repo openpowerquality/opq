@@ -1,6 +1,7 @@
 import { Meteor } from 'meteor/meteor';
-import BaseCollection from '../base/BaseCollection.js';
 import { check, Match } from 'meteor/check';
+import { SimpleSchema } from 'meteor/aldeed:simple-schema';
+import BaseCollection from '../base/BaseCollection.js';
 import { progressBarSetup } from '../../modules/utils';
 
 /**
@@ -13,18 +14,16 @@ class EventsCollection extends BaseCollection {
    * Creates the collection.
    */
   constructor() {
-    super('events',
-        new SimpleSchema({
-          event_id: {type: Number},
-          type: {type: String},
-          description: {type: String},
-          boxes_triggered: {type: [Number]}, // List of box_id's
-          latencies: {type: [Number]}
-        })
-    );
+    super('events', new SimpleSchema({
+      event_id: { type: Number },
+      type: { type: String },
+      description: { type: String },
+      boxes_triggered: { type: [Number] }, // List of box_id's
+      latencies_ms: { type: [Number] },
+    }));
 
     this.publicationNames = {
-      GET_EVENT_META_DATA: 'get_event_meta_data'
+      GET_EVENT_META_DATA: 'get_event_meta_data',
     };
   }
 
@@ -33,7 +32,7 @@ class EventsCollection extends BaseCollection {
    * @param {Number} event_id - The event's id value (not Mongo ID)
    * @param {String} type - The unix timestamp (millis) of the measurement.
    * @param {String} description - The description of the event.
-   * @param {Number} boxes_triggered - The OPQBoxes which data was requested (but not necessarily received) for this event.
+   * @param {Number} boxes_triggered - The OPQBoxes from which data was requested for this event.
    * @param {Number} latencies - Array of unix timestamps for the event. See docs for details.
    * @returns The newly created document ID.
    */
@@ -48,6 +47,7 @@ class EventsCollection extends BaseCollection {
    * @returns {Object} - An object representing a single Event.
    */
   dumpOne(docID) {
+    /* eslint-disable camelcase */
     const doc = this.findDoc(docID);
     const event_id = doc.event_id;
     const type = doc.type;
@@ -55,7 +55,8 @@ class EventsCollection extends BaseCollection {
     const boxes_triggered = doc.boxes_triggered;
     const latencies = doc.latencies;
 
-    return { event_id, type, description, boxes_triggered, latencies }
+    return { event_id, type, description, boxes_triggered, latencies };
+    /* eslint-enable camelcase */
   }
 
   checkIntegrity() {
@@ -70,6 +71,7 @@ class EventsCollection extends BaseCollection {
       // Validate each document against the collection schema.
       validationContext.validate(doc);
       if (!validationContext.isValid) {
+        // eslint-disable-next-line max-len
         problems.push(`Events document failed schema validation: ${doc._id} (Invalid keys: ${validationContext.invalidKeys()})`);
       }
       validationContext.resetValidation();
@@ -87,31 +89,29 @@ class EventsCollection extends BaseCollection {
    */
   publish() {
     if (Meteor.isServer) {
-      Meteor.publish(this.publicationNames.GET_EVENT_META_DATA, function({startTime, endTime}) {
+      Meteor.publish(this.publicationNames.GET_EVENT_META_DATA, function ({ startTime, endTime }) {
         check(startTime, Match.Maybe(Number));
         check(endTime, Match.Maybe(Number));
 
-        const selector = this.queryConstructors().getEventMetaData({startTime, endTime});
+        const selector = this.queryConstructors().getEventMetaData({ startTime, endTime });
         return this.find(selector, {});
       });
     }
   }
 
-  queryConstructors() {
+  queryConstructors() { // eslint-disable-line class-methods-use-this
     return {
-      getEventMetaData({startTime, endTime}) {
+      getEventMetaData({ startTime, endTime }) {
         check(startTime, Match.Maybe(Number));
         check(endTime, Match.Maybe(Number));
 
         const selector = {};
-        if (startTime) selector.event_start = {$gte: startTime};
-        if (endTime) selector.event_end = {$lte: endTime};
+        if (startTime) selector.event_start = { $gte: startTime };
+        if (endTime) selector.event_end = { $lte: endTime };
 
         return selector;
-      }
-    }
+      } };
   }
-
 }
 
 /**

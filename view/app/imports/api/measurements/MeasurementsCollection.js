@@ -1,4 +1,6 @@
 import { Meteor } from 'meteor/meteor';
+import { check } from 'meteor/check';
+import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import BaseCollection from '../base/BaseCollection.js';
 import { OpqBoxes } from '../opq-boxes/OpqBoxesCollection';
 import { progressBarSetup } from '../../modules/utils';
@@ -9,17 +11,15 @@ class MeasurementsCollection extends BaseCollection {
    * Creates the Measurements collection.
    */
   constructor() {
-    super('measurements',
-        new SimpleSchema({
-          box_id: {type: String},
-          timestamp_ms: {type: Number},
-          voltage: {type: Number},
-          frequency: {type: Number}
-        })
-    );
+    super('measurements', new SimpleSchema({
+      box_id: { type: String },
+      timestamp_ms: { type: Number },
+      voltage: { type: Number },
+      frequency: { type: Number },
+    }));
 
     this.publicationNames = {
-      RECENT_MEASUREMENTS: 'recent_measurements'
+      RECENT_MEASUREMENTS: 'recent_measurements',
     };
   }
 
@@ -42,13 +42,15 @@ class MeasurementsCollection extends BaseCollection {
    * @returns {Object} - An object representing a single Measurement.
    */
   dumpOne(docID) {
+    /* eslint-disable camelcase */
     const doc = this.findDoc(docID);
     const box_id = doc.box_id;
     const timestamp_ms = doc.timestamp_ms;
     const voltage = doc.voltage;
     const frequency = doc.frequency;
 
-    return { box_id, timestamp_ms, voltage, frequency }
+    return { box_id, timestamp_ms, voltage, frequency };
+    /* eslint-enable camelcase */
   }
 
   checkIntegrity() {
@@ -66,6 +68,7 @@ class MeasurementsCollection extends BaseCollection {
       // Validate each document against the collection schema.
       validationContext.validate(doc);
       if (!validationContext.isValid) {
+        // eslint-disable-next-line max-len
         problems.push(`Measurements document failed schema validation: ${doc._id} (Invalid keys: ${validationContext.invalidKeys()})`);
       }
       validationContext.resetValidation();
@@ -85,28 +88,30 @@ class MeasurementsCollection extends BaseCollection {
    * Note: We conditionally import the publications file only on the server as a way to hide publication code from
    * being sent to the client.
    */
-  publish() {
+  publish() { // eslint-disable-line class-methods-use-this
     if (Meteor.isServer) {
-      Meteor.publish(Measurements.publicationNames.RECENT_MEASUREMENTS, function (startTimeSecondsAgo, deviceId) {
+      Meteor.publish(this.publicationNames.RECENT_MEASUREMENTS, function (startTimeSecondsAgo, deviceId) {
         check(startTimeSecondsAgo, Number);
-        const self = this;
+        check(deviceId, Number);
 
+        const self = this;
 
         // const userId = this.userId;
         // if (!userId) throw new Meteor.Error('publications.notLoggedIn', 'Must log in to access page.');
 
         const startTimeMs = Date.now() - (startTimeSecondsAgo * 1000);
+        // eslint-disable-next-line max-len
         const publishedMeasurementsMap = new Map(); // {timestamp: id} - To keep track of currently published measurements.
 
         const selector = (deviceId) ? {
           device_id: deviceId,
-          timestamp_ms: {$gte: startTimeMs}
-        } : {timestamp_ms: {$gte: startTimeMs}};
+          timestamp_ms: { $gte: startTimeMs },
+        } : { timestamp_ms: { $gte: startTimeMs } };
 
         let init = true;
-        const measurementsHandle = Measurements.find(selector, {
-          fields: {_id: 1, timestamp_ms: 1, voltage: 1, frequency: 1, device_id: 1},
-          pollingIntervalMs: 1000
+        const measurementsHandle = this.find(selector, {
+          fields: { _id: 1, timestamp_ms: 1, voltage: 1, frequency: 1, device_id: 1 },
+          pollingIntervalMs: 1000,
         }).observeChanges({
           added: function (id, fields) {
             publishedMeasurementsMap.set(fields.timestamp_ms, id);
@@ -114,14 +119,15 @@ class MeasurementsCollection extends BaseCollection {
 
             if (!init) {
               const startTime = Date.now() - (startTimeSecondsAgo * 1000);
-              publishedMeasurementsMap.forEach((id, timestamp) => { // Note: (id, timestamp) corresponds to (value, key)
+              // Note: (_id, timestamp) corresponds to (value, key); for some reason Map's foreach is called this way.
+              publishedMeasurementsMap.forEach((_id, timestamp) => {
                 if (timestamp < startTime) {
-                  self.removed('measurements', id);
+                  self.removed('measurements', _id);
                   publishedMeasurementsMap.delete(timestamp);
                 }
               });
             }
-          }
+          },
         });
         init = false;
         self.ready();

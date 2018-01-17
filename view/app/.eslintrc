@@ -34,5 +34,8 @@
     "import/imports-first": "off",
     "import/prefer-default-export": "off",
     "import/no-extraneous-dependencies": "off"
+  },
+  "globals": {
+    "Assets": true // Meteor doesn't allow importing of Assets package, see https://docs.meteor.com/api/assets.html
   }
 }

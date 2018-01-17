@@ -1,37 +1,43 @@
-import { Meteor } from 'meteor/meteor';
 import { Mongo } from 'meteor/mongo';
+import _ from 'lodash';
 import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import { Measurements } from './MeasurementsCollection.js';
-import { EventMetaData } from '../events/EventsCollection.js';
+import { Events } from '../events/EventsCollection.js';
 
 export const getActiveDeviceIdsVM = new ValidatedMethod({
   name: 'Measurements.getActiveDeviceIds',
   validate: new SimpleSchema({
-    startTimeMs: {type: Number}
-  }).validator({clean: true}),
+    startTimeMs: { type: Number },
+  }).validator({ clean: true }),
   run({ startTimeMs }) {
-    const recentMeasurements = Measurements.find({timestamp_ms: {$gte: startTimeMs}}, {fields: {device_id: 1}}).fetch();
+    const recentMeasurements = Measurements.find({
+      timestamp_ms: { $gte: startTimeMs },
+    }, {
+      fields: { device_id: 1 },
+    }).fetch();
 
     // Returns an array of unique deviceIds, sorted asc.
-    return (recentMeasurements.length > 0) ? _.uniq(_.pluck(recentMeasurements, 'device_id')).sort((a, b) => a - b) : null;
-  }
+    return (recentMeasurements.length > 0)
+        ? _.uniq(_.pluck(recentMeasurements, 'device_id')).sort((a, b) => a - b)
+        : null;
+  },
 });
 
 export const getEventMeasurementsByMetaDataId = new ValidatedMethod({
   name: 'Measurements.getEventMeasurementsByMetaDataId',
   validate: new SimpleSchema({
-    eventMetaDataId: {type: Mongo.ObjectID}
-  }).validator({clean: true}),
+    eventMetaDataId: { type: Mongo.ObjectID },
+  }).validator({ clean: true }),
   run({ eventMetaDataId }) {
     if (!this.isSimulation) {
-      const eventMetaData = EventMetaData.findOne({_id: eventMetaDataId});
+      const eventMetaData = Events.findOne({ _id: eventMetaDataId });
 
       const eventMeasurements = Measurements.find({
         device_id: eventMetaData.boxes_triggered[0], // Just look at first triggering device for now.
-        timestamp_ms: {$gte: eventMetaData.event_start, $lte: eventMetaData.event_end}
+        timestamp_ms: { $gte: eventMetaData.event_start, $lte: eventMetaData.event_end },
       }, {
-        sort: {event_end: 1}
+        sort: { event_end: 1 },
       }).fetch();
 
       const firstMeasurementTimestamp = eventMeasurements[0].timestamp_ms;
@@ -44,34 +50,35 @@ export const getEventMeasurementsByMetaDataId = new ValidatedMethod({
 
       const precedingMeasurements = Measurements.find({
         device_id: eventMetaData.boxes_triggered[0],
-        timestamp_ms: {$gte: precedingTimestamp, $lte: firstMeasurementTimestamp}
+        timestamp_ms: { $gte: precedingTimestamp, $lte: firstMeasurementTimestamp },
       }, {}).fetch();
 
       const proceedingMeasurements = Measurements.find({
         device_id: eventMetaData.boxes_triggered[0],
-        timestamp_ms: {$gte: lastMeasurementTimestamp, $lte: proceedingTimestamp}
+        timestamp_ms: { $gte: lastMeasurementTimestamp, $lte: proceedingTimestamp },
       }, {}).fetch();
 
-      return {eventMeasurements, precedingMeasurements, proceedingMeasurements};
+      return { eventMeasurements, precedingMeasurements, proceedingMeasurements };
     }
 
-  }
+    return null;
+  },
 });
 
 export const getEventMeasurements = new ValidatedMethod({
   name: 'Measurements.getEventMeasurements',
   validate: new SimpleSchema({
-    device_id: {type: Number, optional: true}, // Get rid of optional later.
-    startTime: {type: Number, optional: true},
-    endTime: {type: Number, optional: true}
-  }).validator({clean: true}),
+    device_id: { type: Number, optional: true }, // Get rid of optional later.
+    startTime: { type: Number, optional: true },
+    endTime: { type: Number, optional: true },
+  }).validator({ clean: true }),
   run({ device_id, startTime, endTime }) {
     if (!this.isSimulation) {
       const eventMeasurements = Measurements.find({
         device_id,
-        timestamp_ms: {$gte: startTime, $lte: endTime}
+        timestamp_ms: { $gte: startTime, $lte: endTime },
       }, {
-        sort: {event_end: 1}
+        sort: { event_end: 1 },
       }).fetch();
 
       const firstMeasurementTimestamp = eventMeasurements[0].timestamp_ms;
@@ -84,18 +91,18 @@ export const getEventMeasurements = new ValidatedMethod({
 
       const precedingMeasurements = Measurements.find({
         device_id,
-        timestamp_ms: {$gte: precedingTimestamp, $lte: firstMeasurementTimestamp}
+        timestamp_ms: { $gte: precedingTimestamp, $lte: firstMeasurementTimestamp },
       }, {}).fetch();
 
       const proceedingMeasurements = Measurements.find({
         device_id,
-        timestamp_ms: {$gte: lastMeasurementTimestamp, $lte: proceedingTimestamp}
+        timestamp_ms: { $gte: lastMeasurementTimestamp, $lte: proceedingTimestamp },
       }, {}).fetch();
 
-      return {eventMeasurements, precedingMeasurements, proceedingMeasurements};
+      return { eventMeasurements, precedingMeasurements, proceedingMeasurements };
     }
-
-  }
+    return null;
+  },
 });
 
 export const dygraphMergeDatasets = (xFieldName, yFieldName, ...datasets) => {
@@ -124,7 +131,6 @@ export const dygraphMergeDatasets = (xFieldName, yFieldName, ...datasets) => {
         const arr = mergedData.get(x);
         arr[writeIndex] = y;
         mergedData.set(x, arr);
-
       } else {
         // Create a null filled array of length equal to number of datasets.
         const newArr = new Array(numDatasets).fill(null);
@@ -134,9 +140,7 @@ export const dygraphMergeDatasets = (xFieldName, yFieldName, ...datasets) => {
     });
   });
 
-  const mergedDataset = Array.from(mergedData.keys()).map(key => {
-    return [key, ...mergedData.get(key)];
-  });
+  const mergedDataset = Array.from(mergedData.keys()).map(key => [key, ...mergedData.get(key)]);
 
   // Sort by the independent variable, which is the 0th index of each array.
   mergedDataset.sort((a, b) => a[0] - b[0]);
