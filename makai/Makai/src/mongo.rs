@@ -17,27 +17,40 @@ use time::Duration;
 
 use constants::*;
 use opq::*;
-use filter::LowPass;
 
 struct MeasurementStatistics {
     pub min: f32,
     pub max: f32,
+    pub average_accum: f32,
+    pub count: u32
 }
 
 impl MeasurementStatistics {
+    pub fn new(new_value : f32) -> MeasurementStatistics{
+        MeasurementStatistics{
+            min: new_value,
+            max: new_value,
+            average_accum: new_value,
+            count : 0
+        }
+    }
+
     pub fn update(&mut self, new_value: f32) {
         if new_value < self.min {
             self.min = new_value;
         } else if new_value > self.max {
             self.max = new_value;
         }
+        self.average_accum += new_value;
+        self.count += 1;
+    }
+
+    pub fn get_average(&mut self) -> f32 {
+        self.average_accum/(self.count as f32)
     }
 }
 
 struct MeasurementDecimator {
-    v_filter: LowPass,
-    f_filter: LowPass,
-    thd_filter: LowPass,
     v_measurement: Option<MeasurementStatistics>,
     f_measurement: Option<MeasurementStatistics>,
     thd_measurement: Option<MeasurementStatistics>,
@@ -47,37 +60,15 @@ struct MeasurementDecimator {
 
 impl MeasurementDecimator {
     pub fn new() -> MeasurementDecimator {
-        let mut ret = MeasurementDecimator {
-            v_filter: LowPass::new(),
-            f_filter: LowPass::new(),
-            thd_filter: LowPass::new(),
+        MeasurementDecimator {
             v_measurement: None,
             f_measurement: None,
             thd_measurement: None,
             last_insert: Utc::now(),
-        };
-        ret.v_filter.set_coefficients(MONGO_LONG_TERM_MEASUREMENTS_LPF_SAMPLING_RATE,
-                                      MONGO_LONG_TERM_MEASUREMENTS_LPF_CUTOFF_FREQUENCY,
-                                      MONGO_LONG_TERM_MEASUREMENTS_LPF_Q,
-        );
-
-        ret.f_filter.set_coefficients(MONGO_LONG_TERM_MEASUREMENTS_LPF_SAMPLING_RATE,
-                                      MONGO_LONG_TERM_MEASUREMENTS_LPF_CUTOFF_FREQUENCY,
-                                      MONGO_LONG_TERM_MEASUREMENTS_LPF_Q,
-        );
-
-        ret.thd_filter.set_coefficients(MONGO_LONG_TERM_MEASUREMENTS_LPF_SAMPLING_RATE,
-                                      MONGO_LONG_TERM_MEASUREMENTS_LPF_CUTOFF_FREQUENCY,
-                                      MONGO_LONG_TERM_MEASUREMENTS_LPF_Q,
-        );
-
-        ret
+        }
     }
 
     fn clear(&mut self) {
-        self.v_filter.clear();
-        self.f_filter.clear();
-        self.thd_filter.clear();
         self.v_measurement = None;
         self.f_measurement = None;
         self.thd_measurement = None;
@@ -87,23 +78,20 @@ impl MeasurementDecimator {
     pub fn process_message(&mut self, msg: &TriggerMessage) {
         let rms = msg.get_rms();
         let f = msg.get_frequency();
-        self.v_filter.process(rms);
-        self.f_filter.process(f);
 
         match self.v_measurement {
-            None => self.v_measurement = Some(MeasurementStatistics { min: rms, max: rms }),
+            None => self.v_measurement = Some(MeasurementStatistics::new(rms)),
             Some(ref mut v_m) => v_m.update(rms)
         }
         match self.f_measurement {
-            None => { self.f_measurement = Some(MeasurementStatistics { min: f, max: f }) }
+            None => { self.f_measurement = Some(MeasurementStatistics::new(rms) ) }
             Some(ref mut f_m) => f_m.update(f)
         }
 
         if msg.has_thd() {
             let thd = msg.get_thd();
-            self.thd_filter.process(thd);
             match self.thd_measurement {
-                None => { self.thd_measurement = Some(MeasurementStatistics { min: thd, max: thd }) }
+                None => { self.thd_measurement = Some(MeasurementStatistics::new(rms)) }
                 Some(ref mut thd_m) => thd_m.update(thd)
             }
         }
@@ -118,7 +106,7 @@ impl MeasurementDecimator {
                            doc! {
                                     MONGO_LONG_TERM_MEASUREMENTS_MIN_FIELD : v_m.min,
                                     MONGO_LONG_TERM_MEASUREMENTS_MAX_FIELD : v_m.max,
-                                    MONGO_LONG_TERM_MEASUREMENTS_FILTERED_FIELD : self.v_filter.last_out(),
+                                    MONGO_LONG_TERM_MEASUREMENTS_FILTERED_FIELD : v_m.get_average(),
                                 },
                 );
             }
@@ -131,7 +119,7 @@ impl MeasurementDecimator {
                            doc! {
                                     MONGO_LONG_TERM_MEASUREMENTS_MIN_FIELD : f_m.min,
                                     MONGO_LONG_TERM_MEASUREMENTS_MAX_FIELD : f_m.max,
-                                    MONGO_LONG_TERM_MEASUREMENTS_FILTERED_FIELD : self.f_filter.last_out(),
+                                    MONGO_LONG_TERM_MEASUREMENTS_FILTERED_FIELD : f_m.get_average(),
                                 },
                 );
             }
@@ -144,7 +132,7 @@ impl MeasurementDecimator {
                            doc! {
                                     MONGO_LONG_TERM_MEASUREMENTS_MIN_FIELD : thd_m.min,
                                     MONGO_LONG_TERM_MEASUREMENTS_MAX_FIELD : thd_m.max,
-                                    MONGO_LONG_TERM_MEASUREMENTS_FILTERED_FIELD : self.thd_filter.last_out(),
+                                    MONGO_LONG_TERM_MEASUREMENTS_FILTERED_FIELD : thd_m.get_average(),
                                 },
                 );
             }
@@ -201,7 +189,7 @@ impl MongoMeasurements {
             self.live_coll.insert_one(doc, None).ok().expect("Could not insert");
             let box_stat = map.entry(msg.get_id()).or_insert(MeasurementDecimator::new());
             box_stat.process_message(&msg);
-            if box_stat.last_insert + Duration::seconds(MONGO_LONG_TERM_MEASUREMENTS_HOW_OFTEN) < Utc::now() {
+            if box_stat.last_insert + Duration::seconds(MONGO_LONG_TERM_MEASUREMENTS_UPDATE_INTERVAL) < Utc::now() {
                 let mut doc = box_stat.generate_document_and_reset();
                 doc.insert(MONGO_BOX_ID_FIELD, msg.get_id().to_string());
                 doc.insert(MONGO_TIMESTAMP_FIELD, msg.get_time());

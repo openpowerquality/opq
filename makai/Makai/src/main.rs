@@ -26,9 +26,6 @@ use zmqreader::ZmqReader;
 mod mongo;
 use mongo::MongoMeasurements;
 
-mod filter;
-
-
 fn main() {
     //DB
     let client = Client::connect("localhost", 27017)
