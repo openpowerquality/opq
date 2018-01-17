@@ -3,7 +3,7 @@ pub static TRIGGERING_ZMQ_ENDPOINT :&str = "tcp://127.0.0.1:9881";
 
 //Mongo common
 ///Mongo database that makai will be using.
-pub static MONGO_DATABASE: &str = "makai_test";
+pub static MONGO_DATABASE: &str = "opq";
 
 ///Box id mongo field.
 pub static MONGO_BOX_ID_FIELD: &str = "box_id";

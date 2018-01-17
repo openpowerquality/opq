@@ -16,7 +16,7 @@ extern crate num;
 
 use mongodb::{Client, ThreadedClient};
 use std::thread;
-
+use std::sync::Arc;
 mod constants;
 mod opq;
 use opq::TriggerMessage;
@@ -34,7 +34,7 @@ fn main() {
 
     let ctx = zmq::Context::new();
 
-    let channel : pub_sub::PubSub<TriggerMessage> = pub_sub::PubSub::new();
+    let channel : pub_sub::PubSub<Arc<TriggerMessage> > = pub_sub::PubSub::new();
     let zmq_reader = ZmqReader::new(channel.clone(), &ctx);
     let mongo = MongoMeasurements::new(&client, channel.subscribe());
 

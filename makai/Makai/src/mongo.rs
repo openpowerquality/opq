@@ -5,6 +5,7 @@ extern crate time;
 extern crate pub_sub;
 
 use std::collections::HashMap;
+use std::sync::Arc;
 
 use mongodb::ThreadedClient;
 use mongodb::db::ThreadedDatabase;
@@ -17,6 +18,7 @@ use time::Duration;
 
 use constants::*;
 use opq::*;
+
 
 /// A Buffer for keeping track of the slow measurements.
 struct MeasurementStatistics {
@@ -167,7 +169,7 @@ impl MeasurementDecimator {
 
 ///This object is responsible for processing measurement messages.
 pub struct MongoMeasurements {
-    sub_chan: pub_sub::Subscription<TriggerMessage>,
+    sub_chan: pub_sub::Subscription<Arc<TriggerMessage>>,
     live_coll: mongodb::coll::Collection,
     slow_coll: mongodb::coll::Collection,
 }
@@ -178,7 +180,7 @@ impl MongoMeasurements {
     /// # Arguments
     /// * `client` -  a reference to a mongodb client instance.
     /// * `sub_chan` -  a channel for receiving triggering messages.
-    pub fn new(client: &mongodb::Client, sub_chan: pub_sub::Subscription<TriggerMessage>) -> MongoMeasurements {
+    pub fn new(client: &mongodb::Client, sub_chan: pub_sub::Subscription<Arc<TriggerMessage>>) -> MongoMeasurements {
         let ret = MongoMeasurements {
             sub_chan,
             live_coll: client.db(MONGO_DATABASE).collection(MONGO_MEASUREMENT_COLLECTION),

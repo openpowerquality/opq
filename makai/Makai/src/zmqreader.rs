@@ -1,6 +1,7 @@
 extern crate zmq;
 extern crate pub_sub;
 
+use std::sync::Arc;
 use protobuf::parse_from_bytes;
 use opq::{TriggerMessage};
 use constants::TRIGGERING_ZMQ_ENDPOINT;
@@ -10,7 +11,7 @@ pub struct ZmqReader{
     ///ZMQ socket.
     recv_soc : zmq::Socket,
     ///Pub-Sub object for distributing triggering messages internally.
-    pub_chan : pub_sub::PubSub<TriggerMessage>,
+    pub_chan : pub_sub::PubSub<Arc<TriggerMessage>>,
 }
 
 impl ZmqReader {
@@ -18,9 +19,8 @@ impl ZmqReader {
     /// # Arguments
     /// * `pub_chan` - an internal publish channel for the triggering messages.
     /// * `ctx` - shared ZMQ context.
-    pub fn new(pub_chan : pub_sub::PubSub<TriggerMessage>, ctx : &zmq::Context) -> ZmqReader {
-        let reader = ZmqReader{
-            pub_chan,
+    pub fn new(pub_chan : pub_sub::PubSub<Arc<TriggerMessage>>, ctx : &zmq::Context) -> ZmqReader {
+        let reader = ZmqReader{ pub_chan : pub_chan,
             recv_soc : ctx.socket(zmq::SUB).unwrap()
         };
         reader.recv_soc.connect(TRIGGERING_ZMQ_ENDPOINT).unwrap();
@@ -36,8 +36,14 @@ impl ZmqReader {
                 println!("Message contains {} parts!", msg.len());
                 continue;
             }
-            let trigger_message = parse_from_bytes::<TriggerMessage>(&msg[1]).unwrap();
-            self.pub_chan.send(trigger_message).unwrap();
+            let msg = parse_from_bytes::<TriggerMessage>(&msg[1]);
+            match msg{
+                Ok(msg) => {
+                    let trigger_message = Arc::new(msg);
+                    self.pub_chan.send(trigger_message).unwrap();
+                },
+                Err(_) => continue,
+            }
         };
     }
 }
