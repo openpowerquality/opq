@@ -324,16 +324,15 @@ def parallel_migrate_measurements(measurement: typing.Dict):
 
 
 def parallel_migrate_and_decimate_measurements(device_id: int):
-
-    #Last time we inserted into the db for this box.
+    # Last time we inserted into the db for this box.
     prev_insert_ts = 0
-    #Last ts processed.
+    # Last ts processed.
     prev_ts = 0
 
     measurements = parallel_db.measurements
     total_measurements = measurements.count({"device_id": device_id})
 
-    #Trends collection
+    # Trends collection
     trends = parallel_db.trends
 
     i = 0
@@ -348,46 +347,42 @@ def parallel_migrate_and_decimate_measurements(device_id: int):
     thd_min = 0.
     thd_max = 0.
 
-    #Accumulators
+    # Accumulators
     v_accum = 0.
     f_accum = 0.
     thd_accum = 0.
 
-    #Counters
+    # Counters
     v_cnt = 0
     f_cnt = 0
     thd_cnt = 0
 
-    #Does this window have THD?
+    # Does this window have THD?
     has_thd = False
 
     for measurement in measurements.find({"device_id": device_id}).sort("timestamp_ms"):
 
         if i % 10_000 == 0:
-            print("Migrating and decimating measurements for box", device_id, (float(i) / float(total_measurements) * 100.0), "%")
+            print("Migrating and decimating measurements for box", device_id,
+                  (float(i) / float(total_measurements) * 100.0), "%")
 
         ts = measurement["timestamp_ms"]
 
         if ts - prev_insert_ts > 60_000:
-            doc["box_id"] = str(device_ids)
-            doc["timestamp_ms"] = prev_ts
-            doc = {
-                "voltage" : {
-                    "max" : v_max,
-                    "min" : v_min,
-                    "average" : v_accum /v_cnt
-                },
-                "frequency" : {
-                    "max" : f_max,
-                    "min" : f_min,
-                    "average" : f_accum /f_cnt
-                }
-            }
+            doc = {"voltage": {
+                "max": v_max,
+                "min": v_min,
+                "average": (v_accum / v_cnt) if v_cnt > 0 else 0.0
+            }, "frequency": {
+                "max": f_max,
+                "min": f_min,
+                "average": (f_accum / f_cnt) if f_cnt > 0 else 0.0
+            }, "box_id": str(device_id), "timestamp_ms": prev_ts}
             if has_thd:
                 doc["thd"] = {
-                    "max" : thd_max,
-                    "min" : thd_min,
-                    "average" : thd_accum/thd_cnt
+                    "max": thd_max,
+                    "min": thd_min,
+                    "average": (thd_accum / thd_cnt) if thd_cnt > 0 else 0.0
                 }
             trends.insert_one(doc)
             v_min = 0.
@@ -405,17 +400,53 @@ def parallel_migrate_and_decimate_measurements(device_id: int):
             has_thd = False
             prev_insert_ts = ts
 
-        v_accum += measurement["voltage"]
-        f_accum += measurement["frequency"]
-        v_cnt +=1
-        f_cnt +=1
+        voltage = measurement["voltage"]
+        frequency = measurement["frequency"]
+        v_accum += voltage
+        f_accum += frequency
+
+        if v_min == 0.:
+            v_min = voltage
+        else:
+            v_min = voltage if voltage < v_min else v_min
+
+        if v_max == 0.:
+            v_max = voltage
+        else:
+            v_max = voltage if voltage > v_max else v_max
+
+        if f_min == 0.:
+            f_min = frequency
+        else:
+            f_min = frequency if frequency < f_min else f_min
+
+        if f_max == 0.:
+            f_max = frequency
+        else:
+            f_max = frequency if frequency > f_max else f_max
+
+        v_cnt += 1
+        f_cnt += 1
         if "thd" in measurement:
-            thd_accum += measurement["thd"]
+            thd = measurement["thd"]
+            thd_accum += thd
             thd_cnt += 1
             has_thd = True
+
+            if thd_min == 0.:
+                thd_min = thd
+            else:
+                thd_min = thd if thd < thd_min else thd_min
+
+            if thd_max == 0.:
+                thd_max = thd
+            else:
+                thd_max = thd if thd > thd_max else thd_max
+
         prev_ts = ts
 
         i += 1
+
 
 def parallel_raw_waveforms_to_gridfs_fn(box_event: typing.Dict):
     fs = parallel_fs
@@ -507,29 +538,6 @@ if __name__ == "__main__":
         print("Measurement status", j)
         j += 1
     pool.close()
-
-    # i = 0
-    # pool = multiprocessing.Pool(6, initializer=init_parallel_client)
-    # for v in pool.imap_unordered(parallel_migrate_measurements, measurements.find({}, ["_id", "device_id",
-    # "box_id"])):
-    #     if i % 10000 == 0:
-    #         print("\rMigrating measurements...", float(i) / float(total_meansurements) * 100.0, "%", end="",
-    # flush=True)
-    #     i += 1
-    # pool.close()
-
-    # for measurement in measurements.find({}, ["_id", "device_id", "box_id"]):
-    #     _id = oid(measurement["_id"])
-    #     if "device_id" in measurement and "box_id" not in measurement:
-    #         box_id = measurement["device_id"]
-    #         measurements.update_one({"_id": _id},
-    #                                 {"$rename": {"device_id": "box_id"}})
-    #     else:
-    #         box_id = measurement["box_id"]
-    #
-    #     measurements.update_one({"_id": _id},
-    #                             {"$set": {"box_id": str(int(box_id))}})
-
     print("\rMigrating measurements... Done.")
 
     # opq_boxes
@@ -602,7 +610,7 @@ if __name__ == "__main__":
     print("Migrating raw waveform data from documents to gridfs...", end=' ', flush=True)
     total_arrays = box_events.count({"data": {"$type": "array"}})
     i = 0
-    pool = multiprocessing.Pool(6, initializer=init_parallel_client)
+    pool = multiprocessing.Pool(initializer=init_parallel_client)
     for v in pool.imap_unordered(parallel_raw_waveforms_to_gridfs_fn, box_events.find({"data": {"$type": "array"}})):
         if i % 50 == 0:
             print("\rMigrating raw waveform data from documents to gridfs...", float(i) / float(total_arrays) * 100.0,
@@ -616,7 +624,7 @@ if __name__ == "__main__":
     print("Performing final migration of box_events...", end=" ", flush=True)
     total = box_events.count()
     i = 0
-    pool = multiprocessing.Pool(6, initializer=init_parallel_client)
+    pool = multiprocessing.Pool(initializer=init_parallel_client)
     for v in pool.imap_unordered(parallel_finalize_box_events_migration_fn, box_events.find()):
         if i % 50 == 0:
             print("\rPerforming final migration of box_events...", float(i) / float(total) * 100.0, "%", end="",
@@ -629,7 +637,7 @@ if __name__ == "__main__":
     print("Updating THD and ITIC values...", end=" ", flush=True)
     total_events = box_events.count()
     i = 0
-    pool = multiprocessing.Pool(6, initializer=init_parallel_client)
+    pool = multiprocessing.Pool(initializer=init_parallel_client)
     for v in pool.imap_unordered(parallel_thd_itic_fn, box_events.find({}, ["_id", "data_fs_filename", "box_id"])):
         if i % 50 == 0:
             print("\rUpdating THD and ITIC values...", float(i) / float(total_events) * 100.0, "%", end="", flush=True)
@@ -643,7 +651,7 @@ if __name__ == "__main__":
     print("Migrating fs.files...", end=" ", flush=True)
     total_events = box_events.count()
     i = 0
-    pool = multiprocessing.Pool(6, initializer=init_parallel_client)
+    pool = multiprocessing.Pool(initializer=init_parallel_client)
     for v in pool.imap_unordered(parallel_update_fs_files_metadata_fn,
                                  box_events.find({}, ["event_id", "box_id", "data_fs_filename"])):
         if i % 50 == 0:
@@ -682,11 +690,19 @@ if __name__ == "__main__":
                                 pymongo.IndexModel("metadata.event_id")])
     print("Done.")
 
+    print("Ensuring trends indexes...", end=" ", flush=True)
+    db.trends.create_indexes([pymongo.IndexModel("box_id"),
+                              pymongo.IndexModel("timestamp_ms")])
+    print("Done.")
+
     # Cleanup
     # 1. Drop deprecated boxEvents collection
     print("Cleaning up....")
-    print("Dropping boxEvents collection...")
+    print("Dropping boxEvents collection...", end=" ", flush=True)
     db.boxEvents.drop()
+    print("Done.")
+    print("Dropping measurements collection...", end=" ", flush=True)
+    db.measurements.drop()
     print("Done.")
 
     print("Disconnecting from mongodb...", end=" ", flush=True)
