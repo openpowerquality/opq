@@ -1,10 +1,13 @@
+import { Meteor } from 'meteor/meteor';
+import { Template } from 'meteor/aldeed:simple-schema';
+import { ReactiveVar } from 'meteor/reactive-var';
 // import { BlazeLayout } from 'meteor/kadira:blaze-layout';
 import './appLayoutAuth.html';
 
 // Sub-Template Inclusions
 import '../header/header.js';
 
-Template.appLayoutAuth.onCreated(function() {
+Template.appLayoutAuth.onCreated(function () {
   const template = this;
 
   /**
@@ -15,14 +18,13 @@ Template.appLayoutAuth.onCreated(function() {
    */
   template.isAuthorized = new ReactiveVar(null);
 
-  template.autorun(function() {
+  template.autorun(function () {
     const isAuth = template.isAuthorized.get();
     const userId = Meteor.userId();
 
     if (!userId) template.isAuthorized.set(null); // Reset to null if user logs out.
     console.log('isAuthorized autorun: ', isAuth);
   });
-
 });
 
 Template.appLayoutAuth.helpers({
@@ -38,6 +40,7 @@ Template.appLayoutAuth.helpers({
     const isAuthorized = template.isAuthorized.get();
     const userId = Meteor.userId();
 
+    // eslint-disable-next-line no-unneeded-ternary
     return (userId && (isAuthorized || isAuthorized === null)) ? true : false;
   },
   getIsAuthorizedReference() {
@@ -46,6 +49,6 @@ Template.appLayoutAuth.helpers({
     // For some reason, Template.dynamic requires us to set the data context through the 'data' variable. As such, if
     // we want to have a named data context variable (isAuthorizedReactiveVar in our case), we have to create the
     // object here.
-    return {isAuthorizedReactiveVar: template.isAuthorized};
-  }
+    return { isAuthorizedReactiveVar: template.isAuthorized };
+  },
 });

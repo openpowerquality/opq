@@ -1,11 +1,12 @@
-import { Meteor } from 'meteor/meteor';
 import { Mongo } from 'meteor/mongo';
 import { Template } from 'meteor/templating';
-import { SimpleSchema } from 'meteor/aldeed:simple-schema';
+import { Tracker } from 'meteor/tracker';
+// import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import { ReactiveVar } from 'meteor/reactive-var';
 import SimulatedEvents from '../../../api/simulatedEvents/simulatedEvents.js';
-import { BoxEvents } from '../../../api/boxEvent/BoxEventCollection.js';
-import { getRecentEventDataReqIds } from '../../../api/box-events/BoxEventsCollectionMethods.js'
+// import { BoxEvents } from '../../../api/boxEvent/BoxEventCollection.js';
+import { BoxEvents } from '../../../api/box-events/BoxEventsCollection';
+import { getRecentEventDataReqIds } from '../../../api/box-events/BoxEventsCollectionMethods.js';
 
 // Templates and Sub-Template Inclusions
 import './measurements.html';
@@ -15,10 +16,10 @@ import '../../components/map/map.js';
 // import { flashMessageConstructor } from '../../components/flashMessage/flashMessage.js';
 
 
-
-Template.measurements.onCreated(function() {
+Template.measurements.onCreated(function () {
   const template = this;
-  //template.flashMessage = new ReactiveVar(createFlashMessageMsgObject('positive', 10, 'Test body message', '', 'feed'));
+  // template.flashMessage = new ReactiveVar(createFlashMessageMsgObject('positive', 10,
+  // 'Test body message', '', 'feed'));
   // flashMessageConstructor(this);
 
   template.selectedEventId = new ReactiveVar();
@@ -28,12 +29,12 @@ Template.measurements.onCreated(function() {
   // Subscriptions
   template.autorun(() => {
     template.subscribe('simulatedEvents', 60);
-    //template.subscribe(BoxEvents.publicationNames.COMPLETE_RECENT_BOX_EVENTS, 20);
+    // template.subscribe(BoxEvents.publicationNames.COMPLETE_RECENT_BOX_EVENTS, 20);
   });
 
   // Automatically selects most recent event received from server.
   template.autorun(() => {
-    const newestEvent = SimulatedEvents.findOne({}, {sort: {timestamp_ms: -1}});
+    const newestEvent = SimulatedEvents.findOne({}, { sort: { timestamp_ms: -1 } });
 
     if (newestEvent && template.subscriptionsReady()) {
       const newestEventId = newestEvent._id.toHexString();
@@ -55,9 +56,9 @@ Template.measurements.onCreated(function() {
   // Get most recent EventData Ids.
   template.autorun(() => {
     if (template.subscriptionsReady()) {
-      getRecentEventDataReqIds.call({numEvents: 20}, (err, requestIds) => {
+      getRecentEventDataReqIds.call({ numEvents: 20 }, (err, requestIds) => {
         if (err) {
-          console.log(err)
+          console.log(err);
         } else {
           console.log(requestIds);
           template.recentEventDataReqIds.set(requestIds);
@@ -66,10 +67,9 @@ Template.measurements.onCreated(function() {
       });
     }
   });
-
 });
 
-Template.measurements.onRendered(function() {
+Template.measurements.onRendered(function () {
   const template = this;
 
   // // Init main-map
@@ -83,141 +83,140 @@ Template.measurements.onRendered(function() {
   // template.mainMap.addLayer(osm);
 
   // Plots waveform whenever an event is selected.
-  template.autorun(function() {
+  template.autorun(function () {
     const selectedEventId = template.selectedEventId.get();
-    const event = SimulatedEvents.findOne({_id: new Mongo.ObjectID(selectedEventId)});
-    console.log(event);
+    const event = SimulatedEvents.findOne({ _id: new Mongo.ObjectID(selectedEventId) });
+    // console.log(event);
 
     if (selectedEventId && event && template.subscriptionsReady()) {
-      Tracker.afterFlush(function() {
-
+      Tracker.afterFlush(function () {
         // Plot options. Some of these options are deprecated... fix later.
         const plotOptions = {
           zoom: {
-            interactive: true
+            interactive: true,
           },
           pan: {
-            interactive: true
+            interactive: true,
           },
           acisLabels: {
-            show: true
+            show: true,
           },
           xaxis: {
             ticks: 5,
             min: 1000,
-            max: 3000
+            max: 3000,
           },
           xaxes: [{
-            axisLabel: "Samples"
+            axisLabel: 'Samples',
           }],
           yaxes: [{
-            axisLabel: "Voltage"
+            axisLabel: 'Voltage',
           }],
           series: {
-            lines: {show: true},
-            points: {show: false}
-          }
+            lines: { show: true },
+            points: { show: false },
+          },
         };
 
-        if (event.type == 'Distributed') {
-          event.events.forEach(event => {
+        if (event.type === 'Distributed') {
+          event.events.forEach(event => { // eslint-disable-line no-shadow
             const waveformData = event.waveform;
 
             // Create an array of [x, y] points
-            const plotPoints = waveformData.split(",")
-                .map(function(pt, idx) {
+            const plotPoints = waveformData.split(',')
+                .map(function (pt, idx) {
                   return [idx, parseFloat(pt)];
                 });
 
             // Plot
+            // eslint-disable-next-line no-undef
             $.plot($(`#waveform-${event._id.toHexString()}`), [plotPoints], plotOptions);
           });
         } else {
           const waveformData = event.waveform;
 
           // Create an array of [x, y] points
-          const plotPoints = waveformData.split(",")
-              .map(function(pt, idx) {
+          const plotPoints = waveformData.split(',')
+              .map(function (pt, idx) {
                 return [idx, parseFloat(pt)];
               });
 
           // Plot
-          $.plot($(`#waveform-${selectedEventId}`), [plotPoints], plotOptions);
+          $.plot($(`#waveform-${selectedEventId}`), [plotPoints], plotOptions); // eslint-disable-line no-undef
         }
-
       });
     }
   });
-
 });
 
 Template.measurements.helpers({
   simEvents() {
-    const template = Template.instance();
-    const events = SimulatedEvents.find({timestamp_ms: {$gte: Date.now() - 60000}}, {sort: {timestamp_ms: -1}});
+    const events = SimulatedEvents.find({ timestamp_ms: { $gte: Date.now() - 60000 } }, { sort: { timestamp_ms: -1 } });
     return events;
   },
   selectedEvent() {
     const template = Template.instance();
 
     const selectedEventId = template.selectedEventId.get();
-    const event = SimulatedEvents.findOne({_id: new Mongo.ObjectID(selectedEventId)});
+    const event = SimulatedEvents.findOne({ _id: new Mongo.ObjectID(selectedEventId) });
 
     if (selectedEventId && event && template.subscriptionsReady()) {
       return event;
     }
+    return null;
   },
   formatCoords(coords) {
     console.log(coords);
   },
-  getIticBadge: function(itic) {
+  getIticBadge: function (itic) {
     let badge;
 
     switch (itic) {
-      case Global.Enums.IticRegion.NO_INTERRUPTION:
-        badge = "itic-no-interruption";
+      case Global.Enums.IticRegion.NO_INTERRUPTION: // eslint-disable-line no-undef
+        badge = 'itic-no-interruption';
         break;
-      case Global.Enums.IticRegion.NO_DAMAGE:
-        badge = "itic-no-damage";
+      case Global.Enums.IticRegion.NO_DAMAGE: // eslint-disable-line no-undef
+        badge = 'itic-no-damage';
         break;
-      case Global.Enums.IticRegion.PROHIBITED:
-        badge = "itic-prohibited";
+      case Global.Enums.IticRegion.PROHIBITED: // eslint-disable-line no-undef
+        badge = 'itic-prohibited';
         break;
       default:
-        badge = "N/A";
+        badge = 'N/A';
         break;
     }
 
     return badge;
   },
-  plotMaxWidth: function() {
+  plotMaxWidth: function () {
     const template = Template.instance();
     const width = template.$('#selected-event').width();
-    console.log(width);
+    // console.log(width);
     return width - 300;
   },
   boxEvents() {
-    const boxEvents = BoxEvents.find({}, {sort: {eventEnd: -1}});
+    const boxEvents = BoxEvents.find({}, { sort: { eventEnd: -1 } });
     return boxEvents;
   },
   requestIds() {
     const requestIds = Template.instance().recentEventDataReqIds.get();
     return requestIds;
-  }
+  },
 });
 
 Template.measurements.events({
-  'click #recent-events tr': function(event) {
+  /* eslint-disable no-undef, no-console */
+  'click #recent-events tr': function (event) {
     const template = Template.instance();
     console.log(event.currentTarget.id);
     const id = event.currentTarget.id;
     template.selectedEventId.set(id);
   },
-  'click td a.coords': function(event) {
+  'click td a.coords': function (event) {
     const lat = $(event.currentTarget).attr('lat');
     const lng = $(event.currentTarget).attr('lng');
 
     L.map('main-map').flyTo([lat, lng], 13);
-
-  }
+  },
+  /* eslint-enable no-undef, no-console */
 });

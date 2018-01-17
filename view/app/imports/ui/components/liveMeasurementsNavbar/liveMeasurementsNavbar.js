@@ -1,8 +1,8 @@
+import { Template } from 'meteor/templating';
+import { ReactiveVar } from 'meteor/reactive-var';
 import './liveMeasurementsNavbar.html';
 import { Measurements } from '../../../api/measurements/MeasurementsCollection.js';
 import { getActiveDeviceIdsVM } from '../../../api/measurements/MeasurementsCollectionMethods.js';
-import { jQueryPromise } from '../../../utils/utils.js';
-
 import '../liveMeasurements/liveMeasurements.js';
 
 Template.liveMeasurementsNavbar.onCreated(function liveMeasurementsNavbarOnCreated() {
@@ -11,9 +11,7 @@ Template.liveMeasurementsNavbar.onCreated(function liveMeasurementsNavbarOnCreat
   template.selectedDeviceId = new ReactiveVar();
   template.activeDeviceIds = new ReactiveVar();
   template.measurementStartTimeSecondsAgo = new ReactiveVar(60);
-
   template.showPopup = new ReactiveVar(false);
-
 
 
   // // Validate data context.
@@ -27,12 +25,12 @@ Template.liveMeasurementsNavbar.onCreated(function liveMeasurementsNavbarOnCreat
 
 
   // Check for active devices, handles initial/default device selection.
-  template.autorun(function() {
+  template.autorun(function () {
     const selectedDeviceId = template.selectedDeviceId.get();
 
     if (template.subscriptionsReady()) {
       getActiveDeviceIdsVM.call({
-        startTimeMs: Date.now() - (60 * 1000)
+        startTimeMs: Date.now() - (60 * 1000),
       }, (err, deviceIds) => {
         if (err) console.log(err);
         if (deviceIds && deviceIds.length > 0) {
@@ -44,7 +42,7 @@ Template.liveMeasurementsNavbar.onCreated(function liveMeasurementsNavbarOnCreat
   });
 
   // Subscription
-  template.autorun(function() {
+  template.autorun(function () {
     const selectedDeviceId = template.selectedDeviceId.get();
     const secondsAgo = template.measurementStartTimeSecondsAgo.get();
 
@@ -70,7 +68,7 @@ Template.liveMeasurementsNavbar.onCreated(function liveMeasurementsNavbarOnCreat
   // });
 
   // Handles graph plotting.
-  template.autorun(function() {
+  template.autorun(function () {
     const selectedDeviceId = template.selectedDeviceId.get();
     const measurementStartTimeSecondsAgo = template.measurementStartTimeSecondsAgo.get();
     const timeZoneOffset = new Date().getTimezoneOffset() * 60 * 1000; // Positive if -UTC, negative if +UTC.
@@ -85,37 +83,33 @@ Template.liveMeasurementsNavbar.onCreated(function liveMeasurementsNavbarOnCreat
       // Also of note: It's much faster to simply filter() on the resulting mongo query result, rather than to query
       // with {timestamp_ms: {$gte: startTime}}. Meteor's Minimongo implementation isn't very efficient.
       const startTime = Date.now() - (measurementStartTimeSecondsAgo * 1000);
-      const measurements = Measurements.find({device_id: selectedDeviceId}, {sort: {timestamp_ms: 1}})
+      const measurements = Measurements.find({ device_id: selectedDeviceId }, { sort: { timestamp_ms: 1 } })
           .fetch()
           .filter(measurement => measurement.timestamp_ms >= startTime);
 
       if (measurements.length > 0) {
-        const voltages = measurements.map(data => {
-          return [data.timestamp_ms - timeZoneOffset, data.voltage];
-        });
+        const voltages = measurements.map(data => [data.timestamp_ms - timeZoneOffset, data.voltage]);
 
-        const frequencies = measurements.map(data => {
-          return [data.timestamp_ms - timeZoneOffset, data.frequency];
-        });
+        const frequencies = measurements.map(data => [data.timestamp_ms - timeZoneOffset, data.frequency]);
 
-        $.plot('#voltagePlotNavbar', [voltages], {
+        $.plot('#voltagePlotNavbar', [voltages], { // eslint-disable-line no-undef
           xaxis: {
             show: false,
-            mode: 'time'
+            mode: 'time',
           },
           yaxis: {
-            show: false
-          }
+            show: false,
+          },
         });
 
-        $.plot('#freqPlotNavbar', [frequencies], {
+        $.plot('#freqPlotNavbar', [frequencies], { // eslint-disable-line no-undef
           xaxis: {
             show: false,
-            mode: 'time'
+            mode: 'time',
           },
           yaxis: {
-            show: false
-          }
+            show: false,
+          },
         });
       }
     }
@@ -130,7 +124,7 @@ Template.liveMeasurementsNavbar.onCreated(function liveMeasurementsNavbarOnCreat
   // });
 });
 
-Template.liveMeasurementsNavbar.onRendered(function() {
+Template.liveMeasurementsNavbar.onRendered(function () {
   const template = this;
   // const mrs = jQueryPromise('#measurementsNavbar', 100, 1000);
   //
@@ -153,18 +147,18 @@ Template.liveMeasurementsNavbar.onRendered(function() {
   // }, 3000);
 
   template.$('#measurementsNavbar').popup({
-    popup : template.$('#measurementsPopup'),
+    popup: template.$('#measurementsPopup'),
     hoverable: true,
     position: 'bottom left',
     distanceAway: 5,
-    onShow: function() {
+    onShow: function () {
       template.showPopup.set(true);
       console.log('showing');
     },
-    onHide: function() {
+    onHide: function () {
       template.showPopup.set(false);
       console.log('hiding');
-    }
+    },
   });
 
  // template.autorun(function() {
@@ -180,7 +174,6 @@ Template.liveMeasurementsNavbar.onRendered(function() {
  //     });
  //   //}
  // });
-
 });
 
 Template.liveMeasurementsNavbar.helpers({
@@ -189,16 +182,17 @@ Template.liveMeasurementsNavbar.helpers({
     const selectedDeviceId = template.selectedDeviceId.get();
 
     if (selectedDeviceId && template.subscriptionsReady()) {
-      const measurement = Measurements.findOne({device_id: selectedDeviceId}, {sort: {timestamp_ms: -1}});
+      const measurement = Measurements.findOne({ device_id: selectedDeviceId }, { sort: { timestamp_ms: -1 } });
       return measurement;
     }
+    return null;
   },
   showPopup() {
     const template = Template.instance();
     const showPopup = template.showPopup.get();
 
     return showPopup;
-  }
+  },
 });
 
 // Template.liveMeasurementsNavbar.events({
@@ -214,5 +208,4 @@ Template.liveMeasurementsNavbar.helpers({
 //     }
 //   }
 // });
-
 

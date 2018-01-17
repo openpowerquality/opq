@@ -1,5 +1,6 @@
+import { Meteor } from 'meteor/meteor';
 import { Template } from 'meteor/templating';
-import { Accounts } from 'meteor/accounts-base'
+import { Accounts } from 'meteor/accounts-base';
 import { FlowRouter } from 'meteor/kadira:flow-router';
 import { ReactiveVar } from 'meteor/reactive-var';
 import './signup.html';
@@ -12,16 +13,13 @@ Template.signup.onCreated(function signupOnCreated() {
 
   template.validationContext = signupPageSchema.namedContext('Signup_Page');
   template.formSubmissionErrors = new ReactiveVar();
-
 });
 
-
-
 Template.signup.events({
-  'submit .signup-form': function(event) {
+  'submit .signup-form': function (event) {
     event.preventDefault();
     const template = Template.instance();
-    console.log(template.validationContext);
+    // console.log(template.validationContext);
 
     const firstName = event.target.firstName.value;
     const lastName = event.target.lastName.value;
@@ -29,7 +27,7 @@ Template.signup.events({
     const password = event.target.password.value;
     const confirmPassword = event.target.confirmPassword.value;
 
-    const formData = {firstName, lastName, email, password, confirmPassword};
+    const formData = { firstName, lastName, email, password, confirmPassword };
     // console.log(formData);
 
     // Clear old validation errors, clean data, and re-validate.
@@ -41,9 +39,9 @@ Template.signup.events({
     // Continue upon validation success.
     if (template.validationContext.isValid()) {
       // Create User, then Person in subsequent callback.
-      Accounts.createUser({email: email, password: password}, function(error) {
+      Accounts.createUser({ email: email, password: password }, function (error) {
         if (error) {
-          console.log(error);
+          console.log(error); // eslint-disable-line no-console
           template.formSubmissionErrors.set(error.reason);
           // template.validationContext.addInvalidKeys()
         } else {
@@ -54,21 +52,19 @@ Template.signup.events({
           const person = {
             userId: currUserId,
             firstName: firstName,
-            lastName: lastName
+            lastName: lastName,
           };
 
-          createPerson.call(person, (error, person_id) => {
+          createPerson.call(person, (error, personId) => { // eslint-disable-line no-shadow
             if (error) {
-              console.log(error);
+              console.log(error); // eslint-disable-line no-console
             } else {
-              console.log("Inserted Person successfully: " + person_id);
-              FlowRouter.go("/"); // Redirect to home page.
+              console.log(`Inserted Person successfully: ${personId}`); // eslint-disable-line no-console
+              FlowRouter.go('/'); // Redirect to home page.
             }
           });
-
         }
       });
     }
-
-  }
+  },
 });

@@ -1,6 +1,6 @@
 import { Meteor } from 'meteor/meteor';
 import { initIntegrityChecks, getCollection, totalDBDocCount } from '../../modules/integrityChecker';
-import { dumpByEventNumber, eventsBetween } from '../../modules/dbJsonDumper';
+// import { dumpByEventNumber, eventsBetween } from '../../modules/dbJsonDumper';
 
 function loadDatabase() {
   const dbFilename = Meteor.settings.public.dbRestoreFilename;
@@ -19,9 +19,10 @@ function loadDatabase() {
 
 Meteor.startup(() => {
   loadDatabase();
-  //const result = initIntegrityChecks();
-  //console.log(result.messages); // Print integrity check results.
+  const result = initIntegrityChecks();
+  console.log(result.messages); // Print integrity check results.
+
   // dumpByEventNumber(9356);
-  eventsBetween(1508752800000, 1508839200000);
+  // eventsBetween(1508752800000, 1508839200000);
 });
 

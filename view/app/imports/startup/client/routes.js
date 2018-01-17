@@ -8,68 +8,68 @@ import '../../ui/layouts/appLayout/appLayoutPublic.js';
 // import '../../ui/pages/research/research.js';
 // import '../../ui/pages/userAdmin/userAdmin.js';
 // import '../../ui/pages/deviceAdmin/deviceAdmin.js';
-// import '../../ui/pages/eventDetails/eventDetails.js'
+// import '../../ui/pages/eventDetails/eventDetails.js';
 
 
 // FlowRouter.route('/measurements', {
 //   name: 'liveRoute',
-//   action: function() {
+//   action: function () {
 //     BlazeLayout.render('appLayoutPublic', {
-//       main: 'measurements'
+//       main: 'measurements',
 //     });
-//   }
+//   },
 // });
 //
 // FlowRouter.route('/signup', {
 //   name: 'signupRoute',
-//   action: function() {
+//   action: function () {
 //     BlazeLayout.render('appLayoutPublic', {
-//       main: 'signup'
+//       main: 'signup',
 //     });
-//   }
+//   },
 // });
 //
 // FlowRouter.route('/', {
 //   name: 'researchRoute',
-//   action: function() {
+//   action: function () {
 //     BlazeLayout.render('appLayoutPublic', {
-//       main: 'research'
+//       main: 'research',
 //     });
-//   }
+//   },
 // });
 //
 // // Redirect to accounts page by default.
 // FlowRouter.route('/settings', {
 //   name: 'settingsRoute',
-//   action: function() {
+//   action: function () {
 //     FlowRouter.go('/settings/account');
-//   }
+//   },
 // });
 //
 // FlowRouter.route('/settings/account', {
 //   name: 'accountRoute',
-//   action: function() {
+//   action: function () {
 //     BlazeLayout.render('appLayoutPublic', {
-//       main: 'userAdmin'
+//       main: 'userAdmin',
 //     });
-//   }
+//   },
 // });
 //
 // FlowRouter.route('/settings/devices', {
 //   name: 'devicesRoute',
-//   action: function() {
+//   action: function () {
 //     BlazeLayout.render('appLayoutPublic', {
-//       main: 'deviceAdmin'
+//       main: 'deviceAdmin',
 //     });
-//   }
+//   },
 // });
 //
 // FlowRouter.route('/event/:eventNumber', {
 //   name: 'eventDetailsRoute',
-//   action: function() {
+//   action: function () {
 //     BlazeLayout.render('appLayoutPublic', {
-//       main: 'Event_Details_Page'
+//       main: 'Event_Details_Page',
 //     });
-//   }
+//   },
 // });
 

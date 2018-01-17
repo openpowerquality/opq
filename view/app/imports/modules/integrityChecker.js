@@ -39,6 +39,7 @@ export function getCollection(collectionName) {
 }
 
 export function initIntegrityChecks() {
+  /* eslint-disable no-console, max-len */
   let messages = 'Integrity check results:';
   let errorCount = 0;
 
@@ -59,6 +60,7 @@ export function initIntegrityChecks() {
   messages += `\n\n **Integrity check complete! Total error count: ${errorCount}**\n`;
 
   return { messages, errorCount };
+  /* eslint-enable no-console, max-len */
 }
 
 export function totalDBDocCount() {

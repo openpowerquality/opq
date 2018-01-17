@@ -1,19 +1,21 @@
 import { Template } from 'meteor/templating';
 import { Mongo } from 'meteor/mongo';
+import { ReactiveVar } from 'meteor/reactive-var';
+import { SimpleSchema } from 'meteor/aldeed:simple-schema';
+import Dygraph from 'dygraphs';
 import { dataContextValidator } from '../../../utils/utils.js';
-import { getEventMetaDataById } from '../../../api/events/EventsCollectionMethods.js'
+import { getEventMetaDataById } from '../../../api/events/EventsCollectionMethods.js';
 import { getEventData } from '../../../api/box-events/BoxEventsCollectionMethods.js';
 import { getEventDataFSData } from '../../../api/eventDataFS/EventDataFSCollectionMethods.js';
-import Dygraph from 'dygraphs';
 import '../../../../client/lib/misc/dygraphSynchronizer.js';
 import './eventView.html';
 import '../eventWaveformChart/eventWaveformChart.js';
 
-Template.eventView.onCreated(function() {
+Template.eventView.onCreated(function () {
   const template = this;
 
   dataContextValidator(template, new SimpleSchema({
-    eventMetaDataId: {type: Mongo.ObjectID, optional: true} // Optional b/c waiting on user to select event.
+    eventMetaDataId: { type: Mongo.ObjectID, optional: true }, // Optional b/c waiting on user to select event.
   }), null);
 
   template.currentEventMetaData = new ReactiveVar();
@@ -31,7 +33,7 @@ Template.eventView.onCreated(function() {
 
       // Then retrieve new meta data.
       template.isLoadingEventData.set(true);
-      getEventMetaDataById.call({eventMetaDataId}, (error, eventMetaData) => {
+      getEventMetaDataById.call({ eventMetaDataId }, (error, eventMetaData) => {
         template.isLoadingEventData.set(false);
         if (error) {
           console.log(error);
@@ -39,12 +41,13 @@ Template.eventView.onCreated(function() {
           template.currentEventMetaData.set(eventMetaData);
           // console.log('CurrentEventMetaData: ', eventMetaData);
         }
-      })
+      });
     }
   });
 
   // Retrieve event data for current event.
   template.autorun(() => {
+    /* eslint-disable camelcase */
     const currentEventMetaData = template.currentEventMetaData.get();
     if (currentEventMetaData) {
       const event_number = currentEventMetaData.event_number;
@@ -52,17 +55,17 @@ Template.eventView.onCreated(function() {
 
       boxes_received.forEach(box_id => {
         template.isLoadingEventData.set(true);
-        getEventData.call({event_number, box_id}, (error, eventData) => {
+        getEventData.call({ event_number, box_id }, (error, eventData) => {
           template.isLoadingEventData.set(false);
           if (error) {
             console.log(error);
           } else {
             // Now have to get waveform data from GridFs.
-            getEventDataFSData.call({filename: eventData.data}, (error, result) => {
-              if (error) {
-                console.log(error);
+            getEventDataFSData.call({ filename: eventData.data }, (err, result) => {
+              if (err) {
+                console.log(err);
               } else {
-                eventData.waveform = result;
+                eventData.waveform = result; // eslint-disable-line no-param-reassign
                 const currentEventData = template.currentEventData.get();
                 currentEventData.push(eventData);
                 template.currentEventData.set(currentEventData);
@@ -72,11 +75,12 @@ Template.eventView.onCreated(function() {
         });
       });
     }
+    /* eslint-enable camelcase */
   });
 });
 
-Template.eventView.onRendered(function() {
-  const template = this;
+Template.eventView.onRendered(function () {
+  // const template = this;
 
   // template.$('#eventData-modal').modal(); // Init modal.
 });
@@ -91,28 +95,27 @@ Template.eventView.helpers({
     return (graph) => {
       template.dygraphInstances.push(graph);
       template.dygraphSync = Dygraph.synchronize(template.dygraphInstances);
-    }
+    };
   },
-  calibratedWaveformData(box_id, waveformData) {
+  calibratedWaveformData(boxId, waveformData) {
     // Need to store these values in db.
     const boxCalibrationConstants = {
       1: 152.1,
       3: 154.20,
-      4: 146.46
+      4: 146.46,
     };
-    const constant = boxCalibrationConstants[box_id] || 1;
-    const calibratedData = waveformData.map(val => val/constant);
+    const constant = boxCalibrationConstants[boxId] || 1;
+    const calibratedData = waveformData.map(val => (val / constant));
     return calibratedData;
   },
   isLoadingEventData() {
     return Template.instance().isLoadingEventData.get();
-  }
+  },
 });
 
 Template.eventView.events({
-  'click .ui.button': function(event, template) {
-    const box_id = event.currentTarget.id.replace('-button', '');
-    template.$(`#${box_id}-modal`).modal({detachable: false}).modal('show');
-  }
+  'click .ui.button': function (event, instance) {
+    const boxId = event.currentTarget.id.replace('-button', '');
+    instance.$(`#${boxId}-modal`).modal({ detachable: false }).modal('show');
+  },
 });
-

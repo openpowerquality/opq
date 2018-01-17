@@ -5,9 +5,9 @@
  * 3. Schemas that combine multiple existing collection schemas (eg. deviceadmin form schema).
  */
 
+import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import './global.js';
 // import { Persons } from '../api/person/PersonCollection.js';
-import { SimpleSchema} from 'meteor/aldeed:simple-schema';
 // import '../api/opqDevices/opqDevices.js';
 // import '../api/locations/locations.js';
 
@@ -15,49 +15,50 @@ import { SimpleSchema} from 'meteor/aldeed:simple-schema';
 SimpleSchema.messages({
   passwordMismatch: 'Passwords do not match one another',
   incorrectPassword: 'Wrong password - Try again',
-  userNotFound: 'User does not exist'
+  userNotFound: 'User does not exist',
 });
 
 /**
  * Filter form schema.
  * @type {SimpleSchema}
  */
-Global.Schemas.EventFilters = new SimpleSchema({
+Global.Schemas.EventFilters = new SimpleSchema({ // eslint-disable-line no-undef
   requestFreq: {
     type: Boolean,
     optional: true,
-    label: " " // Due to bug with afFormGroup, must do this to have empty label. Must have space between quotes.
+    label: ' ', // Due to bug with afFormGroup, must do this to have empty label. Must have space between quotes.
   },
   minFreq: {
     type: Number,
-    decimal: true
+    decimal: true,
   },
   maxFreq: {
     type: Number,
-    decimal: true
+    decimal: true,
   },
   requestVoltage: {
     type: Boolean,
     optional: true,
-    label: " " // Due to bug with afFormGroup, must do this to have empty label. Must have space between quotes.
+    label: ' ', // Due to bug with afFormGroup, must do this to have empty label. Must have space between quotes.
   },
   minVoltage: {
     type: Number,
-    decimal: true
+    decimal: true,
   },
   maxVoltage: {
     type: Number,
-    decimal: true
+    decimal: true,
   },
   minDuration: {
-    type: Number
+    type: Number,
   },
   maxDuration: {
-    type: Number
+    type: Number,
   },
   itic: {
     type: [Number],
-    // allowedValues: [Global.Enums.IticRegion.PROHIBITED, Global.Enums.IticRegion.NO_DAMAGE, Global.Enums.IticRegion.NO_INTERRUPTION],
+    // allowedValues: [Global.Enums.IticRegion.PROHIBITED, Global.Enums.IticRegion.NO_DAMAGE,
+    // Global.Enums.IticRegion.NO_INTERRUPTION],
     // autoform: {
     //   options: [
     //     {label: "Severe", value: Global.Enums.IticRegion.PROHIBITED},
@@ -67,64 +68,64 @@ Global.Schemas.EventFilters = new SimpleSchema({
     // }
   },
   startTime: {
-    type: Date
+    type: Date,
   },
   stopTime: {
-    type: Date
-  }
+    type: Date,
+  },
 });
 
-Global.Schemas.MapFilters = new SimpleSchema({
+Global.Schemas.MapFilters = new SimpleSchema({ // eslint-disable-line no-undef
   mapCenterLat: {
     type: Number,
-    decimal: true
+    decimal: true,
   },
   mapCenterLng: {
     type: Number,
-    decimal: true
+    decimal: true,
   },
   mapZoom: {
-    type: Number
+    type: Number,
   },
   mapVisibleIds: {
-    type: String
-  }
+    type: String,
+  },
 });
 
 /**
  * Basic login form schema.
  * @type {SimpleSchema}
  */
-Global.Schemas.Login = new SimpleSchema({
+Global.Schemas.Login = new SimpleSchema({ // eslint-disable-line no-undef
   email: { // Accounts-password
     type: String,
-    label: "E-mail",
-    regEx: SimpleSchema.RegEx.Email
+    label: 'E-mail',
+    regEx: SimpleSchema.RegEx.Email,
   },
   password: { // Accounts-password
     type: String,
-    label: "Password"
-  }
+    label: 'Password',
+  },
 });
 
 /**
  * Form schema for adding a new OPQ box.
  * @type {SimpleSchema}
  */
-Global.Schemas.AddOpqBox = new SimpleSchema({
+Global.Schemas.AddOpqBox = new SimpleSchema({ // eslint-disable-line no-undef
   deviceId: {
     type: String,
-    label: "Device ID"
+    label: 'Device ID',
   },
   accessKey: {
     type: String,
-    label: "Access Key"
-  }
+    label: 'Access Key',
+  },
 });
 
 // /**
-//  * Signup form schema, extends a portion of the Persons schema. Email and Password fields are manually added, as there
-//  * is no defined schema for the Accounts-Password meteor package, for which these fields are required.
+//  * Signup form schema, extends a portion of the Persons schema. Email and Password fields are manually added,
+//  * as there is no defined schema for the Accounts-Password meteor package, for which these fields are required.
 //  * @type {SimpleSchema}
 //  */
 // Global.Schemas.Signup = new SimpleSchema([
@@ -257,13 +258,13 @@ Global.Schemas.AddOpqBox = new SimpleSchema({
 // ]);
 
 export const filterFormSchema = new SimpleSchema({
-  minFrequency: {type: Number, optional: true},
-  maxFrequency: {type: Number, optional: true},
-  minVoltage: {type: Number, optional: true},
-  maxVoltage: {type: Number, optional: true},
-  minDuration: {type: Number, optional: true},
-  maxDuration: {type: Number, optional: true},
-  startTime: {type: Number, optional: true},
-  endTime: {type: Number, optional: true},
-  dayPicker: {type: Number, optional: true}
+  minFrequency: { type: Number, optional: true },
+  maxFrequency: { type: Number, optional: true },
+  minVoltage: { type: Number, optional: true },
+  maxVoltage: { type: Number, optional: true },
+  minDuration: { type: Number, optional: true },
+  maxDuration: { type: Number, optional: true },
+  startTime: { type: Number, optional: true },
+  endTime: { type: Number, optional: true },
+  dayPicker: { type: Number, optional: true },
 });

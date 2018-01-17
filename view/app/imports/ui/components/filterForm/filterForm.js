@@ -1,28 +1,29 @@
 import { Template } from 'meteor/templating';
 import { ReactiveVar } from 'meteor/reactive-var';
-import {colorQuantify, dataContextValidator, jQueryPromise, timeUnitString} from '../../../utils/utils.js';
-import './filterForm.html';
-import '../form-controls/text-form-control.html'
+import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import flatpickr from 'flatpickr';
-import '../../../../node_modules/flatpickr/dist/flatpickr.min.css';
-import { boxEventsCountMap } from '../../../api/boxEvent/BoxEventCollectionMethods.js';
-import { eventMetaDataCountMap, getMostRecentEventMetaData } from '../../../api/events/EventsCollectionMethods.js';
 import { mapify } from 'es6-mapify';
 import Moment from 'moment';
-import { filterFormSchema } from '../../../utils/schemas.js'
+import { colorQuantify, dataContextValidator, timeUnitString } from '../../../utils/utils.js';
+import './filterForm.html';
+import '../form-controls/text-form-control.html';
+import '../../../../node_modules/flatpickr/dist/flatpickr.min.css';
+// import { boxEventsCountMap } from '../../../api/boxEvent/BoxEventCollectionMethods.js';
+import { eventMetaDataCountMap, getMostRecentEventMetaData } from '../../../api/events/EventsCollectionMethods.js';
+import { filterFormSchema } from '../../../utils/schemas.js';
 
-Template.Filter_Form.onCreated(function() {
+Template.Filter_Form.onCreated(function () {
   const template = this;
 
   // Validate data context.
   dataContextValidator(template, new SimpleSchema({
-    frequencyRange: {type: Boolean, optional: true},
-    voltageRange: {type: Boolean, optional: true},
-    durationRange: {type: Boolean, optional: true},
-    itic: {type: Boolean, optional: true},
-    timeInterval: {type: Boolean, optional: true},
-    dayPicker: {type: Boolean, optional: true},
-    filterSource: {type: ReactiveVar}
+    frequencyRange: { type: Boolean, optional: true },
+    voltageRange: { type: Boolean, optional: true },
+    durationRange: { type: Boolean, optional: true },
+    itic: { type: Boolean, optional: true },
+    timeInterval: { type: Boolean, optional: true },
+    dayPicker: { type: Boolean, optional: true },
+    filterSource: { type: ReactiveVar },
   }), null);
 
   // Attach data context to template.
@@ -47,9 +48,13 @@ Template.Filter_Form.onCreated(function() {
     const currentMonth = template.dayPickerCurrentMonth.get();
     if (currentMonth) {
       const endOfMonth = Moment(currentMonth).endOf('month').valueOf();
-      eventMetaDataCountMap.call({timeUnit: 'dayOfMonth', startTime: currentMonth, stopTime: endOfMonth}, (error, eventCountMap) => {
+      eventMetaDataCountMap.call({
+        timeUnit: 'dayOfMonth',
+        startTime: currentMonth,
+        stopTime: endOfMonth,
+      }, (error, eventCountMap) => {
         if (error) {
-          console.log(error);
+          console.log(error); // eslint-disable-line no-console
         } else {
           const ecm = mapify(eventCountMap); // Had to be demapified (aka serialized) before being sent from server.
           template.currentEventMetaDataCountMap.set(ecm);
@@ -61,7 +66,7 @@ Template.Filter_Form.onCreated(function() {
   // Find most recent day that had an event.
   getMostRecentEventMetaData.call((error, mostRecentEvent) => {
     if (error) {
-      console.log(error);
+      console.log(error); // eslint-disable-line no-console
     } else {
       const startOfDay = Moment(mostRecentEvent.event_start).startOf('day').valueOf();
       template.defaultDate.set(startOfDay);
@@ -70,13 +75,12 @@ Template.Filter_Form.onCreated(function() {
       template.filterSource.set({
         startTime: startOfDay,
         dayPicker: startOfDay,
-      })
+      });
     }
   });
-
 });
 
-Template.Filter_Form.onRendered(function() {
+Template.Filter_Form.onRendered(function () {
   const template = this;
   const dataContext = template.data;
 
@@ -102,7 +106,7 @@ Template.Filter_Form.onRendered(function() {
       if (defaultDate && currentMonth && eventsCountMap && template.subscriptionsReady()) {
         const flatpickrConfig = {
           // defaultDate: defaultDate,
-          onDayCreate: function(dObj, dStr, fp, dayElem) {
+          onDayCreate: function (dObj, dStr, fp, dayElem) {
             const computation = template.autorun(() => {
               const currDate = dayElem.dateObj;
               const currMonth = Moment(currDate).month(); // 0-11
@@ -110,30 +114,39 @@ Template.Filter_Form.onRendered(function() {
 
               // Ignore the prevMonthDays and nextMonthDays on calendar.
               if (currMonth === fp.currentMonth) {
-                const eventsCountMap = template.currentEventMetaDataCountMap.get();
-                const eventCount = eventsCountMap.get(timeUnitKey);
+                const eventsCountMap2 = template.currentEventMetaDataCountMap.get();
+                const eventCount = eventsCountMap2.get(timeUnitKey);
 
-                if (eventsCountMap && eventCount && template.subscriptionsReady()) {
+                if (eventsCountMap2 && eventCount && template.subscriptionsReady()) {
+                  /* eslint-disable no-undef */
                   $(dayElem).attr('data-tooltip', `${eventCount} events`);
                   const bgColor = colorQuantify(eventCount, 1, 50, ['#00ff00', '#ffff00', '#ff0000']);
                   $(dayElem).append(`<span class="flatpickr-day-highlight" style="background: ${bgColor};"></span>`);
+                  /* eslint-enable no-undef */
                 }
               }
             });
 
-            (fp.trackerComputations) ? fp.trackerComputations.push(computation) : fp.trackerComputations = [computation];
+            if (fp.trackerComputations) {
+              fp.trackerComputations.push(computation);
+            } else {
+              fp.trackerComputations = [computation]; // eslint-disable-line no-param-reassign
+            }
           },
-          onMonthChange: function(selectedDates, dateStr, fpInstance) {
+          onMonthChange: function (selectedDates, dateStr, fpInstance) {
             // Note: It seems this callback is fired AFTER onDayCreate() when we change month.
 
             // Remove old tracker computations. This is important, otherwise we will end up creating a ton of autoruns.
-            const oldComputations = fpInstance.trackerComputations.splice(0,42);
+            const oldComputations = fpInstance.trackerComputations.splice(0, 42);
             oldComputations.forEach(comp => comp.stop());
 
             // Set RV to new month (which will trigger autorun to method call for new event counts).
-            const date = Moment().month(fpInstance.currentMonth).year(fpInstance.currentYear).startOf('month').valueOf();
+            const date = Moment().month(fpInstance.currentMonth)
+                .year(fpInstance.currentYear)
+                .startOf('month')
+                .valueOf();
             template.dayPickerCurrentMonth.set(date);
-          }
+          },
         };
 
         // Only instantiate once.
@@ -155,9 +168,9 @@ Template.Filter_Form.onRendered(function() {
 });
 
 Template.Filter_Form.events({
-  'submit .filter-form'(event, template) {
+  'submit .filter-form'(event, instance) {
     event.preventDefault();
-    const dataContext = template.data; // Non-reactive
+    // const dataContext = instance.data; // Non-reactive
 
     const formData = {};
     if (event.target.minFrequency) formData.minFrequency = event.target.minFrequency.value;
@@ -171,17 +184,22 @@ Template.Filter_Form.events({
 
     // Flatpickr empty values are empty strings, which would normally be handled by the simple-schema clean function,
     // however, Moment cannot take empty string values, so we much check for a real value before passing to Moment.
-    if (event.target.startTime && event.target.startTime.value.length) formData.startTime = Moment(event.target.startTime.value).valueOf();
-    if (event.target.endTime && event.target.endTime.value.length) formData.endTime = Moment(event.target.endTime.value).valueOf();
-
-    if (event.target.dayPicker && event.target.dayPicker.value.length) formData.dayPicker = Moment(event.target.dayPicker.value).valueOf();
+    if (event.target.startTime && event.target.startTime.value.length) {
+      formData.startTime = Moment(event.target.startTime.value).valueOf();
+    }
+    if (event.target.endTime && event.target.endTime.value.length) {
+      formData.endTime = Moment(event.target.endTime.value).valueOf();
+    }
+    if (event.target.dayPicker && event.target.dayPicker.value.length) {
+      formData.dayPicker = Moment(event.target.dayPicker.value).valueOf();
+    }
 
     // Clean and validate form data.
-    template.validationContext.resetValidation();
+    instance.validationContext.resetValidation();
     filterFormSchema.clean(formData);
-    template.validationContext.validate(formData);
+    instance.validationContext.validate(formData);
 
     // Set ReactiveVar if valid.
-    if (template.validationContext.isValid()) template.filterSource.set(formData);
-  }
+    if (instance.validationContext.isValid()) instance.filterSource.set(formData);
+  },
 });

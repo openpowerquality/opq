@@ -11,11 +11,11 @@ import { Meteor } from 'meteor/meteor';
 export function progressBarSetup(total, updateRate, message) {
   let timerHandle = null;
   let currentVal = 0;
-  let totalVal = total - 1; // Assuming 0 based counting.
+  const totalVal = total - 1; // Assuming 0 based counting.
 
   if (!timerHandle) {
     timerHandle = Meteor.setInterval(() => {
-      progressBarPrinter(currentVal, totalVal, '=', 30, message);
+      progressBarPrinter(currentVal, totalVal, '=', 30, message); // eslint-disable-line no-use-before-define
     }, updateRate);
   }
 
@@ -26,9 +26,8 @@ export function progressBarSetup(total, updateRate, message) {
     },
     updateBar(newCurrent) {
       currentVal = newCurrent;
-    }
-  }
-
+    },
+  };
 }
 
 /**
@@ -41,13 +40,14 @@ export function progressBarSetup(total, updateRate, message) {
  */
 export function progressBarPrinter(current, total, tickChar, maxTicks, message) {
   // Create 'empty' progress bar, internally represented as an array. Set start and end brackets of the progress bar.
-  let progressBar = Array.from(' '.repeat(maxTicks+2));
+  const progressBar = Array.from(' '.repeat(maxTicks + 2));
   progressBar[0] = '[';
-  progressBar[progressBar.length-1] = ']';
+  progressBar[progressBar.length - 1] = ']';
 
   const progressPercentage = (current / total) * 100;
   const currentBars = maxTicks * (progressPercentage / 100.0);
   progressBar.fill(tickChar, 1, currentBars + 1);
-  process.stdout.write('\033[F'); // ANSI code to move cursor up one line.
+  // process.stdout.write('\033[F'); // ANSI code to move cursor up one line.
+  process.stdout.write('\x1B[F'); // Using hex instead of octal code because of eslint parser error.
   process.stdout.write(`\n\r${message} ${progressBar.join('')} (${progressPercentage.toFixed(1)}%)`);
 }

@@ -1,11 +1,9 @@
 import { Template } from 'meteor/templating';
-import { SimpleSchema } from 'meteor/aldeed:simple-schema';
-import { ReactiveVar } from 'meteor/reactive-var';
-import { EventMetaData } from '../../../api/events/EventsCollection.js';
-import { BoxEvents } from '../../../api/box-events/BoxEventsCollection.js';
-import { getRecentEventDataReqIds } from '../../../api/box-events/BoxEventsCollectionMethods.js';
-import { getEventMeasurements } from '../../../api/measurements/MeasurementsCollectionMethods.js';
 import Chartjs from 'chart.js';
+// import { EventMetaData } from '../../../api/events/EventsCollection.js';
+// import { BoxEvents } from '../../../api/box-events/BoxEventsCollection.js';
+// import { getRecentEventDataReqIds } from '../../../api/box-events/BoxEventsCollectionMethods.js';
+import { getEventMeasurements } from '../../../api/measurements/MeasurementsCollectionMethods.js';
 
 // Templates and Sub-Template Inclusions
 import './research.html';
@@ -16,12 +14,11 @@ import '../../components/eventList/eventList.js';
 import '../../components/eventView/eventView.js';
 
 
-Template.research.onCreated(function() {
-  const template = this;
-
+Template.research.onCreated(function () {
+  // const template = this;
 });
 
-Template.research.onRendered(function() {
+Template.research.onRendered(function () {
   const template = this;
 
   // Enable Semantic-UI toggle styled checkbox.
@@ -29,56 +26,56 @@ Template.research.onRendered(function() {
 
   // Setup eventCountChart filter form popup
   template.$('#eventCountChartFiltersButton').popup({
-    popup : template.$('#eventCountChartFiltersPopup'),
+    popup: template.$('#eventCountChartFiltersPopup'),
     on: 'click',
     position: 'bottom right',
     lastResort: true,
-    closable: false // Need this because popup is closing on flatpickr usage.
+    closable: false, // Need this because popup is closing on flatpickr usage.
   });
 
   // Setup eventList filter form popup
   template.$('#eventListFiltersButton').popup({
-    popup : template.$('#eventListFiltersPopup'),
+    popup: template.$('#eventListFiltersPopup'),
     on: 'click',
     position: 'bottom right',
     lastResort: true,
-    closable: false // Need this because popup is closing on flatpickr usage.
+    closable: false, // Need this because popup is closing on flatpickr usage.
   });
 
   // Plot selected event Vrms. Only plots the first device listed in boxes_received (see the method call for details).
   template.autorun(() => {
-    const selectedEventId = (template.dataSources && template.dataSources['eventListSelectedEvent']) ? template.dataSources['eventListSelectedEvent'].get() : null;
+    // eslint-disable-next-line dot-notation
+    const selectedEventId = (template.dataSources && template.dataSources['eventListSelectedEvent'])
+        ? template.dataSources['eventListSelectedEvent'].get() // eslint-disable-line dot-notation
+        : null;
 
     if (selectedEventId) {
-      getEventMeasurements.call({eventMetaDataId: selectedEventId}, (err, {eventMeasurements, precedingMeasurements, proceedingMeasurements}) => {
+      // eslint-disable-next-line max-len
+      getEventMeasurements.call({ eventMetaDataId: selectedEventId }, (err, { eventMeasurements, precedingMeasurements, proceedingMeasurements }) => {
         if (err) {
-          console.log(err);
+          console.log(err); // eslint-disable-line no-console
         } else {
           // Ensure measurements are sorted in asc order (newest events at end of array).
-          eventMeasurements.sort((a, b) => {
-            return a.timestamp_ms - b.timestamp_ms;
-          });
+          eventMeasurements.sort((a, b) => a.timestamp_ms - b.timestamp_ms);
 
-          precedingMeasurements.sort((a, b) => {
-            return a.timestamp_ms - b.timestamp_ms;
-          });
+          precedingMeasurements.sort((a, b) => a.timestamp_ms - b.timestamp_ms);
 
-          proceedingMeasurements.sort((a, b) => {
-            return a.timestamp_ms - b.timestamp_ms;
-          });
+          proceedingMeasurements.sort((a, b) => a.timestamp_ms - b.timestamp_ms);
 
           // Format data for chart.
+          /* eslint-disable arrow-body-style */
           const eventMeasurementsChartData = eventMeasurements.map(msr => {
-            return {x: new Date(msr.timestamp_ms), y: msr.voltage}
+            return { x: new Date(msr.timestamp_ms), y: msr.voltage };
           });
 
           const precedingMeasurementsChartData = precedingMeasurements.map(msr => {
-            return {x: new Date(msr.timestamp_ms), y: msr.voltage}
+            return { x: new Date(msr.timestamp_ms), y: msr.voltage };
           });
 
           const proceedingMeasurementsChartData = proceedingMeasurements.map(msr => {
-            return {x: new Date(msr.timestamp_ms), y: msr.voltage}
+            return { x: new Date(msr.timestamp_ms), y: msr.voltage };
           });
+          /* eslint-enable arrow-body-style */
 
 
           // Create Chart
@@ -92,53 +89,52 @@ Template.research.onRendered(function() {
                 fill: false,
                 data: eventMeasurementsChartData,
                 pointRadius: 0,
-                tension: 0
+                tension: 0,
               }, {
                 borderColor: '#EEC751',
                 fill: false,
                 data: precedingMeasurementsChartData,
                 pointRadius: 0,
-                tension: 0
+                tension: 0,
               }, {
                 borderColor: '#EEC751',
                 fill: false,
                 data: proceedingMeasurementsChartData,
                 pointRadius: 0,
-                tension: 0
-              }]
+                tension: 0,
+              }],
             },
             options: {
               legend: {
-                display: false
+                display: false,
               },
-              title:{
+              title: {
                 display: true,
-                text:"Vrms Measurements"
+                text: 'Vrms Measurements',
               },
               scales: {
                 xAxes: [{
-                  type: "time",
+                  type: 'time',
                   display: true,
                   scaleLabel: {
                     display: true,
-                    labelString: 'Timestamp'
-                  }
+                    labelString: 'Timestamp',
+                  },
                 }],
                 yAxes: [{
                   display: true,
                   scaleLabel: {
                     display: true,
-                    labelString: 'Voltage'
-                  }
-                }]
-              }
-            }
+                    labelString: 'Voltage',
+                  },
+                }],
+              },
+            },
           });
         }
       });
     }
   });
-
 });
 
 Template.research.helpers({
