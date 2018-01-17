@@ -1,3 +1,6 @@
+//! Makai is a event detection daemon used for identifying distributed events. Furthermore it will store triggering data to a mongo database.
+//!
+
 extern crate protobuf;
 extern crate zmq;
 
@@ -12,8 +15,6 @@ extern crate num;
 
 
 use mongodb::{Client, ThreadedClient};
-
-
 use std::thread;
 
 mod constants;

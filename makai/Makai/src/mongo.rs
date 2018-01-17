@@ -18,23 +18,34 @@ use time::Duration;
 use constants::*;
 use opq::*;
 
+/// A Buffer for keeping track of the slow measurements.
 struct MeasurementStatistics {
+    ///Maximum value.
     pub min: f32,
+    ///Minimum value.
     pub max: f32,
-    pub average_accum: f32,
-    pub count: u32
+    ///Accumulator for computing averages.
+    average_accum: f32,
+    ///Number of elements processed so far.
+    count: u32
 }
 
 impl MeasurementStatistics {
+    ///Creates a new measurements statistical buffer.
+    /// # Arguments
+    /// * `new_value` - new value to process.
     pub fn new(new_value : f32) -> MeasurementStatistics{
         MeasurementStatistics{
             min: new_value,
             max: new_value,
             average_accum: new_value,
-            count : 0
+            count : 1
         }
     }
 
+    ///Updates the buffer with a new value.
+    /// #Arguments
+    /// * `new_value` - new value to process.
     pub fn update(&mut self, new_value: f32) {
         if new_value < self.min {
             self.min = new_value;
@@ -44,21 +55,27 @@ impl MeasurementStatistics {
         self.average_accum += new_value;
         self.count += 1;
     }
-
+    ///Computes the average.
     pub fn get_average(&mut self) -> f32 {
         self.average_accum/(self.count as f32)
     }
 }
 
+///Decimator for a single device.
 struct MeasurementDecimator {
+    ///Voltage statistics.
     v_measurement: Option<MeasurementStatistics>,
+    ///Frequency statistics.
     f_measurement: Option<MeasurementStatistics>,
+    ///THD statistics.
     thd_measurement: Option<MeasurementStatistics>,
+    ///Last time a bson document was generated.
     pub last_insert: DateTime<Utc>,
 }
 
 
 impl MeasurementDecimator {
+    ///Created a new decimator.
     pub fn new() -> MeasurementDecimator {
         MeasurementDecimator {
             v_measurement: None,
@@ -68,6 +85,7 @@ impl MeasurementDecimator {
         }
     }
 
+    ///Clears the buffers.
     fn clear(&mut self) {
         self.v_measurement = None;
         self.f_measurement = None;
@@ -75,6 +93,9 @@ impl MeasurementDecimator {
         self.last_insert = Utc::now();
     }
 
+    ///Processes the next message.
+    /// # Arguments:
+    /// * `msg`- A new triggering message from a box with matching id.
     pub fn process_message(&mut self, msg: &TriggerMessage) {
         let rms = msg.get_rms();
         let f = msg.get_frequency();
@@ -84,19 +105,20 @@ impl MeasurementDecimator {
             Some(ref mut v_m) => v_m.update(rms)
         }
         match self.f_measurement {
-            None => { self.f_measurement = Some(MeasurementStatistics::new(rms) ) }
+            None => { self.f_measurement = Some(MeasurementStatistics::new(f) ) }
             Some(ref mut f_m) => f_m.update(f)
         }
 
         if msg.has_thd() {
             let thd = msg.get_thd();
             match self.thd_measurement {
-                None => { self.thd_measurement = Some(MeasurementStatistics::new(rms)) }
+                None => { self.thd_measurement = Some(MeasurementStatistics::new(thd)) }
                 Some(ref mut thd_m) => thd_m.update(thd)
             }
         }
     }
 
+    ///Generates a bson document based on the values returned, clears the internal statistics, and resets the clock.
     pub fn generate_document_and_reset(&mut self) -> Document {
         let mut ret = Document::new();
         match self.v_measurement {
@@ -143,6 +165,7 @@ impl MeasurementDecimator {
     }
 }
 
+///This object is responsible for processing measurement messages.
 pub struct MongoMeasurements {
     sub_chan: pub_sub::Subscription<TriggerMessage>,
     live_coll: mongodb::coll::Collection,
@@ -150,9 +173,14 @@ pub struct MongoMeasurements {
 }
 
 impl MongoMeasurements {
+
+    ///Creates a new mongo measurement store.
+    /// # Arguments
+    /// * `client` -  a reference to a mongodb client instance.
+    /// * `sub_chan` -  a channel for receiving triggering messages.
     pub fn new(client: &mongodb::Client, sub_chan: pub_sub::Subscription<TriggerMessage>) -> MongoMeasurements {
         let ret = MongoMeasurements {
-            sub_chan: sub_chan,
+            sub_chan,
             live_coll: client.db(MONGO_DATABASE).collection(MONGO_MEASUREMENT_COLLECTION),
             slow_coll: client.db(MONGO_DATABASE).collection(MONGO_LONG_TERM_MEASUREMENT_COLLECTION),
         };
@@ -163,6 +191,9 @@ impl MongoMeasurements {
         ret
     }
 
+    ///Generate a new bson document for the live measurements.
+    /// # Arguments
+    /// * `msg` a new trigger message to process.
     fn generate_document(msg: &TriggerMessage) -> Document {
         let expire_time: DateTime<Utc> = Utc::now() + Duration::seconds(MONGO_MEASUREMENTS_EXPIRE_TIME_SECONDS);
         let bson_expire_time = Bson::from(expire_time);
@@ -181,6 +212,7 @@ impl MongoMeasurements {
         doc
     }
 
+    ///The mongo store loop. Run this in a thread.
     pub fn run_loop(&self) {
         let mut map = HashMap::new();
         loop {
