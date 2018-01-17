@@ -22,7 +22,7 @@ private:
     mongocxx::collection _event_collection;
     mongocxx::collection _data_collection;
     mongocxx::collection _box_collection;
-
+    mongocxx::collection _gridfs_collection;
     mongocxx::gridfs::bucket _bucket;
 
 };

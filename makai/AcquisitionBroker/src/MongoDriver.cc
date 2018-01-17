@@ -43,11 +43,23 @@ static const std::string TIME_DATA_FIELD = "data_fs_filename";
 static const std::string LOCATION_OPQ_BOXES_FIELD = "locations";
 static const std::string LOCATION_BOX_EVENT_FIELD = "location";
 
+
+
+static const std::string GRIDFS_COLLECTION = "fs.files";
+static const std::string GRIDFS_COLLECTION_FILENAME_FIELD = "filename";
+static const std::string GRIDFS_COLLECTION_METADATA_FIELD = "metadata";
+static const std::string GRIDFS_COLLECTION_METADATA_EVENT_ID_FIELD = "event_id";
+static const std::string GRIDFS_COLLECTION_METADATA_BOX_ID_FIELD = "box_id";
+
+
+
+
 MongoDriver::MongoDriver(std::string uri) : _client(mongocxx::uri(uri)){
     _db = _client[OPQ_DB];
     _event_collection = _db[OPQ_EVENT_COLLECTION];
     _data_collection = _db[OPQ_DATA_COLLECTION];
     _box_collection = _db[OPQ_BOX_COLLECTION];
+    _gridfs_collection = _db[GRIDFS_COLLECTION];
     _bucket = _db.gridfs_bucket();
 }
 
@@ -173,9 +185,22 @@ bool MongoDriver::append_data_to_event(std::vector<opq::proto::DataMessage> &mes
                               file_data.push_back(sample >> 8);
                           }
             );
-            //file_data.insert(file_data.end(),cycle.data().begin(), cycle.data().end());
         }
     }
     uploader.write(file_data.data(), file_data.size());
     auto result = uploader.close();
+
+    auto update_doc = document{} << "$set"
+                                         << open_document << GRIDFS_COLLECTION_METADATA_FIELD
+                                                          << open_document << GRIDFS_COLLECTION_METADATA_EVENT_ID_FIELD << (int)event_num
+                                                                           << GRIDFS_COLLECTION_METADATA_BOX_ID_FIELD << std::to_string(id)
+                                                          << close_document
+                                         << close_document
+                    << finalize;
+
+    using namespace std;
+    cout << bsoncxx::to_json(update_doc.view()) << endl;
+
+    _gridfs_collection.update_one(document{} <<GRIDFS_COLLECTION_FILENAME_FIELD << data_file << finalize, update_doc.view());
+
 }
