@@ -18,7 +18,7 @@ class OpqBoxesCollection extends BaseCollection {
       box_id: { type: String },
       name: { type: String, optional: true },
       description: { type: String, optional: true },
-      calibration_constant: { type: Number },
+      calibration_constant: { type: Number, decimal: true },
       locations: { type: [Object] },
     }));
 
