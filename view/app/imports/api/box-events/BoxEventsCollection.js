@@ -22,11 +22,11 @@ class BoxEventsCollection extends BaseCollection {
       event_start_timestamp_ms: { type: Number },
       event_end_timestamp_ms: { type: Number },
       window_timestamps_ms: { type: [Number] }, // For research purposes.
-      thd: { type: Number },
+      thd: { type: Number, decimal: true },
       itic: { type: String },
       location: { type: Object, optional: true },
-      'location.start_time': { type: Number },
-      'location.zipcode': { type: Number },
+      'location.start_time': { type: Number, optional: true },
+      'location.zipcode': { type: Number, optional: true },
       data_fs_filename: { type: String }, // Stores the GridFs filename. Format is 'event_eventNumber_boxId'
     }));
 
