@@ -22,7 +22,7 @@ class TrendsCollection extends BaseCollection {
       'frequency.min': { type: Number, decimal: true },
       'frequency.max': { type: Number, decimal: true },
       'frequency.average': { type: Number, decimal: true },
-      thd: { type: Object },
+      thd: { type: Object, optional: true },
       'thd.min': { type: Number, decimal: true },
       'thd.max': { type: Number, decimal: true },
       'thd.average': { type: Number, decimal: true },
