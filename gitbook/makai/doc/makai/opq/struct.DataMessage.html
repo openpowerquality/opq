@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `DataMessage` struct in crate `makai`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, DataMessage">
+
+    <title>makai::opq::DataMessage - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../../normalize.css">
+    <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../../main.css">
+    
+
+    
+    
+</head>
+<body class="rustdoc struct">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'>Struct DataMessage</p><div class="block items"><ul><li><a href="#fields">Fields</a></li><li><a href="#methods">Methods</a></li><li><a href="#implementations">Trait Implementations</a></li></ul></div><p class='location'><a href='../index.html'>makai</a>::<wbr><a href='index.html'>opq</a></p><script>window.sidebarCurrent = {name: 'DataMessage', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content">
+<h1 class='fqn'><span class='in-band'>Struct <a href='../index.html'>makai</a>::<wbr><a href='index.html'>opq</a>::<wbr><a class="struct" href=''>DataMessage</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a class='srclink' href='../../src/makai/opq.rs.html#391-398' title='goto source code'>[src]</a></span></h1>
+<pre class='rust struct'>pub struct DataMessage {
+    id: <a class="enum" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>&gt;,
+    cycles: RepeatedField&lt;<a class="struct" href="../../makai/opq/struct.Cycle.html" title="struct makai::opq::Cycle">Cycle</a>&gt;,
+    unknown_fields: UnknownFields,
+    cached_size: CachedSize,
+}</pre><h2 id='fields' class='fields small-section-header'>
+                       Fields<a href='#fields' class='anchor'></a></h2><span id="structfield.id" class="structfield small-section-header">
+                           <a href="#structfield.id" class="anchor field"></a>
+                           <span id="id.v" class='invisible'>
+                           <code>id: <a class="enum" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>&gt;</code>
+                           </span></span><span id="structfield.cycles" class="structfield small-section-header">
+                           <a href="#structfield.cycles" class="anchor field"></a>
+                           <span id="cycles.v" class='invisible'>
+                           <code>cycles: RepeatedField&lt;<a class="struct" href="../../makai/opq/struct.Cycle.html" title="struct makai::opq::Cycle">Cycle</a>&gt;</code>
+                           </span></span><span id="structfield.unknown_fields" class="structfield small-section-header">
+                           <a href="#structfield.unknown_fields" class="anchor field"></a>
+                           <span id="unknown_fields.v" class='invisible'>
+                           <code>unknown_fields: UnknownFields</code>
+                           </span></span><span id="structfield.cached_size" class="structfield small-section-header">
+                           <a href="#structfield.cached_size" class="anchor field"></a>
+                           <span id="cached_size.v" class='invisible'>
+                           <code>cached_size: CachedSize</code>
+                           </span></span>
+                    <h2 id='methods' class='small-section-header'>
+                      Methods<a href='#methods' class='anchor'></a>
+                    </h2>
+                <h3 id='impl' class='impl'><span class='in-band'><code>impl <a class="struct" href="../../makai/opq/struct.DataMessage.html" title="struct makai::opq::DataMessage">DataMessage</a></code><a href='#impl' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/makai/opq.rs.html#403-477' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.new' class="method"><span id='new.v' class='invisible'><code>pub fn <a href='#method.new' class='fnname'>new</a>() -&gt; <a class="struct" href="../../makai/opq/struct.DataMessage.html" title="struct makai::opq::DataMessage">DataMessage</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/makai/opq.rs.html#404-406' title='goto source code'>[src]</a></span></h4>
+<h4 id='method.default_instance' class="method"><span id='default_instance.v' class='invisible'><code>pub fn <a href='#method.default_instance' class='fnname'>default_instance</a>() -&gt; &amp;'static <a class="struct" href="../../makai/opq/struct.DataMessage.html" title="struct makai::opq::DataMessage">DataMessage</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/makai/opq.rs.html#408-416' title='goto source code'>[src]</a></span></h4>
+<h4 id='method.clear_id' class="method"><span id='clear_id.v' class='invisible'><code>pub fn <a href='#method.clear_id' class='fnname'>clear_id</a>(&amp;mut self)</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/makai/opq.rs.html#420-422' title='goto source code'>[src]</a></span></h4>
+<h4 id='method.has_id' class="method"><span id='has_id.v' class='invisible'><code>pub fn <a href='#method.has_id' class='fnname'>has_id</a>(&amp;self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/makai/opq.rs.html#424-426' title='goto source code'>[src]</a></span></h4>
+<h4 id='method.set_id' class="method"><span id='set_id.v' class='invisible'><code>pub fn <a href='#method.set_id' class='fnname'>set_id</a>(&amp;mut self, v: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>)</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/makai/opq.rs.html#429-431' title='goto source code'>[src]</a></span></h4>
+<h4 id='method.get_id' class="method"><span id='get_id.v' class='invisible'><code>pub fn <a href='#method.get_id' class='fnname'>get_id</a>(&amp;self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/makai/opq.rs.html#433-435' title='goto source code'>[src]</a></span></h4>
+<h4 id='method.get_id_for_reflect' class="method"><span id='get_id_for_reflect.v' class='invisible'><code>fn <a href='#method.get_id_for_reflect' class='fnname'>get_id_for_reflect</a>(&amp;self) -&gt; &amp;<a class="enum" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/makai/opq.rs.html#437-439' title='goto source code'>[src]</a></span></h4>
+<h4 id='method.mut_id_for_reflect' class="method"><span id='mut_id_for_reflect.v' class='invisible'><code>fn <a href='#method.mut_id_for_reflect' class='fnname'>mut_id_for_reflect</a>(&amp;mut self) -&gt; &amp;mut <a class="enum" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/makai/opq.rs.html#441-443' title='goto source code'>[src]</a></span></h4>
+<h4 id='method.clear_cycles' class="method"><span id='clear_cycles.v' class='invisible'><code>pub fn <a href='#method.clear_cycles' class='fnname'>clear_cycles</a>(&amp;mut self)</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/makai/opq.rs.html#447-449' title='goto source code'>[src]</a></span></h4>
+<h4 id='method.set_cycles' class="method"><span id='set_cycles.v' class='invisible'><code>pub fn <a href='#method.set_cycles' class='fnname'>set_cycles</a>(&amp;mut self, v: RepeatedField&lt;<a class="struct" href="../../makai/opq/struct.Cycle.html" title="struct makai::opq::Cycle">Cycle</a>&gt;)</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/makai/opq.rs.html#452-454' title='goto source code'>[src]</a></span></h4>
+<h4 id='method.mut_cycles' class="method"><span id='mut_cycles.v' class='invisible'><code>pub fn <a href='#method.mut_cycles' class='fnname'>mut_cycles</a>(&amp;mut self) -&gt; &amp;mut RepeatedField&lt;<a class="struct" href="../../makai/opq/struct.Cycle.html" title="struct makai::opq::Cycle">Cycle</a>&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/makai/opq.rs.html#457-459' title='goto source code'>[src]</a></span></h4>
+<h4 id='method.take_cycles' class="method"><span id='take_cycles.v' class='invisible'><code>pub fn <a href='#method.take_cycles' class='fnname'>take_cycles</a>(&amp;mut self) -&gt; RepeatedField&lt;<a class="struct" href="../../makai/opq/struct.Cycle.html" title="struct makai::opq::Cycle">Cycle</a>&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/makai/opq.rs.html#462-464' title='goto source code'>[src]</a></span></h4>
+<h4 id='method.get_cycles' class="method"><span id='get_cycles.v' class='invisible'><code>pub fn <a href='#method.get_cycles' class='fnname'>get_cycles</a>(&amp;self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.slice.html">&amp;[</a><a class="struct" href="../../makai/opq/struct.Cycle.html" title="struct makai::opq::Cycle">Cycle</a><a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.slice.html">]</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/makai/opq.rs.html#466-468' title='goto source code'>[src]</a></span></h4>
+<h4 id='method.get_cycles_for_reflect' class="method"><span id='get_cycles_for_reflect.v' class='invisible'><code>fn <a href='#method.get_cycles_for_reflect' class='fnname'>get_cycles_for_reflect</a>(&amp;self) -&gt; &amp;RepeatedField&lt;<a class="struct" href="../../makai/opq/struct.Cycle.html" title="struct makai::opq::Cycle">Cycle</a>&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/makai/opq.rs.html#470-472' title='goto source code'>[src]</a></span></h4>
+<h4 id='method.mut_cycles_for_reflect' class="method"><span id='mut_cycles_for_reflect.v' class='invisible'><code>fn <a href='#method.mut_cycles_for_reflect' class='fnname'>mut_cycles_for_reflect</a>(&amp;mut self) -&gt; &amp;mut RepeatedField&lt;<a class="struct" href="../../makai/opq/struct.Cycle.html" title="struct makai::opq::Cycle">Cycle</a>&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/makai/opq.rs.html#474-476' title='goto source code'>[src]</a></span></h4>
+</div>
+            <h2 id='implementations' class='small-section-header'>
+              Trait Implementations<a href='#implementations' class='anchor'></a>
+            </h2>
+        <h3 id='impl-PartialEq' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html" title="trait core::cmp::PartialEq">PartialEq</a> for <a class="struct" href="../../makai/opq/struct.DataMessage.html" title="struct makai::opq::DataMessage">DataMessage</a></code><a href='#impl-PartialEq' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/makai/opq.rs.html#390' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.eq' class="method"><span id='eq.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#tymethod.eq' class='fnname'>eq</a>(&amp;self, __arg_0: &amp;<a class="struct" href="../../makai/opq/struct.DataMessage.html" title="struct makai::opq::DataMessage">DataMessage</a>) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/makai/opq.rs.html#390' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>This method tests for <code>self</code> and <code>other</code> values to be equal, and is used by <code>==</code>. <a href="https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#tymethod.eq">Read more</a></p>
+</div><h4 id='method.ne' class="method"><span id='ne.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#method.ne' class='fnname'>ne</a>(&amp;self, __arg_0: &amp;<a class="struct" href="../../makai/opq/struct.DataMessage.html" title="struct makai::opq::DataMessage">DataMessage</a>) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/makai/opq.rs.html#390' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>This method tests for <code>!=</code>.</p>
+</div></div><h3 id='impl-Clone' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html" title="trait core::clone::Clone">Clone</a> for <a class="struct" href="../../makai/opq/struct.DataMessage.html" title="struct makai::opq::DataMessage">DataMessage</a></code><a href='#impl-Clone' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/makai/opq.rs.html#390' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.clone' class="method"><span id='clone.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone' class='fnname'>clone</a>(&amp;self) -&gt; <a class="struct" href="../../makai/opq/struct.DataMessage.html" title="struct makai::opq::DataMessage">DataMessage</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/makai/opq.rs.html#390' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Returns a copy of the value. <a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">Read more</a></p>
+</div><h4 id='method.clone_from' class="method"><span id='clone_from.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from' class='fnname'>clone_from</a>(&amp;mut self, source: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;</a>Self)</code></span><span class='out-of-band'><div class='ghost'></div><div class='since' title='Stable since Rust version 1.0.0'>1.0.0</div><a class='srclink' href='https://doc.rust-lang.org/nightly/src/core/clone.rs.html#112-114' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Performs copy-assignment from <code>source</code>. <a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from">Read more</a></p>
+</div></div><h3 id='impl-Default' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/default/trait.Default.html" title="trait core::default::Default">Default</a> for <a class="struct" href="../../makai/opq/struct.DataMessage.html" title="struct makai::opq::DataMessage">DataMessage</a></code><a href='#impl-Default' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/makai/opq.rs.html#390' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.default' class="method"><span id='default.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/default/trait.Default.html#tymethod.default' class='fnname'>default</a>() -&gt; <a class="struct" href="../../makai/opq/struct.DataMessage.html" title="struct makai::opq::DataMessage">DataMessage</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/makai/opq.rs.html#390' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Returns the &quot;default value&quot; for a type. <a href="https://doc.rust-lang.org/nightly/core/default/trait.Default.html#tymethod.default">Read more</a></p>
+</div></div><h3 id='impl-Sync' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/marker/trait.Sync.html" title="trait core::marker::Sync">Sync</a> for <a class="struct" href="../../makai/opq/struct.DataMessage.html" title="struct makai::opq::DataMessage">DataMessage</a></code><a href='#impl-Sync' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/makai/opq.rs.html#401' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'></div><h3 id='impl-Message' class='impl'><span class='in-band'><code>impl Message for <a class="struct" href="../../makai/opq/struct.DataMessage.html" title="struct makai::opq::DataMessage">DataMessage</a></code><a href='#impl-Message' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/makai/opq.rs.html#479-568' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.is_initialized' class="method"><span id='is_initialized.v' class='invisible'><code>fn <a href='#method.is_initialized' class='fnname'>is_initialized</a>(&amp;self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/makai/opq.rs.html#480-490' title='goto source code'>[src]</a></span></h4>
+<h4 id='method.merge_from' class="method"><span id='merge_from.v' class='invisible'><code>fn <a href='#method.merge_from' class='fnname'>merge_from</a>(&amp;mut self, is: &amp;mut CodedInputStream) -&gt; ProtobufResult&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.tuple.html">()</a>&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/makai/opq.rs.html#492-512' title='goto source code'>[src]</a></span></h4>
+<h4 id='method.compute_size' class="method"><span id='compute_size.v' class='invisible'><code>fn <a href='#method.compute_size' class='fnname'>compute_size</a>(&amp;self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/makai/opq.rs.html#516-528' title='goto source code'>[src]</a></span></h4>
+<h4 id='method.write_to_with_cached_sizes' class="method"><span id='write_to_with_cached_sizes.v' class='invisible'><code>fn <a href='#method.write_to_with_cached_sizes' class='fnname'>write_to_with_cached_sizes</a>(<br>&nbsp;&nbsp;&nbsp;&nbsp;&amp;self, <br>&nbsp;&nbsp;&nbsp;&nbsp;os: &amp;mut CodedOutputStream<br>) -&gt; ProtobufResult&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.tuple.html">()</a>&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/makai/opq.rs.html#530-541' title='goto source code'>[src]</a></span></h4>
+<h4 id='method.get_cached_size' class="method"><span id='get_cached_size.v' class='invisible'><code>fn <a href='#method.get_cached_size' class='fnname'>get_cached_size</a>(&amp;self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/makai/opq.rs.html#543-545' title='goto source code'>[src]</a></span></h4>
+<h4 id='method.get_unknown_fields' class="method"><span id='get_unknown_fields.v' class='invisible'><code>fn <a href='#method.get_unknown_fields' class='fnname'>get_unknown_fields</a>(&amp;self) -&gt; &amp;UnknownFields</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/makai/opq.rs.html#547-549' title='goto source code'>[src]</a></span></h4>
+<h4 id='method.mut_unknown_fields' class="method"><span id='mut_unknown_fields.v' class='invisible'><code>fn <a href='#method.mut_unknown_fields' class='fnname'>mut_unknown_fields</a>(&amp;mut self) -&gt; &amp;mut UnknownFields</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/makai/opq.rs.html#551-553' title='goto source code'>[src]</a></span></h4>
+<h4 id='method.as_any' class="method"><span id='as_any.v' class='invisible'><code>fn <a href='#method.as_any' class='fnname'>as_any</a>(&amp;self) -&gt; &amp;<a class="trait" href="https://doc.rust-lang.org/nightly/core/any/trait.Any.html" title="trait core::any::Any">Any</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/makai/opq.rs.html#555-557' title='goto source code'>[src]</a></span></h4>
+<h4 id='method.as_any_mut' class="method"><span id='as_any_mut.v' class='invisible'><code>fn <a href='#method.as_any_mut' class='fnname'>as_any_mut</a>(&amp;mut self) -&gt; &amp;mut <a class="trait" href="https://doc.rust-lang.org/nightly/core/any/trait.Any.html" title="trait core::any::Any">Any</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/makai/opq.rs.html#558-560' title='goto source code'>[src]</a></span></h4>
+<h4 id='method.into_any' class="method"><span id='into_any.v' class='invisible'><code>fn <a href='#method.into_any' class='fnname'>into_any</a>(self: <a class="struct" href="https://doc.rust-lang.org/nightly/alloc/boxed/struct.Box.html" title="struct alloc::boxed::Box">Box</a>&lt;Self&gt;) -&gt; <a class="struct" href="https://doc.rust-lang.org/nightly/alloc/boxed/struct.Box.html" title="struct alloc::boxed::Box">Box</a>&lt;<a class="trait" href="https://doc.rust-lang.org/nightly/core/any/trait.Any.html" title="trait core::any::Any">Any</a>&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/makai/opq.rs.html#561-563' title='goto source code'>[src]</a></span></h4>
+<h4 id='method.descriptor' class="method"><span id='descriptor.v' class='invisible'><code>fn <a href='#method.descriptor' class='fnname'>descriptor</a>(&amp;self) -&gt; &amp;'static MessageDescriptor</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/makai/opq.rs.html#565-567' title='goto source code'>[src]</a></span></h4>
+<h4 id='method.write_to' class="method"><span id='write_to.v' class='invisible'><code>fn <a href='#method.write_to' class='fnname'>write_to</a>(&amp;self, os: &amp;mut CodedOutputStream) -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.tuple.html">()</a>, ProtobufError&gt;</code></span></h4>
+<h4 id='method.write_length_delimited_to' class="method"><span id='write_length_delimited_to.v' class='invisible'><code>fn <a href='#method.write_length_delimited_to' class='fnname'>write_length_delimited_to</a>(<br>&nbsp;&nbsp;&nbsp;&nbsp;&amp;self, <br>&nbsp;&nbsp;&nbsp;&nbsp;os: &amp;mut CodedOutputStream<br>) -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.tuple.html">()</a>, ProtobufError&gt;</code></span></h4>
+<h4 id='method.write_length_delimited_to_vec' class="method"><span id='write_length_delimited_to_vec.v' class='invisible'><code>fn <a href='#method.write_length_delimited_to_vec' class='fnname'>write_length_delimited_to_vec</a>(<br>&nbsp;&nbsp;&nbsp;&nbsp;&amp;self, <br>&nbsp;&nbsp;&nbsp;&nbsp;vec: &amp;mut <a class="struct" href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html" title="struct alloc::vec::Vec">Vec</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>&gt;<br>) -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.tuple.html">()</a>, ProtobufError&gt;</code></span></h4>
+<h4 id='method.merge_from_bytes' class="method"><span id='merge_from_bytes.v' class='invisible'><code>fn <a href='#method.merge_from_bytes' class='fnname'>merge_from_bytes</a>(&amp;mut self, bytes: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.slice.html">&amp;[</a><a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a><a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.slice.html">]</a>) -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.tuple.html">()</a>, ProtobufError&gt;</code></span></h4>
+<h4 id='method.check_initialized' class="method"><span id='check_initialized.v' class='invisible'><code>fn <a href='#method.check_initialized' class='fnname'>check_initialized</a>(&amp;self) -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.tuple.html">()</a>, ProtobufError&gt;</code></span></h4>
+<h4 id='method.write_to_writer' class="method"><span id='write_to_writer.v' class='invisible'><code>fn <a href='#method.write_to_writer' class='fnname'>write_to_writer</a>(&amp;self, w: &amp;mut <a class="trait" href="https://doc.rust-lang.org/nightly/std/io/trait.Write.html" title="trait std::io::Write">Write</a>) -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.tuple.html">()</a>, ProtobufError&gt;</code></span></h4>
+<h4 id='method.write_to_vec' class="method"><span id='write_to_vec.v' class='invisible'><code>fn <a href='#method.write_to_vec' class='fnname'>write_to_vec</a>(&amp;self, v: &amp;mut <a class="struct" href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html" title="struct alloc::vec::Vec">Vec</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>&gt;) -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.tuple.html">()</a>, ProtobufError&gt;</code></span></h4>
+<h4 id='method.write_to_bytes' class="method"><span id='write_to_bytes.v' class='invisible'><code>fn <a href='#method.write_to_bytes' class='fnname'>write_to_bytes</a>(&amp;self) -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;<a class="struct" href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html" title="struct alloc::vec::Vec">Vec</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>&gt;, ProtobufError&gt;</code></span></h4>
+<h4 id='method.write_length_delimited_to_writer' class="method"><span id='write_length_delimited_to_writer.v' class='invisible'><code>fn <a href='#method.write_length_delimited_to_writer' class='fnname'>write_length_delimited_to_writer</a>(<br>&nbsp;&nbsp;&nbsp;&nbsp;&amp;self, <br>&nbsp;&nbsp;&nbsp;&nbsp;w: &amp;mut <a class="trait" href="https://doc.rust-lang.org/nightly/std/io/trait.Write.html" title="trait std::io::Write">Write</a><br>) -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.tuple.html">()</a>, ProtobufError&gt;</code></span></h4>
+<h4 id='method.write_length_delimited_to_bytes' class="method"><span id='write_length_delimited_to_bytes.v' class='invisible'><code>fn <a href='#method.write_length_delimited_to_bytes' class='fnname'>write_length_delimited_to_bytes</a>(&amp;self) -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;<a class="struct" href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html" title="struct alloc::vec::Vec">Vec</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>&gt;, ProtobufError&gt;</code></span></h4>
+<h4 id='method.type_id' class="method"><span id='type_id.v' class='invisible'><code>fn <a href='#method.type_id' class='fnname'>type_id</a>(&amp;self) -&gt; <a class="struct" href="https://doc.rust-lang.org/nightly/core/any/struct.TypeId.html" title="struct core::any::TypeId">TypeId</a></code></span></h4>
+</div><h3 id='impl-MessageStatic' class='impl'><span class='in-band'><code>impl MessageStatic for <a class="struct" href="../../makai/opq/struct.DataMessage.html" title="struct makai::opq::DataMessage">DataMessage</a></code><a href='#impl-MessageStatic' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/makai/opq.rs.html#570-601' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.new-1' class="method"><span id='new.v-1' class='invisible'><code>fn <a href='#method.new' class='fnname'>new</a>() -&gt; <a class="struct" href="../../makai/opq/struct.DataMessage.html" title="struct makai::opq::DataMessage">DataMessage</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/makai/opq.rs.html#571-573' title='goto source code'>[src]</a></span></h4>
+<h4 id='method.descriptor_static' class="method"><span id='descriptor_static.v' class='invisible'><code>fn <a href='#method.descriptor_static' class='fnname'>descriptor_static</a>(_: <a class="enum" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;<a class="struct" href="../../makai/opq/struct.DataMessage.html" title="struct makai::opq::DataMessage">DataMessage</a>&gt;) -&gt; &amp;'static MessageDescriptor</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/makai/opq.rs.html#575-600' title='goto source code'>[src]</a></span></h4>
+</div><h3 id='impl-Clear' class='impl'><span class='in-band'><code>impl Clear for <a class="struct" href="../../makai/opq/struct.DataMessage.html" title="struct makai::opq::DataMessage">DataMessage</a></code><a href='#impl-Clear' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/makai/opq.rs.html#603-609' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.clear' class="method"><span id='clear.v' class='invisible'><code>fn <a href='#method.clear' class='fnname'>clear</a>(&amp;mut self)</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/makai/opq.rs.html#604-608' title='goto source code'>[src]</a></span></h4>
+</div><h3 id='impl-Debug' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html" title="trait core::fmt::Debug">Debug</a> for <a class="struct" href="../../makai/opq/struct.DataMessage.html" title="struct makai::opq::DataMessage">DataMessage</a></code><a href='#impl-Debug' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/makai/opq.rs.html#611-615' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.fmt' class="method"><span id='fmt.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#tymethod.fmt' class='fnname'>fmt</a>(&amp;self, f: &amp;mut <a class="struct" href="https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html" title="struct core::fmt::Formatter">Formatter</a>) -&gt; <a class="type" href="https://doc.rust-lang.org/nightly/core/fmt/type.Result.html" title="type core::fmt::Result">Result</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/makai/opq.rs.html#612-614' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Formats the value using the given formatter.</p>
+</div></div><h3 id='impl-ProtobufValue' class='impl'><span class='in-band'><code>impl ProtobufValue for <a class="struct" href="../../makai/opq/struct.DataMessage.html" title="struct makai::opq::DataMessage">DataMessage</a></code><a href='#impl-ProtobufValue' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/makai/opq.rs.html#617-621' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.as_ref' class="method"><span id='as_ref.v' class='invisible'><code>fn <a href='#method.as_ref' class='fnname'>as_ref</a>(&amp;self) -&gt; ProtobufValueRef</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/makai/opq.rs.html#618-620' title='goto source code'>[src]</a></span></h4>
+<h4 id='method.as_any-1' class="method"><span id='as_any.v-1' class='invisible'><code>fn <a href='#method.as_any' class='fnname'>as_any</a>(&amp;self) -&gt; &amp;(<a class="trait" href="https://doc.rust-lang.org/nightly/core/any/trait.Any.html" title="trait core::any::Any">Any</a> + 'static)</code></span></h4>
+<h4 id='method.is_non_zero' class="method"><span id='is_non_zero.v' class='invisible'><code>fn <a href='#method.is_non_zero' class='fnname'>is_non_zero</a>(&amp;self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></span></h4>
+<h4 id='method.as_ref_copy' class="method"><span id='as_ref_copy.v' class='invisible'><code>fn <a href='#method.as_ref_copy' class='fnname'>as_ref_copy</a>(&amp;self) -&gt; ProtobufValueRef&lt;'static&gt;</code></span></h4>
+</div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                    <dt>+</dt>
+                    <dd>Collapse/expand all sections</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../../";
+        window.currentCrate = "makai";
+    </script>
+    <script src="../../main.js"></script>
+    <script defer src="../../search-index.js"></script>
+</body>
+</html>

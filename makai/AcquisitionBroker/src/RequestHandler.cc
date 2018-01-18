@@ -1,7 +1,3 @@
-//
-// Created by tusk on 4/9/17.
-//
-
 #include "RequestHandler.h"
 #include "util.h"
 #include "opq.pb.h"

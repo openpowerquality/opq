@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["ZmqReader","This object is responsible for receiving triggering messages from the makai triggering broker."]]});

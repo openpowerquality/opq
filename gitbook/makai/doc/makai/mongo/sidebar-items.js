@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["MeasurementDecimator","Decimator for a single device."],["MeasurementStatistics","A Buffer for keeping track of the slow measurements."],["MongoMeasurements","This object is responsible for processing measurement messages."]]});
