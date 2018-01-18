@@ -89,7 +89,7 @@ The **location** field is an object indicating OPQBox location information. See 
 
 The **data_fs_filename** field indicates the GridFS filename that holds the box_event's actual raw waveform data.
 
-### GridFS
+### GridFS {#gridfs}
 
 [GridFS](https://docs.mongodb.com/manual/core/gridfs/) is a MongoDB specification for storing large documents. As an OPQBox can collect a very large amount of data for each given event (often exceeding the 16 MB MongoDB document size limit), we've opted to utilize GridFS to store our high-fidelity data.
 At its core, GridFS is a very simple system consisting of two collections, **fs.files** and **fs.chunks**. 
