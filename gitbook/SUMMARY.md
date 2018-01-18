@@ -62,7 +62,7 @@
 * [Overview](makai/description.md#overview)
 * [Software](makai/description.md#software)
 * [Use Cases](makai/description.md#use-cases)
-* [APIs](makai/apis.md)
+* [Makai Docs](makai/doc/makai/index.html)
 
 ## OPQ Protocol
 
