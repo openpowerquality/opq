@@ -80,7 +80,6 @@ class FSFilesCollection extends BaseCollection {
       if (!validationContext.isValid()) {
         // eslint-disable-next-line max-len
         problems.push(`FS.Files document failed schema validation: ${doc._id} (Invalid keys: ${JSON.stringify(validationContext.invalidKeys(), null, 2)})`);
-        problems.push(`FS.Files document failed schema validation: ${doc._id} (Invalid keys: ${validationContext.invalidKeys()})`);
       }
       validationContext.resetValidation();
 
