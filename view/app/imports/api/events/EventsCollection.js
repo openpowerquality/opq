@@ -24,7 +24,7 @@ class EventsCollection extends BaseCollection {
       boxes_received: { type: [String] },
       target_event_start_timestamp_ms: { type: Number },
       target_event_end_timestamp_ms: { type: Number },
-      latencies_ms: { type: [Number] },
+      latencies_ms: { type: [Number], optional: true },
     }));
 
     this.publicationNames = {
