@@ -8,7 +8,8 @@ The following section will provide a high-level overview of OPQ's data model.
 ## Data Model
 
 The OPQ system utilizes the following collections:
-* **[measurements](#measurements):** Provides low fidelity OPQBox data
+* **[measurements](#measurements):** Provides short term, low fidelity OPQBox data
+* **[trends](#trends):** Provides long term, aggregated OPQBox trend data
 * **[events](#events):** Provides high fidelity data (potentially across multiple boxes) regarding anomalies detected by measurements.
 * **[box_events](#box_events):** Provides high-fidelity data from a single box. 
 * **[fs.files](#fs.files) and [fs.chunks](#fs.chunks)** Internal to GridFS. Stores box_event binary waveform data.
@@ -25,7 +26,7 @@ The OPQ system is comprised of a multitude of different tools, libraries, and fr
 
 ### Measurements {#measurements}
 
-The **measurements** collection provides low-fidelity OPQBox snapshot data for a specific moment in time. Currently, documents in this collection are produced at approximately once per second per second. As such, each measurement document can essentially be thought of as an OPQBox "heartbeat", providing a timestamp and some additional low-fidelity data.
+The **measurements** collection provides low-fidelity OPQBox snapshot data for a specific moment in time. Documents in this collection are produced at a very rapid rate; OPQMakai requests data from each OPQBox at a rate of six times per second. As such, each measurement document can essentially be thought of as an OPQBox "heartbeat", providing a timestamp and some additional low-fidelity data. Documents are persisted in the collection for a period of 24 hours before expiring.
 
 ![Measurements Collection](images/measurements-collection.png)
 
@@ -34,6 +35,26 @@ Each measurement document always corresponds to a single OPQBox, as indicated by
 The **voltage** and **frequency** fields are RMS calculations of voltage and frequency at the specified moment in time, indicated by the **timestamp_ms** field.
 
 The **thd** field indicates the total harmonic distortion value for this measurement window.
+
+The **expireAt** field that indicates the expiration date of the document. Currently, measurement documents are persisted for a period of 24 hours.
+
+### Trends {#trends}
+
+The **trends** collection provides long term OPQBox trend data. Each trend document represents data aggregated over a one minute data collection window for an individual OPQBox. At first glance, this collection may seem somewhat similar to the *measurements* collection, but there are some key differences between the two: documents in the measurements collection persists for only 24 hours, while documents in the trends collection do not expire. Measurement documents are created at a rate of 6 times per second, per OPQBox - while trend documents are created at a rate of once per minute, per OPQBox.
+
+![Trends Collection](images/trends-collection.png)
+
+It's important to note that **voltage**, **frequency**, and **thd** fields are *objects*, each with a **min**, **max**, and **average** sub-property. As each trend document represents one minute's worth of collected OPQBox data, these sub-properties represent the result of data analysis performed within this window.
+
+The **box_id** field indicates the OPQBox from which this data was produced.
+
+The **timestamp_ms** field indicates the (start or end?) timestamp of the collected data.
+
+The **voltage** field is an *object* with **min**, **max**, and **average** sub-fields, which holds the minimum, maximum, and average voltage values encountered over a one minute data collection window.
+
+The **frequency** field is an *object* with **min**, **max**, and **average** sub-fields, which holds the minimum, maximum, and average frequency values encountered over a one minute data collection window.
+
+The **thd** field is an *object* with **min**, **max**, and **average** sub-fields, which holds the minimum, maximum, and average thd values encountered over a one minute data collection window.
 
 ### Events and Box Events
 
