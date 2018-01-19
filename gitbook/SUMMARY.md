@@ -72,6 +72,7 @@
 
 * [Overview](datamodel/description.md#overview)
 * [Measurements](datamodel/description.md#measurements)
+* [Trends](datamodel/description.md#trends)
 * [Events](datamodel/description.md#events)
 * [Box_Events](datamodel/description.md#box_events)
 * [GridFS](datamodel/description.md#gridfs)
