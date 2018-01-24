@@ -4,7 +4,7 @@ import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import Chartjs from 'chart.js';
 import Moment from 'moment';
 import { Random } from 'meteor/random';
-import { EventMetaData } from '../../../api/events/EventsCollection.js';
+import { Events } from '../../../api/events/EventsCollection';
 import { filterFormSchema } from '../../../utils/schemas.js';
 import { dataContextValidator } from '../../../utils/utils.js';
 
@@ -15,6 +15,7 @@ import './eventCountChart.html';
 Template.eventCountChart.onCreated(function () {
   const template = this;
 
+  // Validate data context
   dataContextValidator(template, new SimpleSchema({
     filters: { type: filterFormSchema, optional: true }, // Optional because data context not available immediately.
   }), null);
@@ -38,7 +39,7 @@ Template.eventCountChart.onCreated(function () {
     if (currentDay) {
       const startOfDay = Moment(currentDay).startOf('day').valueOf(); // Ensure selected day is start of day timestamp.
       const endOfDay = Moment(currentDay).endOf('day').valueOf();
-      template.subscribe(EventMetaData.publicationNames.GET_EVENT_META_DATA, {
+      template.subscribe(Events.publicationNames.GET_EVENTS, {
         startTime: startOfDay,
         endTime: endOfDay,
       });
@@ -56,11 +57,11 @@ Template.eventCountChart.onRendered(function () {
     if (currentDay) {
       const startOfDay = Moment(currentDay).startOf('day').valueOf(); // Ensure selected day is start of day timestamp.
       const endOfDay = Moment(currentDay).endOf('day').valueOf();
-      const eventMetaDataSelector = EventMetaData.queryConstructors().getEventMetaData({
+      const eventsSelector = Events.queryConstructors().getEvents({
         startTime: startOfDay,
         endTime: endOfDay,
       });
-      const eventMetaData = EventMetaData.find(eventMetaDataSelector, { sort: { event_end: -1 } });
+      const events = Events.find(eventsSelector, { sort: { target_event_end_timestamp_ms: -1 } });
 
       // Calculate labels. Floor of current hour, then get last 23 hours.
       const currHour = new Date().getHours();
@@ -77,8 +78,8 @@ Template.eventCountChart.onRendered(function () {
 
       // Count events. Place into 1 hour groups per deviceId.
       const eventCountMap = {};
-      eventMetaData.forEach(event => {
-        const hour = new Date(event.event_end).getHours();
+      events.forEach(event => {
+        const hour = new Date(event.target_event_end_timestamp_ms).getHours();
 
         // Note that we are only counting the initial triggering device so that our event count matches the calendar
         // count. If we later decide to count all boxes_triggered per event, just uncomment the forEach block below.

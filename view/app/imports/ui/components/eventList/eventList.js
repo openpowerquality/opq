@@ -2,7 +2,6 @@ import { Template } from 'meteor/templating';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import { ReactiveVar } from 'meteor/reactive-var';
 import Moment from 'moment';
-// import { EventMetaData } from '../../../api/events/EventsCollection.js';
 import { Events } from '../../../api/events/EventsCollection';
 import { dataContextValidator } from '../../../utils/utils.js';
 import { filterFormSchema } from '../../../utils/schemas.js';
@@ -33,12 +32,12 @@ Template.eventList.onCreated(function () {
     }
   });
 
-  // Subscribe to event meta data for the given time range.
+  // Subscribe to all events within the given time range.
   template.autorun(() => {
     const startTime = template.currentStartTime.get();
     const endTime = template.currentEndTime.get();
     if (startTime || endTime) {
-      template.subscribe(Events.publicationNames.GET_EVENT_META_DATA, { startTime, endTime });
+      template.subscribe(Events.publicationNames.GET_EVENTS, { startTime, endTime });
     }
   });
 });
@@ -53,8 +52,8 @@ Template.eventList.helpers({
     const startTime = template.currentStartTime.get();
     const endTime = template.currentEndTime.get();
     if ((startTime || endTime) && template.subscriptionsReady()) {
-      const eventsSelector = Events.queryConstructors().getEventMetaData({ startTime, endTime });
-      const events = Events.find(eventsSelector, { sort: { event_start: -1 } });
+      const eventsSelector = Events.queryConstructors().getEvents({ startTime, endTime });
+      const events = Events.find(eventsSelector, { sort: { target_event_start_timestamp_ms: -1 } });
       return events;
     }
     return null;

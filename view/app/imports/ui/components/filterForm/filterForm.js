@@ -8,8 +8,7 @@ import { colorQuantify, dataContextValidator, timeUnitString } from '../../../ut
 import './filterForm.html';
 import '../form-controls/text-form-control.html';
 import '../../../../node_modules/flatpickr/dist/flatpickr.min.css';
-// import { boxEventsCountMap } from '../../../api/boxEvent/BoxEventCollectionMethods.js';
-import { eventMetaDataCountMap, getMostRecentEventMetaData } from '../../../api/events/EventsCollectionMethods.js';
+import { eventsCountMap, getMostRecentEvent } from '../../../api/events/EventsCollectionMethods.js';
 import { filterFormSchema } from '../../../utils/schemas.js';
 
 Template.Filter_Form.onCreated(function () {
@@ -41,14 +40,14 @@ Template.Filter_Form.onCreated(function () {
   template.dayPickerCurrentMonth = new ReactiveVar(Moment().startOf('month').valueOf());
 
   // Holds most recent event count map/dict.
-  template.currentEventMetaDataCountMap = new ReactiveVar();
+  template.currentEventsCountMap = new ReactiveVar();
 
   // When month changes, retrieve event count for that month. This data will be inserted to dayPicker widget.
   template.autorun(() => {
     const currentMonth = template.dayPickerCurrentMonth.get();
     if (currentMonth) {
       const endOfMonth = Moment(currentMonth).endOf('month').valueOf();
-      eventMetaDataCountMap.call({
+      eventsCountMap.call({
         timeUnit: 'dayOfMonth',
         startTime: currentMonth,
         stopTime: endOfMonth,
@@ -57,18 +56,18 @@ Template.Filter_Form.onCreated(function () {
           console.log(error); // eslint-disable-line no-console
         } else {
           const ecm = mapify(eventCountMap); // Had to be demapified (aka serialized) before being sent from server.
-          template.currentEventMetaDataCountMap.set(ecm);
+          template.currentEventsCountMap.set(ecm);
         }
       });
     }
   });
 
   // Find most recent day that had an event.
-  getMostRecentEventMetaData.call((error, mostRecentEvent) => {
+  getMostRecentEvent.call((error, mostRecentEvent) => {
     if (error) {
       console.log(error); // eslint-disable-line no-console
     } else {
-      const startOfDay = Moment(mostRecentEvent.event_start).startOf('day').valueOf();
+      const startOfDay = Moment(mostRecentEvent.target_event_start_timestamp_ms).startOf('day').valueOf();
       template.defaultDate.set(startOfDay);
 
       // Set default values, causing all components to be triggered with initial data.
@@ -100,12 +99,11 @@ Template.Filter_Form.onRendered(function () {
   if (dataContext.dayPicker || dataContext.timeInterval) {
     template.autorun(() => {
       const currentMonth = template.dayPickerCurrentMonth.get();
-      const eventsCountMap = template.currentEventMetaDataCountMap.get();
+      const eventsCountMap = template.currentEventsCountMap.get(); // eslint-disable-line no-shadow
       const defaultDate = template.defaultDate.get();
 
       if (defaultDate && currentMonth && eventsCountMap && template.subscriptionsReady()) {
         const flatpickrConfig = {
-          // defaultDate: defaultDate,
           onDayCreate: function (dObj, dStr, fp, dayElem) {
             const computation = template.autorun(() => {
               const currDate = dayElem.dateObj;
@@ -114,7 +112,7 @@ Template.Filter_Form.onRendered(function () {
 
               // Ignore the prevMonthDays and nextMonthDays on calendar.
               if (currMonth === fp.currentMonth) {
-                const eventsCountMap2 = template.currentEventMetaDataCountMap.get();
+                const eventsCountMap2 = template.currentEventsCountMap.get();
                 const eventCount = eventsCountMap2.get(timeUnitKey);
 
                 if (eventsCountMap2 && eventCount && template.subscriptionsReady()) {
