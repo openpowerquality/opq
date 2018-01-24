@@ -8,7 +8,7 @@ import tarfile
 import logging
 import traceback
 
-# Set default loggin format and options
+# Set default logging format and options
 logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s', \
     datefmt='%m/%d/%Y %I:%M:%S %p', level=logging.DEBUG)
 
@@ -91,7 +91,6 @@ def download_file_from_emilia(file_name):
     logging.info('download_file_from_emilia(%s)', file_name)
     try:
         url = server_url + file_name
-        print(url)
         urllib.request.urlretrieve(url, download_dir_path + file_name)
     except Exception as e:
         logging.exception(e)
