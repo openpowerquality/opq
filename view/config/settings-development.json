@@ -1,5 +1,6 @@
 {
 	"public": {
+		"enableStartupIntegrityCheck": false,
 		"integrityCheckCollections": ["fs.files", "fs.chunks", "trends", "measurements", "events", "box_events", "opq_boxes"],
 		"dbRestoreFilename": ""
 	}
