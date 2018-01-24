@@ -68,17 +68,18 @@ export const getEventMeasurementsByMetaDataId = new ValidatedMethod({
 export const getEventMeasurements = new ValidatedMethod({
   name: 'Measurements.getEventMeasurements',
   validate: new SimpleSchema({
-    device_id: { type: Number, optional: true }, // Get rid of optional later.
+    box_id: { type: Number, optional: true }, // Get rid of optional later.
     startTime: { type: Number, optional: true },
     endTime: { type: Number, optional: true },
   }).validator({ clean: true }),
-  run({ device_id, startTime, endTime }) {
+  run({ box_id, startTime, endTime }) {
     if (!this.isSimulation) {
+      console.log(box_id, startTime, endTime);
       const eventMeasurements = Measurements.find({
-        device_id,
+        box_id,
         timestamp_ms: { $gte: startTime, $lte: endTime },
       }, {
-        sort: { event_end: 1 },
+        sort: { timestamp_ms: 1 },
       }).fetch();
 
       const firstMeasurementTimestamp = eventMeasurements[0].timestamp_ms;
@@ -90,12 +91,12 @@ export const getEventMeasurements = new ValidatedMethod({
       const proceedingTimestamp = endTime + (duration * 15.0);
 
       const precedingMeasurements = Measurements.find({
-        device_id,
+        box_id,
         timestamp_ms: { $gte: precedingTimestamp, $lte: firstMeasurementTimestamp },
       }, {}).fetch();
 
       const proceedingMeasurements = Measurements.find({
-        device_id,
+        box_id,
         timestamp_ms: { $gte: lastMeasurementTimestamp, $lte: proceedingTimestamp },
       }, {}).fetch();
 
