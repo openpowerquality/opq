@@ -9,28 +9,32 @@ import { OpqBoxes } from '../opq-boxes/OpqBoxesCollection';
  * Collection class for the users collection.
  * Docs: https://open-power-quality.gitbooks.io/open-power-quality-manual/content/datamodel/description.html#users
  */
-class UsersCollection extends BaseCollection {
+class UsersCollection {
 
   /**
    * Creates the collection.
    */
   constructor() {
-    super('usersCollection', new SimpleSchema({
-      email: { type: String },
-      password: { type: String },
-      first_name: { type: String },
-      last_name: { type: String },
-      boxes: { type: [Number] }, // Array of box_id's
-      role: { type: String },
-    }));
+    this._collectionName = 'users';
 
-    Accounts.onCreateUser((options, userDoc) => {
-      const modifiedUserDoc = Object.assign({}, userDoc); // Clone userDoc so we don't mutate it directly.
-      if (options.first_name) modifiedUserDoc.first_name = options.first_name;
-      if (options.last_name) modifiedUserDoc.last_name = options.last_name;
-      modifiedUserDoc.boxes = (options.boxes && options.boxes.length > 0) ? options.boxes : [];
-      return modifiedUserDoc;
-    });
+    // super('usersCollection', new SimpleSchema({
+    //   email: { type: String },
+    //   password: { type: String },
+    //   first_name: { type: String },
+    //   last_name: { type: String },
+    //   boxes: { type: [Number] }, // Array of box_id's
+    //   role: { type: String },
+    // }));
+
+    if (Meteor.isServer) {
+      Accounts.onCreateUser((options, userDoc) => {
+        const modifiedUserDoc = Object.assign({}, userDoc); // Clone userDoc so we don't mutate it directly.
+        if (options.first_name) modifiedUserDoc.first_name = options.first_name;
+        if (options.last_name) modifiedUserDoc.last_name = options.last_name;
+        modifiedUserDoc.boxes = (options.boxes && options.boxes.length > 0) ? options.boxes : [];
+        return modifiedUserDoc;
+      });
+    }
 
     this.publicationNames = {
 
@@ -48,38 +52,41 @@ class UsersCollection extends BaseCollection {
    */
   // eslint-disable-next-line class-methods-use-this
   define({ email, password, first_name, last_name, boxes = [], role = 'user' }) {
-    // const docID = this._collection.insert({ email, password, first_name, last_name, boxes, role });
+    if (Meteor.isServer) {
+      // Verify that boxes array contains valid OpqBox ids.
+      boxes.forEach(boxId => {
+        const box = OpqBoxes.findOne({ box_id: boxId });
+        if (!box) throw new Meteor.Error(`Boxes contains an invalid box_id: ${boxId}`);
+      });
 
-    // Verify that boxes array contains valid OpqBox ids.
-    boxes.forEach(boxId => {
-      const box = OpqBoxes.findOne({ box_id: boxId });
-      if (!box) throw new Meteor.Error(`Boxes contains an invalid box_id: ${boxId}`);
-    });
+      // Ensure that role is either 'user' or 'admin'.
+      if (role !== 'user' && role !== 'admin') {
+        throw new Meteor.Error('Invalid user role - must either be "user" or "admin"');
+      }
 
-    // Ensure that role is either 'user' or 'admin'.
-    if (role !== 'user' || role !== 'admin') {
-      throw new Meteor.Error('Invalid user role - must either be "user" or "admin"');
+      // Create the user. The username and password fields are required by the Accounts package.
+      // The rest are top-level user fields that OPQView will maintain. We attach these fields via
+      // Accounts.onCreateUser() which is defined in the constructor of this class. Note that userId is only returned
+      // on the server, and so we do not need to do a Meteor.isServer check when we define the user's
+      // role (which must only be done on server).
+      const userId = Accounts.createUser({
+        email: email,
+        password: password,
+        first_name: first_name,
+        last_name: last_name,
+        boxes: boxes,
+      });
+
+      // Set user role.
+      // We are using group-based roles; 'opq-view' is the default group used for general-purpose app permissions.
+      if (userId) {
+        Roles.addUsersToRoles(userId, [role], 'opq-view');
+      }
+
+      return userId;
     }
 
-    // Create the user. The username and password fields are required by the Accounts package.
-    // The rest are top-level user fields that OPQView will maintain. We attach these fields via Accounts.onCreateUser()
-    // which is defined in the constructor of this class. Note that userId is only returned on the server, and so
-    // we do not need to do a Meteor.isServer check when we define the user's role (which must only be done on server).
-    const userId = Accounts.createUser({
-      username: email,
-      password: password,
-      first_name: first_name,
-      last_name: last_name,
-      boxes: boxes,
-    });
-
-    // Set user role.
-    // We are using group-based roles; 'opq-view' is the default group used for general-purpose app permissions.
-    if (userId) {
-      Roles.addUsersToRoles(userId, [role], 'opq-view');
-    }
-
-    return userId;
+    return null;
   }
 
   /**
