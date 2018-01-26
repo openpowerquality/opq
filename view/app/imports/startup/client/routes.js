@@ -4,7 +4,7 @@ import '../../ui/layouts/appLayout/appLayoutPublic.js';
 import '../../ui/pages/signup/signup.js';
 import '../../ui/pages/research/research.js';
 import '../../ui/pages/eventDetails/eventDetails.js';
-// import '../../ui/pages/userAdmin/userAdmin.js';
+import '../../ui/pages/userAdmin/userAdmin.js';
 // import '../../ui/pages/deviceAdmin/deviceAdmin.js';
 
 
@@ -25,23 +25,23 @@ FlowRouter.route('/', {
     });
   },
 });
-//
-// // Redirect to accounts page by default.
-// FlowRouter.route('/settings', {
-//   name: 'settingsRoute',
-//   action: function () {
-//     FlowRouter.go('/settings/account');
-//   },
-// });
-//
-// FlowRouter.route('/settings/account', {
-//   name: 'accountRoute',
-//   action: function () {
-//     BlazeLayout.render('appLayoutPublic', {
-//       main: 'userAdmin',
-//     });
-//   },
-// });
+
+// Redirect to accounts page by default.
+FlowRouter.route('/settings', {
+  name: 'settingsRoute',
+  action: function () {
+    FlowRouter.go('/settings/account');
+  },
+});
+
+FlowRouter.route('/settings/account', {
+  name: 'accountRoute',
+  action: function () {
+    BlazeLayout.render('appLayoutPublic', {
+      main: 'User_Admin_Page',
+    });
+  },
+});
 //
 // FlowRouter.route('/settings/devices', {
 //   name: 'devicesRoute',
