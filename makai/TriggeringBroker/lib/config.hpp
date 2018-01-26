@@ -5,7 +5,7 @@ using std::string;
 
 class Config{
 	public:
-		Config(string fname = "/etc/opq/triggering_broker_config.json");
+	Config(string fname = "/etc/opq/triggering_broker_config.json");
         string publicCerts(){return _public_certs;}
         string privateCert(){return _private_cert;}
         string boxPort() {return _box_interface;}

@@ -1,4 +1,6 @@
 #include "MongoDriver.h"
+#include <syslog.h>
+
 #include "util.h"
 #include "config.h"
 #include <mongocxx/instance.hpp>
@@ -98,7 +100,7 @@ bool MongoDriver::create_event(opq::proto::RequestEventMessage &m, uint64_t ts, 
         auto result = _event_collection.insert_one(doc_value.view());
     }
     catch(const mongocxx::write_exception &e){
-        std::cout << e.what() << std::endl;
+        syslog(LOG_WARNING, ("Could not create an event: " + std::string(e.what())).c_str() );
     }
 }
 
@@ -120,7 +122,7 @@ bool MongoDriver::append_data_to_event(std::vector<opq::proto::DataMessage> &mes
                                              << finalize);
     }
     catch (const mongocxx::write_exception &e) {
-        std::cout << e.what() << std::endl;
+        syslog(LOG_WARNING, ("Could not create an event: " + std::string(e.what())).c_str() );
     }
 
     string data_file = "event_" + std::to_string(event_num) + "_" + std::to_string(id);
@@ -159,7 +161,7 @@ bool MongoDriver::append_data_to_event(std::vector<opq::proto::DataMessage> &mes
         }
     }
     catch (const mongocxx::query_exception &e) {
-        std::cout << e.what() << std::endl;
+        syslog(LOG_WARNING, ("Could not find location: " + std::string(e.what())).c_str() );
     }
 
     bsoncxx::document::value doc_value = builder << finalize;
@@ -168,7 +170,7 @@ bool MongoDriver::append_data_to_event(std::vector<opq::proto::DataMessage> &mes
         auto result = _data_collection.insert_one(doc_value.view());
     }
     catch (const mongocxx::write_exception &e) {
-        std::cout << e.what() << std::endl;
+        syslog(LOG_WARNING, ("Could not create an event: " + std::string(e.what())).c_str() );
     }
 
     auto uploader = _bucket.open_upload_stream(data_file);
@@ -195,8 +197,6 @@ bool MongoDriver::append_data_to_event(std::vector<opq::proto::DataMessage> &mes
                                          << close_document
                     << finalize;
 
-    using namespace std;
-    cout << bsoncxx::to_json(update_doc.view()) << endl;
 
     _gridfs_collection.update_one(document{} <<GRIDFS_COLLECTION_FILENAME_FIELD << data_file << finalize, update_doc.view());
 
