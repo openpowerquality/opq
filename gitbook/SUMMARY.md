@@ -70,4 +70,11 @@
 
 ## OPQ Data Model
 
-* [Overview](datamodel/description.md)
+* [Overview](datamodel/description.md#overview)
+* [Measurements](datamodel/description.md#measurements)
+* [Trends](datamodel/description.md#trends)
+* [Events](datamodel/description.md#events)
+* [Box_Events](datamodel/description.md#box_events)
+* [GridFS](datamodel/description.md#gridfs)
+* [OPQ_Boxes](datamodel/description.md#opq_boxes)
+* [Users](datamodel/description.md#users)

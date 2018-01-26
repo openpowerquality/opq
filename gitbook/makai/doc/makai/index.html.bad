@@ -12,10 +12,10 @@
     <link rel="stylesheet" type="text/css" href="../normalize.css">
     <link rel="stylesheet" type="text/css" href="../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../main.css">
-    
 
-    
-    
+
+
+
 </head>
 <body class="rustdoc mod">
     <!--[if lte IE 8]>
@@ -25,10 +25,10 @@
     </div>
     <![endif]-->
 
-    
+
 
     <nav class="sidebar">
-        
+
         <p class='location'>Crate makai</p><div class="block items"><ul><li><a href="#reexports">Reexports</a></li><li><a href="#modules">Modules</a></li><li><a href="#functions">Functions</a></li></ul></div><p class='location'></p><script>window.sidebarCurrent = {name: 'makai', ty: 'mod', relpath: '../'};</script>
     </nav>
 
@@ -57,28 +57,28 @@
                            <td><a class="mod" href="constants/index.html"
                                   title='mod makai::constants'>constants</a></td>
                            <td class='docblock-short'>
-                                
+
                            </td>
                        </tr>
                        <tr class=' module-item'>
                            <td><a class="mod" href="mongo/index.html"
                                   title='mod makai::mongo'>mongo</a></td>
                            <td class='docblock-short'>
-                                
+
                            </td>
                        </tr>
                        <tr class=' module-item'>
                            <td><a class="mod" href="opq/index.html"
                                   title='mod makai::opq'>opq</a></td>
                            <td class='docblock-short'>
-                                
+
                            </td>
                        </tr>
                        <tr class=' module-item'>
                            <td><a class="mod" href="zmqreader/index.html"
                                   title='mod makai::zmqreader'>zmqreader</a></td>
                            <td class='docblock-short'>
-                                
+
                            </td>
                        </tr></table><h2 id='functions' class='section-header'><a href="#functions">Functions</a></h2>
 <table>
@@ -86,7 +86,7 @@
                            <td><a class="fn" href="fn.main.html"
                                   title='fn makai::main'>main</a></td>
                            <td class='docblock-short'>
-                                
+
                            </td>
                        </tr></table></section>
     <section id='search' class="content hidden"></section>
@@ -139,13 +139,15 @@
         </div>
     </aside>
 
-    
+
 
     <script>
         window.rootPath = "../";
         window.currentCrate = "makai";
     </script>
+   
     <script src="../main.js"></script>
     <script defer src="../search-index.js"></script>
+   
 </body>
 </html>
