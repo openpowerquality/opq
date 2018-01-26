@@ -12,19 +12,12 @@ import { OpqBoxes } from '../opq-boxes/OpqBoxesCollection';
 class UsersCollection {
 
   /**
-   * Creates the collection.
+   * Note that since the Accounts package manages the Users collection, we aren't actually using BaseCollection.
+   * This class serves as a wrapper around the Accounts package.
    */
   constructor() {
+    this._collection = Meteor.users;
     this._collectionName = 'users';
-
-    // super('usersCollection', new SimpleSchema({
-    //   email: { type: String },
-    //   password: { type: String },
-    //   first_name: { type: String },
-    //   last_name: { type: String },
-    //   boxes: { type: [Number] }, // Array of box_id's
-    //   role: { type: String },
-    // }));
 
     if (Meteor.isServer) {
       Accounts.onCreateUser((options, userDoc) => {
@@ -42,7 +35,8 @@ class UsersCollection {
   }
 
   /**
-   * Defines a new User document.
+   * Defines a new User document. Note: Do not use this for client-side user signup. We will eventually refactor
+   * this so that only admins can create new users.
    * @param {String} email - The user's email address. Acts as user name.
    * @param {String} password - The user's password.
    * @param {String} first_name - The user's first name.
@@ -116,6 +110,34 @@ class UsersCollection {
   publish() { // eslint-disable-line class-methods-use-this
     if (Meteor.isServer) { // eslint-disable-line no-empty
     }
+  }
+
+  /**
+   * Calls the MongoDB native find() on this collection.
+   * @see {@link http://docs.meteor.com/api/collections.html#Mongo-Collection-find|Meteor Docs Mongo.Collection.find()}
+   * @param {Object} selector - A MongoDB selector object.
+   * @param {Object} options - A MongoDB options object.
+   * @returns {Cursor} - The MongoDB cursor containing the results of the query.
+   */
+  find(selector = {}, options = {}) {
+    return this._collection.find(selector, options);
+  }
+
+  /**
+   * Calls the MongoDB native findOne() on this collection.
+   * @see {@link http://docs.meteor.com/api/collections.html#Mongo-Collection-findOne|
+   * Meteor Docs Mongo.Collection.findOne()}
+   * @param {Object} selector - A MongoDB selector object.
+   * @param {Object} options - A MongoDB options object.
+   * @returns {Object} - The document containing the results of the query.
+   */
+  findOne(selector = {}, options = {}) {
+    return this._collection.findOne(selector, options);
+  }
+
+  updateUser(userID, userObj) {
+    // Meteor method takes care of user auth, so should be safe at this point.
+    return this._collection.update({ _id: userID }, { $set: userObj });
   }
 }
 
