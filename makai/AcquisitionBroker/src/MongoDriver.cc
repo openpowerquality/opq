@@ -1,5 +1,6 @@
 #include "MongoDriver.h"
 #include "util.h"
+#include "config.h"
 #include <mongocxx/instance.hpp>
 #include <mongocxx/exception/write_exception.hpp>
 #include <mongocxx/exception/query_exception.hpp>
@@ -127,7 +128,7 @@ bool MongoDriver::append_data_to_event(std::vector<opq::proto::DataMessage> &mes
     auto builder = bsoncxx::builder::stream::document{};
     auto start_time = messages.front().cycles().Get(0).time();
     auto cycle_size = (size_t) messages.back().cycles().size();
-    auto end_time = messages.back().cycles().Get(cycle_size - 1).time();
+    auto end_time = messages.back().cycles().Get(cycle_size - 1).time() + 1000.0/BOX_SAMPLING_RATE*messages.back().cycles().Get(cycle_size - 1).data().size();
     builder << BOX_ID_FIELD << std::to_string(id)
             << BOX_EVENT_START_FIELD << (int64_t) start_time
             << BOX_EVENT_END_FIELD << (int64_t) end_time

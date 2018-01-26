@@ -14,6 +14,8 @@ static const string EVENT_ZSET = "events.list";
 static const string EVENT_META = "events.meta";
 //Prefix for a box event data list. it is followed by "evenNum.Boxid"
 static const string EVENT_BOX_DATA_PREFIX = "events";
+//Sampling rate of the box
+static const float BOX_SAMPLING_RATE = 12000.0;
 
 //Configuration struct. All fields are loaded from json.
 struct Config {
