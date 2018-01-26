@@ -1,10 +1,8 @@
 import { Template } from 'meteor/templating';
-import { check } from 'meteor/check';
 import { ReactiveVar } from 'meteor/reactive-var';
 import { FlowRouter } from 'meteor/kadira:flow-router';
 import _ from 'lodash';
 import Moment from 'moment';
-import { createFlashAlertMsgObject } from '../components/flashAlert/flashAlert.js';
 import { getRootTemplateInstance } from '../../utils/utils.js';
 
 Template.registerHelper('getTemplateInstance', function () {
@@ -31,21 +29,9 @@ Template.registerHelper('formatDecimals', function (decimals, number) {
   return (typeof number === 'number' && typeof decimals === 'number') ? number.toFixed(decimals) : null;
 });
 
-Template.registerHelper('showFlashAlert', function (templateInstance) {
-  const message = templateInstance.flashAlert.get();
-  return message || null;
-});
-
-export const setFlashAlert = (message, templateInstance) => {
-  check(message, String);
-  templateInstance.flashAlert = new ReactiveVar(message); // eslint-disable-line no-param-reassign
-};
-
 Template.registerHelper('consoleLog', function (obj) {
   console.log(obj); // eslint-disable-line no-console
 });
-
-Template.registerHelper('flashAlertMsgObj', createFlashAlertMsgObject);
 
 /**
  * Call this helper whenever we create a template inclusion that does not require any data context.
