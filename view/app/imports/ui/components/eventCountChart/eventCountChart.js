@@ -51,7 +51,7 @@ Template.eventCountChart.onRendered(function () {
   template.autorun(() => {
     // Ignore the 24th hour so it doesn't get grouped with the current hour.
     const currentDay = template.currentDay.get();
-    if (currentDay) {
+    if (currentDay && template.subscriptionsReady()) {
       const startOfDay = Moment(currentDay).startOf('day').valueOf(); // Ensure selected day is start of day timestamp.
       const endOfDay = Moment(currentDay).endOf('day').valueOf();
       const eventsSelector = Events.queryConstructors().getEvents({
