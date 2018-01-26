@@ -9,6 +9,7 @@
 #include "zmqpp/proxy.hpp"
 #include <regex>
 #include <fstream>
+#include <syslog.h>
 
 using namespace std::string_literals;
 using namespace std;
@@ -19,21 +20,18 @@ namespace fs = std::experimental::filesystem;
 auto load_certificate( string const& path ) -> pair<string, string>;
 
 int main (int argc, char **argv) {
-    cout << "Parsing config." << endl;
-
+    setlogmask (LOG_UPTO (LOG_NOTICE));
+    openlog ("TriggeringBroker", LOG_CONS | LOG_PID | LOG_NDELAY, LOG_LOCAL1);
+    syslog(LOG_NOTICE, "Parsing config.");
     auto config = argc == 1 ? Config{} : Config{ argv[1] };
-    cout << "public certs: " << config.publicCerts() << endl;
-    cout << "private certs: " << config.privateCert() << endl;
-    cout << "box port: " << config.boxPort() << endl;
-    cout << "backend port: " << config.backendPort() << endl;
 
     //Load our certificate. Make sure we gor both public and private keys.
     auto server_cert = load_certificate(config.privateCert());
-    assert(server_cert.first != "");
-    assert(server_cert.second != "");
+    if(server_cert.first == "" || server_cert.second != ""){
+	    syslog(LOG_ERR, "Could not load Certificates");
+    }
 
-    cout << "server public key " << server_cert.first << endl;
-    cout << "Starting broker." << endl;
+    syslog(LOG_NOTICE, ("server public key " +  server_cert.first).c_str());
 
     fs::path client_certs(config.publicCerts());
     assert(fs::is_directory(client_certs));
@@ -49,7 +47,8 @@ int main (int argc, char **argv) {
         count++;
         cout << ".";
     }
-    cout << endl << "Loaded " << count<< " keys"<< endl;
+    syslog(LOG_NOTICE, ("Loaded " + std::to_string(count) + " keys").c_str());
+
     //Unencrypted end.
     auto front = zmqpp::socket{ ctx, zmqpp::socket_type::xpublish };
     front.bind(config.backendPort());
@@ -62,7 +61,6 @@ int main (int argc, char **argv) {
     back.set( zmqpp::socket_option::zap_domain, "global" );
     back.bind(config.boxPort());
 
-    cout << "Broker started..." << endl;
     zmqpp::proxy{ front, back };
 
     return 0;
