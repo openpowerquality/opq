@@ -2,90 +2,118 @@ import { Meteor } from 'meteor/meteor';
 import { Template } from 'meteor/templating';
 import { Accounts } from 'meteor/accounts-base';
 import { ReactiveVar } from 'meteor/reactive-var';
+import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import _ from 'lodash';
 import { FlowRouter } from 'meteor/kadira:flow-router';
-import { getCurrentPerson, updatePerson, updateEmail } from '../../../api/person/PersonCollectionMethods.js';
-import { userAdminPageSchema } from '../../../utils/schemas';
+import { getCurrentUserProfile, updateUser, updateEmail } from '../../../api/users/UsersCollectionMethods';
 import '../../components/form-controls/text-form-control.html';
 import '../../components/form-controls/hidden-field.html';
 import './userAdmin.html';
 
-Template.userAdmin.onCreated(function () {
+Template.User_Admin_Page.onCreated(function () {
   const template = this;
-  template.currentUser; // eslint-disable-line no-unused-expressions
-  template.currentPerson = new ReactiveVar();
 
-  template.validationContext = userAdminPageSchema.namedContext('UserAdmin_Page');
+  // Redirect to login page if not signed in. Login page should have signup button.
+  template.autorun(() => {
+    const currentLoggedInUserId = Meteor.userId();
+    if (!currentLoggedInUserId) {
+      // Without setTimeout, the url in the browser itself won't change (even though the template itself does change)
+      Meteor.setTimeout(() => {
+        FlowRouter.go('/signup');
+      }, 1);
+    }
+  });
+
+  template.currentUserProfile = new ReactiveVar();
+  template.currentPerson = new ReactiveVar();
+  template.formSucesssMessage = new ReactiveVar();
+
+  // Define form error message. These should probably be defined elsewhere, as they are general use case messages.
+  SimpleSchema.messages({
+    passwordMismatch: 'Passwords do not match one another',
+  });
+
+  // Define user update form schema so we can validate input.
+  template.userUpdateFormSchema = new SimpleSchema({
+    userID: { type: String },
+    firstName: { type: String },
+    lastName: { type: String },
+    email: {
+      type: String,
+      regEx: SimpleSchema.RegEx.Email,
+    },
+    password: {
+      type: String,
+      optional: true,
+    },
+    newPassword: {
+      type: String,
+      optional: true,
+    },
+    confirmNewPassword: {
+      type: String,
+      optional: true,
+      custom: function () { // eslint-disable-line consistent-return
+        if (this.value !== this.field('newPassword').value) {
+          return 'passwordMismatch';
+        }
+      },
+    },
+  });
+
+  template.validationContext = template.userUpdateFormSchema.namedContext('User_Admin_Page');
   template.formSubmissionErrors = new ReactiveVar();
 
-  // Get current User and Person.
+  // Get current User.
   template.autorun(() => {
     template.currentUser = Meteor.user();
 
-    getCurrentPerson.call({}, (err, person) => {
+    getCurrentUserProfile.call({}, (err, userProfile) => {
       if (err) {
         console.log(err); // eslint-disable-line no-console
         // Redirect to login/signup page if not logged in or other problem occurs.
-        if (!template.currentUser) {
-          FlowRouter.go('/signup');
-        }
+        // if (!template.currentUser) {
+        //   FlowRouter.go('/signup');
+        // }
       } else {
-        template.currentPerson.set(person);
-        console.log('currUser: ', template.currentUser); // eslint-disable-line no-console
-        console.log('currPerson: ', person); // eslint-disable-line no-console
+        template.currentUserProfile.set(userProfile);
       }
     });
   });
 });
 
-Template.userAdmin.onRendered(function () {
+Template.User_Admin_Page.onRendered(function () {
 
 });
 
-Template.userAdmin.helpers({
+Template.User_Admin_Page.helpers({
   userData() {
     const template = Template.instance();
-    const user = template.currentUser;
-    const person = template.currentPerson.get();
-
-    if (user && person) {
-      const userData = {
-        email: user.emails[0].address,
-        firstName: person.firstName,
-        lastName: person.lastName,
-      };
-
-      // console.log('userData: ', userData);
-      return userData;
-    }
-    return null;
+    const userProfile = template.currentUserProfile.get();
+    // const person = template.currentPerson.get();
+    return userProfile;
   },
   userDataField(fieldName) {
     const template = Template.instance();
-    const user = template.currentUser;
-    const person = template.currentPerson.get();
-
-    if (user && person) {
-      const userData = {
-        email: user.emails[0].address,
-        firstName: person.firstName,
-        lastName: person.lastName,
-        userId: person.userId,
-      };
-
-      return userData[fieldName];
+    const userProfile = template.currentUserProfile.get();
+    if (userProfile) {
+      return userProfile[fieldName];
     }
     return null;
   },
+  getFormSuccessMessage() {
+    const message = Template.instance().formSucesssMessage.get();
+    return message;
+  },
 });
 
-Template.userAdmin.events({
+Template.User_Admin_Page.events({
   'submit #userForm': function (event) {
     event.preventDefault();
     const template = Template.instance();
     console.log(template.validationContext); // eslint-disable-line no-console
 
-    const userId = event.target.userId.value;
+    const userID = event.target.userID.value;
     const firstName = event.target.firstName.value;
     const lastName = event.target.lastName.value;
     const email = event.target.email.value;
@@ -93,27 +121,25 @@ Template.userAdmin.events({
     const newPassword = event.target.newPassword.value;
     const confirmNewPassword = event.target.confirmNewPassword.value;
 
-    const formData = { userId, firstName, lastName, email, password, newPassword, confirmNewPassword };
-    // console.log(formData);
+    const formData = { userID, firstName, lastName, email, password, newPassword, confirmNewPassword };
 
     // Clear old validation errors, clean data, and re-validate.
     template.validationContext.resetValidation();
     template.formSubmissionErrors.set(null);
-    userAdminPageSchema.clean(formData);
+    template.userUpdateFormSchema.clean(formData);
     template.validationContext.validate(formData);
-    // console.log('cleaned: ', formData);
-    // console.log('ValidationContext isValid? ', template.validationContext.isValid());
 
     // Continue upon validation success.
     if (template.validationContext.isValid()) {
       // Change email if needed.
       if (formData.email) {
-        updateEmail.call({ userId, newEmail: email }, (error, result) => { // eslint-disable-line no-unused-vars
+        // eslint-disable-line max-len no-unused-vars
+        updateEmail.call({ userID: formData.userID, newEmail: formData.email }, (error, oldEmail) => {
           if (error) {
             console.log(error); // eslint-disable-line no-console
             template.formSubmissionErrors.set(error);
           } else {
-            console.log('E-mail updated.'); // eslint-disable-line no-console
+            template.formSucesssMessage.set('Settings updated!');
           }
         });
       }
@@ -127,20 +153,19 @@ Template.userAdmin.events({
             console.log(error); // eslint-disable-line no-console
             template.formSubmissionErrors.set(error);
           } else {
-            // Set success message.
-            console.log('Password changed'); // eslint-disable-line no-console
+            template.formSucesssMessage.set('Settings updated!');
           }
         });
       }
 
-      // Update Person
-      const personObj = _.pick(formData, 'firstName', 'lastName', 'userId');
-      updatePerson.call(personObj, (error, result) => { // eslint-disable-line no-unused-vars
+      // Update User
+      const userObj = _.pick(formData, 'firstName', 'lastName');
+      updateUser.call({ userID: formData.userID, userObj }, (error, result) => { // eslint-disable-line no-unused-vars
         if (error) {
           console.log(error); // eslint-disable-line no-console
           template.formSubmissionErrors.set(error);
         } else {
-          console.log('User settings updated.'); // eslint-disable-line no-console
+          template.formSucesssMessage.set('Settings updated!');
         }
       });
     }
