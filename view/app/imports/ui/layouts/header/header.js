@@ -10,7 +10,11 @@ import '../../components/liveMeasurementsNavbar/liveMeasurementsNavbar.js';
 Template.header.onRendered(function () {
   const template = this;
 
-  template.$('.ui.dropdown').dropdown();
+  template.$('.ui.dropdown').dropdown({
+    keys: {
+      enter: false, // Needed because enter button was closing the dropdown menu instead of submitting login form.
+    },
+  });
 });
 
 Template.header.helpers({
