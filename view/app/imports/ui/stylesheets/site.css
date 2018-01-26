@@ -333,8 +333,8 @@ The left-menu width is 96px. For a 25px margin between left-menu and main-conten
 #main-content {
     min-height: 100%;
     padding-top: 50px;
-    padding-left: 96px; /* 25px greater than left-menu width */
-    padding-right: 100px; /* 25px greater than right-menu width */
+    padding-left: 96px;
+    /*padding-right: 100px; !* Disabled right menu for now *!*/
 }
 
 #main-content .main-content-padded {
