@@ -3,7 +3,6 @@ import { ReactiveVar } from 'meteor/reactive-var';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import Chartjs from 'chart.js';
 import Moment from 'moment';
-import { Random } from 'meteor/random';
 import { Events } from '../../../api/events/EventsCollection';
 import { filterFormSchema } from '../../../utils/schemas.js';
 import { dataContextValidator } from '../../../utils/utils.js';
@@ -97,12 +96,16 @@ Template.eventCountChart.onRendered(function () {
       });
 
       // Create dataset
-      const colors = ['rgb(167,197,189)', 'rgb(229,221,203)', 'rgb(235,123,89)', 'rgb(207,70,71)', 'rgb(82,70,86)'];
+      // eslint-disable-next-line max-len
+      const colors = ['rgb(167,197,189)', 'rgb(229,221,203)', 'rgb(235,123,89)', 'rgb(207,70,71)', 'rgb(82,70,86)', 'rgb(0,214,144)'];
       const chartDatasets = [];
       Object.keys(eventCountMap).forEach(deviceId => {
+        const randomColorIndex = Math.floor(Math.random() * (((colors.length - 1) - 0) + 0));
+        const randomColor = colors.splice(randomColorIndex, 1); // Remove selected color from array.
         const dataset = {};
         dataset.label = `Device ${deviceId}`;
-        dataset.backgroundColor = Random.choice(colors);
+        // dataset.backgroundColor = Random.choice(colors);
+        dataset.backgroundColor = randomColor.pop(); // Only 1 elem in spliced array, so we pop it.
         dataset.data = hours.map(hour => eventCountMap[deviceId][hour]);
         chartDatasets.push(dataset);
       });
