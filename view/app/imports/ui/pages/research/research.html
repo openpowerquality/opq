@@ -5,18 +5,18 @@
       <div class="eight wide column">
         <div class="ui top attached segment">
           <button id="eventListFiltersButton" class="ui right floated icon basic button" style="margin-top: -6px;">
-            <i class="calendar icon"></i> {{#let filters=(dataSink "eventListFilters")}}{{formatDateMDY filters.startTime}} - {{#if filters.endTime}}{{formatDateMDY filters.endTime}}{{else}}Now{{/if}}{{/let}} <i class="angle down icon"></i>
+            <i class="calendar icon"></i> {{eventListFiltersButtonTimestampString}} <i class="angle down icon"></i>
           </button>
           <div class="content">
             <h3 class="ui header">Events</h3>
           </div>
         </div>
         <div class="ui segment bottom attached no-padding" style="max-height: 373px; overflow-y: scroll;">
-          {{> eventList selectedEventRV=(dataSource "eventListSelectedEvent") filters=(dataSink "eventListFilters")}}
+          {{> eventList filtersRV=getEventListFiltersRV}}
         </div>
         <div id="eventListFiltersPopup" class="ui popup">
           <div style="width: 400px;">
-            {{> Filter_Form timeInterval=true filterSource=(dataSource "eventListFilters")}}
+            {{> Filter_Form timeInterval=true filtersRV=getEventListFiltersRV}}
           </div>
         </div>
       </div>
@@ -25,18 +25,18 @@
       <div class="eight wide column">
         <div class="ui top attached segment">
           <button id="eventCountChartFiltersButton" class="ui right floated icon basic button" style="margin-top: -6px;">
-            <i class="calendar icon"></i> {{#let filters=(dataSink "eventCountChartFilters")}}{{formatDateMDY filters.dayPicker}}{{/let}} <i class="angle down icon"></i>
+            <i class="calendar icon"></i> {{eventCountChartFiltersButtonTimestampString}} <i class="angle down icon"></i>
           </button>
           <div class="content">
             <h3 class="ui header">Daily Event Count</h3>
           </div>
         </div>
         <div class="ui bottom attached segment">
-          {{> eventCountChart filters=(dataSink "eventCountChartFilters")}}
+          {{> eventCountChart filtersRV=getEventCountChartFiltersRV}}
         </div>
         <div id="eventCountChartFiltersPopup" class="ui popup">
           <div style="width: 200px;">
-            {{> Filter_Form dayPicker=true filterSource=(dataSource "eventCountChartFilters")}}
+            {{> Filter_Form dayPicker=true filtersRV=getEventCountChartFiltersRV}}
           </div>
         </div>
       </div>

@@ -7,6 +7,7 @@ import { Random } from 'meteor/random';
 import { Events } from '../../../api/events/EventsCollection';
 import { filterFormSchema } from '../../../utils/schemas.js';
 import { dataContextValidator } from '../../../utils/utils.js';
+import { ReactiveVarHelper } from '../../../modules/ReactiveVarHelper';
 
 // Templates and Sub-Template Inclusions
 import './eventCountChart.html';
@@ -18,19 +19,15 @@ Template.eventCountChart.onCreated(function () {
   // Validate data context
   dataContextValidator(template, new SimpleSchema({
     filters: { type: filterFormSchema, optional: true }, // Optional because data context not available immediately.
+    filtersRV: { type: ReactiveVarHelper },
   }), null);
 
   template.eventCountChart = null;
-  template.currentDay = new ReactiveVar();
+  template.currentDay = new ReactiveVar(Moment().valueOf()); // Default day is current day.
 
-  // Set currentDay reactive var.
-  template.autorun(() => {
-    const dataContext = Template.currentData();
-    if (dataContext && dataContext.filters) {
-      template.currentDay.set(dataContext.filters.dayPicker);
-    } else {
-      template.currentDay.set(Moment().valueOf());
-    }
+  // Register callback to update currently set day whenever it's set from the filter form.
+  template.data.filtersRV.onChange(newFilters => {
+    template.currentDay.set(newFilters.dayPicker);
   });
 
   // Subscription

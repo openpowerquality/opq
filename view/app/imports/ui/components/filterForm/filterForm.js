@@ -10,6 +10,7 @@ import '../form-controls/text-form-control.html';
 import '../../../../node_modules/flatpickr/dist/flatpickr.min.css';
 import { eventsCountMap, getMostRecentEvent } from '../../../api/events/EventsCollectionMethods.js';
 import { filterFormSchema } from '../../../utils/schemas.js';
+import { ReactiveVarHelper } from '../../../modules/ReactiveVarHelper';
 
 Template.Filter_Form.onCreated(function () {
   const template = this;
@@ -22,14 +23,11 @@ Template.Filter_Form.onCreated(function () {
     itic: { type: Boolean, optional: true },
     timeInterval: { type: Boolean, optional: true },
     dayPicker: { type: Boolean, optional: true },
-    filterSource: { type: ReactiveVar },
+    filtersRV: { type: ReactiveVarHelper },
   }), null);
 
-  // Attach data context to template.
-  template.autorun(() => {
-    const dataContext = Template.currentData();
-    template.filterSource = (dataContext.filterSource) ? dataContext.filterSource : null;
-  });
+  // Attach filtersRV data context to template.
+  template.filtersRV = template.data.filtersRV;
 
   // Form Validation Context
   template.validationContext = filterFormSchema.namedContext('Filter_Form');
@@ -70,8 +68,8 @@ Template.Filter_Form.onCreated(function () {
       const startOfDay = Moment(mostRecentEvent.target_event_start_timestamp_ms).startOf('day').valueOf();
       template.defaultDate.set(startOfDay);
 
-      // Set default values, causing all components to be triggered with initial data.
-      template.filterSource.set({
+      // Set default filter form values
+      template.filtersRV.set({
         startTime: startOfDay,
         dayPicker: startOfDay,
       });
@@ -82,16 +80,6 @@ Template.Filter_Form.onCreated(function () {
 Template.Filter_Form.onRendered(function () {
   const template = this;
   const dataContext = template.data;
-
-  // Instantiate flatpickr for startTime and endTime
-  // if (dataContext.timeInterval) {
-  //   const flatpickrConfig = {
-  //     enableTime: true,
-  //     enableSeconds: true
-  //   };
-  //   template.startTimeFlatpickr = flatpickr('#startTime', flatpickrConfig);
-  //   template.endTimeFlatpickr = flatpickr('#endTime', flatpickrConfig);
-  // }
 
   // Instantiate flatpickr widget for dayPicker.
   // Config here is a bit complicated - but serves as a proof of concept on how to reactively associate data with the
@@ -198,6 +186,7 @@ Template.Filter_Form.events({
     instance.validationContext.validate(formData);
 
     // Set ReactiveVar if valid.
-    if (instance.validationContext.isValid()) instance.filterSource.set(formData);
+    // if (instance.validationContext.isValid()) instance.filterSource.set(formData);
+    if (instance.validationContext.isValid()) instance.filtersRV.set(formData);
   },
 });

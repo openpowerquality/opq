@@ -1,4 +1,7 @@
 import { Template } from 'meteor/templating';
+import { ReactiveVar } from 'meteor/reactive-var';
+import Moment from 'moment';
+import { ReactiveVarHelper } from '../../../modules/ReactiveVarHelper';
 
 // Templates and Sub-Template Inclusions
 import './research.html';
@@ -9,7 +12,9 @@ import '../../components/eventList/eventList.js';
 
 
 Template.research.onCreated(function () {
-  // const template = this;
+  const template = this;
+  template.eventListFilters = new ReactiveVarHelper(template, new ReactiveVar());
+  template.eventCountChartFilters = new ReactiveVarHelper(template, new ReactiveVar());
 });
 
 Template.research.onRendered(function () {
@@ -38,7 +43,34 @@ Template.research.onRendered(function () {
 });
 
 Template.research.helpers({
-
+  getEventListFiltersRV() {
+    return Template.instance().eventListFilters;
+  },
+  getEventCountChartFiltersRV() {
+    return Template.instance().eventCountChartFilters;
+  },
+  eventListFiltersButtonTimestampString() {
+    let outputString = '';
+    const eventListFilters = Template.instance().eventListFilters.get();
+    if (eventListFilters) {
+      const startTime = eventListFilters.startTime;
+      const endTime = eventListFilters.endTime;
+      outputString = `${Moment(startTime).format('MMM D, YYYY')}`;
+      outputString = (endTime)
+          ? `${outputString} - ${Moment(endTime).format('MMM D, YYYY')}`
+          : `${outputString} - Now`;
+    }
+    return outputString;
+  },
+  eventCountChartFiltersButtonTimestampString() {
+    let outputString = '';
+    const eventCountChartFilters = Template.instance().eventCountChartFilters.get();
+    if (eventCountChartFilters) {
+      const day = eventCountChartFilters.dayPicker;
+      outputString = `${Moment(day).format('MMM D, YYYY')}`;
+    }
+    return outputString;
+  },
 });
 
 Template.research.events({
