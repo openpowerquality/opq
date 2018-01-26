@@ -181,7 +181,7 @@ bool MongoDriver::append_data_to_event(std::vector<opq::proto::DataMessage> &mes
         for (auto &cycle : message.cycles()) {
             std::for_each(cycle.data().begin(), cycle.data().end(),
                           [&file_data](auto sample) {
-                              file_data.push_back(sample | 0xFF);
+                              file_data.push_back(sample & 0xFF);
                               file_data.push_back(sample >> 8);
                           }
             );
