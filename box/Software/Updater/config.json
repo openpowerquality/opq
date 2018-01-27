@@ -1,8 +1,5 @@
 {
   "download_dir_path": "/var/opq/updater/",
   "server_url": "http://emilia.ics.hawaii.edu:8151/",
-  "version_file": "version.json",
-  "public_key": "opq-signing-public.pem",
-  "update_package": "opq.box.updates.tar.gz",
-  "signature": "opq.box.updates.tar.gz.sig"
+  "version_file": "version.json"
 }
