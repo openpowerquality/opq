@@ -7,5 +7,5 @@ setup(name='updater',
       author_email='evanhata@hawaii.edu',
       license='MIT',
       scripts={'box_updater.py': ['*']},
-      data_files=[('config.json'), ('requirements.txt')]
+      data_files=[('/etc/opq/', ['config.json'])]
       )

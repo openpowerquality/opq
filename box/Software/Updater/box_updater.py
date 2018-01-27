@@ -15,7 +15,7 @@ logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s', \
 def main():
     logging.info('main()')
 
-    version_file, public_key, update_package, signature = set_config('config.json')
+    version_file, public_key, update_package, signature = set_config('/etc/opq/config.json')
 
     check_download_path()
 
