@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 import enum
 import math
 import multiprocessing
@@ -65,8 +66,8 @@ for box_event in box_events.find( {"event_id" : event_num}):
         rms = rms/200
         rms = rms**(1.0/2)
         event_rms.append(rms)
-    plt.plot(range(0,len(event_data)), event_data, ".", label=("Box #" + box_event["box_id"]))
-    plt.plot([x*200 for x in range(0, len(event_rms))], event_rms, "-*", label=("RMS #" + box_event["box_id"]))
+    plt.plot([x/SAMPLE_RATE_HZ for x in range(0,len(event_data))], event_data, ".", label=("Box #" + box_event["box_id"]))
+    plt.plot([x*200/SAMPLE_RATE_HZ for x in range(0, len(event_rms))], event_rms, "-*", label=("RMS #" + box_event["box_id"]))
 
 plt.title("Event #" + str(event_num) + " samples " + str(min) + "..." + (max == -1 and str(len(event_data)) or str(max)))
 plt.legend(loc="upper right")
