@@ -57,25 +57,18 @@ Template.eventCountChart.onRendered(function () {
         startTime: startOfDay,
         endTime: endOfDay,
       });
-      const events = Events.find(eventsSelector, { sort: { target_event_end_timestamp_ms: -1 } });
+      const events = Events.find(eventsSelector, { sort: { target_event_start_timestamp_ms: -1 } });
 
-      // Calculate labels. Floor of current hour, then get last 23 hours.
-      const currHour = new Date().getHours();
+      // Calculate labels - hours of the day (0-23)
       const hours = [];
       for (let i = 0; i < 24; i++) {
-        const hour = currHour - i;
-        if (hour < 0) {
-          hours.push(24 + hour);
-        } else {
-          hours.push(hour);
-        }
+        hours.push(i);
       }
-      hours.reverse(); // Reverse array in-place, so that most recent hour is at the end of the array.
 
       // Count events. Place into 1 hour groups per deviceId.
       const eventCountMap = {};
       events.forEach(event => {
-        const hour = new Date(event.target_event_end_timestamp_ms).getHours();
+        const hour = new Date(event.target_event_start_timestamp_ms).getHours();
 
         // Note that we are only counting the initial triggering device so that our event count matches the calendar
         // count. If we later decide to count all boxes_triggered per event, just uncomment the forEach block below.
