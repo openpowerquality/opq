@@ -6,21 +6,16 @@ import { Events } from './EventsCollection.js';
 import { timeUnitString } from '../../utils/utils.js';
 
 
-export const eventMetaDataCount = new ValidatedMethod({
-  name: 'EventMetaData.eventMetaDataCount',
-  validate: new SimpleSchema({
-    startTime: { type: Date },
-    endTime: { type: Date, optional: true },
-  }).validator({ clean: true }),
-  run({ startTime, endTime }) {
-    const selector = Events.queryConstructors().getEvents({ startTime, endTime });
-    const eventMetaData = Events.find(selector, {});
-    return eventMetaData.count();
+export const totalEventsCount = new ValidatedMethod({
+  name: 'Events.totalEventsCount',
+  validate: new SimpleSchema().validator({ clean: true }),
+  run() {
+    return Events.find({}).count();
   },
 });
 
 export const eventsCountMap = new ValidatedMethod({
-  name: 'EventMetaData.eventsCountMap',
+  name: 'Events.eventsCountMap',
   validate: new SimpleSchema({
     timeUnit: { type: String },
     startTime: { type: Number },
@@ -45,19 +40,8 @@ export const eventsCountMap = new ValidatedMethod({
   },
 });
 
-export const getEventMetaDataById = new ValidatedMethod({
-  name: 'EventMetaData.getEventMetaDataById',
-  validate: new SimpleSchema({
-    eventMetaDataId: { type: Mongo.ObjectID },
-  }).validator({ clean: true }),
-  run({ eventMetaDataId }) {
-    const eventMetaData = Events.findOne({ _id: eventMetaDataId }, {});
-    return eventMetaData;
-  },
-});
-
 export const getEventByEventID = new ValidatedMethod({
-  name: 'EventMetaData.getEventByEventID',
+  name: 'Events.getEventByEventID',
   validate: new SimpleSchema({
     event_id: { type: Number },
   }).validator({ clean: true }),
@@ -68,7 +52,7 @@ export const getEventByEventID = new ValidatedMethod({
 });
 
 export const getMostRecentEvent = new ValidatedMethod({
-  name: 'EventMetaData.getMostRecentEvent',
+  name: 'Events.getMostRecentEvent',
   validate: new SimpleSchema({}).validator({ clean: true }),
   run() {
     const mostRecentEvent = Events.findOne({}, { sort: { target_event_start_timestamp_ms: -1 } });
