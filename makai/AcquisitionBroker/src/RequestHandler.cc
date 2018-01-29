@@ -6,6 +6,7 @@
 #include <string>
 #include <MongoDriver.h>
 #include <thread>
+#include <syslog.h>
 
 using namespace std::string_literals;
 
@@ -25,7 +26,8 @@ void RequestHandler::handle_request_loop() {
 
     //Get the last event number from mongo.
     uint32_t event_number = mongo.get_next_event_number();
-    cout << "Next event number will be " << event_number << endl;
+
+    syslog(LOG_NOTICE, "%s",  ("Next event number will be " + std::to_string(event_number)).c_str());
 
     //Encrypted/Box End
     auto box_pub = zmqpp::socket{ _ctx, zmqpp::socket_type::pub };
@@ -64,7 +66,7 @@ void RequestHandler::handle_request_loop() {
         //Deserialize
         opq::proto::RequestEventMessage request_event;
         if (z_request_event.parts() == 0 || !request_event.ParseFromString(z_request_event.get(0))) {
-            cout << "Could notd understand request." << endl;
+            syslog(LOG_WARNING, "%s", "Could not understand request for event.");
             continue;
         }
 

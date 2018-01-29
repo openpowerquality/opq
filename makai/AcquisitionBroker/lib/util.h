@@ -7,7 +7,6 @@
 #include <chrono>
 #include <cassert>
 #include <exception>
-#include <nacl/crypto_sign.h>
 
 using std::string;
 using std::regex;
@@ -49,14 +48,6 @@ inline uint64_t chrono_to_mili(std::chrono::time_point<std::chrono::high_resolut
 //Get the current time in microseconds since epoch.
 inline uint64_t chrono_to_mili_now(){
     return chrono_to_mili(std::chrono::high_resolution_clock::now());
-}
-
-inline std::string nacl_sign(std::string msg, std::string key){
-    return crypto_sign(key,msg);
-}
-
-inline std::string nacl_check_sig(std::string msg, std::string key) throw(const char *){
-    return crypto_sign_open(msg, key);
 }
 
 #endif //ACQUISITIONBROKER_UTIL_H_H
