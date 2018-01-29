@@ -79,15 +79,9 @@
                   <div class="sixteen wide column">
                     <div class="ui grid">
                       <div class="sixteen wide center aligned column">
-                        {{#if (isBoxActive boxID)}}
-                          <button id="liveMeasurementsButtonBoxID-{{boxID}}" class="ui icon green button">
-                            Live Measurements <i class="arrow right icon"></i>
-                          </button>
-                        {{else}}
-                          <button class="ui icon red button">
-                            Live Measurements <i class="arrow right icon"></i>
-                          </button>
-                        {{/if}}
+                        <button id="liveMeasurementsButtonBoxID-{{boxID}}" class="ui icon {{#if (isBoxActive boxID)}}green{{else}}red{{/if}} button">
+                          Live Measurements <i class="arrow right icon"></i>
+                        </button>
                       </div>
                     </div>
                   </div>
