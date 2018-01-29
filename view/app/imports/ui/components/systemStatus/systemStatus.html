@@ -52,18 +52,25 @@
                   <div class="sixteen wide column">
                     <div class="ui grid">
                       <div class="sixteen wide center aligned column">
-                        <div class="ui mini red statistic">
-                          <div class="value">
-                            {{#if (isBoxActive boxID)}}
-                              <i class="long arrow up icon"></i> ONLINE
-                            {{else}}
+                        {{#if (isBoxActive boxID)}}
+                          <div class="ui mini green statistic">
+                            <div class="value">
+                                <i class="long arrow up icon"></i> ONLINE
+                            </div>
+                            <div class="label">
+                              Status
+                            </div>
+                          </div>
+                        {{else}}
+                          <div class="ui mini red statistic">
+                            <div class="value">
                               <i class="long arrow down icon"></i> OFFLINE
-                            {{/if}}
+                            </div>
+                            <div class="label">
+                              Status
+                            </div>
                           </div>
-                          <div class="label">
-                            Status
-                          </div>
-                        </div>
+                        {{/if}}
                       </div>
                     </div>
                   </div>
@@ -77,7 +84,7 @@
                             Live Measurements <i class="arrow right icon"></i>
                           </button>
                         {{else}}
-                          <button id="liveMeasurementsButtonBoxID-{{boxID}}" class="ui icon red button">
+                          <button class="ui icon red button">
                             Live Measurements <i class="arrow right icon"></i>
                           </button>
                         {{/if}}
@@ -94,7 +101,7 @@
 
     <div id="liveMeasurementsPopupBoxID-{{boxID}}" class="ui popup">
       <div style="width: 750px">
-        {{#if showPopup}}
+        {{#if (showPopup boxID)}}
           {{> liveMeasurements opqBoxID=boxID}}
         {{/if}}
       </div>

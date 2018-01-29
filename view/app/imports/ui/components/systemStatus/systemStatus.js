@@ -114,7 +114,7 @@ Template.systemStatus.onRendered(function () {
     const opqBoxIDs = template.opqBoxIDs.get();
     if (opqBoxIDs) {
   //     opqBoxIDs.forEach(boxID => {
-  jQueryPromise('#liveMeasurementsButtonBoxID-1', 100, 3000, template)
+  jQueryPromise('#liveMeasurementsButtonBoxID-1', 200, 10000, template)
       .then(button => {
         button.popup({
           popup: template.$('#liveMeasurementsPopupBoxID-1'),
@@ -129,7 +129,7 @@ Template.systemStatus.onRendered(function () {
           },
         });
       });
-  jQueryPromise('#liveMeasurementsButtonBoxID-2', 100, 3000, template)
+  jQueryPromise('#liveMeasurementsButtonBoxID-2', 200, 10000, template)
       .then(button => {
         button.popup({
           popup: template.$('#liveMeasurementsPopupBoxID-2'),
@@ -144,7 +144,7 @@ Template.systemStatus.onRendered(function () {
           },
         });
       });
-  jQueryPromise('#liveMeasurementsButtonBoxID-3', 100, 3000, template)
+  jQueryPromise('#liveMeasurementsButtonBoxID-3', 200, 10000, template)
       .then(button => {
         button.popup({
           popup: template.$('#liveMeasurementsPopupBoxID-3'),
@@ -159,7 +159,7 @@ Template.systemStatus.onRendered(function () {
           },
         });
       });
-  jQueryPromise('#liveMeasurementsButtonBoxID-4', 100, 3000, template)
+  jQueryPromise('#liveMeasurementsButtonBoxID-4', 200, 10000, template)
       .then(button => {
         button.popup({
           popup: template.$('#liveMeasurementsPopupBoxID-4'),
@@ -174,7 +174,7 @@ Template.systemStatus.onRendered(function () {
           },
         });
       });
-  jQueryPromise('#liveMeasurementsButtonBoxID-5', 100, 3000, template)
+  jQueryPromise('#liveMeasurementsButtonBoxID-5', 200, 10000, template)
       .then(button => {
         button.popup({
           popup: template.$('#liveMeasurementsPopupBoxID-5'),
@@ -224,6 +224,9 @@ Template.systemStatus.helpers({
       console.log(`boxID ${boxID} status str: `, boxStatus[boxID]);
       return boxStatus[boxID];
     }
+  },
+  showPopup(boxID) {
+    return Template.instance()[`showPopup${boxID}`].get();
   },
   showPopup1() {
     return Template.instance().showPopup1.get();

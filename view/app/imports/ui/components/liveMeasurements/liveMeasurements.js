@@ -48,7 +48,7 @@ Template.liveMeasurements.onCreated(function liveMeasurementsOnCreated() {
     const secondsAgo = template.measurementStartTimeSecondsAgo.get();
 
     if (secondsAgo && selectedDeviceId) {
-      console.log(secondsAgo, selectedDeviceId);
+      console.log('subscribe measurements: ', secondsAgo, selectedDeviceId);
       Measurements.subscribe(Measurements.publicationNames.RECENT_MEASUREMENTS, template, secondsAgo, selectedDeviceId);
     }
   });
