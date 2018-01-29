@@ -2,7 +2,7 @@ import { Template } from 'meteor/templating';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import { ReactiveVar } from 'meteor/reactive-var';
 import { Measurements } from '../../../api/measurements/MeasurementsCollection.js';
-import { jQueryPromise } from '../../../utils/utils.js';
+import { jQueryPromise, dataContextValidator } from '../../../utils/utils.js';
 
 // Templates
 import './liveMeasurements.html';
@@ -11,12 +11,10 @@ Template.liveMeasurements.onCreated(function liveMeasurementsOnCreated() {
   const template = this;
 
   // Validate data context
-  template.autorun(() => {
-    new SimpleSchema({
-      selectedDeviceIdReactiveVar: { type: ReactiveVar, optional: true },
-      opqBoxID: { type: String },
-    }).validate(template.data);
-  });
+  dataContextValidator(template, new SimpleSchema({
+    selectedDeviceIdReactiveVar: { type: ReactiveVar, optional: true },
+    opqBoxID: { type: String },
+  }));
 
   template.selectedDeviceId = (template.data.selectedDeviceIdReactiveVar)
       ? template.data.selectedDeviceIdReactiveVar

@@ -84,17 +84,17 @@ Template.systemStatus.onCreated(function () {
   template.autorun(() => {
     const opqBoxIDs = template.opqBoxIDs.get();
     if (opqBoxIDs) {
+      const boxStatus = {};
       opqBoxIDs.forEach(boxID => {
         checkBoxStatus.call({ box_id: boxID }, (error, isOnline) => {
           if (error) {
             console.log(error);
           } else {
             console.log(boxID, isOnline);
-            const boxStatus = template.opqBoxStatus.get();
             boxStatus[boxID] = isOnline;
-            template.opqBoxStatus.set(boxStatus);
           }
         });
+        template.opqBoxStatus.set(boxStatus);
       });
     }
   });
