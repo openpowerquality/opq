@@ -25,6 +25,13 @@ Template.registerHelper('formatDateMDY', function (date) {
   return dateString;
 });
 
+Template.registerHelper('formatDateShort', function (date) {
+  let dateString;
+  if (typeof date === 'number' || date instanceof Date) dateString = Moment(date).format('M/D/YYYY');
+  if (date === 'today') dateString = Moment().format('MMM D, YYYY');
+  return dateString;
+});
+
 Template.registerHelper('formatDecimals', function (decimals, number) {
   return (typeof number === 'number' && typeof decimals === 'number') ? number.toFixed(decimals) : null;
 });

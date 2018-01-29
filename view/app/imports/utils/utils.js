@@ -57,9 +57,9 @@ export const jQueryPromise = (selector, intervalMs, timeoutMs, templateInstance)
  * if their schemas are given.
  * @param {Object} templateInstance - The template instance.
  * @param {SimpleSchema} baseSchema - The SimpleSchema of the base data context object.
- * @param {Object} nestedReactiveVarSchemas - The SimpleSchemas of all ReactiveVars that need to be validated.
+ * @param {Object} nestedReactiveVarSchemas - The SimpleSchemas of all ReactiveVars that need to be validated. Optional.
  */
-export const dataContextValidator = (templateInstance, baseSchema, nestedReactiveVarSchemas) => {
+export const dataContextValidator = (templateInstance, baseSchema, nestedReactiveVarSchemas = undefined) => {
   // check(templateInstance, Object);
   check(baseSchema, SimpleSchema);
 

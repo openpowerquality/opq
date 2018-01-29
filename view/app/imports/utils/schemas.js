@@ -267,4 +267,7 @@ export const filterFormSchema = new SimpleSchema({
   startTime: { type: Number, optional: true },
   endTime: { type: Number, optional: true },
   dayPicker: { type: Number, optional: true },
+  monthPicker: { type: Number, optional: true },
+  opqBoxPicker: { type: String, optional: true },
+  trendPicker: { type: String, optional: true },
 });

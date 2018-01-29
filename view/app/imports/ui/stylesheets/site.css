@@ -268,6 +268,27 @@ body {
     margin-top: 0px;
 }
 
+/* Useful rules for removing margins */
+.no-margin {
+    margin: 0px !important;
+}
+
+.no-margin-top {
+    margin-top: 0px !important;
+}
+
+.no-margin-bottom {
+    margin-bottom: 0px !important;
+}
+
+.no-margin-left {
+    margin-left: 0px !important;
+}
+
+.no-margin-right {
+    margin-right: 0px !important;
+}
+
 /* Leaflet's zoom controls has a very high default z-index of 1000 for some reason, resulting in the buttons being
 layered on top of the fixed navigation menu. */
 .leaflet-top, .leaflet-bottom {
