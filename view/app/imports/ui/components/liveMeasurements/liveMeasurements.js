@@ -2,7 +2,6 @@ import { Template } from 'meteor/templating';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import { ReactiveVar } from 'meteor/reactive-var';
 import { Measurements } from '../../../api/measurements/MeasurementsCollection.js';
-import { getActiveDeviceIdsVM } from '../../../api/measurements/MeasurementsCollectionMethods.js';
 import { jQueryPromise } from '../../../utils/utils.js';
 
 // Templates
@@ -15,32 +14,33 @@ Template.liveMeasurements.onCreated(function liveMeasurementsOnCreated() {
   template.autorun(() => {
     new SimpleSchema({
       selectedDeviceIdReactiveVar: { type: ReactiveVar, optional: true },
+      opqBoxID: { type: String },
     }).validate(template.data);
   });
 
   template.selectedDeviceId = (template.data.selectedDeviceIdReactiveVar)
       ? template.data.selectedDeviceIdReactiveVar
-      : new ReactiveVar();
+      : new ReactiveVar(template.data.opqBoxID);
 
   template.activeDeviceIds = new ReactiveVar();
   template.measurementStartTimeSecondsAgo = new ReactiveVar(60);
 
   // Retrieve list of active device ids (active within last minute). Selects initial device for monitoring.
-  template.autorun(function () {
-    const selectedDeviceId = template.selectedDeviceId.get();
-
-    if (template.subscriptionsReady()) {
-      getActiveDeviceIdsVM.call({
-        startTimeMs: Date.now() - (60 * 1000),
-      }, (err, deviceIds) => {
-        if (err) console.log(err);
-        if (deviceIds && deviceIds.length > 0) {
-          template.activeDeviceIds.set(deviceIds);
-          if (!selectedDeviceId) template.selectedDeviceId.set(deviceIds[0]); // Select first device by default.
-        }
-      });
-    }
-  });
+  // template.autorun(function () {
+  //   const selectedDeviceId = template.selectedDeviceId.get();
+  //
+  //   if (template.subscriptionsReady()) {
+  //     getActiveBoxIds.call({
+  //       startTimeMs: Date.now() - (60 * 1000),
+  //     }, (err, deviceIds) => {
+  //       if (err) console.log(err);
+  //       if (deviceIds && deviceIds.length > 0) {
+  //         template.activeDeviceIds.set(deviceIds);
+  //         if (!selectedDeviceId) template.selectedDeviceId.set(deviceIds[0]); // Select first device by default.
+  //       }
+  //     });
+  //   }
+  // });
 
   // Subscription
   template.autorun(function () {
@@ -48,10 +48,6 @@ Template.liveMeasurements.onCreated(function liveMeasurementsOnCreated() {
     const secondsAgo = template.measurementStartTimeSecondsAgo.get();
 
     if (secondsAgo && selectedDeviceId) {
-      // console.log(Measurements.getPublicationNames());
-      // Measurements._publicationNames.
-      // Meteor.subscribe(Measurements.publicationNames.RECENT_MEASUREMENTS, secondsAgo, selectedDeviceId);
-      // template.subscribe(Measurements.publicationNames.RECENT_MEASUREMENTS, secondsAgo, selectedDeviceId);
       Measurements.subscribe(Measurements.publicationNames.RECENT_MEASUREMENTS, template, secondsAgo, selectedDeviceId);
     }
   });
@@ -99,7 +95,7 @@ Template.liveMeasurements.onRendered(function () {
       // Also of note: It's much faster to simply filter() on the resulting mongo query result, rather than to query
       // with {timestamp_ms: {$gte: startTime}}. Meteor's Minimongo implementation isn't very efficient.
       const startTime = Date.now() - (measurementStartTimeSecondsAgo * 1000);
-      const measurements = Measurements.find({ device_id: selectedDeviceId }, { sort: { timestamp_ms: 1 } })
+      const measurements = Measurements.find({ box_id: selectedDeviceId }, { sort: { timestamp_ms: 1 } })
           .fetch()
           .filter(measurement => measurement.timestamp_ms >= startTime);
 
@@ -152,7 +148,7 @@ Template.liveMeasurements.helpers({
 
     if (selectedDeviceId && template.subscriptionsReady()) {
       const measurements = Measurements.find(
-          { device_id: selectedDeviceId },
+          { box_id: selectedDeviceId },
           { sort: { timestamp_ms: -1 }, limit: 10 },
       );
       return measurements;
@@ -164,7 +160,7 @@ Template.liveMeasurements.helpers({
     const selectedDeviceId = template.selectedDeviceId.get();
 
     if (selectedDeviceId && template.subscriptionsReady()) {
-      const measurement = Measurements.findOne({ device_id: selectedDeviceId }, { sort: { timestamp_ms: -1 } });
+      const measurement = Measurements.findOne({ box_id: selectedDeviceId }, { sort: { timestamp_ms: -1 } });
       return measurement;
     }
     return null;
