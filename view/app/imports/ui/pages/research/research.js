@@ -9,12 +9,14 @@ import '../../components/liveMeasurements/liveMeasurements.js';
 import '../../components/eventCountChart/eventCountChart.js';
 import '../../components/filterForm/filterForm.js';
 import '../../components/eventList/eventList.js';
-
+import '../../components/monthlyTrends/monthlyTrends.js';
+import '../../components/systemStatus/systemStatus.js';
 
 Template.research.onCreated(function () {
   const template = this;
   template.eventListFilters = new ReactiveVarHelper(template, new ReactiveVar());
   template.eventCountChartFilters = new ReactiveVarHelper(template, new ReactiveVar());
+  template.monthlyTrendsFilters = new ReactiveVarHelper(template, new ReactiveVar());
 });
 
 Template.research.onRendered(function () {
@@ -40,6 +42,15 @@ Template.research.onRendered(function () {
     lastResort: true,
     closable: false, // Need this because popup is closing on flatpickr usage.
   });
+
+  // Setup monthlyTrends filter form popup
+  template.$('#monthlyTrendsFiltersButton').popup({
+    popup: template.$('#monthlyTrendsFiltersPopup'),
+    on: 'click',
+    position: 'bottom right',
+    lastResort: true,
+    closable: false, // Need this because popup is closing on flatpickr usage.
+  });
 });
 
 Template.research.helpers({
@@ -48,6 +59,9 @@ Template.research.helpers({
   },
   getEventCountChartFiltersRV() {
     return Template.instance().eventCountChartFilters;
+  },
+  getMonthlyTrendsFiltersRV() {
+    return Template.instance().monthlyTrendsFilters;
   },
   eventListFiltersButtonTimestampString() {
     let outputString = '';
@@ -68,6 +82,17 @@ Template.research.helpers({
     if (eventCountChartFilters) {
       const day = eventCountChartFilters.dayPicker;
       outputString = `${Moment(day).format('MMM D, YYYY')}`;
+    }
+    return outputString;
+  },
+  monthlyTrendsButtonTimestampString() {
+    let outputString = '';
+    const monthlyTrendsFilters = Template.instance().monthlyTrendsFilters.get();
+    if (monthlyTrendsFilters) {
+      const day = monthlyTrendsFilters.monthPicker;
+      const boxID = monthlyTrendsFilters.opqBoxPicker;
+      const trendType = monthlyTrendsFilters.trendPicker;
+      outputString = `${Moment(day).format('MMMM, YYYY')} - [Box ID: ${boxID}] - [Trend: ${trendType}]`;
     }
     return outputString;
   },
