@@ -20,9 +20,12 @@ export const checkBoxStatus = new ValidatedMethod({
     box_id: { type: String },
   }).validator({ clean: true }),
   run({ box_id }) {
-    const oneMinuteAgo = Moment().subtract(60, 'seconds').valueOf();
-    const measurements = Measurements.find({ box_id, timestamp_ms: { $gte: oneMinuteAgo } });
-    return !!measurements.count();
+    if (!this.isSimulation) {
+      const oneMinuteAgo = Moment().subtract(60, 'seconds').valueOf();
+      const measurements = Measurements.find({ box_id, timestamp_ms: { $gte: oneMinuteAgo } });
+      return !!measurements.count();
+    }
+    return null;
   },
 });
 

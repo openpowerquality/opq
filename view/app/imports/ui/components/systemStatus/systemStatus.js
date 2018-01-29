@@ -94,8 +94,8 @@ Template.systemStatus.onCreated(function () {
             boxStatus[boxID] = isOnline;
           }
         });
-        template.opqBoxStatus.set(boxStatus);
       });
+      template.opqBoxStatus.set(boxStatus);
     }
   });
 
