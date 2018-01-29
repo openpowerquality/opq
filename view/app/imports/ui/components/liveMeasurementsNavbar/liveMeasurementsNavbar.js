@@ -2,7 +2,7 @@ import { Template } from 'meteor/templating';
 import { ReactiveVar } from 'meteor/reactive-var';
 import './liveMeasurementsNavbar.html';
 import { Measurements } from '../../../api/measurements/MeasurementsCollection.js';
-import { getActiveDeviceIdsVM } from '../../../api/measurements/MeasurementsCollectionMethods.js';
+import { getActiveBoxIds } from '../../../api/measurements/MeasurementsCollectionMethods.js';
 import '../liveMeasurements/liveMeasurements.js';
 
 Template.liveMeasurementsNavbar.onCreated(function liveMeasurementsNavbarOnCreated() {
@@ -13,23 +13,12 @@ Template.liveMeasurementsNavbar.onCreated(function liveMeasurementsNavbarOnCreat
   template.measurementStartTimeSecondsAgo = new ReactiveVar(60);
   template.showPopup = new ReactiveVar(false);
 
-
-  // // Validate data context.
-  // template.autorun(() => {
-  //
-  //   new SimpleSchema({
-  //     flashAlertReactiveVar: {type: ReactiveVar},
-  //     withMarginTop: {type: Boolean, optional: true}
-  //   }).validate(Template.currentData());
-  // });
-
-
   // Check for active devices, handles initial/default device selection.
   template.autorun(function () {
     const selectedDeviceId = template.selectedDeviceId.get();
 
     if (template.subscriptionsReady()) {
-      getActiveDeviceIdsVM.call({
+      getActiveBoxIds.call({
         startTimeMs: Date.now() - (60 * 1000),
       }, (err, deviceIds) => {
         if (err) console.log(err);
@@ -50,22 +39,6 @@ Template.liveMeasurementsNavbar.onCreated(function liveMeasurementsNavbarOnCreat
       Measurements.subscribe(Measurements.publicationNames.RECENT_MEASUREMENTS, template, secondsAgo, selectedDeviceId);
     }
   });
-
-  // // Ensures selected device is highlighted.
-  // template.autorun(function() {
-  //   const selectedDeviceId = template.selectedDeviceId.get();
-  //
-  //   if (selectedDeviceId && template.subscriptionsReady()) {
-  //     // Un-highlight old device, highlight new device.
-  //     jQueryPromise('#deviceSelection button.active', 200, 2000)
-  //         .then(deviceBtn => deviceBtn.removeClass('active'))
-  //         .catch(error => console.log(error));
-  //
-  //     jQueryPromise(`#device-${selectedDeviceId}`, 200, 2000)
-  //         .then(deviceBtn => deviceBtn.addClass('active'))
-  //         .catch(error => console.log(error));
-  //   }
-  // });
 
   // Handles graph plotting.
   template.autorun(function () {
@@ -114,37 +87,10 @@ Template.liveMeasurementsNavbar.onCreated(function liveMeasurementsNavbarOnCreat
       }
     }
   });
-
-  // template.autorun(function() {
-  //   const showPopup = template.showPopup.get();
-  //
-  //   if (showPopup && template.subscriptionsReady()) {
-  //
-  //   }
-  // });
 });
 
 Template.liveMeasurementsNavbar.onRendered(function () {
   const template = this;
-  // const mrs = jQueryPromise('#measurementsNavbar', 100, 1000);
-  //
-  // mrs.then(target => target.popup({
-  //   popup : template.$('#measurementsPopup'),
-  //   hoverable: true,
-  //   position: 'bottom left'
-  // }));
-
-  // Meteor.setTimeout(function() {
-  //   console.log(template.$('#measurementsNavbar'));
-  //   console.log(template.$('#measurementsPopup'));
-  //   console.log('hi');
-  //
-  //   template.$('#measurementsNavbar').popup({
-  //     popup : template.$('#measurementsPopup'),
-  //     hoverable: true,
-  //     position: 'bottom left'
-  //   });
-  // }, 3000);
 
   template.$('#measurementsNavbar').popup({
     popup: template.$('#measurementsPopup'),
@@ -153,27 +99,11 @@ Template.liveMeasurementsNavbar.onRendered(function () {
     distanceAway: 5,
     onShow: function () {
       template.showPopup.set(true);
-      console.log('showing');
     },
     onHide: function () {
       template.showPopup.set(false);
-      console.log('hiding');
     },
   });
-
- // template.autorun(function() {
- //   //if (template.subscriptionsReady()) {
- //     Tracker.afterFlush(function() {
- //       console.log('hi');
- //       console.log(template.$('#measurementsNavbar'));
- //       // template.$('#measurementsNavbar').popup({
- //       //   popup : template.$('#measurementsPopup'),
- //       //   hoverable: true,
- //       //   position: 'bottom left'
- //       // });
- //     });
- //   //}
- // });
 });
 
 Template.liveMeasurementsNavbar.helpers({
