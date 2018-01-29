@@ -25,6 +25,6 @@ sudo cp trg_broker /etc/init.d/
 sudo cp makai /etc/init.d/
 sudo update-rc.d acq_broker defaults
 sudo update-rc.d trg_broker defaults
-sudo update-rc.d makai defaults
+sudo update-rc.d makai_service defaults
 
 
