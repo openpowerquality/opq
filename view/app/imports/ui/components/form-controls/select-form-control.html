@@ -24,7 +24,7 @@
       <option value="">Select One{{#if multipleAllowed}} or More{{/if}}</option>
       {{#each option in options}}
         <option value="{{#if option.value}}{{option.value}}{{else}}{{option.label}}{{/if}}"
-                selected={{#if option.isSelected}}"selected"{{/if}}>{{option.label}}</option>
+                selected={{isSelected option.value selected}}>{{option.label}}</option>
       {{/each}}
 
     </select>
