@@ -110,10 +110,11 @@ Template.systemStatus.onCreated(function () {
 Template.systemStatus.onRendered(function () {
   const template = this;
 
-  // template.autorun(() => {
-  //   const opqBoxIDs = template.opqBoxIDs.get();
-  //   if (opqBoxIDs) {
-  //     opqBoxIDs.forEach(boxID => {
+  template.autorun(() => {
+    const opqBoxStatus = template.opqBoxStatus.get();
+    // const opqBoxIDs = template.opqBoxIDs.get();
+    if (opqBoxStatus && Object.keys(opqBoxStatus).length < 4) {
+      // opqBoxIDs.forEach(boxID => {
   jQueryPromise('#liveMeasurementsButtonBoxID-1', 200, 10000, template)
       .then(button => {
         button.popup({
@@ -190,8 +191,8 @@ Template.systemStatus.onRendered(function () {
         });
       });
   //     });
-//     }
-//   });
+    }
+  });
 });
 
 Template.systemStatus.helpers({
