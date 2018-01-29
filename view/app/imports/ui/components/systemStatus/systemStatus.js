@@ -137,6 +137,7 @@ Template.systemStatus.helpers({
       if (error) {
         console.log(error);
       } else {
+        console.log(boxID, isOnline);
         return isOnline;
       }
     });

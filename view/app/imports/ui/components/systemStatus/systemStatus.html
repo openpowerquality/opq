@@ -37,7 +37,6 @@
         <div class="content">
           <div class="ui divided grid">
             <div class="six wide center aligned column" style="background: #f7f7f7;">
-              <!--<div class="ui large header no-margin-bottom">THD</div>-->
               <div class="ui statistic" style="margin-top: 10px;">
                 <div class="value">
                   {{boxID}}
@@ -55,7 +54,7 @@
                       <div class="sixteen wide center aligned column">
                         <div class="ui mini red statistic">
                           <div class="value">
-                            {{#if isBoxActive boxID}}
+                            {{#if (isBoxActive boxID)}}
                               <i class="long arrow up icon"></i> ONLINE
                             {{else}}
                               <i class="long arrow down icon"></i> OFFLINE
@@ -73,8 +72,8 @@
                   <div class="sixteen wide column">
                     <div class="ui grid">
                       <div class="sixteen wide center aligned column">
-                        {{#if isBoxActive boxID}}
-                          <button id="liveMeasurementsButton" class="ui icon green button">
+                        {{#if (isBoxActive boxID)}}
+                          <button id="liveMeasurementsButtonBoxID-{{boxID}}" class="ui icon green button">
                             Live Measurements <i class="arrow right icon"></i>
                           </button>
                         {{else}}
