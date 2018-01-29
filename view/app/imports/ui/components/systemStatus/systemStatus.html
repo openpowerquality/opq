@@ -1,0 +1,106 @@
+<template name="systemStatus">
+  <div class="ui three statistics">
+    <div class="ui mini blue statistic">
+      <div class="value">{{totalEventsCount}}</div>
+      <div class="label">Total Events</div>
+    </div>
+    <div class="ui mini blue statistic">
+      <div class="value">{{totalBoxEventsCounts}}</div>
+      <div class="label">Total Box Events</div>
+    </div>
+    <div class="ui mini blue statistic">
+      <div class="value">{{totalOpqBoxesCounts}}</div>
+      <div class="label">Total OPQ Boxes</div>
+    </div>
+  </div>
+
+  <div class="ui three blue statistics" style="margin-top: 20px;">
+    <div class="ui mini statistic">
+      <div class="value">{{totalMeasurementsCounts}}</div>
+      <div class="label">Total Measurements</div>
+    </div>
+    <div class="ui mini blue statistic">
+      <div class="value">{{totalTrendsCount}}</div>
+      <div class="label">Total Trends</div>
+    </div>
+    <div class="ui mini blue statistic">
+      <div class="value">{{totalUsersCount}}</div>
+      <div class="label">Total Users</div>
+    </div>
+  </div>
+
+
+  <div class="ui two column grid">
+    {{#each boxID in opqBoxIDs}}
+    <div class="column">
+      <div class="ui fluid card">
+        <div class="content">
+          <div class="ui divided grid">
+            <div class="six wide center aligned column" style="background: #f7f7f7;">
+              <!--<div class="ui large header no-margin-bottom">THD</div>-->
+              <div class="ui statistic" style="margin-top: 10px;">
+                <div class="value">
+                  {{boxID}}
+                </div>
+                <div class="label">
+                  OPQ Box
+                </div>
+              </div>
+            </div>
+            <div class="ten wide column">
+              <div class="ui vertically divided grid">
+                <div class="row no-padding-bottom">
+                  <div class="sixteen wide column">
+                    <div class="ui grid">
+                      <div class="sixteen wide center aligned column">
+                        <div class="ui mini red statistic">
+                          <div class="value">
+                            {{#if isBoxActive boxID}}
+                              <i class="long arrow up icon"></i> ONLINE
+                            {{else}}
+                              <i class="long arrow up icon"></i> OFFLINE
+                            {{/if}}
+                          </div>
+                          <div class="label">
+                            Status
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="row no-padding-top no-padding-bottom">
+                  <div class="sixteen wide column">
+                    <div class="ui grid">
+                      <div class="sixteen wide center aligned column">
+                        {{#if isBoxActive boxID}}
+                          <button id="liveMeasurementsButton" class="ui icon green button">
+                            Live Measurements <i class="arrow right icon"></i>
+                          </button>
+                        {{else}}
+                          <button id="liveMeasurementsButtonBoxID-{{boxID}}" class="ui icon red button">
+                            Live Measurements <i class="arrow right icon"></i>
+                          </button>
+                        {{/if}}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="liveMeasurementsPopupBoxID-{{boxID}}" class="ui popup">
+      <div style="width: 750px">
+        {{#if showPopup}}
+          {{> liveMeasurements opqBoxID=boxID}}
+        {{/if}}
+      </div>
+    </div>
+
+    {{/each}}
+  </div>
+</template>
