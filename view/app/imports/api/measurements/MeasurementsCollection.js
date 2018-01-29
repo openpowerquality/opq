@@ -18,7 +18,7 @@ class MeasurementsCollection extends BaseCollection {
       timestamp_ms: { type: Number },
       voltage: { type: Number, decimal: true },
       frequency: { type: Number, decimal: true },
-      thd: { type: Number, decimal: true },
+      thd: { type: Number, decimal: true, optional: true },
       expireAt: { type: Date },
     }));
 
@@ -96,27 +96,24 @@ class MeasurementsCollection extends BaseCollection {
    */
   publish() { // eslint-disable-line class-methods-use-this
     if (Meteor.isServer) {
-      Meteor.publish(this.publicationNames.RECENT_MEASUREMENTS, function (startTimeSecondsAgo, deviceId) {
+      Meteor.publish(this.publicationNames.RECENT_MEASUREMENTS, function (startTimeSecondsAgo, boxID) {
         check(startTimeSecondsAgo, Number);
-        check(deviceId, Number);
+        check(boxID, String);
 
         const self = this;
-
-        // const userId = this.userId;
-        // if (!userId) throw new Meteor.Error('publications.notLoggedIn', 'Must log in to access page.');
 
         const startTimeMs = Date.now() - (startTimeSecondsAgo * 1000);
         // eslint-disable-next-line max-len
         const publishedMeasurementsMap = new Map(); // {timestamp: id} - To keep track of currently published measurements.
 
-        const selector = (deviceId) ? {
-          device_id: deviceId,
+        const selector = (boxID) ? {
+          box_id: boxID,
           timestamp_ms: { $gte: startTimeMs },
         } : { timestamp_ms: { $gte: startTimeMs } };
 
         let init = true;
         const measurementsHandle = this.find(selector, {
-          fields: { _id: 1, timestamp_ms: 1, voltage: 1, frequency: 1, device_id: 1 },
+          fields: { _id: 1, timestamp_ms: 1, voltage: 1, frequency: 1, box_id: 1 },
           pollingIntervalMs: 1000,
         }).observeChanges({
           added: function (id, fields) {
