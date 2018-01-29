@@ -133,7 +133,7 @@ Template.User_Admin_Page.events({
     if (template.validationContext.isValid()) {
       // Change email if needed.
       if (formData.email) {
-        // eslint-disable-line max-len no-unused-vars
+        // eslint-disable-next-line no-unused-vars
         updateEmail.call({ userID: formData.userID, newEmail: formData.email }, (error, oldEmail) => {
           if (error) {
             console.log(error); // eslint-disable-line no-console

@@ -4,7 +4,7 @@ import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import Chartjs from 'chart.js';
 import Moment from 'moment';
 import { Events } from '../../../api/events/EventsCollection';
-import { filterFormSchema } from '../../../utils/schemas.js';
+import { filterFormSchema } from '../filterForm/filterForm.js';
 import { dataContextValidator } from '../../../utils/utils.js';
 import { ReactiveVarHelper } from '../../../modules/ReactiveVarHelper';
 

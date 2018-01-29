@@ -3,12 +3,9 @@ import { ReactiveVar } from 'meteor/reactive-var';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import Chartjs from 'chart.js';
 import Moment from 'moment';
-import { mapify } from 'es6-mapify';
-import { Events } from '../../../api/events/EventsCollection';
-import { filterFormSchema } from '../../../utils/schemas.js';
 import { dataContextValidator, jQueryPromise } from '../../../utils/utils.js';
 import { ReactiveVarHelper } from '../../../modules/ReactiveVarHelper';
-import { monthlyBoxUptime, monthlyBoxTrends, getMostRecentTrendMonth } from '../../../api/trends/TrendsCollectionMethods';
+import { monthlyBoxTrends, getMostRecentTrendMonth } from '../../../api/trends/TrendsCollectionMethods';
 
 // Templates and Sub-Template Inclusions
 import './monthlyTrends.html';
@@ -93,10 +90,12 @@ Template.monthlyTrends.onRendered(function () {
     const currentTrend = template.currentTrend.get();
     const isLoadingMonthlyTrends = template.isLoadingMonthlyTrends.get();
 
-    if (currentBoxID && currentTrend && monthlyTrends && dailyTrends && currentMonthYear && !isLoadingMonthlyTrends && template.subscriptionsReady()) {
+    if (currentBoxID && currentTrend && monthlyTrends && dailyTrends && currentMonthYear
+        && !isLoadingMonthlyTrends && template.subscriptionsReady()) {
       const month = currentMonthYear.month;
       const year = currentMonthYear.year;
-      const startOfMonth = Moment().month(month).year(year).startOf('month').valueOf();
+      const startOfMonth = Moment().month(month).year(year).startOf('month')
+          .valueOf();
 
       // Calculate labels.
       const daysInCurrentMonth = Moment(startOfMonth).daysInMonth();

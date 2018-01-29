@@ -4,7 +4,6 @@ import { ReactiveVar } from 'meteor/reactive-var';
 import Moment from 'moment';
 import { Events } from '../../../api/events/EventsCollection';
 import { dataContextValidator } from '../../../utils/utils.js';
-import { filterFormSchema } from '../../../utils/schemas.js';
 import { ReactiveVarHelper } from '../../../modules/ReactiveVarHelper';
 
 

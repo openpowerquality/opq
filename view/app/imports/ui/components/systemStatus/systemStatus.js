@@ -3,7 +3,7 @@ import { ReactiveVar } from 'meteor/reactive-var';
 import { totalEventsCount } from '../../../api/events/EventsCollectionMethods';
 import { totalBoxEventsCount } from '../../../api/box-events/BoxEventsCollectionMethods';
 import { totalOpqBoxesCount, getBoxIDs } from '../../../api/opq-boxes/OpqBoxesCollectionMethods';
-import { totalMeasurementsCount, checkBoxStatus, activeBoxIDs } from '../../../api/measurements/MeasurementsCollectionMethods';
+import { totalMeasurementsCount, activeBoxIDs } from '../../../api/measurements/MeasurementsCollectionMethods';
 import { totalTrendsCount } from '../../../api/trends/TrendsCollectionMethods';
 import { totalUsersCount } from '../../../api/users/UsersCollectionMethods';
 import { jQueryPromise } from '../../../utils/utils';
@@ -84,7 +84,6 @@ Template.systemStatus.onCreated(function () {
     if (error) {
       console.log(error);
     } else {
-      console.log(onlineIDs);
       template.onlineBoxIDs.set(onlineIDs);
     }
   });
@@ -102,86 +101,86 @@ Template.systemStatus.onRendered(function () {
 
   template.autorun(() => {
     const boxIDs = template.onlineBoxIDs.get();
-    // const opqBoxStatus = template.opqBoxStatus.get();
     if (boxIDs) {
-      console.log('active box ids:', boxIDs);
-      // opqBoxIDs.forEach(boxID => {
-  jQueryPromise('#liveMeasurementsButtonBoxID-1', 200, 10000, template)
-      .then(button => {
-        button.popup({
-          popup: template.$('#liveMeasurementsPopupBoxID-1'),
-          hoverable: true,
-          position: 'bottom left',
-          distanceAway: 5,
-          onShow: function () {
-            template.showPopup1.set(true);
-          },
-          onHide: function () {
-            template.showPopup1.set(false);
-          },
-        });
-      });
-  jQueryPromise('#liveMeasurementsButtonBoxID-2', 200, 10000, template)
-      .then(button => {
-        button.popup({
-          popup: template.$('#liveMeasurementsPopupBoxID-2'),
-          hoverable: true,
-          position: 'bottom left',
-          distanceAway: 5,
-          onShow: function () {
-            template.showPopup2.set(true);
-          },
-          onHide: function () {
-            template.showPopup2.set(false);
-          },
-        });
-      });
-  jQueryPromise('#liveMeasurementsButtonBoxID-3', 200, 10000, template)
-      .then(button => {
-        button.popup({
-          popup: template.$('#liveMeasurementsPopupBoxID-3'),
-          hoverable: true,
-          position: 'bottom left',
-          distanceAway: 5,
-          onShow: function () {
-            template.showPopup3.set(true);
-          },
-          onHide: function () {
-            template.showPopup3.set(false);
-          },
-        });
-      });
-  jQueryPromise('#liveMeasurementsButtonBoxID-4', 200, 10000, template)
-      .then(button => {
-        button.popup({
-          popup: template.$('#liveMeasurementsPopupBoxID-4'),
-          hoverable: true,
-          position: 'bottom left',
-          distanceAway: 5,
-          onShow: function () {
-            template.showPopup4.set(true);
-          },
-          onHide: function () {
-            template.showPopup4.set(false);
-          },
-        });
-      });
-  jQueryPromise('#liveMeasurementsButtonBoxID-5', 200, 10000, template)
-      .then(button => {
-        button.popup({
-          popup: template.$('#liveMeasurementsPopupBoxID-5'),
-          hoverable: true,
-          position: 'bottom left',
-          distanceAway: 5,
-          onShow: function () {
-            template.showPopup5.set(true);
-          },
-          onHide: function () {
-            template.showPopup5.set(false);
-          },
-        });
-      });
-  //     });
+      jQueryPromise('#liveMeasurementsButtonBoxID-1', 200, 10000, template)
+          .then(button => {
+            button.popup({
+              popup: template.$('#liveMeasurementsPopupBoxID-1'),
+              hoverable: true,
+              position: 'bottom left',
+              distanceAway: 5,
+              onShow: function () {
+                template.showPopup1.set(true);
+              },
+              onHide: function () {
+                template.showPopup1.set(false);
+              },
+            });
+          });
+
+      jQueryPromise('#liveMeasurementsButtonBoxID-2', 200, 10000, template)
+          .then(button => {
+            button.popup({
+              popup: template.$('#liveMeasurementsPopupBoxID-2'),
+              hoverable: true,
+              position: 'bottom left',
+              distanceAway: 5,
+              onShow: function () {
+                template.showPopup2.set(true);
+              },
+              onHide: function () {
+                template.showPopup2.set(false);
+              },
+            });
+          });
+
+      jQueryPromise('#liveMeasurementsButtonBoxID-3', 200, 10000, template)
+          .then(button => {
+            button.popup({
+              popup: template.$('#liveMeasurementsPopupBoxID-3'),
+              hoverable: true,
+              position: 'bottom left',
+              distanceAway: 5,
+              onShow: function () {
+                template.showPopup3.set(true);
+              },
+              onHide: function () {
+                template.showPopup3.set(false);
+              },
+            });
+          });
+
+      jQueryPromise('#liveMeasurementsButtonBoxID-4', 200, 10000, template)
+          .then(button => {
+            button.popup({
+              popup: template.$('#liveMeasurementsPopupBoxID-4'),
+              hoverable: true,
+              position: 'bottom left',
+              distanceAway: 5,
+              onShow: function () {
+                template.showPopup4.set(true);
+              },
+              onHide: function () {
+                template.showPopup4.set(false);
+              },
+            });
+          });
+
+      jQueryPromise('#liveMeasurementsButtonBoxID-5', 200, 10000, template)
+          .then(button => {
+            button.popup({
+              popup: template.$('#liveMeasurementsPopupBoxID-5'),
+              hoverable: true,
+              position: 'bottom left',
+              distanceAway: 5,
+              onShow: function () {
+                template.showPopup5.set(true);
+              },
+              onHide: function () {
+                template.showPopup5.set(false);
+              },
+            });
+          });
     }
   });
 });
@@ -211,10 +210,7 @@ Template.systemStatus.helpers({
   isBoxActive(boxID) {
     const onlineBoxIDs = Template.instance().onlineBoxIDs.get();
     if (onlineBoxIDs) {
-      console.log(onlineBoxIDs);
-      const result = !!onlineBoxIDs.find((id) => id === boxID);
-      console.log(result);
-      return result;
+      return !!onlineBoxIDs.find((id) => id === boxID);
     }
     return null;
   },

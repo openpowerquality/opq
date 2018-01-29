@@ -11,8 +11,23 @@ import '../form-controls/select-form-control.js';
 import '../../../../node_modules/flatpickr/dist/flatpickr.min.css';
 import { eventsCountMap, getMostRecentEvent } from '../../../api/events/EventsCollectionMethods.js';
 import { getBoxIDs } from '../../../api/opq-boxes/OpqBoxesCollectionMethods';
-import { filterFormSchema } from '../../../utils/schemas.js';
 import { ReactiveVarHelper } from '../../../modules/ReactiveVarHelper';
+
+// Schema this form uses to validate submission.
+export const filterFormSchema = new SimpleSchema({
+  minFrequency: { type: Number, optional: true },
+  maxFrequency: { type: Number, optional: true },
+  minVoltage: { type: Number, optional: true },
+  maxVoltage: { type: Number, optional: true },
+  minDuration: { type: Number, optional: true },
+  maxDuration: { type: Number, optional: true },
+  startTime: { type: Number, optional: true },
+  endTime: { type: Number, optional: true },
+  dayPicker: { type: Number, optional: true },
+  monthPicker: { type: Number, optional: true },
+  opqBoxPicker: { type: String, optional: true },
+  trendPicker: { type: String, optional: true },
+});
 
 Template.Filter_Form.onCreated(function () {
   const template = this;
