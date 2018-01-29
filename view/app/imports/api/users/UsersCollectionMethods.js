@@ -5,6 +5,13 @@ import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import { Roles } from 'meteor/alanning:roles';
 import { Users } from './UsersCollection';
 
+export const totalUsersCount = new ValidatedMethod({
+  name: 'Users.totalUsersCount',
+  validate: new SimpleSchema().validator({ clean: true }),
+  run() {
+    return Users.find({}).count();
+  },
+});
 
 export const createUser = new ValidatedMethod({
   name: 'Users.createUser',
