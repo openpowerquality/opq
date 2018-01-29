@@ -96,11 +96,12 @@ class MeasurementsCollection extends BaseCollection {
    */
   publish() { // eslint-disable-line class-methods-use-this
     if (Meteor.isServer) {
+      const self = this;
       Meteor.publish(this.publicationNames.RECENT_MEASUREMENTS, function (startTimeSecondsAgo, boxID) {
         check(startTimeSecondsAgo, Number);
         check(boxID, String);
 
-        const self = this;
+        const instance = this;
 
         const startTimeMs = Date.now() - (startTimeSecondsAgo * 1000);
         // eslint-disable-next-line max-len
@@ -112,20 +113,20 @@ class MeasurementsCollection extends BaseCollection {
         } : { timestamp_ms: { $gte: startTimeMs } };
 
         let init = true;
-        const measurementsHandle = this.find(selector, {
+        const measurementsHandle = self.find(selector, {
           fields: { _id: 1, timestamp_ms: 1, voltage: 1, frequency: 1, box_id: 1 },
           pollingIntervalMs: 1000,
         }).observeChanges({
           added: function (id, fields) {
             publishedMeasurementsMap.set(fields.timestamp_ms, id);
-            self.added('measurements', id, fields);
+            instance.added('measurements', id, fields);
 
             if (!init) {
               const startTime = Date.now() - (startTimeSecondsAgo * 1000);
               // Note: (_id, timestamp) corresponds to (value, key); for some reason Map's foreach is called this way.
               publishedMeasurementsMap.forEach((_id, timestamp) => {
                 if (timestamp < startTime) {
-                  self.removed('measurements', _id);
+                  instance.removed('measurements', _id);
                   publishedMeasurementsMap.delete(timestamp);
                 }
               });
@@ -133,8 +134,8 @@ class MeasurementsCollection extends BaseCollection {
           },
         });
         init = false;
-        self.ready();
-        self.onStop(function () {
+        instance.ready();
+        instance.onStop(function () {
           measurementsHandle.stop();
         });
       });
