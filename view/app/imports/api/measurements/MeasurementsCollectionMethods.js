@@ -29,6 +29,21 @@ export const checkBoxStatus = new ValidatedMethod({
   },
 });
 
+export const activeBoxIDs = new ValidatedMethod({
+  name: 'Measurements.activeBoxIDs',
+  validate: new SimpleSchema().validator({ clean: true }),
+  run() {
+    if (!this.isSimulation) {
+      const oneMinuteAgo = Moment().subtract(60, 'seconds').valueOf();
+      const measurements = Measurements.find({ timestamp_ms: { $gte: oneMinuteAgo } }).fetch();
+      if (measurements.length > 0) {
+        return _.uniq(_.pluck(measurements, 'box_id'));
+      }
+    }
+    return null;
+  },
+});
+
 export const getActiveBoxIds = new ValidatedMethod({
   name: 'Measurements.getActiveBoxIds',
   validate: new SimpleSchema({
