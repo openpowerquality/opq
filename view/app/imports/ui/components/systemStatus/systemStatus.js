@@ -113,7 +113,7 @@ Template.systemStatus.onRendered(function () {
   template.autorun(() => {
     const opqBoxStatus = template.opqBoxStatus.get();
     // const opqBoxIDs = template.opqBoxIDs.get();
-    if (opqBoxStatus && Object.keys(opqBoxStatus).length < 4) {
+    if (opqBoxStatus && Object.keys(opqBoxStatus).length > 4) {
       // opqBoxIDs.forEach(boxID => {
   jQueryPromise('#liveMeasurementsButtonBoxID-1', 200, 10000, template)
       .then(button => {
@@ -219,7 +219,9 @@ Template.systemStatus.helpers({
   },
   isBoxActive(boxID) {
     const boxStatus = Template.instance().opqBoxStatus.get();
-    if (boxStatus) {
+    if (boxStatus && Object.keys(boxStatus).length > 4) {
+      console.log(boxID);
+      console.log(boxStatus);
       console.log(typeof boxID);
       console.log(`boxID ${boxID} status num: `, boxStatus[Number(boxID)]);
       console.log(`boxID ${boxID} status str: `, boxStatus[boxID]);
