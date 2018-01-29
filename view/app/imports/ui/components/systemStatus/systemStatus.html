@@ -99,14 +99,51 @@
       </div>
     </div>
 
-    <div id="liveMeasurementsPopupBoxID-{{boxID}}" class="ui popup">
-      <div style="width: 750px">
-        {{#if (showPopup boxID)}}
-          {{> liveMeasurements opqBoxID=boxID}}
-        {{/if}}
-      </div>
-    </div>
+    <!--<div id="liveMeasurementsPopupBoxID-{{boxID}}" class="ui popup">-->
+      <!--<div style="width: 750px">-->
+        <!--{{#if (showPopup boxID)}}-->
+          <!--{{> liveMeasurements opqBoxID=boxID}}-->
+        <!--{{/if}}-->
+      <!--</div>-->
+    <!--</div>-->
 
     {{/each}}
   </div>
+
+  <div id="liveMeasurementsPopupBoxID-1" class="ui popup">
+    <div style="width: 750px">
+      {{#if showPopup1}}
+        {{> liveMeasurements opqBoxID='1'}}
+      {{/if}}
+    </div>
+  </div>
+  <div id="liveMeasurementsPopupBoxID-2" class="ui popup">
+    <div style="width: 750px">
+      {{#if showPopup2}}
+        {{> liveMeasurements opqBoxID='2'}}
+      {{/if}}
+    </div>
+  </div>
+  <div id="liveMeasurementsPopupBoxID-3" class="ui popup">
+    <div style="width: 750px">
+      {{#if showPopup3}}
+        {{> liveMeasurements opqBoxID='3'}}
+      {{/if}}
+    </div>
+  </div>
+  <div id="liveMeasurementsPopupBoxID-4" class="ui popup">
+    <div style="width: 750px">
+      {{#if showPopup4}}
+        {{> liveMeasurements opqBoxID='4'}}
+      {{/if}}
+    </div>
+  </div>
+  <div id="liveMeasurementsPopupBoxID-5" class="ui popup">
+    <div style="width: 750px">
+      {{#if showPopup5}}
+        {{> liveMeasurements opqBoxID='5'}}
+      {{/if}}
+    </div>
+  </div>
+
 </template>
