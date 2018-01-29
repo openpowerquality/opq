@@ -78,38 +78,16 @@ Template.systemStatus.onCreated(function () {
     }
   });
 
-  // Check OPQBox Status
-  template.activeBoxIDs = new ReactiveVar();
-  activeBoxIDs.call((error, boxIDs) => {
+  // Determine Live OpqBoxes
+  template.onlineBoxIDs = new ReactiveVar();
+  activeBoxIDs.call((error, onlineIDs) => {
     if (error) {
       console.log(error);
     } else {
-      console.log('method boxid: ', boxIDs);
-      template.activeBoxIDs.set(boxIDs);
+      console.log(onlineIDs);
+      template.onlineBoxIDs.set(onlineIDs);
     }
   });
-
-
-  //
-  // // Determine Live OpqBoxes
-  // template.opqBoxStatus = new ReactiveVar({});
-  // template.autorun(() => {
-  //   const opqBoxIDs = template.opqBoxIDs.get();
-  //   if (opqBoxIDs) {
-  //     const boxStatus = {};
-  //     opqBoxIDs.forEach(boxID => {
-  //       checkBoxStatus.call({ box_id: boxID }, (error, isOnline) => {
-  //         if (error) {
-  //           console.log(error);
-  //         } else {
-  //           console.log(boxID, isOnline);
-  //           boxStatus[boxID] = isOnline;
-  //         }
-  //       });
-  //     });
-  //     template.opqBoxStatus.set(boxStatus);
-  //   }
-  // });
 
   // Live Measurements
   template.showPopup1 = new ReactiveVar(false);
@@ -123,7 +101,8 @@ Template.systemStatus.onRendered(function () {
   const template = this;
 
   template.autorun(() => {
-    const boxIDs = template.activeBoxIDs.get();
+    const boxIDs = template.onlineBoxIDs.get();
+    // const opqBoxStatus = template.opqBoxStatus.get();
     if (boxIDs) {
       console.log('active box ids:', boxIDs);
       // opqBoxIDs.forEach(boxID => {
@@ -230,17 +209,14 @@ Template.systemStatus.helpers({
     return Template.instance().opqBoxIDs.get();
   },
   isBoxActive(boxID) {
-    const activeBoxIds = Template.instance().activeBoxIDs.get();
-    if (activeBoxIds) {
-      console.log(activeBoxIds);
-      const result = !!activeBoxIds.find((id) => id === boxID);
+    const onlineBoxIDs = Template.instance().onlineBoxIDs.get();
+    if (onlineBoxIDs) {
+      console.log(onlineBoxIDs);
+      const result = !!onlineBoxIDs.find((id) => id === boxID);
       console.log(result);
       return result;
-      // console.log(typeof boxID);
-      // console.log(`boxID ${boxID} status num: `, boxStatus[Number(boxID)]);
-      // console.log(`boxID ${boxID} status str: `, boxStatus[boxID]);
-      // return boxStatus[boxID];
     }
+    return null;
   },
   showPopup(boxID) {
     return Template.instance()[`showPopup${boxID}`].get();

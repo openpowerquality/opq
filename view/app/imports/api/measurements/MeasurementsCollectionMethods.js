@@ -22,8 +22,8 @@ export const checkBoxStatus = new ValidatedMethod({
   run({ box_id }) {
     if (!this.isSimulation) {
       const oneMinuteAgo = Moment().subtract(60, 'seconds').valueOf();
-      const measurements = Measurements.find({ box_id, timestamp_ms: { $gte: oneMinuteAgo } });
-      return !!measurements.count();
+      const measurements = Measurements.findOne({ box_id, timestamp_ms: { $gte: oneMinuteAgo } });
+      return !!measurements;
     }
     return null;
   },
@@ -37,7 +37,7 @@ export const activeBoxIDs = new ValidatedMethod({
       const oneMinuteAgo = Moment().subtract(60, 'seconds').valueOf();
       const measurements = Measurements.find({ timestamp_ms: { $gte: oneMinuteAgo } }).fetch();
       if (measurements.length > 0) {
-        return _.uniq(_.pluck(measurements, 'box_id'));
+        return _.uniq(_.map(measurements, 'box_id'));
       }
     }
     return null;
