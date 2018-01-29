@@ -79,8 +79,32 @@ Template.systemStatus.onCreated(function () {
     }
   });
 
+  // Determine Live OpqBoxes
+  template.opqBoxStatus = new ReactiveVar({});
+  template.autorun(() => {
+    const opqBoxIDs = template.opqBoxIDs.get();
+    if (opqBoxIDs) {
+      opqBoxIDs.forEach(boxID => {
+        checkBoxStatus.call({ box_id: boxID }, (error, isOnline) => {
+          if (error) {
+            console.log(error);
+          } else {
+            console.log(boxID, isOnline);
+            const boxStatus = template.opqBoxStatus.get();
+            boxStatus[boxID] = isOnline;
+            template.opqBoxStatus.set(boxStatus);
+          }
+        });
+      });
+    }
+  });
+
   // Live Measurements
-  template.showPopup = new ReactiveVar(false);
+  template.showPopup1 = new ReactiveVar(false);
+  template.showPopup2 = new ReactiveVar(false);
+  template.showPopup3 = new ReactiveVar(false);
+  template.showPopup4 = new ReactiveVar(false);
+  template.showPopup5 = new ReactiveVar(false);
 });
 
 Template.systemStatus.onRendered(function () {
@@ -89,23 +113,83 @@ Template.systemStatus.onRendered(function () {
   template.autorun(() => {
     const opqBoxIDs = template.opqBoxIDs.get();
     if (opqBoxIDs) {
-      opqBoxIDs.forEach(boxID => {
-        jQueryPromise(`#liveMeasurementsButtonBoxID-${boxID}`, 100, 3000, template)
-            .then(button => {
-              button.popup({
-                popup: template.$(`#liveMeasurementsPopupBoxID-${boxID}`),
-                hoverable: true,
-                position: 'bottom left',
-                distanceAway: 5,
-                onShow: function () {
-                  template.showPopup.set(true);
-                },
-                onHide: function () {
-                  template.showPopup.set(false);
-                },
-              });
-            });
+  //     opqBoxIDs.forEach(boxID => {
+  jQueryPromise('#liveMeasurementsButtonBoxID-1', 100, 3000, template)
+      .then(button => {
+        button.popup({
+          popup: template.$('#liveMeasurementsPopupBoxID-1'),
+          hoverable: true,
+          position: 'bottom left',
+          distanceAway: 5,
+          onShow: function () {
+            template.showPopup1.set(true);
+          },
+          onHide: function () {
+            template.showPopup1.set(false);
+          },
+        });
       });
+  jQueryPromise('#liveMeasurementsButtonBoxID-2', 100, 3000, template)
+      .then(button => {
+        button.popup({
+          popup: template.$('#liveMeasurementsPopupBoxID-2'),
+          hoverable: true,
+          position: 'bottom left',
+          distanceAway: 5,
+          onShow: function () {
+            template.showPopup2.set(true);
+          },
+          onHide: function () {
+            template.showPopup2.set(false);
+          },
+        });
+      });
+  jQueryPromise('#liveMeasurementsButtonBoxID-3', 100, 3000, template)
+      .then(button => {
+        button.popup({
+          popup: template.$('#liveMeasurementsPopupBoxID-3'),
+          hoverable: true,
+          position: 'bottom left',
+          distanceAway: 5,
+          onShow: function () {
+            template.showPopup3.set(true);
+          },
+          onHide: function () {
+            template.showPopup3.set(false);
+          },
+        });
+      });
+  jQueryPromise('#liveMeasurementsButtonBoxID-4', 100, 3000, template)
+      .then(button => {
+        button.popup({
+          popup: template.$('#liveMeasurementsPopupBoxID-4'),
+          hoverable: true,
+          position: 'bottom left',
+          distanceAway: 5,
+          onShow: function () {
+            template.showPopup4.set(true);
+          },
+          onHide: function () {
+            template.showPopup4.set(false);
+          },
+        });
+      });
+  jQueryPromise('#liveMeasurementsButtonBoxID-5', 100, 3000, template)
+      .then(button => {
+        button.popup({
+          popup: template.$('#liveMeasurementsPopupBoxID-5'),
+          hoverable: true,
+          position: 'bottom left',
+          distanceAway: 5,
+          onShow: function () {
+            template.showPopup5.set(true);
+          },
+          onHide: function () {
+            template.showPopup5.set(false);
+          },
+        });
+      });
+  //     });
     }
   });
 });
@@ -133,16 +217,27 @@ Template.systemStatus.helpers({
     return Template.instance().opqBoxIDs.get();
   },
   isBoxActive(boxID) {
-    checkBoxStatus.call({ box_id: boxID }, (error, isOnline) => {
-      if (error) {
-        console.log(error);
-      } else {
-        console.log(boxID, isOnline);
-        return isOnline;
-      }
-    });
+    const boxStatus = Template.instance().opqBoxStatus.get();
+    if (boxStatus) {
+      console.log(typeof boxID);
+      console.log(`boxID ${boxID} status num: `, boxStatus[Number(boxID)]);
+      console.log(`boxID ${boxID} status str: `, boxStatus[boxID]);
+      return boxStatus[boxID];
+    }
   },
-  showPopup() {
-    return Template.instance().showPopup.get();
+  showPopup1() {
+    return Template.instance().showPopup1.get();
+  },
+  showPopup2() {
+    return Template.instance().showPopup2.get();
+  },
+  showPopup3() {
+    return Template.instance().showPopup3.get();
+  },
+  showPopup4() {
+    return Template.instance().showPopup4.get();
+  },
+  showPopup5() {
+    return Template.instance().showPopup5.get();
   },
 });
