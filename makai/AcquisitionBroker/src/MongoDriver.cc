@@ -100,7 +100,7 @@ bool MongoDriver::create_event(opq::proto::RequestEventMessage &m, uint64_t ts, 
         auto result = _event_collection.insert_one(doc_value.view());
     }
     catch(const mongocxx::write_exception &e){
-        syslog(LOG_WARNING, ("Could not create an event: " + std::string(e.what())).c_str() );
+        syslog(LOG_WARNING, "%s", ("Could not create an event: " + std::string(e.what())).c_str() );
     }
 }
 
@@ -122,7 +122,7 @@ bool MongoDriver::append_data_to_event(std::vector<opq::proto::DataMessage> &mes
                                              << finalize);
     }
     catch (const mongocxx::write_exception &e) {
-        syslog(LOG_WARNING, ("Could not create an event: " + std::string(e.what())).c_str() );
+        syslog(LOG_WARNING, "%s", ("Could not create an event: " + std::string(e.what())).c_str() );
     }
 
     string data_file = "event_" + std::to_string(event_num) + "_" + std::to_string(id);
@@ -161,7 +161,7 @@ bool MongoDriver::append_data_to_event(std::vector<opq::proto::DataMessage> &mes
         }
     }
     catch (const mongocxx::query_exception &e) {
-        syslog(LOG_WARNING, ("Could not find location: " + std::string(e.what())).c_str() );
+        syslog(LOG_WARNING, "%s", ("Could not find location: " + std::string(e.what())).c_str() );
     }
 
     bsoncxx::document::value doc_value = builder << finalize;
@@ -170,7 +170,7 @@ bool MongoDriver::append_data_to_event(std::vector<opq::proto::DataMessage> &mes
         auto result = _data_collection.insert_one(doc_value.view());
     }
     catch (const mongocxx::write_exception &e) {
-        syslog(LOG_WARNING, ("Could not create an event: " + std::string(e.what())).c_str() );
+        syslog(LOG_WARNING, "%s", ("Could not create an event: " + std::string(e.what())).c_str() );
     }
 
     auto uploader = _bucket.open_upload_stream(data_file);

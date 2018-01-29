@@ -22,7 +22,7 @@ auto load_certificate( string const& path ) -> pair<string, string>;
 int main (int argc, char **argv) {
     setlogmask (LOG_UPTO (LOG_NOTICE));
     openlog ("TriggeringBroker", LOG_CONS | LOG_PID | LOG_NDELAY, LOG_LOCAL1);
-    syslog(LOG_NOTICE, "Parsing config.");
+    syslog(LOG_NOTICE,  "Parsing config.");
     auto config = argc == 1 ? Config{} : Config{ argv[1] };
 
     //Load our certificate. Make sure we gor both public and private keys.
@@ -31,7 +31,7 @@ int main (int argc, char **argv) {
 	    syslog(LOG_ERR, "Could not load Certificates");
     }
 
-    syslog(LOG_NOTICE, ("server public key " +  server_cert.first).c_str());
+    syslog(LOG_NOTICE, "%s", ("server public key " +  server_cert.first).c_str());
 
     fs::path client_certs(config.publicCerts());
     assert(fs::is_directory(client_certs));
@@ -47,7 +47,7 @@ int main (int argc, char **argv) {
         count++;
         cout << ".";
     }
-    syslog(LOG_NOTICE, ("Loaded " + std::to_string(count) + " keys").c_str());
+    syslog(LOG_NOTICE, "%s", ("Loaded " + std::to_string(count) + " keys").c_str());
 
     //Unencrypted end.
     auto front = zmqpp::socket{ ctx, zmqpp::socket_type::xpublish };

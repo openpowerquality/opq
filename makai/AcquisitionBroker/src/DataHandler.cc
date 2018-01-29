@@ -40,7 +40,7 @@ void DataHandler::handle_data_loop() {
 
         if(header.type() == header.RESP) {
             std::vector<opq::proto::DataMessage> messages;
-            syslog(LOG_NOTICE, ("Event " + std::to_string(sequence_number) + ": Received data from box "  + std::to_string(header.boxid()) + " with " + std::to_string((int)zm.parts() -1) + " parts").c_str() );
+            syslog(LOG_NOTICE, "%s",  ("Event " + std::to_string(sequence_number) + ": Received data from box "  + std::to_string(header.boxid()) + " with " + std::to_string((int)zm.parts() -1) + " parts").c_str() );
             //Push every part of the message except for the header to redis.
             for (size_t i = 1; i < zm.parts(); i++) {
                 opq::proto::DataMessage m;
