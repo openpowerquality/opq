@@ -1,12 +1,51 @@
 import { Mongo } from 'meteor/mongo';
 import _ from 'lodash';
+import Moment from 'moment';
 import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import { Measurements } from './MeasurementsCollection.js';
 import { Events } from '../events/EventsCollection.js';
 
-export const getActiveDeviceIdsVM = new ValidatedMethod({
-  name: 'Measurements.getActiveDeviceIds',
+export const totalMeasurementsCount = new ValidatedMethod({
+  name: 'Measurements.totalMeasurementsCount',
+  validate: new SimpleSchema().validator({ clean: true }),
+  run() {
+    return Measurements.find({}).count();
+  },
+});
+
+export const checkBoxStatus = new ValidatedMethod({
+  name: 'Measurements.checkBoxStatus',
+  validate: new SimpleSchema({
+    box_id: { type: String },
+  }).validator({ clean: true }),
+  run({ box_id }) {
+    if (!this.isSimulation) {
+      const oneMinuteAgo = Moment().subtract(60, 'seconds').valueOf();
+      const measurements = Measurements.findOne({ box_id, timestamp_ms: { $gte: oneMinuteAgo } });
+      return !!measurements;
+    }
+    return null;
+  },
+});
+
+export const activeBoxIDs = new ValidatedMethod({
+  name: 'Measurements.activeBoxIDs',
+  validate: new SimpleSchema().validator({ clean: true }),
+  run() {
+    if (!this.isSimulation) {
+      const oneMinuteAgo = Moment().subtract(60, 'seconds').valueOf();
+      const measurements = Measurements.find({ timestamp_ms: { $gte: oneMinuteAgo } }).fetch();
+      if (measurements.length > 0) {
+        return _.uniq(_.map(measurements, 'box_id'));
+      }
+    }
+    return null;
+  },
+});
+
+export const getActiveBoxIds = new ValidatedMethod({
+  name: 'Measurements.getActiveBoxIds',
   validate: new SimpleSchema({
     startTimeMs: { type: Number },
   }).validator({ clean: true }),
@@ -14,12 +53,12 @@ export const getActiveDeviceIdsVM = new ValidatedMethod({
     const recentMeasurements = Measurements.find({
       timestamp_ms: { $gte: startTimeMs },
     }, {
-      fields: { device_id: 1 },
+      fields: { box_id: 1 },
     }).fetch();
 
     // Returns an array of unique deviceIds, sorted asc.
     return (recentMeasurements.length > 0)
-        ? _.uniq(_.pluck(recentMeasurements, 'device_id')).sort((a, b) => a - b)
+        ? _.uniq(_.pluck(recentMeasurements, 'box_id')).sort((a, b) => a - b)
         : null;
   },
 });
@@ -34,7 +73,7 @@ export const getEventMeasurementsByMetaDataId = new ValidatedMethod({
       const eventMetaData = Events.findOne({ _id: eventMetaDataId });
 
       const eventMeasurements = Measurements.find({
-        device_id: eventMetaData.boxes_triggered[0], // Just look at first triggering device for now.
+        box_id: eventMetaData.boxes_triggered[0], // Just look at first triggering device for now.
         timestamp_ms: { $gte: eventMetaData.event_start, $lte: eventMetaData.event_end },
       }, {
         sort: { event_end: 1 },
@@ -49,12 +88,12 @@ export const getEventMeasurementsByMetaDataId = new ValidatedMethod({
       const proceedingTimestamp = eventMetaData.event_end + (eventDurationMs * 0.2);
 
       const precedingMeasurements = Measurements.find({
-        device_id: eventMetaData.boxes_triggered[0],
+        box_id: eventMetaData.boxes_triggered[0],
         timestamp_ms: { $gte: precedingTimestamp, $lte: firstMeasurementTimestamp },
       }, {}).fetch();
 
       const proceedingMeasurements = Measurements.find({
-        device_id: eventMetaData.boxes_triggered[0],
+        box_id: eventMetaData.boxes_triggered[0],
         timestamp_ms: { $gte: lastMeasurementTimestamp, $lte: proceedingTimestamp },
       }, {}).fetch();
 
@@ -68,17 +107,18 @@ export const getEventMeasurementsByMetaDataId = new ValidatedMethod({
 export const getEventMeasurements = new ValidatedMethod({
   name: 'Measurements.getEventMeasurements',
   validate: new SimpleSchema({
-    device_id: { type: Number, optional: true }, // Get rid of optional later.
+    box_id: { type: Number, optional: true }, // Get rid of optional later.
     startTime: { type: Number, optional: true },
     endTime: { type: Number, optional: true },
   }).validator({ clean: true }),
-  run({ device_id, startTime, endTime }) {
+  run({ box_id, startTime, endTime }) {
     if (!this.isSimulation) {
+      console.log(box_id, startTime, endTime);
       const eventMeasurements = Measurements.find({
-        device_id,
+        box_id,
         timestamp_ms: { $gte: startTime, $lte: endTime },
       }, {
-        sort: { event_end: 1 },
+        sort: { timestamp_ms: 1 },
       }).fetch();
 
       const firstMeasurementTimestamp = eventMeasurements[0].timestamp_ms;
@@ -90,12 +130,12 @@ export const getEventMeasurements = new ValidatedMethod({
       const proceedingTimestamp = endTime + (duration * 15.0);
 
       const precedingMeasurements = Measurements.find({
-        device_id,
+        box_id,
         timestamp_ms: { $gte: precedingTimestamp, $lte: firstMeasurementTimestamp },
       }, {}).fetch();
 
       const proceedingMeasurements = Measurements.find({
-        device_id,
+        box_id,
         timestamp_ms: { $gte: lastMeasurementTimestamp, $lte: proceedingTimestamp },
       }, {}).fetch();
 

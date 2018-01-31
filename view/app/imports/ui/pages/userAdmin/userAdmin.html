@@ -1,4 +1,4 @@
-<template name="userAdmin">
+<template name="User_Admin_Page">
   <div class="ui padded grid" style="margin-top: 20px;">
     <div class="sixteen wide column">
       <h1 class="ui header">Settings</h1>
@@ -37,18 +37,23 @@
     <div class="six wide column">
       <div class="ui segment">
         <form id="userForm" class="ui {{#if hasFormError}}error{{/if}} form">
-          {{> Text_Form_Control id="firstName" name="firstName" label="First Name" value=(userDataField 'firstName') errorMessage=(fieldError "firstName")}}
-          {{> Text_Form_Control id="lastName" name="lastName" label="Last Name" value=(userDataField 'lastName') errorMessage=(fieldError "lastName")}}
+          {{> Text_Form_Control id="firstName" name="firstName" label="First Name" value=(userDataField 'first_name') errorMessage=(fieldError "firstName")}}
+          {{> Text_Form_Control id="lastName" name="lastName" label="Last Name" value=(userDataField 'last_name') errorMessage=(fieldError "lastName")}}
           {{> Text_Form_Control id="email" name="email" label="E-Mail" value=(userDataField 'email') errorMessage=(fieldError "email")}}
           {{> Text_Form_Control id="password" name="password" label="Password" isPasswordField=true errorMessage=(fieldError "password")}}
           {{> Text_Form_Control id="newPassword" name="newPassword" label="New Password" isPasswordField=true errorMessage=(fieldError "newPassword")}}
           {{> Text_Form_Control id="confirmNewPassword" name="confirmNewPassword" label="Confirm New Password" isPasswordField=true errorMessage=(fieldError "confirmNewPassword")}}
-          {{> Hidden_Field id="userId" name="userId" value=(userDataField 'userId')}}
+          {{> Hidden_Field id="userID" name="userID" value=(userDataField '_id')}}
           <button class="ui button" type="submit">Update</button>
         </form>
         {{#if formSubmissionErrors}}
           <div class="ui error message">
             <p>{{formSubmissionErrors}}</p>
+          </div>
+        {{/if}}
+        {{#if getFormSuccessMessage}}
+          <div class="ui success message">
+            <p>{{getFormSuccessMessage}}</p>
           </div>
         {{/if}}
       </div>

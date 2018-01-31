@@ -3,10 +3,10 @@ import { ReactiveVar } from 'meteor/reactive-var';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import Chartjs from 'chart.js';
 import Moment from 'moment';
-import { Random } from 'meteor/random';
-import { EventMetaData } from '../../../api/events/EventsCollection.js';
-import { filterFormSchema } from '../../../utils/schemas.js';
+import { Events } from '../../../api/events/EventsCollection';
+import { filterFormSchema } from '../filterForm/filterForm.js';
 import { dataContextValidator } from '../../../utils/utils.js';
+import { ReactiveVarHelper } from '../../../modules/ReactiveVarHelper';
 
 // Templates and Sub-Template Inclusions
 import './eventCountChart.html';
@@ -15,21 +15,18 @@ import './eventCountChart.html';
 Template.eventCountChart.onCreated(function () {
   const template = this;
 
+  // Validate data context
   dataContextValidator(template, new SimpleSchema({
     filters: { type: filterFormSchema, optional: true }, // Optional because data context not available immediately.
+    filtersRV: { type: ReactiveVarHelper },
   }), null);
 
   template.eventCountChart = null;
-  template.currentDay = new ReactiveVar();
+  template.currentDay = new ReactiveVar(Moment().valueOf()); // Default day is current day.
 
-  // Set currentDay reactive var.
-  template.autorun(() => {
-    const dataContext = Template.currentData();
-    if (dataContext && dataContext.filters) {
-      template.currentDay.set(dataContext.filters.dayPicker);
-    } else {
-      template.currentDay.set(Moment().valueOf());
-    }
+  // Register callback to update currently set day whenever it's set from the filter form.
+  template.data.filtersRV.onChange(newFilters => {
+    template.currentDay.set(newFilters.dayPicker);
   });
 
   // Subscription
@@ -38,7 +35,7 @@ Template.eventCountChart.onCreated(function () {
     if (currentDay) {
       const startOfDay = Moment(currentDay).startOf('day').valueOf(); // Ensure selected day is start of day timestamp.
       const endOfDay = Moment(currentDay).endOf('day').valueOf();
-      template.subscribe(EventMetaData.publicationNames.GET_EVENT_META_DATA, {
+      template.subscribe(Events.publicationNames.GET_EVENTS, {
         startTime: startOfDay,
         endTime: endOfDay,
       });
@@ -53,32 +50,25 @@ Template.eventCountChart.onRendered(function () {
   template.autorun(() => {
     // Ignore the 24th hour so it doesn't get grouped with the current hour.
     const currentDay = template.currentDay.get();
-    if (currentDay) {
+    if (currentDay && template.subscriptionsReady()) {
       const startOfDay = Moment(currentDay).startOf('day').valueOf(); // Ensure selected day is start of day timestamp.
       const endOfDay = Moment(currentDay).endOf('day').valueOf();
-      const eventMetaDataSelector = EventMetaData.queryConstructors().getEventMetaData({
+      const eventsSelector = Events.queryConstructors().getEvents({
         startTime: startOfDay,
         endTime: endOfDay,
       });
-      const eventMetaData = EventMetaData.find(eventMetaDataSelector, { sort: { event_end: -1 } });
+      const events = Events.find(eventsSelector, { sort: { target_event_start_timestamp_ms: -1 } });
 
-      // Calculate labels. Floor of current hour, then get last 23 hours.
-      const currHour = new Date().getHours();
+      // Calculate labels - hours of the day (0-23)
       const hours = [];
       for (let i = 0; i < 24; i++) {
-        const hour = currHour - i;
-        if (hour < 0) {
-          hours.push(24 + hour);
-        } else {
-          hours.push(hour);
-        }
+        hours.push(i);
       }
-      hours.reverse(); // Reverse array in-place, so that most recent hour is at the end of the array.
 
       // Count events. Place into 1 hour groups per deviceId.
       const eventCountMap = {};
-      eventMetaData.forEach(event => {
-        const hour = new Date(event.event_end).getHours();
+      events.forEach(event => {
+        const hour = new Date(event.target_event_start_timestamp_ms).getHours();
 
         // Note that we are only counting the initial triggering device so that our event count matches the calendar
         // count. If we later decide to count all boxes_triggered per event, just uncomment the forEach block below.
@@ -99,12 +89,16 @@ Template.eventCountChart.onRendered(function () {
       });
 
       // Create dataset
-      const colors = ['rgb(167,197,189)', 'rgb(229,221,203)', 'rgb(235,123,89)', 'rgb(207,70,71)', 'rgb(82,70,86)'];
+      // eslint-disable-next-line max-len
+      const colors = ['rgb(167,197,189)', 'rgb(229,221,203)', 'rgb(235,123,89)', 'rgb(207,70,71)', 'rgb(82,70,86)', 'rgb(0,214,144)'];
       const chartDatasets = [];
       Object.keys(eventCountMap).forEach(deviceId => {
+        const randomColorIndex = Math.floor(Math.random() * (((colors.length - 1) - 0) + 0));
+        const randomColor = colors.splice(randomColorIndex, 1); // Remove selected color from array.
         const dataset = {};
         dataset.label = `Device ${deviceId}`;
-        dataset.backgroundColor = Random.choice(colors);
+        // dataset.backgroundColor = Random.choice(colors);
+        dataset.backgroundColor = randomColor.pop(); // Only 1 elem in spliced array, so we pop it.
         dataset.data = hours.map(hour => eventCountMap[deviceId][hour]);
         chartDatasets.push(dataset);
       });

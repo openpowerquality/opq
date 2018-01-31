@@ -32,5 +32,5 @@ set(SOURCE_FILES
 
 add_executable(AcquisitionBroker ${SOURCE_FILES})
 
-target_link_libraries(AcquisitionBroker zmq zmqpp stdc++fs protobuf pthread redox hiredis ev
+target_link_libraries(AcquisitionBroker zmq zmqpp stdc++fs protobuf pthread 
         ${LIBMONGOCXX_LIBRARIES} ${LIBBSONCXX_LIBRARIES})

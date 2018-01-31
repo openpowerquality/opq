@@ -1,7 +1,5 @@
 #include <iostream>
-
 #include <memory>
-
 #include <experimental/filesystem>
 #include <MongoDriver.h>
 #include "zmqpp/zmqpp.hpp"
@@ -9,24 +7,28 @@
 #include "DataHandler.h"
 #include "RequestHandler.h"
 #include "util.h"
-#include "config.h"
-namespace fs = std::experimental::filesystem;
+#include <syslog.h>
 
 using namespace std;
 
+namespace fs = std::experimental::filesystem;
+
+
 int main(int argc, char **argv) {
-    cout << "Parsing config." << endl;
+    setlogmask (LOG_UPTO (LOG_NOTICE));
+    openlog ("AcquisitionBroker", LOG_CONS | LOG_PID | LOG_NDELAY, LOG_LOCAL1);
+    syslog(LOG_NOTICE, "%s",  "Parsing config.");
     Config config = argc == 1 ? Config{} : Config{argv[1]};
     //Load our certificate. Make sure we gor both public and private keys.
 
     auto server_cert = load_certificate(config.private_cert);
-    cout << "server public key " << server_cert.first << endl;
-    cout << "Starting Acquisition broker." << endl;
+    syslog(LOG_NOTICE, "%s",  ("server public key " +  server_cert.first).c_str());
     //Make sure that there is a certificate directory.
     fs::path client_certs(config.public_certs);
 
     if(!fs::is_directory(client_certs)){
         cout << "Could not load settings" << endl;
+        syslog(LOG_ERR, "Could not load settings");
         return -1;
     }
 
@@ -36,7 +38,7 @@ int main(int argc, char **argv) {
     //Create a zmq context and auth
     auto ctx = zmqpp::context();
     zmqpp::auth auth{ctx};
-    //auth.set_verbose(true);
+    auth.set_verbose(false);
     auth.configure_domain("*");
 
     int count = 0;
@@ -47,14 +49,13 @@ int main(int argc, char **argv) {
             //configure auth to accept client
             auth.configure_curve(client_public_cert);
             count++;
-            cout << ".";
         }
     }
     catch(runtime_error &e){
         cout << e.what() << endl;
         return -1;
     }
-    cout << endl << "Loaded " << count<< " keys"<< endl;
+    syslog(LOG_NOTICE, "%s",  ("Loaded " + std::to_string(count) + " keys").c_str());
 
     //Create a data handler object and
     DataHandler data_handler(config, ctx);
@@ -63,9 +64,9 @@ int main(int argc, char **argv) {
 
     //Create a request handler object
     RequestHandler request_handler(config, ctx);
-
     //Run the event loop.
     request_handler.handle_request_loop();
+    closelog ();
     return 0;
 }
 

@@ -19,9 +19,11 @@ function loadDatabase() {
 
 Meteor.startup(() => {
   loadDatabase();
-  const result = initIntegrityChecks();
-  console.log(result.messages); // eslint-disable-line no-console
-  console.log(result.resultStats); // eslint-disable-line no-console
+  if (Meteor.settings.public.enableStartupIntegrityCheck) {
+    const result = initIntegrityChecks();
+    console.log(result.messages); // eslint-disable-line no-console
+    console.log(result.resultStats); // eslint-disable-line no-console
+  }
 
   // dumpByEventNumber(9356);
   // eventsBetween(1508752800000, 1508839200000);

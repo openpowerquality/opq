@@ -1,9 +1,10 @@
 import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
-import { FSFiles, FSChunks } from './EventDataFSCollection.js';
+import { FSFiles } from './FSFilesCollection';
+import { FSChunks } from '../fs-chunks/FSChunksCollection';
 
-export const getEventDataFSData = new ValidatedMethod({
-  name: 'EventDataFS.getEventDataFSData',
+export const getEventData = new ValidatedMethod({
+  name: 'FSFiles.getEventData',
   validate: new SimpleSchema({
     filename: { type: String },
   }).validator({ clean: true }),

@@ -1,0 +1,143 @@
+<template name="systemStatus">
+  <div class="ui three statistics">
+    <div class="ui mini blue statistic">
+      <div class="value">{{totalEventsCount}}</div>
+      <div class="label">Total Events</div>
+    </div>
+    <div class="ui mini blue statistic">
+      <div class="value">{{totalBoxEventsCounts}}</div>
+      <div class="label">Total Box Events</div>
+    </div>
+    <div class="ui mini blue statistic">
+      <div class="value">{{totalOpqBoxesCounts}}</div>
+      <div class="label">Total OPQ Boxes</div>
+    </div>
+  </div>
+
+  <div class="ui three blue statistics" style="margin-top: 20px;">
+    <div class="ui mini statistic">
+      <div class="value">{{totalMeasurementsCounts}}</div>
+      <div class="label">Total Measurements</div>
+    </div>
+    <div class="ui mini blue statistic">
+      <div class="value">{{totalTrendsCount}}</div>
+      <div class="label">Total Trends</div>
+    </div>
+    <div class="ui mini blue statistic">
+      <div class="value">{{totalUsersCount}}</div>
+      <div class="label">Total Users</div>
+    </div>
+  </div>
+
+
+  <div class="ui two column grid">
+    {{#each boxID in opqBoxIDs}}
+    <div class="column">
+      <div class="ui fluid card">
+        <div class="content">
+          <div class="ui divided grid">
+            <div class="six wide center aligned column" style="background: #f7f7f7;">
+              <div class="ui statistic" style="margin-top: 10px;">
+                <div class="value">
+                  {{boxID}}
+                </div>
+                <div class="label">
+                  OPQ Box
+                </div>
+              </div>
+            </div>
+            <div class="ten wide column">
+              <div class="ui vertically divided grid">
+                <div class="row no-padding-bottom">
+                  <div class="sixteen wide column">
+                    <div class="ui grid">
+                      <div class="sixteen wide center aligned column">
+                        {{#if (isBoxActive boxID)}}
+                          <div class="ui mini green statistic">
+                            <div class="value">
+                                <i class="long arrow up icon"></i> ONLINE
+                            </div>
+                            <div class="label">
+                              Status
+                            </div>
+                          </div>
+                        {{else}}
+                          <div class="ui mini red statistic">
+                            <div class="value">
+                              <i class="long arrow down icon"></i> OFFLINE
+                            </div>
+                            <div class="label">
+                              Status
+                            </div>
+                          </div>
+                        {{/if}}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="row no-padding-top no-padding-bottom">
+                  <div class="sixteen wide column">
+                    <div class="ui grid">
+                      <div class="sixteen wide center aligned column">
+                        <button id="liveMeasurementsButtonBoxID-{{boxID}}" class="ui icon {{#if (isBoxActive boxID)}}green{{else}}red{{/if}} button">
+                          Live Measurements <i class="arrow right icon"></i>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!--<div id="liveMeasurementsPopupBoxID-{{boxID}}" class="ui popup">-->
+      <!--<div style="width: 750px">-->
+        <!--{{#if (showPopup boxID)}}-->
+          <!--{{> liveMeasurements opqBoxID=boxID}}-->
+        <!--{{/if}}-->
+      <!--</div>-->
+    <!--</div>-->
+
+    {{/each}}
+  </div>
+
+  <div id="liveMeasurementsPopupBoxID-1" class="ui popup">
+    <div style="width: 750px">
+      {{#if showPopup1}}
+        {{> liveMeasurements opqBoxID='1'}}
+      {{/if}}
+    </div>
+  </div>
+  <div id="liveMeasurementsPopupBoxID-2" class="ui popup">
+    <div style="width: 750px">
+      {{#if showPopup2}}
+        {{> liveMeasurements opqBoxID='2'}}
+      {{/if}}
+    </div>
+  </div>
+  <div id="liveMeasurementsPopupBoxID-3" class="ui popup">
+    <div style="width: 750px">
+      {{#if showPopup3}}
+        {{> liveMeasurements opqBoxID='3'}}
+      {{/if}}
+    </div>
+  </div>
+  <div id="liveMeasurementsPopupBoxID-4" class="ui popup">
+    <div style="width: 750px">
+      {{#if showPopup4}}
+        {{> liveMeasurements opqBoxID='4'}}
+      {{/if}}
+    </div>
+  </div>
+  <div id="liveMeasurementsPopupBoxID-5" class="ui popup">
+    <div style="width: 750px">
+      {{#if showPopup5}}
+        {{> liveMeasurements opqBoxID='5'}}
+      {{/if}}
+    </div>
+  </div>
+
+</template>

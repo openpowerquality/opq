@@ -7,13 +7,31 @@ import Moment from 'moment';
 import { colorQuantify, dataContextValidator, timeUnitString } from '../../../utils/utils.js';
 import './filterForm.html';
 import '../form-controls/text-form-control.html';
+import '../form-controls/select-form-control.js';
 import '../../../../node_modules/flatpickr/dist/flatpickr.min.css';
-// import { boxEventsCountMap } from '../../../api/boxEvent/BoxEventCollectionMethods.js';
-import { eventMetaDataCountMap, getMostRecentEventMetaData } from '../../../api/events/EventsCollectionMethods.js';
-import { filterFormSchema } from '../../../utils/schemas.js';
+import { eventsCountMap, getMostRecentEvent } from '../../../api/events/EventsCollectionMethods.js';
+import { getBoxIDs } from '../../../api/opq-boxes/OpqBoxesCollectionMethods';
+import { ReactiveVarHelper } from '../../../modules/ReactiveVarHelper';
+
+// Schema this form uses to validate submission.
+export const filterFormSchema = new SimpleSchema({
+  minFrequency: { type: Number, optional: true },
+  maxFrequency: { type: Number, optional: true },
+  minVoltage: { type: Number, optional: true },
+  maxVoltage: { type: Number, optional: true },
+  minDuration: { type: Number, optional: true },
+  maxDuration: { type: Number, optional: true },
+  startTime: { type: Number, optional: true },
+  endTime: { type: Number, optional: true },
+  dayPicker: { type: Number, optional: true },
+  monthPicker: { type: Number, optional: true },
+  opqBoxPicker: { type: String, optional: true },
+  trendPicker: { type: String, optional: true },
+});
 
 Template.Filter_Form.onCreated(function () {
   const template = this;
+  const dataContext = template.data;
 
   // Validate data context.
   dataContextValidator(template, new SimpleSchema({
@@ -23,14 +41,41 @@ Template.Filter_Form.onCreated(function () {
     itic: { type: Boolean, optional: true },
     timeInterval: { type: Boolean, optional: true },
     dayPicker: { type: Boolean, optional: true },
-    filterSource: { type: ReactiveVar },
-  }), null);
+    monthPicker: { type: Boolean, optional: true },
+    opqBoxPicker: { type: Boolean, optional: true },
+    trendPicker: { type: Boolean, optional: true },
+    filtersRV: { type: ReactiveVarHelper },
+  }));
 
-  // Attach data context to template.
+  // Attach filtersRV data context to template.
+  template.filtersRV = template.data.filtersRV;
+
+  // Keep track of selected opq box for OpqBoxPicker
+  if (dataContext.opqBoxPicker) {
+    template.selectedOpqBox = new ReactiveVar();
+  }
+  // Keep track of selected trend for TrendPicker
+  if (dataContext.trendPicker) {
+    template.selectedTrend = new ReactiveVar();
+  }
+
+  // Check for default values, if any.
   template.autorun(() => {
-    const dataContext = Template.currentData();
-    template.filterSource = (dataContext.filterSource) ? dataContext.filterSource : null;
+    const filters = template.filtersRV.get();
+    if (filters) {
+      if (filters.opqBoxPicker && !template.defaultOpqBoxPicker) {
+        template.defaultOpqBoxPicker = filters.opqBoxPicker;
+        template.selectedOpqBox.set(template.defaultOpqBoxPicker);
+      }
+      if (filters.trendPicker) {
+        template.selectedTrend.set(filters.trendPicker);
+      }
+    }
   });
+
+
+  // List of all OpqBox IDs for the OpqBoxPicker selection options.
+  template.opqBoxIDs = new ReactiveVar();
 
   // Form Validation Context
   template.validationContext = filterFormSchema.namedContext('Filter_Form');
@@ -41,71 +86,109 @@ Template.Filter_Form.onCreated(function () {
   template.dayPickerCurrentMonth = new ReactiveVar(Moment().startOf('month').valueOf());
 
   // Holds most recent event count map/dict.
-  template.currentEventMetaDataCountMap = new ReactiveVar();
+  template.currentEventsCountMap = new ReactiveVar();
 
-  // When month changes, retrieve event count for that month. This data will be inserted to dayPicker widget.
-  template.autorun(() => {
-    const currentMonth = template.dayPickerCurrentMonth.get();
-    if (currentMonth) {
-      const endOfMonth = Moment(currentMonth).endOf('month').valueOf();
-      eventMetaDataCountMap.call({
-        timeUnit: 'dayOfMonth',
-        startTime: currentMonth,
-        stopTime: endOfMonth,
-      }, (error, eventCountMap) => {
-        if (error) {
-          console.log(error); // eslint-disable-line no-console
-        } else {
-          const ecm = mapify(eventCountMap); // Had to be demapified (aka serialized) before being sent from server.
-          template.currentEventMetaDataCountMap.set(ecm);
-        }
-      });
-    }
-  });
+  if (dataContext.dayPicker || dataContext.timeInterval) {
+    // When month changes, retrieve event count for that month. This data will be inserted to dayPicker widget.
+    template.autorun(() => {
+      const currentMonth = template.dayPickerCurrentMonth.get();
+      if (currentMonth) {
+        const endOfMonth = Moment(currentMonth).endOf('month').valueOf();
+        eventsCountMap.call({
+          timeUnit: 'dayOfMonth',
+          startTime: currentMonth,
+          stopTime: endOfMonth,
+        }, (error, eventCountMap) => {
+          if (error) {
+            console.log(error); // eslint-disable-line no-console
+          } else {
+            const ecm = mapify(eventCountMap); // Had to be demapified (aka serialized) before being sent from server.
+            template.currentEventsCountMap.set(ecm);
+          }
+        });
+      }
+    });
 
-  // Find most recent day that had an event.
-  getMostRecentEventMetaData.call((error, mostRecentEvent) => {
-    if (error) {
-      console.log(error); // eslint-disable-line no-console
-    } else {
-      const startOfDay = Moment(mostRecentEvent.event_start).startOf('day').valueOf();
-      template.defaultDate.set(startOfDay);
+    // Find most recent day that had an event.
+    getMostRecentEvent.call((error, mostRecentEvent) => {
+      if (error) {
+        console.log(error); // eslint-disable-line no-console
+      } else {
+        const startOfDay = Moment(mostRecentEvent.target_event_start_timestamp_ms).startOf('day').valueOf();
+        template.defaultDate.set(startOfDay);
 
-      // Set default values, causing all components to be triggered with initial data.
-      template.filterSource.set({
-        startTime: startOfDay,
-        dayPicker: startOfDay,
-      });
-    }
-  });
+        // Set default filter form values
+        template.filtersRV.set({
+          startTime: startOfDay,
+          dayPicker: startOfDay,
+        });
+      }
+    });
+  }
+
+  if (dataContext.opqBoxPicker) {
+    // Get list of all OpqBox IDs for the OpqBoxPicker
+    getBoxIDs.call((error, boxIDs) => {
+      if (error) {
+        console.log(error);
+      } else {
+        template.opqBoxIDs.set(boxIDs);
+      }
+    });
+  }
 });
 
 Template.Filter_Form.onRendered(function () {
   const template = this;
   const dataContext = template.data;
 
-  // Instantiate flatpickr for startTime and endTime
-  // if (dataContext.timeInterval) {
-  //   const flatpickrConfig = {
-  //     enableTime: true,
-  //     enableSeconds: true
-  //   };
-  //   template.startTimeFlatpickr = flatpickr('#startTime', flatpickrConfig);
-  //   template.endTimeFlatpickr = flatpickr('#endTime', flatpickrConfig);
-  // }
+  // MonthPicker flatpickr widget
+  if (dataContext.monthPicker) {
+    template.autorun(() => {
+      const defaultMonthPickerDate = template.filtersRV.get();
+      // We only want to initialize the widget once, after we receive a default date.
+      if (defaultMonthPickerDate && !template.monthPicker) {
+        const defaultDate = defaultMonthPickerDate.monthPicker;
+        const onMonthOrYearChange = (dObj, dStr, fp) => {
+          // Note: fp.currentMonth is 0-indexed.
+          const newMoment = Moment().month(fp.currentMonth).year(fp.currentYear).valueOf();
+          fp.setDate(new Date(newMoment));
+        };
 
-  // Instantiate flatpickr widget for dayPicker.
+        const flatpickrConfig = {
+          // defaultDate: new Date(Moment().startOf('month').subtract(3, 'months').valueOf()),
+          defaultDate: new Date(defaultDate),
+          // altInput/format allows us to have a date format inside the text input that is different than what is
+          // actually being submitted (which is 'Y-m-d' by default).
+          altInput: true,
+          altFormat: 'F, Y',
+          onYearChange: [onMonthOrYearChange],
+          onMonthChange: [onMonthOrYearChange],
+          onReady: [
+            function (selectedDates, dateStr, instance) {
+              instance.innerContainer.style.display = 'none'; // eslint-disable-line no-param-reassign
+              instance.monthNav.style.borderRadius = '5px'; // eslint-disable-line no-param-reassign
+              instance.monthNav.style.height = '35px'; // eslint-disable-line no-param-reassign
+            },
+          ],
+        };
+
+        template.monthPicker = flatpickr('#monthPicker', flatpickrConfig);
+      }
+    });
+  }
+
+  // DayPicker flatpickr widget.
   // Config here is a bit complicated - but serves as a proof of concept on how to reactively associate data with the
   // flatpickr widget.
   if (dataContext.dayPicker || dataContext.timeInterval) {
     template.autorun(() => {
       const currentMonth = template.dayPickerCurrentMonth.get();
-      const eventsCountMap = template.currentEventMetaDataCountMap.get();
+      const eventsCountMap = template.currentEventsCountMap.get(); // eslint-disable-line no-shadow
       const defaultDate = template.defaultDate.get();
 
       if (defaultDate && currentMonth && eventsCountMap && template.subscriptionsReady()) {
         const flatpickrConfig = {
-          // defaultDate: defaultDate,
           onDayCreate: function (dObj, dStr, fp, dayElem) {
             const computation = template.autorun(() => {
               const currDate = dayElem.dateObj;
@@ -114,13 +197,13 @@ Template.Filter_Form.onRendered(function () {
 
               // Ignore the prevMonthDays and nextMonthDays on calendar.
               if (currMonth === fp.currentMonth) {
-                const eventsCountMap2 = template.currentEventMetaDataCountMap.get();
+                const eventsCountMap2 = template.currentEventsCountMap.get();
                 const eventCount = eventsCountMap2.get(timeUnitKey);
 
                 if (eventsCountMap2 && eventCount && template.subscriptionsReady()) {
                   /* eslint-disable no-undef */
                   $(dayElem).attr('data-tooltip', `${eventCount} events`);
-                  const bgColor = colorQuantify(eventCount, 1, 50, ['#00ff00', '#ffff00', '#ff0000']);
+                  const bgColor = colorQuantify(eventCount, 1, 250, ['#00ff00', '#ffff00', '#ff0000']);
                   $(dayElem).append(`<span class="flatpickr-day-highlight" style="background: ${bgColor};"></span>`);
                   /* eslint-enable no-undef */
                 }
@@ -167,6 +250,55 @@ Template.Filter_Form.onRendered(function () {
   }
 });
 
+Template.Filter_Form.helpers({
+  opqBoxPickerOptions() {
+    const boxIDs = Template.instance().opqBoxIDs.get();
+    const defaultOpqBox = Template.instance().defaultOpqBoxPicker;
+    if (boxIDs && defaultOpqBox) {
+      boxIDs.sort();
+      const options = boxIDs.map(id => {
+        const option = {
+          label: `Box ${id}`,
+          value: id,
+          isSelected: id === defaultOpqBox,
+        };
+        return option;
+      });
+      return options;
+    }
+    return null;
+  },
+  selectedOpqBox() {
+    const selectedOpqBox = Template.instance().selectedOpqBox.get();
+    if (selectedOpqBox) {
+      return selectedOpqBox;
+    }
+    return null;
+  },
+  trendOptions() {
+    const trendTypes = ['uptime', 'voltageMin', 'voltageMax', 'voltageAverage', 'frequencyMin', 'frequencyMax',
+      'frequencyAverage', 'thdMin', 'thdMax', 'thdAverage'];
+
+    const defaultTrend = 'uptime';
+    const options = trendTypes.map(trend => {
+      const option = {
+        label: `${trend}`,
+        value: trend,
+        isSelected: trend === defaultTrend,
+      };
+      return option;
+    });
+    return options;
+  },
+  selectedTrend() {
+    const selectedTrend = Template.instance().selectedTrend.get();
+    if (selectedTrend) {
+      return selectedTrend;
+    }
+    return null;
+  },
+});
+
 Template.Filter_Form.events({
   'submit .filter-form'(event, instance) {
     event.preventDefault();
@@ -193,6 +325,17 @@ Template.Filter_Form.events({
     if (event.target.dayPicker && event.target.dayPicker.value.length) {
       formData.dayPicker = Moment(event.target.dayPicker.value).valueOf();
     }
+    if (event.target.monthPicker && event.target.monthPicker.value.length) {
+      formData.monthPicker = Moment(event.target.monthPicker.value).valueOf();
+    }
+    if (event.target.opqBoxPicker) {
+      formData.opqBoxPicker = event.target.opqBoxPicker.value;
+      console.log(formData.opqBoxPicker);
+    }
+    if (event.target.trendPicker) {
+      formData.trendPicker = event.target.trendPicker.value;
+      console.log(formData.trendPicker);
+    }
 
     // Clean and validate form data.
     instance.validationContext.resetValidation();
@@ -200,6 +343,7 @@ Template.Filter_Form.events({
     instance.validationContext.validate(formData);
 
     // Set ReactiveVar if valid.
-    if (instance.validationContext.isValid()) instance.filterSource.set(formData);
+    // if (instance.validationContext.isValid()) instance.filterSource.set(formData);
+    if (instance.validationContext.isValid()) instance.filtersRV.set(formData);
   },
 });

@@ -1,36 +1,31 @@
 import { Meteor } from 'meteor/meteor';
-import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import { Accounts } from 'meteor/accounts-base';
 import { Roles } from 'meteor/alanning:roles';
-import BaseCollection from '../base/BaseCollection.js';
 import { OpqBoxes } from '../opq-boxes/OpqBoxesCollection';
 
 /**
  * Collection class for the users collection.
  * Docs: https://open-power-quality.gitbooks.io/open-power-quality-manual/content/datamodel/description.html#users
  */
-class UsersCollection extends BaseCollection {
+class UsersCollection {
 
   /**
-   * Creates the collection.
+   * Note that since the Accounts package manages the Users collection, we aren't actually using BaseCollection.
+   * This class serves as a wrapper around the Accounts package.
    */
   constructor() {
-    super('usersCollection', new SimpleSchema({
-      email: { type: String },
-      password: { type: String },
-      first_name: { type: String },
-      last_name: { type: String },
-      boxes: { type: [Number] }, // Array of box_id's
-      role: { type: String },
-    }));
+    this._collection = Meteor.users;
+    this._collectionName = 'users';
 
-    Accounts.onCreateUser((options, userDoc) => {
-      const modifiedUserDoc = Object.assign({}, userDoc); // Clone userDoc so we don't mutate it directly.
-      if (options.first_name) modifiedUserDoc.first_name = options.first_name;
-      if (options.last_name) modifiedUserDoc.last_name = options.last_name;
-      modifiedUserDoc.boxes = (options.boxes && options.boxes.length > 0) ? options.boxes : [];
-      return modifiedUserDoc;
-    });
+    if (Meteor.isServer) {
+      Accounts.onCreateUser((options, userDoc) => {
+        const modifiedUserDoc = Object.assign({}, userDoc); // Clone userDoc so we don't mutate it directly.
+        if (options.first_name) modifiedUserDoc.first_name = options.first_name;
+        if (options.last_name) modifiedUserDoc.last_name = options.last_name;
+        modifiedUserDoc.boxes = (options.boxes && options.boxes.length > 0) ? options.boxes : [];
+        return modifiedUserDoc;
+      });
+    }
 
     this.publicationNames = {
 
@@ -38,7 +33,8 @@ class UsersCollection extends BaseCollection {
   }
 
   /**
-   * Defines a new User document.
+   * Defines a new User document. Note: Do not use this for client-side user signup. We will eventually refactor
+   * this so that only admins can create new users.
    * @param {String} email - The user's email address. Acts as user name.
    * @param {String} password - The user's password.
    * @param {String} first_name - The user's first name.
@@ -48,38 +44,41 @@ class UsersCollection extends BaseCollection {
    */
   // eslint-disable-next-line class-methods-use-this
   define({ email, password, first_name, last_name, boxes = [], role = 'user' }) {
-    // const docID = this._collection.insert({ email, password, first_name, last_name, boxes, role });
+    if (Meteor.isServer) {
+      // Verify that boxes array contains valid OpqBox ids.
+      boxes.forEach(boxId => {
+        const box = OpqBoxes.findOne({ box_id: boxId });
+        if (!box) throw new Meteor.Error(`Boxes contains an invalid box_id: ${boxId}`);
+      });
 
-    // Verify that boxes array contains valid OpqBox ids.
-    boxes.forEach(boxId => {
-      const box = OpqBoxes.findOne({ box_id: boxId });
-      if (!box) throw new Meteor.Error(`Boxes contains an invalid box_id: ${boxId}`);
-    });
+      // Ensure that role is either 'user' or 'admin'.
+      if (role !== 'user' && role !== 'admin') {
+        throw new Meteor.Error('Invalid user role - must either be "user" or "admin"');
+      }
 
-    // Ensure that role is either 'user' or 'admin'.
-    if (role !== 'user' || role !== 'admin') {
-      throw new Meteor.Error('Invalid user role - must either be "user" or "admin"');
+      // Create the user. The username and password fields are required by the Accounts package.
+      // The rest are top-level user fields that OPQView will maintain. We attach these fields via
+      // Accounts.onCreateUser() which is defined in the constructor of this class. Note that userId is only returned
+      // on the server, and so we do not need to do a Meteor.isServer check when we define the user's
+      // role (which must only be done on server).
+      const userId = Accounts.createUser({
+        email: email,
+        password: password,
+        first_name: first_name,
+        last_name: last_name,
+        boxes: boxes,
+      });
+
+      // Set user role.
+      // We are using group-based roles; 'opq-view' is the default group used for general-purpose app permissions.
+      if (userId) {
+        Roles.addUsersToRoles(userId, [role], 'opq-view');
+      }
+
+      return userId;
     }
 
-    // Create the user. The username and password fields are required by the Accounts package.
-    // The rest are top-level user fields that OPQView will maintain. We attach these fields via Accounts.onCreateUser()
-    // which is defined in the constructor of this class. Note that userId is only returned on the server, and so
-    // we do not need to do a Meteor.isServer check when we define the user's role (which must only be done on server).
-    const userId = Accounts.createUser({
-      username: email,
-      password: password,
-      first_name: first_name,
-      last_name: last_name,
-      boxes: boxes,
-    });
-
-    // Set user role.
-    // We are using group-based roles; 'opq-view' is the default group used for general-purpose app permissions.
-    if (userId) {
-      Roles.addUsersToRoles(userId, [role], 'opq-view');
-    }
-
-    return userId;
+    return null;
   }
 
   /**
@@ -109,6 +108,34 @@ class UsersCollection extends BaseCollection {
   publish() { // eslint-disable-line class-methods-use-this
     if (Meteor.isServer) { // eslint-disable-line no-empty
     }
+  }
+
+  /**
+   * Calls the MongoDB native find() on this collection.
+   * @see {@link http://docs.meteor.com/api/collections.html#Mongo-Collection-find|Meteor Docs Mongo.Collection.find()}
+   * @param {Object} selector - A MongoDB selector object.
+   * @param {Object} options - A MongoDB options object.
+   * @returns {Cursor} - The MongoDB cursor containing the results of the query.
+   */
+  find(selector = {}, options = {}) {
+    return this._collection.find(selector, options);
+  }
+
+  /**
+   * Calls the MongoDB native findOne() on this collection.
+   * @see {@link http://docs.meteor.com/api/collections.html#Mongo-Collection-findOne|
+   * Meteor Docs Mongo.Collection.findOne()}
+   * @param {Object} selector - A MongoDB selector object.
+   * @param {Object} options - A MongoDB options object.
+   * @returns {Object} - The document containing the results of the query.
+   */
+  findOne(selector = {}, options = {}) {
+    return this._collection.findOne(selector, options);
+  }
+
+  updateUser(userID, userObj) {
+    // Meteor method takes care of user auth, so should be safe at this point.
+    return this._collection.update({ _id: userID }, { $set: userObj });
   }
 }
 

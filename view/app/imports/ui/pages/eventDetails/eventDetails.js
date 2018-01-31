@@ -5,10 +5,12 @@ import Moment from 'moment';
 import Filesaver from 'file-saver';
 import Papaparse from 'papaparse';
 import _ from 'lodash';
-import { getEventMetaDataByEventNumber } from '../../../api/events/EventsCollectionMethods.js';
-import { getEventData } from '../../../api/box-events/BoxEventsCollectionMethods.js';
-import { getEventDataFSData } from '../../../api/eventDataFS/EventDataFSCollectionMethods.js';
-import { getEventMeasurements, dygraphMergeDatasets } from '../../../api/measurements/MeasurementsCollectionMethods.js';
+import { getEventByEventID } from '../../../api/events/EventsCollectionMethods.js';
+import { getBoxEvent } from '../../../api/box-events/BoxEventsCollectionMethods.js';
+import { getEventData } from '../../../api/fs-files/FSFilesCollectionMethods';
+// eslint-disable-next-line max-len
+// import { getEventMeasurements, dygraphMergeDatasets } from '../../../api/measurements/MeasurementsCollectionMethods.js';
+// import { getBoxCalibrationConstant } from '../../../api/opq-boxes/OpqBoxesCollectionMethods';
 import '../../../../client/lib/misc/dygraphSynchronizer.js';
 import './eventDetails.html';
 import '../../components/eventWaveformChart/eventWaveformChart.js';
@@ -21,29 +23,29 @@ Template.Event_Details_Page.onCreated(function () {
   // dataContextValidator(template, new SimpleSchema({
   //   eventMetaDataId: {type: Mongo.ObjectID, optional: true} // Optional b/c waiting on user to select event.
   // }), null);
-  template.event_number = FlowRouter.current().params.eventNumber;
-  // console.log(template.event_number);
+  template.event_id = FlowRouter.current().params.event_id;
+  // console.log(template.event_id);
 
-  template.currentEventMetaData = new ReactiveVar();
-  template.currentEventData = new ReactiveVar([]);
+  template.currentEvent = new ReactiveVar(); // EventMetaData --> Events
+  template.currentBoxEvents = new ReactiveVar([]); // EventData --> BoxEvents
   template.isLoadingEventData = new ReactiveVar(false);
   template.dygraphInstances = [];
   template.dygraphSync = null;
 
   // Retrieve document of given event meta data id.
   // template.autorun(() => {
-  if (template.event_number) {
+  if (template.event_id) {
     // Clear old event data first.
-    template.currentEventData.set([]);
+    template.currentBoxEvents.set([]);
 
     // Then retrieve new meta data.
     template.isLoadingEventData.set(true);
-    getEventMetaDataByEventNumber.call({ event_number: template.event_number }, (error, eventMetaData) => {
+    getEventByEventID.call({ event_id: template.event_id }, (error, eventMetaData) => {
       template.isLoadingEventData.set(false);
       if (error) {
         console.log(error);
       } else {
-        template.currentEventMetaData.set(eventMetaData);
+        template.currentEvent.set(eventMetaData);
       }
     });
   }
@@ -52,37 +54,37 @@ Template.Event_Details_Page.onCreated(function () {
   // Retrieve event data for current event.
   template.autorun(() => {
     /* eslint-disable no-param-reassign, camelcase */
-    const currentEventMetaData = template.currentEventMetaData.get();
-    if (currentEventMetaData) {
-      const event_number = currentEventMetaData.event_number;
-      const boxes_received = currentEventMetaData.boxes_received;
+    const currentEvent = template.currentEvent.get();
+    if (currentEvent) {
+      const event_id = currentEvent.event_id;
+      const boxes_received = currentEvent.boxes_received;
 
       boxes_received.forEach(box_id => {
         template.isLoadingEventData.set(true);
-        getEventData.call({ event_number, box_id }, (error, eventData) => {
+        getBoxEvent.call({ event_id, box_id }, (error, boxEvent) => {
           template.isLoadingEventData.set(false);
           if (error) {
             console.log(error);
           } else {
             // Now have to get waveform data from GridFs.
             template.isLoadingEventData.set(true);
-            getEventDataFSData.call({ filename: eventData.data }, (err, waveformData) => {
+            getEventData.call({ filename: boxEvent.data_fs_filename }, (err, waveformData) => {
               template.isLoadingEventData.set(false);
               if (err) {
                 console.log(err);
               } else {
-                eventData.waveform = waveformData;
+                boxEvent.waveform = waveformData;
                 // Need to store these values in db.
                 const boxCalibrationConstants = {
                   1: 152.1,
                   3: 154.20,
                   4: 146.46,
                 };
-                const constant = boxCalibrationConstants[eventData.box_id] || 1;
+                const constant = boxCalibrationConstants[boxEvent.box_id] || 1;
                 const vrmsWindowValues = [];
                 const SAMPLES_PER_CYCLE = 200;
-                eventData.graphData = eventData.waveform.map((sample, index) => {
-                  const timestamp = eventData.event_start + (index * (1.0 / 12.0));
+                boxEvent.graphData = boxEvent.waveform.map((sample, index) => {
+                  const timestamp = boxEvent.event_start_timestamp_ms + (index * (1.0 / 12.0));
                   const calibratedSample = sample / constant;
 
                   // Calculate Vrms. Note the RMS window size is equal to one cycle worth of samples.
@@ -94,25 +96,10 @@ Template.Event_Details_Page.onCreated(function () {
                   return [timestamp, calibratedSample, vRms];
                 });
 
-                // Finally get measurements (voltages/frequencies RMS) for each box
-                template.isLoadingEventData.set(true);
-                getEventMeasurements.call({
-                  device_id: box_id,
-                  startTime: eventData.event_start,
-                  endTime: eventData.time_stamp[eventData.time_stamp.length - 1], // event_end is currently bugged.
-                },
-                (errors, { eventMeasurements, precedingMeasurements, proceedingMeasurements }) => {
-                  template.isLoadingEventData.set(false);
-                  if (errors) {
-                    console.log(errors);
-                  } else {
-                    eventData.measurements = { eventMeasurements, precedingMeasurements, proceedingMeasurements };
-
-                    const currentEventData = template.currentEventData.get();
-                    currentEventData.push(eventData);
-                    template.currentEventData.set(currentEventData);
-                  }
-                });
+                // Finally, we add to list of BoxEvents.
+                const currentBoxEvents = template.currentBoxEvents.get();
+                currentBoxEvents.push(boxEvent);
+                template.currentBoxEvents.set(currentBoxEvents);
               }
             });
           }
@@ -131,20 +118,16 @@ Template.Event_Details_Page.onRendered(function () {
 
 Template.Event_Details_Page.helpers({
   eventDatas() {
-    const eventDataArr = Template.instance().currentEventData.get(); // Array of all event data.
+    const boxEvents = Template.instance().currentBoxEvents.get(); // Array of all event data.
 
-    const modifiedEventData = eventDataArr.map((eventData) => {
-      /* eslint-disable no-param-reassign, max-len */
-      // Format RMS voltage and freq data for dygraphs.
-      eventData.measurements.voltages = dygraphMergeDatasets('timestamp_ms', 'voltage', eventData.measurements.eventMeasurements, eventData.measurements.precedingMeasurements, eventData.measurements.proceedingMeasurements);
-      eventData.measurements.frequencies = dygraphMergeDatasets('timestamp_ms', 'frequency', eventData.measurements.eventMeasurements, eventData.measurements.precedingMeasurements, eventData.measurements.proceedingMeasurements);
-
-      // Add an event duration field
-      eventData.duration = eventData.time_stamp[eventData.time_stamp.length - 1] - eventData.event_start;
-      return eventData;
-      /* eslint-enable no-param-reassign, max-len */
+    const modifiedBoxEvents = boxEvents.map(boxEvent => {
+      // Add an event duration field. Calculation of duration has to be done this way because event_end_timestamp_ms
+      // is currently incorect due to bug in Makai.
+      // eslint-disable-next-line max-len, no-param-reassign
+      boxEvent.duration = boxEvent.window_timestamps_ms[boxEvent.window_timestamps_ms.length - 1] - boxEvent.event_start_timestamp_ms;
+      return boxEvent;
     });
-    return modifiedEventData;
+    return modifiedBoxEvents;
   },
   dygraphWaveformOptions() {
     // const template = Template.instance();
@@ -283,43 +266,44 @@ Template.Event_Details_Page.events({
   'click .data-export': function (event, instance) {
     /* eslint-disable camelcase, no-console, no-shadow */
     event.preventDefault();
-    const event_number = event.currentTarget.dataset.event_number;
+    const event_id = event.currentTarget.dataset.event_id;
     const box_id = event.currentTarget.dataset.box_id;
     const export_type = event.currentTarget.dataset.export_type;
 
-    console.log(export_type, event_number, box_id, event.currentTarget.dataset);
-    console.log(typeof event_number);
+    console.log(export_type, event_id, box_id, event.currentTarget.dataset);
+    console.log(typeof event_id);
 
-    const eventData = instance.currentEventData.get(); // Array of all event data.
-    if (eventData) {
-      const event = eventData.find(event => event.event_number === Number(event_number)
+    const boxEvents = instance.currentBoxEvents.get(); // Array of all event's boxEvents
+    if (boxEvents) {
+      const boxEvent = boxEvents.find(event => event.event_id === Number(event_id) // WAS HERE
           && event.box_id === Number(box_id));
 
-      if (event) {
-        event.waveformCalibrated = event.waveform.map((sample, index) => { // eslint-disable-line no-unused-vars
+      if (boxEvent) {
+        boxEvent.waveformCalibrated = boxEvent.waveform.map((sample, index) => { // eslint-disable-line no-unused-vars
           // Need to store these values in db.
           const boxCalibrationConstants = {
             1: 152.1,
             3: 154.20,
             4: 146.46,
           };
-          const constant = boxCalibrationConstants[eventData.box_id] || 1;
-          // const timestamp = event.event_start + (index * (1.0 / 12.0));
+          const constant = boxCalibrationConstants[boxEvent.box_id] || 1;
+          // const timestamp = event.event_start_timestamp_ms + (index * (1.0 / 12.0));
           const calibratedSample = sample / constant;
 
           // return [timestamp, calibratedSample];
           return calibratedSample;
         });
 
-        const eventPicked = _.pick(event, 'event_number', 'box_id', 'event_start', 'event_end', 'waveformCalibrated');
+        // eslint-disable-next-line max-len
+        const eventPicked = _.pick(boxEvent, 'event_id', 'box_id', 'event_start_timestamp_ms', 'event_end_timestamp_ms', 'waveformCalibrated');
         if (export_type === 'json') {
           const json = JSON.stringify(eventPicked, null, 2);
           const blob = new Blob([json], { type: 'application/json; charset=utf-8' }); // eslint-disable-line no-undef
-          Filesaver.saveAs(blob, `event-${eventPicked.event_number}-device-${eventPicked.box_id}`);
+          Filesaver.saveAs(blob, `event-${eventPicked.event_id}-device-${eventPicked.box_id}`);
         } else if (export_type === 'csv') {
           const csv = Papaparse.unparse([eventPicked]);
           const blob = new Blob([csv], { type: 'text/csv; charset=utf-8' }); // eslint-disable-line no-undef
-          Filesaver.saveAs(blob, `event-${eventPicked.event_number}-device-${eventPicked.box_id}`);
+          Filesaver.saveAs(blob, `event-${eventPicked.event_id}-device-${eventPicked.box_id}`);
         }
       }
     }

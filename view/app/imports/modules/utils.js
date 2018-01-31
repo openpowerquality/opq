@@ -40,7 +40,7 @@ export function progressBarSetup(total, updateRate, message) {
  */
 export function progressBarPrinter(current, total, tickChar, maxTicks, message) {
   // Create 'empty' progress bar, internally represented as an array. Set start and end brackets of the progress bar.
-  const progressBar = Array.from(' '.repeat(maxTicks + 2));
+  const progressBar = Array.from('.'.repeat(maxTicks + 2));
   progressBar[0] = '[';
   progressBar[progressBar.length - 1] = ']';
 

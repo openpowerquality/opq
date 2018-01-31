@@ -28,7 +28,8 @@ class EventsCollection extends BaseCollection {
     }));
 
     this.publicationNames = {
-      GET_EVENT_META_DATA: 'get_event_meta_data',
+      // GET_EVENT_META_DATA: 'get_event_meta_data',
+      GET_EVENTS: 'get_events',
     };
   }
 
@@ -95,33 +96,34 @@ class EventsCollection extends BaseCollection {
 
   /**
    * Loads all publications related to this collection.
-   * Note: We conditionally import the publications file only on the server as a way to hide publication code from
-   * being sent to the client.
    */
   publish() {
     if (Meteor.isServer) {
-      Meteor.publish(this.publicationNames.GET_EVENT_META_DATA, function ({ startTime, endTime }) {
+      const self = this;
+
+      Meteor.publish(this.publicationNames.GET_EVENTS, function ({ startTime, endTime }) {
         check(startTime, Match.Maybe(Number));
         check(endTime, Match.Maybe(Number));
 
-        const selector = this.queryConstructors().getEventMetaData({ startTime, endTime });
-        return this.find(selector, {});
+        const selector = self.queryConstructors().getEvents({ startTime, endTime });
+        return self.find(selector);
       });
     }
   }
 
   queryConstructors() { // eslint-disable-line class-methods-use-this
     return {
-      getEventMetaData({ startTime, endTime }) {
+      getEvents({ startTime, endTime }) {
         check(startTime, Match.Maybe(Number));
         check(endTime, Match.Maybe(Number));
 
         const selector = {};
-        if (startTime) selector.event_start = { $gte: startTime };
-        if (endTime) selector.event_end = { $lte: endTime };
+        if (startTime) selector.target_event_start_timestamp_ms = { $gte: startTime };
+        if (endTime) selector.target_event_end_timestamp_ms = { $lte: endTime };
 
         return selector;
-      } };
+      },
+    };
   }
 }
 
