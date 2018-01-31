@@ -45,3 +45,5 @@ aldeed:template-extension
 aldeed:autoform@5.8.1
 dynamic-import@0.2.0
 udondan:zipzap
+
+react-meteor-data

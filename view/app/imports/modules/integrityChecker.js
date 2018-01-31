@@ -5,7 +5,6 @@ import { Events } from '../api/events/EventsCollection';
 import { BoxEvents } from '../api/box-events/BoxEventsCollection';
 import { OpqBoxes } from '../api/opq-boxes/OpqBoxesCollection';
 import { Users } from '../api/users/UsersCollection';
-// import { FSFiles, FSChunks } from '../api/eventDataFS/EventDataFSCollection';
 import { FSFiles } from '../api/fs-files/FSFilesCollection';
 import { FSChunks } from '../api/fs-chunks/FSChunksCollection';
 

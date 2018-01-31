@@ -16,7 +16,13 @@
     "meteor-node-stubs": "^0.2.11",
     "object-sizeof": "^1.2.0",
     "papaparse": "^4.3.6",
-    "point-in-polygon": "^1.0.1"
+    "point-in-polygon": "^1.0.1",
+    "react": "^16.2.0",
+    "react-dom": "^16.2.0",
+    "react-router": "^4.2.0",
+    "react-router-dom": "^4.2.2",
+    "semantic-ui-css": "^2.2.14",
+    "semantic-ui-react": "^0.77.2"
   },
   "devDependencies": {
     "autoprefixer": "^6.3.1",
@@ -25,7 +31,7 @@
     "eslint-plugin-import": "^2.3.0",
     "eslint-plugin-jsx-a11y": "^5.0.3",
     "eslint-plugin-meteor": "^4.1.6",
-    "eslint-plugin-react": "^7.0.1"
+    "eslint-plugin-react": "^7.6.1"
   },
   "postcss": {
     "plugins": {

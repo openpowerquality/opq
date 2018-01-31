@@ -1,10 +1,9 @@
-import { BlazeLayout } from 'meteor/kadira:blaze-layout';
-import './routes';
-import '../../ui/utils/globalTemplateHelpers.js';
-import '../../ui/stylesheets/site.css';
+import React from 'react';
+import { render } from 'react-dom';
+import { Meteor } from 'meteor/meteor';
+import ExampleLayout from '../../ui/layouts/ExampleLayout/ExampleLayout';
+import '../both';
 
-// Component Templates
-import '../../ui/components/form-controls/input-label-block-helper.html';
+import 'semantic-ui-css/semantic.css';
 
-// Get rid of the default __blaze-root div element and use the regular <body> element instead.
-BlazeLayout.setRoot('body');
+Meteor.startup(() => render(<ExampleLayout />, document.getElementById('react-root')));
