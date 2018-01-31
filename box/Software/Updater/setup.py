@@ -7,5 +7,6 @@ setup(name='updater',
       author_email='evanhata@hawaii.edu',
       license='MIT',
       scripts={'box_updater.py': ['*']},
-      data_files=[('/etc/opq/', ['updater_config.json'])]
+      data_files=[('/etc/opq/', ['updater_config.json'])],
+      install_requires=['python-crontab']
       )
