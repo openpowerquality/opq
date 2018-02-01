@@ -43,7 +43,7 @@ class EventsCollection extends BaseCollection {
    * @returns The newly created document ID.
    */
   define({ event_id, type, description, boxes_triggered, boxes_received, target_event_start_timestamp_ms,
-           target_event_end_timestamp_ms, latencies_ms }) {
+    target_event_end_timestamp_ms, latencies_ms }) {
     const docID = this._collection.insert({ event_id, type, description, boxes_triggered, boxes_received,
       target_event_start_timestamp_ms, target_event_end_timestamp_ms, latencies_ms });
     return docID;

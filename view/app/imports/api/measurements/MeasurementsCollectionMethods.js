@@ -58,8 +58,8 @@ export const getActiveBoxIds = new ValidatedMethod({
 
     // Returns an array of unique deviceIds, sorted asc.
     return (recentMeasurements.length > 0)
-        ? _.uniq(_.pluck(recentMeasurements, 'box_id')).sort((a, b) => a - b)
-        : null;
+      ? _.uniq(_.pluck(recentMeasurements, 'box_id')).sort((a, b) => a - b)
+      : null;
   },
 });
 
