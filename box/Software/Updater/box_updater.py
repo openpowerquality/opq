@@ -29,7 +29,7 @@ def main():
 
     if is_verified:
         open_package(update_package)
-        #run_update()
+        run_update()
     else:
         logging.error('Unable to verify package')
 
