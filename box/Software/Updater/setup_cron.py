@@ -9,7 +9,7 @@ def main():
             my_cron.remove(job)
 
     command = '/usr/bin/python3 /usr/local/bin/box_updater.py'
-    pipe = ' &>> /var/log/opq/box_updater.log'
+    pipe = ' >> /var/log/opq/box_updater.log 2>&1'
 
     job = my_cron.new(command=command+pipe, comment='run_updater')
 
