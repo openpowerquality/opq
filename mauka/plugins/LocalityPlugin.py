@@ -53,6 +53,9 @@ def perform_locality_fft_transient_calculation(fs, box_events):
     else:
         pass
 
+def perform_locality_simple_features_calculation(fs, box_events):
+
+
 
 class LocalityPlugin(plugins.base.MaukaPlugin):
     """
@@ -74,7 +77,7 @@ class LocalityPlugin(plugins.base.MaukaPlugin):
         if len(box_events) <= 0:
             return
 
-        perform_locality_fft_transient_calculation(box_events)
+        perform_locality_fft_transient_calculation(self.mongo_client.fs, box_events)
 
     def on_message(self, topic, message):
         """

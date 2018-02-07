@@ -78,3 +78,21 @@ def vrms_waveform(waveform: numpy.ndarray, window_size: int = constants.SAMPLES_
         v.append(vrms(waveform))
 
     return numpy.array(v)
+
+
+def c_to_ms(c: float) -> float:
+    """
+    Convert cycles to milliseconds
+    :param c: cycles
+    :return: milliseconds
+    """
+    return (c * (1 / 60)) * 1000.0
+
+def waveform_duration_s(waveform: numpy.ndarray, sample_rate_hz=constants.SAMPLE_RATE_HZ):
+    """
+    Returns the length of a given waveform in fractional seconds.
+    :param waveform: The waveform to find the time duration of.
+    :param sample_rate_hz: The sample rate of the given waveform.
+    :return: The total number of fractional seconds that the waveform makes up.
+    """
+    return float(len(waveform)) / float(sample_rate_hz)
