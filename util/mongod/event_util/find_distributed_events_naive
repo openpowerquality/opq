@@ -1,0 +1,81 @@
+#!/usr/bin/python3
+import enum
+import math
+import multiprocessing
+import struct
+import typing
+import bson
+import gridfs
+import gridfs.errors
+import matplotlib.path
+import matplotlib.pyplot as plt
+import numpy as np
+import pymongo
+import scipy.fftpack
+import sys
+
+
+SAMPLE_RATE_HZ = 12000.0
+
+def closest_idx(array: np.ndarray, val: float) -> int:
+    return np.argmin(np.abs(array - val))
+
+def is_event(wave):
+    metric = 0
+    max = 0
+    for i in range(0, int(len(wave)/2000)):
+        waveform = wave[(i)*2000:(i+1)*2000]
+        norm = np.linalg.norm(waveform)
+        y = scipy.fftpack.fft(waveform)
+        x = np.fft.fftfreq(y.size, 1 / SAMPLE_RATE_HZ)
+    
+        for f in [60,120,180,240,300,360]:
+            close = closest_idx(x, 60.0)
+            y[close] = 0;
+            close = closest_idx(x, -60.0)
+            y[close] = 0
+        y = scipy.fftpack.ifft(y)
+        this_metrik =  np.sum(np.abs(y))/norm
+        if  this_metrik > metric:
+            metric = this_metrik
+            max = i*2000
+    if metric > 1.2:
+        return max
+    return -1
+
+
+def to_s16bit(data: bytes) -> np.ndarray:
+    return np.frombuffer(data, np.int16)
+
+def waveform_from_file(fs: gridfs.GridFS, filename: str) -> np.ndarray:
+    buf = fs.get_last_version(filename).read()
+    s16bit_buf = to_s16bit(buf)
+    return s16bit_buf
+
+database_name = "opq"
+client = pymongo.MongoClient()
+db = client.opq
+events = db.events
+box_events = db.box_events
+
+fs = gridfs.GridFS(db)
+
+max_event = events.find_one(sort = [("event_id" , -1)] )["event_id"]
+
+for event_num in range(0,max_event):
+    box_event_count = box_events.count( {"event_id" : event_num} );
+    if box_event_count > 1:
+        count = 0
+        locations = []
+        for box_event in box_events.find( {"event_id" : event_num} ):
+            event_name = box_event["data_fs_filename"]
+            event_data = waveform_from_file(fs, event_name)
+            loc = is_event(event_data)
+            if loc > 0:
+                count += 1
+                locations.append({"id" : box_event["box_id"], "loc" : loc})
+        if count > 1:
+            print("event " + str(event_num) + " with " + str(box_event_count) + " boxes, registered " + str(count) + " " + str(locations))
+        else:
+            pass
+            #print("event " + str(event_num) + " with " + str(box_event_count) + " boxes no event" )
