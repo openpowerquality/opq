@@ -25,3 +25,71 @@ pin, type, name, side
 2, in, VINP, left
 6, out, VOUTN, right
 7, out, VOUTP, right
+
+IRM-05-5
+pin, type, name, side
+1, power_in, INPUT, left
+2, power_out, OUTPUT, right
+
+ISL21010CFH333Z-TK
+pin, type, name, side
+1, power_in, VIN, left
+2, out, VOUT, left
+3, power_in, GND, right
+
+AP2120N-3.3TRG1
+pin, type, name, side
+1, power_in, GND, bottom
+2, power_out, VOUT, bottom
+3, power_in, VIN, top
+
+STM32F373CCT6
+pin, name, side
+48, VDD1, top
+17, VDD2, top
+1, VBAT, top
+9, AVDD1, top
+25, VREF2, top
+24, AVDD2, top
+40, PB4/USART2_RX/JRST, top
+39, PB3/USART2_TX/JTDO, top
+38, PA15/JTDI/nCS1, top
+37, PA14/JTCK, top
+7, nRST, top
+34, PA13/JTMS, top
+44, BOOT0, top
+30, PA9/UART1_TX, right
+31, PA10/UART1_RX, right
+33, PA12/USB_DP, right
+32, PA11/USB_DM, right
+46, PB9/UART3_RX, right
+45, PB8/UART3_TX, right
+13, PA3/MOSI3, right
+14, PA4/nCS3, right
+11, PA1/SCLK3, right
+12, PA2/MISO3, right
+47, GND, bottom
+8, AGND1, bottom
+23, AGND2, bottom
+35, PF6, bottom
+43, PB7, bottom
+42, PB6, bottom
+41, PB5, bottom
+29, PA8, bottom
+15, PA5, bottom
+16, PA6, bottom
+18, PB0, bottom
+36, PF7, bottom
+2, PC13, left
+3, PC14/OSC32_IN, left
+4, PC14/OSC32_OUT, left
+5, PF0/OSC_IN, left
+6, PF1/OSC_OUT, left
+10, PA0, left
+26, PB14, left
+27, PB15, left
+28, PB15, left
+19, PB1/SDADC1_6N, left
+20, PB2/SDADC1_6P, left
+21, PE8/SDADC2_8P, left
+22, PE9/SDADC2_8N, left
