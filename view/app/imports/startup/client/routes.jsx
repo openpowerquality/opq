@@ -13,7 +13,7 @@ import {
 import 'semantic-ui-css/semantic.css';
 
 // Public components
-import TopHeader from '../..//ui/components/TopHeader.jsx';
+import TopHeader from '../../ui/components/TopHeader.jsx';
 import Home from '../../ui/pages/Home.jsx';
 import Example from '../../ui/pages/Example.jsx';
 import Settings from '../../ui/pages/Settings.jsx';
@@ -22,6 +22,7 @@ import NotFound from '../../ui/pages/NotFound.jsx';
 import Signin from '../../ui/pages/Signin.jsx';
 import Signup from '../../ui/pages/Signup.jsx';
 import Signout from '../../ui/pages/Signout.jsx';
+import DRS from '../../ui/pages/DRS.jsx';
 
 Meteor.startup(() => {
   render(
@@ -32,6 +33,7 @@ Meteor.startup(() => {
           <Route exact path="/" component={Home} />
           <Route path="/signin" component={Signin} />
           <Route path="/signup" component={Signup} />
+          <Route path="/drs" component={DRS} />
           <ProtectedRoute path="/example" component={Example} />
           <ProtectedRoute path="/account" component={Account} />
           <ProtectedRoute path="/settings" component={Settings} />

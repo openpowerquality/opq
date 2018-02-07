@@ -1,5 +1,7 @@
+import { Meteor } from 'meteor/meteor';
 import { Mongo } from 'meteor/mongo';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
+import { check, Match } from 'meteor/check';
 import BaseCollection from '../base/BaseCollection.js';
 import { OpqBoxes } from '../opq-boxes/OpqBoxesCollection';
 import { progressBarSetup } from '../../modules/utils';
@@ -29,6 +31,7 @@ class TrendsCollection extends BaseCollection {
     }));
 
     this.publicationNames = {
+      GET_RECENT_TRENDS: 'get_recent_trends',
     };
   }
 
@@ -98,9 +101,16 @@ class TrendsCollection extends BaseCollection {
    * Loads all publications related to the Trends collection.
    */
   publish() { // eslint-disable-line class-methods-use-this
-    // if (Meteor.isServer) {
-    //
-    // }
+    if (Meteor.isServer) {
+      const self = this;
+
+      Meteor.publish(this.publicationNames.GET_RECENT_TRENDS, function ({ numTrends }) {
+        check(numTrends, Number);
+
+        const trends = self.find({}, { sort: { timestamp_ms: -1 }, limit: numTrends });
+        return trends;
+      });
+    }
   }
 }
 
