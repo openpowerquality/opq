@@ -1,4 +1,4 @@
-ADUM5010ARSZ
+ADUM5010ARSZ,
 
 pin, type, name, side
 2,  power_in, GNDP,   left
@@ -14,7 +14,7 @@ pin, type, name, side
 12, power_out, VISO,  right
 13, in,        VSEL,  right
 
-AMC1100DWV
+AMC1100DWV,
 
 pin, type, name, side
 4, power_in, GND1, left
@@ -26,24 +26,24 @@ pin, type, name, side
 6, out, VOUTN, right
 7, out, VOUTP, right
 
-IRM-05-5
+IRM-05-5,
 pin, type, name, side
 1, power_in, INPUT, left
 2, power_out, OUTPUT, right
 
-ISL21010CFH333Z-TK
+ISL21010CFH333Z-TK,
 pin, type, name, side
 1, power_in, VIN, left
 2, out, VOUT, left
 3, power_in, GND, right
 
-AP2120N-3.3TRG1
+AP2120N-3.3TRG1,
 pin, type, name, side
 1, power_in, GND, bottom
 2, power_out, VOUT, bottom
 3, power_in, VIN, top
 
-STM32F373CCT6
+STM32F373CCT6,U,Housings_QFP:LQFP-48_7x7mm_Pitch0.5mm,
 pin, name, side, type
 48, VDD1, top, power_in
 17, VDD2, top, power_in
