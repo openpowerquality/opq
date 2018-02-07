@@ -19,6 +19,8 @@ The OPQBox updater provides a way to securely and remotely update any OPQBox. Th
   * Installs box_updater.py to /usr/local/bin/box_updater.py
   * Installs configuration file, updater_config.json, to /etc/opq/updater_config.json
   * Sets up the cronjob to call the updater once a day
+* Install cron job -> python3 setup_cron.py
+  * Sets a cronjob to run the updater once a day
 * DONE
 
 #### File Notes
