@@ -1,0 +1,27 @@
+ADUM5010ARSZ
+
+pin, type, name, side
+2,  power_in, GNDP,   left
+5,  power_in, GNDP,   left
+6,  power_in, GNDP,   left
+8,  in,       PDIS,   left
+9,  power_in, VDDP,   left
+10, power_in, GNDP,   left
+11, power_in, GNDISO, right
+15, power_in, GNDISO, right
+16, power_in, GNDISO, right
+19, power_in, GNDISO, right
+12, power_out, VISO,  right
+13, in,        VSEL,  right
+
+AMC1100DWV
+
+pin, type, name, side
+4, power_in, GND1, left
+5, power_in, GND2, right
+1, power_in, VDD1, left
+8, power_in, VDD2, right
+3, in, VINN, left
+2, in, VINP, left
+6, out, VOUTN, right
+7, out, VOUTP, right
