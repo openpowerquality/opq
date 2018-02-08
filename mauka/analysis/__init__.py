@@ -9,6 +9,15 @@ import numpy
 import constants
 
 
+def sq(num: float) -> float:
+    """
+    Squares a number
+    :param num: Number to square
+    :return: Squared number
+    """
+    return num * num
+
+
 def to_s16bit(data: bytes) -> numpy.ndarray:
     """
     Converts a list of bytes into an array of signed 16-bit values.
@@ -87,6 +96,7 @@ def c_to_ms(c: float) -> float:
     :return: milliseconds
     """
     return (c * (1 / 60)) * 1000.0
+
 
 def waveform_duration_s(waveform: numpy.ndarray, sample_rate_hz=constants.SAMPLE_RATE_HZ):
     """

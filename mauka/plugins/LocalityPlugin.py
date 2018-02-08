@@ -54,7 +54,7 @@ def perform_locality_fft_transient_calculation(fs, box_events):
         pass
 
 def perform_locality_simple_features_calculation(fs, box_events):
-
+    pass
 
 
 class LocalityPlugin(plugins.base.MaukaPlugin):
