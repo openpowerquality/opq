@@ -29,7 +29,7 @@ def perform_locality_fft_transient_calculation(fs, box_events):
             for f in [60, 120, 180, 240, 300, 360]:
                 close = analysis.closest_idx(x, f)
                 y[close] = 0
-                close = analysis.closest_idx(x, f)
+                close = analysis.closest_idx(x, f * -1)
                 y[close] = 0
             y = scipy.fftpack.ifft(y)
             this_metrik = numpy.sum(numpy.abs(y)) / norm
