@@ -150,6 +150,7 @@ The **locations** field is an *array* of objects, with each object representing 
 A **location** <a name="location"></a> has the following fields:
 * start_time_ms
 * zipcode
+* nickname
 
 The **start_time_ms** field is a unix timestamp (milliseconds) indicating the moment this OPQBox location was set.
 
