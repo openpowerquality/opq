@@ -8,8 +8,6 @@ import analysis
 import constants
 
 
-
-
 def thd(waveform: numpy.ndarray) -> float:
     """
     Calculated THD by first taking the FFT and then taking the peaks of the harmonics (sans the fundamental).
@@ -39,6 +37,20 @@ def thd(waveform: numpy.ndarray) -> float:
         7: new_y[analysis.closest_idx(new_x, 420.0)]
     }
 
-    top = analysis.sq(nth_harmonic[2]) + analysis.sq(nth_harmonic[3]) + analysis.sq(nth_harmonic[4]) + analysis.sq(nth_harmonic[5])
+    top = analysis.sq(nth_harmonic[2]) + analysis.sq(nth_harmonic[3]) + analysis.sq(nth_harmonic[4]) + analysis.sq(
+        nth_harmonic[5])
     _thd = (math.sqrt(top) / nth_harmonic[1]) * 100.0
     return _thd
+
+
+def thd_waveform(waveform: numpy.ndarray, window_size: int = constants.SAMPLES_PER_CYCLE) -> numpy.ndarray:
+    v = []
+    while len(waveform) >= window_size:
+        samples = waveform[:window_size]
+        waveform = waveform[window_size:]
+        v.append(thd(samples))
+
+    if len(waveform) > 0:
+        v.append(thd(waveform))
+
+    return numpy.array(v)
