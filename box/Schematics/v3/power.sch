@@ -3,14 +3,12 @@ LIBS:opqbox3
 LIBS:device
 LIBS:power
 LIBS:conn
-LIBS:contrib
-LIBS:stm32
 LIBS:opqbox3-cache
 EELAYER 25 0
 EELAYER END
 $Descr A4 11693 8268
 encoding utf-8
-Sheet 2 3
+Sheet 2 4
 Title ""
 Date ""
 Rev ""
@@ -535,21 +533,15 @@ Text HLabel 1700 1400 0    60   Input ~ 0
 LINE
 Text HLabel 1700 1950 0    60   Input ~ 0
 NEUTRAL
-Text HLabel 8500 1450 2    60   Output ~ 0
-+3.3V
-Text HLabel 5350 1350 2    60   Output ~ 0
-+5V
-Text HLabel 5350 1750 2    60   Output ~ 0
-GND
 $Comp
 L PWR_FLAG #FLG021
 U 1 1 5A83249D
-P 5200 1800
-F 0 "#FLG021" H 5200 1875 50  0001 C CNN
-F 1 "PWR_FLAG" H 5200 1950 50  0000 C CNN
-F 2 "" H 5200 1800 50  0001 C CNN
-F 3 "" H 5200 1800 50  0001 C CNN
-	1    5200 1800
+P 4900 1850
+F 0 "#FLG021" H 4900 1925 50  0001 C CNN
+F 1 "PWR_FLAG" H 4900 2000 50  0000 C CNN
+F 2 "" H 4900 1850 50  0001 C CNN
+F 3 "" H 4900 1850 50  0001 C CNN
+	1    4900 1850
 	-1   0    0    1   
 $EndComp
 $Comp
@@ -610,8 +602,6 @@ $EndComp
 Wire Wire Line
 	8400 1200 8400 1600
 Wire Wire Line
-	8200 1450 8500 1450
-Wire Wire Line
 	6800 1900 6800 2250
 Wire Wire Line
 	6800 2250 8400 2250
@@ -619,7 +609,6 @@ Connection ~ 7600 2250
 Wire Wire Line
 	8400 2250 8400 1900
 Connection ~ 6800 1450
-Connection ~ 8400 1450
 Wire Wire Line
 	2600 1050 2600 1500
 Wire Wire Line
@@ -642,7 +631,7 @@ Connection ~ 2050 1950
 Wire Wire Line
 	4300 1700 4300 1850
 Wire Wire Line
-	4900 1750 4900 1700
+	4900 1700 4900 1850
 Wire Wire Line
 	7000 1450 6800 1450
 Wire Wire Line
@@ -804,27 +793,16 @@ Wire Wire Line
 	4450 4200 4500 4200
 Connection ~ 4900 4200
 Connection ~ 4900 3900
-Wire Wire Line
-	4800 3900 5150 3900
-Wire Wire Line
-	4800 4200 5150 4200
 Connection ~ 5200 1350
 Wire Wire Line
 	2050 1450 2050 1400
 Connection ~ 2050 1400
 Wire Notes Line
 	3600 7800 3600 500 
-Wire Wire Line
-	4000 1750 5350 1750
 Connection ~ 4300 1750
 Wire Wire Line
 	4100 1350 4450 1350
-Wire Wire Line
-	4750 1350 5350 1350
 Connection ~ 4900 1750
-Connection ~ 5200 1750
-Wire Wire Line
-	5200 1800 5200 1750
 Wire Wire Line
 	5200 1350 5200 1300
 Wire Wire Line
@@ -872,18 +850,19 @@ F 3 "" H 7600 5100 50  0001 C CNN
 	1    7600 5100
 	1    0    0    -1  
 $EndComp
-Entry Wire Line
-	5150 3900 5250 4000
-Entry Wire Line
-	5150 4200 5250 4300
-Text Label 5050 3900 0    60   ~ 0
-IN+
-Text Label 5050 4200 0    60   ~ 0
-IN-
-Wire Bus Line
-	5250 4000 5250 4350
-Wire Bus Line
-	5250 4350 5400 4350
-Text HLabel 5400 4350 2    60   Output ~ 0
-ADC
+Text HLabel 5100 4200 2    60   Output ~ 0
+ADC_IN-
+Text HLabel 5100 3900 2    60   Output ~ 0
+ADC_IN+
+Wire Wire Line
+	4800 4200 5100 4200
+Wire Wire Line
+	4800 3900 5100 3900
+Wire Wire Line
+	4750 1350 5200 1350
+Wire Wire Line
+	4000 1750 4900 1750
+Wire Wire Line
+	8200 1450 8400 1450
+Connection ~ 8400 1450
 $EndSCHEMATC

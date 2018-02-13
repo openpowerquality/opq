@@ -1,0 +1,234 @@
+EESchema Schematic File Version 2
+LIBS:opqbox3
+LIBS:device
+LIBS:power
+LIBS:conn
+LIBS:opqbox3-cache
+EELAYER 25 0
+EELAYER END
+$Descr A4 11693 8268
+encoding utf-8
+Sheet 3 4
+Title ""
+Date ""
+Rev ""
+Comp ""
+Comment1 ""
+Comment2 ""
+Comment3 ""
+Comment4 ""
+$EndDescr
+$Comp
+L Conn_02x20_Odd_Even J3
+U 1 1 5A8522AA
+P 2200 2350
+F 0 "J3" H 2250 3350 50  0000 C CNN
+F 1 "Conn_02x20_Odd_Even" H 2250 1250 50  0000 C CNN
+F 2 "" H 2200 2350 50  0001 C CNN
+F 3 "" H 2200 2350 50  0001 C CNN
+	1    2200 2350
+	1    0    0    -1  
+$EndComp
+Text HLabel 2000 2350 0    60   BiDi ~ 0
+SPI_MISO
+Text HLabel 2000 2450 0    60   BiDi ~ 0
+SPI_MOSI
+Text HLabel 2500 2550 2    60   BiDi ~ 0
+SPI_nCS
+Text HLabel 2000 2550 0    60   BiDi ~ 0
+SPI_CLK
+Text HLabel 2500 2250 2    60   BiDi ~ 0
+JTAG_nRST
+Text HLabel 2500 2150 2    60   Output ~ 0
+BOOT_MODE
+Text HLabel 2500 1750 2    60   Output ~ 0
+UART_RX
+Text HLabel 2500 1850 2    60   Input ~ 0
+UART_TX
+$Comp
+L +5V #PWR024
+U 1 1 5A852361
+P 2550 1400
+F 0 "#PWR024" H 2550 1250 50  0001 C CNN
+F 1 "+5V" H 2550 1540 50  0000 C CNN
+F 2 "" H 2550 1400 50  0001 C CNN
+F 3 "" H 2550 1400 50  0001 C CNN
+	1    2550 1400
+	1    0    0    -1  
+$EndComp
+$Comp
+L GND #PWR025
+U 1 1 5A852384
+P 3050 1900
+F 0 "#PWR025" H 3050 1650 50  0001 C CNN
+F 1 "GND" H 3050 1750 50  0000 C CNN
+F 2 "" H 3050 1900 50  0001 C CNN
+F 3 "" H 3050 1900 50  0001 C CNN
+	1    3050 1900
+	1    0    0    -1  
+$EndComp
+$Comp
+L GND #PWR026
+U 1 1 5A852469
+P 1850 2700
+F 0 "#PWR026" H 1850 2450 50  0001 C CNN
+F 1 "GND" H 1850 2550 50  0000 C CNN
+F 2 "" H 1850 2700 50  0001 C CNN
+F 3 "" H 1850 2700 50  0001 C CNN
+	1    1850 2700
+	1    0    0    -1  
+$EndComp
+$Comp
+L GND #PWR027
+U 1 1 5A85249C
+P 1850 1900
+F 0 "#PWR027" H 1850 1650 50  0001 C CNN
+F 1 "GND" H 1850 1750 50  0000 C CNN
+F 2 "" H 1850 1900 50  0001 C CNN
+F 3 "" H 1850 1900 50  0001 C CNN
+	1    1850 1900
+	1    0    0    -1  
+$EndComp
+Text HLabel 2500 1950 2    60   BiDi ~ 0
+FLAG1
+NoConn ~ 2000 1450
+NoConn ~ 2000 1550
+NoConn ~ 2000 1650
+NoConn ~ 2000 1750
+NoConn ~ 2000 1950
+NoConn ~ 2000 2050
+NoConn ~ 2000 2150
+NoConn ~ 2000 2250
+NoConn ~ 2000 2750
+NoConn ~ 2000 2850
+NoConn ~ 2000 2950
+NoConn ~ 2000 3050
+NoConn ~ 2000 3150
+NoConn ~ 2000 3250
+NoConn ~ 2000 3350
+NoConn ~ 2500 3350
+NoConn ~ 2500 3250
+NoConn ~ 2500 3150
+NoConn ~ 2500 3050
+NoConn ~ 2500 2950
+NoConn ~ 2500 2850
+NoConn ~ 2500 2750
+NoConn ~ 2500 2650
+NoConn ~ 2500 2450
+NoConn ~ 2500 2350
+NoConn ~ 2500 2050
+Text Notes 2000 3700 0    60   ~ 0
+RPi Header
+Text Notes 3900 2000 0    60   ~ 0
+JTAG Header
+$Comp
+L Conn_02x04_Odd_Even J4
+U 1 1 5A852B85
+P 4150 1500
+F 0 "J4" H 4200 1700 50  0000 C CNN
+F 1 "Conn_02x04_Odd_Even" H 4200 1200 50  0000 C CNN
+F 2 "" H 4150 1500 50  0001 C CNN
+F 3 "" H 4150 1500 50  0001 C CNN
+	1    4150 1500
+	1    0    0    -1  
+$EndComp
+Text HLabel 4450 1500 2    60   BiDi ~ 0
+JTAG_JRST
+Text HLabel 3950 1600 0    60   BiDi ~ 0
+JTAG_JTCK
+Text HLabel 4450 1600 2    60   BiDi ~ 0
+JTAG_JTDI
+Text HLabel 3950 1700 0    60   BiDi ~ 0
+JTAG_nRST
+Text HLabel 4450 1700 2    60   BiDi ~ 0
+JTAG_JTDO
+Text HLabel 3950 1500 0    60   BiDi ~ 0
+JTAG_JTMS
+NoConn ~ 3950 1400
+$Comp
+L GND #PWR028
+U 1 1 5A852BF5
+P 4650 1250
+F 0 "#PWR028" H 4650 1000 50  0001 C CNN
+F 1 "GND" H 4650 1100 50  0000 C CNN
+F 2 "" H 4650 1250 50  0001 C CNN
+F 3 "" H 4650 1250 50  0001 C CNN
+	1    4650 1250
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	3050 1900 3050 1650
+Wire Wire Line
+	3050 1650 2500 1650
+Wire Wire Line
+	1850 2650 2000 2650
+Wire Wire Line
+	1850 1850 2000 1850
+Wire Wire Line
+	2500 1450 2550 1450
+Wire Wire Line
+	2550 1400 2550 1550
+Wire Wire Line
+	2550 1550 2500 1550
+Connection ~ 2550 1450
+Wire Wire Line
+	1850 1900 1850 1850
+Wire Wire Line
+	1850 2700 1850 2650
+Wire Wire Line
+	4450 1400 4500 1400
+Wire Wire Line
+	4500 1400 4500 1200
+Wire Wire Line
+	4500 1200 4650 1200
+Wire Wire Line
+	4650 1200 4650 1250
+$Comp
+L Conn_01x04 J5
+U 1 1 5A857B11
+P 4550 2700
+F 0 "J5" H 4550 2900 50  0000 C CNN
+F 1 "Conn_01x04" H 4550 2400 50  0000 C CNN
+F 2 "" H 4550 2700 50  0001 C CNN
+F 3 "" H 4550 2700 50  0001 C CNN
+	1    4550 2700
+	1    0    0    -1  
+$EndComp
+$Comp
+L GND #PWR029
+U 1 1 5A857B5F
+P 4250 3000
+F 0 "#PWR029" H 4250 2750 50  0001 C CNN
+F 1 "GND" H 4250 2850 50  0000 C CNN
+F 2 "" H 4250 3000 50  0001 C CNN
+F 3 "" H 4250 3000 50  0001 C CNN
+	1    4250 3000
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	4250 2800 4250 3000
+Wire Wire Line
+	4350 2900 4250 2900
+Wire Wire Line
+	4250 2800 4350 2800
+Connection ~ 4250 2900
+$Comp
+L +5V #PWR030
+U 1 1 5A857BAF
+P 4250 2550
+F 0 "#PWR030" H 4250 2400 50  0001 C CNN
+F 1 "+5V" H 4250 2690 50  0000 C CNN
+F 2 "" H 4250 2550 50  0001 C CNN
+F 3 "" H 4250 2550 50  0001 C CNN
+	1    4250 2550
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	4250 2550 4250 2600
+Wire Wire Line
+	4250 2600 4350 2600
+Text HLabel 4350 2700 0    60   BiDi ~ 0
+PPS
+Text Notes 4000 3350 0    60   ~ 0
+4 Pos Header
+$EndSCHEMATC
