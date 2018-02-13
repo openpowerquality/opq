@@ -7,6 +7,7 @@ plugins individually.
 from plugins.AcquisitionTriggerPlugin import AcquisitionTriggerPlugin
 from plugins.FrequencyThresholdPlugin import FrequencyThresholdPlugin
 from plugins.IticPlugin import IticPlugin
+from plugins.LocalityPlugin import LocalityPlugin
 from plugins.MeasurementPlugin import MeasurementPlugin
 from plugins.StatusPlugin import StatusPlugin
 from plugins.ThdPlugin import ThdPlugin
