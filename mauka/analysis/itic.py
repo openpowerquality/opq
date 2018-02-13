@@ -7,6 +7,7 @@ import matplotlib
 import analysis
 import constants
 
+HUNDREDTH_OF_A_CYCLE = analysis.c_to_ms(0.01)
 
 class IticRegion(enum.Enum):
     """
@@ -19,7 +20,7 @@ class IticRegion(enum.Enum):
 
 
 prohibited_region_polygon = [
-    [constants.HUNDREDTH_OF_A_CYCLE, 500],
+    [HUNDREDTH_OF_A_CYCLE, 500],
     [1, 200],
     [3, 140],
     [3, 120],
@@ -28,7 +29,7 @@ prohibited_region_polygon = [
     [5000, 110],
     [10000, 110],
     [10000, 500],
-    [constants.HUNDREDTH_OF_A_CYCLE, 500]
+    [HUNDREDTH_OF_A_CYCLE, 500]
 ]
 """Polygon representing the prohibited region"""
 
@@ -48,7 +49,7 @@ no_damage_region_polygon = [
 no_interruption_region_polygon = [
     [0, 0],
     [0, 500],
-    [constants.HUNDREDTH_OF_A_CYCLE, 500],
+    [HUNDREDTH_OF_A_CYCLE, 500],
     [1, 200],
     [3, 140],
     [3, 120],
@@ -116,7 +117,7 @@ def itic_region(rms_voltage: float, duration_ms: float) -> enum.Enum:
 
     # In the y-direction
     if percent_nominal >= 500:
-        if duration_ms <= constants.HUNDREDTH_OF_A_CYCLE:
+        if duration_ms <= HUNDREDTH_OF_A_CYCLE:
             return IticRegion.NO_INTERRUPTION
         else:
             return IticRegion.PROHIBITED
