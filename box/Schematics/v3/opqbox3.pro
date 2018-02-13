@@ -1,4 +1,4 @@
-update=Tue 06 Feb 2018 07:42:15 PM HST
+update=Mon 12 Feb 2018 02:50:05 PM HST
 version=1
 last_client=kicad
 [pcbnew]
@@ -30,3 +30,7 @@ version=1
 LibDir=../v3
 [eeschema/libraries]
 LibName1=opqbox3
+LibName2=device
+LibName3=power
+LibName4=conn
+LibName5=contrib

@@ -26,10 +26,12 @@ pin, type, name, side
 6, out, VOUTN, right
 7, out, VOUTP, right
 
-IRM-05-5,
+IRM-05-5,PSU,
 pin, type, name, side
-1, power_in, INPUT, left
-2, power_out, OUTPUT, right
+1, power_in, AC_L, left
+2, power_in, AC_N, left
+3, power_out, V+, right
+4, power_in, V-, right
 
 ISL21010CFH333Z-TK,
 pin, type, name, side
@@ -37,11 +39,11 @@ pin, type, name, side
 2, out, VOUT, left
 3, power_in, GND, right
 
-AP2120N-3.3TRG1,
+AP2120N-3.3TRG1,REG,
 pin, type, name, side
 1, power_in, GND, bottom
-2, power_out, VOUT, bottom
-3, power_in, VIN, top
+2, power_out, VOUT, right
+3, power_in, VIN, left
 
 STM32F373CCT6,U,Housings_QFP:LQFP-48_7x7mm_Pitch0.5mm,
 pin, name, side, type
