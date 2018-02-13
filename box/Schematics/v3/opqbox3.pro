@@ -1,4 +1,4 @@
-update=Mon 12 Feb 2018 02:50:05 PM HST
+update=Tue 13 Feb 2018 12:48:04 AM HST
 version=1
 last_client=kicad
 [pcbnew]
@@ -33,4 +33,3 @@ LibName1=opqbox3
 LibName2=device
 LibName3=power
 LibName4=conn
-LibName5=contrib

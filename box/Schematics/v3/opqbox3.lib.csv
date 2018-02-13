@@ -13,7 +13,6 @@ pin, type, name, side
 16, power_in, GND2, left
 19, power_in, GND2, left
 
-
 AMC1100DWV,
 pin, type, name, side
 1, power_in, VDD1, left
@@ -35,14 +34,20 @@ pin, type, name, side
 ISL21010CFH333Z-TK,
 pin, type, name, side
 1, power_in, VIN, left
-2, out, VOUT, left
-3, power_in, GND, right
+2, out, VOUT, right
+3, power_in, GND, bottom
 
 AP2120N-3.3TRG1,REG,
 pin, type, name, side
 1, power_in, GND, bottom
 2, power_out, VOUT, right
 3, power_in, VIN, left
+
+FOX924B,U,
+pin, name, type, side
+4, VCC, power_in, left
+2, GND, power_in, left
+3, OSC, out, right
 
 STM32F373CCT6,U,Housings_QFP:LQFP-48_7x7mm_Pitch0.5mm,
 pin, name, side, type
@@ -94,3 +99,14 @@ pin, name, side, type
 20, PB2/SDADC1_6P, left, io
 21, PE8/SDADC2_8P, left, io
 22, PE9/SDADC2_8N, left, io
+
+ARM_JTAG_8_PIN,J,
+pin, name, type, side
+1, VDD, power_out, bottom
+2, GND, power_in, bottom
+3, TMS, bi, bottom
+4, nTRST, bi, bottom
+5, TCK, bi, bottom
+6, TDI, bi, bottom
+7, nSRST, bi, bottom
+8, TDO, bi, bottom
