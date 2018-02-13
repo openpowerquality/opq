@@ -30,9 +30,9 @@ def is_event(wave):
         x = np.fft.fftfreq(y.size, 1 / SAMPLE_RATE_HZ)
     
         for f in [60,120,180,240,300,360]:
-            close = closest_idx(x, 60.0)
+            close = closest_idx(x, f)
             y[close] = 0;
-            close = closest_idx(x, -60.0)
+            close = closest_idx(x, -1 * f)
             y[close] = 0
         y = scipy.fftpack.ifft(y)
         this_metrik =  np.sum(np.abs(y))/norm
