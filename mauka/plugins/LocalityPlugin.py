@@ -14,9 +14,22 @@ import plugins.base
 import numpy
 import scipy.fftpack
 
+# global_event_metrics
+# * event_id: str
+# * metrics: list[global_event_metric]
+#
+# global_event_metric
+# * name: str
+# * metadata: map[box_id, metric_metadata]
+#
+# metric_metadata
+# * box_id: str
+# * confidence: float
+# * start_sample: int
+# * end_sample: int
 
 
-def perform_locality_fft_transient_calculation(fs, box_events):
+def perform_locality_fft_transient_calculation(fs, box_events, threshold=1.2):
     def is_event(wave):
         metric = 0
         max = 0
@@ -36,7 +49,7 @@ def perform_locality_fft_transient_calculation(fs, box_events):
             if this_metrik > metric:
                 metric = this_metrik
                 max = i * 2000
-        if metric > 1.2:
+        if metric > threshold:
             return max
         return -1
 
@@ -72,13 +85,14 @@ class LocalityPlugin(plugins.base.MaukaPlugin):
         """
         super().__init__(config, ["RequestDataEvent", "LocalityRequestEvent"], LocalityPlugin.NAME, exit_event)
         self.get_data_after_s = self.config["plugins.LocalityPlugin.getDataAfterS"]
+        self.naive_fft_threshold = self.config["plugins.LocalityPlugin.naiveFft.threshold"]
 
     def perform_locality_calculations(self, event_id: int):
         box_events = self.mongo_client.box_events_collection.find({"event_id": event_id})
         if len(box_events) <= 0:
             return
 
-        perform_locality_fft_transient_calculation(self.mongo_client.fs, box_events)
+        perform_locality_fft_transient_calculation(self.mongo_client.fs, box_events, self.naive_fft_threshold)
 
     def on_message(self, topic, message):
         """
