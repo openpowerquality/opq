@@ -11,6 +11,7 @@ import constants
 import mongo.mongo
 import plugins.base
 
+import gridfs
 import numpy
 import scipy.fftpack
 
@@ -23,13 +24,14 @@ import scipy.fftpack
 # * metadata: map[box_id, metric_metadata]
 #
 # metric_metadata
-# * box_id: str
 # * confidence: float
 # * start_sample: int
 # * end_sample: int
 
 
-def perform_locality_fft_transient_calculation(fs, box_events, threshold=1.2):
+def perform_locality_fft_transient_calculation(fs: gridfs.GridFS, box_events, mongo_client: mongo.mongo.OpqMongoClient, threshold: float = 1.2):
+    event_id = box_events[0]["event_id"]
+
     def is_event(wave):
         metric = 0
         max = 0
@@ -53,6 +55,16 @@ def perform_locality_fft_transient_calculation(fs, box_events, threshold=1.2):
             return max
         return -1
 
+    def store_metric(locations: typing.List[typing.Dict]):
+        metadata = {}
+        for location in locations:
+            metadata[location["box_id"]] = {"confidence": 0.0, "start_sample": location["loc"], "end_sample": -1}
+        metric = {
+            "name": "naive-fft",
+            "metadata": metadata
+        }
+        mongo_client.global_event_metrics_collection.update_one({"event_id": event_id}, {"$push" : {"metrics": metric}})
+
     count = 0
     locations = []
     for box_event in box_events:
@@ -63,7 +75,8 @@ def perform_locality_fft_transient_calculation(fs, box_events, threshold=1.2):
             count += 1
             locations.append({"id": box_event["box_id"], "loc": loc})
     if count > 1:
-        print("{} {}".format(count, locations))
+        # print("{} {}".format(count, locations))
+        store_metric(locations)
     else:
         pass
 
