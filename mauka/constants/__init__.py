@@ -5,12 +5,16 @@ This module contains constants relating to the OPQ project or methods for access
 import typing
 
 from mongo.mongo import get_box_calibration_constants
+from analysis import c_to_ms
 
 SAMPLES_PER_CYCLE = 200.0
 """Number of samples per electrical cycle for OPQ box"""
 
 SAMPLE_RATE_HZ = 12000.0
 """Sample rate of OPQ box"""
+
+HUNDREDTH_OF_A_CYCLE = c_to_ms(0.01)
+"""Hundredth of a power cycle in milliseconds"""
 
 
 def get_calibration_constant(box_id: int) -> float:
