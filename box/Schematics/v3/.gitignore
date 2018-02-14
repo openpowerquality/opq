@@ -1,2 +1,4 @@
 opqbox3.lib
 *.bak
+_autosave*
+*.kicad_pcb-bak
