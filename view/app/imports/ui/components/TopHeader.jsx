@@ -27,6 +27,9 @@ class TopHeader extends React.Component {
         <Menu.Item as={NavLink} activeClassName="active" exact to="/drs">
           DRS
         </Menu.Item>
+        <Menu.Item as={NavLink} activeClassName="active" exact to="/krs">
+          KRS
+        </Menu.Item>
         <Menu.Item position="right">
           {this.props.currentUser === '' ? (
             <Dropdown text="Please Sign In" pointing="top right" icon={'user'}>

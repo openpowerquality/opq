@@ -24,6 +24,7 @@
     "react-dom": "^16.2.0",
     "react-router": "^4.2.0",
     "react-router-dom": "^4.2.2",
+    "recharts": "^1.0.0-beta.10",
     "semantic-ui-css": "^2.2.12",
     "semantic-ui-react": "^0.77.2"
   },
