@@ -43,3 +43,4 @@ mdg:validated-method
 # Testing
 practicalmeteor:mocha
 dispatch:mocha
+percolate:synced-cron
