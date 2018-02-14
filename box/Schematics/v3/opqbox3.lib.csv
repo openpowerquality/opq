@@ -12,6 +12,14 @@ pin, type, name, side
 15, power_in, GND2, left
 16, power_in, GND2, left
 19, power_in, GND2, left
+1,power_in,NC, left
+3,power_in,NC, left
+4,power_in,NC, left
+7,power_in,NC, left
+17,power_in,NC, right
+14,power_in,NC, right
+18,power_in,NC, right
+20,power_in,NC, right
 
 AMC1100DWV,
 pin, type, name, side
