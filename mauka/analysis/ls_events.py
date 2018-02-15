@@ -55,7 +55,7 @@ def start_recent_events_loop(skip: int = 0, max_events: int = 20, mongo_client: 
             break
         elif is_int(io):
             subprocess.call(["python3", "-m", "analysis.plotter", str(io)])
-            break
+            continue
         else:
             recent_events(i, max_events, client)
             i += max_events
