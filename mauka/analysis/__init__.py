@@ -27,14 +27,14 @@ def to_s16bit(data: bytes) -> numpy.ndarray:
     return numpy.frombuffer(data, numpy.int16)
 
 
-def waveform_from_file(fs: gridfs.GridFS, filename: str) -> numpy.ndarray:
+def waveform_from_file(fs: gridfs.GridFS, data_fs_filename: str) -> numpy.ndarray:
     """
     Loads a raw waveform from gridfs.
     :param fs: The gridfs client.
-    :param filename: The filename of the file to load.
+    :param data_fs_filename: The filename of the file to load.
     :return: An array of signed 16-bit integers that represent the raw waveform.
     """
-    buf = fs.get_last_version(filename).read()
+    buf = fs.get_last_version(data_fs_filename).read()
     s16bit_buf = to_s16bit(buf)
     return s16bit_buf
 

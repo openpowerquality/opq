@@ -33,5 +33,6 @@
   "plugins.ThresholdPlugin.frequency.threshold.percent.low": 0.5,
   "plugins.ThresholdPlugin.frequency.threshold.percent.high": 0.5,
 
-  "plugins.LocalityPlugin.getDataAfterS": 10.0
+  "plugins.LocalityPlugin.getDataAfterS": 10.0,
+  "plugins.LocalityPlugin.naiveFft.threshold" : 1.2
 }

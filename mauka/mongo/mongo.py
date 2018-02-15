@@ -33,6 +33,7 @@ class Collection:
     EVENTS = "events"
     BOX_EVENTS = "box_events"
     OPQ_BOXES = "opq_boxes"
+    GLOBAL_EVENT_METRICS = "global_event_metrics"
 
 
 class OpqMongoClient:
@@ -66,6 +67,9 @@ class OpqMongoClient:
 
         self.opq_boxes_collection = self.get_collection(Collection.OPQ_BOXES)
         """Opq boxes collection"""
+
+        self.global_event_metrics_collection = self.get_collection(Collection.GLOBAL_EVENT_METRICS)
+        """Global event metrics collection"""
 
     def get_collection(self, collection: str):
         """ Returns a mongo collection by name
@@ -133,8 +137,8 @@ def get_box_calibration_constants(mongo_client: OpqMongoClient = None, defaults:
     """
     _mongo_client = mongo_client if mongo_client is not None else OpqMongoClient()
     opq_boxes = _mongo_client.opq_boxes_collection.find(projection={'_id': False,
-                                                                     "calibration_constant": True,
-                                                                     "box_id": True})
+                                                                    "calibration_constant": True,
+                                                                    "box_id": True})
     r = {}
     for k, v in defaults.items():
         r[k] = v
