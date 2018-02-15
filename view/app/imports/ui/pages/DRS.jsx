@@ -5,73 +5,11 @@ import { withTracker } from 'meteor/react-meteor-data';
 import { Header, Statistic, Grid, Segment, Icon, Loader } from 'semantic-ui-react';
 import { Trends } from '../../api/trends/TrendsCollection.js';
 import { Events } from '../../api/events/EventsCollection.js';
-import { totalEventsCount } from '../../api/events/EventsCollectionMethods.js';
-import { totalBoxEventsCount } from '../../api/box-events/BoxEventsCollectionMethods.js';
-import { totalOpqBoxesCount } from '../../api/opq-boxes/OpqBoxesCollectionMethods.js';
-import { totalMeasurementsCount } from '../../api/measurements/MeasurementsCollectionMethods.js';
-import { totalTrendsCount } from '../../api/trends/TrendsCollectionMethods.js';
-import { totalUsersCount } from '../../api/users/UsersCollectionMethods.js';
+import { SystemStats } from '../../api/system-stats/SystemStatsCollection.js';
 
 class DRS extends React.Component {
-  constructor(props) {
+  constructor(props) { // eslint-disable-line no-useless-constructor
     super(props);
-    this.state = {
-      eventsCount: null,
-      boxEventsCount: null,
-      opqBoxesCount: null,
-      measurementsCount: null,
-      trendsCount: null,
-      usersCount: null,
-    };
-
-    // Meteor Method calls. Should this be done in the container?
-    totalEventsCount.call((error, result) => {
-      if (error) {
-        console.log(error); // eslint-disable-line no-console
-      } else {
-        this.setState({ eventsCount: result });
-      }
-    });
-
-    totalBoxEventsCount.call((error, result) => {
-      if (error) {
-        console.log(error); // eslint-disable-line no-console
-      } else {
-        this.setState({ boxEventsCount: result });
-      }
-    });
-
-    totalOpqBoxesCount.call((error, result) => {
-      if (error) {
-        console.log(error); // eslint-disable-line no-console
-      } else {
-        this.setState({ opqBoxesCount: result });
-      }
-    });
-
-    totalMeasurementsCount.call((error, result) => {
-      if (error) {
-        console.log(error); // eslint-disable-line no-console
-      } else {
-        this.setState({ measurementsCount: result });
-      }
-    });
-
-    totalTrendsCount.call((error, result) => {
-      if (error) {
-        console.log(error); // eslint-disable-line no-console
-      } else {
-        this.setState({ trendsCount: result });
-      }
-    });
-
-    totalUsersCount.call((error, result) => {
-      if (error) {
-        console.log(error); // eslint-disable-line no-console
-      } else {
-        this.setState({ usersCount: result });
-      }
-    });
   }
 
   listTrends() {
@@ -82,8 +20,18 @@ class DRS extends React.Component {
     return this.props.events.map(event => <p key={event._id}>{JSON.stringify(event, null, 2)}</p>);
   }
 
+  // abbreviateNumber(number) {
+  //   const num = Number(number);
+  //   let abbreviation = '';
+  //   if (num >= 1000 && num < 1000000) abbreviation = 'K';
+  //   if (num >= 1000000 && num < 1000000000) abbreviation = 'M';
+  //   if (num >= 1000000000 && num < 1000000000000) abbreviation = 'B';
+  // }
+
   render() {
-    const subscriptionsLoaded = this.props.trendsSubscriptionsReady && this.props.eventsSubscriptionsReady;
+    const subscriptionsLoaded = this.props.trendsSubscriptionsReady && this.props.eventsSubscriptionsReady
+        && this.props.systemStatsSubscriptionsReady;
+
     if (!subscriptionsLoaded) {
       return <Loader active>Subscriptions Loading...</Loader>;
     } else { // eslint-disable-line no-else-return
@@ -101,34 +49,34 @@ class DRS extends React.Component {
               <Segment attached='bottom'>
                 <Statistic.Group widths='three' color='blue'>
                   <Statistic>
-                    <Statistic.Value>{this.state.eventsCount}</Statistic.Value>
+                    <Statistic.Value>{this.props.systemStats.events_count}</Statistic.Value>
                     <Statistic.Label>Total Events</Statistic.Label>
                   </Statistic>
 
                   <Statistic>
-                    <Statistic.Value>{this.state.boxEventsCount}</Statistic.Value>
+                    <Statistic.Value>{this.props.systemStats.box_events_count}</Statistic.Value>
                     <Statistic.Label>Total Box Events</Statistic.Label>
                   </Statistic>
 
                   <Statistic>
-                    <Statistic.Value>{this.state.opqBoxesCount}</Statistic.Value>
+                    <Statistic.Value>{this.props.systemStats.opq_boxes_count}</Statistic.Value>
                     <Statistic.Label>Total OPQ Boxes</Statistic.Label>
                   </Statistic>
                 </Statistic.Group>
 
                 <Statistic.Group widths='three' color='blue'>
                   <Statistic>
-                    <Statistic.Value>{this.state.measurementsCount}</Statistic.Value>
+                    <Statistic.Value>{this.props.systemStats.measurements_count}</Statistic.Value>
                     <Statistic.Label>Total Measurements</Statistic.Label>
                   </Statistic>
 
                   <Statistic>
-                    <Statistic.Value>{this.state.trendsCount}</Statistic.Value>
+                    <Statistic.Value>{this.props.systemStats.trends_count}</Statistic.Value>
                     <Statistic.Label>Total Trends</Statistic.Label>
                   </Statistic>
 
                   <Statistic>
-                    <Statistic.Value>{this.state.usersCount}</Statistic.Value>
+                    <Statistic.Value>{this.props.systemStats.users_count}</Statistic.Value>
                     <Statistic.Label>Total Users</Statistic.Label>
                   </Statistic>
                 </Statistic.Group>
@@ -163,6 +111,8 @@ DRS.propTypes = {
   trendsSubscriptionsReady: PropTypes.bool,
   events: PropTypes.array,
   eventsSubscriptionsReady: PropTypes.bool,
+  systemStats: PropTypes.object,
+  systemStatsSubscriptionsReady: PropTypes.bool,
 };
 
 export default DRS = withTracker(() => { // eslint-disable-line no-class-assign
@@ -173,10 +123,15 @@ export default DRS = withTracker(() => { // eslint-disable-line no-class-assign
   const eventsSubHandle = Meteor.subscribe(Events.publicationNames.GET_RECENT_EVENTS, { numEvents: 3 });
   const events = Trends.find().fetch();
 
+  const systemStatsSunHandle = Meteor.subscribe(SystemStats.publicationNames.GET_SYSTEM_STATS);
+  const systemStats = SystemStats.findOne();
+
   return {
     trends,
     trendsSubscriptionsReady: trendsSubHandle.ready(),
     events,
     eventsSubscriptionsReady: eventsSubHandle.ready(),
+    systemStats,
+    systemStatsSubscriptionsReady: systemStatsSunHandle.ready(),
   };
 })(DRS);
