@@ -102,7 +102,9 @@ class DRS extends React.Component {
 
                 <Statistic.Group widths='three' color='blue'>
                   <Statistic>
-                    <Statistic.Value>{this.abbreviateNumber(this.props.systemStats.measurements_count)}</Statistic.Value>
+                    <Statistic.Value>
+                      {this.abbreviateNumber(this.props.systemStats.measurements_count)}
+                    </Statistic.Value>
                     <Statistic.Label>Total Measurements</Statistic.Label>
                   </Statistic>
 

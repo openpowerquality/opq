@@ -1,7 +1,7 @@
 import { Meteor } from 'meteor/meteor';
 import { Mongo } from 'meteor/mongo';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
-import { check, Match } from 'meteor/check';
+import { check } from 'meteor/check';
 import BaseCollection from '../base/BaseCollection.js';
 import { OpqBoxes } from '../opq-boxes/OpqBoxesCollection';
 import { progressBarSetup } from '../../modules/utils';
