@@ -1,31 +1,21 @@
 import { Meteor } from 'meteor/meteor';
-import { initIntegrityChecks, getCollection, totalDBDocCount } from '../../modules/integrityChecker';
-// import { dumpByEventNumber, eventsBetween } from '../../modules/dbJsonDumper';
+import { SyncedCron } from 'meteor/percolate:synced-cron';
+import { SystemStats } from '../../api/system-stats/SystemStatsCollection.js';
 
-function loadDatabase() {
-  const dbFilename = Meteor.settings.public.dbRestoreFilename;
-  if (dbFilename && (totalDBDocCount() === 0)) {
-    const dbJsonFile = JSON.parse(Assets.getText(dbFilename));
-    dbJsonFile.forEach(collectionDumpObj => {
-      const collectionName = collectionDumpObj.name;
-      const collection = getCollection(collectionName);
-      if (collection) {
-        const collectionContents = collectionDumpObj.contents;
-        collection.restoreAll(collectionContents);
-      }
-    });
-  }
+function startupSystemStatsCronjob() {
+  const updateIntervalSeconds = Meteor.settings.public.systemStatsUpdateIntervalSeconds;
+  SyncedCron.add({
+    name: 'Update the SystemStats collection with current collection counts',
+    schedule(parser) {
+      return parser.text(`every ${updateIntervalSeconds} seconds`); // Parser is a later.js parse object.
+    },
+    job() {
+      SystemStats.updateCounts();
+    },
+  });
+  SyncedCron.start();
 }
 
 Meteor.startup(() => {
-  loadDatabase();
-  if (Meteor.settings.public.enableStartupIntegrityCheck) {
-    const result = initIntegrityChecks();
-    console.log(result.messages); // eslint-disable-line no-console
-    console.log(result.resultStats); // eslint-disable-line no-console
-  }
-
-  // dumpByEventNumber(9356);
-  // eventsBetween(1508752800000, 1508839200000);
+  startupSystemStatsCronjob();
 });
-

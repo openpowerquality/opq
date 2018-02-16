@@ -28,8 +28,8 @@ class EventsCollection extends BaseCollection {
     }));
 
     this.publicationNames = {
-      // GET_EVENT_META_DATA: 'get_event_meta_data',
       GET_EVENTS: 'get_events',
+      GET_RECENT_EVENTS: 'get_recent_events',
     };
   }
 
@@ -43,7 +43,7 @@ class EventsCollection extends BaseCollection {
    * @returns The newly created document ID.
    */
   define({ event_id, type, description, boxes_triggered, boxes_received, target_event_start_timestamp_ms,
-           target_event_end_timestamp_ms, latencies_ms }) {
+    target_event_end_timestamp_ms, latencies_ms }) {
     const docID = this._collection.insert({ event_id, type, description, boxes_triggered, boxes_received,
       target_event_start_timestamp_ms, target_event_end_timestamp_ms, latencies_ms });
     return docID;
@@ -107,6 +107,13 @@ class EventsCollection extends BaseCollection {
 
         const selector = self.queryConstructors().getEvents({ startTime, endTime });
         return self.find(selector);
+      });
+
+      Meteor.publish(this.publicationNames.GET_RECENT_EVENTS, function ({ numEvents }) {
+        check(numEvents, Number);
+
+        const events = self.find({}, { sort: { timestamp_ms: -1 }, limit: numEvents });
+        return events;
       });
     }
   }
