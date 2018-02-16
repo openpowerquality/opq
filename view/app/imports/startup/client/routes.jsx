@@ -23,6 +23,7 @@ import Signin from '../../ui/pages/Signin.jsx';
 import Signup from '../../ui/pages/Signup.jsx';
 import Signout from '../../ui/pages/Signout.jsx';
 import DRS from '../../ui/pages/DRS.jsx';
+import KRS from '../../ui/pages/KRS.jsx';
 
 Meteor.startup(() => {
   render(
@@ -34,6 +35,7 @@ Meteor.startup(() => {
           <Route path="/signin" component={Signin} />
           <Route path="/signup" component={Signup} />
           <Route path="/drs" component={DRS} />
+          <Route path="/krs" component={KRS} />
           <ProtectedRoute path="/example" component={Example} />
           <ProtectedRoute path="/account" component={Account} />
           <ProtectedRoute path="/settings" component={Settings} />
@@ -51,7 +53,7 @@ Meteor.startup(() => {
  * will check the Meteor login before routing to the requested page
  * @param {any} { component: Component, ...rest }
  */
-const ProtectedRoute = ({ component: Component, ...rest }) => (
+const ProtectedRoute = ({component: Component, ...rest}) => (
   <Route
     {...rest}
     render={(props) => {
@@ -62,7 +64,7 @@ const ProtectedRoute = ({ component: Component, ...rest }) => (
         <Redirect
           to={{
             pathname: '/signin',
-            state: { from: props.location },
+            state: {from: props.location},
           }}
         />
       );
