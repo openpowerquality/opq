@@ -102,7 +102,7 @@ class LocalityPlugin(plugins.base.MaukaPlugin):
 
     def perform_locality_calculations(self, event_id: int):
         box_events = self.mongo_client.box_events_collection.find({"event_id": event_id})
-        if len(box_events) <= 0:
+        if box_events.count() <= 0:
             return
 
         perform_locality_fft_transient_calculation(self.mongo_client.fs, box_events, self.naive_fft_threshold)
