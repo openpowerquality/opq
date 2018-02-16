@@ -3,6 +3,7 @@ import typing
 
 import numpy
 import matplotlib
+import matplotlib.path
 
 import analysis
 import constants
