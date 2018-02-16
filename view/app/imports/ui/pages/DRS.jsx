@@ -155,7 +155,7 @@ DRS.propTypes = {
 
 export default DRS = withTracker(() => { // eslint-disable-line no-class-assign
   // Lets load 1000 documents so we can demonstrate the loading spinner.
-  const trendsSubHandle = Meteor.subscribe(Trends.publicationNames.GET_RECENT_TRENDS, { numTrends: 1000 });
+  const trendsSubHandle = Meteor.subscribe(Trends.publicationNames.GET_RECENT_TRENDS, { numTrends: 3 });
   const trends = Trends.find().fetch();
 
   const eventsSubHandle = Meteor.subscribe(Events.publicationNames.GET_RECENT_EVENTS, { numEvents: 3 });
