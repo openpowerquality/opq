@@ -15,7 +15,7 @@
 
   "plugins.AcquisitionTriggerPlugin.msBefore": 1000,
   "plugins.AcquisitionTriggerPlugin.msAfter": 1000,
-  "plugins.AcquisitionTriggerPlugin.sDeadZoneAfterTrigger": 60,
+  "plugins.AcquisitionTriggerPlugin.sDeadZoneAfterTrigger": 20,
 
   "plugins.base.heartbeatIntervalS": 600.0,
 
