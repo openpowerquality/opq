@@ -20,13 +20,49 @@ class DRS extends React.Component {
     return this.props.events.map(event => <p key={event._id}>{JSON.stringify(event, null, 2)}</p>);
   }
 
-  // abbreviateNumber(number) {
-  //   const num = Number(number);
-  //   let abbreviation = '';
-  //   if (num >= 1000 && num < 1000000) abbreviation = 'K';
-  //   if (num >= 1000000 && num < 1000000000) abbreviation = 'M';
-  //   if (num >= 1000000000 && num < 1000000000000) abbreviation = 'B';
-  // }
+  abbreviateNumber(number, numDigitsDisplay = 3) { // eslint-disable-line class-methods-use-this
+    const num = Number(number);
+    let suffix = '';
+    if (num >= 1000 && num < 1000000) suffix = 'K';
+    if (num >= 1000000 && num < 1000000000) suffix = 'M';
+    if (num >= 1000000000 && num < 1000000000000) suffix = 'B';
+
+    let abbreviatedNumber = num;
+    if (num > 999) {
+      // Move decimal place as needed. The approach here is to basically modify the number so that it begins with
+      // a decimal (eg. 9843 => 0.9843), and then we move the decimal position forward as needed.
+      abbreviatedNumber *= 10 ** (numDigitsDisplay - abbreviatedNumber.toString().length);
+      abbreviatedNumber = abbreviatedNumber.toFixed(1); // Keep only one decimal place in the end.
+
+      // Then round to whole number.
+      abbreviatedNumber = Math.round(abbreviatedNumber);
+      const roundedNumDigits = abbreviatedNumber.toString().length;
+
+      // Calculate what 10^pow value we need.
+      let pow = null;
+      switch (num.toString().length % 3) { // Note that we are checking length of the original given number.
+        case 0:
+          pow = 3;
+          break;
+        case 1:
+          pow = 1;
+          break;
+        case 2:
+          pow = 2;
+          break;
+        default:
+          break;
+      }
+
+      // Finally, move decimal place as needed.
+      abbreviatedNumber *= 10 ** (pow - roundedNumDigits);
+
+      // Fix potential floating point rounding issues.
+      abbreviatedNumber = abbreviatedNumber.toFixed(roundedNumDigits - pow);
+    }
+
+    return `${abbreviatedNumber} ${suffix}`;
+  }
 
   render() {
     const subscriptionsLoaded = this.props.trendsSubscriptionsReady && this.props.eventsSubscriptionsReady
@@ -49,34 +85,36 @@ class DRS extends React.Component {
               <Segment attached='bottom'>
                 <Statistic.Group widths='three' color='blue'>
                   <Statistic>
-                    <Statistic.Value>{this.props.systemStats.events_count}</Statistic.Value>
+                    <Statistic.Value>{this.abbreviateNumber(this.props.systemStats.events_count)}</Statistic.Value>
                     <Statistic.Label>Total Events</Statistic.Label>
                   </Statistic>
 
                   <Statistic>
-                    <Statistic.Value>{this.props.systemStats.box_events_count}</Statistic.Value>
+                    <Statistic.Value>{this.abbreviateNumber(this.props.systemStats.box_events_count)}</Statistic.Value>
                     <Statistic.Label>Total Box Events</Statistic.Label>
                   </Statistic>
 
                   <Statistic>
-                    <Statistic.Value>{this.props.systemStats.opq_boxes_count}</Statistic.Value>
+                    <Statistic.Value>{this.abbreviateNumber(this.props.systemStats.opq_boxes_count)}</Statistic.Value>
                     <Statistic.Label>Total OPQ Boxes</Statistic.Label>
                   </Statistic>
                 </Statistic.Group>
 
                 <Statistic.Group widths='three' color='blue'>
                   <Statistic>
-                    <Statistic.Value>{this.props.systemStats.measurements_count}</Statistic.Value>
+                    <Statistic.Value>
+                      {this.abbreviateNumber(this.props.systemStats.measurements_count)}
+                    </Statistic.Value>
                     <Statistic.Label>Total Measurements</Statistic.Label>
                   </Statistic>
 
                   <Statistic>
-                    <Statistic.Value>{this.props.systemStats.trends_count}</Statistic.Value>
+                    <Statistic.Value>{this.abbreviateNumber(this.props.systemStats.trends_count)}</Statistic.Value>
                     <Statistic.Label>Total Trends</Statistic.Label>
                   </Statistic>
 
                   <Statistic>
-                    <Statistic.Value>{this.props.systemStats.users_count}</Statistic.Value>
+                    <Statistic.Value>{this.abbreviateNumber(this.props.systemStats.users_count)}</Statistic.Value>
                     <Statistic.Label>Total Users</Statistic.Label>
                   </Statistic>
                 </Statistic.Group>
@@ -117,7 +155,7 @@ DRS.propTypes = {
 
 export default DRS = withTracker(() => { // eslint-disable-line no-class-assign
   // Lets load 1000 documents so we can demonstrate the loading spinner.
-  const trendsSubHandle = Meteor.subscribe(Trends.publicationNames.GET_RECENT_TRENDS, { numTrends: 1000 });
+  const trendsSubHandle = Meteor.subscribe(Trends.publicationNames.GET_RECENT_TRENDS, { numTrends: 3 });
   const trends = Trends.find().fetch();
 
   const eventsSubHandle = Meteor.subscribe(Events.publicationNames.GET_RECENT_EVENTS, { numEvents: 3 });

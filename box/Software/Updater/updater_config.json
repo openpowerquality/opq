@@ -1,0 +1,5 @@
+{
+  "download_dir_path": "/var/opq/updater/",
+  "server_url": "http://emilia.ics.hawaii.edu:8151/",
+  "version_file": "version.json"
+}

@@ -132,7 +132,7 @@ def get_box_calibration_constants(mongo_client: OpqMongoClient = None, defaults:
     :return: A dictionary mapping of box_id to calibration constant
     """
     _mongo_client = mongo_client if mongo_client is not None else OpqMongoClient()
-    opq_boxes = _mongo_client.box_events_collection.find(projection={'_id': False,
+    opq_boxes = _mongo_client.opq_boxes_collection.find(projection={'_id': False,
                                                                      "calibration_constant": True,
                                                                      "box_id": True})
     r = {}

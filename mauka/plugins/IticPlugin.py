@@ -199,7 +199,7 @@ class IticPlugin(plugins.base.MaukaPlugin):
                 calibrated_waveform = self.calibrate_waveform(waveform, constants.cached_calibration_constant(box_id))
                 itic_region_str = self.itic(calibrated_waveform)
 
-                self.mongo_client.box_events.update_one({"_id": _id},
+                self.mongo_client.box_events_collection.update_one({"_id": _id},
                                                         {"$set": {"itic": itic_region_str}})
 
                 self.logger.debug("Calculated ITIC for " + str(event_id) + ":" + str(box_id) + ":" + itic_region_str)

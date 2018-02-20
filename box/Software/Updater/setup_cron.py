@@ -8,8 +8,8 @@ def main():
         if job.comment == 'run_updater':
             my_cron.remove(job)
 
-    command = 'python3 /usr/local/bin/box_updater.py'
-    pipe = ' >> /var/log/opq/box_updater.log'
+    command = '/usr/bin/python3 /usr/local/bin/box_updater.py'
+    pipe = ' >> /var/log/opq/box_updater.log 2>&1'
 
     job = my_cron.new(command=command+pipe, comment='run_updater')
 
