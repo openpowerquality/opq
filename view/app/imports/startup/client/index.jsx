@@ -1,1 +1,1 @@
-import './routes.jsx';
+import './startup.jsx';
