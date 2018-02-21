@@ -12,7 +12,7 @@ execute_process(
 )
 
 
-set(SOURCE_FILES main.cpp proto/opq.pb.cc)
+set(SOURCE_FILES main.cpp proto/opq.pb.cc Statistics.cpp)
 add_executable(opqhealth ${SOURCE_FILES})
 target_link_libraries (opqhealth protobuf)
 target_link_libraries (opqhealth zmqpp)
