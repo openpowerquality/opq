@@ -29,7 +29,7 @@ import scipy.fftpack
 # * end_sample: int
 
 
-def perform_locality_fft_transient_calculation(fs: gridfs.GridFS, box_events, mongo_client: mongo.mongo.OpqMongoClient, threshold: float = 1.2):
+def perform_locality_fft_transient_calculation(box_events, mongo_client: mongo.mongo.OpqMongoClient, threshold: float = 1.2):
     event_id = box_events[0]["event_id"]
 
     def is_event(wave):
@@ -69,7 +69,7 @@ def perform_locality_fft_transient_calculation(fs: gridfs.GridFS, box_events, mo
     locations = []
     for box_event in box_events:
         event_name = box_event["data_fs_filename"]
-        event_data = analysis.waveform_from_file(fs, event_name)
+        event_data = analysis.waveform_from_file(mongo_client.fs, event_name)
         loc = is_event(event_data)
         if loc > 0:
             count += 1
@@ -105,7 +105,7 @@ class LocalityPlugin(plugins.base.MaukaPlugin):
         if box_events.count() <= 0:
             return
 
-        perform_locality_fft_transient_calculation(self.mongo_client.fs, box_events, self.naive_fft_threshold)
+        perform_locality_fft_transient_calculation(self.mongo_client, box_events, self.naive_fft_threshold)
 
     def on_message(self, topic, message):
         """
