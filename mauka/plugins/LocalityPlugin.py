@@ -73,7 +73,7 @@ def perform_locality_fft_transient_calculation(fs: gridfs.GridFS, box_events, mo
         loc = is_event(event_data)
         if loc > 0:
             count += 1
-            locations.append({"id": box_event["box_id"], "loc": loc})
+            locations.append({"box_id": box_event["box_id"], "loc": loc})
     if count > 1:
         # print("{} {}".format(count, locations))
         store_metric(locations)
