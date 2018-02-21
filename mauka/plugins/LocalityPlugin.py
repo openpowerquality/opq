@@ -105,7 +105,7 @@ class LocalityPlugin(plugins.base.MaukaPlugin):
         if box_events.count() <= 0:
             return
 
-        perform_locality_fft_transient_calculation(self.mongo_client, box_events, self.naive_fft_threshold)
+        perform_locality_fft_transient_calculation(box_events, self.mongo_client, self.naive_fft_threshold)
 
     def on_message(self, topic, message):
         """
