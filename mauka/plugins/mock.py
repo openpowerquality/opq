@@ -13,10 +13,13 @@ import typing
 
 import zmq
 
+import mongo.mongo
+import plugins
+
 _logger = logging.getLogger("app")
 logging.basicConfig(
-    format="[%(levelname)s][%(asctime)s][{} %(filename)s:%(lineno)s - %(funcName)s() ] %(message)s".format(
-        os.getpid()))
+        format="[%(levelname)s][%(asctime)s][{} %(filename)s:%(lineno)s - %(funcName)s() ] %(message)s".format(
+                os.getpid()))
 
 
 def produce(broker: str, topic: str, message: str = None, message_bytes=None):
@@ -32,11 +35,27 @@ def produce(broker: str, topic: str, message: str = None, message_bytes=None):
     zmq_context = zmq.Context()
     zmq_pub_socket = zmq_context.socket(zmq.PUB)
     zmq_pub_socket.connect(broker)
-    time.sleep(0.1) # We need to sleep while the handshake takes place
+    time.sleep(0.1)  # We need to sleep while the handshake takes place
     if message is not None:
         zmq_pub_socket.send_multipart((topic.encode(), message.encode()))
     else:
         zmq_pub_socket.send_multipart((topic.encode(), message_bytes))
+
+
+def rerun_analysis(broker: str, plugin_name: str):
+    if plugin_name == plugins.IticPlugin.NAME:
+        pass
+    elif plugin_name == plugins.LocalityPlugin.NAME:
+        opq_mongo_client = mongo.mongo.get_default_client()
+        for event in opq_mongo_client.events_collection.find({}, ["event_id", "boxes_received"]):
+            if len(event["boxes_received"] > 1):
+                produce(broker, "LocalityRequestEvent", str(event["event_id"]))
+                time.sleep(1)
+    elif plugin_name == plugins.ThdPlugin.NAME:
+        pass
+    else:
+        _logger.error("Unknown analysis plugin {}".format(plugin_name))
+        sys.exit("unknown plugin")
 
 
 if __name__ == "__main__":
@@ -61,4 +80,8 @@ if __name__ == "__main__":
     topic = sys.argv[2]
     message = sys.argv[3]
     broker = config["zmq.mauka.plugin.pub.interface"]
-    produce(broker, topic, message)
+
+    if topic == "rerun":
+        rerun_analysis(broker, message)
+    else:
+        produce(broker, topic, message)
