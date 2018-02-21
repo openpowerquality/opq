@@ -5,6 +5,7 @@
 
 #include "json.hpp"
 #include "opq.pb.h"
+#include "Statistics.h"
 
 using namespace std;
 using json = nlohmann::json;
