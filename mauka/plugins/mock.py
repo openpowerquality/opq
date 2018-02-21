@@ -48,7 +48,7 @@ def rerun_analysis(broker: str, plugin_name: str):
     elif plugin_name == plugins.LocalityPlugin.NAME:
         opq_mongo_client = mongo.mongo.get_default_client()
         for event in opq_mongo_client.events_collection.find({}, ["event_id", "boxes_received"]):
-            if len(event["boxes_received"] > 1):
+            if len(event["boxes_received"]) > 1:
                 produce(broker, "LocalityRequestEvent", str(event["event_id"]))
                 time.sleep(1)
     elif plugin_name == plugins.ThdPlugin.NAME:
