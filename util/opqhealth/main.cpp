@@ -1,5 +1,7 @@
 #include <iostream>
 #include <fstream>
+#include <thread>
+#include <chrono>
 
 #include <zmqpp/zmqpp.hpp>
 
@@ -9,6 +11,13 @@
 
 using namespace std;
 using json = nlohmann::json;
+
+void getStatistics(Statistics * stats) {
+    while (true) {
+        stats->printStatistics(); 
+        std::this_thread::sleep_for(std::chrono::milliseconds(5000));        
+    }
+}
 
 int main(int argc, char** argv) {
     //Default config
@@ -57,6 +66,8 @@ int main(int argc, char** argv) {
     int64_t uptime = 0;
     int64_t downtime = 0;
     int64_t last = 0;
+    Statistics stats(1);
+    thread t1(getStatistics, &stats);
     while (true) {
         auto msg = zmqpp::message{};
         sub.receive(msg);
@@ -72,13 +83,15 @@ int main(int argc, char** argv) {
                 downtime = tm.time() - last;
                 last = tm.time();
                 uptime = 0;
-                cout << "Downtime: " << downtime << endl;
+                //cout << "Downtime: " << downtime << endl;
             } else {
                 uptime += tm.time() - last;
                 last = tm.time();
                 downtime = 0;
-                cout << "Uptime: " << uptime << endl;
+                //cout << "Uptime: " << uptime << endl;
             }
+            stats.setDowntime(downtime);
+            stats.setUptime(uptime);
         }
     }
 }
