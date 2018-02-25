@@ -73,8 +73,6 @@ int main(int argc, char** argv) {
         sub.receive(msg);
         opq::proto::TriggerMessage tm;
         tm.ParseFromString(msg.get(1));
-        // cout << msg.get(0) << " " << tm.time() << " " << tm.rms() << " " <<tm.frequency();
-	    // cout << endl;
         if (msg.get(0).compare("1") == 0) {
             if (last == 0) {
                 last = tm.time();
@@ -83,12 +81,10 @@ int main(int argc, char** argv) {
                 downtime = tm.time() - last;
                 last = tm.time();
                 uptime = 0;
-                //cout << "Downtime: " << downtime << endl;
             } else {
                 uptime += tm.time() - last;
                 last = tm.time();
                 downtime = 0;
-                //cout << "Uptime: " << uptime << endl;
             }
             stats.setDowntime(downtime);
             stats.setUptime(uptime);
