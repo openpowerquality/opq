@@ -5,7 +5,7 @@ import 'semantic-ui-css/semantic.css';
 import { HashRouter as Router, Route, Switch, Redirect } from 'react-router-dom';
 
 // Components
-import TopHeader from '../../ui/components/TopHeader.jsx';
+import NavBar from '../../ui/components/NavBar.jsx';
 import Home from '../../ui/pages/Home.jsx';
 import Example from '../../ui/pages/Example.jsx';
 import Settings from '../../ui/pages/Settings.jsx';
@@ -23,7 +23,7 @@ class App extends React.Component {
     return (
         <Router>
           <div>
-            <TopHeader />
+            <NavBar />
             <Switch>
               <Route exact path="/" component={Home} />
               <Route path="/signin" component={Signin} />

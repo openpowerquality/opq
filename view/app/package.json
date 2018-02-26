@@ -8,15 +8,20 @@
     "jsdoc": "^3.5.5",
     "lodash": "^4.17.4",
     "meteor-node-stubs": "~0.3.2",
+    "moment": "^2.20.1",
     "prop-types": "^15.6.0",
     "react": "^16.2.0",
     "react-addons-pure-render-mixin": "^15.6.2",
     "react-dom": "^16.2.0",
+    "react-meteor-data": "^0.2.11",
     "react-router": "^4.2.0",
     "react-router-dom": "^4.2.2",
     "recharts": "^1.0.0-beta.10",
     "semantic-ui-css": "^2.2.12",
-    "semantic-ui-react": "^0.77.2"
+    "semantic-ui-react": "^0.77.2",
+    "simpl-schema": "^1.4.2",
+    "uniforms": "^1.23.0",
+    "uniforms-semantic": "^1.23.0"
   },
   "devDependencies": {
     "eslint": "^4.16.0",

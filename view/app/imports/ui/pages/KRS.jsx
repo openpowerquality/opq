@@ -2,39 +2,71 @@ import { Meteor } from 'meteor/meteor';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { withTracker } from 'meteor/react-meteor-data';
-import { Container, Header, Grid, Loader } from 'semantic-ui-react';
+import { Container, Header, Grid, Loader, Message } from 'semantic-ui-react';
 import {
   ResponsiveContainer, AreaChart, Area, LineChart, Line, XAxis, YAxis,
   Legend, Tooltip, CartesianGrid
 } from 'recharts';
+import SimpleSchema from 'simpl-schema';
 
 import { Trends } from '../../api/trends/TrendsCollection.js';
 import { monthlyBoxTrends } from '../../api/trends/TrendsCollectionMethods';
+import LoginForm from '../components/LoginForm';
+
+const schema = new SimpleSchema({
+  email: {
+    type: String,
+  },
+  password: {
+    type: String,
+  },
+});
+
 
 class KRS extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       dailyTrends: null,
+      email: '',
+      password: '',
+      error: '',
     };
-  }
 
+    this.update = this.update.bind(this);
+    this.login = this.login.bind(this);
+  }
   dailyTrends(box_id, month, year) {
     let data = [];
-    monthlyBoxTrends.call({ box_id: 4, month: 0, year: 2018 }, (error, { dailyTrends }) => {
+    monthlyBoxTrends.call({ box_id: box_id, month: month, year: year }, (error, { dailyTrends }) => {
       if (error) {
         console.log(error);
       } else {
-        console.log(dailyTrends);
         data = _.values(dailyTrends);
-        console.log('happening');
-        console.log(data);
-        console.log(_.keys(dailyTrends));
       }
     });
     return data;
   }
+  update(key, value) {
+    console.log({ key, value });
+    this.setState({ [key]: value });
+  }
+  login(mod) {
+    const email = mod.email;
+    const password = mod.password;
 
+    Meteor.loginWithPassword(email, password, (err) => {
+      if (err) {
+        this.setState({
+          error: err.reason, // {error} will be rendered below
+        });
+      } else {
+        this.setState({
+          error: '',
+        });
+      }
+    });
+  }
   render() {
     return this.props.ready ? this.renderPage() :
       <Loader active size={'massive'}>Loading...</Loader>;
@@ -50,6 +82,11 @@ class KRS extends React.Component {
 
     return (
       <Container>
+        <LoginForm schema={schema} onSubmit={this.login}/>
+        <Message
+          error
+          content={this.state.error}
+        />
         <Header as={'h1'} textAlign='center'>Recharts trends</Header>
         <Grid centered>
           <Grid.Row>
@@ -105,7 +142,7 @@ class KRS extends React.Component {
 
 KRS.propTypes = {
   trends: PropTypes.array,
-  trendsReady: PropTypes.bool,
+  ready: PropTypes.bool,
 };
 
 export default withTracker(() => {
