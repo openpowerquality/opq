@@ -2,6 +2,7 @@
 #include <fstream>
 #include <thread>
 #include <chrono>
+#include <mutex>
 
 #include <zmqpp/zmqpp.hpp>
 
@@ -12,9 +13,13 @@
 using namespace std;
 using json = nlohmann::json;
 
+std::mutex mtx;
+
 void getStatistics(Statistics * stats) {
     while (true) {
+        mtx.lock();
         stats->printStatistics(); 
+        mtx.unlock();
         std::this_thread::sleep_for(std::chrono::milliseconds(5000));        
     }
 }
@@ -86,8 +91,10 @@ int main(int argc, char** argv) {
                 last = tm.time();
                 downtime = 0;
             }
+            mtx.lock();
             stats.setDowntime(downtime);
             stats.setUptime(uptime);
+            mtx.unlock();
         }
     }
 }
