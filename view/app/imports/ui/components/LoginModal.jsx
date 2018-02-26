@@ -2,7 +2,7 @@ import { Meteor } from 'meteor/meteor';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { withTracker } from 'meteor/react-meteor-data';
-import { Modal, Item } from 'semantic-ui-react';
+import { Modal, Menu } from 'semantic-ui-react';
 import SimpleSchema from 'simpl-schema';
 import { NavLink } from 'react-router-dom';
 
@@ -24,16 +24,20 @@ class LoginModal extends React.Component {
       email: '',
       error: '',
     };
+    this.login = this.login.bind(this);
+    this.logout = this.logout.bind(this);
   }
   login(mod){
+    console.log('login');
     const email = mod.email;
     const password = mod.password;
     Meteor.loginWithPassword(email, password, (error) => {
-      this.setState({ error: error ? error : '' });
+      this.setState({ error: error });
     });
     this.setState({ email: email });
   }
   logout(){
+    console.log('logout');
     Meteor.logout();
     this.setState({
       email: '',
@@ -42,9 +46,9 @@ class LoginModal extends React.Component {
   }
   render() {
     return (
-      <Modal trigger={<NavLink>Login</NavLink>}>
+      <Modal size="mini" trigger={<Menu.Item>Login</Menu.Item>}>
         <Modal.Content>
-          <LoginForm schema={userSimpleSchema} email={/>
+          <LoginForm schema={userSimpleSchema} onSubmit={this.login}/>
         </Modal.Content>
       </Modal>
     );
