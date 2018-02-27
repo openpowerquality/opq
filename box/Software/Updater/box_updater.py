@@ -8,14 +8,14 @@ import tarfile
 import logging
 import traceback
 
-# Set default loggin format and options
+# Set default logging format and options
 logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s', \
     datefmt='%m/%d/%Y %I:%M:%S %p', level=logging.DEBUG)
 
 def main():
     logging.info('main()')
 
-    version_file, public_key, update_package, signature = set_config('config.json')
+    version_file, public_key, update_package, signature = set_config('/etc/opq/updater_config.json')
 
     check_download_path()
 
@@ -42,15 +42,27 @@ def set_config(file_name):
         download_dir_path = config_json['download_dir_path']
         global server_url
         server_url = config_json['server_url']
-        version_file = config_json['version_file']
-        public_key = config_json['public_key']
-        update_package = config_json['update_package']
-        signature = config_json['signature']
-        return version_file, public_key, \
+
+        # Read version.json from emilia
+        version_file_name = config_json['version_file']
+        public_key, update_package, signature = get_file_names_from(version_file_name)
+        return version_file_name, public_key, \
             update_package, signature
     except Exception as e:
         logging.exception(e)
         quit()
+
+# Downloads and reads version.json from emilia to get update file names
+def get_file_names_from(file_name):
+    logging.info('get_file_names(%s)', file_name)
+    download_file_from_emilia(file_name)
+    version_file = file_to_dict(download_dir_path + file_name)
+    public_key = version_file['public_key']
+    update_package = version_file['package']
+    signature = version_file['signature']
+    return public_key, update_package, signature
+
+
 
 # Checks if download_dir_path exists -> build it if not
 def check_download_path():
@@ -91,7 +103,6 @@ def download_file_from_emilia(file_name):
     logging.info('download_file_from_emilia(%s)', file_name)
     try:
         url = server_url + file_name
-        print(url)
         urllib.request.urlretrieve(url, download_dir_path + file_name)
     except Exception as e:
         logging.exception(e)
