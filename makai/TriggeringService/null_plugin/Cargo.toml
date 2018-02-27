@@ -9,6 +9,5 @@ opqapi = { path = "../opqapi" }
 [lib]
 name = "null_plugin"
 crate-type = [
-    "cdylib",
-    "rlib",
+    "cdylib"
 ]
