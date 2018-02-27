@@ -1,0 +1,9 @@
+{
+	"zmq_trigger_endpoint" : "tcp://127.0.0.1:9881",
+        "zmq_acquisition_endpoint" : "tcp://127.0.0.1:9881",
+	"mongo_host" : "localhost",
+	"mongo_port" : 27017,
+	"mongo_measurement_expiration_seconds" : 86400,
+	"mongo_trends_update_interval_seconds" : 60,
+	"plugins" : ["./libnull_plugin.so"]
+}

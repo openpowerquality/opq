@@ -1,42 +1,43 @@
-extern crate zmq;
-extern crate pub_sub;
-
+use zmq;
+use pub_sub::PubSub;
+//use protobuf;
 use std::sync::Arc;
 use protobuf::parse_from_bytes;
-use opq::{TriggerMessage};
-use constants::TRIGGERING_ZMQ_ENDPOINT;
+use opqapi::protocol::TriggerMessage;
+use config::Settings;
+
 
 /// This object is responsible for receiving triggering messages from the makai triggering broker.
-pub struct ZmqReader{
+pub struct TriggerReceiver {
     ///ZMQ socket.
-    recv_soc : zmq::Socket,
+    trg_broker: zmq::Socket,
     ///Pub-Sub object for distributing triggering messages internally.
-    pub_chan : pub_sub::PubSub<Arc<TriggerMessage>>,
+    pub_chan : PubSub<Arc<TriggerMessage>>,
 }
 
-impl ZmqReader {
-    ///Creates a new ZMQ reader.
+impl TriggerReceiver {
+    ///Creates a new ZMQ receiver for trigger messages..
     /// # Arguments
     /// * `pub_chan` - an internal publish channel for the triggering messages.
     /// * `ctx` - shared ZMQ context.
-    pub fn new(pub_chan : pub_sub::PubSub<Arc<TriggerMessage>>, ctx : &zmq::Context) -> ZmqReader {
-        let reader = ZmqReader{ pub_chan : pub_chan,
-            recv_soc : ctx.socket(zmq::SUB).unwrap()
+    pub fn new(pub_chan : PubSub<Arc<TriggerMessage>>, ctx : &zmq::Context, config : &Settings) -> TriggerReceiver {
+        let reciever = TriggerReceiver{ pub_chan : pub_chan,
+            trg_broker : ctx.socket(zmq::SUB).unwrap()
         };
-        reader.recv_soc.connect(TRIGGERING_ZMQ_ENDPOINT).unwrap();
-        reader.recv_soc.set_subscribe(&[]).unwrap();
-        reader
+        reciever.trg_broker.connect(&config.zmq_trigger_endpoint).unwrap();
+        reciever.trg_broker.set_subscribe(&[]).unwrap();
+        reciever
     }
 
     ///The main loop for receiving triggering messages.
     pub fn run_loop(&self){
         loop{
-            let msg = self.recv_soc.recv_multipart(0).unwrap();
+            let msg = self.trg_broker.recv_multipart(0).unwrap();
             if msg.len() < 2{
                 println!("Message contains {} parts!", msg.len());
                 continue;
             }
-            let msg = parse_from_bytes::<TriggerMessage>(&msg[1]);
+            let msg =parse_from_bytes(&msg[1]);
             match msg{
                 Ok(msg) => {
                     let trigger_message = Arc::new(msg);

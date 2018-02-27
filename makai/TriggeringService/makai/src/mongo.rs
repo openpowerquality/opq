@@ -1,12 +1,9 @@
-extern crate bson;
-extern crate mongodb;
-extern crate chrono;
-extern crate time;
-extern crate pub_sub;
+use pub_sub::Subscription;
 
 use std::collections::HashMap;
 use std::sync::Arc;
 
+use mongodb;
 use mongodb::ThreadedClient;
 use mongodb::db::ThreadedDatabase;
 use mongodb::coll::options::IndexOptions;
@@ -17,8 +14,8 @@ use chrono::prelude::*;
 use time::Duration;
 
 use constants::*;
-use opq::*;
-
+use opqapi::protocol::{TriggerMessage};
+use config::Settings;
 
 /// A Buffer for keeping track of the slow measurements.
 struct MeasurementStatistics {
@@ -169,9 +166,13 @@ impl MeasurementDecimator {
 
 ///This object is responsible for processing measurement messages.
 pub struct MongoMeasurements {
-    sub_chan: pub_sub::Subscription<Arc<TriggerMessage>>,
+    sub_chan: Subscription<Arc<TriggerMessage>>,
     live_coll: mongodb::coll::Collection,
     slow_coll: mongodb::coll::Collection,
+    ///Mongo Expire time
+    expire_time_sec: u64,
+    ///Mongo Trends time
+    trend_time_sec: u64
 }
 
 impl MongoMeasurements {
@@ -180,11 +181,13 @@ impl MongoMeasurements {
     /// # Arguments
     /// * `client` -  a reference to a mongodb client instance.
     /// * `sub_chan` -  a channel for receiving triggering messages.
-    pub fn new(client: &mongodb::Client, sub_chan: pub_sub::Subscription<Arc<TriggerMessage>>) -> MongoMeasurements {
+    pub fn new(client: &mongodb::Client, sub_chan: Subscription<Arc<TriggerMessage>>, settings : &Settings) -> MongoMeasurements {
         let ret = MongoMeasurements {
             sub_chan,
             live_coll: client.db(MONGO_DATABASE).collection(MONGO_MEASUREMENT_COLLECTION),
             slow_coll: client.db(MONGO_DATABASE).collection(MONGO_LONG_TERM_MEASUREMENT_COLLECTION),
+            expire_time_sec : settings.mongo_measurement_expiration_seconds,
+            trend_time_sec : settings.mongo_trends_update_interval_seconds
         };
         let mut index_opts = IndexOptions::new();
         index_opts.expire_after_seconds = Some(0);
@@ -196,8 +199,8 @@ impl MongoMeasurements {
     ///Generate a new bson document for the live measurements.
     /// # Arguments
     /// * `msg` a new trigger message to process.
-    fn generate_document(msg: &TriggerMessage) -> Document {
-        let expire_time: DateTime<Utc> = Utc::now() + Duration::seconds(MONGO_MEASUREMENTS_EXPIRE_TIME_SECONDS);
+    fn generate_document(&self, msg: &TriggerMessage) -> Document {
+        let expire_time: DateTime<Utc> = Utc::now() + Duration::seconds(self.expire_time_sec as i64);
         let bson_expire_time = Bson::from(expire_time);
 
 
@@ -219,11 +222,11 @@ impl MongoMeasurements {
         let mut map = HashMap::new();
         loop {
             let msg = self.sub_chan.recv().unwrap();
-            let doc = MongoMeasurements::generate_document(&msg);
+            let doc = self.generate_document(&msg);
             self.live_coll.insert_one(doc, None).ok().expect("Could not insert");
             let box_stat = map.entry(msg.get_id()).or_insert(MeasurementDecimator::new());
             box_stat.process_message(&msg);
-            if box_stat.last_insert + Duration::seconds(MONGO_LONG_TERM_MEASUREMENTS_UPDATE_INTERVAL) < Utc::now() {
+            if box_stat.last_insert + Duration::seconds(self.trend_time_sec as i64) < Utc::now() {
                 let mut doc = box_stat.generate_document_and_reset();
                 doc.insert(MONGO_BOX_ID_FIELD, msg.get_id().to_string());
                 doc.insert(MONGO_TIMESTAMP_FIELD, msg.get_time());
