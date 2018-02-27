@@ -61,8 +61,8 @@ class LoginDropDown extends React.Component {
           <Dropdown.Item onClick={this.keepVisible}>
             <LoginForm schema={schema} onSubmit={this.login} />
             {this.state.error === '' ? '' : (
-              <Message error header="Login was not successful"
-                       content={this.state.error} />
+              <Message error header="Login failed"
+                       content={this.state.error.apply(this)} />
             )}
           </Dropdown.Item>
         </Dropdown.Menu>

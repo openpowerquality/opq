@@ -17,5 +17,4 @@ LoginForm.proptypes = {
   model: PropTypes.object,
 };
 
-
 export default LoginForm;
