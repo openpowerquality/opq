@@ -24,35 +24,41 @@ void getStatistics(Statistics * stats) {
     }
 }
 
-int main(int argc, char** argv) {
-    //Default config
-    string configPath = "../config.json";
-    if(argc != 1){
-        configPath = argv[1];
-    }
-    //Read in config file
+ifstream setConfig(string configPath) {
     ifstream in;
     try {
         in.open(configPath);
-    }
-    catch (std::ios_base::failure& e) {
+    } catch (std::ios_base::failure& e) {
         cout << "Could not open the config file" << endl;
-        return -1;
+        exit(EXIT_FAILURE);
     }
+
+    return in;
+}
+
+string setInterface(ifstream * in) {
     json j;
     string interface;
     try {
-        in >> j;
+        *in >> j;
         interface = j["interface"];
-    }
-    catch(const std::domain_error& e){
+    } catch (const std::exception& e) {
         cout << "Malformed config file" << endl;
-        return -1;
+        exit(EXIT_FAILURE);
     }
-    catch (const std::invalid_argument& e){
-        cout << "Malformed config file" << endl;
-        return -1;
+    
+    return interface;
+}
+
+int main(int argc, char** argv) {
+    ifstream in;
+    if (argc != 1) {
+        in = setConfig(argv[1]);
+    } else {
+        in = setConfig("../config.json");
     }
+    
+    string interface = setInterface(&in);
 
     //ZMQ
     zmqpp::context ctx;
