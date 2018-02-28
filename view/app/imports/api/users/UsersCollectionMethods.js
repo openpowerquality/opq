@@ -1,9 +1,11 @@
 import { Meteor } from 'meteor/meteor';
+import { Mongo } from 'meteor/mongo';
 import { Accounts } from 'meteor/accounts-base';
 import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import { Roles } from 'meteor/alanning:roles';
 import { Users } from './UsersCollection';
+import { OpqBoxes } from '../opq-boxes/OpqBoxesCollection.js';
 
 export const totalUsersCount = new ValidatedMethod({
   name: 'Users.totalUsersCount',
@@ -142,6 +144,70 @@ export const updateEmail = new ValidatedMethod({
         Accounts.removeEmail(currentUserID, currentEmail);
         return currentEmail; // Return old email address.
       }
+    }
+    return null;
+  },
+});
+
+export const addUserOpqBoxRole = new ValidatedMethod({
+  name: 'Users.addUserOpqBoxRole',
+  validate: new SimpleSchema({
+    userID: { type: Mongo.ObjectID },
+    boxName: { type: String },
+  }).validator({ clean: true }),
+  run({ userID, boxName }) {
+    if (!this.isSimulation) {
+      // Verify that there is a logged in user.
+      const currentLoggedInUser = Meteor.user();
+      if (!currentLoggedInUser) throw new Meteor.Error('Users.addUserOpqBoxRole.notLoggedIn', 'User not logged in.');
+
+      // Verify that logged in user matches the passed in userID.
+      const currentUserID = currentLoggedInUser._id;
+      if (currentUserID !== userID) {
+        throw new Meteor.Error('Users.addUserOpqBoxRole.userMismatch', 'Unauthorized user.');
+      }
+
+      // Verify that the boxID actually exists.
+      const opqBox = OpqBoxes.findOne({ name: boxName });
+      if (!opqBox) throw new Meteor.Error('Users.addUserOpqBoxRole.invalidBox', 'Box does not exist.');
+
+      // Only 2 OpqBox permissions: 'user', and 'admin'; choose just 'user' for now.
+      // We also add the box id to the User's 'boxes' array field.
+      Roles.addUsersToRoles(currentUserID, ['user'], boxName);
+      Meteor.users.update(currentUserID, {
+        $addToSet: { boxes: opqBox._id },
+      });
+    }
+    return null;
+  },
+});
+
+export const removeUserOpqBoxRole = new ValidatedMethod({
+  name: 'Users.removeUserOpqBoxRole',
+  validate: new SimpleSchema({
+    userID: { type: Mongo.ObjectID },
+    boxName: { type: String },
+  }).validator({ clean: true }),
+  run({ userID, boxName }) {
+    if (!this.isSimulation) {
+      // Verify that there is a logged in user.
+      const currentLoggedInUser = Meteor.user();
+      if (!currentLoggedInUser) throw new Meteor.Error('Users.removeUserOpqBoxRole.notLoggedIn', 'User not logged in.');
+
+      // Verify that logged in user matches the passed in userID.
+      const currentUserID = currentLoggedInUser._id;
+      if (currentUserID !== userID) {
+        throw new Meteor.Error('Users.removeUserOpqBoxRole.userMismatch', 'Unauthorized user.');
+      }
+
+      // Verify that the boxID actually exists.
+      const opqBox = OpqBoxes.findOne({ name: boxName });
+      if (!opqBox) throw new Meteor.Error('Users.removeUserOpqBoxRole.invalidBox', 'Box does not exist.');
+
+      Roles.removeUsersFromRoles(currentUserID, ['user'], boxName);
+      Meteor.users.update(currentUserID, {
+        $pull: { boxes: opqBox._id },
+      });
     }
     return null;
   },
