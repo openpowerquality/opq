@@ -16,9 +16,12 @@ using json = nlohmann::json;
 std::mutex mtx;
 
 void getStatistics(Statistics * stats) {
+    std::ofstream logFile;
+    string logFilePath = "../health.log";
+    logFile.open(logFilePath, std::ofstream::out | std::ofstream::app);
     while (true) {
         mtx.lock();
-        stats->printStatistics(); 
+        stats->logStatistics(&logFile); 
         mtx.unlock();
         std::this_thread::sleep_for(std::chrono::milliseconds(5000));        
     }
@@ -58,7 +61,7 @@ int main(int argc, char** argv) {
         in = setConfig("../config.json");
     }
     
-    string interface = setInterface(&in);
+    string interface = getInterface(&in);
 
     //ZMQ
     zmqpp::context ctx;

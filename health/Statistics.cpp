@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include "Statistics.h"
 
 Statistics::Statistics(int id) {
@@ -27,8 +28,8 @@ void Statistics::setDowntime(int64_t donwtime) {
     this->downtime = downtime;
 }
 
-void Statistics::printStatistics() {
-    std::cout << "Device id: " << this->id << std::endl;
-    std::cout << "Uptime: " << this->uptime << std::endl;
-    std::cout << "Downtime: " << this->downtime << std::endl;
+void Statistics::logStatistics(std::ofstream * logFile) {
+    *logFile << "Device id: " << this->id << std::endl;
+    *logFile << "Uptime: " << this->uptime << std::endl;
+    *logFile << "Downtime: " << this->downtime << std::endl;
 }

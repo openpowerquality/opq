@@ -13,7 +13,7 @@ class Statistics {
         void setUptime(int64_t uptime);
         int getDowntime();
         void setDowntime(int64_t downtime);
-        void printStatistics();
+        void logStatistics(std::ofstream * logFile);
 };
 
 #endif
