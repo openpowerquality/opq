@@ -36,7 +36,7 @@ ifstream setConfig(string configPath) {
     return in;
 }
 
-string setInterface(ifstream * in) {
+string getInterface(ifstream * in) {
     json j;
     string interface;
     try {
