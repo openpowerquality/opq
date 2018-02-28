@@ -1,4 +1,6 @@
+import { Meteor } from 'meteor/meteor';
 import { Mongo } from 'meteor/mongo';
+import { check, Match } from 'meteor/check';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import BaseCollection from '../base/BaseCollection.js';
 import { progressBarSetup } from '../../modules/utils';
@@ -23,7 +25,8 @@ class OpqBoxesCollection extends BaseCollection {
     }));
 
     this.publicationNames = {
-
+      GET_USER_OWNED_BOXES: 'get_user_owned_boxes',
+      GET_USER_UNOWNED_BOXES: 'get_user_unowned_boxes',
     };
   }
 
@@ -91,7 +94,29 @@ class OpqBoxesCollection extends BaseCollection {
    * Loads all publications related to this collection.
    */
   publish() { // eslint-disable-line class-methods-use-this
+    if (Meteor.isServer) {
+      const self = this;
 
+      Meteor.publish(this.publicationNames.GET_USER_OWNED_BOXES, function () {
+        // Find all OpqBoxes that belong to the currently logged in user.
+        const userId = this.userId;
+        const user = Meteor.users.findOne({ _id: userId });
+        if (user) {
+          return self.find({ _id: { $in: user.boxes } });
+        }
+        return [];
+      });
+
+      Meteor.publish(this.publicationNames.GET_USER_UNOWNED_BOXES, function () {
+        // Find all OpqBoxes that belong to the currently logged in user.
+        const userId = this.userId;
+        const user = Meteor.users.findOne({ _id: userId });
+        if (user) {
+          return self.find({ _id: { $nin: user.boxes } });
+        }
+        return [];
+      });
+    }
   }
 }
 
