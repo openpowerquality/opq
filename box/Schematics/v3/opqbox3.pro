@@ -1,4 +1,4 @@
-update=Tue 13 Feb 2018 05:55:22 PM HST
+update=Fri 02 Mar 2018 03:57:46 PM HST
 version=1
 last_client=kicad
 [pcbnew]
@@ -29,8 +29,7 @@ version=1
 version=1
 LibDir=../v3
 [eeschema/libraries]
-LibName1=opqbox3-rescue
-LibName2=opqbox3
-LibName3=device
-LibName4=power
-LibName5=conn
+LibName1=opqbox3
+LibName2=device
+LibName3=power
+LibName4=conn
