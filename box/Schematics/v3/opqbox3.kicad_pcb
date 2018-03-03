@@ -66,7 +66,7 @@
     (pad_drill 0.762)
     (pad_to_mask_clearance 0.2)
     (aux_axis_origin 0 0)
-    (visible_elements FFFCFF7F)
+    (visible_elements FFFFFF7F)
     (pcbplotparams
       (layerselection 0x00030_80000001)
       (usegerberextensions false)
@@ -500,7 +500,7 @@
   )
 
   (module Capacitors_SMD:C_0805_HandSoldering (layer F.Cu) (tedit 58AA84A8) (tstamp 5A83BA00)
-    (at 113.8428 151.511)
+    (at 121.5 149.5)
     (descr "Capacitor SMD 0805, hand soldering")
     (tags "capacitor 0805")
     (path /5A829EE9/5A869EA9)
@@ -608,7 +608,7 @@
   )
 
   (module Capacitors_SMD:C_0805_HandSoldering (layer F.Cu) (tedit 58AA84A8) (tstamp 5A83BA12)
-    (at 114.2492 157.1244)
+    (at 121.5 154)
     (descr "Capacitor SMD 0805, hand soldering")
     (tags "capacitor 0805")
     (path /5A829EE9/5A869F48)
@@ -1359,7 +1359,7 @@
   )
 
   (module Inductors_SMD:L_Wuerth_MAPI-2512 (layer F.Cu) (tedit 5990349D) (tstamp 5A83BAE0)
-    (at 108.2548 154.3812 270)
+    (at 114.5 152 270)
     (descr "Inductor, Wuerth Elektronik, Wuerth_MAPI-2512, 2.5mmx2.0mm")
     (tags "inductor Wuerth smd")
     (path /5A829EE9/5A829FBA)
@@ -2097,7 +2097,7 @@
   (module opqbox3:IRM-05-5 (layer F.Cu) (tedit 5A83DD7D) (tstamp 5A83BAED)
     (at 103 120.5 90)
     (path /5A829EE9/5A829FB6)
-    (fp_text reference PSU1 (at -14 24 90) (layer F.SilkS)
+    (fp_text reference PSU1 (at -25 12.5 180) (layer F.SilkS)
       (effects (font (size 1 1) (thickness 0.15)))
     )
     (fp_text value IRM-05-5 (at 12 24 90) (layer F.Fab)
