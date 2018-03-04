@@ -118,3 +118,60 @@ pin, name, type, side
 6, TDI, bi, bottom
 7, nSRST, bi, bottom
 8, TDO, bi, bottom
+
+CHIP_PRO,U,opqbox3:CHIP_PRO
+pin, name, type, side
+53,GND,power_in,top
+52,USB0,,top
+51,USB0,,top
+50,VBUS,power_in,top
+49,GND,power_in,top
+48,USB1,,top
+47,USB1,,top
+46,GND,power_in,top
+1,GND, power_in, left
+2,VCC_3V3,power_out, left
+3,IPSOUT,power_out,left
+4,CHG_IN,power_in, left
+5,PWRON,,left
+6,GND,power_in,left
+7,BATTEMP,,left
+8,BAT,power_in, left
+9,PWM0,,left
+10,PWM1,,left
+11,PB15,,left
+12,PB16,,left
+13,UART2_TX,out,left
+14,UART2_RX,in,left
+15,UART2_CTS,,left
+16,UART2_RTS,,left
+45,GND,power_in, right
+44,UART1_TX,out,right
+43,UART1_RX,in,right
+42,LRADC0,, right
+41,CSIPCK,,right
+40,CSIMCLK,,right
+39,SCIHSYNC,,right
+38,SPI2_CS0,out,right
+37,SPI2_CLK,out,right
+36,SPI2_MOSI,out,right
+35,SPI2_MISO,in,right
+34,CSID0_SDA,,right
+33,CSID0,,right
+32,CSID0,,right
+31,UART1_TX,out, right
+30,UART1_RX,in, right
+17,GND,power_in,bottom
+18,HPL,,bottom
+19,HPCOM,,bottom
+20,HPR,,bottom
+21,I2S_MCLK,,bottom
+22,PB6,bi,bottom
+23,PB7,bi,bottom
+24,PB8,bi,bottom
+25,I2S_DI,,bottom
+26,AGND,power_in,bottom
+27,MICIN1,,bottom
+28,MICIN2,,bottom
+29,VMIC,,bottom
+
