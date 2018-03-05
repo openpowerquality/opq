@@ -27,7 +27,7 @@ void list_identities(string path) {
 }
 
 void create_new_identity(int id, string cert_path) {
-    path p(cert_path);
+    path p(cert_path + "/private_keys");
     string filename = "/opqbox" + std::to_string(id) + "_secret";
     if (!is_directory(p)) {
         cerr << "could not open directory " << p << " making certificate in " <<
