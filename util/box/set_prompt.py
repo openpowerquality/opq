@@ -26,9 +26,9 @@ def read_config(path: str) -> typing.Dict:
 def my_ip():
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     try:
-        s.connect(('192.0.0.8', 1027))
+        s.connect(('8.8.8.8', 80))
     except socket.error:
-        return None
+        return "unknown"
     return s.getsockname()[0]
 
 
