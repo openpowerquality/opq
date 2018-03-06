@@ -1,8 +1,8 @@
 #!/bin/bash
-export module="opq_chardev"
+export module="opq"
 export device="opq"
 export mode="777"
-export group="opquser"
+export group="opq"
 
 # invoke insmod with all arguments we got
 # and use a pathname, as insmod doesn't look in . by default

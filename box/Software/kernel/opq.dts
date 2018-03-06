@@ -1,5 +1,5 @@
 /*
- * Device Tree overlay
+ * Device Tree overlay for OPQ. We disable SPIDev and bluetooth UART.
  *
  */
 
@@ -7,16 +7,59 @@
 /plugin/;
 
 / {
-    compatible = "brcm,bcm2835", "brcm,bcm2708", "brcm,bcm2709";
-    /* disable spi-dev for spi0.0 */
-    fragment@0 {
-	target = <&spi0>;
-	__overlay__ {
-		status = "okay";
-
-		spidev@0{
+	compatible = "brcm,bcm2835", "brcm,bcm2708", "brcm,bcm2709";
+	/* disable spi-dev for spi0.0 */
+ 	fragment@0 {
+		target = <&spi0>;
+		__overlay__ {
+			status = "okay";
+			spidev@0{
 			status = "disabled";
+			};
 		};
 	};
-    };
+	fragment@1 {
+		target = <&uart0>;
+		__overlay__ {
+			pinctrl-names = "default";
+			pinctrl-0 = <&uart0_pins>;
+			status = "okay";
+		};
+	};
+
+	fragment@2 {
+		target = <&uart1>;
+		__overlay__ {
+			pinctrl-names = "default";
+			pinctrl-0 = <&uart1_pins &bt_pins>;
+			status = "okay";
+		};
+	};
+
+	fragment@3 {
+		target = <&uart0_pins>;
+		__overlay__ {
+			brcm,pins;
+			brcm,function;
+			brcm,pull;
+		};
+	};
+
+	fragment@4 {
+		target = <&uart1_pins>;
+		__overlay__ {
+			brcm,pins = <32 33>;
+			brcm,function = <2>; /* alt5=UART1 */
+			brcm,pull = <0 2>;
+		};
+	};
+
+	fragment@5 {
+		target-path = "/aliases";
+		__overlay__ {
+			serial0 = "/soc/serial@7e201000";
+			serial1 = "/soc/serial@7e215040";
+		};
+	};
+
 };
