@@ -1,15 +1,19 @@
 import React from 'react';
 import { Meteor } from 'meteor/meteor';
-import { Header, Image } from 'semantic-ui-react';
+import { Redirect } from 'react-router-dom';
+import PropTypes from 'prop-types';
 
 export default class Signout extends React.Component {
   render() {
     Meteor.logout();
+    const { from } = this.props.location.state || { from: { pathname: '/' } };
+    console.log(this.props.location.state);
     return (
-      <Header as="h2" textAlign="center">
-        <Image src="/ftlogo.png" /> 
-        <p>Signout</p>
-      </Header>
+      <Redirect to={from} />
     );
   }
 }
+
+Signout.propTypes = {
+  location: PropTypes.object,
+};

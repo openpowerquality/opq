@@ -1,17 +1,31 @@
 import React from 'react';
-import { NavLink } from 'react-router-dom';
+import PropTypes from 'prop-types';
+import { Meteor } from 'meteor/meteor';
+import { withTracker } from 'meteor/react-meteor-data';
+import { withRouter, NavLink } from 'react-router-dom';
 import { Menu } from 'semantic-ui-react';
 
-import LoginLogout from './LoginLogout';
-
-const NavBar = () => {
-  return (
-    <Menu widths={3} stackable>
-      <Menu.Item header as={NavLink} exact to="/">OPQView</Menu.Item>
-      <Menu.Item as={NavLink} exact to="/aboutus">About Us</Menu.Item>
-      <LoginLogout as={NavLink} exact to="#"/>
-    </Menu>
-  );
+class NavBar extends React.Component {
+  render() {
+    return (
+      <Menu stackable widths={3}>
+        <Menu.Item as={NavLink} exact to="/">OPQView</Menu.Item>
+        <Menu.Item as={NavLink} exact to="/aboutus">About Us</Menu.Item>
+        {this.props.currentUser === '' ? (
+          <Menu.Item as={NavLink} exact to="/signin">Login</Menu.Item>
+        ) : (
+          <Menu.Item as={NavLink} exact to="/signout">Logout</Menu.Item>
+        )}
+      </Menu>
+    );
+  }
 }
 
-export default NavBar;
+NavBar.propTypes = {
+  currentUser: PropTypes.string,
+};
+
+const NavBarContainer = withTracker(() => ({
+  currentUser: Meteor.user() ? Meteor.user().username : '',
+}))(NavBar);
+export default withRouter(NavBarContainer);
