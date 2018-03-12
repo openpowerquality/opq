@@ -31,7 +31,6 @@ class WaveformGenerator:
         self.generator: typing.Generator[float] = self.waveform_gen()
 
     def safe_update(self, state: typing.Dict):
-        print("safe_update", state)
         for k, v in state.items():
             if k in self.__dict__ and type(v) is type(self.__dict__[k]):
                 self.__dict__[k] = v
@@ -39,7 +38,8 @@ class WaveformGenerator:
     def waveform_gen(self, start: int = 0):
         i = start
         while True:
-            yield (i, self.amplitude * math.sin(self.frequency * (2 * math.pi) * i / self.sample_rate_hz))
+            v = self.amplitude * math.sin(self.frequency * (2 * math.pi) * i / self.sample_rate_hz)
+            yield (i, v)
 
             i += 1
             if i == self.samples_per_cycle:
