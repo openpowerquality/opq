@@ -8,16 +8,16 @@ import typing
 import queue
 
 SQRT_2 = math.sqrt(2)
+S16_MIN = -(2 ** 15)
+S16_MAX = 2 ** 15 - 1
 
 
 def scale_to_sint16(v: float, calibration_constant: float = 152.0) -> int:
-    s16_min = -32_768
-    s16_max = 32_767
-    r = int(v * calibration_constant)
-    if r < s16_min:
-        return s16_min
-    if r > s16_max:
-        return s16_max
+    r = round(v * calibration_constant)
+    if r < S16_MIN:
+        return S16_MIN
+    if r > S16_MAX:
+        return S16_MAX
     return r
 
 
@@ -57,7 +57,6 @@ class WaveformGenerator:
                     pass
             else:
                 print(scale_to_sint16(next(self.generator)[1]))
-                # next(self.generator)[1]
                 time.sleep(1 / self.sample_rate_hz)
 
 
