@@ -77,9 +77,6 @@ int main(int argc, char** argv) {
     }
     sub.subscribe("");
 
-    int64_t uptime = 0;
-    int64_t downtime = 0;
-    int64_t last = 0;
     Statistics stats(1);
     thread t1(getStatistics, &stats);
     while (true) {
@@ -88,21 +85,8 @@ int main(int argc, char** argv) {
         opq::proto::TriggerMessage tm;
         tm.ParseFromString(msg.get(1));
         if (msg.get(0).compare("1") == 0) {
-            if (last == 0) {
-                last = tm.time();
-                continue;
-            } else if ((tm.time() - last) > 60000) {
-                downtime = tm.time() - last;
-                last = tm.time();
-                uptime = 0;
-            } else {
-                uptime += tm.time() - last;
-                last = tm.time();
-                downtime = 0;
-            }
             mtx.lock();
-            stats.setDowntime(downtime);
-            stats.setUptime(uptime);
+            stats.addNewTime(tm.time());
             mtx.unlock();
         }
     }
