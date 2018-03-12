@@ -2,32 +2,31 @@ import argparse
 import http.server
 import json
 import math
+import typing
 
 SQRT_2 = math.sqrt(2)
 
 
 class WaveformGenerator:
     def __init__(self):
-        self.amplitude = 120.0 * SQRT_2
-        self.frequency = 60.0
-        self.phase = 0.0
-        self.sample_rate_hz = 12000.0
-        self.samples_per_cycle = 200
-        self.generator = self.waveform_gen()
-        self.cur_i = None
+        self.amplitude: float = 120.0 * SQRT_2
+        self.frequency: float = 60.0
+        self.phase: float = 0.0
+        self.sample_rate_hz: float = 12000.0
+        self.samples_per_cycle: int = 200
+        self.generator: typing.Generator[float] = self.waveform_gen()
 
     def waveform_gen(self, start: int = 0):
         i = start
         while True:
             yield (i, self.amplitude * math.sin(self.frequency * (2 * math.pi) * i / self.sample_rate_hz))
-            if i == self.samples_per_cycle - 1:
-                i = 0
-            else:
-                i += 1
 
-    def next(self):
-        self.cur_i, v = next(self.generator)
-        return v
+            i += 1
+            if i == self.samples_per_cycle:
+                i = 0
+
+    def next(self) -> float:
+        return next(self.generator)
 
 
 class SimRequestHandler(http.server.BaseHTTPRequestHandler):
