@@ -21,6 +21,24 @@ def scale_to_sint16(v: float, calibration_constant: float = 152.0) -> int:
     return r
 
 
+class SimFilter:
+    def __init__(self):
+        self.i = 0
+
+    def state(self):
+        return {}
+
+
+class DelayedAmplitudeFilter:
+    def __init__(self, initial_amplitude: float, target_amplitude: float, delay_samples: int):
+        self.initial_amplitude = initial_amplitude
+        self.i = 0
+        self.d = (initial_amplitude - target_amplitude) / delay_samples
+
+    def next_state(self) -> typing.Dict[str, float]:
+        return {"amplitude": self.initial_amplitude + (self.i * self.d)}
+
+
 class WaveformGenerator:
     def __init__(self):
         self.amplitude: float = 120.0 * SQRT_2
