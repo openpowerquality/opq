@@ -37,7 +37,8 @@ export default class Signin extends React.Component {
     Meteor.loginWithPassword(email, password, (err) => {
       if (err) {
         this.setState({
-          error: err.reason, // {error} will be rendered below
+          error: err.reason, // {error} will be rendered below           <Dropdown placeholder='Boxes to display' multiple search selection options={this.state.boxIdOptions ? his.state.boxIdOptions} />
+
         });
       } else {
         this.setState({
