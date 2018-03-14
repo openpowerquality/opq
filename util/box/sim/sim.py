@@ -190,7 +190,8 @@ class WaveformGenerator:
 
     def worker(self, update_queue: multiprocessing.Queue):
         self.generator = self.waveform_gen()
-        fifo = OpqDeviceFifo()
+        if not self.debug:
+            fifo = OpqDeviceFifo()
         while True:
             if not update_queue.empty():
                 try:
