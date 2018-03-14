@@ -110,6 +110,10 @@ class TrendsCollection extends BaseCollection {
         const trends = self.find({}, { sort: { timestamp_ms: -1 }, limit: numTrends });
         return trends;
       });
+
+      Meteor.publish('trends_recent_month', () => {
+
+      })
     }
   }
 }

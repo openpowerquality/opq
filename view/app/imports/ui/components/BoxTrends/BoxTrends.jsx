@@ -10,6 +10,11 @@ import VoltageGraph from './VoltageGraph.jsx';
 class BoxTrends extends React.Component {
   constructor(props) {
     super(props);
+    this.state = {
+      boxIDs: [],
+      boxIdOptions: [],
+      selectedBoxes: [],
+    };
 
     getBoxIDs.call((error, boxIDs) => {
       if (error) {
@@ -42,7 +47,7 @@ class BoxTrends extends React.Component {
                     defaultValue={['1']} />
         </Segment>
         <Segment attached='bottom'>
-          <VoltageGraph boxesToDisplay= ={this.state.selectedBoxes}/>
+          <VoltageGraph boxesToDisplay={this.state.selectedBoxes}/>
         </Segment>
       </Container>
     );
