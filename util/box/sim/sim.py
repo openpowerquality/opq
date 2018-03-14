@@ -41,6 +41,7 @@ class OpqDeviceFifo:
         self.samples = []
         try:
             self.fd.write(ret)
+            time.sleep(1/60.0)
         except:
             self.fd = open(DEVICE_HANDLE, 'wb')
 
@@ -204,7 +205,7 @@ class WaveformGenerator:
                     time.sleep(.1)
                 else:
                     fifo.add_sample(scale_to_sint16(self.next()[1]))
-                    time.sleep(1 / self.sample_rate_hz)
+                    # time.sleep(1 / self.sample_rate_hz)
 
 
 def sim_request_handler_factory(queue: multiprocessing.Queue, verbose: bool = False):
