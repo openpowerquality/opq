@@ -160,8 +160,8 @@ class WaveformGenerator:
             else:
                 print(scale_to_sint16(self.next()[1]))
                 # print(as_vrms(scale_to_sint16(self.next()[1])))
-                # time.sleep(1 / self.sample_rate_hz)
-                time.sleep(.1)
+                time.sleep(1 / self.sample_rate_hz)
+                # time.sleep(.1)
 
 
 def sim_request_handler_factory(queue: multiprocessing.Queue, verbose: bool = False):
