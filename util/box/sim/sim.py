@@ -4,10 +4,46 @@ import http.server
 import json
 import math
 import multiprocessing
+import os
+import struct
 import sys
 import time
 import typing
 import queue
+
+SAMPLES_PER_CYCLE = 200
+DEVICE_HANDLE = "/tmp/opqsim"
+
+
+class OpqDeviceFifo:
+    def __init__(self):
+        if not os.path.exists(DEVICE_HANDLE):
+            os.mkfifo(DEVICE_HANDLE)
+        self.fd = open(DEVICE_HANDLE, 'wb')
+        self.samples = []
+        self.last_gps_counter = 0
+        self.current_counter = 0
+        self.flags = 0
+
+    def add_sample(self, sample):
+        if len(self.samples) >= SAMPLES_PER_CYCLE:
+            self.dump()
+        self.samples.append(sample)
+
+    def dump(self):
+        ret = b""
+        for s in self.samples:
+            ret += struct.pack('h', s)
+        ret += struct.pack('H', self.last_gps_counter)
+        ret += struct.pack('H', self.current_counter)
+
+        ret += struct.pack('I', self.flags)
+        self.samples = []
+        try:
+            self.fd.write(ret)
+        except:
+            self.fd = open(DEVICE_HANDLE, 'wb')
+
 
 SQRT_2 = math.sqrt(2)
 S16_MIN = -(2 ** 15)
@@ -154,6 +190,7 @@ class WaveformGenerator:
 
     def worker(self, update_queue: multiprocessing.Queue):
         self.generator = self.waveform_gen()
+        fifo = OpqDeviceFifo()
         while True:
             if not update_queue.empty():
                 try:
@@ -165,7 +202,7 @@ class WaveformGenerator:
                     print(as_vrms(scale_to_sint16(self.next()[1])))
                     time.sleep(.1)
                 else:
-                    print(scale_to_sint16(self.next()[1]))
+                    fifo.add_sample(scale_to_sint16(self.next()[1]))
                     time.sleep(1 / self.sample_rate_hz)
 
 
