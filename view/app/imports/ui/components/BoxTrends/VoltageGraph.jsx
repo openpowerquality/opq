@@ -25,52 +25,53 @@ class VoltageGraph extends React.Component {
   }
 
   renderPage() {
-    const boxes = this.props.boxesToDisplay ? this.props.boxesToDisplay.map(boxID => `box${boxID}`) : ['1'];
-    console.log(this.props.trends);
-    const voltages = this.props.trends.map((trend) => ({
-      [`box${trend.box_id}_timestamp_ms`]: trend.timestamp_ms,
-      [`box${trend.box_id}_max`]: trend.voltage.max.toFixed(2),
-      [`box${trend.box_id}_average`]: trend.voltage.average.toFixed(2),
-      [`box${trend.box_id}_min`]: trend.voltage.min.toFixed(2),
-    }));
+    const boxesIDs = this.props.boxesToDisplay === [] ?
+      this.props.boxesToDisplay : ['1'];
+    const trends = {};
+    boxesIDs.forEach(boxID => {
+      trends[`box${boxID}`] = this.props.trends.filter(trend => {
+        return trend.box_id === boxID;
+      });
+    });
 
     // Get the max and min values for the graph's Y axis
     let voltageUpperLimit = Math.max(...boxes.map(box =>
-      Math.max(...voltages.map(voltage => (voltage[`${box}_max`] ? voltage[`${box}_max`] :
+      Math.max(...trends.map(voltage => (voltage[`${box}_max`] ? voltage[`${box}_max`] :
         Number.MIN_VALUE)))));
     let voltageLowerLimit = Math.min(...boxes.map(box =>
-      Math.min(...voltages.map(voltage => (voltage[`${box}_min`] ? voltage[`${box}_min`] :
+      Math.min(...trends.map(voltage => (voltage[`${box}_min`] ? voltage[`${box}_min`] :
         Number.MAX_VALUE)))));
 
     // Reset them to something normal if we're not displaying any boxes
     voltageUpperLimit = this.props.boxesToDisplay ? voltageUpperLimit : 125;
     voltageLowerLimit = this.props.boxesToDisplay ? voltageLowerLimit : 115;
+    console.log(trends);
 
     return (
       <Grid container>
-        <Grid.Row centered >
+        <Grid.Row centered>
           <Grid.Column width={2} />
-          <Grid.Column width={4} >
-            <Checkbox toggle label='Max' onChange={this.updateGraph} checked={this.state.showMax}/>
+          <Grid.Column width={4}>
+            <Checkbox toggle label='Max' onChange={this.updateGraph} checked={this.state.showMax} />
           </Grid.Column>
-          <Grid.Column width={5} >
-            <Checkbox toggle label='Average' onChange={this.updateGraph} checked={this.state.showAverage}/>
+          <Grid.Column width={5}>
+            <Checkbox toggle label='Average' onChange={this.updateGraph} checked={this.state.showAverage} />
           </Grid.Column>
-          <Grid.Column width={5} >
-            <Checkbox toggle label='Min' onChange={this.updateGraph} checked={this.state.showMin}/>
+          <Grid.Column width={5}>
+            <Checkbox toggle label='Min' onChange={this.updateGraph} checked={this.state.showMin} />
           </Grid.Column>
         </Grid.Row>
         <Grid.Row>
           <ResponsiveContainer width='100%' aspect={2 / 1}>
-            <AreaChart data={voltages}>
-              <XAxis/>
+            <AreaChart data={trends}>
+              <XAxis />
               <YAxis domain={[voltageLowerLimit, voltageUpperLimit]}
-                     label={{ value: 'Voltage', angle: -90 }}/>
-              <Tooltip/>
-              <CartesianGrid/>
+                     label={{ value: 'Voltage', angle: -90 }} />
+              <Tooltip />
+              <CartesianGrid />
               {boxes.map(box => (
-                this.state.showMax ? <Area key={`${box}_max`} dataKey={`${box}_max`} connectNulls
-                                           opacity={0.5} /> : ''
+                this.state.showMax ?
+                  <Area key={`${box}_max`} dataKey={`${box}_max`} connectNulls={true} opacity={0.5} /> : ''
                 // this.state.showAverage ? <Area key={`${box}_Average`} dataKey={`${box}_Average`} opacity={0.5}/> : '',
                 // this.state.showMax ? <Area key={`${box}_min`} dataKey={`${box}_min`} opacity={0.5}/> : '',
               ))}
@@ -93,8 +94,8 @@ class VoltageGraph extends React.Component {
       average: trend.voltage.average.toFixed(2),
     }));
     // Math.max and min don't take arrays; they take trailing args
-    const voltageUpperLimit = Math.max(...voltages.map(voltage => voltage.max));
-    const voltageLowerLimit = Math.min(...voltages.map(voltage => voltage.min));
+    const voltageUpperLimit = Math.max(...trends.map(voltage => voltage.max));
+    const voltageLowerLimit = Math.min(...trends.map(voltage => voltage.min));
   }
 }
 
