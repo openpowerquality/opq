@@ -3,38 +3,38 @@
     {
       "name": "vrms",
       "target_vrms": 95.0,
-      "delay_samples": 1000
+      "delay_samples": 12000
     },
     {
       "name": "nop",
-      "delay_samples": 1000
+      "delay_samples": 12000
     },
     {
       "name": "vrms",
       "target_vrms": 120.0,
-      "delay_samples": 1000
+      "delay_samples": 12000
     },
     {
       "name": "nop",
-      "delay_samples": 1000
+      "delay_samples": 12000
     },
     {
       "name": "vrms",
       "target_vrms": 145.0,
-      "delay_samples": 1000
+      "delay_samples": 12000
     },
     {
       "name": "nop",
-      "delay_samples": 1000
+      "delay_samples": 12000
     },
     {
       "name": "vrms",
       "target_vrms": 120.0,
-      "delay_samples": 1000
+      "delay_samples": 12000
     },
     {
       "name": "nop",
-      "delay_samples": 1000
+      "delay_samples": 12000
     }
   ],
 

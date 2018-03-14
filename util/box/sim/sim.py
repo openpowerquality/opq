@@ -164,6 +164,7 @@ class WaveformGenerator:
             return
 
         if "state" in state:
+            self.filter_manager = None
             for k, v in state["state"].items():
                 if k in self.__dict__ and type(v) is type(self.__dict__[k]):
                     self.__dict__[k] = v
