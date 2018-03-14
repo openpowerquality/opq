@@ -1,3 +1,5 @@
+#!/usr/local/bin/python3.6
+
 import argparse
 import http.client
 import http.server
