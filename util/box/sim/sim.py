@@ -1,8 +1,10 @@
 import argparse
+import http.client
 import http.server
 import json
 import math
 import multiprocessing
+import sys
 import time
 import typing
 import queue
@@ -190,18 +192,31 @@ def sim_request_handler_factory(queue: multiprocessing.Queue, verbose: bool = Fa
             if verbose:
                 super().log_message(format, *args)
 
-
     return SimRequestHandler
+
+
+def update_state_post_request(config_path: str, port: int, verbose: bool):
+    with open(config_path, "r") as json_in:
+        c = json.load(json_in)
+        connection = http.client.HTTPConnection("localhost", port)
+        connection.request("POST", "/", json.dumps(c), {'Content-type': 'application/json'})
+        response = connection.getresponse()
+        if verbose:
+            print(response.read().decode())
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser("sim.py",
                                      "python3 sim.py",
                                      "Box simulator server")
+
     parser.add_argument("--port", "-p",
                         type=int,
                         default=8000,
                         help="Specified port number to serve from")
+
+    parser.add_argument("--state" "-s",
+                        help="Location of json config file")
 
     parser.add_argument("--verbose", "-v",
                         help="Verbose output",
@@ -209,6 +224,9 @@ if __name__ == "__main__":
                         action="store_true")
 
     args = parser.parse_args()
+    if "state_s" in args:
+        update_state_post_request(args.state_s, args.port)
+        sys.exit(0)
 
     waveform_gen = WaveformGenerator()
     queue = multiprocessing.Queue()
