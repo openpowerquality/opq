@@ -2,16 +2,23 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Meteor } from 'meteor/meteor';
 import { withTracker } from 'meteor/react-meteor-data';
-import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
-import { Grid, Loader, Checkbox } from 'semantic-ui-react';
+import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid, Label } from 'recharts';
+import { Header, Grid, Loader, Checkbox, Container } from 'semantic-ui-react';
 
 import { Trends } from '/imports/api/trends/TrendsCollection.js';
+
+/*
+ * !!!! THIS FILE IS CURRENTLY NOT BEING USED !!!!
+ * It is being kept for reference purposes
+ */
+
 
 class VoltageGraph extends React.Component {
   constructor(props) {
     super(props);
 
     this.state = {
+      boxIDs: ['1'],
       showMax: false,
       showAverage: true,
       showMin: false,
@@ -25,77 +32,73 @@ class VoltageGraph extends React.Component {
   }
 
   renderPage() {
-    const boxesIDs = this.props.boxesToDisplay === [] ?
-      this.props.boxesToDisplay : ['1'];
-    const trends = {};
-    boxesIDs.forEach(boxID => {
-      trends[`box${boxID}`] = this.props.trends.filter(trend => {
+    const boxIDs = this.props.boxesToDisplay;
+    const voltages = {};
+    boxIDs.forEach(boxID => {
+      voltages[boxID] = {};
+      voltages[boxID].data = this.props.trends.filter(trend => {
         return trend.box_id === boxID;
-      });
+      }).map(trend => ({
+        max: trend.voltage.max.toFixed(2),
+        average: trend.voltage.average.toFixed(2),
+        min: trend.voltage.min.toFixed(2),
+        timestamp_ms: trend.timestamp_ms,
+      }));
     });
 
-    // Get the max and min values for the graph's Y axis
-    let voltageUpperLimit = Math.max(...boxes.map(box =>
-      Math.max(...trends.map(voltage => (voltage[`${box}_max`] ? voltage[`${box}_max`] :
-        Number.MIN_VALUE)))));
-    let voltageLowerLimit = Math.min(...boxes.map(box =>
-      Math.min(...trends.map(voltage => (voltage[`${box}_min`] ? voltage[`${box}_min`] :
-        Number.MAX_VALUE)))));
+    // Get the max and min values for the graph's X axis
 
-    // Reset them to something normal if we're not displaying any boxes
-    voltageUpperLimit = this.props.boxesToDisplay ? voltageUpperLimit : 125;
-    voltageLowerLimit = this.props.boxesToDisplay ? voltageLowerLimit : 115;
-    console.log(trends);
+    // Get the max and min values for the graph's Y axis
+    boxIDs.forEach(boxID => {
+      voltages[boxID].highest = Math.max(...voltages[boxID].data.map(voltage => voltage.max));
+      voltages[boxID].lowest = Math.min(...voltages[boxID].data.map(voltage => voltage.min));
+    });
 
     return (
-      <Grid container>
+      <Container>
+      {boxIDs.map(boxID => (
+      <Grid key={`box${boxID}`}>
         <Grid.Row centered>
-          <Grid.Column width={2} />
+          <Grid.Column width={3}>
+            <Header as='h4' content={`Box ${boxID}`} textAlign='center'/>
+          </Grid.Column>
           <Grid.Column width={4}>
-            <Checkbox toggle label='Max' onChange={this.updateGraph} checked={this.state.showMax} />
+            <Checkbox toggle label='Max' onChange={this.updateGraph} checked={this.state.showMax}/>
+          </Grid.Column>
+          <Grid.Column width={4}>
+            <Checkbox toggle label='Min' onChange={this.updateGraph} checked={this.state.showMin}/>
           </Grid.Column>
           <Grid.Column width={5}>
-            <Checkbox toggle label='Average' onChange={this.updateGraph} checked={this.state.showAverage} />
-          </Grid.Column>
-          <Grid.Column width={5}>
-            <Checkbox toggle label='Min' onChange={this.updateGraph} checked={this.state.showMin} />
+            <Checkbox toggle label='Average' onChange={this.updateGraph} checked={this.state.showAverage}/>
           </Grid.Column>
         </Grid.Row>
-        <Grid.Row>
-          <ResponsiveContainer width='100%' aspect={2 / 1}>
-            <AreaChart data={trends}>
-              <XAxis />
-              <YAxis domain={[voltageLowerLimit, voltageUpperLimit]}
-                     label={{ value: 'Voltage', angle: -90 }} />
-              <Tooltip />
-              <CartesianGrid />
-              {boxes.map(box => (
-                this.state.showMax ?
-                  <Area key={`${box}_max`} dataKey={`${box}_max`} connectNulls={true} opacity={0.5} /> : ''
-                // this.state.showAverage ? <Area key={`${box}_Average`} dataKey={`${box}_Average`} opacity={0.5}/> : '',
-                // this.state.showMax ? <Area key={`${box}_min`} dataKey={`${box}_min`} opacity={0.5}/> : '',
-              ))}
-            </AreaChart>
-          </ResponsiveContainer>
-        </Grid.Row>
+          <Grid.Row>
+            <ResponsiveContainer width='100%' aspect={2 / 1}>
+              <AreaChart data={voltages[boxID].data}>
+                <XAxis/>
+                <YAxis domain={[voltages[boxID].lowest, voltages[boxID].highest]}/>
+                <Tooltip/>
+                <CartesianGrid/>
+                {this.state.showMax ? <Area key={`box${boxID}_max`} dataKey='max' opacity={0.5}/> : ''}
+                {this.state.showMin ? <Area key={`box${boxID}_min`} dataKey='min' opacity={0.5}/> : ''}
+                {this.state.showAverage ? <Area key={`box${boxID}_average`} dataKey='average' opacity={0.5}/> : ''}
+              </AreaChart>
+            </ResponsiveContainer>
+          </Grid.Row>
+
       </Grid>
+      ))}
+      </Container>
     );
   }
 
-  updateGraph() {
-    return '';
-  }
-
-  generateMaxes(boxID, keyName) {
-    const voltages = this.props.trends.map((trend) => ({
-      timestamp_ms: trend.timestamp_ms,
-      max: trend.voltage.max.toFixed(2), // Rounding for display purposes
-      min: trend.voltage.min.toFixed(2),
-      average: trend.voltage.average.toFixed(2),
-    }));
-    // Math.max and min don't take arrays; they take trailing args
-    const voltageUpperLimit = Math.max(...trends.map(voltage => voltage.max));
-    const voltageLowerLimit = Math.min(...trends.map(voltage => voltage.min));
+  updateGraph(event, data) {
+    switch (data.label) {
+      case 'Max': this.setState({ showMax: !this.state.showMax }); break;
+      case 'Average': this.setState({ showAverage: !this.state.showAverage }); break;
+      case 'Min': this.setState({ showMin: !this.state.showMin }); break;
+      default: break;
+    }
   }
 }
 
@@ -106,7 +109,7 @@ VoltageGraph.propTypes = {
 };
 
 export default withTracker(() => {
-  const trendsSub = Meteor.subscribe('get_recent_trends', { numTrends: 100 });
+  const trendsSub = Meteor.subscribe('get_recent_trends', { numTrends: 120 });
   const trends = Trends.find().fetch();
   return {
     ready: trendsSub.ready(),
