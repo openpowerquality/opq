@@ -160,11 +160,11 @@ class WaveformGenerator:
             else:
                 print(scale_to_sint16(self.next()[1]))
                 # print(as_vrms(scale_to_sint16(self.next()[1])))
-                time.sleep(1 / self.sample_rate_hz)
-                # time.sleep(.1)
+                # time.sleep(1 / self.sample_rate_hz)
+                time.sleep(.1)
 
 
-def sim_request_handler_factory(queue: multiprocessing.Queue):
+def sim_request_handler_factory(queue: multiprocessing.Queue, verbose: bool = False):
     class SimRequestHandler(http.server.BaseHTTPRequestHandler):
         def __init__(self, request, client_address, server):
             self.queue = queue
@@ -186,6 +186,11 @@ def sim_request_handler_factory(queue: multiprocessing.Queue):
             self.queue.put_nowait(data_dict)
             self._set_headers(200)
 
+        def log_message(self, format, *args):
+            if verbose:
+                super().log_message(format, *args)
+
+
     return SimRequestHandler
 
 
@@ -197,21 +202,30 @@ if __name__ == "__main__":
                         type=int,
                         default=8000,
                         help="Specified port number to serve from")
+
+    parser.add_argument("--verbose", "-v",
+                        help="Verbose output",
+                        default=False,
+                        action="store_true")
+
     args = parser.parse_args()
 
     waveform_gen = WaveformGenerator()
     queue = multiprocessing.Queue()
-    httpd = http.server.HTTPServer(("", args.port), sim_request_handler_factory(queue))
+    httpd = http.server.HTTPServer(("", args.port), sim_request_handler_factory(queue, args.verbose))
     gen_proc = multiprocessing.Process(target=waveform_gen.worker, args=(queue,))
 
     try:
-        print("Starting opq-sim server on port {}...".format(args.port))
+        if args.verbose:
+            print("Starting opq-sim server on port {}...".format(args.port))
         gen_proc.start()
         httpd.serve_forever()
     except KeyboardInterrupt:
         pass
 
-    print("Stopping opq-sim server... ", end="")
+    if args.verbose:
+        print("Stopping opq-sim server... ", end="")
     gen_proc.join()
     httpd.server_close()
-    print("Done.")
+    if args.verbose:
+        print("Done.")
