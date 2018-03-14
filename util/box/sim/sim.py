@@ -110,7 +110,7 @@ class FilterManager:
 
 
 class WaveformGenerator:
-    def __init__(self):
+    def __init__(self, debug: bool = False):
         self.amplitude: float = 120.0 * SQRT_2
         self.frequency: float = 60.0
         self.phase: float = 0.0
@@ -118,6 +118,7 @@ class WaveformGenerator:
         self.samples_per_cycle: int = 200
         self.generator: typing.Generator[typing.Tuple[int, float]] = None
         self.filter_manager: FilterManager = None
+        self.debug: bool = debug
 
     def safe_update(self, state: typing.Dict):
         if len(state) == 0:
@@ -160,10 +161,12 @@ class WaveformGenerator:
                 except queue.Empty as e:
                     pass
             else:
-                print(scale_to_sint16(self.next()[1]))
-                # print(as_vrms(scale_to_sint16(self.next()[1])))
-                time.sleep(1 / self.sample_rate_hz)
-                # time.sleep(.1)
+                if self.debug:
+                    print(as_vrms(scale_to_sint16(self.next()[1])))
+                    time.sleep(.1)
+                else:
+                    print(scale_to_sint16(self.next()[1]))
+                    time.sleep(1 / self.sample_rate_hz)
 
 
 def sim_request_handler_factory(queue: multiprocessing.Queue, verbose: bool = False):
@@ -215,7 +218,7 @@ if __name__ == "__main__":
                         default=8000,
                         help="Specified port number to serve from")
 
-    parser.add_argument("--state" "-s",
+    parser.add_argument("--state", "-s",
                         help="Location of json config file")
 
     parser.add_argument("--verbose", "-v",
@@ -223,12 +226,17 @@ if __name__ == "__main__":
                         default=False,
                         action="store_true")
 
+    parser.add_argument("--debug", "-d",
+                        help="Display values as rms voltage and slow down the sample rate to .1 seconds",
+                        default=False,
+                        action="store_true")
+
     args = parser.parse_args()
-    if "state_s" in args:
-        update_state_post_request(args.state_s, args.port)
+    if "state" in args and args.state is not None:
+        update_state_post_request(args.state, args.port, args.verbose)
         sys.exit(0)
 
-    waveform_gen = WaveformGenerator()
+    waveform_gen = WaveformGenerator(args.debug)
     queue = multiprocessing.Queue()
     httpd = http.server.HTTPServer(("", args.port), sim_request_handler_factory(queue, args.verbose))
     gen_proc = multiprocessing.Process(target=waveform_gen.worker, args=(queue,))
