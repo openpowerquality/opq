@@ -3,7 +3,8 @@ import { SyncedCron } from 'meteor/percolate:synced-cron';
 import { SystemStats } from '../../api/system-stats/SystemStatsCollection.js';
 
 function startupSystemStatsCronjob() {
-  const updateIntervalSeconds = Meteor.settings.public.systemStatsUpdateIntervalSeconds;
+  // Default the update interval to 60 seconds.
+  const updateIntervalSeconds = Meteor.settings.public.systemStatsUpdateIntervalSeconds || 60;
   SyncedCron.add({
     name: 'Update the SystemStats collection with current collection counts',
     schedule(parser) {

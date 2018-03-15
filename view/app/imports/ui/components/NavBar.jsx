@@ -3,14 +3,14 @@ import PropTypes from 'prop-types';
 import { Meteor } from 'meteor/meteor';
 import { withTracker } from 'meteor/react-meteor-data';
 import { withRouter, NavLink } from 'react-router-dom';
-import { Menu } from 'semantic-ui-react';
+import { Menu, Image } from 'semantic-ui-react';
 
 class NavBar extends React.Component {
   render() {
     return (
-      <Menu stackable widths={3}>
-        <Menu.Item as={NavLink} exact to="/">OPQView</Menu.Item>
-        <Menu.Item as={NavLink} exact to="/aboutus">About Us</Menu.Item>
+      <Menu stackable borderless>
+        <Menu.Item as={NavLink} exact to="/"><Image width="20px" src="/images/opqlogo.png"/>&nbsp;OPQView</Menu.Item>
+        <Menu.Item position="right" as={NavLink} exact to="/aboutus">About Us</Menu.Item>
         {this.props.currentUser === '' ? (
           <Menu.Item as={NavLink} exact to="/signin">Login</Menu.Item>
         ) : (
