@@ -17,6 +17,10 @@
 * [OPQ Makai](makai/installation.md)
 * [OPQ Protocol](protocol/installation.md)
 
+## Developer Guide
+* [GitBook](developerguide/gitbook.md)
+
+
 ## OPQ Box
 
 * [Design](box/description.md)
@@ -63,6 +67,14 @@
 * [Software](makai/description.md#software)
 * [Use Cases](makai/description.md#use-cases)
 * [Makai Docs](makai/doc/makai/index.html)
+
+## OPQ Health
+
+* [Overview](health/description.md#overview)
+* [Installation](health/description.md#installation)
+* [Data Model](health/description.md#data-model)
+* [Analytics](health/description.md#analytics)
+
 
 ## OPQ Protocol
 
