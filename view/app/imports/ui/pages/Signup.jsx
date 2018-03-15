@@ -29,7 +29,7 @@ export default class Signup extends React.Component {
   handleChange(e, { name, value }) {
     this.setState({ [name]: value });
   }
-  handleSubmit(e) {
+  handleSubmit() {
     const { email, password } = this.state;
 
     Accounts.createUser({ email, username: email, password }, (err) => {

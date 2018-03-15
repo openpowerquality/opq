@@ -2,7 +2,7 @@
 // Authentication errors modify the component’s state to be displayed
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Link, Redirect } from 'react-router-dom';
+import { Redirect } from 'react-router-dom';
 import { Meteor } from 'meteor/meteor';
 import {
   Container,
@@ -31,14 +31,13 @@ export default class Signin extends React.Component {
   handleChange(e, { name, value }) {
     this.setState({ [name]: value });
   }
-  handleSubmit(e) {
+  handleSubmit() {
     const { email, password } = this.state;
 
     Meteor.loginWithPassword(email, password, (err) => {
       if (err) {
         this.setState({
-          error: err.reason, // {error} will be rendered below           <Dropdown placeholder='Boxes to display' multiple search selection options={this.state.boxIdOptions ? his.state.boxIdOptions} />
-
+          error: err.reason, // {error} will be rendered below
         });
       } else {
         this.setState({

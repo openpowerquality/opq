@@ -6,7 +6,6 @@ import { HashRouter as Router, Route, Switch, Redirect } from 'react-router-dom'
 
 // Components
 import NavBar from '../../ui/components/NavBar.jsx';
-import Home from '../../ui/pages/Home.jsx';
 import Example from '../../ui/pages/Example.jsx';
 import Settings from '../../ui/pages/Settings.jsx';
 import Account from '../../ui/pages/Account.jsx';
@@ -15,7 +14,6 @@ import Signin from '../../ui/pages/Signin.jsx';
 import Signup from '../../ui/pages/Signup.jsx';
 import Signout from '../../ui/pages/Signout.jsx';
 import DRS from '../../ui/pages/DRS.jsx';
-import KRS from '../../ui/pages/KRS.jsx';
 import LandingPage from '../../ui/pages/LandingPage';
 
 /** Top-level layout component for this application. Called in imports/startup/client/startup.jsx. */
@@ -30,7 +28,6 @@ class App extends React.Component {
               <Route path="/signin" component={Signin} />
               <Route path="/signup" component={Signup} />
               <Route path="/drs" component={DRS} />
-              <Route path="/krs" component={KRS} />
               <ProtectedRoute path="/example" component={Example} />
               <ProtectedRoute path="/account" component={Account} />
               <ProtectedRoute path="/settings" component={Settings} />
