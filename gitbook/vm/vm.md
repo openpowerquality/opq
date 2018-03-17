@@ -12,7 +12,7 @@ The VM runs on top of 64-bit Debian Linux.
 
 _Note: Full installation may take upwards of 10 gigabytes of hard drive space._
 1) Download and install the latest version of Virtual Box from https://www.virtualbox.org/wiki/Downloads
-2) Download the latest OPQ VM image from our [Google Drive](https://drive.google.com/file/d/1FCenDlIqjW3ffwol5YSiDTyk30Kjy_BJ/view?usp=sharing
+2) Download the latest OPQ VM image from our [Google Drive](https://drive.google.com/file/d/1TXWauNBatqtwpqR_RXMs2ZnAig8sG5Qz/view?usp=sharing
 3) Open Virtual Box, select `File` -> `Import Appliance...`
 4) Find and select the OpqSim.ova file you downloaded in step 2.
 5) Hit `Next` followed by `Import`. Importing can take a few moments...
