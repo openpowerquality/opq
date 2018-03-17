@@ -90,3 +90,12 @@
 * [GridFS](datamodel/description.md#gridfs)
 * [OPQ_Boxes](datamodel/description.md#opq_boxes)
 * [Users](datamodel/description.md#users)
+
+## OPQ VM/Sim
+
+* [Overview](vm/vm.md#overview)
+* [Installation](vm/vm.md#installtion)
+* [Running](vm/vm.md#running)
+* [Interacting w/ VM](vm/interactingvm)
+* [Simulator](vm/interactingsim)
+
