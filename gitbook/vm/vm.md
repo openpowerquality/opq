@@ -176,3 +176,17 @@ Once a filter is applied, if you want to change the state or change the filter, 
 }
 
 ```
+
+#### Using the provided HTTP POST client
+
+In util/box/sim you can call sim.py and pass it a JSON file which the script will then POST to the simulator. Here is how it should be invoked.
+
+```
+python3 sim.py --state path/to/request.json
+```
+
+or 
+
+```
+pyhton3 sim.py -s path/to/request.json
+```
