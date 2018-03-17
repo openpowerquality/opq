@@ -11,21 +11,21 @@ The VM runs on top of 64-bit Debian Linux.
 ## Installation {#installation}
 
 _Note: Full installation may take upwards of 10 gigabytes of hard drive space._
-1) Download and install the latest version of Virtual Box from https://www.virtualbox.org/wiki/Downloads
-2) Download the latest OPQ VM image from our [Google Drive](https://drive.google.com/file/d/1TXWauNBatqtwpqR_RXMs2ZnAig8sG5Qz/view?usp=sharing
-3) Open Virtual Box, select `File` -> `Import Appliance...`
-4) Find and select the OpqSim.ova file you downloaded in step 2.
-5) Hit `Next` followed by `Import`. Importing can take a few moments...
-6) You should now see OpqSim in your list of virtual machines.
+1. Download and install the latest version of Virtual Box from https://www.virtualbox.org/wiki/Downloads
+2. Download the latest OPQ VM image from our [Google Drive](https://drive.google.com/file/d/1TXWauNBatqtwpqR_RXMs2ZnAig8sG5Qz/view?usp=sharing
+3. Open Virtual Box, select `File` -> `Import Appliance...`
+4. Find and select the OpqSim.ova file you downloaded in step 2.
+5. Hit `Next` followed by `Import`. Importing can take a few moments...
+6. You should now see OpqSim in your list of virtual machines.
 
 ## Running {#running}
 
-1) Select the OpqSim virtual machine and press `Start`.
-2) The machine will now boot. 
-3) In general, you shouldn't need to log into the VM since the necessary services are already port forwarded via Virtual Box. However, should you need to log into the VM:
-    1) Username is `pi` and password is `opq`.
-    2) SSH into the machine with `ssh -p 3022 pi@localhost` or
-    3) Log in through the GUI
+1. Select the OpqSim virtual machine and press `Start`.
+2. The machine will now boot. 
+3. In general, you shouldn't need to log into the VM since the necessary services are already port forwarded via Virtual Box. However, should you need to log into the VM:
+    1. Username is `pi` and password is `opq`.
+    2. SSH into the machine with `ssh -p 3022 pi@localhost` or
+    3. Log in through the GUI
     
 ### Interacting with the VM {#interactingvm}
 Different services are preconfigured to be port forwarded to your local host from the VM. 
