@@ -22,7 +22,7 @@ OPQHealth creates "entries" representing its findings on the current health of t
 
 *timestamp*:  Each entry has a timestamp, which is a UTC string indicating the time at which the entry was generated.
 
-*service*:  Indicates the OPQ Service whose status is being described in this entry.  Service should be one of the following: "box", "mauka", "makai", "opqview", "mongodb" and "health".  Yes, OPQHealth reports on its own health!
+*service*:  Indicates the OPQ Service whose status is being described in this entry.  Service should be one of the following: "box", "mauka", "makai", "view", "mongodb" and "health".  Yes, OPQHealth reports on its own health!
 
 *serviceID*:  For some services, such as "box", additional identifying information is required.  The serviceID field provides that information. In the case of OPQBoxes, the serviceID field provides the boxID.
 
