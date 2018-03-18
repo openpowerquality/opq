@@ -71,8 +71,9 @@
 ## OPQ Health
 
 * [Overview](health/description.md#overview)
-* [Installation](health/description.md#installation)
 * [Data Model](health/description.md#data-model)
+* [Basic Operation](health/description.md#basic-operation)
+* [Installation](health/description.md#installation)
 * [Analytics](health/description.md#analytics)
 
 
