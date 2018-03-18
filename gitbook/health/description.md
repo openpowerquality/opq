@@ -84,9 +84,15 @@ Upon startup, OPQHealth prints out information indicating that it successfully r
 
 The log file prints out the value of all fields in the data model, comma separated. It always prints out the status of health first upon startup, with an info field value of "initial startup".
 
-Note that there will be no further lines written to the file until the box with id 2 comes up, or any of the other services goes down.
+Note that there will be no further lines written to the file until the box with id 2 comes up, or any of the other services goes down, or a day has passed, at which point an additional line will be appended indicating that health is still up:
 
-For each line in the log file, a corresponding document is inserted into the health collection.
+```
+20180319-09:08:23-10:00 service: health, serviceID:, status: up, info:
+```
+
+Of course, the actual elapsed time between these heartbeat log entries for the health system depend upon the value provided in the configuration file.
+
+Note that each time an entry is added the log file, a corresponding document is inserted into the health collection.
 
 ## Detecting health
 
