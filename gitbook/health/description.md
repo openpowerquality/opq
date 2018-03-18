@@ -86,6 +86,8 @@ The log file prints out the value of all fields in the data model, comma separat
 
 Note that there will be no further lines written to the file until the box with id 2 comes up, or any of the other services goes down.
 
+For each line in the log file, a corresponding document is inserted into the health collection.
+
 ## Detecting health
 
 OPQHealth assesses the health of each service in the following way:
