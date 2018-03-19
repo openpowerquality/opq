@@ -13,8 +13,22 @@ import time
 import typing
 import queue
 
-SAMPLES_PER_CYCLE = 200
-DEVICE_HANDLE = "/tmp/opqsim"
+SAMPLES_PER_CYCLE: int = 200
+"""Number of samples per waveform cycle"""
+
+DEVICE_HANDLE: str = "/tmp/opqsim"
+"""Device handle"""
+
+SQRT_2: float = math.sqrt(2)
+"""Constant for the sqrt(2)"""
+
+
+S16_MIN: int = -(2 ** 15)
+"""Minimum value for signed 16-bit integer"""
+
+
+S16_MAX: int = 2 ** 15 - 1
+"""Maximum value for signed 16-bit integer"""
 
 
 class OpqDeviceFifo:
@@ -49,11 +63,6 @@ class OpqDeviceFifo:
             self.fd = open(DEVICE_HANDLE, 'wb')
 
 
-SQRT_2 = math.sqrt(2)
-S16_MIN = -(2 ** 15)
-S16_MAX = 2 ** 15 - 1
-
-
 def as_vrms(v: int, calibration_constant: float = 152.0) -> float:
     return (v / calibration_constant) / SQRT_2
 
@@ -68,7 +77,12 @@ def scale_to_sint16(v: float, calibration_constant: float = 152.0) -> int:
 
 
 class DelayedStateFilter:
-    def __init__(self, initial_value: float, target_value: float, delay_samples: int, state_arg: str):
+    def __init__(self,
+                 initial_value: float,
+                 target_value: float,
+                 delay_samples: int,
+                 state_arg: str):
+
         self.initial_value = initial_value
         self.delay_samples = delay_samples
         self.i = 0
@@ -126,7 +140,7 @@ class FilterManager:
                                           filter_definition["delay_samples"])
         elif name == "frequency":
             return DelayedFrequencyFilter(self.initial_frequency,
-                                          filter_definition["targert_frequency"],
+                                          filter_definition["target_frequency"],
                                           filter_definition["delay_samples"])
         elif name == "nop":
             return NopFilter(filter_definition["delay_samples"])
