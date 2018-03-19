@@ -43,7 +43,7 @@ class OpqDeviceFifo:
         self.samples = []
         try:
             self.fd.write(ret)
-            time.sleep(1/60.0)
+            time.sleep(1 / 60.0)
         except:
             self.fd = open(DEVICE_HANDLE, 'wb')
 
@@ -66,50 +66,66 @@ def scale_to_sint16(v: float, calibration_constant: float = 152.0) -> int:
     return r
 
 
-class NopFilter:
-    def __init__(self, delay_samples: int):
+class DelayedStateFilter:
+    def __init__(self, initial_value: float, target_value: float, delay_samples: int, state_arg: str):
+        self.initial_value = initial_value
         self.delay_samples = delay_samples
         self.i = 0
-
-    def has_next_state(self) -> bool:
-        return self.i < self.delay_samples
-
-    def next_state(self) -> typing.Dict:
-        self.i += 1
-        return {}
-
-
-class DelayedAmplitudeFilter:
-    def __init__(self, initial_amplitude: float, target_amplitude: float, delay_samples: int):
-        self.initial_amplitude = initial_amplitude
-        self.delay_samples = delay_samples
-        self.i = 0
-        self.d = (target_amplitude - initial_amplitude) / delay_samples
+        self.d = (target_value - initial_value) / delay_samples
+        self.state_arg = state_arg
 
     def has_next_state(self) -> bool:
         return self.i < self.delay_samples
 
     def next_state(self) -> typing.Dict[str, typing.Dict[str, float]]:
-        s = {"state": {"amplitude": self.initial_amplitude + (self.i * self.d)}}
+        s = {"state": {self.state_arg: self.initial_value + (self.i * self.d)}}
         self.i += 1
         return s
 
 
+class NopFilter(DelayedStateFilter):
+    def __init__(self, delay_samples: int):
+        super().__init__(0, 0, delay_samples, "")
+
+    def next_state(self) -> typing.Dict:
+        super().next_state()
+        return {}
+
+
+class DelayedAmplitudeFilter(DelayedStateFilter):
+    def __init__(self, initial_amplitude: float, target_amplitude: float, delay_samples: int):
+        super().__init__(initial_amplitude, target_amplitude, delay_samples, "amplitude")
+
+
+class DelayedFrequencyFilter(DelayedStateFilter):
+    def __init__(self, initial_frequency: float, target_frequency: float, delay_samples: int):
+        super().__init__(initial_frequency, target_frequency, delay_samples, "frequency")
+
+
 class FilterManager:
-    def __init__(self, initial_amplitude: float,
+    def __init__(self,
+                 initial_amplitude: float,
+                 initial_frequency: float,
                  filter_definitions: typing.List[typing.Dict],
                  does_repeat: bool):
         self.initial_amplitude = initial_amplitude
+        self.initial_frequency = initial_frequency
         self.filters = list(map(self.make_filter, filter_definitions))
         self.does_repeat = does_repeat
         self.i = 0
 
-    def make_filter(self, filter_definition: typing.Dict) -> typing.Union[NopFilter, DelayedAmplitudeFilter]:
+    def make_filter(self, filter_definition: typing.Dict) -> typing.Union[NopFilter,
+                                                                          DelayedAmplitudeFilter,
+                                                                          DelayedFrequencyFilter]:
         name = filter_definition["name"]
 
         if name == "vrms":
             return DelayedAmplitudeFilter(self.initial_amplitude,
                                           filter_definition["target_vrms"] * SQRT_2,
+                                          filter_definition["delay_samples"])
+        elif name == "frequency":
+            return DelayedFrequencyFilter(self.initial_frequency,
+                                          filter_definition["targert_frequency"],
                                           filter_definition["delay_samples"])
         elif name == "nop":
             return NopFilter(filter_definition["delay_samples"])
