@@ -26,6 +26,7 @@ class OpqDeviceFifo:
         self.last_gps_counter = 0
         self.current_counter = 0
         self.flags = 0
+        self.sleep = 1.0 / 60.0
 
     def add_sample(self, sample):
         if len(self.samples) >= SAMPLES_PER_CYCLE:
@@ -43,7 +44,7 @@ class OpqDeviceFifo:
         self.samples = []
         try:
             self.fd.write(ret)
-            time.sleep(1 / 60.0)
+            time.sleep(self.sleep)
         except:
             self.fd = open(DEVICE_HANDLE, 'wb')
 
@@ -203,7 +204,7 @@ class WaveformGenerator:
                     self.safe_update(next_state)
                 else:
                     self.filter_manager = None
-            v = self.amplitude * math.sin(self.frequency * (2 * math.pi) * i / self.sample_rate_hz)
+            v = self.amplitude * math.sin(self.frequency * (2 * math.pi) * (i / self.sample_rate_hz))
             yield (i, v)
 
             i += 1
