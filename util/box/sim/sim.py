@@ -187,7 +187,10 @@ class WaveformGenerator:
                 if k in self.__dict__ and type(v) is type(self.__dict__[k]):
                     self.__dict__[k] = v
         elif "filters" in state:
-            self.filter_manager = FilterManager(self.amplitude, state["filters"], state["does_repeat"])
+            self.filter_manager = FilterManager(self.amplitude,
+                                                self.frequency,
+                                                state["filters"],
+                                                state["does_repeat"])
         else:
             pass
 
