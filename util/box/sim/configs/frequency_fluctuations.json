@@ -1,0 +1,19 @@
+{
+  "filters": [
+    {
+      "name": "frequency",
+      "target_frequency": 59.5,
+      "delay_samples": 400
+    },
+    {
+      "name": "nop",
+      "delay_samples": 12000
+    },
+    {
+      "name": "frequency",
+      "target_frequency": 60.5,
+      "delay_samples": 400
+    }
+  ],
+  "does_repeat": true
+}
