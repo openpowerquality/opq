@@ -24,10 +24,7 @@ class WidgetPanel extends React.Component {
 /** Require a title and interior component to be passed in. */
 WidgetPanel.propTypes = {
   title: PropTypes.string.isRequired,
-  children: PropTypes.oneOfType([
-    PropTypes.array,
-    PropTypes.object,
-  ]).isRequired,
+  children: PropTypes.node,
 };
 
 export default WidgetPanel;
