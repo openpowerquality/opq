@@ -2,11 +2,12 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Meteor } from 'meteor/meteor';
 import { withTracker } from 'meteor/react-meteor-data';
-import { Grid, Loader, Container, Segment, Header, Dropdown, Checkbox } from 'semantic-ui-react';
+import { Grid, Loader, Header, Dropdown, Checkbox } from 'semantic-ui-react';
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
 
-import { getBoxIDs } from '/imports/api/opq-boxes/OpqBoxesCollectionMethods.js';
-import { Trends } from '/imports/api/trends/TrendsCollection.js';
+import { getBoxIDs } from '../../api/opq-boxes/OpqBoxesCollectionMethods';
+import { Trends } from '../../api/trends/TrendsCollection';
+import WidgetPanel from '../layouts/WidgetPanel';
 
 class BoxTrends extends React.Component {
   constructor(props) {
@@ -64,56 +65,58 @@ class BoxTrends extends React.Component {
     });
 
     return (
-      <Container>
-        <Segment attached='top'>
-          <Header as='h3' icon='line chart' content='Trends' floated='left' />
-          <Dropdown placeholder='Boxes to display' multiple search selection
-                    options={this.state.boxIdOptions}
-                    onChange={this.updateBoxIdDropdown}
-                    defaultValue={this.state.selectedBoxes} />
-          <Dropdown placeholder='Graph to display' search selection
-                    options={[
-                      { text: 'Voltage', value: 'voltage' },
-                      { text: 'Frequency', value: 'frequency' },
-                    ]}
-                    onChange={this.changeGraph}
-                    defaultValue={this.state.graph} />
-        </Segment>
-        <Segment attached='bottom'>
+      <WidgetPanel title='Daily Trends'>
+        <div>
+          <div align='center'>
+            <Dropdown placeholder='Boxes to display' multiple search selection
+                      options={this.state.boxIdOptions}
+                      onChange={this.updateBoxIdDropdown}
+                      defaultValue={this.state.selectedBoxes}
+            />
+            <Dropdown placeholder='Graph to display' search selection
+                      options={[
+                        { text: 'Voltage', value: 'voltage' },
+                        { text: 'Frequency', value: 'frequency' },
+                      ]}
+                      onChange={this.changeGraph}
+                      defaultValue={this.state.graph}
+            />
+          </div>
+          <br />
           {this.state.selectedBoxes.map(boxID => (
             <Grid key={`box${boxID}`}>
               <Grid.Row centered>
                 <Grid.Column width={3}>
-                  <Header as='h4' content={`Box ${boxID}`} textAlign='center'/>
+                  <Header as='h4' content={`Box ${boxID}`} textAlign='center' />
                 </Grid.Column>
                 <Grid.Column width={4}>
-                  <Checkbox toggle label='Max' onChange={this.changeChecked} checked={this.state.showMax}/>
+                  <Checkbox toggle label='Max' onChange={this.changeChecked} checked={this.state.showMax} />
                 </Grid.Column>
                 <Grid.Column width={4}>
-                  <Checkbox toggle label='Min' onChange={this.changeChecked} checked={this.state.showMin}/>
+                  <Checkbox toggle label='Min' onChange={this.changeChecked} checked={this.state.showMin} />
                 </Grid.Column>
                 <Grid.Column width={5}>
-                  <Checkbox toggle label='Average' onChange={this.changeChecked} checked={this.state.showAverage}/>
+                  <Checkbox toggle label='Average' onChange={this.changeChecked} checked={this.state.showAverage} />
                 </Grid.Column>
               </Grid.Row>
               <Grid.Row>
                 <ResponsiveContainer width='100%' aspect={2 / 1}>
                   <AreaChart data={graphData[boxID].data}>
-                    <XAxis/>
-                    <YAxis domain={[graphData[boxID].lowest, graphData[boxID].highest]}/>
-                    <Tooltip/>
-                    <CartesianGrid/>
-                    {this.state.showMax ? <Area key={`box${boxID}_max`} dataKey='max' opacity={0.5}/> : ''}
-                    {this.state.showMin ? <Area key={`box${boxID}_min`} dataKey='min' opacity={0.5}/> : ''}
-                    {this.state.showAverage ? <Area key={`box${boxID}_average`} dataKey='average' opacity={0.5}/> : ''}
+                    <XAxis />
+                    <YAxis domain={[graphData[boxID].lowest, graphData[boxID].highest]} />
+                    <Tooltip />
+                    <CartesianGrid />
+                    {this.state.showMax ? <Area key={`box${boxID}_max`} dataKey='max' opacity={0.5} /> : ''}
+                    {this.state.showMin ? <Area key={`box${boxID}_min`} dataKey='min' opacity={0.5} /> : ''}
+                    {this.state.showAverage ? <Area key={`box${boxID}_average`} dataKey='average' opacity={0.5} /> : ''}
                   </AreaChart>
                 </ResponsiveContainer>
               </Grid.Row>
 
             </Grid>
           ))}
-        </Segment>
-      </Container>
+        </div>
+      </WidgetPanel>
     );
   }
 
@@ -127,10 +130,17 @@ class BoxTrends extends React.Component {
 
   changeChecked(event, data) {
     switch (data.label) {
-      case 'Max': this.setState({ showMax: !this.state.showMax }); break;
-      case 'Average': this.setState({ showAverage: !this.state.showAverage }); break;
-      case 'Min': this.setState({ showMin: !this.state.showMin }); break;
-      default: break;
+      case 'Max':
+        this.setState({ showMax: !this.state.showMax });
+        break;
+      case 'Average':
+        this.setState({ showAverage: !this.state.showAverage });
+        break;
+      case 'Min':
+        this.setState({ showMin: !this.state.showMin });
+        break;
+      default:
+        break;
     }
   }
 }

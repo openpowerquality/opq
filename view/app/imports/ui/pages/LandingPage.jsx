@@ -1,6 +1,6 @@
 import React from 'react';
 import { Grid } from 'semantic-ui-react';
-import BoxTrends from '../components/BoxTrends/BoxTrends.jsx';
+import BoxTrends from '../components/BoxTrends';
 import SystemStats from '../components/SystemStats';
 import SystemHealth from '../components/SystemHealth';
 import LiveBoxMonitor from '../components/LiveBoxMonitor';
