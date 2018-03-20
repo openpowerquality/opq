@@ -5,7 +5,6 @@ import { check } from 'meteor/check';
 import BaseCollection from '../base/BaseCollection.js';
 import { OpqBoxes } from '../opq-boxes/OpqBoxesCollection';
 import { progressBarSetup } from '../../modules/utils';
-import Moment from "moment/moment";
 
 class TrendsCollection extends BaseCollection {
 
@@ -110,17 +109,6 @@ class TrendsCollection extends BaseCollection {
         check(numTrends, Number);
 
         const trends = self.find({}, { sort: { timestamp_ms: -1 }, limit: numTrends });
-        return trends;
-      });
-
-      Meteor.publish('trends_recent_month', () => {
-        const targetMoment = Moment().month(0).year(2018);
-        const startOfMonthMillis = Moment(targetMoment).startOf('month').valueOf();
-        const endOfMonthMillis = Moment(targetMoment).endOf('month').valueOf();
-
-        const trends = self.find({
-          timestamp_ms: { $gte: startOfMonthMillis, $lte: endOfMonthMillis },
-        }, { sort: { timestamp_ms: -1 } });
         return trends;
       });
     }
