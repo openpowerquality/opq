@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 
-ISO_DATE=
 ONE_MONTH_AGO=1519084800000
 
 mongodump --db opq --gzip --collection events --query '{"target_event_start_timestamp_ms": {$gte: '"${ONE_MONTH_AGO}"'}}'
