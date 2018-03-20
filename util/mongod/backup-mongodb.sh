@@ -11,4 +11,4 @@ cd /var/opq/backup/mongodb
 /bin/tar czf ${ARCHIVE} opq/
 
 # Upload to google drive
-/usr/local/bin/gdrive upload --parent "DB Snapshots" ${ARCHIVE} && rm ${ARCHIVE}
+/usr/local/bin/gdrive upload --parent "1K6S8pmlUt6Cc5CWNs_PJyikhdQ9_KXDS" ${ARCHIVE} && rm ${ARCHIVE}
