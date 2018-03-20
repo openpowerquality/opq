@@ -66,56 +66,54 @@ class BoxTrends extends React.Component {
 
     return (
       <WidgetPanel title='Daily Trends'>
-        <div>
-          <div align='center'>
-            <Dropdown placeholder='Boxes to display' multiple search selection
-                      options={this.state.boxIdOptions}
-                      onChange={this.updateBoxIdDropdown}
-                      defaultValue={this.state.selectedBoxes}
-            />
-            <Dropdown placeholder='Graph to display' search selection
-                      options={[
-                        { text: 'Voltage', value: 'voltage' },
-                        { text: 'Frequency', value: 'frequency' },
-                      ]}
-                      onChange={this.changeGraph}
-                      defaultValue={this.state.graph}
-            />
-          </div>
-          <br />
-          {this.state.selectedBoxes.map(boxID => (
-            <Grid key={`box${boxID}`}>
-              <Grid.Row centered>
-                <Grid.Column width={3}>
-                  <Header as='h4' content={`Box ${boxID}`} textAlign='center' />
-                </Grid.Column>
-                <Grid.Column width={4}>
-                  <Checkbox toggle label='Max' onChange={this.changeChecked} checked={this.state.showMax} />
-                </Grid.Column>
-                <Grid.Column width={4}>
-                  <Checkbox toggle label='Min' onChange={this.changeChecked} checked={this.state.showMin} />
-                </Grid.Column>
-                <Grid.Column width={5}>
-                  <Checkbox toggle label='Average' onChange={this.changeChecked} checked={this.state.showAverage} />
-                </Grid.Column>
-              </Grid.Row>
-              <Grid.Row>
-                <ResponsiveContainer width='100%' aspect={2 / 1}>
-                  <AreaChart data={graphData[boxID].data}>
-                    <XAxis />
-                    <YAxis domain={[graphData[boxID].lowest, graphData[boxID].highest]} />
-                    <Tooltip />
-                    <CartesianGrid />
-                    {this.state.showMax ? <Area key={`box${boxID}_max`} dataKey='max' opacity={0.5} /> : ''}
-                    {this.state.showMin ? <Area key={`box${boxID}_min`} dataKey='min' opacity={0.5} /> : ''}
-                    {this.state.showAverage ? <Area key={`box${boxID}_average`} dataKey='average' opacity={0.5} /> : ''}
-                  </AreaChart>
-                </ResponsiveContainer>
-              </Grid.Row>
-
-            </Grid>
-          ))}
+        <div align='center'>
+          <Dropdown placeholder='Boxes to display' multiple search selection
+                    options={this.state.boxIdOptions}
+                    onChange={this.updateBoxIdDropdown}
+                    defaultValue={this.state.selectedBoxes}
+          />
+          <Dropdown placeholder='Graph to display' search selection
+                    options={[
+                      { text: 'Voltage', value: 'voltage' },
+                      { text: 'Frequency', value: 'frequency' },
+                    ]}
+                    onChange={this.changeGraph}
+                    defaultValue={this.state.graph}
+          />
         </div>
+        <br />
+        {this.state.selectedBoxes.map(boxID => (
+          <Grid key={`box${boxID}`}>
+            <Grid.Row centered>
+              <Grid.Column width={3}>
+                <Header as='h4' content={`Box ${boxID}`} textAlign='center' />
+              </Grid.Column>
+              <Grid.Column width={4}>
+                <Checkbox toggle label='Max' onChange={this.changeChecked} checked={this.state.showMax} />
+              </Grid.Column>
+              <Grid.Column width={4}>
+                <Checkbox toggle label='Min' onChange={this.changeChecked} checked={this.state.showMin} />
+              </Grid.Column>
+              <Grid.Column width={5}>
+                <Checkbox toggle label='Average' onChange={this.changeChecked} checked={this.state.showAverage} />
+              </Grid.Column>
+            </Grid.Row>
+            <Grid.Row>
+              <ResponsiveContainer width='100%' aspect={2 / 1}>
+                <AreaChart data={graphData[boxID].data}>
+                  <XAxis />
+                  <YAxis domain={[graphData[boxID].lowest, graphData[boxID].highest]} />
+                  <Tooltip />
+                  <CartesianGrid />
+                  {this.state.showMax ? <Area key={`box${boxID}_max`} dataKey='max' opacity={0.5} /> : ''}
+                  {this.state.showMin ? <Area key={`box${boxID}_min`} dataKey='min' opacity={0.5} /> : ''}
+                  {this.state.showAverage ? <Area key={`box${boxID}_average`} dataKey='average' opacity={0.5} /> : ''}
+                </AreaChart>
+              </ResponsiveContainer>
+            </Grid.Row>
+
+          </Grid>
+        ))}
       </WidgetPanel>
     );
   }

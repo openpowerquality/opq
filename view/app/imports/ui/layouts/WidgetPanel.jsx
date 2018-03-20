@@ -7,16 +7,16 @@ import { Segment, Header } from 'semantic-ui-react';
 class WidgetPanel extends React.Component {
   render() { // eslint-disable-line class-methods-use-this
     return (
-        <Segment.Group raised>
-          <Segment inverted tertiary color="blue">
-            <Header as='h5'>
-              {this.props.title}
-            </Header>
-          </Segment>
-          <Segment vertical attached>
-            {this.props.children}
-          </Segment>
-        </Segment.Group>
+      <Segment.Group raised>
+        <Segment inverted tertiary color="blue">
+          <Header as='h5'>
+            {this.props.title}
+          </Header>
+        </Segment>
+        <Segment vertical attached>
+          {this.props.children}
+        </Segment>
+      </Segment.Group>
     );
   }
 }
@@ -24,7 +24,10 @@ class WidgetPanel extends React.Component {
 /** Require a title and interior component to be passed in. */
 WidgetPanel.propTypes = {
   title: PropTypes.string.isRequired,
-  children: PropTypes.object.isRequired,
+  children: PropTypes.oneOfType([
+    PropTypes.arrayOf(PropTypes.object),
+    PropTypes.object,
+  ]).isRequired,
 };
 
 export default WidgetPanel;
