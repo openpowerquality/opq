@@ -25,7 +25,7 @@ class WidgetPanel extends React.Component {
 WidgetPanel.propTypes = {
   title: PropTypes.string.isRequired,
   children: PropTypes.oneOfType([
-    PropTypes.arrayOf(PropTypes.object),
+    PropTypes.array,
     PropTypes.object,
   ]).isRequired,
 };
