@@ -11,7 +11,7 @@ First, [install Meteor](https://www.meteor.com/install).
 
 Now [download a copy of OPQ](https://github.com/openpowerquality/opq/archive/master.zip), or clone it using git.
   
-Next, cd into the app/ directory and install libraries with:
+Next, cd into the opq/view/app/ directory and install libraries with:
 
 ```
 $ meteor npm install
