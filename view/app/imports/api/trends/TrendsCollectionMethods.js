@@ -247,3 +247,19 @@ export const getMostRecentTrendMonth = new ValidatedMethod({
     return null;
   },
 });
+
+
+export const rangeOfTrends = new ValidatedMethod({
+  name: 'Trends.rangeOfTrends',
+  validate: new SimpleSchema({
+    boxIDs: { type: [String] },
+    startDate_ms: { type: Number },
+    endDate_ms: { type: Number },
+  }).validator({ clean: true }),
+  run({ boxIDs, startDate_ms, endDate_ms }) {
+    const trendData = Trends.find({
+      box_id: { $in: boxIDs },
+      timestamp_ms: { $gt: startDate_ms, $lt: endDate_ms },
+    });
+  },
+});

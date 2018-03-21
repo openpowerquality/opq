@@ -4,7 +4,7 @@ import { Meteor } from 'meteor/meteor';
 import 'semantic-ui-css/semantic.css';
 import { HashRouter as Router, Route, Switch, Redirect } from 'react-router-dom';
 
-// Components
+// Pages
 import NavBar from '../../ui/components/NavBar.jsx';
 import NotFound from '../../ui/pages/NotFound.jsx';
 import Signin from '../../ui/pages/Signin.jsx';
