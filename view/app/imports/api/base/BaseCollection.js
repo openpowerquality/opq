@@ -78,21 +78,30 @@ class BaseCollection {
   }
 
   /**
-   * Subscribes to the publication. Will subscribe on the template instance if it is given.
-   * TODO: Implement handling of err/result callback. Look at the Meteor.subscribe implementation for details.
-   *
-   * @param {String} publicationName - The name of the publication.
-   * @param {Object} templateInstance - The template instance.
-   * @param {...*} subscriptionArgs - The arguments to pass to the subscription function call.
-   * @returns {Object} - The subscription handle object, or null if the subscription could not be established.
+   * Default version of getPublicationName returns the single publication name.
+   * @returns The default publication name.
    */
-  subscribe(publicationName, templateInstance, ...subscriptionArgs) { // eslint-disable-line class-methods-use-this
-    if (Meteor.isClient) {
-      const subscribeFn = (templateInstance) ? templateInstance.subscribe.bind(templateInstance) : Meteor.subscribe;
-      return subscribeFn(publicationName, ...subscriptionArgs);
-    }
-    return null;
+  getPublicationName() {
+    return this._collectionName;
   }
+
+  //
+  // /**
+  //  * Subscribes to the publication. Will subscribe on the template instance if it is given.
+  //  * TODO: Implement handling of err/result callback. Look at the Meteor.subscribe implementation for details.
+  //  *
+  //  * @param {String} publicationName - The name of the publication.
+  //  * @param {Object} templateInstance - The template instance.
+  //  * @param {...*} subscriptionArgs - The arguments to pass to the subscription function call.
+  //  * @returns {Object} - The subscription handle object, or null if the subscription could not be established.
+  //  */
+  // subscribe(publicationName, templateInstance, ...subscriptionArgs) { // eslint-disable-line class-methods-use-this
+  //   if (Meteor.isClient) {
+  //     const subscribeFn = (templateInstance) ? templateInstance.subscribe.bind(templateInstance) : Meteor.subscribe;
+  //     return subscribeFn(publicationName, ...subscriptionArgs);
+  //   }
+  //   return null;
+  // }
 
   /**
    * Returns an object representing the definition of docID in a format appropriate to the restoreOne function.
@@ -112,8 +121,7 @@ class BaseCollection {
    * @returns {Object} An object representing the contents of this collection.
    */
   dumpAll() {
-    const dumpObject = { name: this._collectionName, contents: this.find().map(doc => this.dumpOne(doc._id)) };
-    return dumpObject;
+    return { name: this._collectionName, contents: this.find().map(doc => this.dumpOne(doc._id)) };
   }
 
   /**
@@ -124,8 +132,7 @@ class BaseCollection {
   findDoc(docID) {
     const doc = this.findOne({ _id: docID }, {});
     if (!doc) {
-      // eslint-disable-next-line max-len
-      throw new Meteor.Error(`Could not find a document with docID: ${docID} in the collection: ${this._collectionName}.`);
+      throw new Meteor.Error(`Could not find document with docID: ${docID} in collection: ${this._collectionName}.`);
     }
     return doc;
   }
@@ -158,4 +165,5 @@ class BaseCollection {
     _.each(dumpObjects, dumpObject => this.restoreOne(dumpObject));
   }
 }
+
 export default BaseCollection;
