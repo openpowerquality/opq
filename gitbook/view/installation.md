@@ -1,13 +1,13 @@
 # OPQView Installation
 
-This chapter explains how to install the OPQView system for development purposes. Installation instructions for deployed instances will be provided shortly.
+This chapter explains how to install the OPQView system for development purposes. 
 
 ## Install Meteor
 
 First, [install Meteor](https://www.meteor.com/install).
 
 
-## Install and run OPQ
+## Install and run OPQView
 
 Now [download a copy of OPQ](https://github.com/openpowerquality/opq/archive/master.zip), or clone it using git.
   
@@ -17,7 +17,7 @@ Next, cd into the app/ directory and install libraries with:
 $ meteor npm install
 ```
 
-To bring up the OPQ system and connect to the default MongoDB database:
+To bring up the OPQView system and connect to the default MongoDB database:
 
 ```
 meteor npm run start
@@ -25,7 +25,7 @@ meteor npm run start
 
 ## (Optional) Install a DB snapshot
 
-It is useful but not mandatory to seed your development database of OPQ with a snapshot of OPQ data. Here are the steps to do so. 
+For OPQView development, is useful to initialize your development database with a snapshot of OPQ data. Here are the steps to do so. 
 
 [Install MongoDB](https://docs.mongodb.com/manual/installation/).  Even though Meteor comes with a copy of Mongo, you will need to install MongoDB in order to run the mongorestore command.  
 
