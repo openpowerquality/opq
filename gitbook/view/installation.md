@@ -27,21 +27,34 @@ meteor npm run start
 
 It is useful but not mandatory to seed your development version of OPQ with a snapshot of OPQ data. Here are the steps to do so. 
 
-First, [install MongoDB](https://docs.mongodb.com/manual/installation/).  Even though Meteor comes with a copy of Mongo, you will need to install MongoDB in order to run the mongorestore command.  
+[Install MongoDB](https://docs.mongodb.com/manual/installation/).  Even though Meteor comes with a copy of Mongo, you will need to install MongoDB in order to run the mongorestore command.  
 
-Second, download the snapshot of an OPQ database from [here](https://goo.gl/ZV2DNF). Note that it is 800MB compressed, so this might take a while.
+Download a snapshot of an OPQ database into a directory outside of the opq repository directory. (This is to avoid unintentional committing of the DB snapshot). Here are links to currently available snapshots:
+ 
+   * [opq.dump.25jan2018.tar.bz2](https://drive.google.com/open?id=1qiq12WglZ3HdVCSskNH9uz2hNIZMICLe) (766 MB)
+   * [opq.dump.20march2018.tar.gz](https://drive.google.com/open?id=1M1N_Z0w_BAlE5KoH0D0zUEcnjhCt7VK4) (3 GB)
 
-Third, uncompress the downloaded tar.gz file. (Typically, double-clicking the file name will do the trick.) This will create a directory called "opq".
+Uncompress the downloaded tar.gz file. (Typically, double-clicking the file name will do the trick.) This will create a directory called "opq".
 
-Fourth, make sure the OPQ system is running (i.e. `meteor npm run start`). This is required in order to ensure that MongoDB is running.
+Delete the current contents of your local development OPQ database. To do this, stop Meteor if it is running, then invoke
 
-Fifth, bring up a new command shell, then cd to the directory containing the "opq" snapshot directory, and run:
+```
+meteor reset
+```
+
+Restart meteor so that the development version of MongoDB is started:
+
+```
+meteor npm run start
+```
+
+Bring up a second command shell, then cd to the directory containing the "opq" snapshot directory, and run:
 
 ```
 mongorestore -h 127.0.0.1 --port 3001 --gzip -d meteor opq
 ```
 
-Here is an excerpt of the sample output from running the above command. It takes around 3 minutes on a late model Mac laptop:
+Here is an excerpt of the sample output from running the above command. It will take up to 10 minutes:
 
 ```
 mongorestore -h 127.0.0.1 --port 3001 --gzip -d meteor opq
@@ -97,9 +110,15 @@ mongorestore -h 127.0.0.1 --port 3001 --gzip -d meteor opq
 
 ## View OPQView
 
-Finally, take a look at OPQView by going to http://localhost:3000. Here is what you should see:
+Finally, take a look at OPQView by going to http://localhost:3000. If you are running the "Blaze" version of OPQView, you will see something like this:
 
 <img src="opqview-home.png" >
 
-Note that since this database snapshot was dumped more than one minute ago, all of the OPQBoxes will be interpreted as "offline".  This is because that status is determined based upon whether or not there is a Measurement document available for that OPQBox with a timestamp less than one minute in the past. At some point in the future, we will provide developer tools that simulate the production of measurement data in order to provide a more realistic development environment. 
+Note that since this database snapshot was dumped more than one minute ago, all of the OPQBoxes will be interpreted as "offline".  This is because that status is determined based upon whether or not there is a Measurement document available for that OPQBox with a timestamp less than one minute in the past.
+
+If you are running the "React" version of OPQView, you will see something like this:
+
+
+
+ 
 
