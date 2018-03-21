@@ -1,2 +1,2 @@
-import './init-db.js';
+import './synced-cron';
 import './publications.js';
