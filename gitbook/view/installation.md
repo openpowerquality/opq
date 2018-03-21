@@ -17,7 +17,7 @@ Next, cd into the app/ directory and install libraries with:
 $ meteor npm install
 ```
 
-Now bring up the OPQ system using:
+To bring up the OPQ system and connect to the default MongoDB database:
 
 ```
 meteor npm run start
@@ -25,7 +25,7 @@ meteor npm run start
 
 ## (Optional) Install a DB snapshot
 
-It is useful but not mandatory to seed your development version of OPQ with a snapshot of OPQ data. Here are the steps to do so. 
+It is useful but not mandatory to seed your development database of OPQ with a snapshot of OPQ data. Here are the steps to do so. 
 
 [Install MongoDB](https://docs.mongodb.com/manual/installation/).  Even though Meteor comes with a copy of Mongo, you will need to install MongoDB in order to run the mongorestore command.  
 
@@ -110,13 +110,15 @@ mongorestore -h 127.0.0.1 --port 3001 --gzip -d meteor opq
 
 ## View OPQView
 
-Finally, take a look at OPQView by going to http://localhost:3000. If you are running the "Blaze" version of OPQView, you will see something like this:
+Finally, take a look at OPQView by going to http://localhost:3000. If you are running the "Blaze" version of OPQView, you will see something like this (for the Jan 2018 snapshot):
 
-<img src="opqview-home.png" >
+<img src="images/opqview-blaze-jan-2018.png" >
 
 Note that since this database snapshot was dumped more than one minute ago, all of the OPQBoxes will be interpreted as "offline".  This is because that status is determined based upon whether or not there is a Measurement document available for that OPQBox with a timestamp less than one minute in the past.
 
-If you are running the "React" version of OPQView, you will see something like this:
+If you are running the new "React Reimplementation" version of OPQView, you will see something like this (for the March 2018 snapshot):
+
+<img src="images/opqview-react-march-2018.png" >
 
 
 
