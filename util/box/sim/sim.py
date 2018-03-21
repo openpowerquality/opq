@@ -13,6 +13,8 @@ import time
 import typing
 import queue
 
+#import numpy
+
 SAMPLES_PER_CYCLE: int = 200
 """Number of samples per waveform cycle"""
 
@@ -335,12 +337,12 @@ class WaveformGenerator:
                     self.safe_update(next_state)
                 else:
                     self.filter_manager = None
-            v = self.amplitude * math.sin(self.frequency * (2 * math.pi) * (i / self.sample_rate_hz))
+            # v = self.amplitude * math.sin(self.frequency * (2 * math.pi) * (i / self.samples_per_cycle))
+            v = self.amplitude * math.sin(2 * math.pi * i * (self.frequency / self.sample_rate_hz))
             yield (i, v)
 
             i += 1
-            if i == self.samples_per_cycle:
-                i = 0
+
 
     def next(self) -> typing.Tuple[int, float]:
         return next(self.generator)
@@ -357,8 +359,8 @@ class WaveformGenerator:
                     pass
             else:
                 if self.debug:
-                    print(as_vrms(scale_to_sint16(self.next()[1])))
-                    time.sleep(.1)
+                    print(scale_to_sint16(self.next()[1]))
+                    # time.sleep(.1)
                 else:
                     fifo.add_sample(scale_to_sint16(self.next()[1]))
                     # time.sleep(1 / self.sample_rate_hz)
