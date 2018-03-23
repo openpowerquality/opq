@@ -249,17 +249,180 @@ export const getMostRecentTrendMonth = new ValidatedMethod({
 });
 
 
-export const rangeOfTrends = new ValidatedMethod({
-  name: 'Trends.rangeOfTrends',
+/**
+ * Returns an array of daily trend data with the box IDs as their keys
+ * @param {String[]} boxIDs: List of box IDs to get data for
+ * @param {Number} startDate_ms: Start of range in Unix epoch time
+ * @param {Number} endDate_ms: End of range in Unix epoch time
+ * @returns An array of objects with a box ID as their keys
+ */
+export const dailyTrendsInRange = new ValidatedMethod({
+  name: 'Trends.dailyTrendsInRange',
   validate: new SimpleSchema({
     boxIDs: { type: [String] },
     startDate_ms: { type: Number },
     endDate_ms: { type: Number },
   }).validator({ clean: true }),
   run({ boxIDs, startDate_ms, endDate_ms }) {
-    const trendData = Trends.find({
-      box_id: { $in: boxIDs },
-      timestamp_ms: { $gt: startDate_ms, $lt: endDate_ms },
+    // The shape of what our daily and monthly trend summaries will look like.
+    const trendSummaryShape = {
+      voltage: {
+        min: Number.MAX_SAFE_INTEGER,
+        minDate: null,
+        max: Number.MIN_SAFE_INTEGER,
+        maxDate: null,
+        average: 0,
+        count: 0,
+      },
+      frequency: {
+        min: Number.MAX_SAFE_INTEGER,
+        minDate: null,
+        max: Number.MIN_SAFE_INTEGER,
+        maxDate: null,
+        average: 0,
+        count: 0,
+      },
+      thd: {
+        min: Number.MAX_SAFE_INTEGER,
+        minDate: null,
+        max: Number.MIN_SAFE_INTEGER,
+        maxDate: null,
+        average: 0,
+        count: 0,
+      },
+      totalDocCount: 0,
+    };
+    // For each box, find the trends associated with it and
+    // summarize each day's trends into an object with the
+    // timestamp of the start of that day (in ms) as its key
+    // e.g. { timestamp: dailyTrendData }
+    return boxIDs.map(boxID => {
+      const associatedTrends = Trends.find({
+        box_id: boxID,
+        timestamp_ms: { $gte: startDate_ms, $lte: endDate_ms },
+      }).fetch();
+
+      // New moments are instantiated every time, because they mutate even when reassigned to a variable.
+      const start = Moment(startDate_ms);
+      const end = Moment(endDate_ms);
+      // Create structure of the dailyTrend object
+      const dailyTrends = new Map();
+      for (let i = start.startOf('day'); i <= end.startOf('day'); i = i.add(1, 'days')) {
+        dailyTrends[i.valueOf()] = _.cloneDeep(trendSummaryShape);
+      }
+
+      // Input real values into the dailyTrend object
+      associatedTrends.forEach(trend => {
+        const trendDay_ms = Moment(trend.timestamp_ms).startOf('day').valueOf();
+        const dtv = dailyTrends.get(trendDay_ms); // Daily Trend Values
+        dtv.totalDocCount++;
+
+        // Voltage
+        if (trend.voltage) {
+          dtv.voltage.count++;
+          if (trend.voltage.min < dtv.voltage.min) {
+            dtv.voltage.min = trend.voltage.min;
+            dtv.voltage.minDate = trend.timestamp_ms;
+          }
+          if (trend.voltage.max > dtv.voltage.max) {
+            dtv.voltage.max = trend.voltage.max;
+            dtv.voltage.maxDate = trend.timestamp_ms;
+          }
+          dtv.voltage.average += (trend.voltage.average - dtv.voltage.average) / dtv.voltage.count;
+        }
+        // Frequency
+        if (trend.frequency) {
+          dtv.frequency.count++;
+          if (trend.frequency.min < dtv.frequency.min) {
+            dtv.frequency.min = trend.frequency.min;
+            dtv.frequency.minDate = trend.timestamp_ms;
+          }
+          if (trend.frequency.max > dtv.frequency.max) {
+            dtv.frequency.max = trend.frequency.max;
+            dtv.frequency.maxDate = trend.timestamp_ms;
+          }
+          dtv.frequency.average += (trend.frequency.average - dtv.frequency.average) / dtv.frequency.count;
+        }
+        // THD
+        if (trend.thd) {
+          dtv.thd.count++;
+          if (trend.thd.min < dtv.thd.min) {
+            dtv.thd.min = trend.thd.min;
+            dtv.thd.minDate = trend.timestamp_ms;
+          }
+          if (trend.thd.max > dtv.thd.max) {
+            dtv.thd.max = trend.thd.max;
+            dtv.thd.maxDate = trend.timestamp_ms;
+          }
+          dtv.thd.average += (trend.thd.average - dtv.thd.average) / dtv.thd.count;
+        }
+      });
+
+      // If there was nothing stored, delete the fields.
+      dailyTrends.forEach(dtv => {
+        if (dtv.voltage.count === 0) delete dtv.voltage; // eslint-disable-line no-param-reassign
+        if (dtv.frequency.count === 0) delete dtv.frequency; // eslint-disable-line no-param-reassign
+        if (dtv.thd.count === 0) delete dtv.thd; // eslint-disable-line no-param-reassign
+      });
+
+      // Daily uptime calculations
+      dailyTrends.forEach(dtv => {
+        dtv.uptime = (dtv.totalDocCount / 1440) * 100; // eslint-disable-line no-param-reassign
+      });
+
+
+
+      dailyTrends.forEach(dtv => { // dtv = Daily Trend Values
+        // Represents the true total doc count of all trend documents parsed for this mont.
+        mtv.totalDocCount += dtv.totalDocCount;
+
+        // Voltage
+        if (dtv.voltage) {
+          mtv.voltage.count++;
+          if (dtv.voltage.min < mtv.voltage.min) {
+            mtv.voltage.min = dtv.voltage.min;
+            mtv.voltage.minDate = dtv.voltage.minDate;
+          }
+          if (dtv.voltage.max > mtv.voltage.max) {
+            mtv.voltage.max = dtv.voltage.max;
+            mtv.voltage.maxDate = dtv.voltage.maxDate;
+          }
+          mtv.voltage.average += (dtv.voltage.average - mtv.voltage.average) / mtv.voltage.count;
+        }
+        // Frequency
+        if (dtv.frequency) {
+          mtv.frequency.count++;
+          if (dtv.frequency.min < mtv.frequency.min) {
+            mtv.frequency.min = dtv.frequency.min;
+            mtv.frequency.minDate = dtv.frequency.minDate;
+          }
+          if (dtv.frequency.max > mtv.frequency.max) {
+            mtv.frequency.max = dtv.frequency.max;
+            mtv.frequency.maxDate = dtv.frequency.maxDate;
+          }
+          mtv.frequency.average += (dtv.frequency.average - mtv.frequency.average) / mtv.frequency.count;
+        }
+        // THD
+        if (dtv.thd) {
+          mtv.thd.count++;
+          if (dtv.thd.min < mtv.thd.min) {
+            mtv.thd.min = dtv.thd.min;
+            mtv.thd.minDate = dtv.thd.minDate;
+          }
+          if (dtv.thd.max > mtv.thd.max) {
+            mtv.thd.max = dtv.thd.max;
+            mtv.thd.maxDate = dtv.thd.maxDate;
+          }
+          mtv.thd.average += (dtv.thd.average - mtv.thd.average) / mtv.thd.count;
+        }
+      });
+
+      // Similarly, let's also remove the monthly trend fields which did not exist (voltage, freq, thd), if any.
+      if (mtv.voltage.count === 0) delete mtv.voltage; // eslint-disable-line no-param-reassign
+      if (mtv.frequency.count === 0) delete mtv.frequency; // eslint-disable-line no-param-reassign
+      if (mtv.thd.count === 0) delete mtv.thd; // eslint-disable-line no-param-reassign
+
+      return { [boxID]: { dailyTrends, monthlyTrends} };
     });
   },
 });

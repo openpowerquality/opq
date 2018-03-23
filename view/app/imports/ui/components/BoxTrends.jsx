@@ -3,9 +3,12 @@ import { Meteor } from 'meteor/meteor';
 import { withTracker } from 'meteor/react-meteor-data';
 import { Grid, Loader, Header, Dropdown, Checkbox } from 'semantic-ui-react';
 import { LineChart } from 'react-chartkick';
+import { Chart } from 'chart.js';
 import { Calendar } from 'react-calendar';
+import Moment from 'moment';
 
 import { getBoxIDs } from '../../api/opq-boxes/OpqBoxesCollectionMethods';
+import { dailyTrendsInRange } from '../../api/trends/TrendsCollectionMethods';
 import WidgetPanel from '../layouts/WidgetPanel';
 
 /** Displays data from the trends collection */
@@ -17,6 +20,7 @@ class BoxTrends extends React.Component {
       boxIdOptions: [],
       selectedBoxes: ['1'],
       graph: 'voltage',
+      viewingRange: [Moment().subtract(30, 'days').valueOf(), Moment().valueOf()],
       showMax: false,
       showMin: false,
       showAverage: true,
@@ -33,11 +37,24 @@ class BoxTrends extends React.Component {
         this.setState({
           boxIdOptions,
           ready: true,
-        })
+        });
       }
     });
 
-
+    dailyTrendsInRange.call({
+      boxIDs: ['3', '5'],
+      startDate_ms: this.state.viewingRange[0],
+      endDate_ms: this.state.viewingRange[1],
+    }, (error, data) => {
+      if(error) console.log(error);
+      else {
+        this.setState({
+          trends: data,
+          ready: true,
+        });
+        console.log(this.state.trends);
+      }
+    });
   }
 
   render() {
@@ -45,17 +62,16 @@ class BoxTrends extends React.Component {
   }
 
   renderPage() {
-    window.Chart = require('chart.js'); // eslint-disable-line no-undef
 
     return (
       <WidgetPanel title='Daily Trends'>
         <Grid container>
-
-          {/* Calendar stuff */}
           <Grid.Row centered>
+
             <Grid.Column width={10}>
               <Calendar selectRange onChange={this.updateCalendar} />
             </Grid.Column>
+
             <Grid.Column width={6}>
               <Dropdown search selection fluid
                         placeholder='Graph to display'
@@ -127,7 +143,7 @@ class BoxTrends extends React.Component {
   }
 
   updateCalendar = data => {
-    console.log(data[0].valueOf());
+    console.log(Moment(data[1]).diff(Moment(data[0]), 'days', true));
   }
 }
 
