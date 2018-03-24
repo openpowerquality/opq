@@ -64,6 +64,18 @@ class BaseCollection {
   }
 
   /**
+   * Returns true if the passed entity is in this collection.
+   * @param { String | Object } name The docID, or an object specifying a document.
+   * @returns {boolean} True if name exists in this collection.
+   */
+  isDefined(name) {
+    return (
+      !!this._collection.findOne(name) ||
+      !!this._collection.findOne({ name }) ||
+      !!this._collection.findOne({ _id: name }));
+  }
+
+  /**
    * Update the collection.
    * @param selector
    * @param modifier
@@ -153,6 +165,22 @@ class BaseCollection {
    */
   restoreAll(dumpObjects) {
     _.each(dumpObjects, dumpObject => this.restoreOne(dumpObject));
+  }
+
+  /**
+   * Removes all elements of this collection.
+   * This is implemented by mapping through all elements because mini-mongo does not implement the remove operation.
+   * So this approach can be used on both client and server side.
+   * removeAll should only used for testing purposes, so it doesn't need to be efficient.
+   * @returns true
+   */
+  removeAll() {
+    const items = this._collection.find().fetch();
+    const instance = this;
+    _.forEach(items, (i) => {
+      instance.removeIt(i._id);
+    });
+    return true;
   }
 }
 

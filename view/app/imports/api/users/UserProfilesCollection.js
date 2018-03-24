@@ -84,10 +84,49 @@ class UserProfilesCollection extends BaseCollection {
     const role = doc.roles;
     return { username, firstName, lastName, role };
   }
+
+  /**
+   * Removes the user from Meteor.users and from UserProfiles.
+   * If username does not exist, then returns false.
+   * Will only work on the server-side.
+   * @param username A username
+   * @returns True if the username exists and was deleted, false otherwise.
+   */
+  remove(username) {
+    if (Meteor.isServer) {
+      const profile = this.findOne({ username });
+      if (profile) {
+        this._collection.remove({ username });
+        const user = Accounts.findUserByUsername(username);
+        if (user) {
+          Meteor.users.remove(user._id);
+        }
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Removes all UserProfiles and associated Meteor.users.
+   * This is implemented by mapping through all elements because mini-mongo does not implement the remove operation.
+   * Will only work on the server side.
+   * removeAll should only used for testing purposes, so it doesn't need to be efficient.
+   * @returns true
+   */
+  removeAll() {
+    if (Meteor.isServer) {
+      const userProfiles = this._collection.find().fetch();
+      const instance = this;
+      _.forEach(userProfiles, (profile) => instance.remove(profile.username));
+    }
+    return true;
+  }
 }
 
 /**
  * Provides the singleton instance of this class.
  * @type {UserProfilesCollection}
  */
-export const UserProfiles = new UserProfilesCollection();
+export const
+  UserProfiles = new UserProfilesCollection();

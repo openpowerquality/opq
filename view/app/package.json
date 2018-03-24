@@ -25,6 +25,7 @@
     "uniforms-semantic": "^1.23.0"
   },
   "devDependencies": {
+    "chai": "*",
     "eslint": "^4.16.0",
     "eslint-config-airbnb": "^16.1.0",
     "eslint-plugin-import": "^2.8.0",
