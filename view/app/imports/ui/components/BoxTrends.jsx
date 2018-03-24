@@ -3,8 +3,8 @@ import { Meteor } from 'meteor/meteor';
 import { withTracker } from 'meteor/react-meteor-data';
 import { Grid, Loader, Header, Dropdown, Checkbox } from 'semantic-ui-react';
 import { LineChart } from 'react-chartkick';
-import { Chart } from 'chart.js';
-import { Calendar } from 'react-calendar';
+import Chart from 'chart.js';
+import Calendar from 'react-calendar';
 import Moment from 'moment';
 
 import { getBoxIDs } from '../../api/opq-boxes/OpqBoxesCollectionMethods';
@@ -20,7 +20,7 @@ class BoxTrends extends React.Component {
       boxIdOptions: [],
       selectedBoxes: ['1'],
       graph: 'voltage',
-      viewingRange: [Moment().subtract(30, 'days').valueOf(), Moment().valueOf()],
+      range: [Moment().subtract(30, 'days').valueOf(), Moment().valueOf()],
       showMax: false,
       showMin: false,
       showAverage: true,
@@ -30,7 +30,7 @@ class BoxTrends extends React.Component {
     getBoxIDs.call((error, boxIDs) => {
       if(error) console.log(error);
       else {
-        const boxIdOptions = boxIDs.sort().map(boxID => ({
+        const boxIdOptions = boxIDs.map(boxID => ({
           text: `Box ${boxID}`,
           value: boxID,
         }));
@@ -40,18 +40,14 @@ class BoxTrends extends React.Component {
         });
       }
     });
-
     dailyTrendsInRange.call({
-      boxIDs: ['3', '5'],
-      startDate_ms: this.state.viewingRange[0],
-      endDate_ms: this.state.viewingRange[1],
+      boxIDs: this.state.selectedBoxes,
+      startDate_ms: this.state.range[0],
+      endDate_ms: this.state.range[1],
     }, (error, data) => {
       if(error) console.log(error);
       else {
-        this.setState({
-          trends: data,
-          ready: true,
-        });
+        this.setState({ trends: data });
         console.log(this.state.trends);
       }
     });
@@ -62,14 +58,13 @@ class BoxTrends extends React.Component {
   }
 
   renderPage() {
-
     return (
       <WidgetPanel title='Daily Trends'>
         <Grid container>
           <Grid.Row centered>
 
             <Grid.Column width={10}>
-              <Calendar selectRange onChange={this.updateCalendar} />
+              <Calendar selectRange onChange={this.changeRange} value={this.state.range}/>
             </Grid.Column>
 
             <Grid.Column width={6}>
@@ -142,8 +137,19 @@ class BoxTrends extends React.Component {
     }
   }
 
-  updateCalendar = data => {
-    console.log(Moment(data[1]).diff(Moment(data[0]), 'days', true));
+  changeRange = range => {
+    this.setState({ range });
+    dailyTrendsInRange.call({
+      boxIDs: this.state.selectedBoxes,
+      startDate_ms: this.state.range[0],
+      endDate_ms: this.state.range[1],
+    }, (error, data) => {
+      if(error) console.log(error);
+      else {
+        this.setState({ trends: data });
+        console.log(this.state.trends);
+      }
+    });
   }
 }
 

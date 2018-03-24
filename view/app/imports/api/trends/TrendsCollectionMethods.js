@@ -295,14 +295,14 @@ export const dailyTrendsInRange = new ValidatedMethod({
     // For each box, find the trends associated with it and
     // summarize each day's trends into an object with the
     // timestamp of the start of that day (in ms) as its key
-    // e.g. { timestamp: dailyTrendData }
+    // i.e. { timestamp: dailyTrendData }
     return boxIDs.map(boxID => {
       const associatedTrends = Trends.find({
         box_id: boxID,
         timestamp_ms: { $gte: startDate_ms, $lte: endDate_ms },
       }).fetch();
 
-      // New moments are instantiated every time, because they mutate even when reassigned to a variable.
+      // New Moments are instantiated every time, because they mutate even when reassigned to a variable.
       const start = Moment(startDate_ms);
       const end = Moment(endDate_ms);
       // Create structure of the dailyTrend object
@@ -358,71 +358,71 @@ export const dailyTrendsInRange = new ValidatedMethod({
         }
       });
 
-      // If there was nothing stored, delete the fields.
+      // Delete fields that are empty
       dailyTrends.forEach(dtv => {
         if (dtv.voltage.count === 0) delete dtv.voltage; // eslint-disable-line no-param-reassign
         if (dtv.frequency.count === 0) delete dtv.frequency; // eslint-disable-line no-param-reassign
         if (dtv.thd.count === 0) delete dtv.thd; // eslint-disable-line no-param-reassign
       });
-
       // Daily uptime calculations
       dailyTrends.forEach(dtv => {
+        // This number is not accurate, but will be used until a better method is found.
         dtv.uptime = (dtv.totalDocCount / 1440) * 100; // eslint-disable-line no-param-reassign
       });
 
-
-
+      // Calculates summary for the entire range.
+      const rtv = _.cloneDeep(trendSummaryShape); // rtv = range trend value
       dailyTrends.forEach(dtv => { // dtv = Daily Trend Values
-        // Represents the true total doc count of all trend documents parsed for this mont.
-        mtv.totalDocCount += dtv.totalDocCount;
+        // Represents the true total doc count of all trend documents parsed for this range.
+        rtv.totalDocCount += dtv.totalDocCount;
 
         // Voltage
         if (dtv.voltage) {
-          mtv.voltage.count++;
-          if (dtv.voltage.min < mtv.voltage.min) {
-            mtv.voltage.min = dtv.voltage.min;
-            mtv.voltage.minDate = dtv.voltage.minDate;
+          rtv.voltage.count++;
+          if (dtv.voltage.min < rtv.voltage.min) {
+            rtv.voltage.min = dtv.voltage.min;
+            rtv.voltage.minDate = dtv.voltage.minDate;
           }
-          if (dtv.voltage.max > mtv.voltage.max) {
-            mtv.voltage.max = dtv.voltage.max;
-            mtv.voltage.maxDate = dtv.voltage.maxDate;
+          if (dtv.voltage.max > rtv.voltage.max) {
+            rtv.voltage.max = dtv.voltage.max;
+            rtv.voltage.maxDate = dtv.voltage.maxDate;
           }
-          mtv.voltage.average += (dtv.voltage.average - mtv.voltage.average) / mtv.voltage.count;
+          rtv.voltage.average += (dtv.voltage.average - rtv.voltage.average) / rtv.voltage.count;
         }
         // Frequency
         if (dtv.frequency) {
-          mtv.frequency.count++;
-          if (dtv.frequency.min < mtv.frequency.min) {
-            mtv.frequency.min = dtv.frequency.min;
-            mtv.frequency.minDate = dtv.frequency.minDate;
+          rtv.frequency.count++;
+          if (dtv.frequency.min < rtv.frequency.min) {
+            rtv.frequency.min = dtv.frequency.min;
+            rtv.frequency.minDate = dtv.frequency.minDate;
           }
-          if (dtv.frequency.max > mtv.frequency.max) {
-            mtv.frequency.max = dtv.frequency.max;
-            mtv.frequency.maxDate = dtv.frequency.maxDate;
+          if (dtv.frequency.max > rtv.frequency.max) {
+            rtv.frequency.max = dtv.frequency.max;
+            rtv.frequency.maxDate = dtv.frequency.maxDate;
           }
-          mtv.frequency.average += (dtv.frequency.average - mtv.frequency.average) / mtv.frequency.count;
+          rtv.frequency.average += (dtv.frequency.average - rtv.frequency.average) / rtv.frequency.count;
         }
         // THD
         if (dtv.thd) {
-          mtv.thd.count++;
-          if (dtv.thd.min < mtv.thd.min) {
-            mtv.thd.min = dtv.thd.min;
-            mtv.thd.minDate = dtv.thd.minDate;
+          rtv.thd.count++;
+          if (dtv.thd.min < rtv.thd.min) {
+            rtv.thd.min = dtv.thd.min;
+            rtv.thd.minDate = dtv.thd.minDate;
           }
-          if (dtv.thd.max > mtv.thd.max) {
-            mtv.thd.max = dtv.thd.max;
-            mtv.thd.maxDate = dtv.thd.maxDate;
+          if (dtv.thd.max > rtv.thd.max) {
+            rtv.thd.max = dtv.thd.max;
+            rtv.thd.maxDate = dtv.thd.maxDate;
           }
-          mtv.thd.average += (dtv.thd.average - mtv.thd.average) / mtv.thd.count;
+          rtv.thd.average += (dtv.thd.average - rtv.thd.average) / rtv.thd.count;
         }
       });
 
-      // Similarly, let's also remove the monthly trend fields which did not exist (voltage, freq, thd), if any.
-      if (mtv.voltage.count === 0) delete mtv.voltage; // eslint-disable-line no-param-reassign
-      if (mtv.frequency.count === 0) delete mtv.frequency; // eslint-disable-line no-param-reassign
-      if (mtv.thd.count === 0) delete mtv.thd; // eslint-disable-line no-param-reassign
+      // Delete empty fields
+      if (rtv.voltage.count === 0) delete rtv.voltage; // eslint-disable-line no-param-reassign
+      if (rtv.frequency.count === 0) delete rtv.frequency; // eslint-disable-line no-param-reassign
+      if (rtv.thd.count === 0) delete rtv.thd; // eslint-disable-line no-param-reassign
 
-      return { [boxID]: { dailyTrends, monthlyTrends} };
+      return { [boxID]: { dailyTrends, rangeTrends: rtv } };
     });
   },
 });
