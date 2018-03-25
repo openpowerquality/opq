@@ -50,10 +50,10 @@ class UserProfilesCollection extends BaseCollection {
         throw new Meteor.Error('Invalid user role - must either be "user" or "admin"');
       }
 
-      // Figure out if the user is already defined.
+      // Figure out if the user is already defined in Meteor Accounts.
       let user = Accounts.findUserByUsername(username);
       let userId = user && user._id;
-      // Define the new user if they don't already exist.
+      // Define the new user in Meteor Accounts if necessary.
       if (!userId) {
         userId = Accounts.createUser({ username, email: username, password });
         user = Accounts.findUserByUsername(username);

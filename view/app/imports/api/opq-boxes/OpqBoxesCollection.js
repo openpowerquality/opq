@@ -2,6 +2,7 @@ import { Mongo } from 'meteor/mongo';
 import SimpleSchema from 'simpl-schema';
 import BaseCollection from '../base/BaseCollection.js';
 import { progressBarSetup } from '../../modules/utils';
+import { Meteor } from "meteor/meteor";
 
 /**
  * Collection class for the opq_boxes collection.
@@ -14,8 +15,8 @@ class OpqBoxesCollection extends BaseCollection {
    */
   constructor() {
     super('opq_boxes', new SimpleSchema({
-      _id: { type: Mongo.ObjectID },
-      box_id: { type: String },
+      _id: Mongo.ObjectID,
+      box_id: String,
       name: { type: String, optional: true },
       description: { type: String, optional: true },
       calibration_constant: Number,
@@ -26,6 +27,8 @@ class OpqBoxesCollection extends BaseCollection {
 
   /**
    * Defines a new OpqBox document.
+   * Only works on server side.
+   * Updates info associated with box_id if it is already defined.
    * @param {String} box_id - The unique identification value of the OPQBox.
    * @param {String} name - The unique user-friendly name of the OPQBox.
    * @param {String} description - The (optional) description of the OPQBox.
@@ -33,8 +36,17 @@ class OpqBoxesCollection extends BaseCollection {
    * @param {[Object]} locations - The history of locations of the OPQBox.
    */
   define({ box_id, name, description, calibration_constant, locations }) {
-    const docID = this._collection.insert({ box_id, name, description, calibration_constant, locations });
-    return docID;
+    if (Meteor.isServer) {
+
+      // Create or modify the UserProfiles document associated with this username.
+      // this._collection.upsert({ username }, { $set: { firstName, lastName, role } });
+      // const profileId = this.findOne({ username })._id;
+
+
+      const docID = this._collection.insert({ box_id, name, description, calibration_constant, locations });
+      return docID;
+    }
+    return undefined;
   }
 
   /**
