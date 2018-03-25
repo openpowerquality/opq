@@ -17,7 +17,7 @@ if (Meteor.isServer) {
 
     it('#define, #findBoxesWithOwner, #findOwnersWithBox', function test() {
       const username = 'opq@hawaii.edu';
-      const boxId = 1;
+      const boxId = '1';
       const boxOwnerId1a = BoxOwners.define({ username, boxId });
       const boxOwnerId1b = BoxOwners.define({ username, boxId });
       expect(boxOwnerId1a).to.deep.equal(boxOwnerId1b);

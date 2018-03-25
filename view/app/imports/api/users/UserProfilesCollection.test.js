@@ -15,12 +15,12 @@ if (Meteor.isServer) {
       UserProfiles.removeAll();
     });
 
-    it('#define, #isDefined, #update, #findOne, #remove, #dumpOne, #restoreOne', function test() {
+    it('#define, #isDefined, #findBoxIds, #findDoc, #findOne, #remove, #dumpOne, #restoreOne', function test() {
       const username = 'opq@hawaii.edu';
       const firstName = 'John';
       const lastName = 'Smith';
       const password = 'foo';
-      const boxIds = [1, 2];
+      const boxIds = ['1', '2'];
       let role = 'admin';
       const profileID = UserProfiles.define({ username, password, firstName, lastName, role, boxIds });
       expect(UserProfiles.isDefined(profileID)).to.be.true;

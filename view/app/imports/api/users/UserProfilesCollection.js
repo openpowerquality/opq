@@ -33,15 +33,15 @@ class UserProfilesCollection extends BaseCollection {
    * @param {String} firstName - The user's first name.
    * @param {String} lastName - The user's last name.
    * @param {String} role - The role of the user: either 'admin' or 'user'.
-   * @param {[Number]} boxIds - An array of integer IDs of the boxes that can be managed by this user.
+   * @param {[Number]} boxIds - An array of Strings containing the IDs of the boxes that can be managed by this user.
    */
   // eslint-disable-next-line class-methods-use-this
   define({ username, password, firstName, lastName, boxIds = [], role = 'user' }) {
     if (Meteor.isServer) {
       // boxIds array must contain integers.
       boxIds.forEach(boxId => {
-        if (!_.isInteger(boxId)) {
-          throw new Meteor.Error(`All boxIds must be a number: ${boxId}`);
+        if (!_.isString(boxId)) {
+          throw new Meteor.Error(`All boxIds must be a string: ${boxId}`);
         }
       });
 

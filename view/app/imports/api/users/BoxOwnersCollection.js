@@ -15,7 +15,7 @@ class BoxOwnersCollection extends BaseCollection {
   constructor() {
     super('BoxOwners', new SimpleSchema({
       username: String,
-      boxId: Number,
+      boxId: String,
     }));
   }
 

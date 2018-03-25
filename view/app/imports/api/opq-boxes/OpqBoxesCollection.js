@@ -22,10 +22,6 @@ class OpqBoxesCollection extends BaseCollection {
       locations: { type: Array },
       'locations.$': Object,
     }));
-
-    this.publicationNames = {
-
-    };
   }
 
   /**
@@ -86,13 +82,6 @@ class OpqBoxesCollection extends BaseCollection {
 
     pb.clearInterval();
     return problems;
-  }
-
-  /**
-   * Loads all publications related to this collection.
-   */
-  publish() { // eslint-disable-line class-methods-use-this
-
   }
 }
 

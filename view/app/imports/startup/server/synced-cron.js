@@ -9,7 +9,7 @@ SyncedCron.config({
 
 function startupSystemStatsCronjob() {
   // Default the update interval to 60 seconds.
-  const updateIntervalSeconds = Meteor.settings.public.systemStatsUpdateIntervalSeconds || 60;
+  const updateIntervalSeconds = Meteor.settings.systemStatsUpdateIntervalSeconds || 60;
   SyncedCron.add({
     name: 'Update the SystemStats collection with current collection counts',
     schedule(parser) {
