@@ -1,7 +1,7 @@
 import { Meteor } from 'meteor/meteor';
 import { Accounts } from 'meteor/accounts-base';
 import { Roles } from 'meteor/alanning:roles';
-import { SimpleSchema } from 'meteor/aldeed:simple-schema';
+import SimpleSchema from 'simpl-schema';
 import BaseCollection from '../base/BaseCollection';
 
 /**
@@ -58,7 +58,8 @@ class UserProfilesCollection extends BaseCollection {
       }
 
       // Create or modify the UserProfiles document associated with this username.
-      const profileId = this._collection.upsert({ username }, { $set: { firstName, lastName, role } });
+      this._collection.upsert({ username }, { $set: { firstName, lastName, role } });
+      const profileId = this.findOne({ username })._id;
 
       // Set the role using the Roles package. This makes it easier to do Role-based decisions on client.
       if (userId) {
@@ -128,5 +129,4 @@ class UserProfilesCollection extends BaseCollection {
  * Provides the singleton instance of this class.
  * @type {UserProfilesCollection}
  */
-export const
-  UserProfiles = new UserProfilesCollection();
+export const UserProfiles = new UserProfilesCollection();

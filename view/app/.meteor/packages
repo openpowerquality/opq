@@ -23,7 +23,6 @@ react-meteor-data@0.2.6-beta.16
 accounts-password@1.5.0
 
 # Collection support
-aldeed:collection2
 
 # UI support
 session@1.1.7
@@ -39,8 +38,8 @@ momentjs:moment
 random@1.1.0
 bevanhunt:leaflet
 mdg:validated-method
+percolate:synced-cron
 
 # Testing
-practicalmeteor:mocha
-dispatch:mocha
-percolate:synced-cron
+meteortesting:mocha
+aldeed:collection2-core

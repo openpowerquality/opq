@@ -1,6 +1,6 @@
 import { Meteor } from 'meteor/meteor';
 import { Mongo } from 'meteor/mongo';
-import { SimpleSchema } from 'meteor/aldeed:simple-schema';
+import SimpleSchema from 'simpl-schema';
 import { check } from 'meteor/check';
 import BaseCollection from '../base/BaseCollection.js';
 import { OpqBoxes } from '../opq-boxes/OpqBoxesCollection';
@@ -17,17 +17,17 @@ class TrendsCollection extends BaseCollection {
       box_id: { type: String },
       timestamp_ms: { type: Number },
       voltage: { type: Object },
-      'voltage.min': { type: Number, decimal: true },
-      'voltage.max': { type: Number, decimal: true },
-      'voltage.average': { type: Number, decimal: true },
+      'voltage.min': { type: Number },
+      'voltage.max': { type: Number },
+      'voltage.average': { type: Number },
       frequency: { type: Object },
-      'frequency.min': { type: Number, decimal: true },
-      'frequency.max': { type: Number, decimal: true },
-      'frequency.average': { type: Number, decimal: true },
+      'frequency.min': { type: Number },
+      'frequency.max': { type: Number },
+      'frequency.average': { type: Number },
       thd: { type: Object, optional: true },
-      'thd.min': { type: Number, decimal: true },
-      'thd.max': { type: Number, decimal: true },
-      'thd.average': { type: Number, decimal: true },
+      'thd.min': { type: Number },
+      'thd.max': { type: Number },
+      'thd.average': { type: Number },
     }));
 
     this.publicationNames = {

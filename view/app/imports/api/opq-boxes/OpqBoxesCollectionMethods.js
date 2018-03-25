@@ -1,5 +1,5 @@
 import { ValidatedMethod } from 'meteor/mdg:validated-method';
-import { SimpleSchema } from 'meteor/aldeed:simple-schema';
+import SimpleSchema from 'simpl-schema';
 import { OpqBoxes } from './OpqBoxesCollection';
 
 export const totalOpqBoxesCount = new ValidatedMethod({

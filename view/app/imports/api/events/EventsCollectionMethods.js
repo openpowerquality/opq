@@ -1,5 +1,5 @@
 import { ValidatedMethod } from 'meteor/mdg:validated-method';
-import { SimpleSchema } from 'meteor/aldeed:simple-schema';
+import SimpleSchema from 'simpl-schema';
 import { demapify } from 'es6-mapify';
 import { Events } from './EventsCollection.js';
 import { timeUnitString } from '../../modules/utils.js';

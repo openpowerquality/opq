@@ -1,5 +1,5 @@
 import { ValidatedMethod } from 'meteor/mdg:validated-method';
-import { SimpleSchema } from 'meteor/aldeed:simple-schema';
+import SimpleSchema from 'simpl-schema';
 import { FSFiles } from './FSFilesCollection';
 import { FSChunks } from '../fs-chunks/FSChunksCollection';
 

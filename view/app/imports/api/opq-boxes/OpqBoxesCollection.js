@@ -1,5 +1,5 @@
 import { Mongo } from 'meteor/mongo';
-import { SimpleSchema } from 'meteor/aldeed:simple-schema';
+import SimpleSchema from 'simpl-schema';
 import BaseCollection from '../base/BaseCollection.js';
 import { progressBarSetup } from '../../modules/utils';
 
@@ -18,8 +18,9 @@ class OpqBoxesCollection extends BaseCollection {
       box_id: { type: String },
       name: { type: String, optional: true },
       description: { type: String, optional: true },
-      calibration_constant: { type: Number, decimal: true },
-      locations: { type: [Object] },
+      calibration_constant: Number,
+      locations: { type: Array },
+      'locations.$': Object,
     }));
 
     this.publicationNames = {

@@ -15,19 +15,28 @@ if (Meteor.isServer) {
       UserProfiles.removeAll();
     });
 
-    it('#define, #isDefined, #update, #removeIt, #dumpOne, #restoreOne', function test() {
+    it('#define, #isDefined, #update, #findOne, #remove, #dumpOne, #restoreOne', function test() {
       const username = 'opq@hawaii.edu';
       const firstName = 'John';
       const lastName = 'Smith';
-      const role = 'admin';
-      const docID = UserProfiles.define({ username, firstName, lastName, role });
-      expect(UserProfiles.isDefined(docID)).to.be.true;
+      const password = 'foo';
+      let role = 'admin';
+      const profileID = UserProfiles.define({ username, password, firstName, lastName, role });
+      expect(UserProfiles.isDefined(profileID)).to.be.true;
+      // Check that we can update the username by calling define again.
+      role = 'user';
+      const profileID2 = UserProfiles.define({ username, password, firstName, lastName, role });
+      expect(profileID).to.deep.equal(profileID2);
+
       const profile = UserProfiles.findOne({ username });
       expect(profile).to.exist;
-      const dumpObject = UserProfiles.dumpOne(docID);
-      expect(UserProfiles.remove(dumpObject.username)).to.be.false;
-      expect(UserProfiles.isDefined(docID)).to.be.false;
-      UserProfiles.restoreOne(dumpObject);
+      expect(profile.role).to.equal(role);
+
+      // Check dump and restore.
+      const dumpObject = UserProfiles.dumpOne(profileID);
+      expect(UserProfiles.remove(dumpObject.username)).to.be.true;
+      expect(UserProfiles.isDefined(profileID)).to.be.false;
+      UserProfiles.restoreOne(_.extend(dumpObject, { password }));
       const id = UserProfiles.findOne({ username })._id;
       expect(UserProfiles.isDefined(id)).to.be.true;
     });
