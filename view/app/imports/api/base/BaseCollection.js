@@ -178,9 +178,17 @@ class BaseCollection {
     const items = this._collection.find().fetch();
     const instance = this;
     _.forEach(items, (i) => {
-      instance.removeIt(i._id);
+      instance.remove(i._id);
     });
     return true;
+  }
+
+  /**
+   * Default remove function calls remove with the docID.
+   * @param docID The docID of the document to be removed.
+   */
+  remove(docID) {
+    this._collection.remove(docID);
   }
 }
 
