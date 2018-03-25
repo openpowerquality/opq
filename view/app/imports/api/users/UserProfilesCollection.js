@@ -65,6 +65,8 @@ class UserProfilesCollection extends BaseCollection {
       if (userId) {
         Roles.addUsersToRoles(userId, role);
       }
+
+      // TODO: Remove any current box ownerships, add new ownerships as specified in boxIds.
       // Return the profileID if executed on the server.
       return profileId;
     }
