@@ -1,4 +1,3 @@
-import { Meteor } from 'meteor/meteor';
 import { Mongo } from 'meteor/mongo';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import BaseCollection from '../base/BaseCollection.js';
@@ -8,12 +7,11 @@ import { Measurements } from '../measurements/MeasurementsCollection.js';
 import { OpqBoxes } from '../opq-boxes/OpqBoxesCollection.js';
 import { Trends } from '../trends/TrendsCollection.js';
 import { Users } from '../users/UsersCollection.js';
-import { progressBarSetup } from '../../modules/utils';
 
 class SystemStatsCollection extends BaseCollection {
 
   /**
-   * Creates the Trends collection.
+   * Creates the System Stats collection.
    */
   constructor() {
     super('system_stats', new SimpleSchema({
@@ -24,11 +22,8 @@ class SystemStatsCollection extends BaseCollection {
       opq_boxes_count: { type: Number },
       trends_count: { type: Number },
       users_count: { type: Number },
+      timestamp: { type: Date },
     }));
-
-    this.publicationNames = {
-      GET_SYSTEM_STATS: 'get_system_stats',
-    };
   }
 
   /**
@@ -43,7 +38,7 @@ class SystemStatsCollection extends BaseCollection {
    */
   define({ events_count, box_events_count, measurements_count, opq_boxes_count, trends_count, users_count }) {
     const docID = this._collection.insert({ events_count, box_events_count, measurements_count, opq_boxes_count,
-      trends_count, users_count });
+      trends_count, users_count, timestamp: new Date() });
     return docID;
   }
 
@@ -61,44 +56,19 @@ class SystemStatsCollection extends BaseCollection {
     const opq_boxes_count = doc.opq_boxes_count;
     const trends_count = doc.trends_count;
     const users_count = doc.users_count;
-
-    return { events_count, box_events_count, measurements_count, opq_boxes_count, trends_count, users_count };
+    const timestamp = doc.timestamp;
+    return { events_count, box_events_count, measurements_count, opq_boxes_count, trends_count, users_count,
+      timestamp };
     /* eslint-enable camelcase */
   }
 
-  checkIntegrity() {
-    const problems = [];
-    const totalCount = this.count();
-    const validationContext = this.getSchema().namedContext('systemStatsIntegrity');
-    const pb = progressBarSetup(totalCount, 2000, `Checking ${this._collectionName} collection: `);
-
-    this.find().forEach((doc, index) => {
-      pb.updateBar(index); // Update progress bar.
-
-      // Validate each document against the collection schema.
-      validationContext.validate(doc);
-      if (!validationContext.isValid()) {
-        // eslint-disable-next-line max-len
-        problems.push(`SystemStats document failed schema validation: ${doc._id} (Invalid keys: ${JSON.stringify(validationContext.invalidKeys(), null, 2)})`);
-      }
-      validationContext.resetValidation();
-    });
-
-    pb.clearInterval();
-    return problems;
-  }
-
   /**
-   * Loads all publications related to the SystemStats collection.
+   * No need to check integrity for this collection.
+   * @returns {Array}
    */
-  publish() { // eslint-disable-line class-methods-use-this
-    if (Meteor.isServer) {
-      const self = this;
-
-      Meteor.publish(this.publicationNames.GET_SYSTEM_STATS, function () {
-        return self.find({});
-      });
-    }
+  checkIntegrity() { // eslint-disable-line
+    const problems = [];
+    return problems;
   }
 
   updateCounts() {
@@ -125,7 +95,8 @@ class SystemStatsCollection extends BaseCollection {
     // Update the one document with current collection counts.
     const systemStatsDoc = this._collection.findOne();
     return this._collection.update({ _id: systemStatsDoc._id }, {
-      $set: { events_count, box_events_count, measurements_count, opq_boxes_count, trends_count, users_count },
+      $set: { events_count, box_events_count, measurements_count, opq_boxes_count, trends_count, users_count,
+        timestamp: new Date() },
     });
   }
 }
