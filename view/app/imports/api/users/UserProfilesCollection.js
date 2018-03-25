@@ -1,8 +1,10 @@
 import { Meteor } from 'meteor/meteor';
 import { Accounts } from 'meteor/accounts-base';
 import { Roles } from 'meteor/alanning:roles';
+import { _ } from 'lodash';
 import SimpleSchema from 'simpl-schema';
 import BaseCollection from '../base/BaseCollection';
+import { BoxOwners } from './BoxOwnersCollection';
 
 /**
  * User Profiles (first and last name, role, and username (email).
@@ -66,7 +68,10 @@ class UserProfilesCollection extends BaseCollection {
         Roles.addUsersToRoles(userId, role);
       }
 
-      // TODO: Remove any current box ownerships, add new ownerships as specified in boxIds.
+      // Remove any current box ownerships, add new ownerships as specified in boxIds.
+      BoxOwners.removeBoxesWithOwner(username);
+      boxIds.map(boxId => BoxOwners.define({ username, boxId }));
+
       // Return the profileID if executed on the server.
       return profileId;
     }
@@ -86,6 +91,16 @@ class UserProfilesCollection extends BaseCollection {
     const lastName = doc.lastName;
     const role = doc.roles;
     return { username, firstName, lastName, role };
+  }
+
+  /**
+   * Returns an array of the boxIds associated with this username.
+   * @param username The user.
+   * @returns {Array} A (possibly empty) array of boxIds.
+   */
+  // eslint-disable-next-line class-methods-use-this
+  findBoxIds(username) {
+    return BoxOwners.findBoxesWithOwner(username);
   }
 
   /**

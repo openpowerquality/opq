@@ -67,6 +67,14 @@ class BoxOwnersCollection extends BaseCollection {
   }
 
   /**
+   * Removes all of the documents associated with username from this collection.
+   * @param username The user (owner of boxes).
+   */
+  removeBoxesWithOwner(username) {
+    this._collection.remove({ username });
+  }
+
+  /**
    * Returns an object representing a single BoxOwner document.
    * @param {Object} docID - The Mongo.ObjectID of the BoxOwner.
    * @returns {Object} - An object representing a single BoxOwner document.
