@@ -29,8 +29,9 @@ if (Meteor.isServer) {
       role = 'user';
       const profileID2 = UserProfiles.define({ username, password, firstName, lastName, role });
       expect(profileID).to.deep.equal(profileID2);
-      // Check that we've overwritten the previous value for boxIds.
+      // Check that we've overwritten the previous values for boxIds and role.
       expect(UserProfiles.findBoxIds(username)).to.be.empty;
+      expect(UserProfiles.findDoc(profileID2).role).to.equal('user');
 
       const profile = UserProfiles.findOne({ username });
       expect(profile).to.exist;
