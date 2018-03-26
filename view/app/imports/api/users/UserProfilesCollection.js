@@ -80,6 +80,20 @@ class UserProfilesCollection extends BaseCollection {
   }
 
   /**
+   * Returns the profile document corresponding to username, or throws error if not found.
+   * @param username
+   * @returns {Object} The profile document.
+   * @throws { Meteor.Error } If the profile document does not exist for this username.
+   */
+  findByUsername(username) {
+    const profile = this._collection.findOne({ username });
+    if (profile) {
+      return profile;
+    }
+    throw new Meteor.Error(`Could not find profile corresponding to ${username}`);
+  }
+
+  /**
    * Returns an object representing a single UserProfile.
    * @param {Object} docID - The Mongo.ObjectID of the User.
    * @returns {Object} - An object representing a single UserProfile.
@@ -91,16 +105,6 @@ class UserProfilesCollection extends BaseCollection {
     const lastName = doc.lastName;
     const role = doc.roles;
     return { username, firstName, lastName, role };
-  }
-
-  /**
-   * Returns an array of the boxIds associated with this username.
-   * @param username The user.
-   * @returns {Array} A (possibly empty) array of boxIds.
-   */
-  // eslint-disable-next-line class-methods-use-this
-  findBoxIds(username) {
-    return BoxOwners.findBoxesWithOwner(username);
   }
 
   /**

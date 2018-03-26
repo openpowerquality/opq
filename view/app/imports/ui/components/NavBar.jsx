@@ -14,6 +14,10 @@ class NavBar extends React.Component {
           <Image width="20px" src="/images/opqlogo.png"/>
           <div style={divStyle}>OPQView</div>
         </Menu.Item>
+        {this.props.currentUser ? (
+          <Menu.Item as={NavLink} activeClassName="active" exact to="/profile" key='profile'>Profile</Menu.Item>
+        ) : ''}
+
         <Menu.Item position="right" as={NavLink} exact to="/aboutus"><div style={divStyle}>About Us</div></Menu.Item>
         {this.props.currentUser === '' ? (
           <Menu.Item as={NavLink} exact to="/signin"><div style={divStyle}>Login</div></Menu.Item>

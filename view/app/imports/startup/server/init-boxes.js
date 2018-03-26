@@ -1,12 +1,12 @@
 import { Meteor } from 'meteor/meteor';
-import { UserProfiles } from '../../api/users/UserProfilesCollection';
+import { OpqBoxes } from '../../api/opq-boxes/OpqBoxesCollection';
 
 
 function initBoxes() {
-  // Default profiles to an empty array if they are not specified in the settings file.
-  const profiles = Meteor.settings.userProfiles || [];
-  console.log(`Initializing ${profiles.length} user profiles.`);
-  profiles.map(profile => UserProfiles.define(profile));
+  // Default boxes to an empty array if they are not specified in the settings file.
+  const boxes = Meteor.settings.opqBoxes || [];
+  console.log(`Initializing ${boxes.length} OPQ boxes.`);
+  boxes.map(box => OpqBoxes.define(box));
 }
 
 Meteor.startup(() => {

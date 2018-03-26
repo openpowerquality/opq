@@ -43,11 +43,20 @@ class BoxOwnersCollection extends BaseCollection {
   }
 
   /**
+   * Returns an array of the box documents owned by username.
+   * @param username The username.
+   * @return { Array } An array of box documents owned by this user.
+   */
+  findBoxesWithOwner(username) {
+    return this._collection.find({ username }).fetch();
+  }
+
+  /**
    * Returns a (possibly empty) array of boxIds owned by username.
    * @param username The username
    * @return { Array } An array of boxIds owned by this user.
    */
-  findBoxesWithOwner(username) {
+  findBoxIdsWithOwner(username) {
     const docs = this._collection.find({ username }).fetch();
     return (docs) ? _.map(docs, doc => doc.boxId) : [];
   }
@@ -57,7 +66,7 @@ class BoxOwnersCollection extends BaseCollection {
    * @param boxId The boxId.
    * @return { Array } An array of usernames who own boxId.
    */
-  findOwnersWithBox(boxId) {
+  findOwnersWithBoxId(boxId) {
     const docs = this._collection.find({ boxId }).fetch();
     return (docs) ? _.map(docs, doc => doc.username) : [];
   }

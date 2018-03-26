@@ -8,11 +8,11 @@ import { HashRouter as Router, Route, Switch, Redirect } from 'react-router-dom'
 import NavBar from '../../ui/components/NavBar.jsx';
 import NotFound from '../../ui/pages/NotFound.jsx';
 import Signin from '../../ui/pages/Signin.jsx';
-import Signup from '../../ui/pages/Signup.jsx';
 import AboutUs from '../../ui/pages/AboutUs.jsx';
 import Signout from '../../ui/pages/Signout.jsx';
 import DRS from '../../ui/pages/DRS.jsx';
 import LandingPage from '../../ui/pages/LandingPage';
+import UserProfilePage from '../../ui/pages/UserProfilePage';
 
 /** Top-level layout component for this application. Called in imports/startup/client/startup.jsx. */
 class App extends React.Component {
@@ -25,7 +25,7 @@ class App extends React.Component {
               <Route exact path="/" component={LandingPage} />
               <Route path="/signin" component={Signin} />
               <Route path="/aboutus" component={AboutUs} />
-              <Route path="/signup" component={Signup} />
+              <ProtectedRoute path="/profile" component={UserProfilePage}/>
               <Route path="/drs" component={DRS} />
               <ProtectedRoute path="/signout" component={Signout} />
               <Route component={NotFound} />

@@ -1,8 +1,7 @@
-import { Mongo } from 'meteor/mongo';
 import SimpleSchema from 'simpl-schema';
+import { Meteor } from 'meteor/meteor';
 import BaseCollection from '../base/BaseCollection.js';
 import { progressBarSetup } from '../../modules/utils';
-import { Meteor } from "meteor/meteor";
 
 /**
  * Collection class for the opq_boxes collection.
@@ -15,7 +14,6 @@ class OpqBoxesCollection extends BaseCollection {
    */
   constructor() {
     super('opq_boxes', new SimpleSchema({
-      _id: Mongo.ObjectID,
       box_id: String,
       name: { type: String, optional: true },
       description: { type: String, optional: true },
@@ -34,19 +32,30 @@ class OpqBoxesCollection extends BaseCollection {
    * @param {String} description - The (optional) description of the OPQBox.
    * @param {Number} calibration_constant - The calibration constant value of the box. See docs for details.
    * @param {[Object]} locations - The history of locations of the OPQBox.
+   * @returns The docID of the new or changed OPQBox document, or undefined if invoked on the client side.
    */
   define({ box_id, name, description, calibration_constant, locations }) {
     if (Meteor.isServer) {
-
-      // Create or modify the UserProfiles document associated with this username.
-      // this._collection.upsert({ username }, { $set: { firstName, lastName, role } });
-      // const profileId = this.findOne({ username })._id;
-
-
-      const docID = this._collection.insert({ box_id, name, description, calibration_constant, locations });
+      // Create or modify the OpqBox document associated with this box_id.
+      this._collection.upsert({ box_id }, { $set: { name, description, calibration_constant, locations } });
+      const docID = this.findOne({ box_id })._id;
       return docID;
     }
     return undefined;
+  }
+
+  /**
+   * Returns the box document associated with box_id.
+   * Throws an error if no box document was found for the passed box_id.
+   * @param box_id The box ID.
+   * @returns {any} The box document.
+   */
+  findBox(box_id) {
+    const boxDoc = this._collection.findOne({ box_id });
+    if (boxDoc) {
+      return boxDoc;
+    }
+    throw new Meteor.Error(`No box found with id: ${box_id}`);
   }
 
   /**
