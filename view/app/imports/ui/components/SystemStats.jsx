@@ -29,6 +29,8 @@ function formatted(num) {
 /** Display system statistics. */
 class SystemStatistics extends React.Component {
 
+
+
   /** If the subscription(s) have been received, render the page, otherwise show a loading icon. */
   render() {
     return (this.props.ready) ? this.renderPage() : <Loader>Getting data</Loader>;
@@ -36,7 +38,9 @@ class SystemStatistics extends React.Component {
 
   /** Here's the system stats page. */
   renderPage() { // eslint-disable-line class-methods-use-this
-    const stat = this.props.stats[0];
+    const missingStats = { events_count: 0, box_events_count: 0, measurements_count: 0, opq_boxes_count: 0,
+      trends_count: 0, users_count: 0 };
+    const stat = this.props.stats[0] || missingStats;
     const pStyle = { textAlign: 'center', paddingTop: '10px' };
     const items = [
       { key: '1', label: 'Events', value: formatted(stat.events_count) },

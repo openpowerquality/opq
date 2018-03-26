@@ -94,7 +94,7 @@ class SystemStatsCollection extends BaseCollection {
 
     // Update the one document with current collection counts.
     const systemStatsDoc = this._collection.findOne();
-    return this._collection.update({ _id: systemStatsDoc._id }, {
+    return systemStatsDoc && this._collection.update({ _id: systemStatsDoc._id }, {
       $set: { events_count, box_events_count, measurements_count, opq_boxes_count, trends_count, users_count,
         timestamp: new Date() },
     });
