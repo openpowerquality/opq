@@ -18,18 +18,17 @@ class Admin extends React.Component {
 
   /** Render the page once subscriptions have been received. */
   renderPage() { // eslint-disable-line class-methods-use-this
-    const username = Meteor.user().username;
-    const boxIds = BoxOwners.findBoxIdsWithOwner(username);
+    const boxIds = OpqBoxes.findBoxIds();
     const boxes = boxIds.map(id => OpqBoxes.findBox(id));
     return (
       <Container >
-        <Boxes title="All Boxes" boxes={boxes}/>
+        <Boxes title="All Boxes" boxes={boxes} admin={true}/>
       </Container>
     );
   }
 }
 
-/** Require an array of Stuff documents in the props. */
+/** Require the ready flag. */
 Admin.propTypes = {
   ready: PropTypes.bool.isRequired,
 };

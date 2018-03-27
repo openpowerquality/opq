@@ -59,6 +59,15 @@ class OpqBoxesCollection extends BaseCollection {
   }
 
   /**
+   * Returns the boxIDs of all boxes in the collection.
+   * @return { Array } An array of boxIds.
+   */
+  findBoxIds() {
+    const docs = this._collection.find({}).fetch();
+    return (docs) ? _.map(docs, doc => doc.box_id) : [];
+  }
+
+  /**
    * Returns an object representing a single OpqBox.
    * @param {Object} docID - The Mongo.ObjectID of the OpqBox.
    * @returns {Object} - An object representing a single OpqBox.
