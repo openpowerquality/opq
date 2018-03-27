@@ -3,6 +3,7 @@ import argparse
 from requests import get
 from time import ctime
 from time import sleep
+from threading import Thread
 
 def write_file(file_name, message):
     try:
@@ -35,10 +36,13 @@ def run_view(config, log_file):
         sleep(sleep_time)
 
 def main(config_file, log_file):
-    config = file_to_dict(config_file)
-    view_config = config[4]
-    run_view(view_config, log_file)
+    health_config = file_to_dict(config_file)
 
+    view_config = health_config[4]
+    view_thread = Thread(target=run_view, args=(view_config,log_file, ))
+    view_thread.start()
+
+    view_thread.join()
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='test')
