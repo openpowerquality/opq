@@ -4,20 +4,21 @@
   "dbRestoreFilename": "",
   "systemStatsUpdateIntervalSeconds": 10,
   "opqBoxes" : [
-    { "box_id": "1", "name": "CSDL Office", "description": "foo", "calibration_constant": 1.1,
+    { "box_id": "1", "name": "V2.0-001", "description": "Manufactured: 10/12/2017", "calibration_constant": 1.1,
       "locations": [{"start_time_ms": 1514844000000, "zipcode": "96877", "nickname": "CSDL Office" } ]},
 
-    { "box_id": "2", "name": "CSDL Office-2", "description": "", "calibration_constant": 1.0,
+    { "box_id": "2", "name": "V2.0-002", "description": "Manufactured: 11/2/2017", "calibration_constant": 1.0,
       "locations": [{"start_time_ms": 1514844000000, "zipcode": "96822", "nickname": "CSDL Office" } ]},
 
-    { "box_id": "3", "name": "CSDL Office-3", "description": "", "calibration_constant": 1.0,
+    { "box_id": "3", "name": "V2.0-003", "description": "Manufactured: 11/2/2017", "calibration_constant": 1.0,
       "locations": [{"start_time_ms": 1514844000000, "zipcode": "96822", "nickname": "CSDL Office" } ]},
 
-    { "box_id": "4", "name": "CSDL Office-4", "description": "", "calibration_constant": 1.0,
+    { "box_id": "4", "name": "V2.3-004", "description": "Manufactured: 12/12/2017", "calibration_constant": 0.89,
       "locations": [{"start_time_ms": 1514844000000, "zipcode": "96822", "nickname": "CSDL Office" } ]},
 
-    { "box_id": "5", "name": "Kailua", "description": "", "calibration_constant": 1.0,
-      "locations": [{"start_time_ms": 1514844000000, "zipcode": "96734", "nickname": "CSDL Office" } ]}
+    { "box_id": "5", "name": "V2.4-005", "description": "Manufactured: 12/24/2017", "calibration_constant": 0.964,
+      "locations": [{"start_time_ms": 1514844000000, "zipcode": "96822", "nickname": "CSDL Office" },
+        {"start_time_ms": 1518742800000, "zipcode": "96734", "nickname": "Kailua, HI (PJ)" }]}
   ],
 
   "userProfiles": [

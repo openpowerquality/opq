@@ -23,13 +23,10 @@ function formatted(num) {
   }
   // Numbers more than 1M are formatted with an M.
   return `${(num / 1000000).toPrecision(3)}M`;
-
 }
 
 /** Display system statistics. */
 class SystemStatistics extends React.Component {
-
-
 
   /** If the subscription(s) have been received, render the page, otherwise show a loading icon. */
   render() {

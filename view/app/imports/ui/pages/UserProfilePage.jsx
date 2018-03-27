@@ -7,7 +7,7 @@ import { OpqBoxes } from '/imports/api/opq-boxes/OpqBoxesCollection';
 import { withTracker } from 'meteor/react-meteor-data';
 import PropTypes from 'prop-types';
 import AboutMe from '/imports/ui/components/AboutMe';
-import MyBoxes from '/imports/ui/components/MyBoxes';
+import Boxes from '/imports/ui/components/Boxes';
 
 /** Renders a table containing all of the Stuff documents. Use <StuffItem> to render each row. */
 class UserProfilePage extends React.Component {
@@ -26,7 +26,7 @@ class UserProfilePage extends React.Component {
     return (
       <Container >
         <AboutMe firstName={firstName} lastName={lastName} username={username} role={role}/>
-        <MyBoxes boxes={boxes}/>
+        <Boxes title="My Boxes" boxes={boxes}/>
       </Container>
     );
   }
