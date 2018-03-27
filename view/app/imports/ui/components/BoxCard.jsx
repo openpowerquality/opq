@@ -1,11 +1,12 @@
 import React from 'react';
-import { Card, Label, Feed, Loader } from 'semantic-ui-react';
+import { Card, Label, Feed, Loader, Header, List } from 'semantic-ui-react';
 import PropTypes from 'prop-types';
 import Moment from 'moment';
 import { Meteor } from 'meteor/meteor';
 import { BoxOwners } from '/imports/api/users/BoxOwnersCollection';
 import { withTracker } from 'meteor/react-meteor-data';
-import Boxes from './Boxes';
+
+/* eslint class-methods-use-this: 0 */
 
 /** Renders a single row in the MyBoxes table. */
 class BoxCard extends React.Component {
@@ -16,31 +17,56 @@ class BoxCard extends React.Component {
     return (this.props.ready) ? this.renderPage() : <Loader>Getting data</Loader>;
   }
 
-  /**
-   * Return a feed event for each location entry.
-   * @param location The location entry.
-   * @param index An index, to be used as the key.
-   * @returns {*} The Feed.Event.
-   */
-  renderLocation(location, index) { // eslint-disable-line class-methods-use-this
-    const { start_time_ms, zipcode, nickname } = location;
-    const timestamp = Moment(start_time_ms).format('MMMM Do YYYY, h:mm a');
+  renderOwners(boxId) {
+    const owners = BoxOwners.findOwnersWithBoxId(boxId);
     return (
-      <Feed.Event key={index}>
-        <Feed.Content>
-          <Feed.Date>Since: {timestamp}</Feed.Date>
-          <Feed.Summary>{nickname} ({zipcode})</Feed.Summary>
-        </Feed.Content>
-      </Feed.Event>
+      <Card.Content extra>
+        <Header as='h5'>Owners</Header>
+        <List>
+          {owners.map((owner, index) => (<List.Item key={index}>{owner}</List.Item>))}
+        </List>
+      </Card.Content>
     );
   }
 
-  renderOwners(boxId) { // eslint-disable-line class-methods-use-this
-    const owners = BoxOwners.findOwnersWithBoxId(boxId);
+  renderDescription(description) {
     return (
-      <Card.Content>
-        Owners: {owners.map(owner => `${owner}, `)}
-      </Card.Content>
+        <Card.Content extra>
+          <Header as='h5'>Description</Header>
+          {description}
+        </Card.Content>
+    );
+  }
+
+  renderCalibration(calibration) {
+    return (
+        <Card.Content extra>
+          <Header as='h5'>Calibration Constant</Header>
+          {calibration}
+        </Card.Content>
+    );
+  }
+
+  renderLocations(locations) {
+    return (
+        <Card.Content extra>
+          <Header as='h5'>Locations</Header>
+          <List>
+            {locations.map((location, index) => this.renderLocation(location, index))}
+          </List>
+        </Card.Content>
+    );
+  }
+
+  renderLocation(location, index) {
+    const { start_time_ms, zipcode, nickname } = location;
+    const timestamp = Moment(start_time_ms).format('MMMM Do YYYY, h:mm a');
+    return (
+        <List.Item key={index}>
+          {nickname} ({zipcode})
+          
+          Since: {timestamp}
+        </List.Item>
     );
   }
 
@@ -54,16 +80,10 @@ class BoxCard extends React.Component {
         <Card.Content>
           <Label corner='right' circular color='blue'>{this.props.box.box_id}</Label>
           <Card.Header>{this.props.box.name}</Card.Header>
-          <Card.Meta>{this.props.box.description}</Card.Meta>
         </Card.Content>
-        <Card.Content extra>
-          Calibration: {this.props.box.calibration_constant}
-        </Card.Content>
-        <Card.Content extra>
-          <Feed>
-            {this.props.box.locations.map((location, index) => this.renderLocation(location, index))}
-          </Feed>
-        </Card.Content>
+        {this.renderDescription(this.props.box.description)}
+        {this.renderCalibration(this.props.box.calibration_constant)}
+        {this.renderLocations(this.props.box.locations)}
         {this.props.admin ? this.renderOwners(this.props.box.box_id) : ''}
       </Card>
     );
