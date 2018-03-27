@@ -8,7 +8,7 @@ import BoxMap from '../components/BoxMap';
 import EventsTimeline from '../components/EventsTimeline';
 import EventDetail from '../components/EventDetail';
 
-const LandingPage = () => (
+const Landing = () => (
   <Grid container stackable>
     <Grid.Row stretched>
       <Grid.Column width={5}>
@@ -43,4 +43,4 @@ const LandingPage = () => (
   </Grid>
 );
 
-export default LandingPage;
+export default Landing;

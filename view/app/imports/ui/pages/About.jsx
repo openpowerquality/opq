@@ -1,9 +1,9 @@
 import React from 'react';
 import { Container, Header } from 'semantic-ui-react';
 
-const AboutUs = () => (
+const About = () => (
     <Container text>
-      <Header as="h1">About Us</Header>
+      <Header as="h1">About OPQ</Header>
       <p>Welcome to Open Power Quality.</p>
       <p>The goal of Open Power Quality is to support the continued growth in use of renewable energy sources in Hawaii
         and elsewhere through a novel triple open source combination of hardware, software, and power quality data. We
@@ -41,4 +41,4 @@ const AboutUs = () => (
     </Container>
 );
 
-export default AboutUs;
+export default About;

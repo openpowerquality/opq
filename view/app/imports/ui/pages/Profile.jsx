@@ -10,7 +10,7 @@ import AboutMe from '/imports/ui/components/AboutMe';
 import Boxes from '/imports/ui/components/Boxes';
 
 /** Renders a table containing all of the Stuff documents. Use <StuffItem> to render each row. */
-class UserProfilePage extends React.Component {
+class Profile extends React.Component {
 
   /** If the subscription(s) have been received, render the page, otherwise show a loading icon. */
   render() {
@@ -33,7 +33,7 @@ class UserProfilePage extends React.Component {
 }
 
 /** Require an array of Stuff documents in the props. */
-UserProfilePage.propTypes = {
+Profile.propTypes = {
   ready: PropTypes.bool.isRequired,
 };
 
@@ -46,4 +46,4 @@ export default withTracker(() => {
   return {
     ready: profilesSubscription.ready() && boxOwnersSubscription.ready() && opqBoxesSubscription.ready(),
   };
-})(UserProfilePage);
+})(Profile);

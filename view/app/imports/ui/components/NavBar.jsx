@@ -3,7 +3,8 @@ import PropTypes from 'prop-types';
 import { Meteor } from 'meteor/meteor';
 import { withTracker } from 'meteor/react-meteor-data';
 import { withRouter, NavLink } from 'react-router-dom';
-import { Menu, Image } from 'semantic-ui-react';
+import { Menu, Image, Dropdown } from 'semantic-ui-react';
+import { Roles } from 'meteor/alanning:roles';
 
 class NavBar extends React.Component {
   render() {
@@ -14,16 +15,34 @@ class NavBar extends React.Component {
           <Image width="20px" src="/images/opqlogo.png"/>
           <div style={divStyle}>OPQView</div>
         </Menu.Item>
+
         {this.props.currentUser ? (
           <Menu.Item as={NavLink} activeClassName="active" exact to="/profile" key='profile'>Profile</Menu.Item>
         ) : ''}
 
-        <Menu.Item position="right" as={NavLink} exact to="/aboutus"><div style={divStyle}>About Us</div></Menu.Item>
-        {this.props.currentUser === '' ? (
-          <Menu.Item as={NavLink} exact to="/signin"><div style={divStyle}>Login</div></Menu.Item>
-        ) : (
-          <Menu.Item as={NavLink} exact to="/signout"><div style={divStyle}>Logout</div></Menu.Item>
-        )}
+        {Roles.userIsInRole(Meteor.userId(), 'admin') ? (
+          <Menu.Item as={NavLink} activeClassName="active" exact to="/admin" key='admin'>Admin</Menu.Item>
+        ) : ''}
+
+        <Menu.Item position="right" as={NavLink} exact to="/about"><div style={divStyle}>About OPQ</div></Menu.Item>
+
+        <Menu.Item>
+          {this.props.currentUser === '' ? (
+            <Dropdown text="Login" pointing="top right" style={divStyle}>
+              <Dropdown.Menu>
+                <Dropdown.Item icon="user" text="Sign In" as={NavLink} exact to="/signin"/>
+                <Dropdown.Item icon="add user" text="Sign Up" as={NavLink} exact to="/signup"/>
+              </Dropdown.Menu>
+            </Dropdown>
+          ) : (
+            <Dropdown text={this.props.currentUser} pointing="top right" style={divStyle}>
+              <Dropdown.Menu>
+                <Dropdown.Item icon="sign out" text="Sign Out" as={NavLink} exact to="/signout"/>
+              </Dropdown.Menu>
+            </Dropdown>
+          )}
+        </Menu.Item>
+
       </Menu>
     );
   }

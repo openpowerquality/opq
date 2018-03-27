@@ -9,9 +9,10 @@ class Boxes extends React.Component {
 
   /** Here's the system stats page. */
   render() {
+    const divStyle = { paddingLeft: '10px' };
     return (
         <WidgetPanel title={this.props.title}>
-          <Card.Group stackable>
+          <Card.Group stackable style={divStyle}>
             {this.props.boxes.map((box) => <BoxCard key={box._id} box={box} />)}
           </Card.Group>
         </WidgetPanel>
