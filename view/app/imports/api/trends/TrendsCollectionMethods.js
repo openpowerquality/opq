@@ -263,7 +263,7 @@ export const dailyTrendsInRange = new ValidatedMethod({
     startDate_ms: { type: Number },
     endDate_ms: { type: Number },
   }).validator({ clean: true }),
-  run({ boxIDs, startDate_ms, endDate_ms }) {
+  run({ boxIDs, startDate_ms, endDate_ms, field }) {
     // The shape of what our daily and monthly trend summaries will look like.
     const trendSummaryShape = {
       voltage: {
@@ -296,10 +296,10 @@ export const dailyTrendsInRange = new ValidatedMethod({
     // summarize each day's trends into an object with the
     // timestamp of the start of that day (in ms) as its key
     // i.e. { timestamp: dailyTrendData }
-    return boxIDs.map(boxID => {
+    return Object.assign(...boxIDs.map(boxID => {
       const associatedTrends = Trends.find({
         box_id: boxID,
-        timestamp_ms: { $gte: startDate_ms, $lte: endDate_ms },
+        timestamp_ms: { $gt: startDate_ms, $lte: endDate_ms },
       }).fetch();
 
       // New Moments are instantiated every time, because they mutate even when reassigned to a variable.
@@ -308,7 +308,7 @@ export const dailyTrendsInRange = new ValidatedMethod({
       // Create structure of the dailyTrend object
       const dailyTrends = new Map();
       for (let i = start.startOf('day'); i <= end.startOf('day'); i = i.add(1, 'days')) {
-        dailyTrends[i.valueOf()] = _.cloneDeep(trendSummaryShape);
+        dailyTrends.set(i.valueOf(), _.cloneDeep(trendSummaryShape));
       }
 
       // Input real values into the dailyTrend object
@@ -422,7 +422,7 @@ export const dailyTrendsInRange = new ValidatedMethod({
       if (rtv.frequency.count === 0) delete rtv.frequency; // eslint-disable-line no-param-reassign
       if (rtv.thd.count === 0) delete rtv.thd; // eslint-disable-line no-param-reassign
 
-      return { [boxID]: { dailyTrends, rangeTrends: rtv } };
-    });
+      return { [boxID]: { dailyTrends: demapify(dailyTrends), rangeTrends: rtv } };
+    }));
   },
 });

@@ -4,8 +4,6 @@
   "dependencies": {
     "@babel/runtime": "^7.0.0-beta.39",
     "bcrypt": "^1.0.3",
-    "chart.js": "^2.7.2",
-    "chartkick": "^2.3.3",
     "classnames": "^2.2.5",
     "es6-mapify": "1.0.0",
     "jsdoc": "^3.5.5",
@@ -16,13 +14,11 @@
     "react": "^16.2.0",
     "react-addons-pure-render-mixin": "^15.6.2",
     "react-calendar": "^2.13.5",
-    "react-chartkick": "^0.1.6",
     "react-dom": "^16.2.0",
     "react-meteor-data": "^0.2.11",
     "react-router": "^4.2.0",
     "react-router-dom": "^4.2.2",
     "react-vis": "^1.9.2",
-    "recharts": "^1.0.0-beta.10",
     "semantic-ui-css": "^2.2.12",
     "semantic-ui-react": "^0.77.2",
     "simpl-schema": "^1.4.2",
@@ -30,6 +26,7 @@
     "uniforms-semantic": "^1.23.0"
   },
   "devDependencies": {
+    "babel-eslint": "^8.2.2",
     "eslint": "^4.16.0",
     "eslint-config-airbnb": "^16.1.0",
     "eslint-plugin-import": "^2.8.0",

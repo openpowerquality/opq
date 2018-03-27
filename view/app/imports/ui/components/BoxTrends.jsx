@@ -1,11 +1,8 @@
 import React from 'react';
-import { Meteor } from 'meteor/meteor';
-import { withTracker } from 'meteor/react-meteor-data';
-import { Grid, Loader, Header, Dropdown, Checkbox } from 'semantic-ui-react';
-import { LineChart } from 'react-chartkick';
-import Chart from 'chart.js';
-import Calendar from 'react-calendar';
+import { Grid, Loader, Header, Dropdown, Checkbox, Popup, Input, Button } from 'semantic-ui-react';
 import Moment from 'moment';
+import Calendar from 'react-calendar'; // eslint-disable-line no-unused-vars
+import { FlexibleXYPlot, LineSeries, XAxis, YAxis } from 'react-vis';
 
 import { getBoxIDs } from '../../api/opq-boxes/OpqBoxesCollectionMethods';
 import { dailyTrendsInRange } from '../../api/trends/TrendsCollectionMethods';
@@ -15,58 +12,61 @@ import WidgetPanel from '../layouts/WidgetPanel';
 class BoxTrends extends React.Component {
   constructor(props) {
     super(props);
+
+    const start = new Date();
+    start.setDate(1);
+    const end = new Date();
+
     this.state = {
       ready: false,
       boxIdOptions: [],
-      selectedBoxes: ['1'],
+      selectedBoxes: ['1', '5', '3'],
       graph: 'voltage',
-      range: [Moment().subtract(30, 'days').valueOf(), Moment().valueOf()],
-      showMax: false,
-      showMin: false,
-      showAverage: true,
-      trends: [],
+      start,
+      end,
+      show: { 'Box 1 average': true },
+      trendData: {},
     };
+  }
 
+  initialize = () => {
     getBoxIDs.call((error, boxIDs) => {
-      if(error) console.log(error);
+      if (error) console.log(error);
       else {
         const boxIdOptions = boxIDs.map(boxID => ({
           text: `Box ${boxID}`,
           value: boxID,
         }));
-        this.setState({
-          boxIdOptions,
-          ready: true,
+
+        dailyTrendsInRange.call({
+          boxIDs: this.state.selectedBoxes,
+          startDate_ms: this.state.start.getTime(),
+          endDate_ms: this.state.end.getTime(),
+        }, (err, trendData) => {
+          if (err) console.log(err);
+          else {
+            this.setState({
+              trendData,
+              boxIdOptions,
+              ready: true,
+            });
+          }
         });
       }
     });
-    dailyTrendsInRange.call({
-      boxIDs: this.state.selectedBoxes,
-      startDate_ms: this.state.range[0],
-      endDate_ms: this.state.range[1],
-    }, (error, data) => {
-      if(error) console.log(error);
-      else {
-        this.setState({ trends: data });
-        console.log(this.state.trends);
-      }
-    });
-  }
+  };
 
   render() {
+    if (!this.state.ready) this.initialize(); // Need to initialize somehow because there are no subs
     return this.state.ready ? this.renderPage() : <Loader active>Loading...</Loader>;
   }
 
   renderPage() {
+    // Redo data gathering. Potentially re-do format of all of the data being passed around.
     return (
       <WidgetPanel title='Daily Trends'>
         <Grid container>
           <Grid.Row centered>
-
-            <Grid.Column width={10}>
-              <Calendar selectRange onChange={this.changeRange} value={this.state.range}/>
-            </Grid.Column>
-
             <Grid.Column width={6}>
               <Dropdown search selection fluid
                         placeholder='Graph to display'
@@ -78,6 +78,8 @@ class BoxTrends extends React.Component {
                         onChange={this.changeGraph}
                         defaultValue={this.state.graph}
               />
+            </Grid.Column>
+            <Grid.Column width={10}>
               <Dropdown multiple search selection fluid
                         placeholder='Boxes to display'
                         options={this.state.boxIdOptions}
@@ -87,25 +89,64 @@ class BoxTrends extends React.Component {
             </Grid.Column>
           </Grid.Row>
 
+          <Grid.Row><Grid.Column><Grid stackable>
+            <Grid.Row>
+              <Grid.Column width={6}>
+                <Popup on='focus'
+                       trigger={
+                         <Input fluid placeholder='Input a starting date'
+                                value={Moment(this.state.start).format('MM/DD/YYYY')}
+                                label='Start'
+                         />
+                       }
+                       content={<Calendar onChange={this.changeStart} value={this.state.start}/>}
+                />
+              </Grid.Column>
+              <Grid.Column width={6}>
+                <Popup on='focus'
+                       trigger={
+                         <Input fluid placeholder='Input an ending date'
+                                value={Moment(this.state.end).format('MM/DD/YYYY')}
+                                label='End'
+                         />
+                       }
+                       content={<Calendar onChange={this.changeEnd} value={this.state.end}/>}
+                />
+              </Grid.Column>
+              <Grid.Column width={4}>
+                <Button content='Fetch data' fluid onClick={this.getData}/>
+              </Grid.Column>
+            </Grid.Row>
+          </Grid></Grid.Column></Grid.Row>
+
           {this.state.selectedBoxes.map(boxID => (
             <Grid.Row centered key={`box${boxID}`}>
               <Grid.Column width={3}>
                 <Header as='h4' content={`Box ${boxID}`} textAlign='center'/>
               </Grid.Column>
               <Grid.Column width={4}>
-                <Checkbox toggle label='Max' onChange={this.changeChecked} checked={this.state.showMax}/>
+                <Checkbox toggle label='Max' id={`Box ${boxID} max`}
+                          onChange={this.changeChecked} checked={this.state.show[`Box ${boxID} max`]}
+                />
               </Grid.Column>
               <Grid.Column width={4}>
-                <Checkbox toggle label='Min' onChange={this.changeChecked} checked={this.state.showMin}/>
+                <Checkbox toggle label='Min' id={`Box ${boxID} min`}
+                          onChange={this.changeChecked} checked={this.state.show[`Box ${boxID} min`]}
+                />
               </Grid.Column>
               <Grid.Column width={5}>
-                <Checkbox toggle label='Average' onChange={this.changeChecked} checked={this.state.showAverage}/>
+                <Checkbox toggle label='Average' id={`Box ${boxID} average`}
+                          onChange={this.changeChecked} checked={this.state.show[`Box ${boxID} average`]}
+                />
               </Grid.Column>
             </Grid.Row>
           ))}
           <Grid.Row>
             <Grid.Column>
-              <LineChart data={{ '2017-05-13': 2, '2017-05-14': 5 }}/>
+              <FlexibleXYPlot>
+                <XAxis />
+                <YAxis />
+              </FlexibleXYPlot>
             </Grid.Column>
           </Grid.Row>
         </Grid>
@@ -113,45 +154,43 @@ class BoxTrends extends React.Component {
     );
   }
 
-  updateBoxIdDropdown = (event, data) => {
-    this.setState({ selectedBoxes: data.value });
-  }
-
   changeGraph = (event, data) => {
     this.setState({ graph: data.value });
-  }
+  };
 
-  changeChecked = (event, data) => {
-    switch (data.label) {
-      case 'Max':
-        this.setState({ showMax: !this.state.showMax });
-        break;
-      case 'Average':
-        this.setState({ showAverage: !this.state.showAverage });
-        break;
-      case 'Min':
-        this.setState({ showMin: !this.state.showMin });
-        break;
-      default:
-        break;
-    }
-  }
+  updateBoxIdDropdown = (event, data) => {
+    this.setState({ selectedBoxes: data.value });
+  };
 
-  changeRange = range => {
-    this.setState({ range });
+  changeStart = start => {
+    this.setState({ start });
+  };
+
+  changeEnd = end => {
+    this.setState({ end });
+  };
+
+  getData = () => {
     dailyTrendsInRange.call({
       boxIDs: this.state.selectedBoxes,
-      startDate_ms: this.state.range[0],
-      endDate_ms: this.state.range[1],
-    }, (error, data) => {
-      if(error) console.log(error);
-      else {
-        this.setState({ trends: data });
-        console.log(this.state.trends);
-      }
+      startDate_ms: this.state.start.getTime(),
+      endDate_ms: this.state.end.getTime(),
+    }, (error, trendData) => {
+      if (error) console.log(error);
+      else this.setState({ trendData });
     });
   }
+
+  changeChecked = (event, props) => {
+    // If the state field exists, flip it. Otherwise, make a new field and set it to true.
+    const show = this.state.show;
+    if (show[props.id]) show[props.id] = !show[props.id];
+    else show[props.id] = true;
+    this.setState({ show });
+  };
+
+
 }
 
-/** No subscriptions, because the data is updated daily */
+// No subscriptions, because the data is updated daily
 export default BoxTrends;
