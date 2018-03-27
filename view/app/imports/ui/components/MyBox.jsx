@@ -11,7 +11,7 @@ class MyBox extends React.Component {
         <Table.Cell>{this.props.box.name}</Table.Cell>
         <Table.Cell>{this.props.box.description}</Table.Cell>
         <Table.Cell>{this.props.box.calibration_constant}</Table.Cell>
-        <Table.Cell>{this.props.box.locations}</Table.Cell>
+        <Table.Cell>{JSON.stringify(this.props.box.locations)}</Table.Cell>
       </Table.Row>
     );
   }

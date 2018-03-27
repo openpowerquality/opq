@@ -15,14 +15,13 @@ class SystemStatsCollection extends BaseCollection {
    */
   constructor() {
     super('system_stats', new SimpleSchema({
-      _id: { type: Mongo.ObjectID },
-      events_count: { type: Number },
-      box_events_count: { type: Number },
-      measurements_count: { type: Number },
-      opq_boxes_count: { type: Number },
-      trends_count: { type: Number },
-      users_count: { type: Number },
-      timestamp: { type: Date },
+      events_count: Number,
+      box_events_count: Number,
+      measurements_count: Number,
+      opq_boxes_count: Number,
+      trends_count: Number,
+      users_count: Number,
+      timestamp: Date,
     }));
   }
 
@@ -94,7 +93,7 @@ class SystemStatsCollection extends BaseCollection {
 
     // Update the one document with current collection counts.
     const systemStatsDoc = this._collection.findOne();
-    return systemStatsDoc && this._collection.update({ _id: systemStatsDoc._id }, {
+    return systemStatsDoc && this._collection.update(systemStatsDoc._id, {
       $set: { events_count, box_events_count, measurements_count, opq_boxes_count, trends_count, users_count,
         timestamp: new Date() },
     });

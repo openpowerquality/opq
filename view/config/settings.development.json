@@ -5,7 +5,7 @@
   "systemStatsUpdateIntervalSeconds": 10,
   "opqBoxes" : [
     { "box_id": "1", "name": "CSDL Office", "description": "foo", "calibration_constant": 1.1,
-      "locations": [{"start_time_ms": 1514844000000, "zipcode": "96822", "nickname": "CSDL Office" } ]},
+      "locations": [{"start_time_ms": 1514844000000, "zipcode": "96877", "nickname": "CSDL Office" } ]},
 
     { "box_id": "2", "name": "CSDL Office-2", "description": "", "calibration_constant": 1.0,
       "locations": [{"start_time_ms": 1514844000000, "zipcode": "96822", "nickname": "CSDL Office" } ]},

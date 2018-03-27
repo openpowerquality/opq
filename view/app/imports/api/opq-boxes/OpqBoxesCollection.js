@@ -19,7 +19,7 @@ class OpqBoxesCollection extends BaseCollection {
       description: { type: String, optional: true },
       calibration_constant: Number,
       locations: { type: Array },
-      'locations.$': Object,
+      'locations.$': { type: Object, blackbox: true },
     }));
   }
 

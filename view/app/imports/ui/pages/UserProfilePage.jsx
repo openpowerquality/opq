@@ -34,8 +34,6 @@ class UserProfilePage extends React.Component {
 
 /** Require an array of Stuff documents in the props. */
 UserProfilePage.propTypes = {
-  userProfiles: PropTypes.array.isRequired,
-  boxOwners: PropTypes.array.isRequired,
   ready: PropTypes.bool.isRequired,
 };
 
