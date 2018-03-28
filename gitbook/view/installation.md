@@ -56,7 +56,7 @@ Here is a simplified example of a settings.development.json file that illustrate
 }
 ```
 
-Here is an overview of the properties:
+Here are the currently available properties:
 
 | Property | Description |
 | -- | -- |
@@ -65,6 +65,8 @@ Here is an overview of the properties:
 | integrityCheckCollections | This array specifies the Mongo collections to check if enableStartupIntegrityCheck is true. |
 | opqBoxes | An array of objects, each object providing metadata about an OPQBox according to our data model.  Note that for convenience, the `start_time_ms` field in the locations subarray can be either a UTC millisecond value, or a string that can be parsed by Moment and converted to UTC milliseconds. The example above shows both possible ways of specifying the `start_time_ms`. |
 | userProfiles | An array of objects, each object providing metadata about an authorized user of OPQView.  The role field can be either "admin" or "user". |
+
+Note that a "production" settings file is used for deployment to emilia.  It has the same structure, but the actual file is not committed to github.  
 
 ## (Optional) Install a DB snapshot
 
