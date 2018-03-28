@@ -1,0 +1,125 @@
+syntax = "proto2";
+
+package opq.proto;
+
+//A data structure holding a single cycle of raw data.
+message Cycle{
+	//64 bit timestamp of when the cycle was read out.
+	required uint64 time = 1;
+	//16 bit signed data values.
+	repeated int32 data = 2;
+	//A counter stamp driven by a 10kHz clock of the last GPS PPS.
+	optional int32 last_gps = 3;
+	//Current counter stamp.
+	optional int32 current_count = 4;
+	// Cycle flags. Currently unused
+	optional int32 flags = 5;
+}
+
+//A data structure holding a collection of cycles from a box.
+message DataMessage{
+	//Device ID
+	required int32 id = 1;
+	//Cycles in this message
+	repeated Cycle cycles = 3;
+}
+
+//A trigger message from the box to the server.
+message TriggerMessage{
+	//Device ID
+	required int32 id = 1;
+	//64 bit timestamp of when the cycle was read out.
+	required uint64 time = 2;
+	//Frequency measurement.
+	required float frequency = 3;
+	//RMS votage measurement.
+	required float rms = 4;
+	//optional Totoal Harmonic Distortion.
+	optional float thd = 5;
+	//A counter stamp driven by a 10kHz clock of the last GPS PPS.
+	optional int32 last_gps = 6;
+	//Current counter stamp.
+	optional int32 current_count = 7;
+	//Trigger flags currently unused.
+	optional int32 flags = 8;
+}
+
+
+//A request message from the makai cloud service to the boxen.
+//Also a reply message from the box to the makai service.
+message RequestDataMessage{
+	//Request type
+	enum RequestType {
+	    //ping request
+	    PING = 1;
+	    //pong responce
+	    PONG = 2;
+	    //read data
+	    READ = 3;
+	    //response with data
+	    RESP = 4;
+	    //Box could not understand the request.
+	    ERROR = 5;
+ 	}
+	//Request type
+	required RequestType type = 1;
+	//Event number
+	required uint32 sequence_number = 2;
+	//device ID for response
+	optional uint32 boxId = 3;
+	//64 bit timestamp of when the message was sent out.
+	optional uint64 time = 4;
+	//64 bit timestamp. Begining of the time range for raw data.
+	optional uint64 back = 5;
+	//End of the time range
+	optional uint64 forward = 6;
+	//Number of cycles read out from the box
+	optional uint32 num_cycles = 7;
+}
+
+// A request from OPQMauka to OPQMakai for raw data possibly relating
+// to an event of interest.
+message RequestEventMessage {
+  enum TriggerType {
+    FREQUENCY_SAG = 1;
+    FREQUENCY_SWELL = 2;
+    VOLTAGE_SAG = 3;
+    VOLTAGE_SWELL = 4;
+    OTHER = 5;
+  }
+
+  // Start time for raw data request in ms since the epoch utc
+  required uint64 start_timestamp_ms_utc = 1;
+
+  // End time for raw data request in ms since the epoch utc
+  required uint64 end_timestamp_ms_utc = 2;
+
+  // OPQMauka's reason for requesting data from OPQMakai
+  required TriggerType trigger_type = 3;
+
+  // Percent value of voltage or frequency depending on event type
+  required double percent_magnitude = 4;
+
+  // List of OPQBoxes that may have seen the same event trigger
+  repeated int32 box_ids = 5;
+
+  // Which OPQMauka plugin is making the request
+  required string requestee = 6;
+
+  // Human readable string of request generated my OPQMauka
+  required string description = 7;
+
+  // Whether or not to actually request data.
+  // We send a request event message every time we see something interesting, 
+  // but in order to limit multiple requests within a small window, we may not
+  // request data for every event, but still want to log that something
+  // interesting happenen
+  required bool request_data = 8;
+}
+
+
+
+
+
+
+
