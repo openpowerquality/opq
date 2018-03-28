@@ -8,6 +8,7 @@ from time import sleep
 from time import time
 from threading import Thread
 from threading import Lock
+from pymongo import MongoClient
 
 def write_file(file_name, message):
     try:
@@ -85,10 +86,28 @@ def check_boxes(config, port, log_file):
 
     box_log_thread.join()
 
+def check_mongo(config, log_file):
+    sleep_time = config['interval']
+    mongo_uri = config['url']
+
+    while True:
+        client = MongoClient(mongo_uri)
+        db = client['opq']
+        collection = db['measurements']
+        message = ''
+        try:
+            collection.find_one()
+            message = ctime() + ' MONGO UP'
+        except:
+            message = ctime() + ' MONGO DOWN' 
+        client.close()
+        write_file(log_file, message)
+        sleep(sleep_time)
+
 
 def main(config_file, log_file):
     health_config = file_to_dict(config_file)
-
+    
     view_config = health_config[4]
     view_thread = Thread(target=check_view, args=(view_config,log_file, ))
     view_thread.start()
@@ -97,9 +116,14 @@ def main(config_file, log_file):
     zmq_port = health_config[0]['port']
     box_thread = Thread(target=check_boxes, args=(box_config,zmq_port,log_file, ))
     box_thread.start()
+
+    mongo_config = health_config[5]
+    mongo_thread = Thread(target=check_mongo, args=(mongo_config,log_file, ))
+    mongo_thread.start()
     
     view_thread.join()
     box_thread.join()
+    mongo_thread.join()
 
 def parse_cmd_args():
     parser = argparse.ArgumentParser(description='Get config and log file names')
