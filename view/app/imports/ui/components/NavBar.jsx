@@ -6,6 +6,7 @@ import { withRouter, NavLink } from 'react-router-dom';
 import { Menu, Image, Dropdown } from 'semantic-ui-react';
 import { Roles } from 'meteor/alanning:roles';
 
+/* eslint max-len: 0 */
 class NavBar extends React.Component {
   render() {
     const divStyle = { color: '#2185D0', paddingLeft: '2px', fontWeight: 'bold' };
@@ -17,11 +18,11 @@ class NavBar extends React.Component {
         </Menu.Item>
 
         {this.props.currentUser ? (
-          <Menu.Item as={NavLink} activeClassName="active" exact to="/profile" key='profile'>Profile</Menu.Item>
+          <Menu.Item as={NavLink} activeClassName="active" exact to="/profile" key='profile'><div style={divStyle}>Profile</div></Menu.Item>
         ) : ''}
 
         {Roles.userIsInRole(Meteor.userId(), 'admin') ? (
-          <Menu.Item as={NavLink} activeClassName="active" exact to="/admin" key='admin'>Admin</Menu.Item>
+          <Menu.Item as={NavLink} activeClassName="active" exact to="/admin" key='admin'><div style={divStyle}>Admin</div></Menu.Item>
         ) : ''}
 
         <Menu.Item position="right" as={NavLink} exact to="/about"><div style={divStyle}>About OPQ</div></Menu.Item>
