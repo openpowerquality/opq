@@ -84,7 +84,7 @@ class BoxCard extends React.Component {
           <List.Item>Days Worth of Data: {totalDays}</List.Item>
         </List>
       </Card.Content>
-    )
+    );
   }
 
   /**

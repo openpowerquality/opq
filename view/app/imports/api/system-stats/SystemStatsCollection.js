@@ -1,4 +1,3 @@
-import { Mongo } from 'meteor/mongo';
 import SimpleSchema from 'simpl-schema';
 import BaseCollection from '../base/BaseCollection.js';
 import { Events } from '../events/EventsCollection.js';

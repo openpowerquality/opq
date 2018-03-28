@@ -24,15 +24,12 @@ if (Meteor.isServer) {
       let role = 'admin';
       const profileID = UserProfiles.define({ username, password, firstName, lastName, role, boxIds });
       expect(UserProfiles.isDefined(profileID)).to.be.true;
-      expect(UserProfiles.findBoxIds(username)).to.not.be.empty;
       // Check that we can update the username by calling define again.
       role = 'user';
       const profileID2 = UserProfiles.define({ username, password, firstName, lastName, role });
       expect(profileID).to.deep.equal(profileID2);
       // Check that we've overwritten the previous values for boxIds and role.
-      expect(UserProfiles.findBoxIds(username)).to.be.empty;
       expect(UserProfiles.findDoc(profileID2).role).to.equal('user');
-
       const profile = UserProfiles.findOne({ username });
       expect(profile).to.exist;
       expect(profile.role).to.equal(role);

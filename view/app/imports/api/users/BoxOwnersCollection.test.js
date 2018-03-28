@@ -21,11 +21,11 @@ if (Meteor.isServer) {
       const boxOwnerId1a = BoxOwners.define({ username, boxId });
       const boxOwnerId1b = BoxOwners.define({ username, boxId });
       expect(boxOwnerId1a).to.deep.equal(boxOwnerId1b);
-      expect(BoxOwners.findBoxesWithOwner(username)).to.deep.equal([boxId]);
-      expect(BoxOwners.findOwnersWithBox(boxId)).to.deep.equal([username]);
+      expect(BoxOwners.findBoxesWithOwner(username).length).to.equal(1);
+      expect(BoxOwners.findOwnersWithBoxId(boxId)).to.deep.equal([username]);
       BoxOwners.removeBoxesWithOwner(username);
       expect(BoxOwners.findBoxesWithOwner(username)).to.be.empty;
-      expect(BoxOwners.findOwnersWithBox(boxId)).to.be.empty;
+      expect(BoxOwners.findOwnersWithBoxId(boxId)).to.be.empty;
     });
   });
 }
