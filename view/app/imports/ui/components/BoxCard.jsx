@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, Label, Loader, Header, List } from 'semantic-ui-react';
+import { Card, Label, Loader, Header, List, Icon } from 'semantic-ui-react';
 import PropTypes from 'prop-types';
 import Moment from 'moment';
 import { Meteor } from 'meteor/meteor';
@@ -87,6 +87,37 @@ class BoxCard extends React.Component {
     );
   }
 
+  renderStatus(boxId, unplugged, boxTrendStats) {
+    const boxTrends = _.find(boxTrendStats, stat => stat.boxId === boxId);
+    const last = boxTrends && boxTrends.lastTrend ? Moment(boxTrends.lastTrend) : undefined;
+    const diffMinutes = last && Moment().diff(last, 'minutes');
+    let status = 'Unknown';
+    let color = 'grey';
+    let icon = 'question';
+    if (diffMinutes) {
+      if (diffMinutes > 5) {
+        status = 'Offline';
+        color = 'red';
+        icon = 'exclamation';
+      } else {
+        status = 'Online';
+        color = 'green';
+        icon = 'star';
+      }
+    }
+    if (unplugged) {
+      status = 'Unplugged';
+      color = 'orange';
+      icon = 'plug';
+    }
+    return (
+      <Card.Content>
+        <Header as='h5'>Status</Header>
+        <Label color={color}><Icon name={icon} /> {status}</Label>
+      </Card.Content>
+    );
+  }
+
   /**
    * Render a Card corresponding to each Box.
    * @returns The Card.
@@ -99,6 +130,7 @@ class BoxCard extends React.Component {
           <Card.Header>{this.props.box.name}</Card.Header>
         </Card.Content>
         {this.renderDescription(this.props.box.description)}
+        {this.renderStatus(this.props.box.box_id, this.props.box.unplugged, this.props.boxTrendStats)}
         {this.renderCalibration(this.props.box.calibration_constant)}
         {this.renderLocations(this.props.box.locations)}
         {this.renderBoxTrendStats(this.props.box.box_id, this.props.boxTrendStats)}
