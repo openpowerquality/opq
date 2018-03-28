@@ -9,7 +9,7 @@
       "locations": [
         {"start_time_ms": "2017-04-16 13:00:00", "zipcode": "96877", "nickname": "Serge Home" } ]},
 
-    { "box_id": "2", "name": "???", "description": "???", "calibration_constant": 1.0,
+    { "box_id": "2", "name": "???", "description": "???", "calibration_constant": 1.0, "unplugged": true,
       "locations": [
         {"start_time_ms": 1514844000000, "zipcode": "96822", "nickname": "CSDL Office" } ]},
 

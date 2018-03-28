@@ -19,6 +19,7 @@ class OpqBoxesCollection extends BaseCollection {
       box_id: String,
       name: { type: String, optional: true },
       description: { type: String, optional: true },
+      unplugged: { type: Boolean, optional: true },
       calibration_constant: Number,
       locations: { type: Array },
       'locations.$': { type: Object, blackbox: true },
@@ -32,15 +33,17 @@ class OpqBoxesCollection extends BaseCollection {
    * @param {String} box_id - The unique identification value of the OPQBox.
    * @param {String} name - The unique user-friendly name of the OPQBox.
    * @param {String} description - The (optional) description of the OPQBox.
+   * @param {Boolean} unplugged - True if the box is not attached to an outlet. Default: false (plugged in)
    * @param {Number} calibration_constant - The calibration constant value of the box. See docs for details.
    * @param {[Object]} locations - The history of locations of the OPQBox.
    * @returns The docID of the new or changed OPQBox document, or undefined if invoked on the client side.
    */
-  define({ box_id, name, description, calibration_constant, locations }) {
+  define({ box_id, name, description, calibration_constant, locations, unplugged = false }) {
     if (Meteor.isServer) {
       // Create or modify the OpqBox document associated with this box_id.
       const newLocs = this.makeLocationArray(locations);
-      this._collection.upsert({ box_id }, { $set: { name, description, calibration_constant, locations: newLocs } });
+      this._collection.upsert({ box_id },
+        { $set: { name, description, calibration_constant, locations: newLocs, unplugged } });
       const docID = this.findOne({ box_id })._id;
       return docID;
     }
