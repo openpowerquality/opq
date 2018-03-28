@@ -27,6 +27,13 @@ def file_to_dict(file_name):
         print('Unable to open ' + file_name)
         exit()
 
+def check_health(config, log_file):
+    sleep_time = config['interval']
+    while True:
+        message = ctime() + ' HEALTH UP'
+        write_file(log_file, message)
+        sleep(sleep_time)
+
 def check_view(config, log_file):
     sleep_time = config['interval']
     url = config['url']
@@ -107,7 +114,11 @@ def check_mongo(config, log_file):
 
 def main(config_file, log_file):
     health_config = file_to_dict(config_file)
-    
+
+    health_health_config = health_config[6]
+    health_thread = Thread(target=check_health, args=(health_health_config,log_file, ))
+    health_thread.start()
+
     view_config = health_config[4]
     view_thread = Thread(target=check_view, args=(view_config,log_file, ))
     view_thread.start()
@@ -121,6 +132,7 @@ def main(config_file, log_file):
     mongo_thread = Thread(target=check_mongo, args=(mongo_config,log_file, ))
     mongo_thread.start()
     
+    health_thread.join()
     view_thread.join()
     box_thread.join()
     mongo_thread.join()
