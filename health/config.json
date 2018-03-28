@@ -1,6 +1,6 @@
 [
     { "service": "zeromq", "port": "tcp://127.0.0.1:9881" },
-    { "service": "box", "interval": 60, "boxdata": [ { "boxID": 0 }, { "boxID": 1 }, { "boxID": 2 } ]},
+    { "service": "box", "interval": 60, "boxdata": [ { "boxID": 0 }, { "boxID": 1 }, { "boxID": 3 } ]},
     { "service": "mauka", "interval": 60 },
     { "service": "makai", "interval": 60 },
     { "service": "view", "interval": 60, "url": "http://emilia.ics.hawaii.edu" },
