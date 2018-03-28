@@ -5,7 +5,9 @@ import protobuf.opq_pb2
 from requests import get
 from time import ctime
 from time import sleep
+from time import time
 from threading import Thread
+from threading import Lock
 
 def write_file(file_name, message):
     try:
@@ -30,12 +32,31 @@ def check_view(config, log_file):
     while True:
         status = get(url).status_code
         if status != 200:
-            message = ctime() + ' View Health Error: Status Code ' + str(status)
+            message = ctime() + ' VIEW ' + str(status) + ' DOWN'
             write_file(log_file, message)
         else:
-            message = ctime() + ' View Healthy: Status Code ' + str(status)
+            message = ctime() + ' VIEW ' + str(status) + ' UP'
             write_file(log_file, message)
         sleep(sleep_time)
+
+# Global variable for asynch logging
+boxes = {}
+lock = Lock()
+
+def log_boxes(sleep_time, log_file):
+    while True:
+        curr_t = time()
+        lock.acquire()
+        for id, box_t_ms in boxes.items():
+            time_elapsed = curr_t - (box_t_ms / 1000)
+            if time_elapsed > 60:
+                message = ctime() + ' Box id: ' + str(id) + ' DOWN'
+            else:
+                message = ctime() + ' Box id: ' + str(id) + ' UP'
+            write_file(log_file, message)
+        lock.release()
+        sleep(sleep_time)
+
 
 def check_boxes(config, port, log_file):
     sleep_time = config['interval']
@@ -45,25 +66,39 @@ def check_boxes(config, port, log_file):
     socket.setsockopt(zmq.SUBSCRIBE, b"")
     socket.connect(port)
 
+    for box in config['boxdata']:
+        # Add each box as a new key
+        boxes[box['boxID']] = 0
+
+    box_log_thread = Thread(target=log_boxes, args=(sleep_time,log_file, ))
+    box_log_thread.start()
+
     while True:
         measurement = socket.recv_multipart()
         trigger_message = protobuf.opq_pb2.TriggerMessage()
         trigger_message.ParseFromString(measurement[1])
-        print(trigger_message)
+    
+        lock.acquire()
+        if trigger_message.id in boxes:
+            boxes[trigger_message.id] = trigger_message.time
+        lock.release()
+
+    box_log_thread.join()
+
 
 def main(config_file, log_file):
     health_config = file_to_dict(config_file)
 
-    #view_config = health_config[4]
-    #view_thread = Thread(target=check_view, args=(view_config,log_file, ))
-    #view_thread.start()
+    view_config = health_config[4]
+    view_thread = Thread(target=check_view, args=(view_config,log_file, ))
+    view_thread.start()
 
     box_config = health_config[1]
     zmq_port = health_config[0]['port']
-    box_thread = Thread(target=check_boxes, args=(box_config,zmq_port,log_file))
+    box_thread = Thread(target=check_boxes, args=(box_config,zmq_port,log_file, ))
     box_thread.start()
     
-    #view_thread.join()
+    view_thread.join()
     box_thread.join()
 
 def parse_cmd_args():
