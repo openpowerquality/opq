@@ -2,7 +2,8 @@ import React from 'react';
 import { Grid, Loader, Header, Dropdown, Checkbox, Popup, Input, Button } from 'semantic-ui-react';
 import Moment from 'moment';
 import Calendar from 'react-calendar'; // eslint-disable-line no-unused-vars
-import { FlexibleXYPlot, LineSeries, XAxis, YAxis } from 'react-vis';
+import { FlexibleXYPlot, LineMarkSeries, XAxis, YAxis, VerticalGridLines, HorizontalGridLines } from 'react-vis';
+import 'react-vis/dist/style.css';
 
 import { getBoxIDs } from '../../api/opq-boxes/OpqBoxesCollectionMethods';
 import { dailyTrendsInRange } from '../../api/trends/TrendsCollectionMethods';
@@ -24,7 +25,7 @@ class BoxTrends extends React.Component {
       graph: 'voltage',
       start,
       end,
-      show: { 'Box 1 average': true },
+      linesToShow: ['Box 1 average'],
       trendData: {},
     };
   }
@@ -62,7 +63,20 @@ class BoxTrends extends React.Component {
   }
 
   renderPage() {
-    // Redo data gathering. Potentially re-do format of all of the data being passed around.
+    const trendData = this.state.trendData;
+    const field = this.state.graph;
+    const linesToShow = this.state.linesToShow;
+    const graphData = linesToShow.map(label => {
+      const [, boxID, stat] = label.split(' ');
+      const boxData = trendData[boxID].dailyTrends;
+      const data = Object.keys(boxData).filter(timestamp => boxData[timestamp][field]).map(timestamp => ({
+        x: new Date(parseInt(timestamp, 10)),
+        y: boxData[timestamp][field][stat],
+      }));
+      return { label, data };
+    });
+    console.log(graphData);
+
     return (
       <WidgetPanel title='Daily Trends'>
         <Grid container>
@@ -126,26 +140,35 @@ class BoxTrends extends React.Component {
               </Grid.Column>
               <Grid.Column width={4}>
                 <Checkbox toggle label='Max' id={`Box ${boxID} max`}
-                          onChange={this.changeChecked} checked={this.state.show[`Box ${boxID} max`]}
+                          onChange={this.changeChecked}
+                          checked={this.state.linesToShow.includes(`Box ${boxID} max`)}
                 />
               </Grid.Column>
               <Grid.Column width={4}>
                 <Checkbox toggle label='Min' id={`Box ${boxID} min`}
-                          onChange={this.changeChecked} checked={this.state.show[`Box ${boxID} min`]}
+                          onChange={this.changeChecked}
+                          checked={this.state.linesToShow.includes(`Box ${boxID} min`)}
                 />
               </Grid.Column>
               <Grid.Column width={5}>
                 <Checkbox toggle label='Average' id={`Box ${boxID} average`}
-                          onChange={this.changeChecked} checked={this.state.show[`Box ${boxID} average`]}
+                          onChange={this.changeChecked}
+                          checked={this.state.linesToShow.includes(`Box ${boxID} average`)}
                 />
               </Grid.Column>
             </Grid.Row>
           ))}
+          {}
           <Grid.Row>
-            <Grid.Column>
-              <FlexibleXYPlot>
-                <XAxis />
-                <YAxis />
+            <Grid.Column width={16}>
+              <FlexibleXYPlot height={300}>
+                <XAxis/>
+                <YAxis/>
+                <VerticalGridLines />
+                <HorizontalGridLines />
+                {graphData.map(set => (
+                  <LineMarkSeries key={set.label} data={set.data}/>
+                ))}
               </FlexibleXYPlot>
             </Grid.Column>
           </Grid.Row>
@@ -182,11 +205,11 @@ class BoxTrends extends React.Component {
   }
 
   changeChecked = (event, props) => {
-    // If the state field exists, flip it. Otherwise, make a new field and set it to true.
-    const show = this.state.show;
-    if (show[props.id]) show[props.id] = !show[props.id];
-    else show[props.id] = true;
-    this.setState({ show });
+    // If we have it in the list, remove it. Otherwise, add it.
+    let linesToShow = this.state.linesToShow;
+    if (linesToShow.includes(props.id)) linesToShow = linesToShow.filter(label => label !== props.id);
+    else linesToShow.push(props.id);
+    this.setState({ linesToShow });
   };
 
 
