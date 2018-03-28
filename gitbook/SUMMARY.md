@@ -17,6 +17,10 @@
 * [OPQ Makai](makai/installation.md)
 * [OPQ Protocol](protocol/installation.md)
 
+## Developer Guide
+* [GitBook](developerguide/gitbook.md)
+
+
 ## OPQ Box
 
 * [Design](box/description.md)
@@ -35,7 +39,7 @@
 
 * [Installation](view/installation.md)
 * [Coding Standards](view/codingstandards.md)
-* [Design](view/design.md)
+* [User Guide](view/userguide.md)
 
 ## OPQ Mauka
 
@@ -64,6 +68,15 @@
 * [Use Cases](makai/description.md#use-cases)
 * [Makai Docs](makai/doc/makai/index.html)
 
+## OPQ Health
+
+* [Overview](health/description.md#overview)
+* [Data Model](health/description.md#data-model)
+* [Basic Operation](health/description.md#basic-operation)
+* [Installation](health/description.md#installation)
+* [Analytics](health/description.md#analytics)
+
+
 ## OPQ Protocol
 
 * [Overview](protocol/description.md)
@@ -78,3 +91,12 @@
 * [GridFS](datamodel/description.md#gridfs)
 * [OPQ_Boxes](datamodel/description.md#opq_boxes)
 * [Users](datamodel/description.md#users)
+
+## OPQ VM/Sim
+
+* [Overview](vm/vm.md#overview)
+* [Installation](vm/vm.md#installtion)
+* [Running](vm/vm.md#running)
+* [Interacting w/ VM](vm/interactingvm)
+* [Simulator](vm/interactingsim)
+
