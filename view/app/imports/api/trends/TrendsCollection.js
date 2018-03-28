@@ -34,6 +34,9 @@ class TrendsCollection extends BaseCollection {
       GET_RECENT_TRENDS: 'get_recent_trends',
       TRENDS_RECENT_MONTH: 'trends_recent_month',
     };
+    if (Meteor.server) {
+      this._collection.rawCollection().createIndex({ timestamp_ms: 1, box_id: 1 }, { background: true });
+    }
   }
 
   /**
@@ -48,6 +51,33 @@ class TrendsCollection extends BaseCollection {
   define({ box_id, timestamp_ms, voltage, frequency, thd }) {
     const docID = this._collection.insert({ box_id, timestamp_ms, voltage, frequency, thd });
     return docID;
+  }
+
+  /**
+   * Returns the oldest Trend document associated with box_id by timestamp, or null if there are no Trends for box_id.
+   * @param box_id The box_id
+   * @returns The Trend document, or null.
+   */
+  oldestTrend(box_id) {
+    return this._collection.findOne({ box_id }, { sort: { timestamp_ms: 1 } });
+  }
+
+  /**
+   * Returns the newest Trend document associated with box_id by timestamp, or null if there are no Trends for box_id.
+   * @param box_id The box_id
+   * @returns The Trend document, or null.
+   */
+  newestTrend(box_id) {
+    return this._collection.findOne({ box_id }, { sort: { timestamp_ms: -1 } });
+  }
+
+  /**
+   * Returns the number of Trend documents associated with box_id.
+   * @param box_id The box ID.
+   * @returns The number of Trend documents with that ID.
+   */
+  countTrends(box_id) {
+    return this._collection.find({ box_id }).count();
   }
 
   /**

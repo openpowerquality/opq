@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, Label, Feed, Loader, Header, List } from 'semantic-ui-react';
+import { Card, Label, Loader, Header, List } from 'semantic-ui-react';
 import PropTypes from 'prop-types';
 import Moment from 'moment';
 import { Meteor } from 'meteor/meteor';
@@ -63,11 +63,27 @@ class BoxCard extends React.Component {
     const timestamp = Moment(start_time_ms).format('MMMM Do YYYY, h:mm a');
     return (
         <List.Item key={index}>
-          {nickname} ({zipcode})
-          
+          <p>{nickname} ({zipcode})</p>
           Since: {timestamp}
         </List.Item>
     );
+  }
+
+  renderBoxTrendStats(boxId, boxTrendStats) {
+    const boxTrends = _.find(boxTrendStats, stat => stat.boxId === boxId);
+    const first = boxTrends && boxTrends.firstTrend ? Moment(boxTrends.firstTrend) : 'N/A';
+    const last = boxTrends && boxTrends.lastTrend ? Moment(boxTrends.lastTrend) : 'N/A';
+    const total = boxTrends && boxTrends.totalTrends ? boxTrends.totalTrends : 0;
+    return (
+      <Card.Content>
+        <Header as='h5'>Trend Statistics</Header>
+        <List>
+          <List.Item>First: {first}</List.Item>
+          <List.Item>Last: {last}</List.Item>
+          <List.Item>Total: {total}</List.Item>
+        </List>
+      </Card.Content>
+    )
   }
 
   /**
@@ -84,6 +100,7 @@ class BoxCard extends React.Component {
         {this.renderDescription(this.props.box.description)}
         {this.renderCalibration(this.props.box.calibration_constant)}
         {this.renderLocations(this.props.box.locations)}
+        {this.renderBoxTrendStats(this.props.box.box_id, this.props.boxTrendStats)}
         {this.props.admin ? this.renderOwners(this.props.box.box_id) : ''}
       </Card>
     );
@@ -94,6 +111,7 @@ class BoxCard extends React.Component {
 BoxCard.propTypes = {
   ready: PropTypes.bool.isRequired,
   box: PropTypes.object.isRequired,
+  boxTrendStats: PropTypes.array.isRequired,
   admin: PropTypes.bool,
 };
 

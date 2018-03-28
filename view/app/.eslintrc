@@ -17,6 +17,7 @@
   "rules": {
     "arrow-parens": "off",
     "camelcase": "off",
+    "class-methods-use-this": "off",
     "func-names": "off",
     "import/no-absolute-path": "off",
     "import/no-unresolved": "off",
@@ -24,6 +25,7 @@
     "import/imports-first": "off",
     "import/prefer-default-export": "off",
     "import/no-extraneous-dependencies": "off",
+    "indent": "off",
     "linebreak-style": "off",
     "max-len": ["error", 120],
     "meteor/eventmap-params": [2, { "eventParamName": "event", "templateInstanceParamName": "instance" } ],

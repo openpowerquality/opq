@@ -4,6 +4,7 @@ import { Container, Loader } from 'semantic-ui-react';
 import { UserProfiles } from '/imports/api/users/UserProfilesCollection';
 import { BoxOwners } from '/imports/api/users/BoxOwnersCollection';
 import { OpqBoxes } from '/imports/api/opq-boxes/OpqBoxesCollection';
+import { SystemStats } from '/imports/api/system-stats/SystemStatsCollection';
 import { withTracker } from 'meteor/react-meteor-data';
 import PropTypes from 'prop-types';
 import AboutMe from '/imports/ui/components/AboutMe';
@@ -23,10 +24,12 @@ class Profile extends React.Component {
     const { firstName, lastName, role } = UserProfiles.findByUsername(username);
     const boxIds = BoxOwners.findBoxIdsWithOwner(username);
     const boxes = boxIds.map(id => OpqBoxes.findBox(id));
+    const stats = SystemStats.findOne({});
+    const boxTrendStats = stats ? stats.box_trend_stats : [];
     return (
       <Container >
         <AboutMe firstName={firstName} lastName={lastName} username={username} role={role}/>
-        <Boxes title="My Boxes" boxes={boxes}/>
+        <Boxes title="My Boxes" boxes={boxes} boxTrendStats={boxTrendStats}/>
       </Container>
     );
   }
@@ -40,10 +43,11 @@ Profile.propTypes = {
 /** withTracker connects Meteor data to React components. https://guide.meteor.com/react.html#using-withTracker */
 export default withTracker(() => {
   // Get access to Stuff documents.
-  const profilesSubscription = Meteor.subscribe(UserProfiles.getPublicationName());
-  const boxOwnersSubscription = Meteor.subscribe(BoxOwners.getPublicationName());
-  const opqBoxesSubscription = Meteor.subscribe(OpqBoxes.getPublicationName());
+  const profilesSub = Meteor.subscribe(UserProfiles.getPublicationName());
+  const boxOwnersSub = Meteor.subscribe(BoxOwners.getPublicationName());
+  const opqBoxesSub = Meteor.subscribe(OpqBoxes.getPublicationName());
+  const systemStatsSub = Meteor.subscribe(SystemStats.getPublicationName());
   return {
-    ready: profilesSubscription.ready() && boxOwnersSubscription.ready() && opqBoxesSubscription.ready(),
+    ready: profilesSub.ready() && boxOwnersSub.ready() && opqBoxesSub.ready() && systemStatsSub.ready(),
   };
 })(Profile);

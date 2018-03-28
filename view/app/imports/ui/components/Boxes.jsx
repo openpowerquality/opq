@@ -4,16 +4,18 @@ import PropTypes from 'prop-types';
 import WidgetPanel from '../layouts/WidgetPanel';
 import BoxCard from './BoxCard';
 
-/** Display user profile info. */
+/* eslint max-len:0 */
+
+/** Display the summary information for all Boxes passed in as a property. */
 class Boxes extends React.Component {
 
-  /** Here's the system stats page. */
+  /** Render the Boxes as a group of Cards. */
   render() {
-    const divStyle = { paddingLeft: '10px' };
+    const divStyle = { paddingLeft: '10px', paddingRight: '10px' };
     return (
         <WidgetPanel title={this.props.title}>
-          <Card.Group stackable style={divStyle}>
-            {this.props.boxes.map((box) => <BoxCard key={box._id} box={box} admin={this.props.admin}/>)}
+          <Card.Group stackable style={divStyle} itemsPerRow={4}>
+            {this.props.boxes.map((box) => <BoxCard key={box._id} box={box} admin={this.props.admin} boxTrendStats={this.props.boxTrendStats}/>)}
           </Card.Group>
         </WidgetPanel>
     );
@@ -24,6 +26,7 @@ Boxes.propTypes = {
   boxes: PropTypes.array.isRequired,
   title: PropTypes.string.isRequired,
   admin: PropTypes.bool,
+  boxTrendStats: PropTypes.array.isRequired,
 };
 
 
