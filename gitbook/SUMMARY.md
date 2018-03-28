@@ -39,7 +39,7 @@
 
 * [Installation](view/installation.md)
 * [Coding Standards](view/codingstandards.md)
-* [Design](view/design.md)
+* [User Guide](view/userguide.md)
 
 ## OPQ Mauka
 
