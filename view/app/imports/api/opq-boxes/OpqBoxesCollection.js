@@ -1,8 +1,8 @@
 import SimpleSchema from 'simpl-schema';
 import { Meteor } from 'meteor/meteor';
+import Moment from 'moment';
 import BaseCollection from '../base/BaseCollection.js';
 import { progressBarSetup } from '../../modules/utils';
-import Moment from 'moment';
 
 
 /**
@@ -42,8 +42,10 @@ class OpqBoxesCollection extends BaseCollection {
     if (Meteor.isServer) {
       // Create or modify the OpqBox document associated with this box_id.
       const newLocs = this.makeLocationArray(locations);
-      this._collection.upsert({ box_id },
-        { $set: { name, description, calibration_constant, locations: newLocs, unplugged } });
+      this._collection.upsert(
+        { box_id },
+        { $set: { name, description, calibration_constant, locations: newLocs, unplugged } },
+        );
       const docID = this.findOne({ box_id })._id;
       return docID;
     }
