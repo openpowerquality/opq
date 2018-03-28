@@ -10,7 +10,15 @@ from threading import Thread
 from threading import Lock
 from pymongo import MongoClient
 
-def write_file(file_name, message):
+def generate_log_msg(service, service_id, status, info):
+    serv = 'service: ' + service
+    id = 'service id: ' + service_id
+    stat = 'status: ' + status
+    info = 'info: ' + info
+
+    return ' '.join([ctime(), serv, id, stat, info])
+
+def write_to_log(file_name, message):
     try:
         with open(file_name, 'a') as log_file:
             log_file.write(message + '\n')
@@ -30,8 +38,8 @@ def file_to_dict(file_name):
 def check_health(config, log_file):
     sleep_time = config['interval']
     while True:
-        message = ctime() + ' HEALTH UP'
-        write_file(log_file, message)
+        message = generate_log_msg('HEALTH', '', 'UP', '')
+        write_to_log(log_file, message)
         sleep(sleep_time)
 
 def check_view(config, log_file):
@@ -40,11 +48,11 @@ def check_view(config, log_file):
     while True:
         status = get(url).status_code
         if status != 200:
-            message = ctime() + ' VIEW ' + str(status) + ' DOWN'
-            write_file(log_file, message)
+            message = generate_log_msg('VIEW', '', 'DOWN', str(status))
+            write_to_log(log_file, message)
         else:
-            message = ctime() + ' VIEW ' + str(status) + ' UP'
-            write_file(log_file, message)
+            message = generate_log_msg('VIEW', '', 'UP', str(status))
+            write_to_log(log_file, message)
         sleep(sleep_time)
 
 # Global variable for asynch logging
@@ -58,10 +66,10 @@ def log_boxes(sleep_time, log_file):
         for id, box_t_ms in boxes.items():
             time_elapsed = curr_t - (box_t_ms / 1000)
             if time_elapsed > 60:
-                message = ctime() + ' BOX_ID ' + str(id) + ' DOWN'
+                message = generate_log_msg('BOX', str(id), 'DOWN', '')
             else:
-                message = ctime() + ' BOX_ID ' + str(id) + ' UP'
-            write_file(log_file, message)
+                message = generate_log_msg('BOX', str(id), 'UP', '')
+            write_to_log(log_file, message)
         lock.release()
         sleep(sleep_time)
 
@@ -104,11 +112,11 @@ def check_mongo(config, log_file):
         message = ''
         try:
             collection.find_one()
-            message = ctime() + ' MONGO UP'
+            message = generate_log_msg('MONGO', '', 'UP', '')
         except:
-            message = ctime() + ' MONGO DOWN' 
+            message = generate_log_msg('MONGO', '', 'DOWN', '')
         client.close()
-        write_file(log_file, message)
+        write_to_log(log_file, message)
         sleep(sleep_time)
 
 
@@ -146,4 +154,6 @@ def parse_cmd_args():
 
 if __name__ == '__main__':
     config_file, log_file = parse_cmd_args()
+    print('... reading configuration information from ' + config_file)
+    print('... writing out health status to ' + config_file)
     main(config_file, log_file)
