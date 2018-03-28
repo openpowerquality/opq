@@ -58,9 +58,9 @@ def log_boxes(sleep_time, log_file):
         for id, box_t_ms in boxes.items():
             time_elapsed = curr_t - (box_t_ms / 1000)
             if time_elapsed > 60:
-                message = ctime() + ' Box id: ' + str(id) + ' DOWN'
+                message = ctime() + ' BOX_ID ' + str(id) + ' DOWN'
             else:
-                message = ctime() + ' Box id: ' + str(id) + ' UP'
+                message = ctime() + ' BOX_ID ' + str(id) + ' UP'
             write_file(log_file, message)
         lock.release()
         sleep(sleep_time)
