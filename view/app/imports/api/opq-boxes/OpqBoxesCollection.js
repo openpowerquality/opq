@@ -2,6 +2,8 @@ import SimpleSchema from 'simpl-schema';
 import { Meteor } from 'meteor/meteor';
 import BaseCollection from '../base/BaseCollection.js';
 import { progressBarSetup } from '../../modules/utils';
+import Moment from 'moment';
+
 
 /**
  * Collection class for the opq_boxes collection.
@@ -37,11 +39,28 @@ class OpqBoxesCollection extends BaseCollection {
   define({ box_id, name, description, calibration_constant, locations }) {
     if (Meteor.isServer) {
       // Create or modify the OpqBox document associated with this box_id.
-      this._collection.upsert({ box_id }, { $set: { name, description, calibration_constant, locations } });
+      const newLocs = this.makeLocationArray(locations);
+      this._collection.upsert({ box_id }, { $set: { name, description, calibration_constant, locations: newLocs } });
       const docID = this.findOne({ box_id })._id;
       return docID;
     }
     return undefined;
+  }
+
+  /**
+   * Returns a new locations array structure where time_stamp_ms has been passed through Moment so that
+   * the settings file can provide more user-friendly versions of the timestamp.
+   * @param locations The locations array.
+   * @returns A new locations array in which time_stamp_ms has been converted to UTC milliseconds.
+   */
+  makeLocationArray(locations) {
+    return locations.map(location => {
+      const momentTimestamp = Moment(location.time_stamp_ms);
+      if (momentTimestamp.isValid()) {
+        location.time_stamp_ms = momentTimestamp.valueOf(); // eslint-disable-line
+      }
+      return location;
+    });
   }
 
   /**

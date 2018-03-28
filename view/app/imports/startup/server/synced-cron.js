@@ -3,7 +3,7 @@ import { SyncedCron } from 'meteor/percolate:synced-cron';
 import { SystemStats } from '../../api/system-stats/SystemStatsCollection.js';
 
 SyncedCron.config({
-  log: true,
+  log: Meteor.settings.syncedCronLogging,
 });
 
 function startupSystemStatsCronjob() {

@@ -5,7 +5,7 @@ import { BoxEvents } from '../box-events/BoxEventsCollection.js';
 import { Measurements } from '../measurements/MeasurementsCollection.js';
 import { OpqBoxes } from '../opq-boxes/OpqBoxesCollection.js';
 import { Trends } from '../trends/TrendsCollection.js';
-import { Users } from '../users/UsersCollection.js';
+import { UserProfiles } from '../users/UserProfilesCollection.js';
 
 /* eslint-disable indent */
 
@@ -101,7 +101,7 @@ class SystemStatsCollection extends BaseCollection {
     const measurements_count = Measurements.count();
     const opq_boxes_count = OpqBoxes.count();
     const trends_count = Trends.count();
-    const users_count = Users.find({}).count(); // Not a base-collection class.
+    const users_count = UserProfiles.count(); // Not a base-collection class.
     const box_trend_stats = OpqBoxes.findBoxIds().map(boxId => this.getBoxTrendStat(boxId));
 
     // Ensure there is only one document in the collection. We will only update this one document with current stats.

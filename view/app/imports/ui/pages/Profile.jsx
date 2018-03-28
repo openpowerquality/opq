@@ -8,6 +8,7 @@ import { withTracker } from 'meteor/react-meteor-data';
 import PropTypes from 'prop-types';
 import AboutMe from '/imports/ui/components/AboutMe';
 import Boxes from '/imports/ui/components/Boxes';
+import { _ } from 'lodash';
 
 /** Renders a table containing all of the Stuff documents. Use <StuffItem> to render each row. */
 class Profile extends React.Component {
@@ -22,7 +23,7 @@ class Profile extends React.Component {
     const username = Meteor.user().username;
     const { firstName, lastName, role } = UserProfiles.findByUsername(username);
     const boxIds = BoxOwners.findBoxIdsWithOwner(username);
-    const boxes = boxIds.map(id => OpqBoxes.findBox(id));
+    const boxes = _.sortBy(boxIds.map(id => OpqBoxes.findBox(id)), doc => doc.box_id);
     return (
       <Container >
         <AboutMe firstName={firstName} lastName={lastName} username={username} role={role}/>
