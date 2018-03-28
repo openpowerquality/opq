@@ -259,11 +259,12 @@ export const getMostRecentTrendMonth = new ValidatedMethod({
 export const dailyTrendsInRange = new ValidatedMethod({
   name: 'Trends.dailyTrendsInRange',
   validate: new SimpleSchema({
-    boxIDs: { type: [String] },
+    boxIDs: { type: Array },
+    'boxIDs.$': { type: String },
     startDate_ms: { type: Number },
     endDate_ms: { type: Number },
   }).validator({ clean: true }),
-  run({ boxIDs, startDate_ms, endDate_ms, field }) {
+  run({ boxIDs, startDate_ms, endDate_ms }) {
     // The shape of what our daily and monthly trend summaries will look like.
     const trendSummaryShape = {
       voltage: {

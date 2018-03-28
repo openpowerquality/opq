@@ -51,6 +51,8 @@ class BoxTrends extends React.Component {
               boxIdOptions,
               ready: true,
             });
+            console.log(boxIdOptions);
+            console.log(trendData);
           }
         });
       }
