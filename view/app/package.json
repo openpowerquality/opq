@@ -27,6 +27,8 @@
   },
   "devDependencies": {
     "babel-eslint": "^8.2.2",
+    "chai": "*",
+    "nightmare": "^2.10.0",
     "eslint": "^4.16.0",
     "eslint-config-airbnb": "^16.1.0",
     "eslint-plugin-import": "^2.8.0",
@@ -35,9 +37,10 @@
     "eslint-plugin-react": "^7.6.0"
   },
   "scripts": {
-    "start": "meteor --settings ../config/settings-development.json",
-    "test": "meteor test --once --driver-package dispatch:mocha",
-    "jsdoc": "./node_modules/.bin/jsdoc -c ./jsdoc.json -r .",
-    "lint": "eslint --quiet --ext .jsx --ext .js ./imports"
+    "start": "meteor --settings ../config/settings.development.json",
+    "lint": "eslint --quiet --ext .jsx --ext .js ./imports",
+    "pretest": "npm run lint",
+    "test": "TEST_BROWSER_DRIVER=nightmare meteor test --once --driver-package meteortesting:mocha --no-release-check --port 3100",
+    "jsdoc": "./node_modules/.bin/jsdoc -c ./jsdoc.json -r ."
   }
 }

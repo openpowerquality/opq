@@ -1,7 +1,7 @@
 import { Meteor } from 'meteor/meteor';
 import { Mongo } from 'meteor/mongo';
 import { check, Match } from 'meteor/check';
-import { SimpleSchema } from 'meteor/aldeed:simple-schema';
+import SimpleSchema from 'simpl-schema';
 import BaseCollection from '../base/BaseCollection.js';
 import { progressBarSetup } from '../../modules/utils';
 
@@ -17,14 +17,15 @@ class EventsCollection extends BaseCollection {
   constructor() {
     super('events', new SimpleSchema({
       _id: { type: Mongo.ObjectID },
-      event_id: { type: Number },
-      type: { type: String },
-      description: { type: String },
-      boxes_triggered: { type: [String] },
-      boxes_received: { type: [String] },
-      target_event_start_timestamp_ms: { type: Number },
-      target_event_end_timestamp_ms: { type: Number },
-      latencies_ms: { type: [Number], optional: true },
+      event_id: Number,
+      type: String,
+      description: String,
+      boxes_triggered: [String],
+      boxes_received: [String],
+      target_event_start_timestamp_ms: Number,
+      target_event_end_timestamp_ms: Number,
+      latencies_ms: { type: Array, optional: true },
+      'latencies_ms.$': Number,
     }));
 
     this.publicationNames = {

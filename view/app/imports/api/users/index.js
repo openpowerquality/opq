@@ -1,3 +1,3 @@
-import './UsersCollection.js';
-import './UsersCollectionMethods.js';
+import './BoxOwnersCollection';
+import './UserProfilesCollection';
 

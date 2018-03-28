@@ -2,7 +2,7 @@ import { Mongo } from 'meteor/mongo';
 import _ from 'lodash';
 import Moment from 'moment';
 import { ValidatedMethod } from 'meteor/mdg:validated-method';
-import { SimpleSchema } from 'meteor/aldeed:simple-schema';
+import SimpleSchema from 'simpl-schema';
 import { Measurements } from './MeasurementsCollection.js';
 import { Events } from '../events/EventsCollection.js';
 

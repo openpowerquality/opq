@@ -1,6 +1,6 @@
 import { Meteor } from 'meteor/meteor';
 import { Mongo } from 'meteor/mongo';
-import { SimpleSchema } from 'meteor/aldeed:simple-schema';
+import SimpleSchema from 'simpl-schema';
 import BaseCollection from '../base/BaseCollection.js';
 import { Events } from '../events/EventsCollection';
 import { progressBarSetup } from '../../modules/utils';
@@ -17,17 +17,17 @@ class BoxEventsCollection extends BaseCollection {
   constructor() {
     super('box_events', new SimpleSchema({
       _id: { type: Mongo.ObjectID },
-      event_id: { type: Number },
-      box_id: { type: String },
-      event_start_timestamp_ms: { type: Number },
-      event_end_timestamp_ms: { type: Number },
-      window_timestamps_ms: { type: [Number] }, // For research purposes.
-      thd: { type: Number, decimal: true },
-      itic: { type: String },
+      event_id: Number,
+      box_id: String,
+      event_start_timestamp_ms: Number,
+      event_end_timestamp_ms: Number,
+      window_timestamps_ms: [Number], // For research purposes.
+      thd: Number,
+      itic: String,
       location: { type: Object, optional: true },
       'location.start_time': { type: Number, optional: true },
       'location.zipcode': { type: Number, optional: true },
-      data_fs_filename: { type: String }, // Stores the GridFs filename. Format is 'event_eventNumber_boxId'
+      data_fs_filename: String, // Stores the GridFs filename. Format is 'event_eventNumber_boxId'
     }));
 
     this.publicationNames = {

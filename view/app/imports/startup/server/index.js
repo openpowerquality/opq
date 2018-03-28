@@ -1,2 +1,4 @@
 import './synced-cron';
-import './publications.js';
+import './publications';
+import './init-users';
+import './init-boxes';

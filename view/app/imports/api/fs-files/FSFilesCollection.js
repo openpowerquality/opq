@@ -1,6 +1,6 @@
 import { Meteor } from 'meteor/meteor';
 import { Mongo } from 'meteor/mongo';
-import { SimpleSchema } from 'meteor/aldeed:simple-schema';
+import SimpleSchema from 'simpl-schema';
 import BaseCollection from '../base/BaseCollection.js';
 import { Events } from '../events/EventsCollection';
 import { BoxEvents } from '../box-events/BoxEventsCollection';
@@ -18,7 +18,7 @@ class FSFilesCollection extends BaseCollection {
   constructor() {
     super('fs.files', new SimpleSchema({
       _id: { type: Mongo.ObjectID },
-      filename: { type: String },
+      filename: String,
       length: { type: Number },
       chunkSize: { type: Number },
       uploadDate: { type: Date },

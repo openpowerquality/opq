@@ -50,7 +50,7 @@ export function initIntegrityChecks() {
   let errorCount = 0;
   const resultStatsArr = ['Final Result Statistics\n'];
 
-  const collectionNames = Meteor.settings.public.integrityCheckCollections;
+  const collectionNames = Meteor.settings.integrityCheckCollections;
   collectionNames.forEach(colName => {
     const collection = getCollection(colName);
     console.log(`Starting integrity check for collection: ${collection._collectionName} (Document Count: ${collection.count()})`);

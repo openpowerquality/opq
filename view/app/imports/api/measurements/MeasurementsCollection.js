@@ -1,7 +1,7 @@
 import { Meteor } from 'meteor/meteor';
 import { Mongo } from 'meteor/mongo';
 import { check } from 'meteor/check';
-import { SimpleSchema } from 'meteor/aldeed:simple-schema';
+import SimpleSchema from 'simpl-schema';
 import BaseCollection from '../base/BaseCollection.js';
 import { OpqBoxes } from '../opq-boxes/OpqBoxesCollection';
 import { progressBarSetup } from '../../modules/utils';
@@ -16,9 +16,9 @@ class MeasurementsCollection extends BaseCollection {
       _id: { type: Mongo.ObjectID },
       box_id: { type: String },
       timestamp_ms: { type: Number },
-      voltage: { type: Number, decimal: true },
-      frequency: { type: Number, decimal: true },
-      thd: { type: Number, decimal: true, optional: true },
+      voltage: { type: Number },
+      frequency: { type: Number },
+      thd: { type: Number, optional: true },
       expireAt: { type: Date },
     }));
 
