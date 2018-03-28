@@ -4,6 +4,6 @@
     { "service": "mauka", "interval": 60 },
     { "service": "makai", "interval": 60 },
     { "service": "view", "interval": 60, "url": "http://emilia.ics.hawaii.edu" },
-    { "service": "mongodb", "interval": 60, "url": "http://localhost:3001" },
+    { "service": "mongodb", "interval": 60, "url": "mongodb://localhost:27017/" },
     { "service": "health", "interval": 86400 }
 ]
