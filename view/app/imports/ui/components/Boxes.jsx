@@ -1,6 +1,9 @@
 import React from 'react';
+import { Meteor } from 'meteor/meteor';
 import { Card } from 'semantic-ui-react';
 import PropTypes from 'prop-types';
+import { withTracker } from 'meteor/react-meteor-data';
+import { SystemStats } from '/imports/api/system-stats/SystemStatsCollection';
 import WidgetPanel from '../layouts/WidgetPanel';
 import BoxCard from './BoxCard';
 
@@ -11,11 +14,13 @@ class Boxes extends React.Component {
 
   /** Render the Boxes as a group of Cards. */
   render() {
+    const stats = SystemStats.findOne({});
+    const boxTrendStats = stats ? stats.box_trend_stats : [];
     const divStyle = { paddingLeft: '10px', paddingRight: '10px' };
     return (
         <WidgetPanel title={this.props.title}>
           <Card.Group stackable style={divStyle} itemsPerRow={4}>
-            {this.props.boxes.map((box) => <BoxCard key={box._id} box={box} admin={this.props.admin} boxTrendStats={this.props.boxTrendStats}/>)}
+            {this.props.boxes.map((box) => <BoxCard key={box._id} box={box} admin={this.props.admin} boxTrendStats={boxTrendStats}/>)}
           </Card.Group>
         </WidgetPanel>
     );
@@ -23,10 +28,10 @@ class Boxes extends React.Component {
 }
 /** Require an array of Stuff documents in the props. */
 Boxes.propTypes = {
+  ready: PropTypes.bool.isRequired,
   boxes: PropTypes.array.isRequired,
   title: PropTypes.string.isRequired,
   admin: PropTypes.bool,
-  boxTrendStats: PropTypes.array.isRequired,
 };
 
 
@@ -34,4 +39,11 @@ Boxes.getDefaultProps = {
   admin: false,
 };
 
-export default Boxes;
+
+/** withTracker connects Meteor data to React components. https://guide.meteor.com/react.html#using-withTracker */
+export default withTracker(() => {
+  const systemStatsSub = Meteor.subscribe(SystemStats.getPublicationName());
+  return {
+    ready: systemStatsSub.ready(),
+  };
+})(Boxes);

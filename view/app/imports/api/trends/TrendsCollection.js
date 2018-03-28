@@ -59,7 +59,7 @@ class TrendsCollection extends BaseCollection {
    * @returns The Trend document, or null.
    */
   oldestTrend(box_id) {
-    return this._collection.findOne({ box_id }, { sort: { timestamp_ms: 1 } });
+    return this._collection.findOne({ box_id, timestamp_ms: { $gt: 0 } }, { sort: { timestamp_ms: 1 } });
   }
 
   /**

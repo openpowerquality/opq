@@ -71,16 +71,17 @@ class BoxCard extends React.Component {
 
   renderBoxTrendStats(boxId, boxTrendStats) {
     const boxTrends = _.find(boxTrendStats, stat => stat.boxId === boxId);
-    const first = boxTrends && boxTrends.firstTrend ? Moment(boxTrends.firstTrend) : 'N/A';
-    const last = boxTrends && boxTrends.lastTrend ? Moment(boxTrends.lastTrend) : 'N/A';
+    const first = boxTrends && boxTrends.firstTrend ? Moment(boxTrends.firstTrend).format('lll') : 'N/A';
+    const last = boxTrends && boxTrends.lastTrend ? Moment(boxTrends.lastTrend).format('lll') : 'N/A';
     const total = boxTrends && boxTrends.totalTrends ? boxTrends.totalTrends : 0;
+    const totalDays = (total / (60 * 24)).toFixed(0);
     return (
       <Card.Content>
         <Header as='h5'>Trend Statistics</Header>
         <List>
           <List.Item>First: {first}</List.Item>
           <List.Item>Last: {last}</List.Item>
-          <List.Item>Total: {total}</List.Item>
+          <List.Item>Days Worth of Data: {totalDays}</List.Item>
         </List>
       </Card.Content>
     )

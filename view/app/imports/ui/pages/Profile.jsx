@@ -4,7 +4,6 @@ import { Container, Loader } from 'semantic-ui-react';
 import { UserProfiles } from '/imports/api/users/UserProfilesCollection';
 import { BoxOwners } from '/imports/api/users/BoxOwnersCollection';
 import { OpqBoxes } from '/imports/api/opq-boxes/OpqBoxesCollection';
-import { SystemStats } from '/imports/api/system-stats/SystemStatsCollection';
 import { withTracker } from 'meteor/react-meteor-data';
 import PropTypes from 'prop-types';
 import AboutMe from '/imports/ui/components/AboutMe';
@@ -24,12 +23,10 @@ class Profile extends React.Component {
     const { firstName, lastName, role } = UserProfiles.findByUsername(username);
     const boxIds = BoxOwners.findBoxIdsWithOwner(username);
     const boxes = boxIds.map(id => OpqBoxes.findBox(id));
-    const stats = SystemStats.findOne({});
-    const boxTrendStats = stats ? stats.box_trend_stats : [];
     return (
       <Container >
         <AboutMe firstName={firstName} lastName={lastName} username={username} role={role}/>
-        <Boxes title="My Boxes" boxes={boxes} boxTrendStats={boxTrendStats}/>
+        <Boxes title="My Boxes" boxes={boxes} />
       </Container>
     );
   }
@@ -46,8 +43,7 @@ export default withTracker(() => {
   const profilesSub = Meteor.subscribe(UserProfiles.getPublicationName());
   const boxOwnersSub = Meteor.subscribe(BoxOwners.getPublicationName());
   const opqBoxesSub = Meteor.subscribe(OpqBoxes.getPublicationName());
-  const systemStatsSub = Meteor.subscribe(SystemStats.getPublicationName());
   return {
-    ready: profilesSub.ready() && boxOwnersSub.ready() && opqBoxesSub.ready() && systemStatsSub.ready(),
+    ready: profilesSub.ready() && boxOwnersSub.ready() && opqBoxesSub.ready(),
   };
 })(Profile);
