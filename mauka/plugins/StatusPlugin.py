@@ -4,8 +4,9 @@ This module contains a plugin that reports and records the status of other plugi
 
 import json
 import http.server
-import threading
 import multiprocessing
+import threading
+import time
 import typing
 
 import plugins.base
@@ -74,8 +75,8 @@ class StatusPlugin(plugins.base.MaukaPlugin):
         :param topic: The topic that this message is associated with
         :param message: The message
         """
-        split_message = message.split(":")
+        split_message = message.decode().split(":")
         plugin_name = split_message[0]
-        last_recv = float(split_message[2])
+        last_recv = time.time()
         health_state.set_key(plugin_name, last_recv)
         self.logger.info("HB {}:{}".format(topic, message))
