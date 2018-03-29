@@ -61,17 +61,16 @@ lock = Lock()
 
 def log_boxes(sleep_time, log_file):
     while True:
-        curr_t = time()
+        sleep(sleep_time)
         lock.acquire()
         for id, box_t_ms in boxes.items():
-            time_elapsed = curr_t - (box_t_ms / 1000)
+            time_elapsed = time() - (box_t_ms / 1000)
             if time_elapsed > 60:
                 message = generate_log_msg('BOX', str(id), 'DOWN', '')
             else:
                 message = generate_log_msg('BOX', str(id), 'UP', '')
             write_to_log(log_file, message)
         lock.release()
-        sleep(sleep_time)
 
 
 def check_boxes(config, port, log_file):
@@ -83,7 +82,7 @@ def check_boxes(config, port, log_file):
     socket.connect(port)
 
     for box in config['boxdata']:
-        # Add each box as a new key
+        # Add each box id as a new key
         boxes[box['boxID']] = 0
 
     box_log_thread = Thread(target=log_boxes, args=(sleep_time,log_file, ))
