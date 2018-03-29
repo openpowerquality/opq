@@ -15,14 +15,14 @@ import plugins.base
 class HealthState:
     """Thread safe class for passing plugin state to HTTP server"""
     def __init__(self):
-        self.lock: threading.RLock = threading.RLock()
-        self.state: typing.Dict[str, float] = {}
+        self.lock = threading.RLock()
+        self.state = {}
 
     def as_json(self):
         with self.lock:
             return json.dumps(self.state).encode()
 
-    def set_key(self, k: str, v: float):
+    def set_key(self, k, v):
         with self.lock:
             self.state[k] = v
 
