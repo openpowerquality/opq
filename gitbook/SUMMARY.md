@@ -19,6 +19,7 @@
 
 ## Developer Guide
 * [GitBook](developerguide/gitbook.md)
+* [Deployment](developerguide/deployment.md)
 
 
 ## OPQ Box
