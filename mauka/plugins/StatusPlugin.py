@@ -13,15 +13,16 @@ import plugins.base
 
 
 class HealthState:
+    """Thread safe class for passing plugin state to HTTP server"""
     def __init__(self):
-        self.lock = threading.RLock()
-        self.state = {}
+        self.lock: threading.RLock = threading.RLock()
+        self.state: typing.Dict[str, float] = {}
 
     def as_json(self):
         with self.lock:
             return json.dumps(self.state).encode()
 
-    def set_key(self, k, v):
+    def set_key(self, k: str, v: float):
         with self.lock:
             self.state[k] = v
 
@@ -46,9 +47,12 @@ def mauka_health_request_handler_factory():
 
     return HealthRequestHandler
 
-def start_health_sate_httpd_client():
+
+def start_health_sate_httpd_server():
+    """Helper function to start HTTP server in separate thread"""
     httpd = http.server.HTTPServer(("", 8911), mauka_health_request_handler_factory())
     httpd.serve_forever()
+
 
 class StatusPlugin(plugins.base.MaukaPlugin):
     """
@@ -63,7 +67,7 @@ class StatusPlugin(plugins.base.MaukaPlugin):
         :param config: Configuration dictionary
         """
         super().__init__(config, ["heartbeat"], StatusPlugin.NAME, exit_event)
-        self.httpd_thread = threading.Thread(target=start_health_sate_httpd_client)
+        self.httpd_thread = threading.Thread(target=start_health_sate_httpd_server)
         self.httpd_thread.start()
 
     def on_message(self, topic, message):
