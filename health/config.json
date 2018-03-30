@@ -21,7 +21,15 @@
     {
         "service": "mauka",
         "interval": 60,
-        "plugins": ["StatusPlugin", "IticPlugin", "AcquisitionTriggerPlugin", "VoltageThresholdPlugin", "ThdPlugin", "FrequencyThresholdPlugin"]
+        "url": "http://localhost:8911"
+        "plugins": [
+            "StatusPlugin",
+            "IticPlugin",
+            "AcquisitionTriggerPlugin",
+            "VoltageThresholdPlugin",
+            "ThdPlugin",
+            "FrequencyThresholdPlugin"
+        ]
     },
     {
         "service": "makai",
