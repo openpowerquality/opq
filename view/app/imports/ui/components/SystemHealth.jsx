@@ -29,7 +29,7 @@ class SystemHealth extends React.Component {
     return (
         <WidgetPanel title="System Health">
           <Label.Group style={divStyle}>
-            {this.props.stats.health.map((health, index) => this.renderHealth(health, index))}
+            {this.props.stats && this.props.stats.health.map((health, index) => this.renderHealth(health, index))}
           </Label.Group>
           <p style={divStyle}>This is not functional yet.</p>
         </WidgetPanel>
