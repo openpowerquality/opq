@@ -108,12 +108,11 @@ def check_mongo(config, log_file):
         client = MongoClient(mongo_uri)
         db = client['opq']
         collection = db['measurements']
-        message = ''
         try:
             collection.find_one()
-            message = generate_log_msg('MONGO', '', 'UP', '')
+            message = generate_log_msg('MONGO', '', 'UP', 'opq/measurements')
         except:
-            message = generate_log_msg('MONGO', '', 'DOWN', '')
+            message = generate_log_msg('MONGO', '', 'DOWN', 'opq/measurements')
         client.close()
         write_to_log(log_file, message)
         sleep(sleep_time)
