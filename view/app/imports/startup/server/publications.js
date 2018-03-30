@@ -13,6 +13,5 @@ Events.publish();
 Measurements.publish();
 OpqBoxes.publish();
 SystemStats.publish();
-OpqBoxes.publish();
 Trends.publish();
 UserProfiles.publish();

@@ -4,9 +4,6 @@ import BoxTrends from '../components/BoxTrends';
 import SystemStats from '../components/SystemStats';
 import SystemHealth from '../components/SystemHealth';
 import LiveBoxMonitor from '../components/LiveBoxMonitor';
-import BoxMap from '../components/BoxMap';
-import EventsTimeline from '../components/EventsTimeline';
-import EventDetail from '../components/EventDetail';
 
 const Landing = () => (
   <Grid container stackable>
@@ -14,30 +11,10 @@ const Landing = () => (
       <Grid.Column width={5}>
         <SystemStats/>
         <SystemHealth/>
-      </Grid.Column>
-      <Grid.Column width={11}>
-        <BoxMap/>
-      </Grid.Column>
-    </Grid.Row>
-
-    <Grid.Row stretched>
-      <Grid.Column width={5}>
         <LiveBoxMonitor/>
       </Grid.Column>
-      <Grid.Column width={11} stretched>
-        <BoxTrends />
-      </Grid.Column>
-    </Grid.Row>
-
-    <Grid.Row>
-      <Grid.Column>
-        <EventsTimeline/>
-      </Grid.Column>
-    </Grid.Row>
-
-    <Grid.Row>
-      <Grid.Column>
-        <EventDetail/>
+      <Grid.Column width={11}>
+        <BoxTrends/>
       </Grid.Column>
     </Grid.Row>
   </Grid>

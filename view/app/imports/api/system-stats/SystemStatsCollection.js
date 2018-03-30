@@ -25,6 +25,8 @@ class SystemStatsCollection extends BaseCollection {
       timestamp: Date,
       box_trend_stats: { type: Array },
       'box_trend_stats.$': { type: Object, blackbox: true },
+      health: { type: Array },
+      'health.$': { type: Object, blackbox: true },
     }));
   }
 
@@ -40,9 +42,9 @@ class SystemStatsCollection extends BaseCollection {
    * @returns The newly created document ID.
    */
   define({ events_count, box_events_count, measurements_count, opq_boxes_count, trends_count, users_count,
-           box_trend_stats }) {
+           box_trend_stats, health }) {
     const docID = this._collection.insert({ events_count, box_events_count, measurements_count, opq_boxes_count,
-      trends_count, users_count, timestamp: new Date(), box_trend_stats });
+      trends_count, users_count, timestamp: new Date(), box_trend_stats, health });
     return docID;
   }
 
@@ -94,6 +96,20 @@ class SystemStatsCollection extends BaseCollection {
     return { boxId, firstTrend, lastTrend, totalTrends };
   }
 
+  /**
+   * Create an array of objects with fields: name, icon, color
+   * We just display convert this array to labels to display health.
+   */
+  getHealthArray() {
+    const health = [];
+    health.push({ name: 'Mauka', icon: 'check circle', color: 'green' });
+    health.push({ name: 'Makai', icon: 'warning circle', color: 'red' });
+    OpqBoxes.findBoxIds().forEach(function (boxId) {
+      health.push({ name: `Box ${boxId}`, icon: 'help circle', color: 'grey' });
+    });
+    return health;
+  }
+
   updateCounts() {
     // Get current collection counts
     const events_count = Events.count();
@@ -103,6 +119,7 @@ class SystemStatsCollection extends BaseCollection {
     const trends_count = Trends.count();
     const users_count = UserProfiles.count(); // Not a base-collection class.
     const box_trend_stats = OpqBoxes.findBoxIds().map(boxId => this.getBoxTrendStat(boxId));
+    const health = this.getHealthArray();
 
     // Ensure there is only one document in the collection. We will only update this one document with current stats.
     const count = this._collection.find().count();
@@ -113,14 +130,14 @@ class SystemStatsCollection extends BaseCollection {
     } else if (count < 1) {
       // Create new doc. Should only theoretically have to be done once, when we first create the collection.
       // eslint-disable-next-line max-len
-      return this.define({ events_count, box_events_count, measurements_count, opq_boxes_count, trends_count, users_count, box_trend_stats });
+      return this.define({ events_count, box_events_count, measurements_count, opq_boxes_count, trends_count, users_count, box_trend_stats, health });
     }
 
     // Update the one document with current collection counts.
     const systemStatsDoc = this._collection.findOne();
     return systemStatsDoc && this._collection.update(systemStatsDoc._id, {
       $set: { events_count, box_events_count, measurements_count, opq_boxes_count, trends_count, users_count,
-        timestamp: new Date(), box_trend_stats },
+        timestamp: new Date(), box_trend_stats, health },
     });
   }
 }
