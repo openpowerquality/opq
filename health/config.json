@@ -21,7 +21,7 @@
     {
         "service": "mauka",
         "interval": 60,
-        "url": "http://localhost:8911"
+        "url": "http://localhost:8911",
         "plugins": [
             "StatusPlugin",
             "IticPlugin",
