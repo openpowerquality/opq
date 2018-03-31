@@ -1,5 +1,5 @@
 import React from 'react';
-import { Loader, Statistic } from 'semantic-ui-react';
+import { Loader, Statistic, Header, Segment } from 'semantic-ui-react';
 import Moment from 'moment';
 import { Meteor } from 'meteor/meteor';
 import PropTypes from 'prop-types';
@@ -35,26 +35,45 @@ class SystemStatistics extends React.Component {
 
   /** Here's the system stats page. */
   renderPage() { // eslint-disable-line class-methods-use-this
-    const missingStats = { events_count: 0, box_events_count: 0, measurements_count: 0, opq_boxes_count: 0,
-      trends_count: 0, users_count: 0 };
+    const missingStats = {
+      events_count: 0, box_events_count: 0, measurements_count: 0, opq_boxes_count: 0,
+      trends_count: 0, users_count: 0,
+    };
     const stat = this.props.stats[0] || missingStats;
-    const pStyle = { textAlign: 'center', paddingTop: '10px' };
-    const items = [
-      { key: '1', label: 'Events', value: formatted(stat.events_count) },
-      { key: '2', label: 'Box Events', value: formatted(stat.box_events_count) },
+    const headerStyle = { textAlign: 'center' };
+    const footerStyle = { textAlign: 'center', paddingTop: '10px' };
+    const toDateItems = [
+      { key: '1', label: 'Trends', value: formatted(stat.trends_count) },
+      { key: '2', label: 'Events', value: formatted(stat.events_count) },
       { key: '3', label: 'Measurements', value: formatted(stat.measurements_count) },
-      { key: '4', label: 'OPQ Boxes', value: formatted(stat.opq_boxes_count) },
-      { key: '5', label: 'Trends', value: formatted(stat.trends_count) },
-      { key: '6', label: 'Users', value: formatted(stat.users_count) },
     ];
+    const todayItems = [
+      { key: '1', label: 'Trends', value: formatted(stat.trends_count_today) },
+      { key: '2', label: 'Events', value: formatted(stat.events_count_today) },
+      { key: '3', label: 'Measurements', value: formatted(stat.measurements_count_today) },
+    ];
+    const divStyle = { paddingLeft: '10px', paddingRight: '10px' };
+    const divStyle2 = { paddingLeft: '10px', paddingRight: '10px', marginTop: '5px' };
     return (
-        <WidgetPanel title="System Stats">
-          <Statistic.Group widths={2} size="tiny" color="blue" items={items} />
-          <p style={pStyle}>Last update: {Moment(stat.timestamp).format('MMMM Do YYYY, h:mm:ss a')}</p>
-        </WidgetPanel>
+      <WidgetPanel title="System Stats">
+        <div style={divStyle}>
+          <Segment>
+            <Header as='h4' style={headerStyle}>To Date</Header>
+            <Statistic.Group widths={3} size="mini" color="blue" items={toDateItems}/>
+          </Segment>
+        </div>
+        <div style={divStyle2}>
+          <Segment>
+            <Header as='h4' style={headerStyle}>Today</Header>
+            <Statistic.Group widths={3} size="mini" color="blue" items={todayItems}/>
+          </Segment>
+        </div>
+        <p style={footerStyle}>Last update: {Moment(stat.timestamp).format('MMMM Do YYYY, h:mm:ss a')}</p>
+      </WidgetPanel>
     );
   }
 }
+
 /** Require an array of Stuff documents in the props. */
 SystemStatistics.propTypes = {
   stats: PropTypes.array.isRequired,

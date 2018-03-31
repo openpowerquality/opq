@@ -3,20 +3,22 @@ import { Grid } from 'semantic-ui-react';
 import BoxTrends from '../components/BoxTrends';
 import SystemStats from '../components/SystemStats';
 import SystemHealth from '../components/SystemHealth';
-import LiveBoxMonitor from '../components/LiveBoxMonitor';
+import EventsTimeline from '../components/EventsTimeline';
 
 const Landing = () => (
   <Grid container stackable>
     <Grid.Row stretched>
-      <Grid.Column width={5}>
+      <Grid.Column width={6}>
         <SystemStats/>
         <SystemHealth/>
-        <LiveBoxMonitor/>
       </Grid.Column>
-      <Grid.Column width={11}>
+      <Grid.Column width={10}>
         <BoxTrends/>
       </Grid.Column>
     </Grid.Row>
+    <Grid.Column width={16}>
+      <EventsTimeline/>
+    </Grid.Column>
   </Grid>
 );
 

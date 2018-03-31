@@ -26,12 +26,13 @@ class SystemHealth extends React.Component {
 
   renderPage() {
     const divStyle = { paddingLeft: '10px', paddingRight: '10px' };
+    const footerStyle = { paddingLeft: '10px', paddingRight: '10px', textAlign: 'center' };
     return (
         <WidgetPanel title="System Health">
           <Label.Group style={divStyle}>
             {this.props.stats.health.map((health, index) => this.renderHealth(health, index))}
           </Label.Group>
-          <p style={divStyle}>This is not functional yet.</p>
+          <p style={footerStyle}>This component is not yet functional.</p>
         </WidgetPanel>
     );
   }

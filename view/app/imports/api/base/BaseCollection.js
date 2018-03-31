@@ -52,7 +52,6 @@ class BaseCollection {
     const startToday = Moment().startOf('day').valueOf();
     const query = {};
     query[timeField] = { $gte: startToday };
-    console.log('todayMidnight', startToday, query);
     return this._collection.find(query).count();
 
   }
