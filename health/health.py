@@ -2,7 +2,7 @@ import json
 import argparse
 import zmq
 import protobuf.opq_pb2
-from requests import get
+import requests
 from time import ctime
 from time import sleep
 from time import time
@@ -46,7 +46,8 @@ def check_view(config, log_file):
     sleep_time = config['interval']
     url = config['url']
     while True:
-        status = get(url).status_code
+        # WIP - close connection
+        status = requests.get(url).status_code
         if status != 200:
             message = generate_log_msg('VIEW', '', 'DOWN', str(status))
             write_to_log(log_file, message)
@@ -117,10 +118,34 @@ def check_mongo(config, log_file):
         write_to_log(log_file, message)
         sleep(sleep_time)
 
+def check_mauka_plugins(config_plugins, mauka_plugins, log_file):
+    for plugin in config_plugins:
+        if plugin in mauka_plugins:
+            t_elapsed = time() - mauka_plugins[plugin]
+            if t_elapsed <= 300:
+                message = generate_log_msg('MAUKA', plugin, 'UP', '')
+            else:
+                message = generate_log_msg('MAUKA', plugin, 'DOWN', str(t_elapsed))
+        else:
+            message = generate_log_msg('MAUKA', plugin, 'DOWN', 'NO_SHOW')
+        write_to_log(log_file, message)
+
+def check_mauka(config, log_file):
+    sleep_time = config['interval']
+
+    while True:
+        try:
+            # WIP - Do I need an additional check for http status code?
+            # WIP - Close connection
+            mauka_plugins = requests.get(config['url']).json()
+            check_mauka_plugins(config['plugins'], mauka_plugins, log_file)
+        except Exception as e:
+            message = generate_log_msg('MAUKA', '', 'DOWN', e)
+        sleep(10)
 
 def main(config_file, log_file):
     health_config = file_to_dict(config_file)
-
+    '''
     health_health_config = health_config[6]
     health_thread = Thread(target=check_health, args=(health_health_config,log_file, ))
     health_thread.start()
@@ -137,11 +162,19 @@ def main(config_file, log_file):
     mongo_config = health_config[5]
     mongo_thread = Thread(target=check_mongo, args=(mongo_config,log_file, ))
     mongo_thread.start()
-    
+    '''
+
+    mauka_config = health_config[2]
+    mauka_thread = Thread(target=check_mauka, args=(mauka_config,log_file, ))
+    mauka_thread.start()
+
+    '''
     health_thread.join()
     view_thread.join()
     box_thread.join()
     mongo_thread.join()
+    '''
+    mauka_thread.join()
 
 def parse_cmd_args():
     parser = argparse.ArgumentParser(description='Get config and log file names')
@@ -153,5 +186,5 @@ def parse_cmd_args():
 if __name__ == '__main__':
     config_file, log_file = parse_cmd_args()
     print('... reading configuration information from ' + config_file)
-    print('... writing out health status to ' + config_file)
+    print('... writing out health status to ' + log_file)
     main(config_file, log_file)
