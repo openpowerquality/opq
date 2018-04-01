@@ -10,10 +10,10 @@ For communication between these services, OPQ uses [ZeroMQ](http://zeromq.org/).
 
 The goal of the OPQHealth service is provide a diagnostic facility for determining whether or not all of the OPQ services appear to be running appropriately.  It does this by monitoring various aspects of the system and publishing its findings to two sources:
 
-  1. The MongoDB database, in a collection called "health".  By storing its findings in MongoDB, OPQHealth enables OPQView to provide an interface to end-users on the health of the network. However, this works only as long as both OPQView and MongoDB are healthy. 
-  
+  1. The MongoDB database, in a collection called "health".  By storing its findings in MongoDB, OPQHealth enables OPQView to provide an interface to end-users on the health of the network. However, this works only as long as both OPQView and MongoDB are healthy.
+
   2. A log file. OPQ Health also publishes its findings into a text file. This enables system administrators to diagnose the health of the system even when MongoDB and/or OPQView are down.
-  
+
 ## Data Model
 
 OPQHealth creates "entries" representing its findings on the current health of the system that it publishes in two ways: (1) as a single line to its log file, and (2) as a document that it inserts into the MongoDB database. The structure of these entries is summarized in this diagram:
@@ -34,7 +34,7 @@ OPQHealth creates "entries" representing its findings on the current health of t
 
 When OPQHealth starts up, it reads its configuration file to determine what services it should monitor and how frequently it should monitor them.  
 
-Next, it checks each service and writes out an entry to the log file indicating the initial health of each service. 
+Next, it checks each service and writes out an entry to the log file indicating the initial health of each service.
 
 Thereafter, it checks each service at the interval specified in its configuration file.  If the service has not changed its status since the last check (i.e. the service status was "down" and is still "down", or the service status was "up" and is still "up"), then OPQHealth does not publish an entry for that service. If the service *has* changed its status since the last check (i.e. the service was "down" and is now "up", or the service status was "up" and is now "down"), then OPQHealth does publish an entry for that service.  In this way, OPQHealth will publish data that enables users to easily determine which services are up and which are down, as well as how long each service is up before it goes down, as well as how long each service is down before it goes back up.  
 
@@ -48,14 +48,14 @@ To install OPQHealth, you must first set up the configuration file.  A sample co
 ```js
 [
   { "service": "zeromq", "port": "tcp://127.0.0.1:9881" },
-  { "service": "box", "interval": 60, "boxdata": [ { "boxID": 0 }, { "boxID": 1 }, { "boxID": 2 } ]},
-  { "service": "mauka", "interval": 60 },
+  { "service": "box", "interval": 60, "boxdata": [ { "boxID": 0 }, { "boxID": 1 }, { "boxID": 3 } ]},
+  { "service": "mauka", "interval": 60, "url": "http://localhost:8911", "plugins": ["StatusPlugin", "IticPlugin", "AcquisitionTriggerPlugin", "VoltageThresholdPlugin", "ThdPlugin", "FrequencyThresholdPlugin" ]},
   { "service": "makai", "interval": 60 },
   { "service": "view", "interval": 60, "url": "http://emilia.ics.hawaii.edu" },
-  { "service": "mongodb", "interval": 60, "url": "http://localhost:3001" },
+  { "service": "mongodb", "interval": 60, "url": "mongodb://localhost:27017/" },
   { "service": "health", "interval": 86400 }
 ]
-``` 
+```
 
 The configuration file is an array of objects.  Every object has a field called "service", which indicates which service the object provides configuration data for.  The remaining fields can vary depending upon the value of the service field.
 
@@ -73,7 +73,7 @@ Upon startup, OPQHealth prints out information indicating that it successfully r
 
 ```
 20180318-09:08:23-10:00 service: health, serviceID:, status: up, info: initial startup
-20180318-09:08:21-10:00 service: box, serviceID: 0, status: up, info: 
+20180318-09:08:21-10:00 service: box, serviceID: 0, status: up, info:
 20180318-09:08:21-10:00 service: box, serviceID: 1, status: up, info:   
 20180318-09:08:22-10:00 service: box, serviceID: 2, status: down, info:   
 20180318-09:08:22-10:00 service: mauka, serviceID:, status: up, info:   
@@ -92,7 +92,7 @@ Note that there will be no further lines written to the file until the box with 
 
 Of course, the actual elapsed time between these heartbeat log entries for the health system depend upon the value provided in the configuration file.
 
-Note that each time an entry is added the log file, a corresponding document is inserted into the health collection.
+Note that each time an entry is added to the log file, a corresponding document is inserted into the health collection.
 
 ## Detecting health
 
@@ -100,15 +100,10 @@ OPQHealth assesses the health of each service in the following way:
 
 *OPQ Box*:  For an OPQBox to have status "up", it must have sent at least one message to the ZeroMQ service within the past 5 minutes.
 
-*Mauka*: (Need to specify the health check here.)
+*Mauka*: For Mauka to have the status up, Mauka's health http endpoint must respond with status code 200 and valid json containing a dict of plugins and a timestamp for each of the plugin's last "heartbeat." Each Mauka plugin will have its own health status, which is considered up if its provided timestamp is within the past 5 minutes. A health status is only provided for plugins specified in the config.json
 
 *Makai*: (Need to specify the health check here.)
 
 *MongoDB*: For MongoDB to have status up, OPQHealth must be able to successfully retrieve a document from the health collection.
 
 *View*: For OPQView to have status "up", OPQHealth must be able to retrieve the landing page with status 200.
-
-
-
-
-
