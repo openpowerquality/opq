@@ -10,6 +10,11 @@ from threading import Thread
 from threading import Lock
 from pymongo import MongoClient
 
+# Global valiables
+g_log_file = None
+lock = Lock()
+boxes = {}
+
 def generate_log_msg(service, service_id, status, info):
     serv = 'service: ' + service
     id = 'service id: ' + service_id
@@ -18,12 +23,13 @@ def generate_log_msg(service, service_id, status, info):
 
     return ' '.join([ctime(), serv, id, stat, info])
 
-def write_to_log(file_name, message):
+def write_to_log(message):
+    # log_file set globally before main()
     try:
-        with open(file_name, 'a') as log_file:
+        with open(g_log_file, 'a') as log_file:
             log_file.write(message + '\n')
     except:
-        print('Unable to write to ' + file_name)
+        print('Unable to write to ' + g_log_file)
         exit()
 
 def file_to_dict(file_name):
@@ -35,14 +41,14 @@ def file_to_dict(file_name):
         print('Unable to open ' + file_name)
         exit()
 
-def check_health(config, log_file):
+def check_health(config):
     sleep_time = config['interval']
     while True:
         message = generate_log_msg('HEALTH', '', 'UP', '')
-        write_to_log(log_file, message)
+        write_to_log(message)
         sleep(sleep_time)
 
-def check_view(config, log_file):
+def check_view(config):
     sleep_time = config['interval']
     url = config['url']
     while True:
@@ -50,17 +56,13 @@ def check_view(config, log_file):
         status = requests.get(url).status_code
         if status != 200:
             message = generate_log_msg('VIEW', '', 'DOWN', str(status))
-            write_to_log(log_file, message)
+            write_to_log(message)
         else:
             message = generate_log_msg('VIEW', '', 'UP', str(status))
-            write_to_log(log_file, message)
+            write_to_log(message)
         sleep(sleep_time)
 
-# Global variable for asynch logging
-boxes = {}
-lock = Lock()
-
-def log_boxes(sleep_time, log_file):
+def log_boxes(sleep_time):
     while True:
         sleep(sleep_time)
         lock.acquire()
@@ -70,11 +72,11 @@ def log_boxes(sleep_time, log_file):
                 message = generate_log_msg('BOX', str(id), 'DOWN', '')
             else:
                 message = generate_log_msg('BOX', str(id), 'UP', '')
-            write_to_log(log_file, message)
+            write_to_log(message)
         lock.release()
 
 
-def check_boxes(config, port, log_file):
+def check_boxes(config, port):
     sleep_time = config['interval']
     
     context = zmq.Context()
@@ -86,7 +88,7 @@ def check_boxes(config, port, log_file):
         # Add each box id as a new key
         boxes[box['boxID']] = 0
 
-    box_log_thread = Thread(target=log_boxes, args=(sleep_time,log_file, ))
+    box_log_thread = Thread(target=log_boxes, args=(sleep_time, ))
     box_log_thread.start()
 
     while True:
@@ -101,7 +103,7 @@ def check_boxes(config, port, log_file):
 
     box_log_thread.join()
 
-def check_mongo(config, log_file):
+def check_mongo(config):
     sleep_time = config['interval']
     mongo_uri = config['url']
 
@@ -115,10 +117,10 @@ def check_mongo(config, log_file):
         except:
             message = generate_log_msg('MONGO', '', 'DOWN', 'opq/measurements')
         client.close()
-        write_to_log(log_file, message)
+        write_to_log(message)
         sleep(sleep_time)
 
-def check_mauka_plugins(config_plugins, mauka_plugins, log_file):
+def check_mauka_plugins(config_plugins, mauka_plugins):
     for plugin in config_plugins:
         if plugin in mauka_plugins:
             t_elapsed = time() - mauka_plugins[plugin]
@@ -128,9 +130,9 @@ def check_mauka_plugins(config_plugins, mauka_plugins, log_file):
                 message = generate_log_msg('MAUKA', plugin, 'DOWN', str(t_elapsed))
         else:
             message = generate_log_msg('MAUKA', plugin, 'DOWN', 'NO_SHOW')
-        write_to_log(log_file, message)
+        write_to_log(message)
 
-def check_mauka(config, log_file):
+def check_mauka(config):
     sleep_time = config['interval']
 
     while True:
@@ -138,43 +140,40 @@ def check_mauka(config, log_file):
             # WIP - Do I need an additional check for http status code?
             # WIP - Close connection
             mauka_plugins = requests.get(config['url']).json()
-            check_mauka_plugins(config['plugins'], mauka_plugins, log_file)
+            check_mauka_plugins(config['plugins'], mauka_plugins)
         except Exception as e:
             message = generate_log_msg('MAUKA', '', 'DOWN', e)
         sleep(10)
 
-def main(config_file, log_file):
+def main(config_file):
     health_config = file_to_dict(config_file)
-    '''
+    
     health_health_config = health_config[6]
-    health_thread = Thread(target=check_health, args=(health_health_config,log_file, ))
+    health_thread = Thread(target=check_health, args=(health_health_config, ))
     health_thread.start()
 
-    view_config = health_config[4]
-    view_thread = Thread(target=check_view, args=(view_config,log_file, ))
-    view_thread.start()
+    #view_config = health_config[4]
+    #view_thread = Thread(target=check_view, args=(view_config, ))
+    #view_thread.start()
 
     box_config = health_config[1]
     zmq_port = health_config[0]['port']
-    box_thread = Thread(target=check_boxes, args=(box_config,zmq_port,log_file, ))
+    box_thread = Thread(target=check_boxes, args=(box_config,zmq_port, ))
     box_thread.start()
 
     mongo_config = health_config[5]
-    mongo_thread = Thread(target=check_mongo, args=(mongo_config,log_file, ))
+    mongo_thread = Thread(target=check_mongo, args=(mongo_config, ))
     mongo_thread.start()
-    '''
 
     mauka_config = health_config[2]
-    mauka_thread = Thread(target=check_mauka, args=(mauka_config,log_file, ))
-    mauka_thread.start()
+    #mauka_thread = Thread(target=check_mauka, args=(mauka_config, ))
+    #mauka_thread.start()
 
-    '''
     health_thread.join()
-    view_thread.join()
+    #view_thread.join()
     box_thread.join()
     mongo_thread.join()
-    '''
-    mauka_thread.join()
+    #mauka_thread.join()
 
 def parse_cmd_args():
     parser = argparse.ArgumentParser(description='Get config and log file names')
@@ -183,8 +182,14 @@ def parse_cmd_args():
     args = parser.parse_args()
     return args.config[0], args.log[0]
 
+def set_g_log_file(file_name):
+    global g_log_file
+    g_log_file = file_name
+
 if __name__ == '__main__':
+    # Use log_file as global variable
     config_file, log_file = parse_cmd_args()
+    set_g_log_file(log_file)
     print('... reading configuration information from ' + config_file)
     print('... writing out health status to ' + log_file)
-    main(config_file, log_file)
+    main(config_file)
