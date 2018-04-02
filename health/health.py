@@ -9,28 +9,60 @@ from time import time
 from threading import Thread
 from threading import Lock
 from pymongo import MongoClient
+from datetime import datetime
 
 # Global valiables
 g_log_file = None
 lock = Lock()
 boxes = {}
 
-def generate_log_msg(service, service_id, status, info):
-    serv = 'service: ' + service
-    id = 'service id: ' + service_id
-    stat = 'status: ' + status
-    info = 'info: ' + info
+def get_msg_as_json(service, service_id, status, info):
+    msg = {}
+    msg['service'] = service
+    msg['serviceID'] = str(service_id)
+    msg['status'] = status
+    msg['info'] = str(info)
+    return msg
+
+def save_message(message):
+    write_to_log(message)
+    write_to_mongo(message)
+
+def get_log_msg(message):
+    serv = 'service: ' + message['service']
+    id = 'service id: ' + str(message['serviceID'])
+    stat = 'status: ' + message['status']
+    info = 'info: ' + message['info']
 
     return ' '.join([ctime(), serv, id, stat, info])
 
 def write_to_log(message):
-    # log_file set globally before main()
+    log_msg = get_log_msg(message)
     try:
         with open(g_log_file, 'a') as log_file:
-            log_file.write(message + '\n')
+            log_file.write(log_msg + '\n')
     except:
         print('Unable to write to ' + g_log_file)
         exit()
+
+def write_to_mongo(message):
+    client = MongoClient()
+    db = client['opq']
+    coll = db['health']
+  
+    doc = coll.find({'service':message['service'],'serviceID':message['serviceID']}) \
+        .sort([('timestamp', -1)]).limit(1)
+
+    message['timestamp'] = datetime.now()
+
+    if (doc.count() == 1) and (doc[0]['status'] == message['status']):
+        # update timestamp
+        coll.update_one({'_id': doc[0]['_id']}, \
+            {'$set': {'timestamp': message['timestamp']}})
+    else:
+        coll.insert_one(message)
+
+    client.close()
 
 def file_to_dict(file_name):
     try:
@@ -44,8 +76,8 @@ def file_to_dict(file_name):
 def check_health(config):
     sleep_time = config['interval']
     while True:
-        message = generate_log_msg('HEALTH', '', 'UP', '')
-        write_to_log(message)
+        message = get_msg_as_json('HEALTH', '', 'UP', '')
+        save_message(message)
         sleep(sleep_time)
 
 def check_view(config):
@@ -57,11 +89,11 @@ def check_view(config):
         with requests.Session() as sess:
             status = sess.get(url).status_code
         if status != 200:
-            message = generate_log_msg('VIEW', '', 'DOWN', str(status))
-            write_to_log(message)
+            message = get_msg_as_json('VIEW', '', 'DOWN', str(status))
+            save_message(message)
         else:
-            message = generate_log_msg('VIEW', '', 'UP', str(status))
-            write_to_log(message)
+            message = get_msg_as_json('VIEW', '', 'UP', str(status))
+            save_message(message)
         sleep(sleep_time)
 
 def log_boxes(sleep_time):
@@ -71,12 +103,11 @@ def log_boxes(sleep_time):
         for id, box_t_ms in boxes.items():
             time_elapsed = time() - (box_t_ms / 1000)
             if time_elapsed > 60:
-                message = generate_log_msg('BOX', str(id), 'DOWN', '')
+                message = get_msg_as_json('BOX', str(id), 'DOWN', '')
             else:
-                message = generate_log_msg('BOX', str(id), 'UP', '')
-            write_to_log(message)
+                message = get_msg_as_json('BOX', str(id), 'UP', '')
+            save_message(message)
         lock.release()
-
 
 def check_boxes(config, port):
     sleep_time = config['interval']
@@ -115,11 +146,11 @@ def check_mongo(config):
         collection = db['measurements']
         try:
             collection.find_one()
-            message = generate_log_msg('MONGO', '', 'UP', 'opq/measurements')
+            message = get_msg_as_json('MONGO', '', 'UP', 'opq/measurements')
         except:
-            message = generate_log_msg('MONGO', '', 'DOWN', 'opq/measurements')
+            message = get_msg_as_json('MONGO', '', 'DOWN', 'opq/measurements')
         client.close()
-        write_to_log(message)
+        save_message(message)
         sleep(sleep_time)
 
 def check_mauka_plugins(config_plugins, mauka_plugins):
@@ -127,12 +158,12 @@ def check_mauka_plugins(config_plugins, mauka_plugins):
         if plugin in mauka_plugins:
             t_elapsed = time() - mauka_plugins[plugin]
             if t_elapsed <= 300:
-                message = generate_log_msg('MAUKA', plugin, 'UP', '')
+                message = get_msg_as_json('MAUKA', plugin, 'UP', '')
             else:
-                message = generate_log_msg('MAUKA', plugin, 'DOWN', str(t_elapsed))
+                message = get_msg_as_json('MAUKA', plugin, 'DOWN', str(t_elapsed))
         else:
-            message = generate_log_msg('MAUKA', plugin, 'DOWN', 'NO_SHOW')
-        write_to_log(message)
+            message = get_msg_as_json('MAUKA', plugin, 'DOWN', 'NO_SHOW')
+        save_message(message)
 
 def check_mauka(config):
     sleep_time = config['interval']
@@ -144,7 +175,7 @@ def check_mauka(config):
             mauka_plugins = requests.get(config['url']).json()
             check_mauka_plugins(config['plugins'], mauka_plugins)
         except Exception as e:
-            message = generate_log_msg('MAUKA', '', 'DOWN', e)
+            message = get_msg_as_json('MAUKA', '', 'DOWN', e)
         sleep(10)
 
 def main(config_file):
