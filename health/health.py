@@ -52,8 +52,10 @@ def check_view(config):
     sleep_time = config['interval']
     url = config['url']
     while True:
-        # WIP - close connection
-        status = requests.get(url).status_code
+        # Automatically close connection
+        status = 500
+        with requests.Session() as sess:
+            status = sess.get(url).status_code
         if status != 200:
             message = generate_log_msg('VIEW', '', 'DOWN', str(status))
             write_to_log(message)
@@ -152,9 +154,9 @@ def main(config_file):
     health_thread = Thread(target=check_health, args=(health_health_config, ))
     health_thread.start()
 
-    #view_config = health_config[4]
-    #view_thread = Thread(target=check_view, args=(view_config, ))
-    #view_thread.start()
+    view_config = health_config[4]
+    view_thread = Thread(target=check_view, args=(view_config, ))
+    view_thread.start()
 
     box_config = health_config[1]
     zmq_port = health_config[0]['port']
@@ -170,7 +172,7 @@ def main(config_file):
     #mauka_thread.start()
 
     health_thread.join()
-    #view_thread.join()
+    view_thread.join()
     box_thread.join()
     mongo_thread.join()
     #mauka_thread.join()
