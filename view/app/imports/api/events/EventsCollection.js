@@ -113,10 +113,10 @@ class EventsCollection extends BaseCollection {
         return self.find(selector);
       });
 
-      Meteor.publish(this.publicationNames.GET_RECENT_EVENTS, function ({ numEvents }) {
+      Meteor.publish(this.publicationNames.GET_RECENT_EVENTS, function ({ numEvents, excludeOther }) {
         check(numEvents, Number);
-
-        const events = self.find({}, { sort: { timestamp_ms: -1 }, limit: numEvents });
+        const query = excludeOther ? { type: { $ne: 'OTHER' } } : {};
+        const events = self.find(query, { sort: { timestamp_ms: -1 }, limit: numEvents });
         return events;
       });
     }
