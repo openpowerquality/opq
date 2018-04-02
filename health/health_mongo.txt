@@ -1,11 +1,11 @@
 db.createCollection( "health", { 
     validator: { $and: [
         timestamp: { $type: "date" }, 
-            service: { $type: "string" }, 
-            serviceID: { $type: "string" },
-            status: { $type },
-            info: { $type: "string" }
-            ] }
+        service: { $type: "string" }, 
+        serviceID: { $type: "string" },
+        status: { $type },
+        info: { $type: "string" }
+        ] }
     }
 ); 
 
