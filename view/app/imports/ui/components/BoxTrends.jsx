@@ -151,7 +151,7 @@ class BoxTrends extends React.Component {
   };
 
   updateBoxIdDropdown = (event, data) => {
-    const selectedBoxes = data.value;
+    const selectedBoxes = data.value.sort();
     this.setState({ selectedBoxes }, () => {
       const linesToShow = this.state.linesToShow;
       linesToShow.forEach((label, index) => {
@@ -219,8 +219,15 @@ class BoxTrends extends React.Component {
     <Grid.Column width={8} key={`box${boxID}`}>
       <Grid verticalAlign='middle'>
         <Grid.Row centered>
-          <Grid.Column width={3}>
+          <Grid.Column width={4}>
             <Header as='h5' content={`Box ${boxID}`}/>
+          </Grid.Column>
+          <Grid.Column width={4}>
+            Average
+            <Checkbox toggle id={`Box ${boxID} average`}
+                      onChange={this.changeChecked}
+                      checked={this.state.linesToShow.includes(`Box ${boxID} average`)}
+            />
           </Grid.Column>
           <Grid.Column width={4}>
             Max
@@ -236,13 +243,6 @@ class BoxTrends extends React.Component {
                       checked={this.state.linesToShow.includes(`Box ${boxID} min`)}
             />
           </Grid.Column>
-          <Grid.Column width={5}>
-            Average
-            <Checkbox toggle id={`Box ${boxID} average`}
-                      onChange={this.changeChecked}
-                      checked={this.state.linesToShow.includes(`Box ${boxID} average`)}
-            />
-          </Grid.Column>
         </Grid.Row>
       </Grid>
     </Grid.Column>
@@ -250,9 +250,10 @@ class BoxTrends extends React.Component {
 
   changeChecked = (event, props) => {
     // If we have it in the list, remove it. Otherwise, add it.
-    const linesToShow = this.state.linesToShow;
+    let linesToShow = this.state.linesToShow;
     if (linesToShow.includes(props.id)) linesToShow = linesToShow.filter(label => label !== props.id);
     else linesToShow.push(props.id);
+    linesToShow.sort();
     let lineColors = this.state.lineColors;
     if (!lineColors[props.id]) lineColors[props.id] = colors[this.state.colorCounter];
     this.setState({ linesToShow, lineColors, colorCounter: this.state.colorCounter + 1 });
@@ -383,7 +384,6 @@ class BoxTrends extends React.Component {
     const legend = this.state.linesToShow.map(label => ({
       key: label,
       label,
-      style: { backgroundColor: this.state.lineColors[label] },
     }));
 
     return (
@@ -392,7 +392,7 @@ class BoxTrends extends React.Component {
           <Legend type='swatch' align='left' categories={legend}
                   style={style} />
           <Resizable>
-            <ChartContainer timeRange={timeRange} enablePanZoom>
+            <ChartContainer timeRange={timeRange} enablePanZoom={true} format='day'>
               <ChartRow height="300">
                 <YAxis
                   id={field}
