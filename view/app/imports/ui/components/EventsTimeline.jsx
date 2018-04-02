@@ -1,5 +1,6 @@
 import React from 'react';
 import { Meteor } from 'meteor/meteor';
+import Moment from 'moment';
 import { Loader } from 'semantic-ui-react';
 import { Events } from '/imports/api/events/EventsCollection';
 import { Charts, ChartContainer, ChartRow, YAxis, BarChart, Resizable, styler } from 'react-timeseries-charts';
@@ -13,21 +14,87 @@ class EventsTimeline extends React.Component {
 
   /** If the subscription(s) have been received, render the page, otherwise show a loading icon. */
   render() {
-    return (this.props.ready) ? this.renderPage() : <Loader>Getting data</Loader>;
+    return (this.props.ready) ? this.renderPage3() : <Loader>Getting data</Loader>;
   }
 
   renderPage() { // eslint-disable-line class-methods-use-this
 
-    // Make an array of TimeRangeEvents
-    const timeRangeEvents = this.props.events.map(event => new TimeRangeEvent(new
-    TimeRange(event.target_event_start_timestamp_ms, event.target_event_end_timestamp_ms), event.type));
+    const eventList = this.props.events.map(event => [event.target_event_start_timestamp_ms, 1]);
+    const timeStamps = this.props.events.map(event => Moment(event.target_event_start_timestamp_ms).format('lll'));
+    console.log('eventList', eventList);
+    console.log('timestamps', timeStamps);
+    const rawSeries = new TimeSeries({ name: 'Events', columns: ['time', 'value'], points: eventList });
+    console.log('rawSeries', rawSeries);
+    const series = rawSeries.dailyRollup({ aggregation: { value: { value: count() } } });
+    console.log('rollup series', series);
+    console.log('series range', series.range());
 
-    let timeSeries = new TimeSeries({ name: 'Recent Events', events: timeRangeEvents });
-    // timeSeries = timeSeries.dailyRollup({ aggregation: { type_count: { type: count } } });
-    console.log('about to print out time series');
-    console.log(timeSeries);
+    return (
+        <WidgetPanel title='Events Timeline'>
+          <Resizable>
+            <ChartContainer timeRange={rawSeries.range()}>
+              <ChartRow height='150'>
+                <Charts>
+                  <YAxis
+                    id='rain'
+                    label='Events'
+                    min={0}
+                    max={50}
+                    width='70'
+                    type='linear'
+                  />
+                  <BarChart
+                    axis='rain'
+                    spacing={1}
+                    columns={['value']}
+                    minBarHeight={1}
+                    series={rawSeries}
+                  />
+                </Charts>
+              </ChartRow>
+            </ChartContainer>
+          </Resizable>
+        </WidgetPanel>
+    );
+  }
 
-    console.log('events', this.props.events);
+  renderPage3() { // eslint-disable-line class-methods-use-this
+
+    const eventList = this.props.events.map(event => [event.target_event_start_timestamp_ms, 1]);
+    const indexedEventList = eventList.map(event => [Index.getIndexString('1s', event[0]), 1]);
+    const series = new TimeSeries({ name: 'Events', columns: ['index', 'value'], points: indexedEventList });
+
+    return (
+        <WidgetPanel title='Events Timeline'>
+          <Resizable>
+            <ChartContainer timeRange={series.range()}>
+              <ChartRow height='150'>
+                <YAxis
+                    id='rain'
+                    label='Rainfall (inches/hr)'
+                    min={0}
+                    max={1.5}
+                    format='.2f'
+                    width='70'
+                    type='linear'
+                />
+                <Charts>
+                  <BarChart
+                      axis='rain'
+                      spacing={1}
+                      columns={['precip']}
+                      series={series}
+                      minBarHeight={1}
+                  />
+                </Charts>
+              </ChartRow>
+            </ChartContainer>
+          </Resizable>
+        </WidgetPanel>
+    );
+  }
+  renderPage2() { // eslint-disable-line class-methods-use-this
+
     const data = [
       ['2017-01-24 00:00', 0.01],
       ['2017-01-24 01:00', 0.13],
@@ -54,32 +121,34 @@ class EventsTimeline extends React.Component {
       ['2017-01-24 22:00', 0.39],
       ['2017-01-24 23:00', 0.28],
     ];
-    // const series = new TimeSeries({
-    //   name: 'hilo_rainfall',
-    //   columns: ['index', 'precip'],
-    //   points: data.map(([d, value]) => [Index.getIndexString('1h', new Date(d)), value]),
-    // });
-    const style = styler([{ key: 'type', color: '#A5C8E1', selected: '#2CB1CF' }]);
+
+    const series = new TimeSeries({
+      name: 'hilo_rainfall',
+      columns: ['index', 'precip'],
+      points: data.map(([d, value]) => [Index.getIndexString('1h', new Date(d)), value]),
+    });
+
     return (
         <WidgetPanel title='Events Timeline'>
           <Resizable>
-            <ChartContainer timeRange={timeSeries.range()}>
+            <ChartContainer timeRange={series.range()}>
               <ChartRow height='150'>
-                <Charts>
-                  <YAxis
-                    id="rain"
-                    label="Events"
+                <YAxis
+                    id='rain'
+                    label='Rainfall (inches/hr)'
                     min={0}
                     max={1.5}
-                    format=".2f"
-                    width="70"
-                    type="linear"
-                  />
+                    format='.2f'
+                    width='70'
+                    type='linear'
+                />
+                <Charts>
                   <BarChart
-                    axis="rain"
-                    style={style}
-                    columns={['type']}
-                    series={timeSeries}
+                      axis='rain'
+                      spacing={1}
+                      columns={['precip']}
+                      series={series}
+                      minBarHeight={1}
                   />
                 </Charts>
               </ChartRow>
