@@ -22,7 +22,6 @@ import 'react-vis/dist/style.css';
 //   Resizable,
 //   Legend,
 //   styler,
-//   TimeAxis,
 // } from 'react-timeseries-charts';
 // import { TimeRange, TimeSeries } from 'pondjs';
 
@@ -339,7 +338,8 @@ class BoxTrends extends React.Component {
   //   const field = this.state.field;
   //   const linesToShow = this.state.linesToShow;
   //   const graphData = linesToShow.map(label => {
-  //     const [, boxID, stat] = label.split(' ');
+  //     let [, boxID, stat] = label.split(' ');
+  //     stat = stat === 'avg' ? 'average' : stat;
   //     let data = [];
   //     if (trendData[boxID]) {
   //       const boxData = trendData[boxID].dailyTrends;
@@ -401,8 +401,7 @@ class BoxTrends extends React.Component {
   //         <Legend type='swatch' align='left' categories={legend}
   //                 style={style}/>
   //         <Resizable>
-  //           <ChartContainer timeRange={timeRange} enablePanZoom
-  //                           timeAxisTickCount={8}>
+  //           <ChartContainer timeRange={timeRange} enablePanZoom >
   //             <ChartRow height="300">
   //               <YAxis
   //                 id={field}
