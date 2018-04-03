@@ -55,7 +55,7 @@ def write_to_mongo(message):
 
     message['timestamp'] = datetime.now()
 
-    if (doc.count() == 1) and (doc[0]['status'] == message['status']):
+    if (doc.count() == 1) and (doc[0]['status'] == 'UP') and (message['status'] == 'UP'):
         # update timestamp
         coll.update_one({'_id': doc[0]['_id']}, \
             {'$set': {'timestamp': message['timestamp']}})
@@ -84,16 +84,16 @@ def check_view(config):
     sleep_time = config['interval']
     url = config['url']
     while True:
-        # Automatically close connection
-        status = 500
-        with requests.Session() as sess:
-            status = sess.get(url).status_code
-        if status != 200:
-            message = get_msg_as_json('VIEW', '', 'DOWN', str(status))
-            save_message(message)
-        else:
-            message = get_msg_as_json('VIEW', '', 'UP', str(status))
-            save_message(message)
+        try:
+            with requests.Session() as sess:
+                status = sess.get(url).status_code
+            if status != 200:
+                message = get_msg_as_json('VIEW', '', 'DOWN', str(status))
+            else:
+                message = get_msg_as_json('VIEW', '', 'UP', str(status))
+        except Exception as e:
+            message = get_msg_as_json('VIEW', '', 'DOWN', e)
+        save_message(message)
         sleep(sleep_time)
 
 def log_boxes(sleep_time):
@@ -102,7 +102,7 @@ def log_boxes(sleep_time):
         lock.acquire()
         for id, box_t_ms in boxes.items():
             time_elapsed = time() - (box_t_ms / 1000)
-            if time_elapsed > 60:
+            if time_elapsed > 300:
                 message = get_msg_as_json('BOX', str(id), 'DOWN', '')
             else:
                 message = get_msg_as_json('BOX', str(id), 'UP', '')
@@ -165,17 +165,24 @@ def check_mauka_plugins(config_plugins, mauka_plugins):
             message = get_msg_as_json('MAUKA', plugin, 'DOWN', 'NO_SHOW')
         save_message(message)
 
+# NOTE - Must check overall status + individual plugin status
 def check_mauka(config):
     sleep_time = config['interval']
 
     while True:
         try:
-            # WIP - Do I need an additional check for http status code?
             with requests.Session() as req:
-                mauka_plugins = req.get(config['url']).json()
+                response = req.get(config['url'])
+            status = response.status_code
+            if status == 200:
+                message = get_msg_as_json('MAUKA', 'OVERALL', 'UP', status)
+                mauka_plugins = response.json()
                 check_mauka_plugins(config['plugins'], mauka_plugins)
+            else:
+                message = get_msg_as_json('MAUKA', 'OVERALL', 'DOWN', status)
         except Exception as e:
-            message = get_msg_as_json('MAUKA', '', 'DOWN', e)
+            message = get_msg_as_json('MAUKA', 'OVERALL', 'DOWN', e)
+        save_message(message)
         sleep(10)
 
 def main(config_file):
@@ -199,8 +206,8 @@ def main(config_file):
     mongo_thread.start()
 
     mauka_config = health_config[2]
-    #mauka_thread = Thread(target=check_mauka, args=(mauka_config, ))
-    #mauka_thread.start()
+    mauka_thread = Thread(target=check_mauka, args=(mauka_config, ))
+    mauka_thread.start()
 
     health_thread.join()
     view_thread.join()
