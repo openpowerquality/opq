@@ -300,7 +300,7 @@ export const dailyTrendsInRange = new ValidatedMethod({
     return Object.assign(...boxIDs.map(boxID => {
       const associatedTrends = Trends.find({
         box_id: boxID,
-        timestamp_ms: { $gt: startDate_ms, $lte: endDate_ms },
+        timestamp_ms: { $gt: startDate_ms, $lte: Moment(endDate_ms).endOf('day').valueOf() },
       }).fetch();
 
       // New Moments are instantiated every time, because they mutate even when reassigned to a variable.

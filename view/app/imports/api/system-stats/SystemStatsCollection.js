@@ -81,7 +81,7 @@ class SystemStatsCollection extends BaseCollection {
     const box_trend_stats = doc.box_trend_stats;
     return { events_count, box_events_count, measurements_count, opq_boxes_count, trends_count, users_count,
       timestamp, box_trend_stats, events_count_today, box_events_count_today, measurements_count_today,
-    trends_count_today};
+    trends_count_today };
     /* eslint-enable camelcase */
   }
 
