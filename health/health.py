@@ -171,9 +171,9 @@ def check_mauka(config):
     while True:
         try:
             # WIP - Do I need an additional check for http status code?
-            # WIP - Close connection
-            mauka_plugins = requests.get(config['url']).json()
-            check_mauka_plugins(config['plugins'], mauka_plugins)
+            with requests.Session() as req:
+                mauka_plugins = req.get(config['url']).json()
+                check_mauka_plugins(config['plugins'], mauka_plugins)
         except Exception as e:
             message = get_msg_as_json('MAUKA', '', 'DOWN', e)
         sleep(10)
