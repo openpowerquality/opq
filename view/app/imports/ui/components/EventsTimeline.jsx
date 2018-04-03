@@ -81,10 +81,10 @@ EventsTimeline.propTypes = {
 
 /** withTracker connects Meteor data to React components. https://guide.meteor.com/react.html#using-withTracker */
 export default withTracker(() => {
-  const eventsSub = Meteor.subscribe(Events.publicationNames.GET_RECENT_EVENTS, { numEvents: 500, excludeOther: false });
+  const sub = Meteor.subscribe(Events.publicationNames.GET_RECENT_EVENTS, { numEvents: 500, excludeOther: true });
   return {
-    ready: eventsSub.ready(),
-    events: Events.find({}).fetch(),
+    ready: sub.ready(),
+    events: Events.find({}).fetch().reverse(),
   };
 })(EventsTimeline);
 

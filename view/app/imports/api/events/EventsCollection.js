@@ -116,7 +116,7 @@ class EventsCollection extends BaseCollection {
       Meteor.publish(this.publicationNames.GET_RECENT_EVENTS, function ({ numEvents, excludeOther }) {
         check(numEvents, Number);
         const query = excludeOther ? { type: { $ne: 'OTHER' } } : {};
-        const events = self.find(query, { sort: { timestamp_ms: -1 }, limit: numEvents });
+        const events = self.find(query, { sort: { target_event_start_timestamp_ms: -1 }, limit: numEvents });
         return events;
       });
     }
