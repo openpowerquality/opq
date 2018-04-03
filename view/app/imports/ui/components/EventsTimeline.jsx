@@ -14,7 +14,7 @@ class EventsTimeline extends React.Component {
   constructor(props) {
     super(props);
     this.renderPage = this.renderPage.bind(this);
-    this.timerange = null;
+    this.state = { timerange: null };
   }
 
   /** If the subscription(s) have been received, render the page, otherwise show a loading icon. */
@@ -33,9 +33,6 @@ class EventsTimeline extends React.Component {
 
     const series = rawSeries.fixedWindowRollup({ windowSize: '12h', aggregation: { value: { value: sum() } } });
     const style = styler([{ key: 'value', color: 'skyblue', selected: 'brown' }]);
-    if (this.state.timerange === null) {
-      this.setState({ timerange: series.range() });
-    }
 
     const divStyle = { paddingLeft: '20px', paddingRight: '20px' };
     return (
@@ -44,7 +41,7 @@ class EventsTimeline extends React.Component {
             <Resizable>
               <ChartContainer
                   enablePanZoom={true}
-                  timeRange={this.state.timerange}
+                  timeRange={this.state.timerange || series.range() }
                   onTimeRangeChanged={timerange => this.setState({ timerange })}>
                 <ChartRow height='150'>
                   <YAxis
