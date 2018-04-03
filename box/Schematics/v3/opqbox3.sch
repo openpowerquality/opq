@@ -154,8 +154,8 @@ Connection ~ 1700 1750
 $Sheet
 S 4950 1200 700  1100
 U 5A9ABA19
-F0 "chip_pro" 60
-F1 "chip_pro.sch" 60
+F0 "pi" 60
+F1 "pi.sch" 60
 F2 "SPI_MOSI" O L 4950 1600 60 
 F3 "SPI_MISO" I L 4950 1300 60 
 F4 "SPI_nCS" O L 4950 1400 60 
