@@ -11,12 +11,18 @@ import WidgetPanel from '../layouts/WidgetPanel';
 /** Display Events */
 class EventsTimeline extends React.Component {
 
-  /** If the subscription(s) have been received, render the page, otherwise show a loading icon. */
-  render() {
-    return (this.props.ready) ? this.renderPage5() : <Loader>Getting data</Loader>;
+  constructor(props) {
+    super(props);
+    this.renderPage = this.renderPage.bind(this);
+    this.timerange = null;
   }
 
-  renderPage5() { // eslint-disable-line class-methods-use-this
+  /** If the subscription(s) have been received, render the page, otherwise show a loading icon. */
+  render() {
+    return (this.props.ready) ? this.renderPage() : <Loader>Getting data</Loader>;
+  }
+
+  renderPage() { // eslint-disable-line class-methods-use-this
     const data = this.props.events.map(event => [event.target_event_start_timestamp_ms, 1]);
 
     const rawSeries = new TimeSeries({
@@ -27,13 +33,19 @@ class EventsTimeline extends React.Component {
 
     const series = rawSeries.fixedWindowRollup({ windowSize: '12h', aggregation: { value: { value: sum() } } });
     const style = styler([{ key: 'value', color: 'skyblue', selected: 'brown' }]);
+    if (this.state.timerange === null) {
+      this.setState({ timerange: series.range() });
+    }
 
     const divStyle = { paddingLeft: '20px', paddingRight: '20px' };
     return (
         <WidgetPanel title='Recent Events'>
           <div style={divStyle}>
             <Resizable>
-              <ChartContainer enablePanZoom={true} timeRange={series.range()}>
+              <ChartContainer
+                  enablePanZoom={true}
+                  timeRange={this.state.timerange}
+                  onTimeRangeChanged={timerange => this.setState({ timerange })}>
                 <ChartRow height='150'>
                   <YAxis
                       id='num-events'
