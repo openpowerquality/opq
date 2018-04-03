@@ -2,28 +2,28 @@ import React from 'react';
 import { Grid, Header, Dropdown, Checkbox, Popup, Input, Button } from 'semantic-ui-react';
 import Moment from 'moment';
 import Calendar from 'react-calendar'; // eslint-disable-line no-unused-vars
-import {
-  FlexibleXYPlot,
-  LineMarkSeries,
-  LineSeries,
-  XAxis,
-  YAxis,
-  DiscreteColorLegend,
-} from 'react-vis';
-import 'react-vis/dist/style.css';
-
 // import {
-//   Charts,
-//   ChartContainer,
-//   ChartRow,
+//   FlexibleXYPlot,
+//   LineMarkSeries,
+//   LineSeries,
+//   XAxis,
 //   YAxis,
-//   LineChart,
-//   Baseline,
-//   Resizable,
-//   Legend,
-//   styler,
-// } from 'react-timeseries-charts';
-// import { TimeRange, TimeSeries } from 'pondjs';
+//   DiscreteColorLegend,
+// } from 'react-vis';
+// import 'react-vis/dist/style.css';
+
+import {
+  Charts,
+  ChartContainer,
+  ChartRow,
+  YAxis,
+  LineChart,
+  Baseline,
+  Resizable,
+  Legend,
+  styler,
+} from 'react-timeseries-charts';
+import { TimeRange, TimeSeries } from 'pondjs';
 
 import { getBoxIDs } from '../../api/opq-boxes/OpqBoxesCollectionMethods';
 import { dailyTrendsInRange } from '../../api/trends/TrendsCollectionMethods';
@@ -73,6 +73,7 @@ class BoxTrends extends React.Component {
       },
       trendData: {},
       colorCounter: 1,
+      timeRange: new TimeRange([start, end]),
     };
   }
 
@@ -214,6 +215,7 @@ class BoxTrends extends React.Component {
       if (error) console.log(error);
       else this.setState({ trendData });
     });
+    this.setState({ timeRange: new TimeRange([this.state.start, this.state.end]) });
   };
 
 
@@ -262,95 +264,51 @@ class BoxTrends extends React.Component {
   };
 
 
-  generateGraph = () => {
-    const graphData = this.getGraphData();
-    const referenceData = this.generateReference();
-    return (
-      <Grid.Row>
-        <Grid.Column width={16}>
-          <DiscreteColorLegend
-            orientation='horizontal'
-            items={this.state.linesToShow.map(label => ({
-              title: label,
-              color: this.state.lineColors[label],
-            }))}
-          />
-          <FlexibleXYPlot height={300}>
-            <XAxis tickFormat={(timestamp) => Moment(timestamp).format('MM/DD')}/>
-            <YAxis/>
-            <LineSeries strokeDasharray='5 5' color='lightgrey' data={referenceData[0].data}/>
-            <LineSeries strokeDasharray='5 5' color='grey' data={referenceData[1].data}/>
-            <LineSeries strokeDasharray='5 5' color='lightgrey' data={referenceData[2].data}/>
-            {graphData.map(set => <LineMarkSeries key={set.label} data={set.data} size={2}
-                                                  color={this.state.lineColors[set.label]}
-            />)}
-          </FlexibleXYPlot>
-        </Grid.Column>
-      </Grid.Row>
-    )
-  };
-
-  getGraphData = () => {
-    const trendData = this.state.trendData;
-    const field = this.state.field;
-    const linesToShow = this.state.linesToShow;
-    return linesToShow.map(label => {
-      let [, boxID, stat] = label.split(' ');
-      stat = stat === 'avg' ? 'average': stat;
-      let data = [];
-      if (trendData[boxID]) {
-        const boxData = trendData[boxID].dailyTrends;
-        data = Object.keys(boxData).filter(timestamp => boxData[timestamp][field]).map(timestamp => ({
-          x: parseInt(timestamp, 10),
-          y: boxData[timestamp][field][stat],
-        }));
-      }
-      return { label, data };
-    });
-  };
-
-  generateReference = () => {
-    let references;
-    switch (this.state.field) {
-      case 'voltage':
-        references = [114, 120, 126];
-        break;
-      case 'frequency':
-        references = [57, 60, 63];
-        break;
-      case 'thd':
-        references = [null, 0, 0.1];
-        break;
-      default:
-        break;
-    }
-    return references.map(value => ({
-      label: value,
-      data: [
-        { x: this.state.start.getTime(), y: value },
-        { x: this.state.end.getTime(), y: value },
-      ],
-    }));
-  };
-
+  // generateGraph = () => {
+  //   const graphData = this.getGraphData();
+  //   const referenceData = this.generateReference();
+  //   return (
+  //     <Grid.Row>
+  //       <Grid.Column width={16}>
+  //         <DiscreteColorLegend
+  //           orientation='horizontal'
+  //           items={this.state.linesToShow.map(label => ({
+  //             title: label,
+  //             color: this.state.lineColors[label],
+  //           }))}
+  //         />
+  //         <FlexibleXYPlot height={300}>
+  //           <XAxis tickFormat={(timestamp) => Moment(timestamp).format('MM/DD')}/>
+  //           <YAxis/>
+  //           <LineSeries strokeDasharray='5 5' color='lightgrey' data={referenceData[0].data}/>
+  //           <LineSeries strokeDasharray='5 5' color='grey' data={referenceData[1].data}/>
+  //           <LineSeries strokeDasharray='5 5' color='lightgrey' data={referenceData[2].data}/>
+  //           {graphData.map(set => <LineMarkSeries key={set.label} data={set.data} size={2}
+  //                                                 color={this.state.lineColors[set.label]}
+  //           />)}
+  //         </FlexibleXYPlot>
+  //       </Grid.Column>
+  //     </Grid.Row>
+  //   )
+  // };
+  //
   // getGraphData = () => {
   //   const trendData = this.state.trendData;
   //   const field = this.state.field;
   //   const linesToShow = this.state.linesToShow;
-  //   const graphData = linesToShow.map(label => {
+  //   return linesToShow.map(label => {
   //     let [, boxID, stat] = label.split(' ');
-  //     stat = stat === 'avg' ? 'average' : stat;
+  //     stat = stat === 'avg' ? 'average': stat;
   //     let data = [];
   //     if (trendData[boxID]) {
   //       const boxData = trendData[boxID].dailyTrends;
-  //       data = Object.keys(boxData).filter(timestamp => boxData[timestamp][field]).map(timestamp => ([
-  //         timestamp,
-  //         boxData[timestamp][field][stat],
-  //       ]));
+  //       data = Object.keys(boxData).filter(timestamp => boxData[timestamp][field]).map(timestamp => ({
+  //         x: parseInt(timestamp, 10),
+  //         y: boxData[timestamp][field][stat],
+  //       }));
   //     }
   //     return { label, data };
   //   });
-  //   return graphData;
   // };
   //
   // generateReference = () => {
@@ -368,80 +326,126 @@ class BoxTrends extends React.Component {
   //     default:
   //       break;
   //   }
-  //   return references;
-  // };
-  //
-  // generateGraph = () => {
-  //   const field = this.state.field;
-  //   const graphData = this.getGraphData();
-  //   const timeRange = new TimeRange([this.state.start, this.state.end]);
-  //   const reference = this.generateReference();
-  //   const style = styler(this.state.linesToShow.map(label => ({
-  //     key: label,
-  //     color: this.state.lineColors[label],
-  //   })));
-  //   const wholeDataSet = [];
-  //   graphData.forEach(set => {
-  //     set.data.forEach(point => {
-  //       wholeDataSet.push(point[1]);
-  //     });
-  //   });
-  //   reference.forEach(value => {
-  //     wholeDataSet.push(value);
-  //   });
-  //
-  //   const legend = this.state.linesToShow.map(label => ({
-  //     key: label,
-  //     label,
+  //   return references.map(value => ({
+  //     label: value,
+  //     data: [
+  //       { x: this.state.start.getTime(), y: value },
+  //       { x: this.state.end.getTime(), y: value },
+  //     ],
   //   }));
-  //
-  //   return (
-  //     <Grid.Row>
-  //       <Grid.Column width={16}>
-  //         <Legend type='swatch' align='left' categories={legend}
-  //                 style={style}/>
-  //         <Resizable>
-  //           <ChartContainer timeRange={timeRange} enablePanZoom >
-  //             <ChartRow height="300">
-  //               <YAxis
-  //                 id={field}
-  //                 min={Math.min(...wholeDataSet)}
-  //                 max={Math.max(...wholeDataSet)}
-  //                 format={n => n.toFixed(2)}
-  //               />
-  //               <Charts>
-  //                 {graphData.map(set => {
-  //                   const series = new TimeSeries({
-  //                     name: set.label,
-  //                     columns: ['time', 'value'],
-  //                     points: set.data,
-  //                   });
-  //                   return <LineChart
-  //                     key={set.label} axis={field} series={series}
-  //                     style={{ value: { normal: { stroke: this.state.lineColors[set.label] } } }}
-  //                   />;
-  //                 })}
-  //                 <Baseline
-  //                   axis={field} style={{ line: { stroke: 'grey' } }}
-  //                   value={reference[1]} label="Nominal" position="right"
-  //                 />
-  //                 <Baseline
-  //                   axis={field} style={{ line: { stroke: 'lightgrey' } }}
-  //                   value={reference[2]} label="+5%" position="right"
-  //                 />
-  //                 <Baseline
-  //                   axis={field} style={{ line: { stroke: 'lightgrey' } }}
-  //                   value={reference[0]} label="-5%" position="right"
-  //                   visible={field !== 'thd'}
-  //                 />
-  //               </Charts>
-  //             </ChartRow>
-  //           </ChartContainer>
-  //         </Resizable>
-  //       </Grid.Column>
-  //     </Grid.Row>
-  //   );
   // };
+
+  getGraphData = () => {
+    const trendData = this.state.trendData;
+    const field = this.state.field;
+    const linesToShow = this.state.linesToShow;
+    const graphData = linesToShow.map(label => {
+      let [, boxID, stat] = label.split(' ');
+      stat = stat === 'avg' ? 'average' : stat;
+      let data = [];
+      if (trendData[boxID]) {
+        const boxData = trendData[boxID].dailyTrends;
+        data = Object.keys(boxData).filter(timestamp => boxData[timestamp][field]).map(timestamp => ([
+          timestamp,
+          boxData[timestamp][field][stat],
+        ]));
+      }
+      return { label, data };
+    });
+    return graphData;
+  };
+
+  generateReference = () => {
+    let references;
+    switch (this.state.field) {
+      case 'voltage':
+        references = [114, 120, 126];
+        break;
+      case 'frequency':
+        references = [57, 60, 63];
+        break;
+      case 'thd':
+        references = [null, 0, 0.1];
+        break;
+      default:
+        break;
+    }
+    return references;
+  };
+
+  generateGraph = () => {
+    const field = this.state.field;
+    const graphData = this.getGraphData();
+    const reference = this.generateReference();
+    const style = styler(this.state.linesToShow.map(label => ({
+      key: label,
+      color: this.state.lineColors[label],
+    })));
+    const wholeDataSet = [];
+    graphData.forEach(set => {
+      set.data.forEach(point => {
+        wholeDataSet.push(point[1]);
+      });
+    });
+    reference.forEach(value => {
+      wholeDataSet.push(value);
+    });
+
+    const legend = this.state.linesToShow.map(label => ({
+      key: label,
+      label,
+    }));
+
+    return (
+      <Grid.Row>
+        <Grid.Column width={16}>
+          <Legend type='swatch' align='left' categories={legend}
+                  style={style}/>
+          <Resizable>
+            <ChartContainer timeRange={this.state.timeRange} enablePanZoom
+                            onTimeRangeChanged={timeRange => this.setState({ timeRange })}
+                            minTime={this.state.start} maxTime={this.state.end}
+            >
+              <ChartRow height="300">
+                <YAxis
+                  id={field}
+                  min={Math.min(...wholeDataSet)}
+                  max={Math.max(...wholeDataSet)}
+                  format={n => n.toFixed(2)}
+                />
+                <Charts>
+                  {graphData.map(set => {
+                    const series = new TimeSeries({
+                      name: set.label,
+                      columns: ['time', 'value'],
+                      points: set.data,
+                    });
+                    return <LineChart
+                      key={set.label} axis={field} series={series}
+                      style={{ value: { normal: { stroke: this.state.lineColors[set.label], strokeWidth: 2 } } }}
+                    />;
+                  })}
+                  <Baseline
+                    axis={field} style={{ line: { stroke: 'grey' } }}
+                    value={reference[1]} label="Nominal" position="right"
+                  />
+                  <Baseline
+                    axis={field} style={{ line: { stroke: 'lightgrey' } }}
+                    value={reference[2]} label="+5%" position="right"
+                  />
+                  <Baseline
+                    axis={field} style={{ line: { stroke: 'lightgrey' } }}
+                    value={reference[0]} label="-5%" position="right"
+                    visible={field !== 'thd'}
+                  />
+                </Charts>
+              </ChartRow>
+            </ChartContainer>
+          </Resizable>
+        </Grid.Column>
+      </Grid.Row>
+    );
+  };
 }
 
 // No subscriptions, because the data is updated daily
