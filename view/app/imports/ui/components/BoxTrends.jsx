@@ -68,9 +68,9 @@ class BoxTrends extends React.Component {
       field: 'voltage',
       start,
       end,
-      linesToShow: ['Box 1 average'],
+      linesToShow: ['Box 1 avg'],
       lineColors: {
-        'Box 1 average': colors[0],
+        'Box 1 avg': colors[0],
       },
       trendData: {},
       colorCounter: 1,
@@ -155,14 +155,10 @@ class BoxTrends extends React.Component {
   updateBoxIdDropdown = (event, data) => {
     const selectedBoxes = data.value.sort();
     this.setState({ selectedBoxes }, () => {
-      const linesToShow = this.state.linesToShow;
-      linesToShow.forEach((label, index) => {
+      const linesShown = this.state.linesToShow;
+      const linesToShow = linesShown.filter(label => {
         const boxID = label.split(' ')[1];
-        console.log(this.state.selectedBoxes.includes(boxID));
-        if (!this.state.selectedBoxes.includes(boxID)){
-          console.log(`removing ${label}`);
-          linesToShow.splice(index, 1);
-        }
+        return this.state.selectedBoxes.includes(boxID);
       });
       this.setState({ linesToShow });
     });
@@ -210,6 +206,7 @@ class BoxTrends extends React.Component {
   };
 
   getData = () => {
+    if (this.state.selectedBoxes === []) return;
     dailyTrendsInRange.call({
       boxIDs: this.state.selectedBoxes,
       startDate_ms: this.state.start.getTime(),
@@ -225,25 +222,25 @@ class BoxTrends extends React.Component {
     <Grid.Column width={8} key={`box${boxID}`}>
       <Grid verticalAlign='middle'>
         <Grid.Row centered>
-          <Grid.Column width={4}>
+          <Grid.Column width={3}>
             <Header as='h5' content={`Box ${boxID}`}/>
           </Grid.Column>
           <Grid.Column width={4}>
-            Average
-            <Checkbox toggle id={`Box ${boxID} average`}
+            Avg<br />
+            <Checkbox toggle id={`Box ${boxID} avg`}
                       onChange={this.changeChecked}
-                      checked={this.state.linesToShow.includes(`Box ${boxID} average`)}
+                      checked={this.state.linesToShow.includes(`Box ${boxID} avg`)}
             />
           </Grid.Column>
           <Grid.Column width={4}>
-            Max
+            Max<br />
             <Checkbox toggle id={`Box ${boxID} max`}
                       onChange={this.changeChecked}
                       checked={this.state.linesToShow.includes(`Box ${boxID} max`)}
             />
           </Grid.Column>
-          <Grid.Column width={4}>
-            Min
+          <Grid.Column width={5}>
+            Min<br />
             <Checkbox toggle id={`Box ${boxID} min`}
                       onChange={this.changeChecked}
                       checked={this.state.linesToShow.includes(`Box ${boxID} min`)}
@@ -298,8 +295,9 @@ class BoxTrends extends React.Component {
     const trendData = this.state.trendData;
     const field = this.state.field;
     const linesToShow = this.state.linesToShow;
-    const graphData = linesToShow.map(label => {
-      const [, boxID, stat] = label.split(' ');
+    return linesToShow.map(label => {
+      let [, boxID, stat] = label.split(' ');
+      stat = stat === 'avg' ? 'average': stat;
       let data = [];
       if (trendData[boxID]) {
         const boxData = trendData[boxID].dailyTrends;
@@ -310,7 +308,6 @@ class BoxTrends extends React.Component {
       }
       return { label, data };
     });
-    return graphData;
   };
 
   generateReference = () => {
