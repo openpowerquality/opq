@@ -32,6 +32,7 @@ class EventsTimeline extends React.Component {
     const eventTypes = Events.eventTypes;
     // Create a list of lists, each sublist is a list of Events of the corresponding event type.
     const eventsList = eventTypes.map(eventType => this.props.events.filter(event => event.type === eventType));
+    const eventTypeCounts = eventsList.map(events => events.length);
     // Convert the sublists into pairs of timestamps and 1, so we can create TimeSeries.
     const eventsPairsList = eventsList.map(events => events.map(event => [event.target_event_start_timestamp_ms, 1]));
     // Create a single TimeSeries object per Event Type. The Event Type name is both the TimeSeries name and the column name.
@@ -64,7 +65,7 @@ class EventsTimeline extends React.Component {
     const style = styler(stylerArg);
 
     // Create the Legend categories so we know which event types the colors refer to.
-    const legendCategories = eventTypes.map(eventType => ({ key: eventType, label: eventType }));
+    const legendCategories = eventTypes.map((eventType, index) => ({ key: eventType, label: `${eventType} (${eventTypeCounts[index]})` }));
 
     const divStyle = { paddingLeft: '20px', paddingRight: '20px' };
     const title = `Events Timeline (most recent ${numEvents} events)`;
