@@ -12,7 +12,7 @@ The VM runs on top of 64-bit Debian Linux.
 
 _Note: Full installation may take upwards of 10 gigabytes of hard drive space._
 1. Download and install the latest version of Virtual Box from https://www.virtualbox.org/wiki/Downloads
-2. Download the latest OPQ VM image from our [Google Drive](https://drive.google.com/file/d/1TXWauNBatqtwpqR_RXMs2ZnAig8sG5Qz/view?usp=sharing
+2. Download the latest OPQ VM image from our [Google Drive](https://drive.google.com/file/d/1TXWauNBatqtwpqR_RXMs2ZnAig8sG5Qz/view?usp=sharing)
 3. Open Virtual Box, select `File` -> `Import Appliance...`
 4. Find and select the OpqSim.ova file you downloaded in step 2.
 5. Hit `Next` followed by `Import`. Importing can take a few moments...
@@ -43,7 +43,7 @@ The Mongo database can be connected directly as if it were local at port 27017.
 
 ### Interacting with the Simulator {#interactivingsim}
 
-The [simulator](https://github.com/openpowerquality/opq/blob/master/util/box/sim/sim.py) boots with the VM and simulates a raw 16-bit signed integer waveform that represents the DAC measurements from an OPQBox.
+The [simulator](https://github.com/openpowerquality/opq/blob/master/sim/sim.py) boots with the VM and simulates a raw 16-bit signed integer waveform that represents the DAC measurements from an OPQBox.
 
 At boot, the simulator will produce a nominal 60Hz sine wave at a perfect 120 Volts. The simulator state can be modified via HTTP POST requests. We provide low level and high level state modifications via filter definitions stored in JSON files.
 
