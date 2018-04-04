@@ -24,16 +24,9 @@ class EventsTimeline extends React.Component {
 
   renderPage() { // eslint-disable-line class-methods-use-this
     const data = this.props.events.map(event => [event.target_event_start_timestamp_ms, 1]);
-
-    const rawSeries = new TimeSeries({
-      name: 'Recent Events',
-      columns: ['time', 'value'],
-      points: data,
-    });
-
-    const series = rawSeries.fixedWindowRollup({ windowSize: '12h', aggregation: { value: { value: sum() } } });
+    const rawSeries = new TimeSeries({ name: 'Recent Events', columns: ['time', 'value'], points: data });
+    const series = rawSeries.fixedWindowRollup({ windowSize: '1h', aggregation: { value: { value: sum() } } });
     const style = styler([{ key: 'value', color: 'skyblue', selected: 'brown' }]);
-
     const divStyle = { paddingLeft: '20px', paddingRight: '20px' };
     return (
         <WidgetPanel title='Recent Events'>
@@ -44,24 +37,10 @@ class EventsTimeline extends React.Component {
                   timeRange={this.state.timerange || series.range() }
                   onTimeRangeChanged={timerange => this.setState({ timerange })}>
                 <ChartRow height='150'>
-                  <YAxis
-                      id='num-events'
-                      label='Num Events'
-                      min={0}
-                      max={series.max('value')}
-
-                      width='70'
-                      type='linear'
-                  />
+                  <YAxis id='num-events' label='Num Events' min={0} max={series.max('value')} width='70' type='linear'/>
                   <Charts>
-                    <BarChart
-                        axis='num-events'
-                        style={style}
-                        spacing={1}
-                        columns={['value']}
-                        series={series}
-                        minBarHeight={1}
-                    />
+                    <BarChart axis='num-events' style={style} spacing={1} columns={['value']} series={series}
+                              minBarHeight={1} />
                   </Charts>
                 </ChartRow>
               </ChartContainer>
@@ -70,7 +49,6 @@ class EventsTimeline extends React.Component {
         </WidgetPanel>
     );
   }
-
 }
 
 /** Require an array of Stuff documents in the props. */
