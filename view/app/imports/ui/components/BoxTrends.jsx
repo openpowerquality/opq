@@ -6,7 +6,7 @@ import { Grid, Header, Dropdown, Checkbox, Popup, Input, Button, Loader } from '
 import Moment from 'moment';
 import Calendar from 'react-calendar';
 import {
-  Charts, ChartContainer, ChartRow, YAxis, LineChart, Baseline, Resizable, Legend, styler
+  Charts, ChartContainer, ChartRow, YAxis, LineChart, Baseline, Resizable, Legend, styler,
 } from 'react-timeseries-charts';
 import { TimeRange, TimeSeries } from 'pondjs';
 
@@ -90,7 +90,7 @@ class BoxTrends extends React.Component {
       <Grid.Column width={10}>
         <Dropdown multiple search selection fluid
                   placeholder='Boxes to display'
-                  options={this.props.boxIDs.map(boxID => ({ text: `Box ${boxID}`, value: boxID}))}
+                  options={this.props.boxIDs.map(boxID => ({ text: `Box ${boxID}`, value: boxID }))}
                   onChange={this.updateBoxIdDropdown}
                   defaultValue={this.state.selectedBoxes}/>
       </Grid.Column>
@@ -190,7 +190,7 @@ class BoxTrends extends React.Component {
     if (linesToShow.includes(props.id)) linesToShow = linesToShow.filter(label => label !== props.id);
     else linesToShow.push(props.id);
     linesToShow.sort();
-    let lineColors = this.state.lineColors;
+    const lineColors = this.state.lineColors;
     if (!lineColors[props.id]) lineColors[props.id] = colors[this.state.colorCounter];
     const showGraph = linesToShow.length > 0 && Object.keys(this.state.trendData).length > 0;
     this.setState({ linesToShow, lineColors, colorCounter: this.state.colorCounter + 1, showGraph });
@@ -217,7 +217,7 @@ class BoxTrends extends React.Component {
           <Resizable>
             <ChartContainer timeRange={this.state.timeRange} enablePanZoom
                             onTimeRangeChanged={timeRange => this.setState({ timeRange })}
-                            minTime={this.state.start} maxTime={this.state.end} minDuration={1000*60*60*24*3}>
+                            minTime={this.state.start} maxTime={this.state.end} minDuration={86400000 * 3}>
               <ChartRow height='300'>
                 <YAxis id={field} format={n => n.toFixed(2)}
                        min={Math.min(...wholeDataSet)} max={Math.max(...wholeDataSet)}/>
@@ -228,8 +228,8 @@ class BoxTrends extends React.Component {
                       columns: ['time', 'value'],
                       points: set.data,
                     });
-                    const lineStyle = { value: { normal: { stroke: this.state.lineColors[set.label], strokeWidth: 2 }}};
-                    return <LineChart key={set.label} axis={field} series={series} style={lineStyle}/>;
+                    const style = { value: { normal: { stroke: this.state.lineColors[set.label], strokeWidth: 2 } } };
+                    return <LineChart key={set.label} axis={field} series={series} style={style}/>;
                   })}
                   <Baseline axis={field} style={{ line: { stroke: 'grey' } }}
                             value={reference[1]} label='Nominal' position='right'/>
@@ -251,8 +251,8 @@ class BoxTrends extends React.Component {
     const field = this.state.field;
     const linesToShow = this.state.linesToShow;
     return linesToShow.map(label => {
-      let [, boxID, stat] = label.split(' ');
-      stat = stat === 'avg' ? 'average' : stat;
+      const boxID = label.split(' ')[1];
+      const stat = label.split(' ')[2] === 'avg' ? 'average' : label.split(' '[2]);
       let data = [];
       if (trendData[boxID]) {
         const boxData = trendData[boxID];

@@ -240,9 +240,9 @@ export const dailyTrends = new ValidatedMethod({
       const start = Moment(startDate_ms);
       const end = Moment(endDate_ms);
       // Create structure of the dailyTrend object
-      const dailyTrends = new Map();
+      const dailyTrendsMap = new Map();
       for (let i = start.startOf('day'); i <= end.startOf('day'); i = i.add(1, 'days')) {
-        dailyTrends.set(i.valueOf(),{
+        dailyTrendsMap.set(i.valueOf(), {
           voltage: {
             min: Infinity,
             max: -Infinity,
@@ -267,7 +267,7 @@ export const dailyTrends = new ValidatedMethod({
       // Input real values into the dailyTrend object
       associatedTrends.forEach(trend => {
         const trendDay_ms = Moment(trend.timestamp_ms).startOf('day').valueOf();
-        const dtv = dailyTrends.get(trendDay_ms); // Daily Trend Values
+        const dtv = dailyTrendsMap.get(trendDay_ms); // Daily Trend Values
 
         // Voltage
         if (trend.voltage) {
@@ -311,16 +311,16 @@ export const dailyTrends = new ValidatedMethod({
       });
 
       // Delete fields that are empty
-      dailyTrends.forEach(dtv => {
+      dailyTrendsMap.forEach(dtv => {
         if (dtv.voltage.count === 0) delete dtv.voltage; // eslint-disable-line no-param-reassign
-        else delete dtv.voltage.count;
+        else delete dtv.voltage.count; // eslint-disable-line no-param-reassign
         if (dtv.frequency.count === 0) delete dtv.frequency; // eslint-disable-line no-param-reassign
-        else delete dtv.frequency.count;
+        else delete dtv.frequency.count; // eslint-disable-line no-param-reassign
         if (dtv.thd.count === 0) delete dtv.thd; // eslint-disable-line no-param-reassign
-        else delete dtv.thd.count;
+        else delete dtv.thd.count; // eslint-disable-line no-param-reassign
       });
 
-      return { [boxID]: demapify(dailyTrends) };
+      return { [boxID]: demapify(dailyTrendsMap) };
     }));
   },
 });
