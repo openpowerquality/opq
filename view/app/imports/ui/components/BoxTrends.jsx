@@ -252,7 +252,7 @@ class BoxTrends extends React.Component {
     const linesToShow = this.state.linesToShow;
     return linesToShow.map(label => {
       const boxID = label.split(' ')[1];
-      const stat = label.split(' ')[2] === 'avg' ? 'average' : label.split(' '[2]);
+      const stat = label.split(' ')[2] === 'avg' ? 'average' : label.split(' ')[2];
       let data = [];
       if (trendData[boxID]) {
         const boxData = trendData[boxID];

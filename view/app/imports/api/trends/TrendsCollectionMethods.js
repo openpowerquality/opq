@@ -272,40 +272,22 @@ export const dailyTrends = new ValidatedMethod({
         // Voltage
         if (trend.voltage) {
           dtv.voltage.count++;
-          if (trend.voltage.min < dtv.voltage.min) {
-            dtv.voltage.min = trend.voltage.min;
-            dtv.voltage.minDate = trend.timestamp_ms;
-          }
-          if (trend.voltage.max > dtv.voltage.max) {
-            dtv.voltage.max = trend.voltage.max;
-            dtv.voltage.maxDate = trend.timestamp_ms;
-          }
+          if (trend.voltage.min < dtv.voltage.min) dtv.voltage.min = trend.voltage.min;
+          if (trend.voltage.max > dtv.voltage.max) dtv.voltage.max = trend.voltage.max;
           dtv.voltage.average += (trend.voltage.average - dtv.voltage.average) / dtv.voltage.count;
         }
         // Frequency
         if (trend.frequency) {
           dtv.frequency.count++;
-          if (trend.frequency.min < dtv.frequency.min) {
-            dtv.frequency.min = trend.frequency.min;
-            dtv.frequency.minDate = trend.timestamp_ms;
-          }
-          if (trend.frequency.max > dtv.frequency.max) {
-            dtv.frequency.max = trend.frequency.max;
-            dtv.frequency.maxDate = trend.timestamp_ms;
-          }
+          if (trend.frequency.min < dtv.frequency.min) dtv.frequency.min = trend.frequency.min;
+          if (trend.frequency.max > dtv.frequency.max) dtv.frequency.max = trend.frequency.max;
           dtv.frequency.average += (trend.frequency.average - dtv.frequency.average) / dtv.frequency.count;
         }
         // THD
         if (trend.thd) {
           dtv.thd.count++;
-          if (trend.thd.min < dtv.thd.min) {
-            dtv.thd.min = trend.thd.min;
-            dtv.thd.minDate = trend.timestamp_ms;
-          }
-          if (trend.thd.max > dtv.thd.max) {
-            dtv.thd.max = trend.thd.max;
-            dtv.thd.maxDate = trend.timestamp_ms;
-          }
+          if (trend.thd.min < dtv.thd.min) dtv.thd.min = trend.thd.min;
+          if (trend.thd.max > dtv.thd.max) dtv.thd.max = trend.thd.max;
           dtv.thd.average += (trend.thd.average - dtv.thd.average) / dtv.thd.count;
         }
       });
