@@ -38,6 +38,23 @@ BTW, the old version of OPQView has just a landing page, which looks like this:
 
 <img src="images/opqview-blaze-jan-2018.png" >
 
+## Port Forwarding MongoDB
+
+To connect to a live MongoDB instance, we can utilize SSH port forwarding which will forward MongoDB's port on a remote computer to a port on your local machine. Here is an example of forwarding MongoDB from emilia.
+
+```
+ssh -C -p 29862 -N -L 27017:localhost:27017 user@emilia.ics.hawaii.edu
+```
+
+Here is a break down of the command:
+
+* **-C** enables compression
+* **-p 29862** tells SSH to connect on port 29862 rather than 22 (which ITS blocks)
+* **-N** does not run a command after connecting to emilia (only perform port forwarding)
+* **-L 27017:localhost:27017** Forward port 27017 on the remote server to port 27017 on the local host
+
+When you're done using the port forwarding, you can exit with Ctrl-C.
+
 
  
 
