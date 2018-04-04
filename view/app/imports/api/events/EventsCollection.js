@@ -28,6 +28,14 @@ class EventsCollection extends BaseCollection {
       'latencies_ms.$': Number,
     }));
 
+    this.eventTypes = ['FREQUENCY_SAG', 'FREQUENCY_SWELL', 'VOLTAGE_SAG', 'VOLTAGE_SWELL', 'THD', 'OTHER'];
+    this.FREQUENCY_SAG_TYPE = 'FREQUENCY_SAG';
+    this.FREQUENCY_SWELL_TYPE = 'FREQUENCY_SWELL';
+    this.VOLTAGE_SAG_TYPE = 'VOLTAGE_SAG';
+    this.VOLTAGE_SWELL_TYPE = 'VOLTAGE_SWELL';
+    this.THD_TYPE = 'THD';
+    this.OTHER_TYPE = 'OTHER';
+
     this.publicationNames = {
       GET_EVENTS: 'get_events',
       GET_RECENT_EVENTS: 'get_recent_events',
