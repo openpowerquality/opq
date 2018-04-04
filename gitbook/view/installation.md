@@ -80,6 +80,7 @@ Download a snapshot of an OPQ database into a directory outside of the opq repos
  
    * [opq.dump.25jan2018.tar.bz2](https://drive.google.com/open?id=1qiq12WglZ3HdVCSskNH9uz2hNIZMICLe) (766 MB)
    * [opq.dump.20march2018.tar.gz](https://drive.google.com/open?id=1M1N_Z0w_BAlE5KoH0D0zUEcnjhCt7VK4) (3 GB)
+   * [opq.dump.04Apr2018.tar.gz](https://drive.google.com/open?id=17bpF4c6KZFERlq1nW_GW6UDLBSdcyYGS) (3 GB)
 
 Uncompress the downloaded tar.gz file. (Typically, double-clicking the file name will do the trick.) This will create a directory called "opq".
 
