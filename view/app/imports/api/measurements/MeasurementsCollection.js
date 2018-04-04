@@ -25,6 +25,9 @@ class MeasurementsCollection extends BaseCollection {
     this.publicationNames = {
       RECENT_MEASUREMENTS: 'recent_measurements',
     };
+    if (Meteor.server) {
+      this._collection.rawCollection().createIndex({ timestamp_ms: 1, box_id: 1 }, { background: true });
+    }
   }
 
   /**

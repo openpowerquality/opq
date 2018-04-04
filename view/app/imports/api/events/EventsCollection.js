@@ -28,10 +28,21 @@ class EventsCollection extends BaseCollection {
       'latencies_ms.$': Number,
     }));
 
+    this.eventTypes = ['FREQUENCY_SAG', 'FREQUENCY_SWELL', 'VOLTAGE_SAG', 'VOLTAGE_SWELL', 'THD', 'OTHER'];
+    this.FREQUENCY_SAG_TYPE = 'FREQUENCY_SAG';
+    this.FREQUENCY_SWELL_TYPE = 'FREQUENCY_SWELL';
+    this.VOLTAGE_SAG_TYPE = 'VOLTAGE_SAG';
+    this.VOLTAGE_SWELL_TYPE = 'VOLTAGE_SWELL';
+    this.THD_TYPE = 'THD';
+    this.OTHER_TYPE = 'OTHER';
+
     this.publicationNames = {
       GET_EVENTS: 'get_events',
       GET_RECENT_EVENTS: 'get_recent_events',
     };
+    if (Meteor.server) {
+      this._collection.rawCollection().createIndex({ target_event_start_timestamp_ms: 1 }, { background: true });
+    }
   }
 
   /**
@@ -110,10 +121,10 @@ class EventsCollection extends BaseCollection {
         return self.find(selector);
       });
 
-      Meteor.publish(this.publicationNames.GET_RECENT_EVENTS, function ({ numEvents }) {
+      Meteor.publish(this.publicationNames.GET_RECENT_EVENTS, function ({ numEvents, excludeOther }) {
         check(numEvents, Number);
-
-        const events = self.find({}, { sort: { timestamp_ms: -1 }, limit: numEvents });
+        const query = excludeOther ? { type: { $ne: 'OTHER' } } : {};
+        const events = self.find(query, { sort: { target_event_start_timestamp_ms: -1 }, limit: numEvents });
         return events;
       });
     }
