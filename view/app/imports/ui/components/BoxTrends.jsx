@@ -1,36 +1,20 @@
 import React from 'react';
-import { Grid, Header, Dropdown, Checkbox, Popup, Input, Button } from 'semantic-ui-react';
+import PropTypes from 'prop-types';
+import { withTracker } from 'meteor/react-meteor-data';
+import { Meteor } from 'meteor/meteor';
+import { Grid, Header, Dropdown, Checkbox, Popup, Input, Button, Loader } from 'semantic-ui-react';
 import Moment from 'moment';
-import Calendar from 'react-calendar'; // eslint-disable-line no-unused-vars
-// import {
-//   FlexibleXYPlot,
-//   LineMarkSeries,
-//   LineSeries,
-//   XAxis,
-//   YAxis,
-//   DiscreteColorLegend,
-// } from 'react-vis';
-// import 'react-vis/dist/style.css';
-
+import Calendar from 'react-calendar';
 import {
-  Charts,
-  ChartContainer,
-  ChartRow,
-  YAxis,
-  LineChart,
-  Baseline,
-  Resizable,
-  Legend,
-  styler,
+  Charts, ChartContainer, ChartRow, YAxis, LineChart, Baseline, Resizable, Legend, styler
 } from 'react-timeseries-charts';
 import { TimeRange, TimeSeries } from 'pondjs';
 
-import { getBoxIDs } from '../../api/opq-boxes/OpqBoxesCollectionMethods';
-import { dailyTrendsInRange } from '../../api/trends/TrendsCollectionMethods';
+import { OpqBoxes } from '../../api/opq-boxes/OpqBoxesCollection';
+import { dailyTrends } from '../../api/trends/TrendsCollectionMethods';
 import WidgetPanel from '../layouts/WidgetPanel';
 
-const colors = [
-  '#e6194b',
+const colors = [ // Colors get used in this order when a user toggles a toggler.
   '#3cb44b',
   '#ffe119',
   '#0082c8',
@@ -38,17 +22,18 @@ const colors = [
   '#911eb4',
   '#46f0f0',
   '#f032e6',
-  '#d2f53c',
-  '#fabebe',
   '#008080',
   '#e6beff',
   '#aa6e28',
   '#fffac8',
   '#800000',
-  '#aaffc3',
   '#808000',
-  '#ffd8b1',
   '#000080',
+  '#ffd8b1',
+  '#aaffc3',
+  '#e6194b',
+  '#d2f53c',
+  '#fabebe',
 ];
 
 /** Displays data from the trends collection */
@@ -61,66 +46,33 @@ class BoxTrends extends React.Component {
     start.setDate(start.getDate() - 7);
 
     this.state = {
-      ready: false,
-      boxIdOptions: [],
-      selectedBoxes: ['1'],
-      field: 'voltage',
+      selectedBoxes: [],
       start,
       end,
-      linesToShow: ['Box 1 avg'],
-      lineColors: {
-        'Box 1 avg': colors[0],
-      },
+      linesToShow: [],
+      lineColors: {},
       trendData: {},
-      colorCounter: 1,
+      colorCounter: 0,
       timeRange: new TimeRange([start, end]),
+      showGraph: false,
+      field: '',
+      loading: false,
     };
   }
 
-  initialize = () => {
-    getBoxIDs.call((error, boxIDs) => {
-      if (error) console.log(error);
-      else {
-        const boxIdOptions = boxIDs.sort().map(boxID => ({
-          text: `Box ${boxID}`,
-          value: boxID,
-        }));
+  render() { return this.props.ready ? this.renderPage() : ''; }
 
-        dailyTrendsInRange.call({
-          boxIDs: this.state.selectedBoxes,
-          startDate_ms: this.state.start.getTime(),
-          endDate_ms: this.state.end.getTime(),
-        }, (err, trendData) => {
-          if (err) console.log(err);
-          else {
-            this.setState({
-              trendData,
-              boxIdOptions,
-              ready: true,
-            });
-          }
-        });
-      }
-    });
-  };
-
-  render() {
-    if (!this.state.ready) this.initialize(); // Need to initialize somehow because there are no subs
-    return this.state.ready ? this.renderPage() : '';
-  }
-
-  renderPage() {
-    return (
-      <WidgetPanel title='Daily Trends'>
-        <Grid container>
-          {this.fieldBoxPicker()}
-          {this.datePicker()}
-          <Grid.Row>{this.state.selectedBoxes.map(boxID => this.checkboxes(boxID))}</Grid.Row>
-          {this.generateGraph()}
-        </Grid>
-      </WidgetPanel>
-    );
-  }
+  renderPage = () => (
+    <WidgetPanel title='Box Trends'>
+      <Grid container>
+        {this.fieldBoxPicker()}
+        {this.datePicker()}
+        <Grid.Row>{this.state.selectedBoxes.map(boxID => this.checkboxes(boxID))}</Grid.Row>
+        {this.state.loading ? <Grid.Row><Loader active content='Fetching data'/></Grid.Row> : ''}
+        {this.state.showGraph ? this.generateGraph() : ''}
+      </Grid>
+    </WidgetPanel>
+  );
 
 
   fieldBoxPicker = () => (
@@ -133,24 +85,19 @@ class BoxTrends extends React.Component {
                     { text: 'Frequency', value: 'frequency' },
                     { text: 'THD', value: 'thd' },
                   ]}
-                  onChange={this.changeGraph}
-                  defaultValue={this.state.field}
-        />
+                  onChange={this.changeGraph}/>
       </Grid.Column>
       <Grid.Column width={10}>
         <Dropdown multiple search selection fluid
                   placeholder='Boxes to display'
-                  options={this.state.boxIdOptions}
+                  options={this.props.boxIDs.map(boxID => ({ text: `Box ${boxID}`, value: boxID}))}
                   onChange={this.updateBoxIdDropdown}
-                  defaultValue={this.state.selectedBoxes}
-        />
+                  defaultValue={this.state.selectedBoxes}/>
       </Grid.Column>
     </Grid.Row>
   );
 
-  changeGraph = (event, data) => {
-    this.setState({ field: data.value });
-  };
+  changeGraph = (event, data) => { this.setState({ field: data.value }); };
 
   updateBoxIdDropdown = (event, data) => {
     const selectedBoxes = data.value.sort();
@@ -161,6 +108,7 @@ class BoxTrends extends React.Component {
         return this.state.selectedBoxes.includes(boxID);
       });
       this.setState({ linesToShow });
+      if (linesToShow.length === 0) this.setState({ showGraph: false });
     });
   };
 
@@ -170,25 +118,17 @@ class BoxTrends extends React.Component {
       <Grid.Row>
         <Grid.Column width={6}>
           <Popup on='focus'
-                 trigger={
-                   <Input fluid placeholder='Input a starting date'
-                          value={Moment(this.state.start).format('MM/DD/YYYY')}
-                          label='Start'
-                   />
-                 }
-                 content={<Calendar onChange={this.changeStart} value={this.state.start}/>}
-          />
+                 trigger={<Input fluid placeholder='Input a starting date'
+                                 value={Moment(this.state.start).format('MM/DD/YYYY')}
+                                 label='Start'/>}
+                 content={<Calendar onChange={this.changeStart} value={this.state.start}/>}/>
         </Grid.Column>
         <Grid.Column width={6}>
           <Popup on='focus'
-                 trigger={
-                   <Input fluid placeholder='Input an ending date'
-                          value={Moment(this.state.end).format('MM/DD/YYYY')}
-                          label='End'
-                   />
-                 }
-                 content={<Calendar onChange={this.changeEnd} value={this.state.end}/>}
-          />
+                 trigger={<Input fluid placeholder='Input an ending date'
+                                 value={Moment(this.state.end).format('MM/DD/YYYY')}
+                                 label='End'/>}
+                 content={<Calendar onChange={this.changeEnd} value={this.state.end}/>}/>
         </Grid.Column>
         <Grid.Column width={4}>
           <Button content='Fetch data' fluid onClick={this.getData}/>
@@ -197,29 +137,25 @@ class BoxTrends extends React.Component {
     </Grid></Grid.Column></Grid.Row>
   );
 
-  changeStart = start => {
-    this.setState({ start });
-  };
-
-  changeEnd = end => {
-    this.setState({ end });
-  };
+  changeStart = start => { this.setState({ start }); };
+  changeEnd = end => { this.setState({ end }); };
 
   getData = () => {
-    if (this.state.selectedBoxes === []) return;
-    dailyTrendsInRange.call({
+    this.setState({ loading: true });
+    if (this.state.selectedBoxes.length === 0 || this.state.field === '') return;
+    dailyTrends.call({
       boxIDs: this.state.selectedBoxes,
       startDate_ms: this.state.start.getTime(),
       endDate_ms: this.state.end.getTime(),
     }, (error, trendData) => {
       if (error) console.log(error);
-      else this.setState({ trendData });
+      else this.setState({ trendData, showGraph: this.state.linesToShow.length > 0, loading: false });
     });
     this.setState({ timeRange: new TimeRange([this.state.start, this.state.end]) });
   };
 
 
-  checkboxes = (boxID) => (
+  checkboxes = boxID => (
     <Grid.Column width={8} key={`box${boxID}`}>
       <Grid verticalAlign='middle'>
         <Grid.Row centered>
@@ -227,25 +163,22 @@ class BoxTrends extends React.Component {
             <Header as='h5' content={`Box ${boxID}`}/>
           </Grid.Column>
           <Grid.Column width={4}>
-            Avg<br />
+            Avg<br/>
             <Checkbox toggle id={`Box ${boxID} avg`}
                       onChange={this.changeChecked}
-                      checked={this.state.linesToShow.includes(`Box ${boxID} avg`)}
-            />
+                      checked={this.state.linesToShow.includes(`Box ${boxID} avg`)}/>
           </Grid.Column>
           <Grid.Column width={4}>
-            Max<br />
+            Max<br/>
             <Checkbox toggle id={`Box ${boxID} max`}
                       onChange={this.changeChecked}
-                      checked={this.state.linesToShow.includes(`Box ${boxID} max`)}
-            />
+                      checked={this.state.linesToShow.includes(`Box ${boxID} max`)}/>
           </Grid.Column>
           <Grid.Column width={5}>
-            Min<br />
+            Min<br/>
             <Checkbox toggle id={`Box ${boxID} min`}
                       onChange={this.changeChecked}
-                      checked={this.state.linesToShow.includes(`Box ${boxID} min`)}
-            />
+                      checked={this.state.linesToShow.includes(`Box ${boxID} min`)}/>
           </Grid.Column>
         </Grid.Row>
       </Grid>
@@ -253,166 +186,41 @@ class BoxTrends extends React.Component {
   );
 
   changeChecked = (event, props) => {
-    // If we have it in the list, remove it. Otherwise, add it.
     let linesToShow = this.state.linesToShow;
     if (linesToShow.includes(props.id)) linesToShow = linesToShow.filter(label => label !== props.id);
     else linesToShow.push(props.id);
     linesToShow.sort();
     let lineColors = this.state.lineColors;
     if (!lineColors[props.id]) lineColors[props.id] = colors[this.state.colorCounter];
-    this.setState({ linesToShow, lineColors, colorCounter: this.state.colorCounter + 1 });
+    const showGraph = linesToShow.length > 0 && Object.keys(this.state.trendData).length > 0;
+    this.setState({ linesToShow, lineColors, colorCounter: this.state.colorCounter + 1, showGraph });
   };
 
-
-  // generateGraph = () => {
-  //   const graphData = this.getGraphData();
-  //   const referenceData = this.generateReference();
-  //   return (
-  //     <Grid.Row>
-  //       <Grid.Column width={16}>
-  //         <DiscreteColorLegend
-  //           orientation='horizontal'
-  //           items={this.state.linesToShow.map(label => ({
-  //             title: label,
-  //             color: this.state.lineColors[label],
-  //           }))}
-  //         />
-  //         <FlexibleXYPlot height={300}>
-  //           <XAxis tickFormat={(timestamp) => Moment(timestamp).format('MM/DD')}/>
-  //           <YAxis/>
-  //           <LineSeries strokeDasharray='5 5' color='lightgrey' data={referenceData[0].data}/>
-  //           <LineSeries strokeDasharray='5 5' color='grey' data={referenceData[1].data}/>
-  //           <LineSeries strokeDasharray='5 5' color='lightgrey' data={referenceData[2].data}/>
-  //           {graphData.map(set => <LineMarkSeries key={set.label} data={set.data} size={2}
-  //                                                 color={this.state.lineColors[set.label]}
-  //           />)}
-  //         </FlexibleXYPlot>
-  //       </Grid.Column>
-  //     </Grid.Row>
-  //   )
-  // };
-  //
-  // getGraphData = () => {
-  //   const trendData = this.state.trendData;
-  //   const field = this.state.field;
-  //   const linesToShow = this.state.linesToShow;
-  //   return linesToShow.map(label => {
-  //     let [, boxID, stat] = label.split(' ');
-  //     stat = stat === 'avg' ? 'average': stat;
-  //     let data = [];
-  //     if (trendData[boxID]) {
-  //       const boxData = trendData[boxID].dailyTrends;
-  //       data = Object.keys(boxData).filter(timestamp => boxData[timestamp][field]).map(timestamp => ({
-  //         x: parseInt(timestamp, 10),
-  //         y: boxData[timestamp][field][stat],
-  //       }));
-  //     }
-  //     return { label, data };
-  //   });
-  // };
-  //
-  // generateReference = () => {
-  //   let references;
-  //   switch (this.state.field) {
-  //     case 'voltage':
-  //       references = [114, 120, 126];
-  //       break;
-  //     case 'frequency':
-  //       references = [57, 60, 63];
-  //       break;
-  //     case 'thd':
-  //       references = [null, 0, 0.1];
-  //       break;
-  //     default:
-  //       break;
-  //   }
-  //   return references.map(value => ({
-  //     label: value,
-  //     data: [
-  //       { x: this.state.start.getTime(), y: value },
-  //       { x: this.state.end.getTime(), y: value },
-  //     ],
-  //   }));
-  // };
-
-  getGraphData = () => {
-    const trendData = this.state.trendData;
-    const field = this.state.field;
-    const linesToShow = this.state.linesToShow;
-    const graphData = linesToShow.map(label => {
-      let [, boxID, stat] = label.split(' ');
-      stat = stat === 'avg' ? 'average' : stat;
-      let data = [];
-      if (trendData[boxID]) {
-        const boxData = trendData[boxID].dailyTrends;
-        data = Object.keys(boxData).filter(timestamp => boxData[timestamp][field]).map(timestamp => ([
-          timestamp,
-          boxData[timestamp][field][stat],
-        ]));
-      }
-      return { label, data };
-    });
-    return graphData;
-  };
-
-  generateReference = () => {
-    let references;
-    switch (this.state.field) {
-      case 'voltage':
-        references = [114, 120, 126];
-        break;
-      case 'frequency':
-        references = [57, 60, 63];
-        break;
-      case 'thd':
-        references = [null, 0, 0.1];
-        break;
-      default:
-        break;
-    }
-    return references;
-  };
 
   generateGraph = () => {
     const field = this.state.field;
     const graphData = this.getGraphData();
     const reference = this.generateReference();
-    const style = styler(this.state.linesToShow.map(label => ({
-      key: label,
-      color: this.state.lineColors[label],
-    })));
-    const wholeDataSet = [];
-    graphData.forEach(set => {
-      set.data.forEach(point => {
-        wholeDataSet.push(point[1]);
-      });
-    });
-    reference.forEach(value => {
-      wholeDataSet.push(value);
-    });
 
-    const legend = this.state.linesToShow.map(label => ({
-      key: label,
-      label,
-    }));
+    const legend = this.state.linesToShow.map(label => ({ key: label, label }));
+    const legendStyle = styler(this.state.linesToShow.map(label => (
+      { key: label, color: this.state.lineColors[label] })));
+
+    const wholeDataSet = [];
+    graphData.forEach(set => { set.data.forEach(point => { wholeDataSet.push(point[1]); }); });
+    reference.forEach(value => { wholeDataSet.push(value); });
 
     return (
       <Grid.Row>
         <Grid.Column width={16}>
-          <Legend type='swatch' align='left' categories={legend}
-                  style={style}/>
+          <Legend type='swatch' align='left' categories={legend} style={legendStyle}/>
           <Resizable>
             <ChartContainer timeRange={this.state.timeRange} enablePanZoom
                             onTimeRangeChanged={timeRange => this.setState({ timeRange })}
-                            minTime={this.state.start} maxTime={this.state.end}
-            >
-              <ChartRow height="300">
-                <YAxis
-                  id={field}
-                  min={Math.min(...wholeDataSet)}
-                  max={Math.max(...wholeDataSet)}
-                  format={n => n.toFixed(2)}
-                />
+                            minTime={this.state.start} maxTime={this.state.end} minDuration={1000*60*60*24*3}>
+              <ChartRow height='300'>
+                <YAxis id={field} format={n => n.toFixed(2)}
+                       min={Math.min(...wholeDataSet)} max={Math.max(...wholeDataSet)}/>
                 <Charts>
                   {graphData.map(set => {
                     const series = new TimeSeries({
@@ -420,24 +228,15 @@ class BoxTrends extends React.Component {
                       columns: ['time', 'value'],
                       points: set.data,
                     });
-                    return <LineChart
-                      key={set.label} axis={field} series={series}
-                      style={{ value: { normal: { stroke: this.state.lineColors[set.label], strokeWidth: 2 } } }}
-                    />;
+                    const lineStyle = { value: { normal: { stroke: this.state.lineColors[set.label], strokeWidth: 2 }}};
+                    return <LineChart key={set.label} axis={field} series={series} style={lineStyle}/>;
                   })}
-                  <Baseline
-                    axis={field} style={{ line: { stroke: 'grey' } }}
-                    value={reference[1]} label="Nominal" position="right"
-                  />
-                  <Baseline
-                    axis={field} style={{ line: { stroke: 'lightgrey' } }}
-                    value={reference[2]} label="+5%" position="right"
-                  />
-                  <Baseline
-                    axis={field} style={{ line: { stroke: 'lightgrey' } }}
-                    value={reference[0]} label="-5%" position="right"
-                    visible={field !== 'thd'}
-                  />
+                  <Baseline axis={field} style={{ line: { stroke: 'grey' } }}
+                            value={reference[1]} label='Nominal' position='right'/>
+                  <Baseline axis={field} style={{ line: { stroke: 'lightgrey' } }}
+                            value={reference[2]} label='+5%' position='right'/>
+                  <Baseline axis={field} style={{ line: { stroke: 'lightgrey' } }}
+                            value={reference[0]} label='-5%' position='right' visible={field !== 'thd'}/>
                 </Charts>
               </ChartRow>
             </ChartContainer>
@@ -446,7 +245,47 @@ class BoxTrends extends React.Component {
       </Grid.Row>
     );
   };
+
+  getGraphData = () => {
+    const trendData = this.state.trendData;
+    const field = this.state.field;
+    const linesToShow = this.state.linesToShow;
+    return linesToShow.map(label => {
+      let [, boxID, stat] = label.split(' ');
+      stat = stat === 'avg' ? 'average' : stat;
+      let data = [];
+      if (trendData[boxID]) {
+        const boxData = trendData[boxID];
+        data = Object.keys(boxData).filter(timestamp => boxData[timestamp][field]).map(timestamp => ([
+          timestamp,
+          boxData[timestamp][field][stat],
+        ]));
+      }
+      return { label, data };
+    });
+  };
+
+  generateReference = () => {
+    let references;
+    // @formatter:off
+    switch (this.state.field) {
+      case 'voltage': references = [114, 120, 126]; break;
+      case 'frequency': references = [57, 60, 63]; break;
+      case 'thd': references = [null, 0, 0.1]; break;
+      default: break;
+    }
+    // @formatter: on
+    return references;
+  };
 }
 
-// No subscriptions, because the data is updated daily
-export default BoxTrends;
+BoxTrends.propTypes = {
+  ready: PropTypes.bool.isRequired,
+  boxIDs: PropTypes.array.isRequired,
+};
+
+
+export default withTracker(() => {
+  const sub = Meteor.subscribe('opq_boxes');
+  return { ready: sub.ready(), boxIDs: OpqBoxes.find().fetch().map(box => box.box_id).sort() };
+})(BoxTrends);
