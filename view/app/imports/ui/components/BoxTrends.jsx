@@ -60,10 +60,26 @@ class BoxTrends extends React.Component {
     };
   }
 
+  helpText = `
+  <p>Box Trends uses Trend data to show changes in frequency, voltage, or THD for one or more boxes over time.</p>
+  
+  <p>Measurement: select either voltage, frequency, or THD.</p>
+  
+  <p>Boxes: select one or more boxes whose values you wish to graph over time. Once you specify a box, you will
+  be able to specify whether you want to graph its maximum, minimum, or average value of the measurement. </p>
+  
+  <p>Start and End: Specify the start and end date for the visualization.</p>
+  
+  <p>Fetch Data: Click this button to see the visualization</p>
+  
+  <p>This visualization supports panning and zooming.  Scroll the mouse up or down over the visualization to change
+  the time interval. Click and drag right or left to change the window of time displayed.</p>
+  `;
+
   render() { return this.props.ready ? this.renderPage() : ''; }
 
   renderPage = () => (
-    <WidgetPanel title='Box Trends'>
+    <WidgetPanel title='Box Trends' helpText={this.helpText}>
       <Grid container>
         {this.fieldBoxPicker()}
         {this.datePicker()}
@@ -79,7 +95,7 @@ class BoxTrends extends React.Component {
     <Grid.Row centered>
       <Grid.Column width={6}>
         <Dropdown search selection fluid
-                  placeholder='Graph to display'
+                  placeholder='Measurement to display'
                   options={[
                     { text: 'Voltage', value: 'voltage' },
                     { text: 'Frequency', value: 'frequency' },

@@ -12,13 +12,17 @@ import BoxCard from './BoxCard';
 /** Display the summary information for all Boxes passed in as a property. */
 class Boxes extends React.Component {
 
+  helpText = `
+  <p>Provides a summary of information about a given OPQ Box.</p>
+  `;
+
   /** Render the Boxes as a group of Cards. */
   render() {
     const stats = SystemStats.findOne({});
     const boxTrendStats = stats ? stats.box_trend_stats : [];
     const divStyle = { paddingLeft: '10px', paddingRight: '10px' };
     return (
-        <WidgetPanel title={this.props.title}>
+        <WidgetPanel title={this.props.title} helpText={this.helpText}>
           <Card.Group stackable style={divStyle} itemsPerRow={4}>
             {this.props.boxes.map((box) => <BoxCard key={box._id} box={box} admin={this.props.admin} boxTrendStats={boxTrendStats}/>)}
           </Card.Group>

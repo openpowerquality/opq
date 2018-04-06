@@ -20,6 +20,15 @@ class EventsTimeline extends React.Component {
     this.state = { timerange: null };
   }
 
+  helpText = `
+  <p>Events Timeline shows a visual summary of the numbers and types of events noticed by OPQ Boxes.</p>
+  
+  <p>See the legend to determine the types of events noticed. </p>
+  
+  <p>This visualization supports panning and zooming.  Scroll the mouse up or down over the visualization to change
+  the time interval. Click and drag right or left to change the window of time displayed.</p>
+  `;
+
   /** If the subscription(s) have been received, render the page, otherwise show a loading icon. */
   render() {
     return (this.props.ready) ? this.renderPage() : <Loader>Getting data</Loader>;
@@ -70,7 +79,7 @@ class EventsTimeline extends React.Component {
     const divStyle = { paddingLeft: '20px', paddingRight: '20px' };
     const title = `Events Timeline (most recent ${numEvents} events)`;
     return (
-        <WidgetPanel title={title}>
+        <WidgetPanel title={title} helpText={this.helpText}>
           <div style={divStyle}>
             <Resizable>
               <ChartContainer

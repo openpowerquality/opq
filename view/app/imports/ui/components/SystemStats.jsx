@@ -28,6 +28,18 @@ function formatted(num) {
 /** Display system statistics. */
 class SystemStatistics extends React.Component {
 
+  helpText = `
+  <p>System Stats shows a summary of interesting statistics about this OPQ instance.</p>
+  
+  <p>Trends: Produced once per minute, trends indicate the high, low, and average values for 
+  frequency, voltage, and THD observed by a single box over a given minute.</p>
+  
+  <p>Events: Produced whenever a box measures frequency, voltage, or THD in excess of a default threshold
+  (currently +/- 5% of nominal value.</p>
+  
+  <p>Measurements: Produced six times a second, these provide instantaneous values for frequency, voltage, and THD.</p>
+  `;
+
   /** If the subscription(s) have been received, render the page, otherwise show a loading icon. */
   render() {
     return (this.props.ready) ? this.renderPage() : <Loader>Getting data</Loader>;
@@ -35,6 +47,7 @@ class SystemStatistics extends React.Component {
 
   /** Here's the system stats page. */
   renderPage() { // eslint-disable-line class-methods-use-this
+
     const missingStats = {
       events_count: 0, box_events_count: 0, measurements_count: 0, opq_boxes_count: 0,
       trends_count: 0, users_count: 0,
@@ -55,7 +68,7 @@ class SystemStatistics extends React.Component {
     const divStyle = { paddingLeft: '10px', paddingRight: '10px' };
     const divStyle2 = { paddingLeft: '10px', paddingRight: '10px', marginTop: '5px' };
     return (
-      <WidgetPanel title="System Stats">
+      <WidgetPanel title="System Stats" helpText={this.helpText}>
         <div style={divStyle}>
           <Segment>
             <Header as='h4' style={headerStyle}>To Date</Header>

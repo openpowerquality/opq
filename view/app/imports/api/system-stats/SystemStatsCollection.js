@@ -124,7 +124,7 @@ class SystemStatsCollection extends BaseCollection {
     health.push({ type: 'service', index: 4, name: 'Health', icon: 'check circle', color: 'green' });
 
     health.push({ type: 'box', index: 1, name: 'Box 01', icon: 'check circle', color: 'green' });
-    health.push({ type: 'box', index: 2, name: 'Box 02', icon: 'question circle', color: 'yellow' });
+    health.push({ type: 'box', index: 2, name: 'Box 02', icon: 'plug', color: 'grey' });
     health.push({ type: 'box', index: 3, name: 'Box 03', icon: 'exclamation circle', color: 'red' });
     health.push({ type: 'box', index: 4, name: 'Box 04', icon: 'check circle', color: 'green' });
     health.push({ type: 'box', index: 5, name: 'Box 05', icon: 'check circle', color: 'green' });
