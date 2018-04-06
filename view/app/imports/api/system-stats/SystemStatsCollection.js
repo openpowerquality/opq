@@ -113,16 +113,21 @@ class SystemStatsCollection extends BaseCollection {
   }
 
   /**
-   * Create an array of objects with fields: name, icon, color
+   * Create an array of objects with fields: type, name, icon, color
    * We just display convert this array to labels to display health.
    */
   getHealthArray() {
     const health = [];
-    health.push({ name: 'Mauka', icon: 'check circle', color: 'green' });
-    health.push({ name: 'Makai', icon: 'warning circle', color: 'red' });
-    OpqBoxes.findBoxIds().forEach(function (boxId) {
-      health.push({ name: `Box ${boxId}`, icon: 'help circle', color: 'grey' });
-    });
+    health.push({ type: 'service', index: 1, name: 'Mauka', icon: 'check circle', color: 'green' });
+    health.push({ type: 'service', index: 2, name: 'Makai', icon: 'check circle', color: 'green' });
+    health.push({ type: 'service', index: 3, name: 'Mongo', icon: 'check circle', color: 'green' });
+    health.push({ type: 'service', index: 4, name: 'Health', icon: 'check circle', color: 'green' });
+
+    health.push({ type: 'box', index: 1, name: 'Box 01', icon: 'check circle', color: 'green' });
+    health.push({ type: 'box', index: 2, name: 'Box 02', icon: 'question circle', color: 'yellow' });
+    health.push({ type: 'box', index: 3, name: 'Box 03', icon: 'exclamation circle', color: 'red' });
+    health.push({ type: 'box', index: 4, name: 'Box 04', icon: 'check circle', color: 'green' });
+    health.push({ type: 'box', index: 5, name: 'Box 05', icon: 'check circle', color: 'green' });
     return health;
   }
 

@@ -26,13 +26,19 @@ class SystemHealth extends React.Component {
 
   renderPage() {
     const divStyle = { paddingLeft: '10px', paddingRight: '10px' };
-    const footerStyle = { paddingLeft: '10px', paddingRight: '10px', textAlign: 'center' };
+    const headerStyle = { paddingLeft: '10px', paddingRight: '10px', textAlign: 'center', fontWeight: 'bold', marginBottom: '5px' };
+    const services = this.props.stats.health.filter(health => health.type === 'service');
+    const boxes = this.props.stats.health.filter(health => health.type === 'box');
     return (
         <WidgetPanel title="System Health">
+          <p style={headerStyle}>Services</p>
           <Label.Group style={divStyle}>
-            {this.props.stats.health.map((health, index) => this.renderHealth(health, index))}
+            {services.map((health, index) => this.renderHealth(health, index))}
           </Label.Group>
-          <p style={footerStyle}>This component is not yet functional.</p>
+          <p style={headerStyle}>OPQ Boxes</p>
+          <Label.Group style={divStyle}>
+            {boxes.map((health, index) => this.renderHealth(health, index))}
+          </Label.Group>
         </WidgetPanel>
     );
   }
