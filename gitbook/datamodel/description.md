@@ -15,6 +15,7 @@ The OPQ system utilizes the following collections:
 * **[fs.files](#fs.files) and [fs.chunks](#fs.chunks)** Internal to GridFS. Stores box_event binary waveform data.
 * **[opq_boxes](#opq_boxes):** Provides individual OPQBox information, such as its current (and prior) locations.
 * **[users](#users):** Provides user information, such as the boxes currently owned by them.
+* **[zipcodes](#zipcodes):** Provides a mapping from zipcode to latitude and longitude.
 
 ### Naming Conventions
 
@@ -143,9 +144,9 @@ The **name** field is a unique user-friendly string identifier for the OPQBox. U
 
 The **description** field is optional and can be used to further describe an OPQBox.
 
-The **calibration_constant** field is the box specific value that is used to calculate the actual waveform data values. (*Serge: Is this correct?*)
+The **calibration_constant** field is the box specific value that is used to adjust the values returned by the ADC so that we get accurate voltage and frequency values.  
 
-The **locations** field is an *array* of objects, with each object representing an individual *location*. As an OPQBox's location can change over time, this approach is necessary in order to keep a historical reference of its location changes. Note that this array is stored in order by increasing start_time_ms.  This enables other services to simply obtain the last element of the location array in order to determine the current location of the associated box. 
+The **locations** field is an *array* of objects which enables us to determine where the OPQBox was physically located for each data point that it generated.  This array should stored in order by increasing start_time_ms.  This enables other services to simply obtain the last element of the location array in order to determine the current location of the associated box. 
 
 A **location** <a name="location"></a> has the following fields:
 * start_time_ms
@@ -156,22 +157,32 @@ The **start_time_ms** field is a unix timestamp (milliseconds) indicating the mo
 
 The **zipcode** field indicates the zipcode location of the OPQBox.
 
-The **nicnname** field provides a high level description of the location. This could be something like
+The **nickname** field provides a high level description of the location. This could be something like
 _Kailua_ or _Anthony's Office_.  
 
-As there are a variety of ways to represent a location, we can easily expand this model to include additional location definitions (such as lat and lng) should the need arise in the future.
+The location array objects might be extended in future to accommodate other representations for location besides zip code.
 
 ### Users {#users}
-The **users** collection provides information on a given user of the OPQ system.
+
+Users are represented by three collections: the Users collection (maintained by Meteor, which provides password and basic account information, which is not shown below), UserProfiles (additional profile information), and BoxOwners (which provides a two-way mapping between OPQ Boxes and their owner(s)):
 
 ![Users Collection](images/users-collection.png)
 
 The **email** field is the user's email address. This field also serves as the username to log into OPQView.
 
-The **password** field is the user's password, encrypted with bcrypt.
-
 The **first_name** and **last_name** fields are the user's first and last name.
 
-The **boxes** array indicates the **opq_boxes** owned by the user. 
-
 The **role** field indicates the role of the user in the OPQ system. Currently, there are only two roles: "user" and "admin".
+
+### Zip Codes {#zipcodes}
+
+The **zipcodes** collection contains a mapping from zip codes to latitude and longitude of the central point of the zip code.
+
+|**zipcodes**|             |
+|------------|-------------|
+| zipcode (indexed)    | String      |
+| latitude   | Float       |
+| longitude  | Float       |
+
+
+

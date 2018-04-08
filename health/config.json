@@ -1,3 +1,52 @@
-{
-  "interface": "tcp://127.0.0.1:9881"
-}
+[
+    {
+        "service": "zeromq",
+        "port": "tcp://127.0.0.1:9881"
+    },
+    {
+        "service": "box",
+        "interval": 60,
+        "boxdata": [
+            {
+                "boxID": 1
+            },
+            {
+                "boxID": 3
+            },
+            {
+                "boxID": 5
+            }
+        ]
+    },
+    {
+        "service": "mauka",
+        "interval": 60,
+        "url": "http://localhost:8911",
+        "plugins": [
+            "StatusPlugin",
+            "IticPlugin",
+            "AcquisitionTriggerPlugin",
+            "VoltageThresholdPlugin",
+            "ThdPlugin",
+            "FrequencyThresholdPlugin"
+        ]
+    },
+    {
+        "service": "makai",
+        "interval": 60
+    },
+    {
+        "service": "view",
+        "interval": 60,
+        "url": "http://emilia.ics.hawaii.edu"
+    },
+    {
+        "service": "mongodb",
+        "interval": 60,
+        "url": "mongodb://localhost:27017/"
+    },
+    {
+        "service": "health",
+        "interval": 86400
+    }
+]

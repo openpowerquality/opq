@@ -19,6 +19,7 @@
 
 ## Developer Guide
 * [GitBook](developerguide/gitbook.md)
+* [Deployment](developerguide/deployment.md)
 
 
 ## OPQ Box
@@ -38,8 +39,14 @@
 ## OPQ View
 
 * [Installation](view/installation.md)
+  * [Install Meteor](view/installation.md#install-meteor)
+  * [Install Libraries](view/installation.md#install-libraries)
+  * [Configure settings](view/installation.md#configure-settings)
+  * [Snapshot DB](view/installation.md#use-snapshot)
+  * [Production DB](view/installation.md#use-production)
+  * [Run OPQView](view/installation.md#run-opqview)
 * [Coding Standards](view/codingstandards.md)
-* [Design](view/design.md)
+* [User Guide](view/userguide.md)
 
 ## OPQ Mauka
 
