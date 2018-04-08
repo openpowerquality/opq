@@ -4,15 +4,15 @@ OPQView is a [Meteor](http://meteor.com) application.  For general information o
 
 There are basically two steps to deploying OPQView: building the production bundle (a nodejs application) on a development machine, then running the bundle on the server.
 
-## Prelude: account setup
+## 1. Prelude: account setup
 
 Here are one-time configuration activities required to do deployment of OPQView. 
 
-#### Obtain the opquser account credentials
+#### 1.1 Obtain the opquser account credentials
 
 OPQView is deployed using the opquser account.  You need to obtain the password for opquser in order to do this deployment.
 
-#### Set up ssh without password prompt
+#### 1.2 Set up ssh without password prompt
 
 In order to use the scripts to transfer files, you need to set up SSH login without a password.  You can follow [these instructions](http://www.linuxproblem.org/art_9.html). 
 
@@ -35,11 +35,11 @@ Last login: Sun Apr  8 07:57:57 2018 from cpe-66-91-216-204.hawaii.res.rr.com
 opquser@emilia:~$ 
 ```
 
-## Developer system deployment tasks
+## 2. Developer system deployment tasks
 
 Do the following in your development environment. 
 
-#### Build the production bundle
+#### 2.1 Build the production bundle
 
 In general, you will build the production bundle from the master branch of OPQView. 
 
@@ -64,7 +64,7 @@ The contents of the `opq/view/deploy/` directory should now contain the followin
   
 Note that *.gz files in the deploy directory are gitignored.
 
-#### Copy deployment files to the server
+#### 2.2 Copy deployment files to the server
 
 To copy deployment files to the server, invoke the `deploy-transfer.sh` script. This script creates a new directory whose name is the current timestamp, copies app.tar.gz, deploy-run.sh, and settings.development.json into it, then gzips that directory and secure copies it to emilia.
 
@@ -89,7 +89,7 @@ Here is what the invocation of this command should look like:
 + set +x
 ```
 
-## Server-side deployment tasks
+## 3. Server-side deployment tasks
 
 Now ssh to the server to do the remainder of the deployment:
 
@@ -97,7 +97,7 @@ Now ssh to the server to do the remainder of the deployment:
 ssh -p 29862 opquser@emilia.ics.hawaii.edu
 ```
 
-#### Unpack tar file with latest release
+#### 3.1 Unpack tar file with latest release
 
 Change directories into the view/ subdirectory, and list the files:
 
@@ -130,7 +130,7 @@ drwxr-xr-x 4 opquser opquser 4096 Apr  8 08:55 bundle
 -rw-r--r-- 1 opquser opquser 2279 Apr  8 08:54 settings.development.json
 ```
 
-#### Kill the current OPQView process
+#### 3.2 Kill the current OPQView process
 
 Find the PID of the current running OPQView process this way:
 
@@ -146,7 +146,7 @@ In this case, the PID is 10645. Kill that process with the following command:
 $ kill -9 10645
 ```
 
-#### Verify that the server is running the correct version of node
+#### 3.3 Verify that the server is running the correct version of node
 
 The file `bundle/.node_version.txt` indicates the required version of node. Print it with the following command:
 
@@ -164,7 +164,7 @@ v8.11.1
 
 If these don't match, then update node to the appropriate version before proceeding.
 
-#### Run the new version of OPQView
+#### 3.4 Run the new version of OPQView
 
 To run the new version of OPQView, invoke the deploy-run.sh script:
 
@@ -219,7 +219,7 @@ Initializing 4 user profiles.
 Initializing 5 OPQ boxes.
 ```
 
-#### Verify that the new OPQView appears in your browser
+## 4. Verify that the new OPQView appears in your browser
 
 As a final check, retrieve OPQView for example: [http://emilia.ics.hawaii.edu](http://emilia.ics.hawaii.edu). You might want to check that whatever recent features you developed are appearing in this system. That verifies that you deployed the intended version.
 
