@@ -1,16 +1,11 @@
 #!/bin/bash
 
-set -x
+echo Make sure node version is $(cat bundle/.node_version.txt)
 
-cd deploy/bundle
-cd programs/server
-npm install
-cd ../..
+(cd bundle/programs/server && npm install)
 export MONGO_URL='mongodb://localhost:27017/opq'
 export ROOT_URL='http://localhost'
-export PORT=3000
-export METEOR_SETTINGS=$(cat ../../config/settings.development.json)
-echo $METEOR_SETTINGS
-node main.js
+export PORT=8888
+export METEOR_SETTINGS=$(cat settings.development.json)
+nohup node bundle/main > logfile.txt 2>&1 &
 
-set +x
