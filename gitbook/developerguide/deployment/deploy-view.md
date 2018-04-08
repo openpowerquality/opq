@@ -6,11 +6,11 @@ There are basically two steps to deploying OPQView: building the production bund
 
 ## Prelude: account setup
 
-Here are one-time configuration activities required to do deployment of OPQView.
+Here are one-time configuration activities required to do deployment of OPQView. 
 
 #### Obtain the opquser account credentials
 
-OPQView is deployed using the opquser account.  You will need to obtain the password for opquser in order to do this deployment.
+OPQView is deployed using the opquser account.  You need to obtain the password for opquser in order to do this deployment.
 
 #### Set up ssh without password prompt
 
