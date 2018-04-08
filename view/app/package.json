@@ -40,6 +40,7 @@
   },
   "scripts": {
     "start": "meteor --settings ../config/settings.development.json",
+    "build": "meteor build ../deploy --architecture os.linux.x86_64",
     "lint": "eslint --quiet --ext .jsx --ext .js ./imports",
     "pretest": "npm run lint",
     "test": "TEST_BROWSER_DRIVER=nightmare meteor test --once --driver-package meteortesting:mocha --no-release-check --port 3100",
