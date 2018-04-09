@@ -50,14 +50,13 @@ def write_to_mongo(message):
     db = client['opq']
     coll = db['health']
   
-    doc = coll.find({'service':message['service'],'serviceID':message['serviceID']}) \
-        .sort([('timestamp', -1)]).limit(1)
+    doc = coll.find_one({'service':message['service'],'serviceID':message['serviceID']}, sort= [('timestamp', -1)])
 
     message['timestamp'] = datetime.now()
 
-    if (doc.count() == 1) and (doc[0]['status'] == 'UP') and (message['status'] == 'UP'):
+    if (doc) and (doc['status'] == 'UP') and (message['status'] == 'UP'):
         # update timestamp
-        coll.update_one({'_id': doc[0]['_id']}, \
+        coll.update_one({'_id': doc['_id']}, \
             {'$set': {'timestamp': message['timestamp']}})
     else:
         coll.insert_one(message)
