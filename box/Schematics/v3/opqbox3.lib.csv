@@ -32,6 +32,13 @@ pin, type, name, side
 6, out, VOUTN, right
 5, power_in, GND2, right
 
+IRM-15-5,PSU,
+pin, type, name, side
+1, power_in, AC_L, left
+2, power_in, AC_N, left
+3, power_out, V+, right
+4, power_in, V-, right
+
 IRM-05-5,PSU,
 pin, type, name, side
 1, power_in, AC_L, left
