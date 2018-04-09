@@ -37,7 +37,8 @@ class SystemStatistics extends React.Component {
   <p>Events: Produced whenever a box measures frequency, voltage, or THD in excess of a default threshold
   (currently +/- 5% of nominal value.</p>
   
-  <p>Measurements: Produced six times a second, these provide instantaneous values for frequency, voltage, and THD.</p>
+  <p>Measurements: Produced six times a second, these provide instantaneous values for frequency, voltage, and THD. 
+  However, only the last 24 hours of Measurement data points are stored in the database. </p>
   `;
 
   /** If the subscription(s) have been received, render the page, otherwise show a loading icon. */
@@ -61,8 +62,8 @@ class SystemStatistics extends React.Component {
       { key: '3', label: 'Measurements', value: formatted(stat.measurements_count) },
     ];
     const todayItems = [
-      { key: '1', label: 'Trends', value: stat.trends_count_today },
-      { key: '2', label: 'Events', value: stat.events_count_today },
+      { key: '1', label: 'Trends', value: formatted(stat.trends_count_today) },
+      { key: '2', label: 'Events', value: formatted(stat.events_count_today) },
       { key: '3', label: 'Measurements', value: stat.measurements_count_today },
     ];
     const divStyle = { paddingLeft: '10px', paddingRight: '10px' };

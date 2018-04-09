@@ -113,7 +113,7 @@ export default withTracker(() => {
   const sub = Meteor.subscribe(Events.publicationNames.GET_RECENT_EVENTS, { numEvents: 500, excludeOther: false });
   return {
     ready: sub.ready(),
-    events: Events.find({}).fetch().reverse(),
+    events: Events.find({}, { sort: { target_event_start_timestamp_ms: 1 } }).fetch(),
   };
 })(EventsTimeline);
 
