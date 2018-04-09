@@ -153,16 +153,21 @@ def check_mongo(config):
         sleep(sleep_time)
 
 def check_mauka_plugins(config_plugins, mauka_plugins):
+    plugins_up = True
     for plugin in config_plugins:
         if plugin in mauka_plugins:
             t_elapsed = time() - mauka_plugins[plugin]
-            if t_elapsed <= 300:
-                message = get_msg_as_json('MAUKA', plugin, 'UP', '')
-            else:
-                message = get_msg_as_json('MAUKA', plugin, 'DOWN', str(t_elapsed))
+            if t_elapsed >= 300:
+                plugins_up = False
+                break
         else:
-            message = get_msg_as_json('MAUKA', plugin, 'DOWN', 'NO_SHOW')
-        save_message(message)
+            plugins_up = False
+            break
+    if plugins_up:
+        message = get_msg_as_json('MAUKA', '', 'UP', '')
+    else:
+        message= get_msg_as_json('MAUKA', '', 'DOWN', '')
+    save_message(message)
 
 # NOTE - Must check overall status + individual plugin status
 def check_mauka(config):
@@ -174,14 +179,14 @@ def check_mauka(config):
                 response = req.get(config['url'])
             status = response.status_code
             if status == 200:
-                message = get_msg_as_json('MAUKA', 'OVERALL', 'UP', status)
                 mauka_plugins = response.json()
                 check_mauka_plugins(config['plugins'], mauka_plugins)
             else:
-                message = get_msg_as_json('MAUKA', 'OVERALL', 'DOWN', status)
+                message = get_msg_as_json('MAUKA', '', 'DOWN', status)
+                save_message(message)
         except Exception as e:
             message = get_msg_as_json('MAUKA', 'OVERALL', 'DOWN', e)
-        save_message(message)
+            save_message(message)
         sleep(10)
 
 def main(config_file):
