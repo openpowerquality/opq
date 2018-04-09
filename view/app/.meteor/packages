@@ -43,3 +43,4 @@ percolate:synced-cron
 # Testing
 meteortesting:mocha
 aldeed:collection2-core
+themeteorchef:bert
