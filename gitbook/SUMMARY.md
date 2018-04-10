@@ -19,6 +19,7 @@
 
 ## Developer Guide
 * [GitBook](developerguide/gitbook.md)
+* [MongoDB](developerguide/mongodb.md)
 * [Deployment](developerguide/deployment/deploy-overview.md)
   * [Configure host](developerguide/deployment/deploy-configure-host.md)
   * [View](developerguide/deployment/deploy-view.md)
