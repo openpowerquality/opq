@@ -31,8 +31,4 @@ cp mauka/config.json /etc/opq/mauka/config.json
 mkdir -p /var/log/opq
 chown -R opq:opq /var/log/opq
 
-# Start service
-sudo service mauka stop
-sudo service mauka start
-
 set +o xtrace
