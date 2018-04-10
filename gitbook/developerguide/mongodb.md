@@ -1,0 +1,3 @@
+## Installing MongoDB
+
+The OPQ system uses [MongoDB](https://www.mongodb.com/) for storage and management of data. In order for OPQView reactive (real-time) queries to be performant in a production environment, Mongo must be configured with replication sets and oplog tailing. This guide provides information for installing a MongoDB server with multiple replica sets configured to allowed oplog tailing.
