@@ -1,7 +1,9 @@
 import SimpleSchema from 'simpl-schema';
 import { Meteor } from 'meteor/meteor';
+import { check, Match } from 'meteor/check';
 import Moment from 'moment';
 import BaseCollection from '../base/BaseCollection.js';
+import { BoxOwners } from '../users/BoxOwnersCollection';
 import { progressBarSetup } from '../../modules/utils';
 
 
@@ -24,6 +26,11 @@ class OpqBoxesCollection extends BaseCollection {
       locations: { type: Array },
       'locations.$': { type: Object, blackbox: true },
     }));
+
+    this.publicationNames = {
+      GET_OPQ_BOXES: 'get_opq_boxes',
+      GET_CURRENT_USER_OPQ_BOXES: 'get_current_user_opq_boxes',
+    };
   }
 
   /**
@@ -136,6 +143,32 @@ class OpqBoxesCollection extends BaseCollection {
 
     pb.clearInterval();
     return problems;
+  }
+
+  /**
+   * Loads all publications related to this collection.
+   */
+  publish() {
+    if (Meteor.isServer) {
+      const self = this;
+
+      Meteor.publish(this.publicationNames.GET_OPQ_BOXES, function () {
+        // check(startTime, Match.Maybe(Number));
+        // check(endTime, Match.Maybe(Number));
+        const opqBoxes = self.find({});
+        return opqBoxes;
+      });
+
+      Meteor.publish(this.publicationNames.GET_CURRENT_USER_OPQ_BOXES, function () {
+        // Publications should check current user with this.userId instead of relying on client-side input.
+        const currentUser = Meteor.users.findOne({ _id: this.userId });
+        if (currentUser) {
+          const boxIds = BoxOwners.findBoxIdsWithOwner(currentUser.username);
+          return self.find({ box_id: { $in: boxIds } });
+        }
+        return [];
+      });
+    }
   }
 }
 
