@@ -169,7 +169,6 @@ def check_mauka_plugins(config_plugins, mauka_plugins):
         message= get_msg_as_json('MAUKA', '', 'DOWN', '')
     save_message(message)
 
-# NOTE - Must check overall status + individual plugin status
 def check_mauka(config):
     sleep_time = config['interval']
 
@@ -185,9 +184,9 @@ def check_mauka(config):
                 message = get_msg_as_json('MAUKA', '', 'DOWN', status)
                 save_message(message)
         except Exception as e:
-            message = get_msg_as_json('MAUKA', 'OVERALL', 'DOWN', e)
+            message = get_msg_as_json('MAUKA', '', 'DOWN', e)
             save_message(message)
-        sleep(10)
+        sleep(sleep_time)
 
 def main(config_file):
     health_config = file_to_dict(config_file)
