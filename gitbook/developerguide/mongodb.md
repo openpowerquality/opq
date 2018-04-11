@@ -35,12 +35,149 @@ opquser@emilia:~$
 
 ## 1. Installing MongoDB
 
-Follow the official instructions for installing the latest version of the 64-bit Linux binaries: https://docs.mongodb.com/manual/tutorial/install-mongodb-on-linux/
+Copy the `install-mongod.sh` script found in the `opq/util/mongod/install` directory to the server you wish to install it on.
 
-If `curl` is not installed, you can install it with 
+As root, run the install script.
 
-`sudo apt-get install -y curl`
+```
+$ sudo ./install-mongodb.sh 
++ apt-get install -y curl
+Reading package lists... Done
+Building dependency tree       
+Reading state information... Done
+curl is already the newest version (7.52.1-5+deb9u5).
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
++ DIST=mongodb-linux-x86_64-3.6.3
++ curl -O https://fastdl.mongodb.org/linux/mongodb-linux-x86_64-3.6.3.tgz
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100 82.8M  100 82.8M    0     0  13.3M      0  0:00:06  0:00:06 --:--:-- 19.3M
++ tar xvf mongodb-linux-x86_64-3.6.3.tgz
+mongodb-linux-x86_64-3.6.3/README
+mongodb-linux-x86_64-3.6.3/THIRD-PARTY-NOTICES
+mongodb-linux-x86_64-3.6.3/MPL-2
+mongodb-linux-x86_64-3.6.3/GNU-AGPL-3.0
+mongodb-linux-x86_64-3.6.3/bin/mongodump
+mongodb-linux-x86_64-3.6.3/bin/mongorestore
+mongodb-linux-x86_64-3.6.3/bin/mongoexport
+mongodb-linux-x86_64-3.6.3/bin/mongoimport
+mongodb-linux-x86_64-3.6.3/bin/mongostat
+mongodb-linux-x86_64-3.6.3/bin/mongotop
+mongodb-linux-x86_64-3.6.3/bin/bsondump
+mongodb-linux-x86_64-3.6.3/bin/mongofiles
+mongodb-linux-x86_64-3.6.3/bin/mongoreplay
+mongodb-linux-x86_64-3.6.3/bin/mongoperf
+mongodb-linux-x86_64-3.6.3/bin/mongod
+mongodb-linux-x86_64-3.6.3/bin/mongos
+mongodb-linux-x86_64-3.6.3/bin/mongo
+mongodb-linux-x86_64-3.6.3/bin/install_compass
++ INSTALL_DIR=/usr/local/bin/mongodb
++ mkdir -p /usr/local/bin/mongodb
++ cp -R -n mongodb-linux-x86_64-3.6.3/bin mongodb-linux-x86_64-3.6.3/GNU-AGPL-3.0 mongodb-linux-x86_64-3.6.3/MPL-2 mongodb-linux-x86_64-3.6.3/README mongodb-linux-x86_64-3.6.3/THIRD-PARTY-NOTICES /usr/local/bin/mongodb
++ mkdir -p /var/log/mongodb
++ chown -R opq:opq /var/log/mongodb
++ echo 'export PATH=/usr/local/bin/mongodb/bin:$PATH'
++ DB_BASE=/var/mongodb/opq
++ mkdir -p /var/mongodb/opq/rs0
++ mkdir -p /var/mongodb/opq/rs1
++ mkdir -p /var/mongodb/opq/rs2
++ chown -R opq:opq /var/mongodb/opq
++ echo 'If you want mongo on your path, reload with ". ~/.profile"'
+If you want mongo on your path, reload with ". ~/.profile"
++ set +x
+```
 
+The script works by performing the following steps:
 
+1. Ensure curl is installed using system package manager
+2. Download latest generic mongodb community server using curl
+3. Installs mongodb under /usr/local/bin/mongodb
+4. Creates data directories at /var/mongodb/opq/rs[0-2]
+5. Create log directory at /var/log/mongodb
+6. Set's ownership of data and log dirs to the system level `opq` user
+
+## 2. Installing the MongoDB service
+
+This step will install MongoDB as a system level service. This allows MongoDB to be managed by the service daemon and to autostart when the server starts. This step requires three scripts:
+
+1. `opq/util/mongod/install/install-service.sh`: Installs the service file, runs script, and updates the service daemon
+2. `opq/util/mongod/install/mongod-service.sh`: The actual unit file that init.d/systemd uses to run mongod as a service
+3. `opq/util/mongod/install/start-mongod.sh`: The run script that the service uses to start multiple replica sets
+
+#### 2.1 Copy service scripts to server
+
+First, copy all three scripts to the server that you wish to setup the mongod service. You may use the opquser account to do this. Ensure that all three scripts are siblings in the same directory.
+
+#### 2.2 Run the install-service.sh script
+
+As root, run install-service.sh
+
+```
+$ sudo ./install-service.sh 
++ cp start-mongod.sh /usr/local/bin/mongodb/.
++ chown opq:opq /usr/local/bin/mongodb/start-mongod.sh
++ chmod +x /usr/local/bin/mongodb/start-mongod.sh
++ cp mongod-service.sh /etc/init.d/mongod
++ chown opq:opq /etc/init.d/mongod
++ chmod +x /etc/init.d/mongod
++ update-rc.d mongod defaults
++ set +x
+```
+
+#### 2.3 Start the mongod service
+
+As root, you should now be able to run the mongod service using `/etc/init.d/mongod start`.
+
+```
+sudo /etc/init.d/mongod start
+[ ok ] Starting mongod (via systemctl): mongod.service.
+```
+
+Please note that as a system service, mongod will also start automatically any time the server is restarted.
+
+To verify that mongod is running with three replica sets, we can look at the process table and select those with mongod in the name.
+
+```
+$ ps aux | grep mongod
+opq        673  0.2  1.3 1005344 55680 ?       Sl   08:18   0:01 /usr/local/bin/mongodb/bin/mongod --replSet opq-replica-set --port 27018 --dbpath /var/mongodb/opq/rs0 --fork --logpath /var/log/mongodb/rs0.loq
+opq        705  0.2  1.3 1005352 55940 ?       Sl   08:18   0:01 /usr/local/bin/mongodb/bin/mongod --replSet opq-replica-set --port 27019 --dbpath /var/mongodb/opq/rs1 --fork --logpath /var/log/mongodb/rs1.loq
+opq        737  0.2  1.3 1005344 55724 ?       Sl   08:18   0:01 /usr/local/bin/mongodb/bin/mongod --replSet opq-replica-set --port 27020 --dbpath /var/mongodb/opq/rs2 --fork --logpath /var/log/mongodb/rs2.loq
+```
+
+Here we see three mongod processes each running on a different port, each with their oen data directory, and each with their own log file.
+
+At this point in time, it should also be possible to connect to the server from opquser using the mongo command (assuming you've added the mongodb binary to your PATH).
+
+```
+$ mongo --port 27018
+MongoDB shell version v3.6.3
+connecting to: mongodb://127.0.0.1:27018/
+MongoDB server version: 3.6.3
+Welcome to the MongoDB shell.
+For interactive help, type "help".
+For more comprehensive documentation, see
+	http://docs.mongodb.org/
+Questions? Try the support group
+	http://groups.google.com/group/mongodb-user
+Server has startup warnings: 
+2018-04-11T08:18:04.158-1000 I STORAGE  [initandlisten] 
+2018-04-11T08:18:04.158-1000 I STORAGE  [initandlisten] ** WARNING: Using the XFS filesystem is strongly recommended with the WiredTiger storage engine
+2018-04-11T08:18:04.158-1000 I STORAGE  [initandlisten] **          See http://dochub.mongodb.org/core/prodnotes-filesystem
+2018-04-11T08:18:05.062-1000 I CONTROL  [initandlisten] 
+2018-04-11T08:18:05.062-1000 I CONTROL  [initandlisten] ** WARNING: Access control is not enabled for the database.
+2018-04-11T08:18:05.062-1000 I CONTROL  [initandlisten] **          Read and write access to data and configuration is unrestricted.
+2018-04-11T08:18:05.062-1000 I CONTROL  [initandlisten] 
+2018-04-11T08:18:05.062-1000 I CONTROL  [initandlisten] ** WARNING: This server is bound to localhost.
+2018-04-11T08:18:05.062-1000 I CONTROL  [initandlisten] **          Remote systems will be unable to connect to this server. 
+2018-04-11T08:18:05.062-1000 I CONTROL  [initandlisten] **          Start the server with --bind_ip <address> to specify which IP 
+2018-04-11T08:18:05.062-1000 I CONTROL  [initandlisten] **          addresses it should serve responses from, or with --bind_ip_all to
+2018-04-11T08:18:05.062-1000 I CONTROL  [initandlisten] **          bind to all interfaces. If this behavior is desired, start the
+2018-04-11T08:18:05.062-1000 I CONTROL  [initandlisten] **          server with --bind_ip 127.0.0.1 to disable this warning.
+2018-04-11T08:18:05.062-1000 I CONTROL  [initandlisten] 
+```
+
+You may see some warnings that we can ignore for the time being, but you can also verify that you can connect to the running mongod instance using this approach.
+
+## 3. Configuring mongod to support oplog
 
 
