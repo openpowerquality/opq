@@ -14,6 +14,7 @@ import Signout from '../../ui/pages/Signout.jsx';
 import Landing from '../../ui/pages/Landing';
 import Profile from '../../ui/pages/Profile';
 import Admin from '../../ui/pages/Admin';
+import BoxMapPage from '../../ui/pages/BoxMapPage';
 
 /** Top-level layout component for this application. Called in imports/startup/client/startup.jsx. */
 class App extends React.Component {
@@ -27,6 +28,7 @@ class App extends React.Component {
               <Route path="/about" component={About} />
               <AdminProtectedRoute path="/admin" component={Admin}/>
               <ProtectedRoute path="/profile" component={Profile}/>
+              <ProtectedRoute path="/boxmap" component={BoxMapPage}/>
               <ProtectedRoute path="/signout" component={Signout} />
               <Route path="/signin" component={Signin} />
               <Route component={NotFound} />
