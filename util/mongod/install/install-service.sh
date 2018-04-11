@@ -16,6 +16,4 @@ chown opq:opq /etc/init.d/mongod
 chmod +x /etc/init.d/mongod
 
 update-rc.d mongod defaults
-/etc/init.d/mongod start
-
 set +x
