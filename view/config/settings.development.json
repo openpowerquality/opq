@@ -7,7 +7,7 @@
   "opqBoxes" : [
     { "box_id": "1", "name": "Serge's Box", "description": "Version 2.5?, 2016", "calibration_constant": 152.1,
       "locations": [
-        {"start_time_ms": "2017-04-16 13:00:00", "zipcode": "96877", "nickname": "Serge Home" } ]},
+        {"start_time_ms": "2017-04-16 13:00:00", "zipcode": "96819", "nickname": "Serge Home" } ]},
 
     { "box_id": "2", "name": "Box 2", "description": "Unknown", "calibration_constant": 1.0, "unplugged": true,
       "locations": [
@@ -19,8 +19,8 @@
 
     { "box_id": "4", "name": "David's Box", "description": "Version 2.8, 2017", "calibration_constant": 146.46,
       "locations": [
-        {"start_time_ms": 1514844000000, "zipcode": "96822", "nickname": "David's Home" },
-        {"start_time_ms": 1520702450000, "zipcode": "unknown", "nickname": "Somewhere in Georgia" }]},
+        {"start_time_ms": 1514844000000, "zipcode": "96813", "nickname": "David's Home" },
+        {"start_time_ms": 1520702450000, "zipcode": "30213", "nickname": "Somewhere in Georgia" }]},
 
     { "box_id": "5", "name": "Philip's Box", "description": "Version 2.8, 2017", "calibration_constant": 146.5,
       "locations": [
@@ -35,6 +35,8 @@
 
     { "username": "johnson@hawaii.edu", "password": "foo", "firstName": "Philip", "lastName": "Johnson", "role": "admin", "boxIds": ["1", "2", "3"]},
 
-    { "username": "keal@hawaii.edu", "password": "foo", "firstName": "Kea", "lastName": "Uehara", "role": "admin", "boxIds": ["1", "2", "3", "4", "5"]}
+    { "username": "keal@hawaii.edu", "password": "foo", "firstName": "Kea", "lastName": "Uehara", "role": "admin", "boxIds": ["1", "2", "3", "4", "5"]},
+
+    { "username": "aghalarp@hawaii.edu", "password": "foo", "firstName": "David", "lastName": "Aghalarpour", "role": "admin", "boxIds": ["1", "2", "3", "4", "5"]}
   ]
 }
