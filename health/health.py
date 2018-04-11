@@ -221,7 +221,7 @@ def main(config_file):
 def parse_cmd_args():
     parser = argparse.ArgumentParser(description='Get config and log file names')
     parser.add_argument('-config', nargs=1, help='Name of config file', default=['config.json'])
-    parser.add_argument('-log', nargs=1, help='Name of log file', default=['log.txt'])
+    parser.add_argument('-log', nargs=1, help='Name of log file', default=['logfile.txt'])
     args = parser.parse_args()
     return args.config[0], args.log[0]
 
