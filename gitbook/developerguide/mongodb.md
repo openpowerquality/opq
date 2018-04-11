@@ -139,9 +139,10 @@ To verify that mongod is running with three replica sets, we can look at the pro
 
 ```
 $ ps aux | grep mongod
-opq        673  0.2  1.3 1005344 55680 ?       Sl   08:18   0:01 /usr/local/bin/mongodb/bin/mongod --replSet opq-replica-set --port 27018 --dbpath /var/mongodb/opq/rs0 --fork --logpath /var/log/mongodb/rs0.loq
-opq        705  0.2  1.3 1005352 55940 ?       Sl   08:18   0:01 /usr/local/bin/mongodb/bin/mongod --replSet opq-replica-set --port 27019 --dbpath /var/mongodb/opq/rs1 --fork --logpath /var/log/mongodb/rs1.loq
-opq        737  0.2  1.3 1005344 55724 ?       Sl   08:18   0:01 /usr/local/bin/mongodb/bin/mongod --replSet opq-replica-set --port 27020 --dbpath /var/mongodb/opq/rs2 --fork --logpath /var/log/mongodb/rs2.loq
+opq        673  0.2  1.3 1005344 55680 ?       Sl   08:18   0:01 opq       2545 12.8  1.3 1005348 55996 ?       Sl   09:39   0:00 /usr/local/bin/mongodb/bin/mongod --replSet opqrs --port 27018 --dbpath /var/mongodb/opq/rs0 --fork --logpath /var/log/mongodb/rs0.loq
+                                                                 opq       2586 15.0  1.3 1005348 55228 ?       Sl   09:39   0:00 /usr/local/bin/mongodb/bin/mongod --replSet opqrs --port 27019 --dbpath /var/mongodb/opq/rs1 --fork --logpath /var/log/mongodb/rs1.loq
+                                                                 opq       2618 19.0  1.3 1005348 55280 ?       Sl   09:39   0:00 /usr/local/bin/mongodb/bin/mongod --replSet opqrs --port 27020 --dbpath /var/mongodb/opq/rs2 --fork --logpath /var/log/mongodb/rs2.loq
+
 ```
 
 Here we see three mongod processes each running on a different port, each with their oen data directory, and each with their own log file.
@@ -180,4 +181,52 @@ You may see some warnings that we can ignore for the time being, but you can als
 
 ## 3. Configuring mongod to support oplog
 
+First, connect to the primary mongod instance
 
+```
+$ mongo --port 27018
+MongoDB shell version v3.6.3
+connecting to: mongodb://127.0.0.1:27018/
+MongoDB server version: 3.6.3
+Server has startup warnings: 
+2018-04-11T08:18:04.158-1000 I STORAGE  [initandlisten] 
+2018-04-11T08:18:04.158-1000 I STORAGE  [initandlisten] ** WARNING: Using the XFS filesystem is strongly recommended with the WiredTiger storage engine
+2018-04-11T08:18:04.158-1000 I STORAGE  [initandlisten] **          See http://dochub.mongodb.org/core/prodnotes-filesystem
+2018-04-11T08:18:05.062-1000 I CONTROL  [initandlisten] 
+2018-04-11T08:18:05.062-1000 I CONTROL  [initandlisten] ** WARNING: Access control is not enabled for the database.
+2018-04-11T08:18:05.062-1000 I CONTROL  [initandlisten] **          Read and write access to data and configuration is unrestricted.
+2018-04-11T08:18:05.062-1000 I CONTROL  [initandlisten] 
+2018-04-11T08:18:05.062-1000 I CONTROL  [initandlisten] ** WARNING: This server is bound to localhost.
+2018-04-11T08:18:05.062-1000 I CONTROL  [initandlisten] **          Remote systems will be unable to connect to this server. 
+2018-04-11T08:18:05.062-1000 I CONTROL  [initandlisten] **          Start the server with --bind_ip <address> to specify which IP 
+2018-04-11T08:18:05.062-1000 I CONTROL  [initandlisten] **          addresses it should serve responses from, or with --bind_ip_all to
+2018-04-11T08:18:05.062-1000 I CONTROL  [initandlisten] **          bind to all interfaces. If this behavior is desired, start the
+2018-04-11T08:18:05.062-1000 I CONTROL  [initandlisten] **          server with --bind_ip 127.0.0.1 to disable this warning.
+2018-04-11T08:18:05.062-1000 I CONTROL  [initandlisten] 
+> 
+```
+
+Once connected, we can now configure the replica sets. We will first create a config variable:
+
+```
+config = {_id: "opqrs", members: [{_id: 0, host: "localhost:27018"}, {_id: 1, host: "localhost:27019"},{_id: 2, host: "localhost:27020"}]};
+```
+
+Next, we will initiate the replica set with the config that we just created using `rs.initiate(config);`
+
+```
+> rs.initiate(config);
+{
+	"ok" : 1,
+	"operationTime" : Timestamp(1523475887, 1),
+	"$clusterTime" : {
+		"clusterTime" : Timestamp(1523475887, 1),
+		"signature" : {
+			"hash" : BinData(0,"AAAAAAAAAAAAAAAAAAAAAAAAAAA="),
+			"keyId" : NumberLong(0)
+		}
+	}
+}
+```
+
+At this point, you should be ready to go. See the official mongodb documentation if you wish to setup further access rights such as users or permissions.
