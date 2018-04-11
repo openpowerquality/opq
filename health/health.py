@@ -188,9 +188,42 @@ def check_mauka(config):
             save_message(message)
         sleep(sleep_time)
 
+def generate_req_event_message():
+    current_t_ms = time()
+    req_message = protobuf.opq_pb2.RequestEventMessage()
+
+    req_message.trigger_type = req_message.OTHER
+    req_message.description = "This is a test"
+    req_message.end_timestamp_ms_utc = int(current_t_ms - 10000)
+    req_message.start_timestamp_ms_utc = int(current_t_ms - 20000)
+    req_message.percent_magnitude = 50
+    req_message.requestee = "Evan"
+    req_message.request_data = True
+    
+    return req_message
+
+def check_makai(config):
+    sleep_time = config['interval']
+    url = config['acquisition_port']
+
+    context = zmq.Context()
+    socket = context.socket(zmq.REQ)
+    socket.connect(url)
+
+    req_message = generate_req_event_message()
+
+    socket.send(req_message.SerializeToString())
+    
+    message = socket.recv(3000)
+
+    print(message)
+
+    sleep(sleep_time)
+
 def main(config_file):
     health_config = file_to_dict(config_file)
-    
+
+    '''
     health_health_config = health_config[6]
     health_thread = Thread(target=check_health, args=(health_health_config, ))
     health_thread.start()
@@ -212,11 +245,19 @@ def main(config_file):
     mauka_thread = Thread(target=check_mauka, args=(mauka_config, ))
     mauka_thread.start()
 
+    '''
+    makai_config = health_config[3]
+    makai_thread = Thread(target=check_makai, args=(makai_config, ))
+    makai_thread.start()
+
+    '''
     health_thread.join()
     view_thread.join()
     box_thread.join()
     mongo_thread.join()
-    #mauka_thread.join()
+    mauka_thread.join()
+    '''
+    makai_thread.join()
 
 def parse_cmd_args():
     parser = argparse.ArgumentParser(description='Get config and log file names')
