@@ -1,41 +1,48 @@
 {
+  "parser": "babel-eslint",
   "parserOptions": {
     "ecmaVersion": 2017,
-    "sourceType": "module"
+    "ecmaFeatures": {
+      "jsx": true
+    }
   },
   "plugins": [
-    "meteor"
+    "meteor",
+    "react"
   ],
   "extends": [
     "airbnb/base",
-    "plugin:meteor/recommended"
+    "plugin:meteor/recommended",
+    "plugin:react/recommended"
   ],
   "rules": {
-    "meteor/eventmap-params": [
-      2,
-      {
-        "eventParamName": "event",
-        "templateInstanceParamName": "instance"
-      }
-    ],
-    "meteor/template-names": "off",
-    "prefer-arrow-callback": "off",
     "arrow-parens": "off",
-    "no-plusplus": "off",
+    "camelcase": "off",
+    "class-methods-use-this": "off",
     "func-names": "off",
-    "linebreak-style": "off",
-    "object-property-newline": "off",
-    "no-underscore-dangle": "off",
-    "object-shorthand": "off",
-    "max-len": ["error", 120],
     "import/no-absolute-path": "off",
     "import/no-unresolved": "off",
     "import/extensions": "off",
     "import/imports-first": "off",
     "import/prefer-default-export": "off",
-    "import/no-extraneous-dependencies": "off"
+    "import/no-extraneous-dependencies": "off",
+    "indent": "off",
+    "linebreak-style": "off",
+    "max-len": ["error", 120],
+    "meteor/eventmap-params": [2, { "eventParamName": "event", "templateInstanceParamName": "instance" } ],
+    "meteor/template-names": "off",
+    "no-plusplus": "off",
+    "no-underscore-dangle": "off",
+    "object-curly-newline": "off",
+    "object-property-newline": "off",
+    "object-shorthand": "off",
+    "padded-blocks": "off",
+    "prefer-arrow-callback": "off",
+    "prefer-destructuring": "off",
+    "prefer-promise-reject-errors": "off"
   },
   "globals": {
-    "Assets": true // Meteor doesn't allow importing of Assets package, see https://docs.meteor.com/api/assets.html
+    "Assets": true, // Meteor disallows importing of Assets, see https://docs.meteor.com/api/assets.html
+    "_": false
   }
 }

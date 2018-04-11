@@ -15,6 +15,7 @@ The OPQ system utilizes the following collections:
 * **[fs.files](#fs.files) and [fs.chunks](#fs.chunks)** Internal to GridFS. Stores box_event binary waveform data.
 * **[opq_boxes](#opq_boxes):** Provides individual OPQBox information, such as its current (and prior) locations.
 * **[users](#users):** Provides user information, such as the boxes currently owned by them.
+* **[zipcodes](#zipcodes):** Provides a mapping from zipcode to latitude and longitude.
 
 ### Naming Conventions
 
@@ -172,4 +173,16 @@ The **email** field is the user's email address. This field also serves as the u
 The **first_name** and **last_name** fields are the user's first and last name.
 
 The **role** field indicates the role of the user in the OPQ system. Currently, there are only two roles: "user" and "admin".
+
+### Zip Codes {#zipcodes}
+
+The **zipcodes** collection contains a mapping from zip codes to latitude and longitude of the central point of the zip code.
+
+|**zipcodes**|             |
+|------------|-------------|
+| zipcode (indexed)    | String      |
+| latitude   | Float       |
+| longitude  | Float       |
+
+
 

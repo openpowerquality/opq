@@ -2,7 +2,7 @@ import { Mongo } from 'meteor/mongo';
 import _ from 'lodash';
 import Moment from 'moment';
 import { ValidatedMethod } from 'meteor/mdg:validated-method';
-import { SimpleSchema } from 'meteor/aldeed:simple-schema';
+import SimpleSchema from 'simpl-schema';
 import { Measurements } from './MeasurementsCollection.js';
 import { Events } from '../events/EventsCollection.js';
 
@@ -58,8 +58,8 @@ export const getActiveBoxIds = new ValidatedMethod({
 
     // Returns an array of unique deviceIds, sorted asc.
     return (recentMeasurements.length > 0)
-        ? _.uniq(_.pluck(recentMeasurements, 'box_id')).sort((a, b) => a - b)
-        : null;
+      ? _.uniq(_.pluck(recentMeasurements, 'box_id')).sort((a, b) => a - b)
+      : null;
   },
 });
 

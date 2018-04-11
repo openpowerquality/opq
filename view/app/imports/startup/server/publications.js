@@ -1,8 +1,19 @@
-import { Measurements } from '../../api/measurements/MeasurementsCollection.js';
+import { BoxEvents } from '../../api/box-events/BoxEventsCollection';
+import { BoxOwners } from '../../api/users/BoxOwnersCollection';
 import { Events } from '../../api/events/EventsCollection';
-import { BoxEvents } from '../../api/box-events/BoxEventsCollection.js';
+import { Healths } from '../../api/health/HealthsCollection';
+import { Trends } from '../../api/trends/TrendsCollection.js';
+import { SystemStats } from '../../api/system-stats/SystemStatsCollection.js';
+import { OpqBoxes } from '../../api/opq-boxes/OpqBoxesCollection';
+import { Measurements } from '../../api/measurements/MeasurementsCollection';
+import { UserProfiles } from '../../api/users/UserProfilesCollection';
 
-
-Measurements.publish();
-Events.publish();
 BoxEvents.publish();
+BoxOwners.publish();
+Events.publish();
+Healths.publish();
+Measurements.publish();
+OpqBoxes.publish();
+SystemStats.publish();
+Trends.publish();
+UserProfiles.publish();

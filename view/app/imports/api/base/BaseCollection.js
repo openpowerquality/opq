@@ -1,7 +1,9 @@
 import { Meteor } from 'meteor/meteor';
 import { Mongo } from 'meteor/mongo';
-import { SimpleSchema } from 'meteor/aldeed:simple-schema';
+import SimpleSchema from 'simpl-schema';
 import _ from 'lodash';
+import Moment from 'moment';
+
 
 /**
  * BaseCollection is an abstract superclass of all other collection classes.
@@ -41,6 +43,20 @@ class BaseCollection {
   }
 
   /**
+   * Returns the number of documents in this collection with a UTC millisecond timestamp greater than today's
+   * date at midnight.
+   * @param timeField The name of the field containing a timestamp in UTC millisecond format.
+   * @returns The number of documents whose timestamp is from today.
+   */
+  countToday(timeField) {
+    const startToday = Moment().startOf('day').valueOf();
+    const query = {};
+    query[timeField] = { $gte: startToday };
+    return this._collection.find(query).count();
+
+  }
+
+  /**
    * Calls the MongoDB native find() on this collection.
    * @see {@link http://docs.meteor.com/api/collections.html#Mongo-Collection-find|Meteor Docs Mongo.Collection.find()}
    * @param {Object} selector - A MongoDB selector object.
@@ -63,12 +79,31 @@ class BaseCollection {
     return this._collection.findOne(selector, options);
   }
 
+  /**
+   * Returns true if the passed entity is in this collection.
+   * @param { String | Object } name The docID, or an object specifying a document.
+   * @returns {boolean} True if name exists in this collection.
+   */
+  isDefined(name) {
+    return (
+      !!this._collection.findOne(name) ||
+      !!this._collection.findOne({ name }) ||
+      !!this._collection.findOne({ _id: name }));
+  }
+
+  /**
+   * Update the collection.
+   * @param selector
+   * @param modifier
+   * @param options
+   * @returns {any}
+   */
   update(selector = {}, modifier = {}, options = {}) {
     return this._collection.update(selector, modifier, options);
   }
 
   /**
-   * Default publication of collection (publishes entire collection). Derived classes should typically just write
+   * Default publication of collection (publishes entire collection). Derived classes will often override with
    * their own publish() method, as its generally a bad idea to publish the entire collection to the client.
    */
   publish() {
@@ -78,20 +113,12 @@ class BaseCollection {
   }
 
   /**
-   * Subscribes to the publication. Will subscribe on the template instance if it is given.
-   * TODO: Implement handling of err/result callback. Look at the Meteor.subscribe implementation for details.
-   *
-   * @param {String} publicationName - The name of the publication.
-   * @param {Object} templateInstance - The template instance.
-   * @param {...*} subscriptionArgs - The arguments to pass to the subscription function call.
-   * @returns {Object} - The subscription handle object, or null if the subscription could not be established.
+   * Default version of getPublicationName returns the single publication name.
+   * Derived classes many need to override this method as well.
+   * @returns The default publication name.
    */
-  subscribe(publicationName, templateInstance, ...subscriptionArgs) { // eslint-disable-line class-methods-use-this
-    if (Meteor.isClient) {
-      const subscribeFn = (templateInstance) ? templateInstance.subscribe.bind(templateInstance) : Meteor.subscribe;
-      return subscribeFn(publicationName, ...subscriptionArgs);
-    }
-    return null;
+  getPublicationName() {
+    return this._collectionName;
   }
 
   /**
@@ -112,8 +139,7 @@ class BaseCollection {
    * @returns {Object} An object representing the contents of this collection.
    */
   dumpAll() {
-    const dumpObject = { name: this._collectionName, contents: this.find().map(doc => this.dumpOne(doc._id)) };
-    return dumpObject;
+    return { name: this._collectionName, contents: this.find().map(doc => this.dumpOne(doc._id)) };
   }
 
   /**
@@ -124,8 +150,7 @@ class BaseCollection {
   findDoc(docID) {
     const doc = this.findOne({ _id: docID }, {});
     if (!doc) {
-      // eslint-disable-next-line max-len
-      throw new Meteor.Error(`Could not find a document with docID: ${docID} in the collection: ${this._collectionName}.`);
+      throw new Meteor.Error(`Could not find document with docID: ${docID} in collection: ${this._collectionName}.`);
     }
     return doc;
   }
@@ -157,5 +182,30 @@ class BaseCollection {
   restoreAll(dumpObjects) {
     _.each(dumpObjects, dumpObject => this.restoreOne(dumpObject));
   }
+
+  /**
+   * Removes all elements of this collection.
+   * This is implemented by mapping through all elements because mini-mongo does not implement the remove operation.
+   * So this approach can be used on both client and server side.
+   * removeAll should only used for testing purposes, so it doesn't need to be efficient.
+   * @returns true
+   */
+  removeAll() {
+    const items = this._collection.find().fetch();
+    const instance = this;
+    _.forEach(items, (i) => {
+      instance.remove(i._id);
+    });
+    return true;
+  }
+
+  /**
+   * Default remove function calls remove with the docID.
+   * @param docID The docID of the document to be removed.
+   */
+  remove(docID) {
+    this._collection.remove(docID);
+  }
 }
+
 export default BaseCollection;

@@ -1,5 +1,7 @@
+import { Meteor } from 'meteor/meteor';
 import { Mongo } from 'meteor/mongo';
-import { SimpleSchema } from 'meteor/aldeed:simple-schema';
+import SimpleSchema from 'simpl-schema';
+import { check } from 'meteor/check';
 import BaseCollection from '../base/BaseCollection.js';
 import { OpqBoxes } from '../opq-boxes/OpqBoxesCollection';
 import { progressBarSetup } from '../../modules/utils';
@@ -15,21 +17,26 @@ class TrendsCollection extends BaseCollection {
       box_id: { type: String },
       timestamp_ms: { type: Number },
       voltage: { type: Object },
-      'voltage.min': { type: Number, decimal: true },
-      'voltage.max': { type: Number, decimal: true },
-      'voltage.average': { type: Number, decimal: true },
+      'voltage.min': { type: Number },
+      'voltage.max': { type: Number },
+      'voltage.average': { type: Number },
       frequency: { type: Object },
-      'frequency.min': { type: Number, decimal: true },
-      'frequency.max': { type: Number, decimal: true },
-      'frequency.average': { type: Number, decimal: true },
+      'frequency.min': { type: Number },
+      'frequency.max': { type: Number },
+      'frequency.average': { type: Number },
       thd: { type: Object, optional: true },
-      'thd.min': { type: Number, decimal: true },
-      'thd.max': { type: Number, decimal: true },
-      'thd.average': { type: Number, decimal: true },
+      'thd.min': { type: Number },
+      'thd.max': { type: Number },
+      'thd.average': { type: Number },
     }));
 
     this.publicationNames = {
+      GET_RECENT_TRENDS: 'get_recent_trends',
+      TRENDS_RECENT_MONTH: 'trends_recent_month',
     };
+    if (Meteor.server) {
+      this._collection.rawCollection().createIndex({ timestamp_ms: 1, box_id: 1 }, { background: true });
+    }
   }
 
   /**
@@ -44,6 +51,33 @@ class TrendsCollection extends BaseCollection {
   define({ box_id, timestamp_ms, voltage, frequency, thd }) {
     const docID = this._collection.insert({ box_id, timestamp_ms, voltage, frequency, thd });
     return docID;
+  }
+
+  /**
+   * Returns the oldest Trend document associated with box_id by timestamp, or null if there are no Trends for box_id.
+   * @param box_id The box_id
+   * @returns The Trend document, or null.
+   */
+  oldestTrend(box_id) {
+    return this._collection.findOne({ box_id, timestamp_ms: { $gt: 0 } }, { sort: { timestamp_ms: 1 } });
+  }
+
+  /**
+   * Returns the newest Trend document associated with box_id by timestamp, or null if there are no Trends for box_id.
+   * @param box_id The box_id
+   * @returns The Trend document, or null.
+   */
+  newestTrend(box_id) {
+    return this._collection.findOne({ box_id }, { sort: { timestamp_ms: -1 } });
+  }
+
+  /**
+   * Returns the number of Trend documents associated with box_id.
+   * @param box_id The box ID.
+   * @returns The number of Trend documents with that ID.
+   */
+  countTrends(box_id) {
+    return this._collection.find({ box_id }).count();
   }
 
   /**
@@ -98,9 +132,16 @@ class TrendsCollection extends BaseCollection {
    * Loads all publications related to the Trends collection.
    */
   publish() { // eslint-disable-line class-methods-use-this
-    // if (Meteor.isServer) {
-    //
-    // }
+    if (Meteor.isServer) {
+      const self = this;
+
+      Meteor.publish(this.publicationNames.GET_RECENT_TRENDS, function ({ numTrends }) {
+        check(numTrends, Number);
+
+        const trends = self.find({}, { sort: { timestamp_ms: -1 }, limit: numTrends });
+        return trends;
+      });
+    }
   }
 }
 

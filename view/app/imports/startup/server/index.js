@@ -1,2 +1,4 @@
-import './init-db.js';
-import './publications.js';
+import './synced-cron';
+import './publications';
+import './init-users';
+import './init-boxes';

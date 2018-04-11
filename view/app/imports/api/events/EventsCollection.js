@@ -1,7 +1,7 @@
 import { Meteor } from 'meteor/meteor';
 import { Mongo } from 'meteor/mongo';
 import { check, Match } from 'meteor/check';
-import { SimpleSchema } from 'meteor/aldeed:simple-schema';
+import SimpleSchema from 'simpl-schema';
 import BaseCollection from '../base/BaseCollection.js';
 import { progressBarSetup } from '../../modules/utils';
 
@@ -17,20 +17,32 @@ class EventsCollection extends BaseCollection {
   constructor() {
     super('events', new SimpleSchema({
       _id: { type: Mongo.ObjectID },
-      event_id: { type: Number },
-      type: { type: String },
-      description: { type: String },
-      boxes_triggered: { type: [String] },
-      boxes_received: { type: [String] },
-      target_event_start_timestamp_ms: { type: Number },
-      target_event_end_timestamp_ms: { type: Number },
-      latencies_ms: { type: [Number], optional: true },
+      event_id: Number,
+      type: String,
+      description: String,
+      boxes_triggered: [String],
+      boxes_received: [String],
+      target_event_start_timestamp_ms: Number,
+      target_event_end_timestamp_ms: Number,
+      latencies_ms: { type: Array, optional: true },
+      'latencies_ms.$': Number,
     }));
 
+    this.eventTypes = ['FREQUENCY_SAG', 'FREQUENCY_SWELL', 'VOLTAGE_SAG', 'VOLTAGE_SWELL', 'THD', 'OTHER'];
+    this.FREQUENCY_SAG_TYPE = 'FREQUENCY_SAG';
+    this.FREQUENCY_SWELL_TYPE = 'FREQUENCY_SWELL';
+    this.VOLTAGE_SAG_TYPE = 'VOLTAGE_SAG';
+    this.VOLTAGE_SWELL_TYPE = 'VOLTAGE_SWELL';
+    this.THD_TYPE = 'THD';
+    this.OTHER_TYPE = 'OTHER';
+
     this.publicationNames = {
-      // GET_EVENT_META_DATA: 'get_event_meta_data',
       GET_EVENTS: 'get_events',
+      GET_RECENT_EVENTS: 'get_recent_events',
     };
+    if (Meteor.server) {
+      this._collection.rawCollection().createIndex({ target_event_start_timestamp_ms: 1 }, { background: true });
+    }
   }
 
   /**
@@ -43,7 +55,7 @@ class EventsCollection extends BaseCollection {
    * @returns The newly created document ID.
    */
   define({ event_id, type, description, boxes_triggered, boxes_received, target_event_start_timestamp_ms,
-           target_event_end_timestamp_ms, latencies_ms }) {
+    target_event_end_timestamp_ms, latencies_ms }) {
     const docID = this._collection.insert({ event_id, type, description, boxes_triggered, boxes_received,
       target_event_start_timestamp_ms, target_event_end_timestamp_ms, latencies_ms });
     return docID;
@@ -107,6 +119,13 @@ class EventsCollection extends BaseCollection {
 
         const selector = self.queryConstructors().getEvents({ startTime, endTime });
         return self.find(selector);
+      });
+
+      Meteor.publish(this.publicationNames.GET_RECENT_EVENTS, function ({ numEvents, excludeOther }) {
+        check(numEvents, Number);
+        const query = excludeOther ? { type: { $ne: 'OTHER' } } : {};
+        const events = self.find(query, { sort: { target_event_start_timestamp_ms: -1 }, limit: numEvents });
+        return events;
       });
     }
   }

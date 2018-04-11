@@ -1,6 +1,6 @@
 import { Meteor } from 'meteor/meteor';
 import { Mongo } from 'meteor/mongo';
-import { SimpleSchema } from 'meteor/aldeed:simple-schema';
+import SimpleSchema from 'simpl-schema';
 import BaseCollection from '../base/BaseCollection.js';
 import { FSFiles } from '../fs-files/FSFilesCollection';
 import { progressBarSetup } from '../../modules/utils';
@@ -18,8 +18,8 @@ class FSChunksCollection extends BaseCollection {
     super('fs.chunks', new SimpleSchema({
       _id: { type: Mongo.ObjectID },
       files_id: { type: Mongo.ObjectID },
-      n: { type: Number },
-      data: { type: Uint8Array },
+      n: Number,
+      data: Uint8Array,
     }));
 
     this.publicationNames = {
