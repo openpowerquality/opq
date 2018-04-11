@@ -14,7 +14,7 @@ RUN_DIR=/var/run
 
 #Paths to service binaries
 MONGOD_SERVICE=/bin/bash
-MONGOD_SCRIPT=/usr/local/bin/mongodb/start-mongodb.sh
+MONGOD_SCRIPT=/usr/local/bin/mongodb/start-mongod.sh
 MONGOD_LOG=/var/log/mongodb/mongod-service.log
 
 #Paths to PID
