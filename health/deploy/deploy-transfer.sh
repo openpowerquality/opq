@@ -6,6 +6,7 @@ mkdir $timestamp
 cp ../health.py $timestamp
 cp ../config.json $timestamp
 # figure out what to put into deploy file for protobuf.
+cp ../protobuf/ $timestamp -r
 cd ..
 tar czf $timestamp.tar.gz $timestamp
 rm -rf $timestamp
