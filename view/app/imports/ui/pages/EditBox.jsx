@@ -20,8 +20,8 @@ class EditBox extends React.Component {
   submit(data) {
     const { box_id, name, description, calibration_constant, locations } = data;
     editBox.call({ box_id, name, description, calibration_constant, locations }, (error) => (error ?
-        Bert.alert({ type: 'danger', message: `Update failed: ${error.message}` }) :
-        Bert.alert({ type: 'success', message: 'Update succeeded' })));
+        Bert.alert({ type: 'danger', style: 'growl-bottom-left', message: `Update failed: ${error.message}` }) :
+        Bert.alert({ type: 'success', style: 'growl-bottom-left', message: 'Update succeeded' })));
   }
 
   /** If the subscription(s) have been received, render the page, otherwise show a loading icon. */
