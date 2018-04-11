@@ -50,7 +50,7 @@ To install OPQHealth, you must first set up the configuration file.  A sample co
   { "service": "zeromq", "port": "tcp://127.0.0.1:9881" },
   { "service": "box", "interval": 60, "boxdata": [ { "boxID": 0 }, { "boxID": 1 }, { "boxID": 3 } ]},
   { "service": "mauka", "interval": 60, "url": "http://localhost:8911", "plugins": ["StatusPlugin", "IticPlugin", "AcquisitionTriggerPlugin", "VoltageThresholdPlugin", "ThdPlugin", "FrequencyThresholdPlugin" ]},
-  { "service": "makai", "interval": 60 },
+  { "service": "makai", "interval": 60, "mongo": "mongodb://localhost:27017", "acquisition_port": "tcp://localhost:9884" },
   { "service": "view", "interval": 60, "url": "http://emilia.ics.hawaii.edu" },
   { "service": "mongodb", "interval": 60, "url": "mongodb://localhost:27017/" },
   { "service": "health", "interval": 86400 }
@@ -102,7 +102,7 @@ OPQHealth assesses the health of each service in the following way:
 
 *Mauka*: For Mauka to have the status up, Mauka's health http endpoint must respond with status code 200 and valid json containing a dict of plugins and a timestamp for each of the plugin's last "heartbeat." Each Mauka plugin will have its own health status, which is considered up if its provided timestamp is within the past 5 minutes. A health status is only provided for plugins specified in the config.json
 
-*Makai*: (Need to specify the health check here.)
+*Makai*: For Makai to have the status up, three things must happen. (1) Boxes must be sending measurements. (2) Must be able to request events from Makai's acquisition broker. (3) The requested event must appear in mongodb.
 
 *MongoDB*: For MongoDB to have status up, OPQHealth must be able to successfully retrieve a document from the health collection.
 
