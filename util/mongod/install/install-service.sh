@@ -7,6 +7,10 @@ fi
 
 set -x
 
+cp start-mongod.sh /usr/local/bin/mongodb/.
+chown opq:opq /usr/local/bin/mongodb/start-mongod.sh
+chmod +x /usr/local/bin/mongod/start-mongod.sh
+
 cp mongod-service.sh /etc/init.d/mongod
 chown opq:opq /etc/init.d/mongod
 chmod +x /etc/init.d/mongod
