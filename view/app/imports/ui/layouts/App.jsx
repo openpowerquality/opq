@@ -14,6 +14,7 @@ import Signout from '../../ui/pages/Signout.jsx';
 import Landing from '../../ui/pages/Landing';
 import Profile from '../../ui/pages/Profile';
 import Admin from '../../ui/pages/Admin';
+import EditBox from '../../ui/pages/EditBox';
 
 /** Top-level layout component for this application. Called in imports/startup/client/startup.jsx. */
 class App extends React.Component {
@@ -28,6 +29,7 @@ class App extends React.Component {
               <AdminProtectedRoute path="/admin" component={Admin}/>
               <ProtectedRoute path="/profile" component={Profile}/>
               <ProtectedRoute path="/signout" component={Signout} />
+              <ProtectedRoute path="/edit/:box_id" component={EditBox} />
               <Route path="/signin" component={Signin} />
               <Route component={NotFound} />
             </Switch>
