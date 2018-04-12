@@ -50,6 +50,7 @@ def write_to_mongo(message):
     db = client['opq']
     coll = db['health']
   
+    '''
     doc = coll.find_one({'service':message['service'],'serviceID':message['serviceID']}, sort= [('timestamp', -1)])
 
     message['timestamp'] = datetime.now()
@@ -60,6 +61,9 @@ def write_to_mongo(message):
             {'$set': {'timestamp': message['timestamp']}})
     else:
         coll.insert_one(message)
+    '''
+
+    coll.insert_one(message)
 
     client.close()
 
