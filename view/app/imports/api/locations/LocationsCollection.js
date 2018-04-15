@@ -27,9 +27,6 @@ class LocationsCollection extends BaseCollection {
   define({ slug, coordinates, description }) {
     if (Meteor.isServer) {
 
-      if (this.findOne({ slug })) {
-        console.log(`Slug ${slug} is being redefined.`);
-      }
       if (Regions.findOne({ regionSlug: slug })) {
         throw new Meteor.Error(`Slug ${slug} is already defined as a region.`);
       }

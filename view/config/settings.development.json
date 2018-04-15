@@ -36,5 +36,19 @@
     { "username": "johnson@hawaii.edu", "password": "foo", "firstName": "Philip", "lastName": "Johnson", "role": "admin", "boxIds": ["1", "2", "3"]},
 
     { "username": "keal@hawaii.edu", "password": "foo", "firstName": "Kea", "lastName": "Uehara", "role": "admin", "boxIds": ["1", "2", "3", "4", "5"]}
+  ],
+
+  "locations": [
+    { "slug": "Kailua-001", "coordinates": [-157.751399,  21.409958], "description": "Residence, Kailua" },
+    { "slug": "UHM-POST-307", "coordinates": [-157.816176, 21.297421 ], "description": "POST 307, UH" },
+    { "slug": "Honolulu-001", "coordinates": [-157.828921, 21.300010], "description": "Residence, Makiki" },
+    { "slug": "Honolulu-002", "coordinates": [-157.825917, 21.294651], "description": "Residence, Moiliili" }
+  ],
+
+  "regions": [
+    { "regionSlug": "96734", "locationSlug": "Kailua-001" },
+    { "regionSlug": "96822", "locationSlug": "UHM-POST-307" },
+    { "regionSlug": "96822", "locationSlug": "Honolulu-001" },
+    { "regionSlug": "96822", "locationSlug": "Honolulu-002" }
   ]
 }
