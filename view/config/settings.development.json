@@ -6,26 +6,20 @@
   "systemStatsUpdateIntervalSeconds": 10,
   "opqBoxes" : [
     { "box_id": "1", "name": "Serge's Box", "description": "Version 2.5?, 2016", "calibration_constant": 152.1,
-      "locations": [
-        {"start_time_ms": "2017-04-16 13:00:00", "zipcode": "96877", "nickname": "Serge Home" } ]},
+      "location": "Honolulu-001", "location_start_time_ms": "2017-04-16 13:00:00" },
 
     { "box_id": "2", "name": "Box 2", "description": "Unknown", "calibration_constant": 1.0, "unplugged": true,
-      "locations": [
-        {"start_time_ms": 1514844000000, "zipcode": "96822", "nickname": "CSDL Office" } ]},
+      "location": "Honolulu-002", "location_start_time_ms": "2017-04-16 13:00:00" },
 
     { "box_id": "3", "name": "CSDL Box", "description": "Version 2.7, 2017", "calibration_constant": 154.2,
-      "locations": [
-        {"start_time_ms": "2017-04-20 14:00:00", "zipcode": "96822", "nickname": "POST 307" } ]},
+      "location": "UHM-POST-307", "location_start_time_ms": "2017-04-16 13:00:00"},
 
     { "box_id": "4", "name": "David's Box", "description": "Version 2.8, 2017", "calibration_constant": 146.46,
-      "locations": [
-        {"start_time_ms": 1514844000000, "zipcode": "96822", "nickname": "David's Home" },
-        {"start_time_ms": 1520702450000, "zipcode": "unknown", "nickname": "Somewhere in Georgia" }]},
+      "location": "Honolulu-004", "location_start_time_ms": "2017-04-16 13:00:00"},
 
     { "box_id": "5", "name": "Philip's Box", "description": "Version 2.8, 2017", "calibration_constant": 146.5,
-      "locations": [
-        {"start_time_ms": 1514844000000, "zipcode": "96822", "nickname": "CSDL Office" },
-        {"start_time_ms": "2018-03-01 12:00:00", "zipcode": "96734", "nickname": "Kailua, HI (PJ)" }]}
+      "location": "Kailua-001", "location_start_time_ms": "2018-01-10 13:00:00",
+      "location_archive": [ {"location": "UHM-POST-307", "location_start_time_ms": "2017-04-16 13:00:00" } ]}
   ],
 
   "userProfiles": [
@@ -36,5 +30,21 @@
     { "username": "johnson@hawaii.edu", "password": "foo", "firstName": "Philip", "lastName": "Johnson", "role": "admin", "boxIds": ["1", "2", "3"]},
 
     { "username": "keal@hawaii.edu", "password": "foo", "firstName": "Kea", "lastName": "Uehara", "role": "admin", "boxIds": ["1", "2", "3", "4", "5"]}
+  ],
+
+  "locations": [
+    { "coordinates": [-157.751399, 21.409958], "slug": "Kailua-001", "description": "Residence, Kailua" },
+    { "coordinates": [-157.816176, 21.297421], "slug": "UHM-POST-307", "description": "POST 307, UH" },
+    { "coordinates": [-157.828921, 21.300010], "slug": "Honolulu-001", "description": "Residence, Makiki" },
+    { "coordinates": [-157.825917, 21.294651], "slug": "Honolulu-002", "description": "Residence, Moiliili" },
+    { "coordinates": [-157.792919, 21.299199], "slug": "Honolulu-003", "description": "Residence, Palolo" },
+    { "coordinates": [-157.802593, 21.278053], "slug": "Honolulu-004", "description": "Residence, Kaimuki" }
+  ],
+
+  "regions": [
+    { "regionSlug": "96734", "locationSlug": "Kailua-001" },
+    { "regionSlug": "96822", "locationSlug": "UHM-POST-307" },
+    { "regionSlug": "96822", "locationSlug": "Honolulu-001" },
+    { "regionSlug": "96822", "locationSlug": "Honolulu-002" }
   ]
 }
