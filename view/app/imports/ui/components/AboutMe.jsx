@@ -7,11 +7,15 @@ import WidgetPanel from '../layouts/WidgetPanel';
 /** Display user profile info. */
 class AboutMe extends React.Component {
 
+  helpText = `
+  <p>Your profile information is displayed here.</p>
+  `;
+
   /** Here's the system stats page. */
   render() {
     const divStyle = { paddingLeft: '10px' };
     return (
-        <WidgetPanel title="About Me">
+        <WidgetPanel title="About Me" helpText={this.helpText}>
           <Table style={divStyle} basic='very' >
             <Table.Body>
               <Table.Row>

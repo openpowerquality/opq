@@ -2,7 +2,7 @@
   "name": "opqview",
   "private": true,
   "dependencies": {
-    "@babel/runtime": "^7.0.0-beta.39",
+    "@babel/runtime": "^7.0.0-beta.44",
     "bcrypt": "^1.0.3",
     "classnames": "^2.2.5",
     "es6-mapify": "1.0.0",
@@ -10,6 +10,7 @@
     "lodash": "^4.17.4",
     "meteor-node-stubs": "~0.3.2",
     "moment": "^2.20.1",
+    "pondjs": "^0.8.8",
     "prop-types": "^15.6.0",
     "react": "^16.2.0",
     "react-addons-pure-render-mixin": "^15.6.2",
@@ -18,6 +19,7 @@
     "react-meteor-data": "^0.2.11",
     "react-router": "^4.2.0",
     "react-router-dom": "^4.2.2",
+    "react-timeseries-charts": "^0.14.0",
     "react-vis": "^1.9.2",
     "semantic-ui-css": "^2.2.12",
     "semantic-ui-react": "^0.77.2",
@@ -38,6 +40,7 @@
   },
   "scripts": {
     "start": "meteor --settings ../config/settings.development.json",
+    "build": "meteor build ../deploy --architecture os.linux.x86_64",
     "lint": "eslint --quiet --ext .jsx --ext .js ./imports",
     "pretest": "npm run lint",
     "test": "TEST_BROWSER_DRIVER=nightmare meteor test --once --driver-package meteortesting:mocha --no-release-check --port 3100",

@@ -2,6 +2,8 @@ import { Meteor } from 'meteor/meteor';
 import { Mongo } from 'meteor/mongo';
 import SimpleSchema from 'simpl-schema';
 import _ from 'lodash';
+import Moment from 'moment';
+
 
 /**
  * BaseCollection is an abstract superclass of all other collection classes.
@@ -38,6 +40,20 @@ class BaseCollection {
    */
   count() {
     return this._collection.find().count();
+  }
+
+  /**
+   * Returns the number of documents in this collection with a UTC millisecond timestamp greater than today's
+   * date at midnight.
+   * @param timeField The name of the field containing a timestamp in UTC millisecond format.
+   * @returns The number of documents whose timestamp is from today.
+   */
+  countToday(timeField) {
+    const startToday = Moment().startOf('day').valueOf();
+    const query = {};
+    query[timeField] = { $gte: startToday };
+    return this._collection.find(query).count();
+
   }
 
   /**

@@ -1,26 +1,26 @@
 #!/bin/bash
 ### BEGIN INIT INFO
-# Provides:          mongod_service
+# Provides:          mongod
 # Required-Start:    $remote_fs $network $time $syslog
 # Required-Stop:     $remote_fs $network $time $syslog
 # Default-Start:     2 3 4 5
 # Default-Stop:      0 1 6
-# Description:       mongod_service = Start mongodb
+# Description:       Runs mongod with three replica sets
 ### END INIT INFO
 
 PATH=/sbin:/usr/sbin:/bin:/usr/bin:/usr/local/bin
-NAME=mongod_service
+NAME=mongod
 RUN_DIR=/var/run
 
 #Paths to service binaries
-MONGOD_SERVICE=/usr/local/bin/mongod
-MONGOD_ARGS="--config /etc/mongod/mongod.conf"
+MONGOD_SERVICE=/bin/bash
+MONGOD_SCRIPT=/usr/local/bin/mongodb/start-mongod.sh
+MONGOD_LOG=/var/log/mongodb/mongod-service.log
 
 #Paths to PID
 MONGOD_PIDFILE=${RUN_DIR}/mongod.pid
 
 USER=opq
-
 
 # Load the VERBOSE setting and other rcS variables
 . /lib/init/vars.sh
@@ -38,7 +38,7 @@ do_start()
     log_daemon_msg "Starting ${NAME}..."
 
     echo "Starting mongod"
-    start-stop-daemon --start --quiet --background --pidfile ${MONGOD_PIDFILE} --make-pidfile --user ${USER} --chuid ${USER} --startas ${MONGOD_SERVICE} -- ${MONGOD_ARGS}
+    start-stop-daemon --start --quiet --background --pidfile ${MONGOD_PIDFILE} --make-pidfile --user ${USER} --chuid ${USER} --startas ${MONGOD_SERVICE} --no-close  -- ${MONGOD_SCRIPT} >> ${MONGOD_LOG} 2>&1
 
     log_end_msg $?
 }

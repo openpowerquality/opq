@@ -1,5 +1,6 @@
 import React from 'react';
 import { Card, Label, Loader, Header, List, Icon } from 'semantic-ui-react';
+import { withRouter, Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import Moment from 'moment';
 import { Meteor } from 'meteor/meteor';
@@ -14,7 +15,7 @@ class BoxCard extends React.Component {
 
   /** If the subscription(s) have been received, render the page, otherwise show a loading icon. */
   render() {
-    return (this.props.ready) ? this.renderPage() : <Loader>Getting data</Loader>;
+    return (this.props.ready) ? this.renderPage() : <Loader active>Getting data</Loader>;
   }
 
   renderOwners(boxId) {
@@ -135,6 +136,9 @@ class BoxCard extends React.Component {
         {this.renderLocations(this.props.box.locations)}
         {this.renderBoxTrendStats(this.props.box.box_id, this.props.boxTrendStats)}
         {this.props.admin ? this.renderOwners(this.props.box.box_id) : ''}
+        <Card.Content extra>
+          <Link to={`/edit/${this.props.box.box_id}`}>Edit</Link>
+        </Card.Content>
       </Card>
     );
   }
@@ -161,5 +165,5 @@ export default withTracker(() => {
   return {
     ready: boxOwnersSubscription.ready(),
   };
-})(BoxCard);
+})(withRouter(BoxCard));
 

@@ -8,9 +8,22 @@ import { SystemStats } from '../../api/system-stats/SystemStatsCollection';
 
 /** Display system statistics. */
 class SystemHealth extends React.Component {
+
+  helpText = `
+  <p>System Health provides a visual indication of the current status of OPQ services and boxes. </p>
+  
+  <p>Services can either be 'up' (green) or 'down' (red). All services should always be up.</p>
+  
+  <p>Boxes can be 'up' (green), 'down' (red), or 'unplugged' (grey).  When a user wants a box to be registered
+  in the system but isn't using it currently, they can set its status to unplugged to indicate that the lack
+  of data transmission is not an indication of system malfunction. </p>
+  
+  <p>This data is provided by the OPQ Health component.</p>
+  `;
+
   /** If the subscription(s) have been received, render the page, otherwise show a loading icon. */
   render() {
-    return (this.props.ready) ? this.renderPage() : <Loader>Getting data</Loader>;
+    return (this.props.ready) ? this.renderPage() : <Loader active>Getting data</Loader>;
   }
 
   /**
@@ -26,12 +39,20 @@ class SystemHealth extends React.Component {
 
   renderPage() {
     const divStyle = { paddingLeft: '10px', paddingRight: '10px' };
+    const headerStyle =
+      { paddingLeft: '10px', paddingRight: '10px', textAlign: 'center', fontWeight: 'bold', marginBottom: '5px' };
+    const services = this.props.stats.health.filter(health => health.type === 'service');
+    const boxes = this.props.stats.health.filter(health => health.type === 'box');
     return (
-        <WidgetPanel title="System Health">
+        <WidgetPanel title="System Health" helpText={this.helpText}>
+          <p style={headerStyle}>Services</p>
           <Label.Group style={divStyle}>
-            {this.props.stats && this.props.stats.health.map((health, index) => this.renderHealth(health, index))}
+            {services.map((health, index) => this.renderHealth(health, index))}
           </Label.Group>
-          <p style={divStyle}>This is not functional yet.</p>
+          <p style={headerStyle}>OPQ Boxes</p>
+          <Label.Group style={divStyle}>
+            {boxes.map((health, index) => this.renderHealth(health, index))}
+          </Label.Group>
         </WidgetPanel>
     );
   }

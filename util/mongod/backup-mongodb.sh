@@ -1,7 +1,10 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
-DATE_STR=`date +%d%b%Y`
+DATE_STR=`/bin/date +%d%b%Y`
 ARCHIVE=opq.dump.${DATE_STR}.tar.gz
+
+# Delete any old backups
+rm -rf /var/opq/backup/mongodb/opq
 
 # Dump the database
 /usr/local/bin/mongodump --db opq --gzip --out /var/opq/backup/mongodb
