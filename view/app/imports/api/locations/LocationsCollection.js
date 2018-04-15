@@ -40,6 +40,30 @@ class LocationsCollection extends BaseCollection {
     return undefined;
   }
 
+  /**
+   * Returns a truthy value if the passed slug is a location slug.
+   * @param slug A string slug.
+   * @returns {*|Object} Truthy if slug is a location slug.
+   */
+  isLocation(slug) {
+    return slug && this._collection.findOne({ slug });
+  }
+
+  /**
+   * Returns the location document associated with slug, or throws an error if not found.
+   * @param slug The location slug
+   * @returns {Object} The location document.
+   * @throws { Meteor.Error } If the slug is not defined.
+   */
+  getDoc(slug) {
+    const doc = this._collection.findOne({ slug });
+    if (!doc) {
+      throw new Meteor.Error(`Undefined slug ${slug}.`);
+    }
+    return doc;
+  }
+
+
   checkIntegrity() {
     const problems = [];
     return problems;
