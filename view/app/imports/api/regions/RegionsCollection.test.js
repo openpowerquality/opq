@@ -15,8 +15,6 @@ if (Meteor.isServer) {
     before(function setup() {
       Regions.removeAll();
       Locations.removeAll();
-      Locations.define({ slug: locationSlug1, coordinates, description });
-      Locations.define({ slug: locationSlug2, coordinates, description });
     });
 
     after(function tearDown() {
@@ -24,14 +22,14 @@ if (Meteor.isServer) {
       Locations.removeAll();
     });
 
-    it('#define', function test() {
+    it('#define, #findLocationsForRegion, #findRegionsForLocation', function test() {
       const regionSlug = 'kailua';
+      Locations.define({ slug: locationSlug1, coordinates, description });
+      Locations.define({ slug: locationSlug2, coordinates, description });
       Regions.define({ regionSlug, locationSlug: locationSlug1 });
       Regions.define({ regionSlug, locationSlug: locationSlug2 });
-      expect(Locations.findLocation(slug)).to.exist;
-      Locations.define({ slug, coordinates, description: 'changed' });
-      const locationDoc = Locations.findLocation(slug);
-      expect(locationDoc.description).to.equal('changed');
+      expect(Regions.findLocationsForRegion(regionSlug)).to.have.length(2);
+      expect(Regions.findRegionsForLocation(locationSlug1)).to.have.length(1);
     });
   });
 }
