@@ -1,6 +1,8 @@
-use std::sync::Arc;
 use std::ffi::OsStr;
 use std::thread;
+
+use std::sync::{Arc, Mutex};
+use event_requester::{SyncEventRequester, EventRequester};
 
 use pub_sub::Subscription;
 use libloading::{Library, Symbol};
@@ -8,19 +10,24 @@ use libloading::{Library, Symbol};
 use opqapi::MakaiPlugin;
 use opqapi::protocol::TriggerMessage;
 
+use zmq;
+use config::Settings;
+
+
 pub struct PluginManager{
-    //plugins: Vec<Box<MakaiPlugin>>,
     loaded_libraries: Vec<Library>,
-    plugin_threads : Vec<thread::JoinHandle<()>>
+    plugin_threads : Vec<thread::JoinHandle<()>>,
+    trigger : SyncEventRequester
 }
 
 impl PluginManager {
 
-    pub fn new() -> PluginManager{
+    pub fn new(ctx : &zmq::Context, settings : &Settings) -> PluginManager{
         PluginManager{
             //plugins : Vec::new(),
             loaded_libraries : Vec::new(),
-            plugin_threads : Vec::new()
+            plugin_threads : Vec::new(),
+            trigger : Arc::new(Mutex::new(EventRequester::new(ctx, settings)))
         }
 
     }
@@ -55,12 +62,19 @@ impl PluginManager {
         let plugin = Box::from_raw(boxed_raw);
 
         //self.plugins.push(plugin);
+        let trigger = self.trigger.clone();
         self.plugin_threads.push(thread::spawn(
             move || {
                 plugin.on_plugin_load();
                 loop {
                     let msg = subscription.recv().unwrap();
-                    plugin.process_measurement(msg);
+
+                    let res = plugin.process_measurement(msg);
+                    let event_number = match res{
+                        Some(x) => trigger.lock().unwrap().trigger(x),
+                        None => -1
+                    };
+                    
                 }
             }
         ));

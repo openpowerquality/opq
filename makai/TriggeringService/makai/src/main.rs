@@ -68,7 +68,7 @@ fn main() {
     handles.push(thread::spawn(move || {
         mongo.run_loop();
     }));
-    let mut plugin_manager = PluginManager::new();
+    let mut plugin_manager = PluginManager::new(&ctx, &settings);
     unsafe {
         //start all of the plugins
         let _: Vec<_> = settings.plugins.iter().map(|ref x| plugin_manager.load_plugin(x, channel.subscribe())).collect();

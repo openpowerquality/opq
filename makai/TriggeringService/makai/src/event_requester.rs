@@ -5,7 +5,7 @@ use overlapping_interval::OverlappingIntervals;
 use std::sync::{Arc, Mutex};
 use config::Settings;
 
-type SyncEventRequester = Arc<Mutex<EventRequester>>;
+pub type SyncEventRequester = Arc<Mutex<EventRequester>>;
 
 pub struct EventRequester {
     acq_broker: zmq::Socket,
@@ -19,15 +19,10 @@ impl EventRequester {
         let ret = EventRequester{
             acq_broker: ctx.socket(zmq::REQ).unwrap(),
             requested_intervals: OverlappingIntervals::new(),
-            keep_data_for_ms: 1_800_000,
+            keep_data_for_ms: settings.event_request_expiration_window_ms,
         };
         ret.acq_broker.connect(&settings.zmq_acquisition_endpoint).unwrap();
         ret
-    }
-
-    pub fn expire_at(mut self, timeout : u64) -> EventRequester {
-        self.keep_data_for_ms = timeout;
-        self
     }
 
     pub fn trigger(&mut self, mut request : RequestEventMessage) ->i32{

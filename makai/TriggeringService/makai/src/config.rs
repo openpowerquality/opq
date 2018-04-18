@@ -10,6 +10,7 @@ pub struct Settings{
     pub mongo_port : u16,
     pub mongo_measurement_expiration_seconds : u64,
     pub mongo_trends_update_interval_seconds : u64,
+    pub event_request_expiration_window_ms : u64,
     pub plugins : Vec<String>
 
 }
