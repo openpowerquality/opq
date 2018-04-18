@@ -102,6 +102,8 @@
 * [Events](datamodel/description.md#events)
 * [Box_Events](datamodel/description.md#box_events)
 * [GridFS](datamodel/description.md#gridfs)
+* [Locations](datamodel/description.md#locations)
+* [Regions](datamodel/description.md#regions)
 * [OPQ_Boxes](datamodel/description.md#opq_boxes)
 * [Users](datamodel/description.md#users)
 
