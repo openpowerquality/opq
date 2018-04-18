@@ -93,7 +93,7 @@ class ThdPlugin(plugins.base.MaukaPlugin):
                 calibrated_waveform = self.calibrate_waveform(waveform, constants.cached_calibration_constant(box_id))
                 thd = self.thd(calibrated_waveform)
 
-                self.mongo_client.box_events.update_one({"_id": _id},
+                self.mongo_client.box_events_collection.update_one({"_id": _id},
                                                         {"$set": {"thd": thd}})
 
                 self.logger.debug("Calculated THD for " + str(event_id) + ":" + str(box_id) + ":" + str(thd))
