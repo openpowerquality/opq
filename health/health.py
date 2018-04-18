@@ -45,24 +45,14 @@ def write_to_log(message):
         print('Unable to write to ' + g_log_file)
         exit()
 
+# NOTE - What if mongo is down?
+# WIP - Add mongo uri?
 def write_to_mongo(message):
     client = MongoClient()
     db = client['opq']
     coll = db['health']
   
-    '''
-    doc = coll.find_one({'service':message['service'],'serviceID':message['serviceID']}, sort= [('timestamp', -1)])
-
-    message['timestamp'] = datetime.now()
-
-    if (doc) and (doc['status'] == 'UP') and (message['status'] == 'UP'):
-        # update timestamp
-        coll.update_one({'_id': doc['_id']}, \
-            {'$set': {'timestamp': message['timestamp']}})
-    else:
-        coll.insert_one(message)
-    '''
-
+    message['timestamp'] = datetime.utcnow()
     coll.insert_one(message)
 
     client.close()
@@ -75,6 +65,17 @@ def file_to_dict(file_name):
     except:
         print('Unable to open ' + file_name)
         exit()
+
+def get_mongo_doc(uri, coll, doc):
+    client = MongoClient(uri)
+    db = client['opq']
+    coll = db[coll]
+    
+    match = coll.find_one(doc)
+
+    client.close()
+
+    return match
 
 def check_health(config):
     sleep_time = config['interval']
@@ -144,15 +145,12 @@ def check_mongo(config):
     mongo_uri = config['url']
 
     while True:
-        client = MongoClient(mongo_uri)
-        db = client['opq']
-        collection = db['measurements']
-        try:
-            collection.find_one()
-            message = get_msg_as_json('MONGO', '', 'UP', 'opq/measurements')
-        except:
-            message = get_msg_as_json('MONGO', '', 'DOWN', 'opq/measurements')
-        client.close()
+        # Use health collection to check if up
+        doc = get_mongo_doc(mongo_uri, 'health', {})
+        if doc:
+            message = get_msg_as_json('MONGO', '', 'UP', '')
+        else:
+            message = get_msg_as_json('MONGO', '', 'DOWN', '')
         save_message(message)
         sleep(sleep_time)
 
@@ -206,28 +204,45 @@ def generate_req_event_message():
     
     return req_message
 
+def find_event(mongo_uri, event_id):
+    if not event_id:
+        return None
+    decoded = int(event_id.decode("utf-8"))
+    # NOTE - Should I sleep for a bit to give event creation slack?
+    event = get_mongo_doc(mongo_uri, 'events', {'event_id': decoded})
+
+    return event
+
 def check_makai(config):
     sleep_time = config['interval']
-    url = config['acquisition_port']
+    acq_url = config['acquisition_port']
+    mongo_uri = config['mongo']
 
     context = zmq.Context()
     socket = context.socket(zmq.REQ)
-    socket.connect(url)
+    socket.connect(acq_url)
+    # Timeout is 3 seconds for response
+    socket.rcvtimeo = 3000
 
     req_message = generate_req_event_message()
 
-    socket.send(req_message.SerializeToString())
+    while True:
+        socket.send(req_message.SerializeToString())
     
-    message = socket.recv(3000)
+        event_id = socket.recv()
+   
+        if find_event(mongo_uri, event_id):
+            message = get_msg_as_json('MAKAI', '', 'UP', '')
+        else:
+            message = get_msg_as_json('MAKAI', '', 'UP', '')
 
-    print(message)
-
-    sleep(sleep_time)
-
+        save_message(message)
+        
+        sleep(sleep_time)
+           
 def main(config_file):
     health_config = file_to_dict(config_file)
 
-    '''
     health_health_config = health_config[6]
     health_thread = Thread(target=check_health, args=(health_health_config, ))
     health_thread.start()
@@ -249,18 +264,15 @@ def main(config_file):
     mauka_thread = Thread(target=check_mauka, args=(mauka_config, ))
     mauka_thread.start()
 
-    '''
     makai_config = health_config[3]
     makai_thread = Thread(target=check_makai, args=(makai_config, ))
     makai_thread.start()
 
-    '''
     health_thread.join()
     view_thread.join()
     box_thread.join()
     mongo_thread.join()
     mauka_thread.join()
-    '''
     makai_thread.join()
 
 def parse_cmd_args():
