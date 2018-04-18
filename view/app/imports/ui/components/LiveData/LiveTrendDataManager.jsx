@@ -16,7 +16,7 @@ class LiveTrendDataManager extends React.Component {
     this.state = {
       boxIDs: ['1'],
       length: 'hours',
-      measurements: ['frequency', 'thd', 'voltage'],
+      measurements: ['voltage'],
     };
   }
 
@@ -30,9 +30,6 @@ class LiveTrendDataManager extends React.Component {
   <p>Length: Specify how much data you want to see.</p>
   
   <p>Measurements: select voltage, frequency, and/or THD.</p>
-  
-  <p>This visualization supports panning and zooming.  Scroll the mouse up or down over the visualization to zoom
-  in/out of a section. Click and drag right or left to move along the chart.</p>
   `;
 
   /** If the subscription(s) have been received, render the page, otherwise show a loading icon. */
@@ -47,7 +44,7 @@ class LiveTrendDataManager extends React.Component {
             <Grid.Column width={7}>
               <Dropdown multiple search selection fluid placeholder='Boxes'
                         options={this.props.boxIDs.map(boxID => ({ text: `Box ${boxID}`, value: boxID }))}
-                        onChange={this.changeBoxes}/>
+                        onChange={this.changeBoxes} value={this.state.boxIDs}/>
             </Grid.Column>
             <Grid.Column width={3}>
               <Dropdown search selection fluid placeholder='Length'
@@ -56,7 +53,7 @@ class LiveTrendDataManager extends React.Component {
                           { text: 'Last day', value: 'days' },
                           { text: 'Last week', value: 'weeks' },
                         ]}
-                        onChange={this.changeLength}/>
+                        onChange={this.changeLength} value={this.state.length}/>
             </Grid.Column>
             <Grid.Column width={6}>
               <Button.Group fluid toggle>
@@ -72,9 +69,11 @@ class LiveTrendDataManager extends React.Component {
 
           {this.state.boxIDs.length > 0 && this.state.measurements.length > 0 && this.state.length ? (
             <Grid.Column width={16}>
-              <LiveTrendDataDisplay boxIDs={this.state.boxIDs} measurements={this.state.measurements}
-                                    timestamp={Moment().subtract(1, this.state.length).valueOf()}
-                                    length={this.state.length} />
+              {this.state.measurements.map(measurement => (
+                <LiveTrendDataDisplay key={measurement} boxIDs={this.state.boxIDs} measurement={measurement}
+                                      timestamp={Moment().subtract(1, this.state.length).valueOf()}
+                                      length={this.state.length}/>
+              ))}
             </Grid.Column>
           ) : ''}
         </Grid>

@@ -9,37 +9,11 @@ import {
 } from 'react-timeseries-charts';
 import { TimeRange, TimeSeries } from 'pondjs';
 
-import { Trends } from '../../../api/trends/TrendsCollection';
+import { Measurements } from '../../../api/measurements/MeasurementsCollection';
 
 import colors from '../../utils/colors';
 
-class LiveTrendDataManager extends React.Component {
-  componentDidMount() {
-    const linesToShow = [];
-    this.props.boxIDs.forEach(boxID => {
-      linesToShow.push(`Box ${boxID} avg`);
-      linesToShow.push(`Box ${boxID} max`);
-      linesToShow.push(`Box ${boxID} min`);
-    });
-
-    const lineColors = {};
-    let colorCounter = 0;
-    linesToShow.forEach(label => {
-      lineColors[label] = colors[colorCounter++];
-    });
-
-    const timeRange = this.props.timeRange;
-    const length = this.props.length;
-    this.setState({ linesToShow, lineColors, timeRange, length });
-  }
-
-  static getDerivedStateFromProps(nextProps, prevState) {
-    if (!this.state.length) return null;
-    const stateUpdates = {};
-    if(nextProps.length !== prevState.length) stateUpdates.timeRange = nextProps.timeRange;
-    return stateUpdates;
-  }
-
+class LiveMeasurementDataManager extends React.Component {
   render() {
     return this.props.ready ? this.renderPage() : '';
   }
@@ -62,36 +36,26 @@ class LiveTrendDataManager extends React.Component {
     }
     // @formatter:on
 
-    const legend = this.state.linesToShow.map(label => ({ key: label, label }));
-    const legendStyle = styler(this.state.linesToShow.map(label => (
-      { key: label, color: this.state.lineColors[label] })));
-
     const graphData = this.getGraphData(measurement);
     const reference = this.generateReference(measurement);
     const wholeDataSet = [];
-    graphData.forEach(set => { set.data.forEach(point => { wholeDataSet.push(point[1]); }); });
+    graphData.data.forEach(point => { wholeDataSet.push(point[1]); });
     reference.forEach(value => { wholeDataSet.push(value); });
 
     return (
       <div>
         <Header as='h3' content={headerContent}/>
-        <Legend type='swatch' align='left' categories={legend} style={legendStyle}/>
         <Resizable>
-          <ChartContainer timeRange={this.props.timeRange}
-                          minTime={new Date(this.props.start)} maxTime={new Date(this.props.end)}>
+          <ChartContainer timeRange={this.props.timeRange}>
             <ChartRow height='300'>
               <YAxis id={measurement} format={n => n.toFixed(2)}
                      min={Math.min(...wholeDataSet)} max={Math.max(...wholeDataSet)}/>
               <Charts>
-                {graphData.map(set => {
-                  const series = new TimeSeries({
-                    name: set.label,
-                    columns: ['time', 'value'],
-                    points: set.data,
-                  });
-                  const style = { value: { normal: { stroke: this.state.lineColors[set.label], strokeWidth: 2 } } };
-                  return <LineChart key={set.label} axis={measurement} series={series} style={style}/>;
-                })}
+                <LineChart key={graphData.label} axis={measurement} series={new TimeSeries({
+                  name: graphData.label,
+                  columns: ['time', 'value'],
+                  points: graphData.data,
+                })} style={{ value: { normal: { strokeWidth: 2 } } }}/>
                 <Baseline axis={measurement} style={{ line: { stroke: 'grey' } }}
                           value={reference[1]} label='Nominal' position='right'/>
                 <Baseline axis={measurement} style={{ line: { stroke: 'lightgrey' } }}
@@ -107,14 +71,10 @@ class LiveTrendDataManager extends React.Component {
   };
 
   getGraphData = (measurement) => {
-    const trendData = this.props.trendData;
-    const linesToShow = this.state.linesToShow;
-    return linesToShow.map(label => {
-      const boxID = label.split(' ')[1];
-      const stat = label.split(' ')[2] === 'avg' ? 'average' : label.split(' ')[2];
-      const data = trendData.filter(doc => doc.box_id === boxID).map(doc => [doc.timestamp_ms, doc[measurement][stat]]);
-      return { label, data };
-    });
+    const measurementData = this.props.measurementData;
+    const boxID = this.props.boxID;
+    const data = measurementData.filter(doc => doc.box_id === boxID).map(doc => [doc.timestamp_ms, doc[measurement]]);
+    return { label: boxID, data };
   };
 
   generateReference = (measurement) => {
@@ -132,32 +92,30 @@ class LiveTrendDataManager extends React.Component {
 }
 
 
-LiveTrendDataManager.propTypes = {
+LiveMeasurementDataManager.propTypes = {
   ready: PropTypes.bool.isRequired,
-  boxIDs: PropTypes.array,
+  boxID: PropTypes.string,
   measurement: PropTypes.string,
-  timestamp: PropTypes.number,
-  length: PropTypes.string,
-  trendData: PropTypes.array,
+  measurementData: PropTypes.array,
 };
 
 /** withTracker connects Meteor data to React components. https://guide.meteor.com/react.html#using-withTracker */
-export default withTracker(({ boxIDs, timestamp, length }) => {
-  const start = Moment().subtract(1, length).valueOf();
+export default withTracker(({ boxID }) => {
+  const start = Moment().subtract(30, 'seconds').valueOf();
   const end = Moment().valueOf();
   const timeRange = new TimeRange([start, end]);
 
-  const sub = Meteor.subscribe('trends_after_timestamp', { timestamp, boxIDs });
-  const trendData = Trends.find({
+  const sub = Meteor.subscribe('recent_measurements', 30, boxID);
+  const measurementData = Measurements.find({
     timestamp_ms: { $gte: start },
-    box_id: { $in: boxIDs }
+    box_id: boxID,
   }, { sort: { timestamp_ms: 1 } }).fetch();
 
   return {
     ready: sub.ready(),
-    trendData,
+    measurementData,
     start,
     end,
     timeRange,
   };
-})(LiveTrendDataManager);
+})(LiveMeasurementDataManager);

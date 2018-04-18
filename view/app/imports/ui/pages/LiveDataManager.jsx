@@ -10,7 +10,7 @@ const LiveDataManager = () => (
       <LiveTrendDataManager />
     </Grid.Column>
     <Grid.Column width={16}>
-      <p>Later</p>
+      <LiveMeasurementDataManager/>
     </Grid.Column>
   </Grid>
 );

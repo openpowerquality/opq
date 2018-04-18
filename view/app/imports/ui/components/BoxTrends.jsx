@@ -267,7 +267,7 @@ class BoxTrends extends React.Component {
     switch (this.state.field) {
       case 'voltage': references = [114, 120, 126]; break;
       case 'frequency': references = [57, 60, 63]; break;
-      case 'thd': references = [null, 0, 0.1]; break;
+      case 'thd': references = [null, 0, 0.05]; break;
       default: break;
     }
     // @formatter:on
