@@ -29,7 +29,8 @@
 
     { "username": "johnson@hawaii.edu", "password": "foo", "firstName": "Philip", "lastName": "Johnson", "role": "admin", "boxIds": ["1", "2", "3"]},
 
-    { "username": "keal@hawaii.edu", "password": "foo", "firstName": "Kea", "lastName": "Uehara", "role": "admin", "boxIds": ["1", "2", "3", "4", "5"]}
+    { "username": "keal@hawaii.edu", "password": "foo", "firstName": "Kea", "lastName": "Uehara", "role": "admin",
+      "boxIds": ["1", "2", "3", "4", "5", "6"]}
   ],
 
   "locations": [

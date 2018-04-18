@@ -141,6 +141,12 @@ class TrendsCollection extends BaseCollection {
         const trends = self.find({}, { sort: { timestamp_ms: -1 }, limit: numTrends });
         return trends;
       });
+
+      Meteor.publish('trends_after_timestamp', ({ timestamp, boxIDs }) => {
+        check(timestamp, Number);
+        check(boxIDs, [String]);
+        return this.find({ timestamp_ms: { $gte: timestamp }, box_id: { $in: boxIDs } });
+      });
     }
   }
 }

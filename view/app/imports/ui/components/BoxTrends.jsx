@@ -14,27 +14,7 @@ import { OpqBoxes } from '../../api/opq-boxes/OpqBoxesCollection';
 import { dailyTrends } from '../../api/trends/TrendsCollectionMethods';
 import WidgetPanel from '../layouts/WidgetPanel';
 
-const colors = [ // Colors get used in this order when a user toggles a toggler.
-  '#3cb44b',
-  '#ffe119',
-  '#0082c8',
-  '#f58231',
-  '#911eb4',
-  '#46f0f0',
-  '#f032e6',
-  '#008080',
-  '#e6beff',
-  '#aa6e28',
-  '#fffac8',
-  '#800000',
-  '#808000',
-  '#000080',
-  '#ffd8b1',
-  '#aaffc3',
-  '#e6194b',
-  '#d2f53c',
-  '#fabebe',
-];
+import colors from '../utils/colors';
 
 /** Displays data from the trends collection */
 class BoxTrends extends React.Component {
@@ -290,7 +270,7 @@ class BoxTrends extends React.Component {
       case 'thd': references = [null, 0, 0.1]; break;
       default: break;
     }
-    // @formatter: on
+    // @formatter:on
     return references;
   };
 }
