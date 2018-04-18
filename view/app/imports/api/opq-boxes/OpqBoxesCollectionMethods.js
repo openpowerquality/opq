@@ -36,3 +36,20 @@ export const getBoxIDs = new ValidatedMethod({
     return null;
   },
 });
+
+export const editBox = new ValidatedMethod({
+  name: 'OpqBoxes.editBox',
+  validate: new SimpleSchema({
+    box_id: String,
+    name: { type: String, optional: true },
+    description: { type: String, optional: true },
+    calibration_constant: Number,
+    locations: { type: Array },
+    'locations.$': { type: Object, blackbox: true },
+    'locations.$.nickname': { type: String },
+    'locations.$.zipcode': { type: String },
+  }).validator({ clean: true }),
+  run({ box_id, name, description, calibration_constant, locations }) {
+    OpqBoxes.define({ box_id, name, description, calibration_constant, locations });
+  },
+});

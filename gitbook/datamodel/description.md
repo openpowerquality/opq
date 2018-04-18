@@ -132,6 +132,56 @@ This collection is internal to GridFS and is used for storing file chunks.
 The **files_id** field is a Mongo ObjectID reference to the chunk's corresponding **fs.files** document.
 It might be interesting to note that this is the only occurrence in the data model where a Mongo ObjectID is being referenced.
 
+
+### Locations {#locations}
+
+The **locations** collection provides entities that define locations that can be associated with OPQBoxes, Trends, Events, and other entities in the system.
+
+![Locations Collection](images/locations-collection.png)
+
+ Initially, only admins can define locations, and they are defined and managed via the settings.development.json file. Locations have:
+
+  * an array containing longitude and latitude coordinates in that order.
+  * a “slug” (a unique, human-friendly string identifier)
+  * a string description. 
+
+For example:
+```
+{ slug: ‘Kailua-PMJ’, coordinates: [-157.751399,  21.409958], description: ‘House in Kailua’ }
+```
+Note that the coordinates array must list longitude first, then latitude. See [this StackOverflow Question](https://stackoverflow.com/questions/15274834/how-to-store-geospatial-information-in-mongodb) for more details. Mongo has great support for [GeoSpatial queries](https://docs.mongodb.com/manual/geospatial-queries/), so this will be fun to have.
+
+Location slugs should be considered *permanent* once defined.  Since these slugs have the potential to appear in other documents throughout the database, you will have to guarantee that the location does not appear anywhere else in the database in order to delete it.
+
+Likewise, you cannot change the coordinate values willy-nilly.  Only change them if they incorrectly specify the intended location.
+
+### Regions {#regions}
+
+“Regions” represent aggregations of Locations. A region consists of:
+  * a region slug
+  * a list of location slugs that define the region. 
+  
+![Regions Collection](images/regions-collection.png)
+
+For example, to represent a region called “96734" with three Locations:
+
+```
+{ regionSlug: “96734”, locationSlug: “Kailua-PMJ” }
+{ regionSlug: “96734”, locationSlug: “Kailua-DJ” }
+{ regionSlug: “96734”, locationSlug: “Kailua-KK” }
+```
+
+The advantage of this "relational" representation is that it supports many-to-many relationships:
+
+  * a single region can be related to multiple locations (as in the example above), and 
+
+  * a single location can be related to multiple regions (the location “Kailua-PMJ” could be related to the regions “96734", “Oahu”, and “Hawaii”.)
+
+Region and location slugs together constitute a single namespace (i.e. you can’t have two locations or two regions both called “96734”, nor can you have a location called “96734" and a region also called “96734”).
+
+Unlike locations, users can feel free to manipulate region definitions, as they are only used to facilitate UI queries.
+
+
 ### OPQBoxes {#opq_boxes}
 
 The **opq_boxes** collection provides information about each individual OPQBox in the system.
@@ -146,21 +196,12 @@ The **description** field is optional and can be used to further describe an OPQ
 
 The **calibration_constant** field is the box specific value that is used to adjust the values returned by the ADC so that we get accurate voltage and frequency values.  
 
-The **locations** field is an *array* of objects which enables us to determine where the OPQBox was physically located for each data point that it generated.  This array should stored in order by increasing start_time_ms.  This enables other services to simply obtain the last element of the location array in order to determine the current location of the associated box. 
+The **location** field is a string naming a location slug. This identifies the current location of this box. It is optional.
 
-A **location** <a name="location"></a> has the following fields:
-* start_time_ms
-* zipcode
-* nickname
+The **location_start_time_ms** field is a UTC millisecond time stamp indicating the time that data from the current
+location began being transmitted. It is optional.
 
-The **start_time_ms** field is a unix timestamp (milliseconds) indicating the moment this OPQBox location was set.
-
-The **zipcode** field indicates the zipcode location of the OPQBox.
-
-The **nickname** field provides a high level description of the location. This could be something like
-_Kailua_ or _Anthony's Office_.  
-
-The location array objects might be extended in future to accommodate other representations for location besides zip code.
+The **location_archive** field is an array containing objects with fields location and location_start_time_ms. This provides a historical record of the locations associated with this box. 
 
 ### Users {#users}
 

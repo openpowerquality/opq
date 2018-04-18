@@ -19,6 +19,7 @@
 
 ## Developer Guide
 * [GitBook](developerguide/gitbook.md)
+* [MongoDB](developerguide/mongodb.md)
 * [Deployment](developerguide/deployment/deploy-overview.md)
   * [Configure host](developerguide/deployment/deploy-configure-host.md)
   * [View](developerguide/deployment/deploy-view.md)
@@ -101,6 +102,8 @@
 * [Events](datamodel/description.md#events)
 * [Box_Events](datamodel/description.md#box_events)
 * [GridFS](datamodel/description.md#gridfs)
+* [Locations](datamodel/description.md#locations)
+* [Regions](datamodel/description.md#regions)
 * [OPQ_Boxes](datamodel/description.md#opq_boxes)
 * [Users](datamodel/description.md#users)
 
