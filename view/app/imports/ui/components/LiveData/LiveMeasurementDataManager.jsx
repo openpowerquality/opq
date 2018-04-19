@@ -13,8 +13,8 @@ class LiveMeasurementDataManager extends React.Component {
     super(props);
 
     this.state = {
-      boxID: '1',
-      measurements: ['voltage'],
+      boxID: '',
+      measurements: [],
     };
   }
 
@@ -36,27 +36,27 @@ class LiveMeasurementDataManager extends React.Component {
         <Grid container>
           <Grid.Column width={16}>
             <Grid stackable>
-            <Grid.Column width={8}>
-              <Dropdown search selection fluid placeholder='Boxes'
-                        options={this.props.boxIDs.map(boxID => ({ text: `Box ${boxID}`, value: boxID }))}
-                        onChange={this.changeBoxes} value={this.state.boxID}/>
-            </Grid.Column>
-            <Grid.Column width={8}>
-              <Button.Group fluid toggle>
-                <Button active={this.state.measurements.includes('frequency')} content='Frequency'
-                        onClick={this.changeMeasurement}/>
-                {/*<Button active={this.state.measurements.includes('thd')} content='THD'*/}
-                        {/*onClick={this.changeMeasurement}/>*/}
-                <Button active={this.state.measurements.includes('voltage')} content='Voltage'
-                        onClick={this.changeMeasurement}/>
-              </Button.Group>
-            </Grid.Column>
+              <Grid.Column width={8}>
+                <Dropdown search selection fluid placeholder='Boxes'
+                          options={this.props.boxIDs.map(boxID => ({ text: `Box ${boxID}`, value: boxID }))}
+                          onChange={this.changeBoxes} value={this.state.boxID}/>
+              </Grid.Column>
+              <Grid.Column width={8}>
+                <Button.Group fluid toggle>
+                  <Button active={this.state.measurements.includes('frequency')} content='Frequency'
+                          onClick={this.changeMeasurement}/>
+                  {/*<Button active={this.state.measurements.includes('thd')} content='THD'*/}
+                  {/*onClick={this.changeMeasurement}/>*/}
+                  <Button active={this.state.measurements.includes('voltage')} content='Voltage'
+                          onClick={this.changeMeasurement}/>
+                </Button.Group>
+              </Grid.Column>
             </Grid>
           </Grid.Column>
 
           {this.state.boxID && this.state.measurements.length > 0 ? (
             <Grid.Column width={16}>
-                <LiveMeasurementDataDisplay boxID={this.state.boxID} measurements={this.state.measurements}/>
+              <LiveMeasurementDataDisplay boxID={this.state.boxID} measurements={this.state.measurements}/>
             </Grid.Column>
           ) : ''}
         </Grid>
@@ -75,7 +75,7 @@ class LiveMeasurementDataManager extends React.Component {
   };
 }
 
-/** Require an array of Stuff documents in the props. */
+
 LiveMeasurementDataManager.propTypes = {
   ready: PropTypes.bool.isRequired,
   boxIDs: PropTypes.array,

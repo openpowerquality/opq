@@ -14,9 +14,9 @@ class LiveTrendDataManager extends React.Component {
     super(props);
 
     this.state = {
-      boxIDs: [],
-      length: '',
-      measurements: [],
+      boxIDs: ['1'],
+      length: 'hours',
+      measurements: ['voltage'],
     };
   }
 
@@ -32,7 +32,7 @@ class LiveTrendDataManager extends React.Component {
   <p>Measurements: select voltage, frequency, and/or THD.</p>
   `;
 
-  /** If the subscription(s) have been received, render the page, otherwise show a loading icon. */
+  /** If the subscription(s) have been received, render the page, otherwise show nothing. */
   render() { return (this.props.ready) ? this.renderPage() : ''; }
 
   /** Actually renders the page. */
@@ -42,30 +42,30 @@ class LiveTrendDataManager extends React.Component {
         <Grid container>
           <Grid.Column width={16}>
             <Grid stackable>
-            <Grid.Column width={7} tablet={6}>
-              <Dropdown multiple search selection fluid placeholder='Boxes'
-                        options={this.props.boxIDs.map(boxID => ({ text: `Box ${boxID}`, value: boxID }))}
-                        onChange={this.changeBoxes} value={this.state.boxIDs}/>
-            </Grid.Column>
-            <Grid.Column width={3}>
-              <Dropdown search selection fluid placeholder='Length'
-                        options={[
-                          { text: 'Last hour', value: 'hours' },
-                          { text: 'Last day', value: 'days' },
-                          { text: 'Last week', value: 'weeks' },
-                        ]}
-                        onChange={this.changeLength} value={this.state.length}/>
-            </Grid.Column>
-            <Grid.Column width={6}>
-              <Button.Group fluid toggle>
-                <Button active={this.state.measurements.includes('frequency')} content='Frequency'
-                        onClick={this.changeMeasurement}/>
-                <Button active={this.state.measurements.includes('thd')} content='THD'
-                        onClick={this.changeMeasurement}/>
-                <Button active={this.state.measurements.includes('voltage')} content='Voltage'
-                        onClick={this.changeMeasurement}/>
-              </Button.Group>
-            </Grid.Column>
+              <Grid.Column width={7} tablet={6}>
+                <Dropdown multiple search selection fluid placeholder='Boxes'
+                          options={this.props.boxIDs.map(boxID => ({ text: `Box ${boxID}`, value: boxID }))}
+                          onChange={this.changeBoxes} value={this.state.boxIDs}/>
+              </Grid.Column>
+              <Grid.Column width={3}>
+                <Dropdown search selection fluid placeholder='Length'
+                          options={[
+                            { text: 'Last hour', value: 'hours' },
+                            { text: 'Last day', value: 'days' },
+                            { text: 'Last week', value: 'weeks' },
+                          ]}
+                          onChange={this.changeLength} value={this.state.length}/>
+              </Grid.Column>
+              <Grid.Column width={6}>
+                <Button.Group fluid toggle>
+                  <Button active={this.state.measurements.includes('frequency')} content='Frequency'
+                          onClick={this.changeMeasurement}/>
+                  <Button active={this.state.measurements.includes('thd')} content='THD'
+                          onClick={this.changeMeasurement}/>
+                  <Button active={this.state.measurements.includes('voltage')} content='Voltage'
+                          onClick={this.changeMeasurement}/>
+                </Button.Group>
+              </Grid.Column>
             </Grid>
           </Grid.Column>
 
@@ -84,7 +84,11 @@ class LiveTrendDataManager extends React.Component {
   }
 
   changeBoxes = (event, props) => { this.setState({ boxIDs: props.value.sort() }); };
-  changeLength = (event, props) => { this.setState({ length: props.value }); };
+  changeLength = (event, props) => {
+    if (this.state.length !== props.value) {
+      this.setState({ length: props.value });
+    }
+  };
 
   changeMeasurement = (event, props) => {
     let measurements = this.state.measurements;
@@ -95,7 +99,7 @@ class LiveTrendDataManager extends React.Component {
   };
 }
 
-/** Require an array of Stuff documents in the props. */
+
 LiveTrendDataManager.propTypes = {
   ready: PropTypes.bool.isRequired,
   boxIDs: PropTypes.array,

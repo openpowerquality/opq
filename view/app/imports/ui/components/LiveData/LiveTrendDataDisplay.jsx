@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Meteor } from 'meteor/meteor';
 import { withTracker } from 'meteor/react-meteor-data';
-import { Header, Container, Grid } from 'semantic-ui-react';
 import Moment from 'moment';
 import {
   Charts, ChartContainer, ChartRow, YAxis, LineChart, Baseline, Resizable, Legend, styler,
@@ -14,6 +13,8 @@ import { Trends } from '../../../api/trends/TrendsCollection';
 import colors from '../../utils/colors';
 
 class LiveTrendDataManager extends React.Component {
+  /** Initializes the state of this component. It cannot be done in a constructor because the state
+   * _always_ depends on the props passed by LiveTrendDataManager. */
   componentDidMount() {
     const linesToShow = [];
     this.props.boxIDs.forEach(boxID => {
@@ -28,16 +29,49 @@ class LiveTrendDataManager extends React.Component {
       lineColors[label] = colors[colorCounter++];
     });
 
-    const timeRange = this.props.timeRange;
-    const length = this.props.length;
-    this.setState({ linesToShow, lineColors, timeRange, length });
+    this.setState({
+      linesToShow,
+      lineColors,
+      timeRange: this.props.timeRange,
+      length: this.props.length,
+      colorCounter,
+    });
   }
 
-  static getDerivedStateFromProps(nextProps, prevState) {
-    if (!this.state.length) return null;
-    const stateUpdates = {};
-    if(nextProps.length !== prevState.length) stateUpdates.timeRange = nextProps.timeRange;
-    return stateUpdates;
+  /** Updates the state based on changes to props. */
+  componentWillReceiveProps(nextProps){
+    if (nextProps.length !== this.state.length) this.setState({
+      timeRange: nextProps.timeRange,
+      length: nextProps.length,
+    });
+
+    if (nextProps.trendData !== this.props.trendData) {
+      const diff = nextProps.start - this.props.start;
+      const range = [this.state.timeRange.begin().valueOf() + diff, this.state.timeRange.end().valueOf() + diff];
+      this.setState({
+        start: nextProps.start,
+        timeRange: new TimeRange(range),
+      })
+    }
+
+    if (nextProps.boxIDs !== this.props.boxIDs) {
+      const linesToShow = [];
+      nextProps.boxIDs.forEach(boxID => {
+        linesToShow.push(`Box ${boxID} avg`);
+        linesToShow.push(`Box ${boxID} max`);
+        linesToShow.push(`Box ${boxID} min`);
+      });
+      let colorCounter = 0;
+      const lineColors = {};
+      linesToShow.forEach(label => {
+        lineColors[label] = colors[colorCounter++];
+      });
+      this.setState({
+        linesToShow: linesToShow.sort(),
+        lineColors,
+        colorCounter,
+      });
+    }
   }
 
   render() {
@@ -51,6 +85,8 @@ class LiveTrendDataManager extends React.Component {
   };
 
 
+/** Doing it this way instead of directly putting code in renderPage(), so that it is easier to see the parallels
+ * between the other similar components */
   generateGraph = (measurement) => {
     // @formatter:off
     let headerContent = '';
@@ -76,7 +112,8 @@ class LiveTrendDataManager extends React.Component {
       <div>
         <Legend type='swatch' align='left' categories={legend} style={legendStyle}/>
         <Resizable>
-          <ChartContainer timeRange={this.props.timeRange}
+          <ChartContainer timeRange={this.state.timeRange} enablePanZoom
+                          onTimeRangeChanged={timeRange => this.setState({ timeRange })}
                           minTime={new Date(this.props.start)} maxTime={new Date(this.props.end)}>
             <ChartRow height={100}>
               <YAxis id={measurement} format={n => n.toFixed(2)} label={headerContent} labelOffset={-10} width={60}
