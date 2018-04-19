@@ -45,22 +45,15 @@ def write_to_log(message):
         print('Unable to write to ' + g_log_file)
         exit()
 
+# NOTE - What if mongo is down?
+# WIP - Add mongo uri?
 def write_to_mongo(message):
     client = MongoClient()
     db = client['opq']
     coll = db['health']
   
-    doc = coll.find({'service':message['service'],'serviceID':message['serviceID']}) \
-        .sort([('timestamp', -1)]).limit(1)
-
-    message['timestamp'] = datetime.now()
-
-    if (doc.count() == 1) and (doc[0]['status'] == 'UP') and (message['status'] == 'UP'):
-        # update timestamp
-        coll.update_one({'_id': doc[0]['_id']}, \
-            {'$set': {'timestamp': message['timestamp']}})
-    else:
-        coll.insert_one(message)
+    message['timestamp'] = datetime.utcnow()
+    coll.insert_one(message)
 
     client.close()
 
@@ -72,6 +65,17 @@ def file_to_dict(file_name):
     except:
         print('Unable to open ' + file_name)
         exit()
+
+def get_mongo_doc(uri, coll, doc):
+    client = MongoClient(uri)
+    db = client['opq']
+    coll = db[coll]
+    
+    match = coll.find_one(doc)
+
+    client.close()
+
+    return match
 
 def check_health(config):
     sleep_time = config['interval']
@@ -141,31 +145,32 @@ def check_mongo(config):
     mongo_uri = config['url']
 
     while True:
-        client = MongoClient(mongo_uri)
-        db = client['opq']
-        collection = db['measurements']
-        try:
-            collection.find_one()
-            message = get_msg_as_json('MONGO', '', 'UP', 'opq/measurements')
-        except:
-            message = get_msg_as_json('MONGO', '', 'DOWN', 'opq/measurements')
-        client.close()
+        # Use health collection to check if up
+        doc = get_mongo_doc(mongo_uri, 'health', {})
+        if doc:
+            message = get_msg_as_json('MONGO', '', 'UP', '')
+        else:
+            message = get_msg_as_json('MONGO', '', 'DOWN', '')
         save_message(message)
         sleep(sleep_time)
 
 def check_mauka_plugins(config_plugins, mauka_plugins):
+    plugins_up = True
     for plugin in config_plugins:
         if plugin in mauka_plugins:
             t_elapsed = time() - mauka_plugins[plugin]
-            if t_elapsed <= 300:
-                message = get_msg_as_json('MAUKA', plugin, 'UP', '')
-            else:
-                message = get_msg_as_json('MAUKA', plugin, 'DOWN', str(t_elapsed))
+            if t_elapsed >= 300:
+                plugins_up = False
+                break
         else:
-            message = get_msg_as_json('MAUKA', plugin, 'DOWN', 'NO_SHOW')
-        save_message(message)
+            plugins_up = False
+            break
+    if plugins_up:
+        message = get_msg_as_json('MAUKA', '', 'UP', '')
+    else:
+        message= get_msg_as_json('MAUKA', '', 'DOWN', '')
+    save_message(message)
 
-# NOTE - Must check overall status + individual plugin status
 def check_mauka(config):
     sleep_time = config['interval']
 
@@ -175,19 +180,69 @@ def check_mauka(config):
                 response = req.get(config['url'])
             status = response.status_code
             if status == 200:
-                message = get_msg_as_json('MAUKA', 'OVERALL', 'UP', status)
                 mauka_plugins = response.json()
                 check_mauka_plugins(config['plugins'], mauka_plugins)
             else:
-                message = get_msg_as_json('MAUKA', 'OVERALL', 'DOWN', status)
+                message = get_msg_as_json('MAUKA', '', 'DOWN', status)
+                save_message(message)
         except Exception as e:
-            message = get_msg_as_json('MAUKA', 'OVERALL', 'DOWN', e)
-        save_message(message)
-        sleep(10)
+            message = get_msg_as_json('MAUKA', '', 'DOWN', e)
+            save_message(message)
+        sleep(sleep_time)
 
+def generate_req_event_message():
+    current_t_ms = time()
+    req_message = protobuf.opq_pb2.RequestEventMessage()
+
+    req_message.trigger_type = req_message.OTHER
+    req_message.description = "This is a test"
+    req_message.end_timestamp_ms_utc = int(current_t_ms - 10000)
+    req_message.start_timestamp_ms_utc = int(current_t_ms - 20000)
+    req_message.percent_magnitude = 50
+    req_message.requestee = "Evan"
+    req_message.request_data = True
+    
+    return req_message
+
+def find_event(mongo_uri, event_id):
+    if not event_id:
+        return None
+    decoded = int(event_id.decode("utf-8"))
+    # NOTE - Should I sleep for a bit to give event creation slack?
+    event = get_mongo_doc(mongo_uri, 'events', {'event_id': decoded})
+
+    return event
+
+def check_makai(config):
+    sleep_time = config['interval']
+    acq_url = config['acquisition_port']
+    mongo_uri = config['mongo']
+
+    context = zmq.Context()
+    socket = context.socket(zmq.REQ)
+    socket.connect(acq_url)
+    # Timeout is 3 seconds for response
+    socket.rcvtimeo = 3000
+
+    req_message = generate_req_event_message()
+
+    while True:
+        socket.send(req_message.SerializeToString())
+    
+        event_id = socket.recv()
+   
+        if find_event(mongo_uri, event_id):
+            message = get_msg_as_json('MAKAI', '', 'UP', '')
+        else:
+            message = get_msg_as_json('MAKAI', '', 'UP', '')
+
+        save_message(message)
+        
+        sleep(sleep_time)
+           
 def main(config_file):
     health_config = file_to_dict(config_file)
-    
+
     health_health_config = health_config[6]
     health_thread = Thread(target=check_health, args=(health_health_config, ))
     health_thread.start()
@@ -209,16 +264,21 @@ def main(config_file):
     mauka_thread = Thread(target=check_mauka, args=(mauka_config, ))
     mauka_thread.start()
 
+    makai_config = health_config[3]
+    makai_thread = Thread(target=check_makai, args=(makai_config, ))
+    makai_thread.start()
+
     health_thread.join()
     view_thread.join()
     box_thread.join()
     mongo_thread.join()
-    #mauka_thread.join()
+    mauka_thread.join()
+    makai_thread.join()
 
 def parse_cmd_args():
     parser = argparse.ArgumentParser(description='Get config and log file names')
     parser.add_argument('-config', nargs=1, help='Name of config file', default=['config.json'])
-    parser.add_argument('-log', nargs=1, help='Name of log file', default=['log.txt'])
+    parser.add_argument('-log', nargs=1, help='Name of log file', default=['logfile.txt'])
     args = parser.parse_args()
     return args.config[0], args.log[0]
 
