@@ -2,7 +2,7 @@ import React from 'react';
 import { Meteor } from 'meteor/meteor';
 import { withTracker } from 'meteor/react-meteor-data';
 import PropTypes from 'prop-types';
-import { Loader, Dropdown, Button, Grid } from 'semantic-ui-react';
+import { Dropdown, Button, Grid } from 'semantic-ui-react';
 import Moment from 'moment';
 
 import { BoxOwners } from '../../../api/users/BoxOwnersCollection';
@@ -14,9 +14,9 @@ class LiveTrendDataManager extends React.Component {
     super(props);
 
     this.state = {
-      boxIDs: ['1'],
-      length: 'hours',
-      measurements: ['voltage'],
+      boxIDs: [],
+      length: '',
+      measurements: [],
     };
   }
 
@@ -33,15 +33,16 @@ class LiveTrendDataManager extends React.Component {
   `;
 
   /** If the subscription(s) have been received, render the page, otherwise show a loading icon. */
-  render() { return (this.props.ready) ? this.renderPage() : <Loader active>Detecting your boxes...</Loader>; }
+  render() { return (this.props.ready) ? this.renderPage() : ''; }
 
   /** Actually renders the page. */
   renderPage() {
     return (
       <WidgetPanel title='Live Trends' helpText={this.helpText}>
-        <Grid container stackable>
-          <Grid.Row centered>
-            <Grid.Column width={7}>
+        <Grid container>
+          <Grid.Column width={16}>
+            <Grid stackable>
+            <Grid.Column width={7} tablet={6}>
               <Dropdown multiple search selection fluid placeholder='Boxes'
                         options={this.props.boxIDs.map(boxID => ({ text: `Box ${boxID}`, value: boxID }))}
                         onChange={this.changeBoxes} value={this.state.boxIDs}/>
@@ -65,7 +66,8 @@ class LiveTrendDataManager extends React.Component {
                         onClick={this.changeMeasurement}/>
               </Button.Group>
             </Grid.Column>
-          </Grid.Row>
+            </Grid>
+          </Grid.Column>
 
           {this.state.boxIDs.length > 0 && this.state.measurements.length > 0 && this.state.length ? (
             <Grid.Column width={16}>

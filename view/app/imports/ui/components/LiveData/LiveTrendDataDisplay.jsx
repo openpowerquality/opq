@@ -74,13 +74,12 @@ class LiveTrendDataManager extends React.Component {
 
     return (
       <div>
-        <Header as='h3' content={headerContent}/>
         <Legend type='swatch' align='left' categories={legend} style={legendStyle}/>
         <Resizable>
           <ChartContainer timeRange={this.props.timeRange}
                           minTime={new Date(this.props.start)} maxTime={new Date(this.props.end)}>
-            <ChartRow height='300'>
-              <YAxis id={measurement} format={n => n.toFixed(2)}
+            <ChartRow height={100}>
+              <YAxis id={measurement} format={n => n.toFixed(2)} label={headerContent} labelOffset={-10} width={60}
                      min={Math.min(...wholeDataSet)} max={Math.max(...wholeDataSet)}/>
               <Charts>
                 {graphData.map(set => {
