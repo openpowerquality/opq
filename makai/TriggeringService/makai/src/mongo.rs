@@ -14,7 +14,7 @@ use chrono::prelude::*;
 use time::Duration;
 
 use constants::*;
-use opqapi::protocol::{TriggerMessage};
+use opqapi::protocol::TriggerMessage;
 use config::Settings;
 
 /// A Buffer for keeping track of the slow measurements.
@@ -26,19 +26,19 @@ struct MeasurementStatistics {
     ///Accumulator for computing averages.
     average_accum: f32,
     ///Number of elements processed so far.
-    count: u32
+    count: u32,
 }
 
 impl MeasurementStatistics {
     ///Creates a new measurements statistical buffer.
     /// # Arguments
     /// * `new_value` - new value to process.
-    pub fn new(new_value : f32) -> MeasurementStatistics{
-        MeasurementStatistics{
+    pub fn new(new_value: f32) -> MeasurementStatistics {
+        MeasurementStatistics {
             min: new_value,
             max: new_value,
             average_accum: new_value,
-            count : 1
+            count: 1,
         }
     }
 
@@ -56,7 +56,7 @@ impl MeasurementStatistics {
     }
     ///Computes the average.
     pub fn get_average(&mut self) -> f32 {
-        self.average_accum/(self.count as f32)
+        self.average_accum / (self.count as f32)
     }
 }
 
@@ -71,7 +71,6 @@ struct MeasurementDecimator {
     ///Last time a bson document was generated.
     pub last_insert: DateTime<Utc>,
 }
-
 
 impl MeasurementDecimator {
     ///Created a new decimator.
@@ -101,18 +100,18 @@ impl MeasurementDecimator {
 
         match self.v_measurement {
             None => self.v_measurement = Some(MeasurementStatistics::new(rms)),
-            Some(ref mut v_m) => v_m.update(rms)
+            Some(ref mut v_m) => v_m.update(rms),
         }
         match self.f_measurement {
-            None => { self.f_measurement = Some(MeasurementStatistics::new(f) ) }
-            Some(ref mut f_m) => f_m.update(f)
+            None => self.f_measurement = Some(MeasurementStatistics::new(f)),
+            Some(ref mut f_m) => f_m.update(f),
         }
 
         if msg.has_thd() {
             let thd = msg.get_thd();
             match self.thd_measurement {
-                None => { self.thd_measurement = Some(MeasurementStatistics::new(thd)) }
-                Some(ref mut thd_m) => thd_m.update(thd)
+                None => self.thd_measurement = Some(MeasurementStatistics::new(thd)),
+                Some(ref mut thd_m) => thd_m.update(thd),
             }
         }
     }
@@ -123,12 +122,13 @@ impl MeasurementDecimator {
         match self.v_measurement {
             None => {}
             Some(ref mut v_m) => {
-                ret.insert(MONGO_LONG_TERM_MEASUREMENTS_VOLTAGE_FIELD,
-                           doc! {
-                                    MONGO_LONG_TERM_MEASUREMENTS_MIN_FIELD : v_m.min,
-                                    MONGO_LONG_TERM_MEASUREMENTS_MAX_FIELD : v_m.max,
-                                    MONGO_LONG_TERM_MEASUREMENTS_FILTERED_FIELD : v_m.get_average(),
-                                },
+                ret.insert(
+                    MONGO_LONG_TERM_MEASUREMENTS_VOLTAGE_FIELD,
+                    doc! {
+                        MONGO_LONG_TERM_MEASUREMENTS_MIN_FIELD : v_m.min,
+                        MONGO_LONG_TERM_MEASUREMENTS_MAX_FIELD : v_m.max,
+                        MONGO_LONG_TERM_MEASUREMENTS_FILTERED_FIELD : v_m.get_average(),
+                    },
                 );
             }
         }
@@ -136,12 +136,13 @@ impl MeasurementDecimator {
         match self.f_measurement {
             None => {}
             Some(ref mut f_m) => {
-                ret.insert(MONGO_LONG_TERM_MEASUREMENTS_FREQUENCY_FIELD,
-                           doc! {
-                                    MONGO_LONG_TERM_MEASUREMENTS_MIN_FIELD : f_m.min,
-                                    MONGO_LONG_TERM_MEASUREMENTS_MAX_FIELD : f_m.max,
-                                    MONGO_LONG_TERM_MEASUREMENTS_FILTERED_FIELD : f_m.get_average(),
-                                },
+                ret.insert(
+                    MONGO_LONG_TERM_MEASUREMENTS_FREQUENCY_FIELD,
+                    doc! {
+                        MONGO_LONG_TERM_MEASUREMENTS_MIN_FIELD : f_m.min,
+                        MONGO_LONG_TERM_MEASUREMENTS_MAX_FIELD : f_m.max,
+                        MONGO_LONG_TERM_MEASUREMENTS_FILTERED_FIELD : f_m.get_average(),
+                    },
                 );
             }
         }
@@ -149,12 +150,13 @@ impl MeasurementDecimator {
         match self.thd_measurement {
             None => {}
             Some(ref mut thd_m) => {
-                ret.insert(MONGO_LONG_TERM_MEASUREMENTS_THD_FIELD,
-                           doc! {
-                                    MONGO_LONG_TERM_MEASUREMENTS_MIN_FIELD : thd_m.min,
-                                    MONGO_LONG_TERM_MEASUREMENTS_MAX_FIELD : thd_m.max,
-                                    MONGO_LONG_TERM_MEASUREMENTS_FILTERED_FIELD : thd_m.get_average(),
-                                },
+                ret.insert(
+                    MONGO_LONG_TERM_MEASUREMENTS_THD_FIELD,
+                    doc! {
+                        MONGO_LONG_TERM_MEASUREMENTS_MIN_FIELD : thd_m.min,
+                        MONGO_LONG_TERM_MEASUREMENTS_MAX_FIELD : thd_m.max,
+                        MONGO_LONG_TERM_MEASUREMENTS_FILTERED_FIELD : thd_m.get_average(),
+                    },
                 );
             }
         }
@@ -172,27 +174,36 @@ pub struct MongoMeasurements {
     ///Mongo Expire time
     expire_time_sec: u64,
     ///Mongo Trends time
-    trend_time_sec: u64
+    trend_time_sec: u64,
 }
 
 impl MongoMeasurements {
-
     ///Creates a new mongo measurement store.
     /// # Arguments
     /// * `client` -  a reference to a mongodb client instance.
     /// * `sub_chan` -  a channel for receiving triggering messages.
-    pub fn new(client: &mongodb::Client, sub_chan: Subscription<Arc<TriggerMessage>>, settings : &Settings) -> MongoMeasurements {
+    pub fn new(
+        client: &mongodb::Client,
+        sub_chan: Subscription<Arc<TriggerMessage>>,
+        settings: &Settings,
+    ) -> MongoMeasurements {
         let ret = MongoMeasurements {
             sub_chan,
-            live_coll: client.db(MONGO_DATABASE).collection(MONGO_MEASUREMENT_COLLECTION),
-            slow_coll: client.db(MONGO_DATABASE).collection(MONGO_LONG_TERM_MEASUREMENT_COLLECTION),
-            expire_time_sec : settings.mongo_measurement_expiration_seconds,
-            trend_time_sec : settings.mongo_trends_update_interval_seconds
+            live_coll: client
+                .db(MONGO_DATABASE)
+                .collection(MONGO_MEASUREMENT_COLLECTION),
+            slow_coll: client
+                .db(MONGO_DATABASE)
+                .collection(MONGO_LONG_TERM_MEASUREMENT_COLLECTION),
+            expire_time_sec: settings.mongo_measurement_expiration_seconds,
+            trend_time_sec: settings.mongo_trends_update_interval_seconds,
         };
         let mut index_opts = IndexOptions::new();
         index_opts.expire_after_seconds = Some(0);
         index_opts.background = Some(true);
-        ret.live_coll.create_index(doc! {"expireAt" : 1}, Some(index_opts)).unwrap();
+        ret.live_coll
+            .create_index(doc! {"expireAt" : 1}, Some(index_opts))
+            .unwrap();
         ret
     }
 
@@ -200,17 +211,17 @@ impl MongoMeasurements {
     /// # Arguments
     /// * `msg` a new trigger message to process.
     fn generate_document(&self, msg: &TriggerMessage) -> Document {
-        let expire_time: DateTime<Utc> = Utc::now() + Duration::seconds(self.expire_time_sec as i64);
+        let expire_time: DateTime<Utc> =
+            Utc::now() + Duration::seconds(self.expire_time_sec as i64);
         let bson_expire_time = Bson::from(expire_time);
 
-
         let mut doc = doc! {
-                MONGO_BOX_ID_FIELD : msg.get_id().to_string(),
-                MONGO_TIMESTAMP_FIELD : msg.get_time() as u64,
-                MONGO_MEASUREMENTS_VOLTAGE_FIELD : msg.get_rms() as f32,
-                MONGO_MEASUREMENTS_FREQUENCY_FIELD : msg.get_frequency() as f32,
-                MONGO_EXPIRE_FIELD : bson_expire_time
-            };
+            MONGO_BOX_ID_FIELD : msg.get_id().to_string(),
+            MONGO_TIMESTAMP_FIELD : msg.get_time() as u64,
+            MONGO_MEASUREMENTS_VOLTAGE_FIELD : msg.get_rms() as f32,
+            MONGO_MEASUREMENTS_FREQUENCY_FIELD : msg.get_frequency() as f32,
+            MONGO_EXPIRE_FIELD : bson_expire_time
+        };
         if msg.has_thd() {
             doc.insert(MONGO_MEASUREMENTS_THD_FIELD, msg.get_thd());
         }
@@ -223,18 +234,22 @@ impl MongoMeasurements {
         loop {
             let msg = self.sub_chan.recv().unwrap();
             let doc = self.generate_document(&msg);
-            self.live_coll.insert_one(doc, None).ok().expect("Could not insert");
-            let box_stat = map.entry(msg.get_id()).or_insert(MeasurementDecimator::new());
+            self.live_coll
+                .insert_one(doc, None)
+                .ok()
+                .expect("Could not insert");
+            let box_stat = map.entry(msg.get_id())
+                .or_insert(MeasurementDecimator::new());
             box_stat.process_message(&msg);
             if box_stat.last_insert + Duration::seconds(self.trend_time_sec as i64) < Utc::now() {
                 let mut doc = box_stat.generate_document_and_reset();
                 doc.insert(MONGO_BOX_ID_FIELD, msg.get_id().to_string());
                 doc.insert(MONGO_TIMESTAMP_FIELD, msg.get_time());
-                self.slow_coll.insert_one(doc, None).ok().expect("Could not insert");
+                self.slow_coll
+                    .insert_one(doc, None)
+                    .ok()
+                    .expect("Could not insert");
             }
         }
     }
 }
-
-
-

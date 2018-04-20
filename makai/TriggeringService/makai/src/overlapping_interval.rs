@@ -8,10 +8,11 @@ pub struct OverlappingIntervals<T> {
 
 impl<T: Ord + Clone> OverlappingIntervals<T> {
     pub fn new() -> OverlappingIntervals<T> {
-        OverlappingIntervals { intervals: BTreeMap::new() }
+        OverlappingIntervals {
+            intervals: BTreeMap::new(),
+        }
     }
     pub fn insert_and_check(&mut self, start: T, end: T) -> bool {
-
         let mut new_interval_start = start;
         let mut new_interval_end = end;
 
@@ -46,7 +47,7 @@ impl<T: Ord + Clone> OverlappingIntervals<T> {
         false
     }
 
-    pub fn clear_to(&mut self, new_min: T){
+    pub fn clear_to(&mut self, new_min: T) {
         let mut intervals_to_remove = Vec::new();
         for (interval_start, _) in self.intervals.iter() {
             if interval_start < &new_min {

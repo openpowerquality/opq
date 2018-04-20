@@ -9,7 +9,6 @@ pub static MONGO_TIMESTAMP_FIELD: &str = "timestamp_ms";
 ///Mongo expire field.
 pub static MONGO_EXPIRE_FIELD: &str = "expireAt";
 
-
 //Mongo Measurements
 ///Mongo measurements collection.
 pub static MONGO_MEASUREMENT_COLLECTION: &str = "measurements";
@@ -19,7 +18,6 @@ pub static MONGO_MEASUREMENTS_VOLTAGE_FIELD: &str = "voltage";
 pub static MONGO_MEASUREMENTS_FREQUENCY_FIELD: &str = "frequency";
 ///Mongo measurements collection total harmonic distortion field.
 pub static MONGO_MEASUREMENTS_THD_FIELD: &str = "thd";
-
 
 //Mongo Measurements long term
 ///Mongo long term measurements collection
@@ -37,5 +35,3 @@ pub static MONGO_LONG_TERM_MEASUREMENTS_MIN_FIELD: &str = "min";
 pub static MONGO_LONG_TERM_MEASUREMENTS_MAX_FIELD: &str = "max";
 ///Mongo long term measurements collection statistics average.
 pub static MONGO_LONG_TERM_MEASUREMENTS_FILTERED_FIELD: &str = "average";
-
-

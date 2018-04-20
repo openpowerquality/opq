@@ -4,9 +4,9 @@ use std::any::Any;
 
 pub trait MakaiPlugin: Any + Send + Sync {
     fn name(&self) -> &'static str;
-    fn process_measurement(&self, Arc<opq::TriggerMessage>) -> Option<opq::RequestEventMessage>;
-    fn on_plugin_load(&self, Vec<String>);
-    fn on_plugin_unload(&self);
+    fn process_measurement(&mut self, Arc<opq::TriggerMessage>) -> Option<opq::RequestEventMessage>;
+    fn on_plugin_load(&mut self, Vec<String>);
+    fn on_plugin_unload(&mut self);
 }
 
 /// Declare a plugin type and its constructor.
