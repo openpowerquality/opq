@@ -1,4 +1,3 @@
-use std::ffi::OsStr;
 use std::thread;
 
 use std::sync::{Arc, Mutex};
@@ -44,7 +43,7 @@ impl PluginManager {
     /// Failure to ensure ABI compatibility will most probably result in UB
     /// because the vtable we expect to get (from `Box<Plugin>`) and the vtable
     /// we actually get may be completely different.
-    pub unsafe fn load_plugin<P: AsRef<OsStr>>(&mut self, filename: P, subscription : Subscription<Arc<TriggerMessage>>) -> Result<(),String> {
+    pub unsafe fn load_plugin(&mut self, filename: &String, subscription : Subscription<Arc<TriggerMessage>>, args : Vec<String>) -> Result<(),String> {
         type PluginCreate = unsafe fn() -> *mut MakaiPlugin;
 
         let lib = Library::new(filename).or(Err("No such file or directory."))?;
@@ -65,12 +64,12 @@ impl PluginManager {
         let trigger = self.trigger.clone();
         self.plugin_threads.push(thread::spawn(
             move || {
-                plugin.on_plugin_load();
+                plugin.on_plugin_load(args);
                 loop {
                     let msg = subscription.recv().unwrap();
 
                     let res = plugin.process_measurement(msg);
-                    let event_number = match res{
+                    let _event_number = match res{
                         Some(x) => trigger.lock().unwrap().trigger(x),
                         None => -1
                     };
@@ -78,9 +77,6 @@ impl PluginManager {
                 }
             }
         ));
-
-
-
         Ok(())
     }
 }

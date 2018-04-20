@@ -15,8 +15,8 @@ impl MakaiPlugin for NullPlugin {
         "Null Plugin"
     }
 
-    fn on_plugin_load(&self) {
-        println!("Null plugin loaded.");
+    fn on_plugin_load(&self, args : Vec<String>) {
+        println!("Null plugin loaded with arguments {:?}", args);
     }
 
     fn on_plugin_unload(&self) {

@@ -6,5 +6,5 @@
 	"mongo_measurement_expiration_seconds" : 86400,
 	"mongo_trends_update_interval_seconds" : 60,
 	"event_request_expiration_window_ms" : 1800000,
-	"plugins" : ["./libnull_plugin.so"]
+	"plugins" : [["./libnull_plugin.so", "arg", "Test"]]
 }

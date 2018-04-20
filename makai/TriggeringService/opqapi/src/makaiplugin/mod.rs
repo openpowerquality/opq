@@ -2,11 +2,11 @@ use super::protocol::opq;
 use std::sync::Arc;
 use std::any::Any;
 
-pub trait MakaiPlugin: Any + Send + Sync{
-        fn name(&self) -> &'static str;
-        fn process_measurement(&self, Arc<opq::TriggerMessage>) -> Option<opq::RequestEventMessage>;
-        fn on_plugin_load(&self);
-        fn on_plugin_unload(&self);
+pub trait MakaiPlugin: Any + Send + Sync {
+    fn name(&self) -> &'static str;
+    fn process_measurement(&self, Arc<opq::TriggerMessage>) -> Option<opq::RequestEventMessage>;
+    fn on_plugin_load(&self, Vec<String>);
+    fn on_plugin_unload(&self);
 }
 
 /// Declare a plugin type and its constructor.

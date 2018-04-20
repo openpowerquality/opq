@@ -1373,11 +1373,7 @@ impl ::protobuf::Message for RequestDataMessage {
             let (field_number, wire_type) = is.read_tag_unpack()?;
             match field_number {
                 1 => {
-                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
-                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
-                    }
-                    let tmp = is.read_enum()?;
-                    self.field_type = ::std::option::Option::Some(tmp);
+                    ::protobuf::rt::read_proto2_enum_with_unknown_fields_into(wire_type, is, &mut self.field_type, 1, &mut self.unknown_fields)?
                 },
                 2 => {
                     if wire_type != ::protobuf::wire_format::WireTypeVarint {
@@ -1989,11 +1985,7 @@ impl ::protobuf::Message for RequestEventMessage {
                     self.end_timestamp_ms_utc = ::std::option::Option::Some(tmp);
                 },
                 3 => {
-                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
-                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
-                    }
-                    let tmp = is.read_enum()?;
-                    self.trigger_type = ::std::option::Option::Some(tmp);
+                    ::protobuf::rt::read_proto2_enum_with_unknown_fields_into(wire_type, is, &mut self.trigger_type, 3, &mut self.unknown_fields)?
                 },
                 4 => {
                     if wire_type != ::protobuf::wire_format::WireTypeFixed64 {
