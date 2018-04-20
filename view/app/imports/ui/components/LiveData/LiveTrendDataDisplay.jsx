@@ -17,10 +17,11 @@ class LiveTrendDataManager extends React.Component {
    * _always_ depends on the props passed by LiveTrendDataManager. */
   componentDidMount() {
     const linesToShow = [];
+    const disabled = {};
     this.props.boxIDs.forEach(boxID => {
-      linesToShow.push(`Box ${boxID} avg`);
-      linesToShow.push(`Box ${boxID} max`);
-      linesToShow.push(`Box ${boxID} min`);
+      linesToShow.push(`Box ${boxID} avg`); disabled[`Box ${boxID} avg`] = true;
+      linesToShow.push(`Box ${boxID} max`); disabled[`Box ${boxID} max`] = true;
+      linesToShow.push(`Box ${boxID} min`); disabled[`Box ${boxID} min`] = true;
     });
 
     const lineColors = {};
@@ -31,6 +32,7 @@ class LiveTrendDataManager extends React.Component {
 
     this.setState({
       linesToShow,
+      disabled,
       lineColors,
       timeRange: this.props.timeRange,
       length: this.props.length,
@@ -44,22 +46,19 @@ class LiveTrendDataManager extends React.Component {
       timeRange: nextProps.timeRange,
       length: nextProps.length,
     });
-
-    if (nextProps.trendData !== this.props.trendData) {
+    else if (nextProps.trendData !== this.props.trendData) {
       const diff = nextProps.start - this.props.start;
       const range = [this.state.timeRange.begin().valueOf() + diff, this.state.timeRange.end().valueOf() + diff];
-      this.setState({
-        start: nextProps.start,
-        timeRange: new TimeRange(range),
-      })
+      this.setState({ timeRange: new TimeRange(range) });
     }
 
     if (nextProps.boxIDs !== this.props.boxIDs) {
       const linesToShow = [];
+      const disabled = {};
       nextProps.boxIDs.forEach(boxID => {
-        linesToShow.push(`Box ${boxID} avg`);
-        linesToShow.push(`Box ${boxID} max`);
-        linesToShow.push(`Box ${boxID} min`);
+        linesToShow.push(`Box ${boxID} avg`); disabled[`Box ${boxID} avg`] = true;
+        linesToShow.push(`Box ${boxID} max`); disabled[`Box ${boxID} max`] = true;
+        linesToShow.push(`Box ${boxID} min`); disabled[`Box ${boxID} min`] = true;
       });
       let colorCounter = 0;
       const lineColors = {};
@@ -68,6 +67,7 @@ class LiveTrendDataManager extends React.Component {
       });
       this.setState({
         linesToShow: linesToShow.sort(),
+        disabled,
         lineColors,
         colorCounter,
       });
@@ -98,7 +98,7 @@ class LiveTrendDataManager extends React.Component {
     }
     // @formatter:on
 
-    const legend = this.state.linesToShow.map(label => ({ key: label, label }));
+    const legend = this.state.linesToShow.map(label => ({ key: label, label, disabled: this.state.disabled[label] }));
     const legendStyle = styler(this.state.linesToShow.map(label => (
       { key: label, color: this.state.lineColors[label] })));
 
@@ -110,7 +110,8 @@ class LiveTrendDataManager extends React.Component {
 
     return (
       <div>
-        <Legend type='swatch' align='left' categories={legend} style={legendStyle}/>
+        <Legend type='swatch' align='left' categories={legend} style={legendStyle}
+                onSelectionChange={this.legendClicked}/>
         <Resizable>
           <ChartContainer timeRange={this.state.timeRange} enablePanZoom
                           onTimeRangeChanged={timeRange => this.setState({ timeRange })}
@@ -142,10 +143,10 @@ class LiveTrendDataManager extends React.Component {
     );
   };
 
-  getGraphData = (measurement) => {
+  getGraphData = measurement => {
     const trendData = this.props.trendData;
     const linesToShow = this.state.linesToShow;
-    return linesToShow.map(label => {
+    return linesToShow.filter(line => !this.state.disabled[line]).map(label => {
       const boxID = label.split(' ')[1];
       const stat = label.split(' ')[2] === 'avg' ? 'average' : label.split(' ')[2];
       const data = trendData.filter(doc => doc.box_id === boxID).map(doc => [doc.timestamp_ms, doc[measurement][stat]]);
@@ -153,7 +154,7 @@ class LiveTrendDataManager extends React.Component {
     });
   };
 
-  generateReference = (measurement) => {
+  generateReference = measurement => {
     let references;
     // @formatter:off
     switch (measurement) {
@@ -165,6 +166,12 @@ class LiveTrendDataManager extends React.Component {
     // @formatter:on
     return references;
   };
+
+  legendClicked = label => {
+    const disabled = this.state.disabled;
+    disabled[label] = !disabled[label];
+    this.setState({ disabled });
+  }
 }
 
 
