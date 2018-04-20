@@ -16,7 +16,7 @@ pub struct EventRequester {
 impl EventRequester {
     pub fn new(ctx: &zmq::Context, settings: &Settings) -> EventRequester {
         let ret = EventRequester {
-            acq_broker: ctx.socket(zmq::REQ).unwrap(),
+            acq_broker: ctx.socket(zmq::PUSH).unwrap(),
             requested_intervals: OverlappingIntervals::new(),
             keep_data_for_ms: settings.event_request_expiration_window_ms,
         };
@@ -26,7 +26,7 @@ impl EventRequester {
         ret
     }
 
-    pub fn trigger(&mut self, mut request: RequestEventMessage) -> i32 {
+    pub fn trigger(&mut self, mut request: RequestEventMessage) {
         let start = request.get_start_timestamp_ms_utc();
         let end = request.get_end_timestamp_ms_utc();
         if self.requested_intervals.insert_and_check(start, end) {
@@ -38,7 +38,5 @@ impl EventRequester {
             .clear_to(start - self.keep_data_for_ms);
         let serialized = request.write_to_bytes().unwrap();
         self.acq_broker.send(&serialized, 0).unwrap();
-        let event_num_message = self.acq_broker.recv_bytes(0).unwrap();
-        String::from_utf8_lossy(&event_num_message).parse().unwrap()
     }
 }

@@ -71,9 +71,9 @@ impl PluginManager {
                 let msg = subscription.recv().unwrap();
 
                 let res = plugin.process_measurement(msg);
-                let _event_number = match res {
+                match res {
                     Some(x) => trigger.lock().unwrap().trigger(x),
-                    None => -1,
+                    None => (),
                 };
             }
         }));
