@@ -1,6 +1,3 @@
-///Endpoint address for the zmq triggering socket.
-pub static TRIGGERING_ZMQ_ENDPOINT :&str = "tcp://127.0.0.1:9881";
-
 //Mongo common
 ///Mongo database that makai will be using.
 pub static MONGO_DATABASE: &str = "opq";
@@ -12,7 +9,6 @@ pub static MONGO_TIMESTAMP_FIELD: &str = "timestamp_ms";
 ///Mongo expire field.
 pub static MONGO_EXPIRE_FIELD: &str = "expireAt";
 
-
 //Mongo Measurements
 ///Mongo measurements collection.
 pub static MONGO_MEASUREMENT_COLLECTION: &str = "measurements";
@@ -22,9 +18,6 @@ pub static MONGO_MEASUREMENTS_VOLTAGE_FIELD: &str = "voltage";
 pub static MONGO_MEASUREMENTS_FREQUENCY_FIELD: &str = "frequency";
 ///Mongo measurements collection total harmonic distortion field.
 pub static MONGO_MEASUREMENTS_THD_FIELD: &str = "thd";
-///Mongo measurements expiration time in seconds.
-pub static MONGO_MEASUREMENTS_EXPIRE_TIME_SECONDS: i64 = 60*60*24;
-
 
 //Mongo Measurements long term
 ///Mongo long term measurements collection
@@ -42,8 +35,3 @@ pub static MONGO_LONG_TERM_MEASUREMENTS_MIN_FIELD: &str = "min";
 pub static MONGO_LONG_TERM_MEASUREMENTS_MAX_FIELD: &str = "max";
 ///Mongo long term measurements collection statistics average.
 pub static MONGO_LONG_TERM_MEASUREMENTS_FILTERED_FIELD: &str = "average";
-
-///Mongo long term measurements collection update interval.
-pub static MONGO_LONG_TERM_MEASUREMENTS_UPDATE_INTERVAL: i64 = 60;
-
-

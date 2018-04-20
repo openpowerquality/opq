@@ -1373,11 +1373,7 @@ impl ::protobuf::Message for RequestDataMessage {
             let (field_number, wire_type) = is.read_tag_unpack()?;
             match field_number {
                 1 => {
-                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
-                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
-                    }
-                    let tmp = is.read_enum()?;
-                    self.field_type = ::std::option::Option::Some(tmp);
+                    ::protobuf::rt::read_proto2_enum_with_unknown_fields_into(wire_type, is, &mut self.field_type, 1, &mut self.unknown_fields)?
                 },
                 2 => {
                     if wire_type != ::protobuf::wire_format::WireTypeVarint {
@@ -1989,11 +1985,7 @@ impl ::protobuf::Message for RequestEventMessage {
                     self.end_timestamp_ms_utc = ::std::option::Option::Some(tmp);
                 },
                 3 => {
-                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
-                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
-                    }
-                    let tmp = is.read_enum()?;
-                    self.trigger_type = ::std::option::Option::Some(tmp);
+                    ::protobuf::rt::read_proto2_enum_with_unknown_fields_into(wire_type, is, &mut self.trigger_type, 3, &mut self.unknown_fields)?
                 },
                 4 => {
                     if wire_type != ::protobuf::wire_format::WireTypeFixed64 {
@@ -2263,33 +2255,38 @@ impl ::protobuf::reflect::ProtobufValue for RequestEventMessage_TriggerType {
 }
 
 static file_descriptor_proto_data: &'static [u8] = b"\
-    \n\topq.proto\x12\topq.proto\"[\n\x05Cycle\x12\x0c\n\x04time\x18\x01\x20\
-    \x02(\x04\x12\x0c\n\x04data\x18\x02\x20\x03(\x05\x12\x10\n\x08last_gps\
-    \x18\x03\x20\x01(\x05\x12\x15\n\rcurrent_count\x18\x04\x20\x01(\x05\x12\
-    \r\n\x05flags\x18\x05\x20\x01(\x05\";\n\x0bDataMessage\x12\n\n\x02id\x18\
-    \x01\x20\x02(\x05\x12\x20\n\x06cycles\x18\x03\x20\x03(\x0b2\x10.opq.prot\
-    o.Cycle\"\x8f\x01\n\x0eTriggerMessage\x12\n\n\x02id\x18\x01\x20\x02(\x05\
-    \x12\x0c\n\x04time\x18\x02\x20\x02(\x04\x12\x11\n\tfrequency\x18\x03\x20\
-    \x02(\x02\x12\x0b\n\x03rms\x18\x04\x20\x02(\x02\x12\x0b\n\x03thd\x18\x05\
-    \x20\x01(\x02\x12\x10\n\x08last_gps\x18\x06\x20\x01(\x05\x12\x15\n\rcurr\
-    ent_count\x18\x07\x20\x01(\x05\x12\r\n\x05flags\x18\x08\x20\x01(\x05\"\
-    \xf8\x01\n\x12RequestDataMessage\x127\n\x04type\x18\x01\x20\x02(\x0e2).o\
-    pq.proto.RequestDataMessage.RequestType\x12\x17\n\x0fsequence_number\x18\
-    \x02\x20\x02(\r\x12\r\n\x05boxId\x18\x03\x20\x01(\r\x12\x0c\n\x04time\
-    \x18\x04\x20\x01(\x04\x12\x0c\n\x04back\x18\x05\x20\x01(\x04\x12\x0f\n\
-    \x07forward\x18\x06\x20\x01(\x04\x12\x12\n\nnum_cycles\x18\x07\x20\x01(\
-    \r\"@\n\x0bRequestType\x12\x08\n\x04PING\x10\x01\x12\x08\n\x04PONG\x10\
-    \x02\x12\x08\n\x04READ\x10\x03\x12\x08\n\x04RESP\x10\x04\x12\t\n\x05ERRO\
-    R\x10\x05\"\xe5\x02\n\x13RequestEventMessage\x12\x1e\n\x16start_timestam\
-    p_ms_utc\x18\x01\x20\x02(\x04\x12\x1c\n\x14end_timestamp_ms_utc\x18\x02\
-    \x20\x02(\x04\x12@\n\x0ctrigger_type\x18\x03\x20\x02(\x0e2*.opq.proto.Re\
-    questEventMessage.TriggerType\x12\x19\n\x11percent_magnitude\x18\x04\x20\
-    \x02(\x01\x12\x0f\n\x07box_ids\x18\x05\x20\x03(\x05\x12\x11\n\trequestee\
-    \x18\x06\x20\x02(\t\x12\x13\n\x0bdescription\x18\x07\x20\x02(\t\x12\x14\
-    \n\x0crequest_data\x18\x08\x20\x02(\x08\"d\n\x0bTriggerType\x12\x11\n\rF\
-    REQUENCY_SAG\x10\x01\x12\x13\n\x0fFREQUENCY_SWELL\x10\x02\x12\x0f\n\x0bV\
-    OLTAGE_SAG\x10\x03\x12\x11\n\rVOLTAGE_SWELL\x10\x04\x12\t\n\x05OTHER\x10\
-    \x05\
+    \n\topq.proto\x12\topq.proto\"\x85\x01\n\x05Cycle\x12\x12\n\x04time\x18\
+    \x01\x20\x02(\x04R\x04time\x12\x12\n\x04data\x18\x02\x20\x03(\x05R\x04da\
+    ta\x12\x19\n\x08last_gps\x18\x03\x20\x01(\x05R\x07lastGps\x12#\n\rcurren\
+    t_count\x18\x04\x20\x01(\x05R\x0ccurrentCount\x12\x14\n\x05flags\x18\x05\
+    \x20\x01(\x05R\x05flags\"G\n\x0bDataMessage\x12\x0e\n\x02id\x18\x01\x20\
+    \x02(\x05R\x02id\x12(\n\x06cycles\x18\x03\x20\x03(\x0b2\x10.opq.proto.Cy\
+    cleR\x06cycles\"\xcc\x01\n\x0eTriggerMessage\x12\x0e\n\x02id\x18\x01\x20\
+    \x02(\x05R\x02id\x12\x12\n\x04time\x18\x02\x20\x02(\x04R\x04time\x12\x1c\
+    \n\tfrequency\x18\x03\x20\x02(\x02R\tfrequency\x12\x10\n\x03rms\x18\x04\
+    \x20\x02(\x02R\x03rms\x12\x10\n\x03thd\x18\x05\x20\x01(\x02R\x03thd\x12\
+    \x19\n\x08last_gps\x18\x06\x20\x01(\x05R\x07lastGps\x12#\n\rcurrent_coun\
+    t\x18\x07\x20\x01(\x05R\x0ccurrentCount\x12\x14\n\x05flags\x18\x08\x20\
+    \x01(\x05R\x05flags\"\xb5\x02\n\x12RequestDataMessage\x12=\n\x04type\x18\
+    \x01\x20\x02(\x0e2).opq.proto.RequestDataMessage.RequestTypeR\x04type\
+    \x12'\n\x0fsequence_number\x18\x02\x20\x02(\rR\x0esequenceNumber\x12\x14\
+    \n\x05boxId\x18\x03\x20\x01(\rR\x05boxId\x12\x12\n\x04time\x18\x04\x20\
+    \x01(\x04R\x04time\x12\x12\n\x04back\x18\x05\x20\x01(\x04R\x04back\x12\
+    \x18\n\x07forward\x18\x06\x20\x01(\x04R\x07forward\x12\x1d\n\nnum_cycles\
+    \x18\x07\x20\x01(\rR\tnumCycles\"@\n\x0bRequestType\x12\x08\n\x04PING\
+    \x10\x01\x12\x08\n\x04PONG\x10\x02\x12\x08\n\x04READ\x10\x03\x12\x08\n\
+    \x04RESP\x10\x04\x12\t\n\x05ERROR\x10\x05\"\xd9\x03\n\x13RequestEventMes\
+    sage\x123\n\x16start_timestamp_ms_utc\x18\x01\x20\x02(\x04R\x13startTime\
+    stampMsUtc\x12/\n\x14end_timestamp_ms_utc\x18\x02\x20\x02(\x04R\x11endTi\
+    mestampMsUtc\x12M\n\x0ctrigger_type\x18\x03\x20\x02(\x0e2*.opq.proto.Req\
+    uestEventMessage.TriggerTypeR\x0btriggerType\x12+\n\x11percent_magnitude\
+    \x18\x04\x20\x02(\x01R\x10percentMagnitude\x12\x17\n\x07box_ids\x18\x05\
+    \x20\x03(\x05R\x06boxIds\x12\x1c\n\trequestee\x18\x06\x20\x02(\tR\treque\
+    stee\x12\x20\n\x0bdescription\x18\x07\x20\x02(\tR\x0bdescription\x12!\n\
+    \x0crequest_data\x18\x08\x20\x02(\x08R\x0brequestData\"d\n\x0bTriggerTyp\
+    e\x12\x11\n\rFREQUENCY_SAG\x10\x01\x12\x13\n\x0fFREQUENCY_SWELL\x10\x02\
+    \x12\x0f\n\x0bVOLTAGE_SAG\x10\x03\x12\x11\n\rVOLTAGE_SWELL\x10\x04\x12\t\
+    \n\x05OTHER\x10\x05\
 ";
 
 static mut file_descriptor_proto_lazy: ::protobuf::lazy::Lazy<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::lazy::Lazy {
