@@ -54,11 +54,14 @@ class LiveTrendDataManager extends React.Component {
 
     if (nextProps.boxIDs !== this.props.boxIDs) {
       const linesToShow = [];
-      const disabled = {};
+      const disabled = this.state.disabled;
       nextProps.boxIDs.forEach(boxID => {
-        linesToShow.push(`Box ${boxID} avg`); disabled[`Box ${boxID} avg`] = true;
-        linesToShow.push(`Box ${boxID} max`); disabled[`Box ${boxID} max`] = true;
-        linesToShow.push(`Box ${boxID} min`); disabled[`Box ${boxID} min`] = true;
+        linesToShow.push(`Box ${boxID} avg`);
+        if (disabled[`Box ${boxID} avg`] === undefined) disabled[`Box ${boxID} avg`] = true;
+        linesToShow.push(`Box ${boxID} max`);
+        if (disabled[`Box ${boxID} max`] === undefined) disabled[`Box ${boxID} max`] = true;
+        linesToShow.push(`Box ${boxID} min`);
+        if (disabled[`Box ${boxID} min`] === undefined) disabled[`Box ${boxID} min`] = true;
       });
       let colorCounter = 0;
       const lineColors = {};
