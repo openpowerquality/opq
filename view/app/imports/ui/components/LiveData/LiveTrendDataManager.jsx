@@ -14,9 +14,9 @@ class LiveTrendDataManager extends React.Component {
     super(props);
 
     this.state = {
-      boxIDs: ['1'],
-      length: 'hours',
-      measurements: ['voltage'],
+      boxIDs: [],
+      length: '',
+      measurements: [],
     };
   }
 
