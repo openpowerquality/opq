@@ -16,6 +16,7 @@ using namespace std::string_literals;
 
 //Topic for the box data request
 static const string BOX_EVENT_GET_TOPIC = "evget";
+static const string BOX_EVENT_PUB_TOPIC = "evnew";
 
 //Load zmq elliptic curve certificate as a pair.
 inline auto load_certificate( string const& path ) -> std::pair<string, string> {
