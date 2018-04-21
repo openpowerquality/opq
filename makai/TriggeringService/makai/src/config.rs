@@ -1,8 +1,8 @@
-use serde_json::from_reader;
+use serde_json::{from_reader, Value};
 use std::fs::File;
 use std::path::Path;
 
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Settings {
     pub zmq_trigger_endpoint: String,
     pub zmq_acquisition_endpoint: String,
@@ -11,7 +11,7 @@ pub struct Settings {
     pub mongo_measurement_expiration_seconds: u64,
     pub mongo_trends_update_interval_seconds: u64,
     pub event_request_expiration_window_ms: u64,
-    pub plugins: Vec<Vec<String>>,
+    pub plugins: Vec<Value>,
 }
 
 impl Settings {

@@ -69,26 +69,16 @@ fn main() {
     }));
     let mut plugin_manager = PluginManager::new(&ctx, &settings);
     unsafe {
-        for x in settings.plugins {
-            if x.len() == 0 {
-                continue;
-            }
-            let filename = &x[0];
-            let args = x[1..].to_vec();
-            let res = plugin_manager.load_plugin(filename, channel.subscribe(), args);
+        for document in settings.plugins {
+            let filename = document.get("path").unwrap().as_str().unwrap().to_string();
+            let res = plugin_manager.load_plugin(document, channel.subscribe());
             match res {
                 Ok(_) => println!("Loaded {}", filename),
-                Err(x) => println!("Failed to load {} : {}", filename, x),
+                Err(err_str) => println!("Failed to load {}, {}", filename, err_str),
             }
         }
-        /*
-        //start all of the plugins
-        let results : Vec<Result<(),String>> = settings.plugins.iter().map(
-            |ref x|
-                plugin_manager.load_plugin(x[0], channel.subscribe(),  x[1..].to_vec())
-        ).collect();
-        */
     }
+
     while let Some(handle) = handles.pop() {
         handle.join().unwrap();
     }

@@ -1,15 +1,15 @@
 use std::thread;
-
 use std::sync::{Arc, Mutex};
-use event_requester::{EventRequester, SyncEventRequester};
 
 use pub_sub::Subscription;
 use libloading::{Library, Symbol};
+use zmq;
+use serde_json::Value;
 
+use event_requester::{EventRequester, SyncEventRequester};
 use opqapi::MakaiPlugin;
 use opqapi::protocol::TriggerMessage;
 
-use zmq;
 use config::Settings;
 
 pub struct PluginManager {
@@ -42,10 +42,11 @@ impl PluginManager {
     /// we actually get may be completely different.
     pub unsafe fn load_plugin(
         &mut self,
-        filename: &String,
+        document: Value,
         subscription: Subscription<Arc<TriggerMessage>>,
-        args: Vec<String>,
+
     ) -> Result<(), String> {
+        let filename = document.get("path").unwrap().as_str().unwrap().to_string();
         type PluginCreate = unsafe fn() -> *mut MakaiPlugin;
 
         let lib = Library::new(filename).or(Err("No such file or directory."))?;
@@ -65,8 +66,9 @@ impl PluginManager {
 
         //self.plugins.push(plugin);
         let trigger = self.trigger.clone();
+
         self.plugin_threads.push(thread::spawn(move || {
-            plugin.on_plugin_load(args);
+            plugin.on_plugin_load(&document);
             loop {
                 let msg = subscription.recv().unwrap();
 
