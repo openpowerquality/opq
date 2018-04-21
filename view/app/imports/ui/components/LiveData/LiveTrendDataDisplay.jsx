@@ -19,9 +19,9 @@ class LiveTrendDataManager extends React.Component {
     const linesToShow = [];
     const disabled = {};
     this.props.boxIDs.forEach(boxID => {
-      linesToShow.push(`Box ${boxID} avg`); disabled[`Box ${boxID} avg`] = true;
-      linesToShow.push(`Box ${boxID} max`); disabled[`Box ${boxID} max`] = true;
-      linesToShow.push(`Box ${boxID} min`); disabled[`Box ${boxID} min`] = true;
+      linesToShow.push(`Box ${boxID} avg`); disabled[`Box ${boxID} avg`] = false;
+      linesToShow.push(`Box ${boxID} max`); disabled[`Box ${boxID} max`] = false;
+      linesToShow.push(`Box ${boxID} min`); disabled[`Box ${boxID} min`] = false;
     });
 
     const lineColors = {};
@@ -57,11 +57,11 @@ class LiveTrendDataManager extends React.Component {
       const disabled = this.state.disabled;
       nextProps.boxIDs.forEach(boxID => {
         linesToShow.push(`Box ${boxID} avg`);
-        if (disabled[`Box ${boxID} avg`] === undefined) disabled[`Box ${boxID} avg`] = true;
+        if (disabled[`Box ${boxID} avg`] === undefined) disabled[`Box ${boxID} avg`] = false;
         linesToShow.push(`Box ${boxID} max`);
-        if (disabled[`Box ${boxID} max`] === undefined) disabled[`Box ${boxID} max`] = true;
+        if (disabled[`Box ${boxID} max`] === undefined) disabled[`Box ${boxID} max`] = false;
         linesToShow.push(`Box ${boxID} min`);
-        if (disabled[`Box ${boxID} min`] === undefined) disabled[`Box ${boxID} min`] = true;
+        if (disabled[`Box ${boxID} min`] === undefined) disabled[`Box ${boxID} min`] = false;
       });
       let colorCounter = 0;
       const lineColors = {};
