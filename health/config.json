@@ -7,15 +7,12 @@
         "service": "box",
         "interval": 60,
         "boxdata": [
-            {
-                "boxID": 1
-            },
-            {
-                "boxID": 3
-            },
-            {
-                "boxID": 5
-            }
+          { "boxID": 1 },
+          { "boxID": 2 },
+          { "boxID": 3 },
+          { "boxID": 4 },
+          { "boxID": 5 },
+          { "boxID": 6 }
         ]
     },
     {
