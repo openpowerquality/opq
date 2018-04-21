@@ -19,13 +19,17 @@
 
     { "box_id": "5", "name": "Philip's Box", "description": "Version 2.8, 2017", "calibration_constant": 146.5,
       "location": "Kailua-001", "location_start_time_ms": "2018-01-10 13:00:00",
-      "location_archive": [ {"location": "UHM-POST-307", "location_start_time_ms": "2017-04-16 13:00:00" } ]}
+      "location_archive": [ {"location": "UHM-POST-307", "location_start_time_ms": "2017-04-16 13:00:00" } ]},
+
+    { "box_id": "6", "name": "CSDL Box (2)", "description": "Version 2.8, 2017", "calibration_constant": 146.96,
+      "location": "UHM-POST-307-2", "location_start_time_ms": "2018-03-10 13:00:00",
+      "location_archive": [ ]}
   ],
 
   "userProfiles": [
-    { "username": "achriste@hawaii.edu", "password": "foo", "firstName": "Anthony", "lastName": "Christe", "role": "admin", "boxIds": ["1", "2", "3", "4", "5"]},
+    { "username": "achriste@hawaii.edu", "password": "foo", "firstName": "Anthony", "lastName": "Christe", "role": "admin", "boxIds": ["1", "2", "3", "4", "5", "6"]},
 
-    { "username": "sin8@hawaii.edu", "password": "foo", "firstName": "Serge", "lastName": "Negrashov", "role": "admin", "boxIds": ["1", "2", "3", "4", "5"]},
+    { "username": "sin8@hawaii.edu", "password": "foo", "firstName": "Serge", "lastName": "Negrashov", "role": "admin", "boxIds": ["1", "2", "3", "4", "5", "6"]},
 
     { "username": "johnson@hawaii.edu", "password": "foo", "firstName": "Philip", "lastName": "Johnson", "role": "admin", "boxIds": ["1", "2", "3"]},
 
@@ -36,6 +40,7 @@
   "locations": [
     { "coordinates": [-157.751399, 21.409958], "slug": "Kailua-001", "description": "Residence, Kailua" },
     { "coordinates": [-157.816176, 21.297421], "slug": "UHM-POST-307", "description": "POST 307, UH" },
+    { "coordinates": [-157.816176, 21.297421], "slug": "UHM-POST-307-2", "description": "POST 307 (2), UH" },
     { "coordinates": [-157.828921, 21.300010], "slug": "Honolulu-001", "description": "Residence, Makiki" },
     { "coordinates": [-157.825917, 21.294651], "slug": "Honolulu-002", "description": "Residence, Moiliili" },
     { "coordinates": [-157.792919, 21.299199], "slug": "Honolulu-003", "description": "Residence, Palolo" },
