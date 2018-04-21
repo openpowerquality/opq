@@ -1,15 +1,16 @@
 use std::thread;
 use std::sync::{Arc, Mutex};
+use std::boxed::Box;
+
 
 use pub_sub::Subscription;
 use libloading::{Library, Symbol};
 use zmq;
-use serde_json::Value;
+use serde_json;
 
 use event_requester::{EventRequester, SyncEventRequester};
 use opqapi::MakaiPlugin;
 use opqapi::protocol::TriggerMessage;
-
 use config::Settings;
 
 pub struct PluginManager {
@@ -42,7 +43,7 @@ impl PluginManager {
     /// we actually get may be completely different.
     pub unsafe fn load_plugin(
         &mut self,
-        document: Value,
+        mut document: serde_json::Value,
         subscription: Subscription<Arc<TriggerMessage>>,
 
     ) -> Result<(), String> {
@@ -64,14 +65,11 @@ impl PluginManager {
 
         let mut plugin = Box::from_raw(boxed_raw);
 
-        //self.plugins.push(plugin);
         let trigger = self.trigger.clone();
-
         self.plugin_threads.push(thread::spawn(move || {
-            plugin.on_plugin_load(&document);
+            plugin.on_plugin_load(document.to_string());
             loop {
                 let msg = subscription.recv().unwrap();
-
                 let res = plugin.process_measurement(msg);
                 match res {
                     Some(x) => trigger.lock().unwrap().trigger(x),
@@ -79,6 +77,7 @@ impl PluginManager {
                 };
             }
         }));
+
         Ok(())
     }
 }

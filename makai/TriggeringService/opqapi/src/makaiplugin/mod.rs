@@ -1,3 +1,4 @@
+
 use super::protocol::opq;
 use std::sync::Arc;
 use std::any::Any;
@@ -5,8 +6,8 @@ use serde_json::Value;
 
 pub trait MakaiPlugin: Any + Send + Sync {
     fn name(&self) -> &'static str;
-    fn process_measurement(&mut self, Arc<opq::TriggerMessage>) -> Option<opq::RequestEventMessage>;
-    fn on_plugin_load(&mut self, &Value);
+    fn process_measurement(&mut self, msg : Arc<opq::TriggerMessage>) -> Option<opq::RequestEventMessage>;
+    fn on_plugin_load(&mut self, json : String);
     fn on_plugin_unload(&mut self);
 }
 

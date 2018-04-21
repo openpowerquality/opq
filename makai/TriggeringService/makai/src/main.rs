@@ -1,7 +1,4 @@
 //! Makai is a event detection daemon used for identifying distributed events. Furthermore it will store triggering data to a mongo database.
-//!
-
-//extern crate protobuf;
 extern crate zmq;
 
 #[macro_use(doc)]
@@ -68,10 +65,11 @@ fn main() {
         mongo.run_loop();
     }));
     let mut plugin_manager = PluginManager::new(&ctx, &settings);
-    unsafe {
         for document in settings.plugins {
             let filename = document.get("path").unwrap().as_str().unwrap().to_string();
-            let res = plugin_manager.load_plugin(document, channel.subscribe());
+            unsafe {
+                let res = plugin_manager.load_plugin(document, channel.subscribe());
+
             match res {
                 Ok(_) => println!("Loaded {}", filename),
                 Err(err_str) => println!("Failed to load {}, {}", filename, err_str),

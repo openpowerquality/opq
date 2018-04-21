@@ -8,8 +8,7 @@
   "event_request_expiration_window_ms" : 1800000,
   "plugins" : [
     {
-      "path" : "./libthreshold_plugin.so",
-      "one" : 1
+      "path" : "./libthreshold_plugin.so"
     }
   ]
 
