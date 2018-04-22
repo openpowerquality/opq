@@ -15,13 +15,15 @@ class SystemHealth extends React.Component {
   helpText = `
   <p>System Health provides a visual indication of the current status of OPQ services and boxes. </p>
   
-  <p>Services can either be 'up' (green) or 'down' (red). All services should always be up.</p>
+  <p>Services can either be 'up' (green), 'down' (red), or 'unknown' (grey). All services should always be up.</p>
   
-  <p>Boxes can be 'up' (green), 'down' (red), or 'unplugged' (grey).  When a user wants a box to be registered
+  <p>Boxes can be 'up' (green), 'down' (red), 'unknown' (grey), or 'unplugged' (yellow).  
+  When a user wants a box to be registered
   in the system but isn't using it currently, they can set its status to unplugged to indicate that the lack
-  of data transmission is not an indication of system malfunction. </p>
+  of data transmission is not an indication of system malfunction. Boxes should always be 'up' or 'unplugged'. </p>
   
-  <p>This data is provided by the OPQ Health component.</p>
+  <p>This data is provided by the OPQ Health middleware service. 'Unknown' means that the Health service has not
+  reported a value for this service or box in the last minute.</p>
   `;
 
   /** If the subscription(s) have been received, render the page, otherwise show a loading icon. */
