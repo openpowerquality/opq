@@ -38,6 +38,16 @@ class SystemHealth extends React.Component {
     );
   }
 
+  /**
+   * RenderPage shows the status.
+   * Each entity can be in state "up", "down", or "unknown" (if Health does not report on them.)
+   * Boxes can also be in state "unplugged".
+   * Last update time: from the first record.
+   * Must update Health documentation to say that this component expects reporting at least once a minute.
+   * For the four services, can just _.find to get the first record.
+   * For the boxes, must subscribe to OPQBoxes to generate the list of box IDs. Then generate an array of results.
+   * @returns {*}
+   */
   renderPage() {
     console.log(this.props.healths);
     const divStyle = { paddingLeft: '10px', paddingRight: '10px' };
