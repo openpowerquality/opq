@@ -3,9 +3,11 @@ import PropTypes from 'prop-types';
 import { Label, Loader, Icon } from 'semantic-ui-react';
 import { withTracker } from 'meteor/react-meteor-data';
 import { Meteor } from 'meteor/meteor';
+import Moment from 'moment/moment';
 import WidgetPanel from '../layouts/WidgetPanel';
-import { SystemStats } from '../../api/system-stats/SystemStatsCollection';
 import { Healths } from '../../api/health/HealthsCollection';
+import { OpqBoxes } from '../../api/opq-boxes/OpqBoxesCollection';
+
 
 /** Display system statistics. */
 class SystemHealth extends React.Component {
@@ -39,6 +41,53 @@ class SystemHealth extends React.Component {
   }
 
   /**
+   * Return an object indicating the status of the supplied middleware service.
+   * @param healths An array of recent health documents.
+   * @param service The service of interest
+   * @returns { Object } Indicates health of service: up, down, or unknown
+   */
+  serviceHealthStatus(healths, service) {
+    const healthDoc = _.find(healths, health => health.service === service);
+    const name = service.toLowerCase();
+    // If no record, return unknown (grey)
+    if (!healthDoc) {
+      return { name, color: 'grey', icon: 'question circle' };
+    }
+    // If up, return green.
+    if (healthDoc.status === 'UP') {
+      return { name, color: 'green', icon: 'check circle' };
+    }
+    // Otherwise assume down, return red.
+    return { name, color: 'red', icon: 'exclamation circle' };
+  }
+
+  /**
+   * Return an object indicating the status of the supplied boxID.
+   * @param healths An array of recent health documents.
+   * @param boxID The box of interest
+   * @returns { Object } Indicates health of box: up, down, unknown, or unplugged.
+   */
+  boxHealthStatus(healths, boxID) {
+    const healthDoc = _.find(healths, health => (health.service === 'BOX' && health.serviceID === boxID));
+    const boxDoc = _.find(this.props.boxes, doc => doc.box_id === boxID);
+    const name = `Box ${boxID}`;
+    // If no record, return unknown (grey)
+    if (!healthDoc) {
+      return { name, color: 'grey', icon: 'question circle' };
+    }
+    // If unplugged, return unplugged
+    if (boxDoc && boxDoc.unplugged) {
+      return { name, color: 'yellow', icon: 'plug' };
+    }
+    // If up, return green.
+    if (healthDoc.status === 'UP') {
+      return { name, color: 'green', icon: 'check circle' };
+    }
+    // Otherwise assume down, return red.
+    return { name, color: 'red', icon: 'exclamation circle' };
+  }
+
+  /**
    * RenderPage shows the status.
    * Each entity can be in state "up", "down", or "unknown" (if Health does not report on them.)
    * Boxes can also be in state "unplugged".
@@ -49,22 +98,28 @@ class SystemHealth extends React.Component {
    * @returns {*}
    */
   renderPage() {
-    console.log(this.props.healths);
+    const services = ['MAUKA', 'MAKAI', 'MONGO', 'HEALTH'];
+    const boxIDs = this.props.boxes.map(box => box.box_id).sort();
+    const serviceHealth = _.map(services, service => this.serviceHealthStatus(this.props.healths, service));
+    const boxHealth = _.map(boxIDs, id => this.boxHealthStatus(this.props.healths, id));
+    const lastUpdate = this.props.healths[0] ?
+      Moment(this.props.healths[0].timestamp).format('MMMM Do YYYY, h:mm:ss a') : 'Unknown';
+
+    const footerStyle = { textAlign: 'center', paddingTop: '10px' };
     const divStyle = { paddingLeft: '10px', paddingRight: '10px' };
     const headerStyle =
       { paddingLeft: '10px', paddingRight: '10px', textAlign: 'center', fontWeight: 'bold', marginBottom: '5px' };
-    const services = this.props.stats.health.filter(health => health.type === 'service');
-    const boxes = this.props.stats.health.filter(health => health.type === 'box');
     return (
         <WidgetPanel title="System Health" helpText={this.helpText}>
           <p style={headerStyle}>Services</p>
           <Label.Group style={divStyle}>
-            {services.map((health, index) => this.renderHealth(health, index))}
+            {serviceHealth.map((health, index) => this.renderHealth(health, index))}
           </Label.Group>
           <p style={headerStyle}>OPQ Boxes</p>
           <Label.Group style={divStyle}>
-            {boxes.map((health, index) => this.renderHealth(health, index))}
+            {boxHealth.map((health, index) => this.renderHealth(health, index))}
           </Label.Group>
+          <p style={footerStyle}>Last update: {lastUpdate}</p>
         </WidgetPanel>
     );
   }
@@ -74,17 +129,21 @@ class SystemHealth extends React.Component {
 SystemHealth.propTypes = {
   stats: PropTypes.object,
   healths: PropTypes.array,
+  boxes: PropTypes.array,
   ready: PropTypes.bool.isRequired,
+  boxIDs: PropTypes.array.isRequired,
 };
 
 /** withTracker connects Meteor data to React components. https://guide.meteor.com/react.html#using-withTracker */
 export default withTracker(() => {
-  const subscription = Meteor.subscribe(SystemStats.getPublicationName());
-  const subscription2 = Meteor.subscribe(Healths.getPublicationName());
+  const sub1 = Meteor.subscribe(Healths.getPublicationName());
+  const sub2 = Meteor.subscribe('opq_boxes');
+
   return {
-    stats: SystemStats.findOne({}),
     healths:
       Healths.find({ timestamp: { $gt: new Date(Date.now() - (1000 * 62)) } }, { sort: { timestamp: -1 } }).fetch(),
-    ready: subscription.ready() && subscription2.ready(),
+    ready: sub1.ready() && sub2.ready(),
+    boxes: OpqBoxes.find().fetch(),
+    boxIDs: OpqBoxes.find().fetch().map(box => box.box_id).sort(),
   };
 })(SystemHealth);
