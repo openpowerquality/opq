@@ -46,6 +46,6 @@
     },
     {
         "service": "health",
-        "interval": 86400
+        "interval": 60
     }
 ]
