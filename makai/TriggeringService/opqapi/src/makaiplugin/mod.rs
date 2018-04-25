@@ -2,7 +2,6 @@
 use super::protocol::opq;
 use std::sync::Arc;
 use std::any::Any;
-use serde_json::Value;
 
 pub trait MakaiPlugin: Any + Send + Sync {
     fn name(&self) -> &'static str;

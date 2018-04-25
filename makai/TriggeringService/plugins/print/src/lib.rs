@@ -8,35 +8,30 @@ use std::sync::Arc;
 
 
 #[derive(Debug, Default)]
-pub struct NullPlugin{
+pub struct PrintPlugin{
     print : bool
 }
 
-impl NullPlugin {
-    fn new() -> NullPlugin{
-        NullPlugin{
-            print : false,
+impl PrintPlugin {
+    fn new() -> PrintPlugin{
+        PrintPlugin{
+            print : true,
         }
     }
 }
 
-impl MakaiPlugin for NullPlugin {
+impl MakaiPlugin for PrintPlugin {
 
     fn name(&self) -> &'static str  {
-        "Null Plugin"
+        "Print Plugin"
     }
 
-    fn on_plugin_load(&mut self, args : Vec<String>) {
-        println!("Null plugin loaded with arguments {:?}", args);
-        for arg in args{
-            if arg == "print"{
-                self.print = true;
-            }
-        }
+    fn on_plugin_load(&mut self, args : String) {
+        println!("Print plugin loaded with arguments {:?}", args);
     }
 
     fn on_plugin_unload(&mut self) {
-        println!("Null plugin unloaded.")
+        println!("Print plugin unloaded.")
     }
 
     fn process_measurement(&mut self, msg: Arc<TriggerMessage>) -> Option<RequestEventMessage> {
@@ -47,4 +42,4 @@ impl MakaiPlugin for NullPlugin {
     }
 }
 
-declare_plugin!(NullPlugin, NullPlugin::new);
+declare_plugin!(PrintPlugin, PrintPlugin::new);

@@ -43,7 +43,7 @@ impl PluginManager {
     /// we actually get may be completely different.
     pub unsafe fn load_plugin(
         &mut self,
-        mut document: serde_json::Value,
+        document: serde_json::Value,
         subscription: Subscription<Arc<TriggerMessage>>,
 
     ) -> Result<(), String> {
