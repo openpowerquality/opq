@@ -195,7 +195,7 @@ def generate_req_event_message():
     req_message = protobuf.opq_pb2.RequestEventMessage()
 
     req_message.trigger_type = req_message.OTHER
-    req_message.description = "This is a test"
+    req_message.description = "Health check"
     req_message.end_timestamp_ms_utc = int(current_t_ms - 10000)
     req_message.start_timestamp_ms_utc = int(current_t_ms - 20000)
     req_message.percent_magnitude = 50
