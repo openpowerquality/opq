@@ -106,7 +106,7 @@ def log_boxes(sleep_time):
         lock.acquire()
         for id, box_t_ms in boxes.items():
             time_elapsed = time() - (box_t_ms / 1000)
-            if time_elapsed > 300:
+            if time_elapsed > 20:
                 message = get_msg_as_json('BOX', str(id), 'DOWN', '')
             else:
                 message = get_msg_as_json('BOX', str(id), 'UP', '')

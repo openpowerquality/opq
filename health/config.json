@@ -5,7 +5,7 @@
     },
     {
         "service": "box",
-        "interval": 60,
+        "interval": 20,
         "boxdata": [
           { "boxID": 1 },
           { "boxID": 2 },
