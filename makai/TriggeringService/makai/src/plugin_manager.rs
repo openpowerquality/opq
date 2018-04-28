@@ -14,7 +14,6 @@ use opqapi::protocol::TriggerMessage;
 use config::Settings;
 
 pub struct PluginManager {
-    loaded_libraries: Vec<Library>,
     plugin_threads: Vec<thread::JoinHandle<()>>,
     trigger: SyncEventRequester,
 }
@@ -22,8 +21,6 @@ pub struct PluginManager {
 impl PluginManager {
     pub fn new(ctx: &zmq::Context, settings: &Settings) -> PluginManager {
         PluginManager {
-            //plugins : Vec::new(),
-            loaded_libraries: Vec::new(),
             plugin_threads: Vec::new(),
             trigger: Arc::new(Mutex::new(EventRequester::new(ctx, settings))),
         }
@@ -50,23 +47,24 @@ impl PluginManager {
         let filename = document.get("path").unwrap().as_str().unwrap().to_string();
         type PluginCreate = unsafe fn() -> *mut MakaiPlugin;
 
-        let lib = Library::new(filename).or(Err("No such file or directory."))?;
-
-        // We need to keep the library around otherwise our plugin's vtable will
-        // point to garbage. We do this little dance to make sure the library
-        // doesn't end up getting moved.
-        self.loaded_libraries.push(lib);
-
-        let lib = self.loaded_libraries.last().unwrap();
-
-        let constructor: Symbol<PluginCreate> = lib.get(b"_plugin_create")
-            .or(Err("Could not load symbol."))?;
-        let boxed_raw = constructor();
-
-        let mut plugin = Box::from_raw(boxed_raw);
-
         let trigger = self.trigger.clone();
+
         self.plugin_threads.push(thread::spawn(move || {
+            let lib = Library::new(filename).unwrap();
+
+            // We need to keep the library around otherwise our plugin's vtable will
+            // point to garbage. We do this little dance to make sure the library
+            // doesn't end up getting moved.
+          //  self.loaded_libraries.push(lib);
+
+            //let lib = self.loaded_libraries.last().unwrap();
+
+            let constructor: Symbol<PluginCreate> = lib.get(b"_plugin_create")
+                .unwrap();
+            let boxed_raw = constructor();
+
+            let mut plugin = Box::from_raw(boxed_raw);
+
             plugin.on_plugin_load(document.to_string());
             loop {
                 let msg = subscription.recv().unwrap();

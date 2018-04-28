@@ -3,7 +3,7 @@ use super::protocol::opq;
 use std::sync::Arc;
 use std::any::Any;
 
-pub trait MakaiPlugin: Any + Send + Sync {
+pub trait MakaiPlugin: Any{
     fn name(&self) -> &'static str;
     fn process_measurement(&mut self, msg : Arc<opq::TriggerMessage>) -> Option<opq::RequestEventMessage>;
     fn on_plugin_load(&mut self, json : String);

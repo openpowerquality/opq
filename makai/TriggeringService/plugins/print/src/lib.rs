@@ -6,16 +6,24 @@ use opqapi::MakaiPlugin;
 use opqapi::protocol::opq::{RequestEventMessage, TriggerMessage};
 use std::sync::Arc;
 
+#[macro_use] extern crate serde_derive;
+extern crate serde;
+extern crate serde_json;
+
+#[derive(Serialize, Deserialize, Default, Debug)]
+struct PrintPluginSettings{
+    pub print : bool
+}
 
 #[derive(Debug, Default)]
 pub struct PrintPlugin{
-    print : bool
+    settings : PrintPluginSettings
 }
 
 impl PrintPlugin {
     fn new() -> PrintPlugin{
         PrintPlugin{
-            print : true,
+            settings : PrintPluginSettings::default()
         }
     }
 }
@@ -27,7 +35,11 @@ impl MakaiPlugin for PrintPlugin {
     }
 
     fn on_plugin_load(&mut self, args : String) {
-        println!("Print plugin loaded with arguments {:?}", args);
+        let set = serde_json::from_str(&args);
+        self.settings = match set{
+            Ok(s) => {s},
+            Err(e) => {println!("Bad setting fie for plugin {}: {:?}", self.name(), e); PrintPluginSettings::default()},
+        }
     }
 
     fn on_plugin_unload(&mut self) {
@@ -35,7 +47,7 @@ impl MakaiPlugin for PrintPlugin {
     }
 
     fn process_measurement(&mut self, msg: Arc<TriggerMessage>) -> Option<RequestEventMessage> {
-        if self.print{
+        if self.settings.print{
             println!("{:?}", msg);
         }
         None
