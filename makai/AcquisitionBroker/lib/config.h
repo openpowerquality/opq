@@ -30,7 +30,7 @@ struct Config {
     //Box public interface for receiving data replies.
     string box_interface_pull;
     //cloudside interfacce for receiving event requests
-    string backend_interface_rep;
+    string backend_interface_pull;
     //cloudside interfacce for receiving event numbers
     string backend_interface_pub;
 
