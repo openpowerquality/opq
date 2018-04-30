@@ -35,7 +35,8 @@
         "service": "makai",
         "interval": 60,
         "mongo": "mongodb://localhost:27017/",
-        "acquisition_port": "tcp://localhost:9884"
+        "push_port": "tcp://localhost:9884",
+        "sub_port": "tcp://localhost:9882"
     },
     {
         "service": "view",
