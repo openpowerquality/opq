@@ -121,7 +121,7 @@ class LiveTrendDataManager extends React.Component {
                           minTime={new Date(this.props.start)} maxTime={new Date(this.props.end)}>
             <ChartRow height={100}>
               <YAxis id={measurement} format={n => n.toFixed(2)} label={headerContent} labelOffset={-10} width={60}
-                     min={Math.min(...wholeDataSet)} max={Math.max(...wholeDataSet)} minDuration={60000 * 3}>
+                     min={Math.min(...wholeDataSet)} max={Math.max(...wholeDataSet)} minDuration={60000 * 3} />
               <Charts>
                 {graphData.map(set => {
                   const series = new TimeSeries({
