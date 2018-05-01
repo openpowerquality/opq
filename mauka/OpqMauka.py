@@ -83,6 +83,8 @@ if __name__ == "__main__":
         broker_process.terminate()
         _logger.info("Killing makai bridge process")
         makai_bridge_process.terminate()
+        _logger.info("Killing makai event bridge process")
+        makai_bridge_event_process.terminate()
         _logger.info("Goodbye")
         sys.exit(0)
     except KeyboardInterrupt:
