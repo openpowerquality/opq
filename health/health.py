@@ -129,6 +129,7 @@ def check_boxes(config, port):
     box_log_thread.start()
 
     while True:
+        # WIP - Add try/catch on recv?
         measurement = socket.recv_multipart()
         trigger_message = protobuf.opq_pb2.TriggerMessage()
         trigger_message.ParseFromString(measurement[1])
@@ -215,26 +216,44 @@ def find_event(mongo_uri, event_id):
 
 def check_makai(config):
     sleep_time = config['interval']
-    acq_url = config['acquisition_port']
+    push_port = config['push_port']
+    sub_port = config['sub_port']
     mongo_uri = config['mongo']
 
     context = zmq.Context()
-    socket = context.socket(zmq.REQ)
-    socket.connect(acq_url)
+
+    push_socket = context.socket(zmq.PUSH)
+
+    sub_socket = context.socket(zmq.SUB)
+    sub_socket.setsockopt(zmq.SUBSCRIBE, b"")
     # Timeout is 3 seconds for response
-    socket.rcvtimeo = 3000
+    sub_socket.rcvtimeo = 3000
+
+    try:
+        push_socket.connect(push_port)
+        sub_socket.connect(sub_port)
+    except Exception as e:
+        message = get_msg_as_json('MAKAI', '', 'DOWN', e)
+        save_message(message)
+        exit()
 
     req_message = generate_req_event_message()
 
     while True:
-        socket.send(req_message.SerializeToString())
-    
-        event_id = socket.recv()
+        try:
+            push_socket.send(req_message.SerializeToString())
+            # receive any event id
+            event_id = sub_socket.recv()
+        except Exception as e:
+            message = get_msg_as_json('MAKAI', '', 'DOWN', e)
+            save_message(message)
+            sleep(sleep_time)
+            continue
    
         if find_event(mongo_uri, event_id):
             message = get_msg_as_json('MAKAI', '', 'UP', '')
         else:
-            message = get_msg_as_json('MAKAI', '', 'UP', '')
+            message = get_msg_as_json('MAKAI', '', 'DOWN', '')
 
         save_message(message)
         
