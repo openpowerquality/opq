@@ -21,9 +21,9 @@
       "location": "Kailua-001", "location_start_time_ms": "2018-01-10 13:00:00",
       "location_archive": [ {"location": "UHM-POST-307", "location_start_time_ms": "2017-04-16 13:00:00" } ]},
 
-    { "box_id": "6", "name": "CSDL Box (2)", "description": "Version 2.8, 2017", "calibration_constant": 146.96,
-      "location": "UHM-POST-307-2", "location_start_time_ms": "2018-03-10 13:00:00",
-      "location_archive": [ ]}
+    { "box_id": "6", "name": "Dan's Box", "description": "Version 2.8, 2017", "calibration_constant": 146.96,
+      "location": "UHM-SHIDLER-E601C", "location_start_time_ms": "2018-05-01 13:55:00",
+      "location_archive": [{"location": "UHM-POST-307-2", "location_start_time_ms": "2018-03-10 13:00:00"}]}
   ],
 
   "userProfiles": [
@@ -34,7 +34,8 @@
     { "username": "johnson@hawaii.edu", "password": "foo", "firstName": "Philip", "lastName": "Johnson", "role": "admin", "boxIds": ["1", "2", "3"]},
 
     { "username": "keal@hawaii.edu", "password": "foo", "firstName": "Kea", "lastName": "Uehara", "role": "admin",
-      "boxIds": ["1", "2", "3", "4", "5", "6"]}
+      "boxIds": ["1", "2", "3", "4", "5", "6"]},
+    { "username": "dport@hawaii.edu", "password": "foo", "firstName": "Daniel", "lastName": "Port", "role": "admin", "boxIds": ["6"]}
   ],
 
   "locations": [
@@ -44,7 +45,8 @@
     { "coordinates": [-157.828921, 21.300010], "slug": "Honolulu-001", "description": "Residence, Makiki" },
     { "coordinates": [-157.825917, 21.294651], "slug": "Honolulu-002", "description": "Residence, Moiliili" },
     { "coordinates": [-157.792919, 21.299199], "slug": "Honolulu-003", "description": "Residence, Palolo" },
-    { "coordinates": [-157.802593, 21.278053], "slug": "Honolulu-004", "description": "Residence, Kaimuki" }
+    { "coordinates": [-157.802593, 21.278053], "slug": "Honolulu-004", "description": "Residence, Kaimuki" },
+    { "coordinates": [-157.820392, 21.300877], "slug": "UHM-Shidler-E601C", "description": "Shidler E601-C, UH" }
   ],
 
   "regions": [
