@@ -88,7 +88,7 @@ class LiveTrendDataManager extends React.Component {
   };
 
 
-/** Doing it this way instead of directly putting code in renderPage(), so that it is easier to see the parallels
+/** Doing it this way instead of putting code directly in renderPage(), so that it is easier to see the parallels
  * between the other similar components */
   generateGraph = (measurement) => {
     // @formatter:off
@@ -116,12 +116,12 @@ class LiveTrendDataManager extends React.Component {
         <Legend type='swatch' align='left' categories={legend} style={legendStyle}
                 onSelectionChange={this.legendClicked}/>
         <Resizable>
-          <ChartContainer timeRange={this.state.timeRange} enablePanZoom
+          <ChartContainer timeRange={this.state.timeRange} enablePanZoom minDuration={60000 * 3}
                           onTimeRangeChanged={timeRange => this.setState({ timeRange })}
                           minTime={new Date(this.props.start)} maxTime={new Date(this.props.end)}>
             <ChartRow height={100}>
               <YAxis id={measurement} format={n => n.toFixed(2)} label={headerContent} labelOffset={-10} width={60}
-                     min={Math.min(...wholeDataSet)} max={Math.max(...wholeDataSet)} minDuration={60000 * 3} />
+                     min={Math.min(...wholeDataSet)} max={Math.max(...wholeDataSet)} />
               <Charts>
                 {graphData.map(set => {
                   const series = new TimeSeries({
@@ -174,7 +174,7 @@ class LiveTrendDataManager extends React.Component {
     const disabled = this.state.disabled;
     disabled[label] = !disabled[label];
     this.setState({ disabled });
-  }
+  };
 }
 
 

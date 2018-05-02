@@ -236,7 +236,7 @@ export const dailyTrends = new ValidatedMethod({
         timestamp_ms: { $gt: startDate_ms, $lte: Moment(endDate_ms).endOf('day').valueOf() },
       }).fetch();
 
-      // New Moments are instantiated every time, because they mutate even when reassigned to a variable.
+      // New Moments are instantiated every time, because they are mutable.
       const start = Moment(startDate_ms);
       const end = Moment(endDate_ms);
       // Create structure of the dailyTrend object

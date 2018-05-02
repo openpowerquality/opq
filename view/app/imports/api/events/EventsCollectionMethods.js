@@ -52,9 +52,32 @@ export const getEventByEventID = new ValidatedMethod({
 
 export const getMostRecentEvent = new ValidatedMethod({
   name: 'Events.getMostRecentEvent',
-  validate: new SimpleSchema({}).validator({ clean: true }),
+  validate: new SimpleSchema({
+    boxes: []
+  }).validator({ clean: true }),
   run() {
     const mostRecentEvent = Events.findOne({}, { sort: { target_event_start_timestamp_ms: -1 } });
+    return mostRecentEvent;
+  },
+});
+
+/** Returns an array of events that were detected by specified boxes, in a specified range.
+ * @param {String[]} boxIDs: List of box IDs to get data for
+ * @param {Number} startDate_ms: Start of range in Unix epoch time
+ * @param {Number} endDate_ms: End of range in Unix epoch time
+ */
+export const getEventsInRange = new ValidatedMethod({
+  name: 'Events.getEventsInRange',
+  validate: new SimpleSchema({
+    boxIDs: { type: Array },
+    'boxIDs.$': { type: String },
+    startDate_ms: { type: Number },
+    endDate_ms: { type: Number },
+  }).validator({ clean: true }),
+  run({ boxIDs, startDate_ms, endDate_ms }) {
+    const events = Events.find({
+
+    });
     return mostRecentEvent;
   },
 });

@@ -37,7 +37,7 @@ class LiveMeasurementDataManager extends React.Component {
           <Grid.Column width={16}>
             <Grid stackable>
               <Grid.Column width={8}>
-                <Dropdown search selection fluid placeholder='Boxes'
+                <Dropdown search selection fluid placeholder='Box'
                           options={this.props.boxIDs.map(boxID => ({ text: `Box ${boxID}`, value: boxID }))}
                           onChange={this.changeBoxes} value={this.state.boxID}/>
               </Grid.Column>
