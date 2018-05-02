@@ -1,0 +1,34 @@
+Wed May  2 01:47:48 2018 service: HEALTH service id:  status: UP info: 
+Wed May  2 01:47:48 2018 service: MAUKA service id:  status: UP info: 
+Wed May  2 01:47:48 2018 service: VIEW service id:  status: UP info: 200
+Wed May  2 01:47:48 2018 service: MONGO service id:  status: UP info: 
+Wed May  2 01:47:49 2018 service: MAKAI service id:  status: UP info: 
+Wed May  2 01:48:08 2018 service: BOX service id: 1 status: UP info: 
+Wed May  2 01:48:08 2018 service: BOX service id: 2 status: UP info: 
+Wed May  2 01:48:08 2018 service: BOX service id: 3 status: UP info: 
+Wed May  2 01:48:08 2018 service: BOX service id: 4 status: DOWN info: 
+Wed May  2 01:48:08 2018 service: BOX service id: 5 status: UP info: 
+Wed May  2 01:48:08 2018 service: BOX service id: 6 status: UP info: 
+Wed May  2 01:48:28 2018 service: BOX service id: 1 status: UP info: 
+Wed May  2 01:48:28 2018 service: BOX service id: 2 status: UP info: 
+Wed May  2 01:48:28 2018 service: BOX service id: 3 status: UP info: 
+Wed May  2 01:48:28 2018 service: BOX service id: 4 status: DOWN info: 
+Wed May  2 01:48:28 2018 service: BOX service id: 5 status: UP info: 
+Wed May  2 01:48:28 2018 service: BOX service id: 6 status: UP info: 
+Wed May  2 01:48:48 2018 service: HEALTH service id:  status: UP info: 
+Wed May  2 01:48:48 2018 service: MAUKA service id:  status: UP info: 
+Wed May  2 01:48:48 2018 service: VIEW service id:  status: UP info: 200
+Wed May  2 01:48:48 2018 service: BOX service id: 1 status: UP info: 
+Wed May  2 01:48:48 2018 service: MONGO service id:  status: UP info: 
+Wed May  2 01:48:48 2018 service: BOX service id: 2 status: UP info: 
+Wed May  2 01:48:48 2018 service: BOX service id: 3 status: UP info: 
+Wed May  2 01:48:48 2018 service: BOX service id: 4 status: DOWN info: 
+Wed May  2 01:48:48 2018 service: BOX service id: 5 status: UP info: 
+Wed May  2 01:48:48 2018 service: BOX service id: 6 status: UP info: 
+Wed May  2 01:48:49 2018 service: MAKAI service id:  status: UP info: 
+Wed May  2 01:49:08 2018 service: BOX service id: 1 status: UP info: 
+Wed May  2 01:49:08 2018 service: BOX service id: 2 status: UP info: 
+Wed May  2 01:49:08 2018 service: BOX service id: 3 status: UP info: 
+Wed May  2 01:49:08 2018 service: BOX service id: 4 status: DOWN info: 
+Wed May  2 01:49:08 2018 service: BOX service id: 5 status: UP info: 
+Wed May  2 01:49:08 2018 service: BOX service id: 6 status: UP info: 
