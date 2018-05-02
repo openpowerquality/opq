@@ -22,7 +22,7 @@
       "location_archive": [ {"location": "UHM-POST-307", "location_start_time_ms": "2017-04-16 13:00:00" } ]},
 
     { "box_id": "6", "name": "Dan's Box", "description": "Version 2.8, 2017", "calibration_constant": 146.96,
-      "location": "UHM-SHIDLER-E601C", "location_start_time_ms": "2018-05-01 13:55:00",
+      "location": "UHM-Shidler-E601C", "location_start_time_ms": "2018-05-01 13:55:00",
       "location_archive": [{"location": "UHM-POST-307-2", "location_start_time_ms": "2018-03-10 13:00:00"}]}
   ],
 
@@ -35,7 +35,7 @@
 
     { "username": "keal@hawaii.edu", "password": "foo", "firstName": "Kea", "lastName": "Uehara", "role": "admin",
       "boxIds": ["1", "2", "3", "4", "5", "6"]},
-    { "username": "dport@hawaii.edu", "password": "foo", "firstName": "Daniel", "lastName": "Port", "role": "admin", "boxIds": ["6"]}
+    { "username": "dport@hawaii.edu", "password": "foo", "firstName": "Daniel", "lastName": "Port", "role": "user", "boxIds": ["6"]}
   ],
 
   "locations": [
