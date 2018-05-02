@@ -205,12 +205,12 @@ def generate_req_event_message():
     
     return req_message
 
-def find_event(mongo_uri, event_id):
+def find_event(mongo_uri, new_event):
     if not event_id:
         return None
-    decoded = int(event_id.decode("utf-8"))
     # NOTE - Should I sleep for a bit to give event creation slack?
-    event = get_mongo_doc(mongo_uri, 'events', {'event_id': decoded})
+    id = int(event_id[1].event_number)
+    event = get_mongo_doc(mongo_uri, 'events', {'event_id': id})
 
     return event
 
@@ -243,14 +243,14 @@ def check_makai(config):
         try:
             push_socket.send(req_message.SerializeToString())
             # receive any event id
-            event_id = sub_socket.recv()
+            new_event = sub_socket.recv_multipart()
         except Exception as e:
             message = get_msg_as_json('MAKAI', '', 'DOWN', e)
             save_message(message)
             sleep(sleep_time)
             continue
    
-        if find_event(mongo_uri, event_id):
+        if find_event(mongo_uri, new_event):
             message = get_msg_as_json('MAKAI', '', 'UP', '')
         else:
             message = get_msg_as_json('MAKAI', '', 'DOWN', '')
@@ -258,6 +258,9 @@ def check_makai(config):
         save_message(message)
         
         sleep(sleep_time)
+
+    push_socket.close()
+    sub_socket.clse()
            
 def main(config_file):
     health_config = file_to_dict(config_file)
