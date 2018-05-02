@@ -209,7 +209,7 @@ def find_event(mongo_uri, new_event):
     if not event_id:
         return None
     # NOTE - Should I sleep for a bit to give event creation slack?
-    id = int(event_id[1].event_number)
+    id = int(event_id[1])
     event = get_mongo_doc(mongo_uri, 'events', {'event_id': id})
 
     return event
