@@ -13,12 +13,16 @@ use opqapi::MakaiPlugin;
 use opqapi::protocol::TriggerMessage;
 use config::Settings;
 
+///A structure used to keep track of dynamically loaded plugins.
 pub struct PluginManager {
+    ///A vector of running threads. These are persistent and will stick around until the app exits.
     plugin_threads: Vec<thread::JoinHandle<()>>,
+    ///The connection to the acquisition broker.
     trigger: SyncEventRequester,
 }
 
 impl PluginManager {
+    ///Creates a new plugin manager. You should probly only have one of these in your app.
     pub fn new(ctx: &zmq::Context, settings: &Settings) -> PluginManager {
         PluginManager {
             plugin_threads: Vec::new(),
@@ -26,7 +30,7 @@ impl PluginManager {
         }
     }
 
-    /// Load a plugin from a DLL or shared library.
+    /// Load a plugin from a shared library. Here be dragons!
     ///
     /// # Safety
     ///
@@ -36,7 +40,7 @@ impl PluginManager {
     /// loading them!
     ///
     /// Failure to ensure ABI compatibility will most probably result in UB
-    /// because the vtable we expect to get (from `Box<Plugin>`) and the vtable
+    /// because the vtable we expect to get (from `Box<MakaiPlugin>`) and the vtable
     /// we actually get may be completely different.
     pub unsafe fn load_plugin(
         &mut self,
@@ -45,22 +49,27 @@ impl PluginManager {
 
     ) -> Result<(), String> {
         let filename = document.get("path").unwrap().as_str().unwrap().to_string();
+        let filename_copy = filename.clone();
         type PluginCreate = unsafe fn() -> *mut MakaiPlugin;
 
         let trigger = self.trigger.clone();
 
         self.plugin_threads.push(thread::spawn(move || {
-            let lib = Library::new(filename).unwrap();
 
             // We need to keep the library around otherwise our plugin's vtable will
             // point to garbage. We do this little dance to make sure the library
             // doesn't end up getting moved.
-          //  self.loaded_libraries.push(lib);
+            let lib = match Library::new(filename){
+                Ok(l) => {l},
+                Err(e) => {println!("Could not load library plugin {}: {}", filename_copy, e); return;},
+            };
 
-            //let lib = self.loaded_libraries.last().unwrap();
 
-            let constructor: Symbol<PluginCreate> = lib.get(b"_plugin_create")
-                .unwrap();
+            let constructor: Symbol<PluginCreate> = match lib.get(b"_plugin_create"){
+                Ok(k) => {k},
+                Err(_) => {println!("Could not find the entry point into plugin {}", filename_copy); return},
+            };
+
             let boxed_raw = constructor();
 
             let mut plugin = Box::from_raw(boxed_raw);
@@ -68,10 +77,8 @@ impl PluginManager {
             plugin.on_plugin_load(document.to_string());
             loop {
                 let msg = subscription.recv().unwrap();
-                let res = plugin.process_measurement(msg);
-                match res {
-                    Some(x) => trigger.lock().unwrap().trigger(x),
-                    None => (),
+                if let Some(x) = plugin.process_measurement(msg) {
+                    trigger.lock().unwrap().trigger(x)
                 };
             }
         }));

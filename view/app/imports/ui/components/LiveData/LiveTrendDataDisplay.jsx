@@ -19,9 +19,12 @@ class LiveTrendDataManager extends React.Component {
     const linesToShow = [];
     const disabled = {};
     this.props.boxIDs.forEach(boxID => {
-      linesToShow.push(`Box ${boxID} avg`); disabled[`Box ${boxID} avg`] = false;
-      linesToShow.push(`Box ${boxID} max`); disabled[`Box ${boxID} max`] = false;
-      linesToShow.push(`Box ${boxID} min`); disabled[`Box ${boxID} min`] = false;
+      linesToShow.push(`Box ${boxID} avg`);
+      disabled[`Box ${boxID} avg`] = false;
+      linesToShow.push(`Box ${boxID} max`);
+      disabled[`Box ${boxID} max`] = false;
+      linesToShow.push(`Box ${boxID} min`);
+      disabled[`Box ${boxID} min`] = false;
     });
 
     const lineColors = {};
@@ -41,12 +44,13 @@ class LiveTrendDataManager extends React.Component {
   }
 
   /** Updates the state based on changes to props. */
-  componentWillReceiveProps(nextProps){
-    if (nextProps.length !== this.state.length) this.setState({
-      timeRange: nextProps.timeRange,
-      length: nextProps.length,
-    });
-    else if (nextProps.trendData !== this.props.trendData) {
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.length !== this.state.length) {
+      this.setState({
+        timeRange: nextProps.timeRange,
+        length: nextProps.length,
+      });
+    } else if (nextProps.trendData !== this.props.trendData) {
       const diff = nextProps.start - this.props.start;
       const range = [this.state.timeRange.begin().valueOf() + diff, this.state.timeRange.end().valueOf() + diff];
       this.setState({ timeRange: new TimeRange(range) });
@@ -81,11 +85,7 @@ class LiveTrendDataManager extends React.Component {
     return this.props.ready ? this.renderPage() : '';
   }
 
-  renderPage = () => {
-    return (
-      this.generateGraph(this.props.measurement)
-    );
-  };
+  renderPage = () => this.generateGraph(this.props.measurement);
 
 
 /** Doing it this way instead of putting code directly in renderPage(), so that it is easier to see the parallels
@@ -185,6 +185,9 @@ LiveTrendDataManager.propTypes = {
   timestamp: PropTypes.number,
   length: PropTypes.string,
   trendData: PropTypes.array,
+  timeRange: PropTypes.object,
+  start: PropTypes.number,
+  end: PropTypes.number,
 };
 
 /** withTracker connects Meteor data to React components. https://guide.meteor.com/react.html#using-withTracker */
@@ -196,7 +199,7 @@ export default withTracker(({ boxIDs, timestamp, length }) => {
   const sub = Meteor.subscribe('trends_after_timestamp', { timestamp, boxIDs });
   const trendData = Trends.find({
     timestamp_ms: { $gte: start },
-    box_id: { $in: boxIDs }
+    box_id: { $in: boxIDs },
   }, { sort: { timestamp_ms: 1 } }).fetch();
 
   return {

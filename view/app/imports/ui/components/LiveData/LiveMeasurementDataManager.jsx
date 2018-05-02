@@ -45,8 +45,6 @@ class LiveMeasurementDataManager extends React.Component {
                 <Button.Group fluid toggle>
                   <Button active={this.state.measurements.includes('frequency')} content='Frequency'
                           onClick={this.changeMeasurement}/>
-                  {/*<Button active={this.state.measurements.includes('thd')} content='THD'*/}
-                  {/*onClick={this.changeMeasurement}/>*/}
                   <Button active={this.state.measurements.includes('voltage')} content='Voltage'
                           onClick={this.changeMeasurement}/>
                 </Button.Group>

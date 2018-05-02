@@ -2,10 +2,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Meteor } from 'meteor/meteor';
 import { withTracker } from 'meteor/react-meteor-data';
-import { Header, Container, Grid } from 'semantic-ui-react';
 import Moment from 'moment';
 import {
-  Charts, ChartContainer, ChartRow, YAxis, LineChart, Baseline, Resizable, LabelAxis,
+  Charts, ChartContainer, ChartRow, YAxis, LineChart, Baseline, Resizable,
 } from 'react-timeseries-charts';
 import { TimeRange, TimeSeries } from 'pondjs';
 
@@ -94,6 +93,7 @@ LiveMeasurementDataManager.propTypes = {
   boxID: PropTypes.string,
   measurements: PropTypes.array,
   measurementData: PropTypes.array,
+  timeRange: PropTypes.object,
 };
 
 /** withTracker connects Meteor data to React components. https://guide.meteor.com/react.html#using-withTracker */
