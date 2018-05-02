@@ -44,11 +44,17 @@ fn main() {
         _ => &args[1],
     };
 
-    let settings = Settings::load_from_file(config_path).unwrap();
+    let settings = match Settings::load_from_file(config_path) {
+        Ok(s) => {s},
+        Err(e) => {println!("Could not load a settings file {}: {}", config_path, e); return},
+    };
 
     //DB
-    let client = Client::connect(&settings.mongo_host, settings.mongo_port)
-        .expect("Failed to initialize standalone client.");
+    let client = match Client::connect(&settings.mongo_host, settings.mongo_port) {
+        Ok(t) => t,
+        Err(e) => {println!("Could not initialize mongo: {}", e); return}
+    };
+
 
     let ctx = zmq::Context::new();
 
@@ -66,7 +72,10 @@ fn main() {
     }));
     let mut plugin_manager = PluginManager::new(&ctx, &settings);
         for document in settings.plugins {
-            let filename = document.get("path").unwrap().as_str().unwrap().to_string();
+            let filename = match document.get("path"){
+                None => {println!("One of the plugins is missing a path field. How do I load it?"); continue},
+                Some(s) => {s.as_str().unwrap().to_string()},
+            };
             unsafe {
                 let res = plugin_manager.load_plugin(document, channel.subscribe());
 

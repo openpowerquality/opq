@@ -5,15 +5,21 @@ use overlapping_interval::OverlappingIntervals;
 use std::sync::{Arc, Mutex};
 use config::Settings;
 
+///A wrapped `EventRequester` type used for passing around threads.
 pub type SyncEventRequester = Arc<Mutex<EventRequester>>;
 
+///Object responsible for communication with the acquisition broker.
 pub struct EventRequester {
+    ///ZMQ socket to the acquisition broker.
     acq_broker: zmq::Socket,
+    ///Overlapping intervals to prevent double requests for raw measurements.
     requested_intervals: OverlappingIntervals<u64>,
+    ///How long the overlapping intervals keeps event information.
     keep_data_for_ms: u64,
 }
 
 impl EventRequester {
+    /// Creates a new `EventRequester` form a zmq context and a reference to the settings file.
     pub fn new(ctx: &zmq::Context, settings: &Settings) -> EventRequester {
         let ret = EventRequester {
             acq_broker: ctx.socket(zmq::PUSH).unwrap(),
@@ -26,6 +32,7 @@ impl EventRequester {
         ret
     }
 
+    /// Sends a request for an event to the acquisition broker.
     pub fn trigger(&mut self, mut request: RequestEventMessage) {
         let start = request.get_start_timestamp_ms_utc();
         let end = request.get_end_timestamp_ms_utc();
