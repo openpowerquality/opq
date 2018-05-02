@@ -8,7 +8,7 @@
     { "box_id": "1", "name": "Serge's Box", "description": "Version 2.5?, 2016", "calibration_constant": 152.1,
       "location": "Honolulu-001", "location_start_time_ms": "2017-04-16 13:00:00" },
 
-    { "box_id": "2", "name": "Box 2", "description": "Unknown", "calibration_constant": 1.0, "unplugged": true,
+    { "box_id": "2", "name": "Box 2", "description": "Unknown", "calibration_constant": 1.0, "unplugged": false,
       "location": "Honolulu-002", "location_start_time_ms": "2017-04-16 13:00:00" },
 
     { "box_id": "3", "name": "CSDL Box", "description": "Version 2.7, 2017", "calibration_constant": 154.2,
