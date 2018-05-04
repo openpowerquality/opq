@@ -53,7 +53,8 @@ export const getEventByEventID = new ValidatedMethod({
 export const getMostRecentEvent = new ValidatedMethod({
   name: 'Events.getMostRecentEvent',
   validate: new SimpleSchema({
-    boxes: []
+    boxes: { type: Array },
+    'boxes.$': { type: String },
   }).validator({ clean: true }),
   run() {
     const mostRecentEvent = Events.findOne({}, { sort: { target_event_start_timestamp_ms: -1 } });
@@ -71,13 +72,14 @@ export const getEventsInRange = new ValidatedMethod({
   validate: new SimpleSchema({
     boxIDs: { type: Array },
     'boxIDs.$': { type: String },
-    startDate_ms: { type: Number },
-    endDate_ms: { type: Number },
+    startTime_ms: { type: Number },
+    endTime_ms: { type: Number },
   }).validator({ clean: true }),
-  run({ boxIDs, startDate_ms, endDate_ms }) {
+  run({ boxIDs, startTime_ms, endTime_ms }) {
     const events = Events.find({
-
+      boxes_triggered: {$in: boxIDs},
+      target_event_start_timestamp_ms: {gte: startTime_ms},
     });
-    return mostRecentEvent;
+    return events;
   },
 });
