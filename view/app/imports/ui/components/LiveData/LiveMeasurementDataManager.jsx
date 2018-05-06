@@ -37,7 +37,7 @@ class LiveMeasurementDataManager extends React.Component {
           <Grid.Column width={16}>
             <Grid stackable>
               <Grid.Column width={8}>
-                <Dropdown search selection fluid placeholder='Boxes'
+                <Dropdown search selection fluid placeholder='Box'
                           options={this.props.boxIDs.map(boxID => ({ text: `Box ${boxID}`, value: boxID }))}
                           onChange={this.changeBoxes} value={this.state.boxID}/>
               </Grid.Column>
@@ -45,8 +45,6 @@ class LiveMeasurementDataManager extends React.Component {
                 <Button.Group fluid toggle>
                   <Button active={this.state.measurements.includes('frequency')} content='Frequency'
                           onClick={this.changeMeasurement}/>
-                  {/*<Button active={this.state.measurements.includes('thd')} content='THD'*/}
-                  {/*onClick={this.changeMeasurement}/>*/}
                   <Button active={this.state.measurements.includes('voltage')} content='Voltage'
                           onClick={this.changeMeasurement}/>
                 </Button.Group>

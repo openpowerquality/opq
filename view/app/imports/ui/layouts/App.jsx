@@ -16,6 +16,7 @@ import Profile from '../../ui/pages/Profile';
 import Admin from '../../ui/pages/Admin';
 import EditBox from '../../ui/pages/EditBox';
 import LiveDataManager from '../../ui/pages/LiveDataManager';
+import Inspector from '../../ui/pages/Inspector';
 
 /** Top-level layout component for this application. Called in imports/startup/client/startup.jsx. */
 class App extends React.Component {
@@ -32,6 +33,7 @@ class App extends React.Component {
               <ProtectedRoute path="/signout" component={Signout} />
               <ProtectedRoute path="/edit/:box_id" component={EditBox} />
               <ProtectedRoute path="/livedata" component={LiveDataManager} />
+              <ProtectedRoute path="/inspector" component={Inspector} />
               <Route path="/signin" component={Signin} />
               <Route component={NotFound} />
             </Switch>

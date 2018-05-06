@@ -114,16 +114,14 @@ class BoxTrends extends React.Component {
       <Grid.Row>
         <Grid.Column width={6}>
           <Popup on='focus'
-                 trigger={<Input fluid placeholder='Input a starting date'
-                                 value={Moment(this.state.start).format('MM/DD/YYYY')}
-                                 label='Start'/>}
+                 trigger={<Input fluid placeholder='Input a starting date' label='Start'
+                                 value={Moment(this.state.start).format('MM/DD/YYYY')}/>}
                  content={<Calendar onChange={this.changeStart} value={this.state.start}/>}/>
         </Grid.Column>
         <Grid.Column width={6}>
           <Popup on='focus'
-                 trigger={<Input fluid placeholder='Input an ending date'
-                                 value={Moment(this.state.end).format('MM/DD/YYYY')}
-                                 label='End'/>}
+                 trigger={<Input fluid placeholder='Input an ending date' label='End'
+                                 value={Moment(this.state.end).format('MM/DD/YYYY')}/>}
                  content={<Calendar onChange={this.changeEnd} value={this.state.end}/>}/>
         </Grid.Column>
         <Grid.Column width={4}>
@@ -283,5 +281,8 @@ BoxTrends.propTypes = {
 
 export default withTracker(() => {
   const sub = Meteor.subscribe('opq_boxes');
-  return { ready: sub.ready(), boxIDs: OpqBoxes.find().fetch().map(box => box.box_id).sort() };
+  return {
+    ready: sub.ready(),
+    boxIDs: OpqBoxes.find().fetch().map(box => box.box_id).sort(),
+  };
 })(BoxTrends);

@@ -2,16 +2,22 @@ use std::collections::BTreeMap;
 use std::cmp::Ord;
 use std::clone::Clone;
 
+///This object is responsible for keeping track of previously requested raw data.
+///If a the timestamp of a request compleatly overlaps with previous events, event will be logged,
+///but no data will be requested. Otherwise, it's business as usuall.
 pub struct OverlappingIntervals<T> {
+    ///Binary tree map for efficient insertions and searches.
     intervals: BTreeMap<T, T>,
 }
 
 impl<T: Ord + Clone> OverlappingIntervals<T> {
+    ///Creates a new `OverlappingIntervals` object.
     pub fn new() -> OverlappingIntervals<T> {
         OverlappingIntervals {
             intervals: BTreeMap::new(),
         }
     }
+    ///Insert a new time interval. Will return false if the data has already been requested. True otherwise.
     pub fn insert_and_check(&mut self, start: T, end: T) -> bool {
         let mut new_interval_start = start;
         let mut new_interval_end = end;
@@ -47,6 +53,7 @@ impl<T: Ord + Clone> OverlappingIntervals<T> {
         false
     }
 
+    ///Clears the cache of event times up to `nuw_min`.
     pub fn clear_to(&mut self, new_min: T) {
         let mut intervals_to_remove = Vec::new();
         for (interval_start, _) in self.intervals.iter() {
