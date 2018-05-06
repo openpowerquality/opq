@@ -187,3 +187,14 @@ export const dygraphMergeDatasets = (xFieldName, yFieldName, ...datasets) => {
 
   return mergedDataset;
 };
+
+
+
+export const testMeas = new ValidatedMethod({
+  name: 'test_Meas',
+  validate: new SimpleSchema().validator({ clean: true }),
+  run() {
+    console.log(Measurements.findOne({}, { sort: { timestamp_ms: -1 }}));
+    return Measurements.findOne({}, { sort: { timestamp_ms: -1 }});
+  }
+});

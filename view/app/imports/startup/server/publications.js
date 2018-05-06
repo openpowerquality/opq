@@ -19,3 +19,5 @@ OpqBoxes.publish();
 SystemStats.publish();
 Trends.publish();
 UserProfiles.publish();
+
+console.log(Measurements.findOne({}, { sort: { timestamp_ms: -1 }}));

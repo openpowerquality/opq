@@ -142,6 +142,14 @@ class MeasurementsCollection extends BaseCollection {
           measurementsHandle.stop();
         });
       });
+
+      Meteor.publish('test_meas', (start, boxID) => {
+        check(start, Number);
+        check(boxID, String);
+
+        console.log('test running');
+        return Measurements.find();
+      });
     }
   }
 }
