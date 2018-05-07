@@ -148,7 +148,7 @@ class MeasurementsCollection extends BaseCollection {
         check(boxID, String);
 
         console.log('test running');
-        return Measurements.find();
+        return Measurements.find({timestamp_ms: {$gte: start}});
       });
     }
   }
