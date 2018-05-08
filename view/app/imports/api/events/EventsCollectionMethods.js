@@ -76,10 +76,10 @@ export const getEventsInRange = new ValidatedMethod({
     endTime_ms: { type: Number },
   }).validator({ clean: true }),
   run({ boxIDs, startTime_ms, endTime_ms }) {
-    const events = Events.find({
-      boxes_triggered: {$in: boxIDs},
-      target_event_start_timestamp_ms: {gte: startTime_ms},
-    });
-    return events;
+    return Events.find({
+      boxes_triggered: { $in: boxIDs },
+      target_event_start_timestamp_ms: { $gte: startTime_ms },
+      target_event_end_timestamp_ms: { $lte: endTime_ms },
+    }).fetch();
   },
 });
