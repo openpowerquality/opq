@@ -8,7 +8,7 @@
     { "box_id": "1", "name": "Serge's Box", "description": "Version 2.5?, 2016", "calibration_constant": 152.1,
       "location": "Honolulu-001", "location_start_time_ms": "2017-04-16 13:00:00" },
 
-    { "box_id": "2", "name": "Box 2", "description": "Unknown", "calibration_constant": 1.0, "unplugged": true,
+    { "box_id": "2", "name": "Box 2", "description": "Unknown", "calibration_constant": 147.37, "unplugged": false,
       "location": "Honolulu-002", "location_start_time_ms": "2017-04-16 13:00:00" },
 
     { "box_id": "3", "name": "CSDL Box", "description": "Version 2.7, 2017", "calibration_constant": 154.2,
@@ -22,8 +22,18 @@
       "location_archive": [ {"location": "UHM-POST-307", "location_start_time_ms": "2017-04-16 13:00:00" } ]},
 
     { "box_id": "6", "name": "Dan's Box", "description": "Version 2.8, 2017", "calibration_constant": 146.96,
-      "location": "UHM-SHIDLER-E601C", "location_start_time_ms": "2018-05-01 13:55:00",
-      "location_archive": [{"location": "UHM-POST-307-2", "location_start_time_ms": "2018-03-10 13:00:00"}]}
+      "location": "UHM-Shidler-E601C", "location_start_time_ms": "2018-05-01 13:55:00",
+      "location_archive": [{"location": "UHM-POST-307-2", "location_start_time_ms": "2018-03-10 13:00:00"}]},
+
+    { "box_id": "7", "name": "Hamilton LIS", "description": "Version 2.8, 2017", "calibration_constant": 146.56,
+      "location": "UHM-Hamilton-LIS", "location_start_time_ms": "2018-05-02 13:00:00",
+      "location_archive": []},
+
+    { "box_id": "8", "name": "FabLab", "description": "Version 2.8, 2017", "calibration_constant": 146.84,
+      "location": "UHM-Holmes-FabLab", "location_start_time_ms": "2018-05-02 13:00:00",
+      "location_archive": []}
+
+
   ],
 
   "userProfiles": [
@@ -35,7 +45,7 @@
 
     { "username": "keal@hawaii.edu", "password": "foo", "firstName": "Kea", "lastName": "Uehara", "role": "admin",
       "boxIds": ["1", "2", "3", "4", "5", "6"]},
-    { "username": "dport@hawaii.edu", "password": "foo", "firstName": "Daniel", "lastName": "Port", "role": "admin", "boxIds": ["6"]}
+    { "username": "dport@hawaii.edu", "password": "foo", "firstName": "Daniel", "lastName": "Port", "role": "user", "boxIds": ["6"]}
   ],
 
   "locations": [
@@ -46,13 +56,18 @@
     { "coordinates": [-157.825917, 21.294651], "slug": "Honolulu-002", "description": "Residence, Moiliili" },
     { "coordinates": [-157.792919, 21.299199], "slug": "Honolulu-003", "description": "Residence, Palolo" },
     { "coordinates": [-157.802593, 21.278053], "slug": "Honolulu-004", "description": "Residence, Kaimuki" },
-    { "coordinates": [-157.820392, 21.300877], "slug": "UHM-Shidler-E601C", "description": "Shidler E601-C, UH" }
+    { "coordinates": [-157.820392, 21.300877], "slug": "UHM-Shidler-E601C", "description": "Shidler E601-C, UH" },
+    { "coordinates": [-157.816112, 21.300300], "slug": "UHM-Hamilton-LIS", "description": "Hamilton, LIS, UH" },
+    { "coordinates": [-157.816272, 21.296940], "slug": "UHM-Holmes-FabLab", "description": "Holmes, FabLab, UH" }
   ],
 
   "regions": [
     { "regionSlug": "96734", "locationSlug": "Kailua-001" },
     { "regionSlug": "96822", "locationSlug": "UHM-POST-307" },
     { "regionSlug": "96822", "locationSlug": "Honolulu-001" },
-    { "regionSlug": "96822", "locationSlug": "Honolulu-002" }
+    { "regionSlug": "96822", "locationSlug": "Honolulu-002" },
+    { "regionSlug": "96822", "locationSlug": "UHM-Shidler-E601C" },
+    { "regionSlug": "96822", "locationSlug": "UHM-Hamilton-LIS" },
+    { "regionSlug": "96822", "locationSlug": "UHM-Holmes-FabLab" }
   ]
 }

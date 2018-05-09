@@ -1,10 +1,11 @@
 {
   "zmq.triggering.interface"      : "tcp://localhost:9881",
+  "zmq.event.interface"           : "tcp://localhost:9899",
   "zmq.mauka.broker.pub.interface": "tcp://*:9883",
   "zmq.mauka.broker.sub.interface": "tcp://*:9882",
   "zmq.mauka.plugin.pub.interface": "tcp://localhost:9882",
   "zmq.mauka.plugin.sub.interface": "tcp://localhost:9883",
-  "zmq.makai.req.interface"       : "tcp://localhost:9884",
+  "zmq.makai.push.interface"       : "tcp://localhost:9884",
 
   "zmq.mauka.plugin.management.rep.interface": "tcp://*:12000",
   "zmq.mauka.plugin.management.req.interface": "tcp://localhost:12000",
