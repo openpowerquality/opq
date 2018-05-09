@@ -12,7 +12,9 @@
           { "boxID": 3 },
           { "boxID": 4 },
           { "boxID": 5 },
-          { "boxID": 6 }
+          { "boxID": 6 },
+          { "boxID": 7 },
+          { "boxID": 8 }
         ]
     },
     {
@@ -33,7 +35,7 @@
         "interval": 60,
         "mongo": "mongodb://localhost:27017/",
         "push_port": "tcp://localhost:9884",
-        "sub_port": "tcp://localhost:9882"
+        "sub_port": "tcp://localhost:9899"
     },
     {
         "service": "view",
