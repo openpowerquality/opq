@@ -133,8 +133,8 @@ def get_box_calibration_constants(mongo_client: OpqMongoClient = None, defaults:
     """
     _mongo_client = mongo_client if mongo_client is not None else OpqMongoClient()
     opq_boxes = _mongo_client.opq_boxes_collection.find(projection={'_id': False,
-                                                                     "calibration_constant": True,
-                                                                     "box_id": True})
+                                                                    "calibration_constant": True,
+                                                                    "box_id": True})
     r = {}
     for k, v in defaults.items():
         r[k] = v
@@ -153,3 +153,21 @@ def get_default_client(mongo_client: OpqMongoClient = None) -> OpqMongoClient:
         return OpqMongoClient()
     else:
         return mongo_client
+
+
+def make_anomaly_document(box_event_id: int,
+                          anomaly_type: str,
+                          location: str,
+                          start_timestamp_ms: int,
+                          end_timestamp_ms: int,
+                          data: typing.Dict = None) -> typing.Dict:
+    if data is None:
+        data = dict()
+    return {
+        "box_event_id": box_event_id,
+        "anomaly_type": anomaly_type,
+        "location": location,
+        "start_timestamp_ms": start_timestamp_ms,
+        "end_timestamp_ms": end_timestamp_ms,
+        "data": data
+    }
