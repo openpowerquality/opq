@@ -129,6 +129,7 @@ def check_boxes(config, port):
     box_log_thread.start()
 
     while True:
+        # WIP - Add try/catch on recv?
         measurement = socket.recv_multipart()
         trigger_message = protobuf.opq_pb2.TriggerMessage()
         trigger_message.ParseFromString(measurement[1])
@@ -204,41 +205,62 @@ def generate_req_event_message():
     
     return req_message
 
-def find_event(mongo_uri, event_id):
+def find_event(mongo_uri, new_event):
     if not event_id:
         return None
-    decoded = int(event_id.decode("utf-8"))
     # NOTE - Should I sleep for a bit to give event creation slack?
-    event = get_mongo_doc(mongo_uri, 'events', {'event_id': decoded})
+    id = int(event_id[1])
+    event = get_mongo_doc(mongo_uri, 'events', {'event_id': id})
 
     return event
 
 def check_makai(config):
     sleep_time = config['interval']
-    acq_url = config['acquisition_port']
+    push_port = config['push_port']
+    sub_port = config['sub_port']
     mongo_uri = config['mongo']
 
     context = zmq.Context()
-    socket = context.socket(zmq.REQ)
-    socket.connect(acq_url)
+
+    push_socket = context.socket(zmq.PUSH)
+
+    sub_socket = context.socket(zmq.SUB)
+    sub_socket.setsockopt(zmq.SUBSCRIBE, b"")
     # Timeout is 3 seconds for response
-    socket.rcvtimeo = 3000
+    sub_socket.rcvtimeo = 3000
+
+    try:
+        push_socket.connect(push_port)
+        sub_socket.connect(sub_port)
+    except Exception as e:
+        message = get_msg_as_json('MAKAI', '', 'DOWN', e)
+        save_message(message)
+        exit()
 
     req_message = generate_req_event_message()
 
     while True:
-        socket.send(req_message.SerializeToString())
-    
-        event_id = socket.recv()
+        try:
+            push_socket.send(req_message.SerializeToString())
+            # receive any event id
+            new_event = sub_socket.recv_multipart()
+        except Exception as e:
+            message = get_msg_as_json('MAKAI', '', 'DOWN', e)
+            save_message(message)
+            sleep(sleep_time)
+            continue
    
-        if find_event(mongo_uri, event_id):
+        if find_event(mongo_uri, new_event):
             message = get_msg_as_json('MAKAI', '', 'UP', '')
         else:
-            message = get_msg_as_json('MAKAI', '', 'UP', '')
+            message = get_msg_as_json('MAKAI', '', 'DOWN', '')
 
         save_message(message)
         
         sleep(sleep_time)
+
+    push_socket.close()
+    sub_socket.clse()
            
 def main(config_file):
     health_config = file_to_dict(config_file)

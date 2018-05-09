@@ -61,6 +61,7 @@ if __name__ == "__main__":
 
     broker_process = plugins.start_mauka_pub_sub_broker(config)
     makai_bridge_process = plugins.start_makai_bridge(config)
+    makai_bridge_event_process = plugins.start_makai_event_bridge(config)
 
     # start-stop-daemon sends a SIGTERM, we need to handle it to gracefully shutdown mauka
     def sigterm_handler(signum, frame):
@@ -82,6 +83,8 @@ if __name__ == "__main__":
         broker_process.terminate()
         _logger.info("Killing makai bridge process")
         makai_bridge_process.terminate()
+        _logger.info("Killing makai event bridge process")
+        makai_bridge_event_process.terminate()
         _logger.info("Goodbye")
         sys.exit(0)
     except KeyboardInterrupt:
