@@ -25,6 +25,7 @@ class EventInspector extends React.Component {
       selectedBoxes: ['1'],
       events: [],
       test: '',
+      waveforms: {},
     };
   }
 
@@ -94,10 +95,10 @@ class EventInspector extends React.Component {
                         </Table.Cell>
                       </Table.Row>
                       <Table.Row>
-                        <Table.Cell colspan={5}>
+                        <Table.Cell colSpan={5}>
                           <strong>Waveform available for: </strong>
                           {event.boxes_received.map(boxID => (
-                            <Button content={`Box ${boxID}`} onClick= />))}
+                            <Button key={boxID} toggle content={`Box ${boxID}`} onClick={this.toggleWaveForm} />))}
                         </Table.Cell>
                       </Table.Row>
                     </Table.Body>
@@ -110,6 +111,10 @@ class EventInspector extends React.Component {
       </WidgetPanel>
     );
   }
+
+  toggleWaveForm = (event, data) => {
+    console.log(data);
+  };
 
   changeStart = (event, data) => { this.setState({ start: data.value }); };
   changeEnd = (event, data) => { this.setState({ end: data.value }); };
