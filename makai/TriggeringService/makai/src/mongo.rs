@@ -7,6 +7,7 @@ use mongodb;
 use mongodb::ThreadedClient;
 use mongodb::db::ThreadedDatabase;
 use mongodb::coll::options::IndexOptions;
+
 use bson::*;
 use bson::Document;
 
@@ -16,6 +17,7 @@ use time::Duration;
 use constants::*;
 use opqapi::protocol::TriggerMessage;
 use config::Settings;
+use mongodb::coll::options::WriteModel;
 
 /// A Buffer for keeping track of the slow measurements.
 struct MeasurementStatistics {
@@ -231,15 +233,25 @@ impl MongoMeasurements {
     ///The mongo store loop. Run this in a thread.
     pub fn run_loop(&self) {
         let mut map = HashMap::new();
+        let mut update_backlog :Vec<WriteModel> = vec!();
+        let mut last_update =  Utc::now();
+
         loop {
             let msg = self.sub_chan.recv().unwrap();
             let doc = self.generate_document(&msg);
-            self.live_coll
-                .insert_one(doc, None)
-                .ok()
-                .expect("Could not insert");
+
+            update_backlog.push(mongodb::coll::options::WriteModel::InsertOne{ document: doc });
+            if last_update - Utc::now() > Duration::seconds(1) {
+                self.live_coll.bulk_write(update_backlog, false);
+                update_backlog = vec![];
+                last_update = Utc::now();
+            }
+
+
             let box_stat = map.entry(msg.get_id())
                 .or_insert(MeasurementDecimator::new());
+
+
             box_stat.process_message(&msg);
             if box_stat.last_insert + Duration::seconds(self.trend_time_sec as i64) < Utc::now() {
                 let mut doc = box_stat.generate_document_and_reset();
