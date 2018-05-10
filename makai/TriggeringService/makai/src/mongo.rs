@@ -241,7 +241,7 @@ impl MongoMeasurements {
             let doc = self.generate_document(&msg);
 
             update_backlog.push(mongodb::coll::options::WriteModel::InsertOne{ document: doc });
-            if last_update - Utc::now() > Duration::seconds(1) {
+            if  Utc::now() - last_update > Duration::seconds(1) {
                 self.live_coll.bulk_write(update_backlog, false);
                 update_backlog = vec![];
                 last_update = Utc::now();
