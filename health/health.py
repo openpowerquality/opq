@@ -113,17 +113,30 @@ def log_boxes(sleep_time):
             save_message(message)
         lock.release()
 
-def check_boxes(config, port):
+def get_box_ids():
+    # Pass mongo uri eventually
+    client = MongoClient()
+    db = client['opq']
+    coll = db['opq_boxes']
+
+    boxes = coll.find({}, {'_id': 0, 'box_id': 1})
+
+    ids = [int(box['box_id']) for box in boxes]
+
+    return ids
+
+def check_boxes(config):
     sleep_time = config['interval']
-    
+    port = config['box_port']
+
     context = zmq.Context()
     socket = context.socket(zmq.SUB)
     socket.setsockopt(zmq.SUBSCRIBE, b"")
     socket.connect(port)
 
-    for box in config['boxdata']:
+    for id in get_box_ids():
         # Add each box id as a new key
-        boxes[box['boxID']] = 0
+        boxes[id] = 0
 
     box_log_thread = Thread(target=log_boxes, args=(sleep_time, ))
     box_log_thread.start()
@@ -206,10 +219,10 @@ def generate_req_event_message():
     return req_message
 
 def find_event(mongo_uri, new_event):
-    if not event_id:
+    if not new_event:
         return None
     # NOTE - Should I sleep for a bit to give event creation slack?
-    id = int(event_id[1])
+    id = int(new_event[1])
     event = get_mongo_doc(mongo_uri, 'events', {'event_id': id})
 
     return event
@@ -265,28 +278,27 @@ def check_makai(config):
 def main(config_file):
     health_config = file_to_dict(config_file)
 
-    health_health_config = health_config[6]
+    health_health_config = health_config[5]
     health_thread = Thread(target=check_health, args=(health_health_config, ))
     health_thread.start()
 
-    view_config = health_config[4]
+    view_config = health_config[3]
     view_thread = Thread(target=check_view, args=(view_config, ))
     view_thread.start()
 
-    box_config = health_config[1]
-    zmq_port = health_config[0]['port']
-    box_thread = Thread(target=check_boxes, args=(box_config,zmq_port, ))
+    box_config = health_config[0]
+    box_thread = Thread(target=check_boxes, args=(box_config, ))
     box_thread.start()
 
-    mongo_config = health_config[5]
+    mongo_config = health_config[4]
     mongo_thread = Thread(target=check_mongo, args=(mongo_config, ))
     mongo_thread.start()
 
-    mauka_config = health_config[2]
+    mauka_config = health_config[1]
     mauka_thread = Thread(target=check_mauka, args=(mauka_config, ))
     mauka_thread.start()
 
-    makai_config = health_config[3]
+    makai_config = health_config[2]
     makai_thread = Thread(target=check_makai, args=(makai_config, ))
     makai_thread.start()
 
