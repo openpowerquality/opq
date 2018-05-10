@@ -1,21 +1,8 @@
 [
     {
-        "service": "zeromq",
-        "port": "tcp://127.0.0.1:9881"
-    },
-    {
         "service": "box",
         "interval": 20,
-        "boxdata": [
-          { "boxID": 1 },
-          { "boxID": 2 },
-          { "boxID": 3 },
-          { "boxID": 4 },
-          { "boxID": 5 },
-          { "boxID": 6 },
-          { "boxID": 7 },
-          { "boxID": 8 }
-        ]
+        "box_port": "tcp://127.0.0.1:9881"
     },
     {
         "service": "mauka",
