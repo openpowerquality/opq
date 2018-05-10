@@ -1,6 +1,7 @@
 import React from 'react';
 import { Grid, Loader, Header, Segment } from 'semantic-ui-react';
 import { OpqBoxes } from '/imports/api/opq-boxes/OpqBoxesCollection';
+import { Locations } from '/imports/api/locations/LocationsCollection';
 import { editBox } from '/imports/api/opq-boxes/OpqBoxesCollectionMethods';
 import AutoForm from 'uniforms-semantic/AutoForm';
 import TextField from 'uniforms-semantic/TextField';
@@ -8,7 +9,6 @@ import SubmitField from 'uniforms-semantic/SubmitField';
 import ErrorsField from 'uniforms-semantic/ErrorsField';
 import NumField from 'uniforms-semantic/NumField';
 import { Bert } from 'meteor/themeteorchef:bert';
-import ListField from 'uniforms-semantic/ListField';
 import { Meteor } from 'meteor/meteor';
 import { withTracker } from 'meteor/react-meteor-data';
 import PropTypes from 'prop-types';
@@ -18,8 +18,8 @@ class EditBox extends React.Component {
 
   /** On successful submit, call editBox method to insert data. */
   submit(data) {
-    const { box_id, name, description, calibration_constant, locations } = data;
-    editBox.call({ box_id, name, description, calibration_constant, locations }, (error) => (error ?
+    const { box_id, name, description, calibration_constant } = data;
+    editBox.call({ box_id, name, description, calibration_constant }, (error) => (error ?
         Bert.alert({ type: 'danger', style: 'growl-bottom-left', message: `Update failed: ${error.message}` }) :
         Bert.alert({ type: 'success', style: 'growl-bottom-left', message: 'Update succeeded' })));
   }
@@ -40,7 +40,6 @@ class EditBox extends React.Component {
                 <TextField name='name'/>
                 <TextField name='description'/>
                 <NumField name='calibration_constant'/>
-                <ListField name='locations'/>
                 <SubmitField value='Submit'/>
                 <ErrorsField/>
               </Segment>

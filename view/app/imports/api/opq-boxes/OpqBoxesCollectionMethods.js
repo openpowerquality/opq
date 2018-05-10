@@ -44,12 +44,8 @@ export const editBox = new ValidatedMethod({
     name: { type: String, optional: true },
     description: { type: String, optional: true },
     calibration_constant: Number,
-    locations: { type: Array },
-    'locations.$': { type: Object, blackbox: true },
-    'locations.$.nickname': { type: String },
-    'locations.$.zipcode': { type: String },
   }).validator({ clean: true }),
-  run({ box_id, name, description, calibration_constant, locations }) {
-    OpqBoxes.define({ box_id, name, description, calibration_constant, locations });
+  run({ box_id, name, description, calibration_constant }) {
+    OpqBoxes.define({ box_id, name, description, calibration_constant });
   },
 });
