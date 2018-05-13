@@ -97,7 +97,7 @@ class EventInspector extends React.Component {
                       <Table.Row>
                         <Table.Cell colSpan={5}>
                           <strong>Waveform available for: </strong>
-                          {event.boxes_received.map(boxID => (
+                          {event.boxes_received.sort().map(boxID => (
                             <Button key={boxID} toggle content={`Box ${boxID}`} onClick={this.toggleWaveForm} />))}
                         </Table.Cell>
                       </Table.Row>
