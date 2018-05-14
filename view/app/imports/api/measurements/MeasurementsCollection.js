@@ -24,6 +24,7 @@ class MeasurementsCollection extends BaseCollection {
 
     this.publicationNames = {
       RECENT_MEASUREMENTS: 'recent_measurements',
+      BOX_MAP_MEASUREMENTS: 'box_map_measurements',
     };
     if (Meteor.server) {
       this._collection.rawCollection().createIndex({ timestamp_ms: 1, box_id: 1 }, { background: true });
@@ -100,6 +101,24 @@ class MeasurementsCollection extends BaseCollection {
   publish() { // eslint-disable-line class-methods-use-this
     if (Meteor.isServer) {
       const self = this;
+
+      Meteor.publish(this.publicationNames.BOX_MAP_MEASUREMENTS, function (boxIds) {
+        check(boxIds, [String]);
+        // Get measurements for each given box.
+        // const now_ms = Date.now();
+        const now_ms = self.findOne({}, { sort: { timestamp_ms: -1 } }).timestamp_ms;
+        const measurements = self.find(
+            { box_id: { $in: boxIds }, timestamp_ms: { $gte: now_ms } },
+            {
+              fields: { _id: 1, timestamp_ms: 1, voltage: 1, frequency: 1, thd: 1, box_id: 1 },
+              sort: { timestamp_ms: -1 },
+              limit: 20,
+              pollingIntervalMs: 1000,
+            },
+        );
+        return measurements;
+      });
+
       Meteor.publish(this.publicationNames.RECENT_MEASUREMENTS, function (startTimeSecondsAgo, boxID) {
         check(startTimeSecondsAgo, Number);
         check(boxID, String);
