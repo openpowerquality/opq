@@ -1,25 +1,41 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Meteor } from 'meteor/meteor';
-import { withTracker } from 'meteor/react-meteor-data';
-import { ReactiveVar } from 'meteor/reactive-var';
-import { List, Loader } from 'semantic-ui-react';
-import { Map, TileLayer, Marker, Popup, LayerGroup, LayersControl, FeatureGroup, Circle, Rectangle } from 'react-leaflet';
+import { Loader } from 'semantic-ui-react';
 import 'semantic-ui-css/semantic.css';
+import Lodash from 'lodash';
+import { Map, TileLayer, LayerGroup, LayersControl } from 'react-leaflet';
+import { withTracker } from 'meteor/react-meteor-data';
+import { withStateContainer } from '../utils/hocs';
 import { OpqBoxes } from '../../api/opq-boxes/OpqBoxesCollection';
 import { BoxOwners } from '../../api/users/BoxOwnersCollection';
 import { getZipcodeLatLng } from '../../api/zipcodes/ZipcodesCollectionMethods';
 import WidgetPanel from '../layouts/WidgetPanel';
+import OpqBoxLeafletMarkerManager from './OpqBoxLeafletMarkerManager';
 
-const { BaseLayer, Overlay } = LayersControl;
+const { BaseLayer } = LayersControl;
 
-/** Display system statistics. */
 class BoxMap extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {
-      locations: {},
+
+    this.mapLayerNames = {
+      VOLTAGE_LAYER: 'voltage_layer',
+      FREQUENCY_LAYER: 'frequency_layer',
+      THD_LAYER: 'thd_layer',
     };
+
+    this.state = {
+      activeBoxIds: [],
+      mostRecentBoxMeasurements: [],
+      locations: {},
+      currentMapLayer: this.mapLayerNames.VOLTAGE_LAYER,
+    };
+
+
+    this.handleBaselayerchange.bind(this);
+    this.handleOverlayadd.bind(this);
+    this.handleOverlayremove.bind(this);
   }
 
   /** If the subscription(s) have been received, render the page, otherwise show a loading icon. */
@@ -27,74 +43,73 @@ class BoxMap extends React.Component {
     return (this.props.ready) ? this.renderPage() : <Loader active content='Retrieving data...'/>;
   }
 
-  opqBoxCircles() {
-    const circles = this.props.opqBoxes.map(opqBox => (
-      <Circle
-          key={opqBox._id}
-          // Bermuda triangle coords when unknown zipcode, until we find a better way to handle it. Teehee...
-          center={this.props.zipcodeLatLngDict[opqBox.locations[opqBox.locations.length - 1].zipcode] || [25.0, -71.0]}
-          radius={3000}>
-        <Popup>
-          {this.popupContents(opqBox)}
-        </Popup>
-        <Marker key={opqBox._id} position={this.props.zipcodeLatLngDict[opqBox.locations[opqBox.locations.length - 1].zipcode] || [25.0, -71.0] }>
-          <Popup>
-            {this.popupContents(opqBox)}
-          </Popup>
-        </Marker>
-      </Circle>
-    ));
-    return circles;
+  handleBaselayerchange(e) {
+    const mapLayerNames = this.mapLayerNames;
+    switch (e.name) {
+      case mapLayerNames.VOLTAGE_LAYER:
+        this.setState({ currentMapLayer: mapLayerNames.VOLTAGE_LAYER });
+        break;
+      case mapLayerNames.FREQUENCY_LAYER:
+        this.setState({ currentMapLayer: mapLayerNames.FREQUENCY_LAYER });
+        break;
+      case mapLayerNames.THD_LAYER:
+        this.setState({ currentMapLayer: mapLayerNames.THD_LAYER });
+        break;
+      default:
+        console.log('Unknown MapLayerName type.');
+        break;
+    }
   }
 
-  popupContents(opqBox) {
-    return (
-        <List>
-          <List.Item>
-            <List.Icon name='disk outline' />
-            <List.Content>Name: {opqBox.name}</List.Content>
-          </List.Item>
-          <List.Item>
-            <List.Icon name='marker' />
-            <List.Content>Location: {opqBox.locations[opqBox.locations.length - 1].zipcode.toString()}</List.Content>
-          </List.Item>
-          <List.Item>
-            <List.Icon name='tag' />
-            <List.Content>Description: {opqBox.description}</List.Content>
-          </List.Item>
-          <List.Item>
-            <List.Icon name='plug' />
-            <List.Content>Unplugged Status: {opqBox.unplugged.toString()}</List.Content>
-          </List.Item>
-        </List>
-    );
+  handleOverlayadd(e) {
+    const mapLayerNames = this.mapLayerNames;
+    switch (e.name) {
+      case mapLayerNames.VOLTAGE_LAYER:
+        this.setState({ currentMapLayer: mapLayerNames.VOLTAGE_LAYER });
+        break;
+      case mapLayerNames.FREQUENCY_LAYER:
+        this.setState({ currentMapLayer: mapLayerNames.FREQUENCY_LAYER });
+        break;
+      case mapLayerNames.THD_LAYER:
+        this.setState({ currentMapLayer: mapLayerNames.THD_LAYER });
+        break;
+      default:
+        console.log('Unknown MapLayerName type.');
+        break;
+    }
+  }
+
+  handleOverlayremove(e) {
+    console.log('Overlay Remove: ', e, e.layer, e.name);
   }
 
   renderPage() {
-    const firstZipcode = Object.keys(this.props.zipcodeLatLngDict).reverse()[0]; // Reverse so Hawaii zipcodes first.
-    const center = (firstZipcode) ? this.props.zipcodeLatLngDict[firstZipcode] : [21.31, -157.86]; // Default to Oahu.
+    const { opqBoxes, zipcodeLatLngDict } = this.props;
+    const firstZipcode = Object.keys(zipcodeLatLngDict).reverse()[0]; // Reverse so Hawaii zipcodes first.
+    const center = (firstZipcode) ? zipcodeLatLngDict[firstZipcode] : [21.31, -157.86]; // Default view on Oahu.
 
     return (
         <WidgetPanel title="Box Map">
-          <Map center={center} zoom={11} style={{ height: 600 }}>
-            <LayersControl position="topright">
-              <BaseLayer checked name="OpenStreetMap.Mapnik">
-                <TileLayer
-                    attribution="&amp;copy <a href=&quot;http://osm.org/copyright&quot;>OpenStreetMap</a> contributors"
-                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                />
-              </BaseLayer>
-              <BaseLayer name="OpenStreetMap.BlackAndWhite">
-                <TileLayer
-                    attribution="&amp;copy <a href=&quot;http://osm.org/copyright&quot;>OpenStreetMap</a> contributors"
-                    url="https://tiles.wmflabs.org/bw-mapnik/{z}/{x}/{y}.png"
-                />
-              </BaseLayer>
-              <Overlay checked name="Marker with popup">
+          <Map onBaselayerchange={this.handleBaselayerchange.bind(this)}
+               onOverlayadd={this.handleOverlayadd}
+               onOverlayremove={this.handleOverlayremove}
+               center={center}
+               zoom={11}
+               style={{ height: 600 }}>
+            <TileLayer
+                attribution="&amp;copy <a href=&quot;http://osm.org/copyright&quot;>OpenStreetMap</a> contributors"
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            />
+            <LayersControl>
+              <BaseLayer checked name={this.mapLayerNames.VOLTAGE_LAYER}>
                 <LayerGroup>
-                  {this.opqBoxCircles()}
+                  <OpqBoxLeafletMarkerManager
+                      opqBoxes={opqBoxes}
+                      zipcodeLatLngDict={zipcodeLatLngDict}
+                      selectedMeasurementType={this.state.currentMapLayer}
+                      measurementTypeEnum={this.mapLayerNames} />
                 </LayerGroup>
-              </Overlay>
+              </BaseLayer>
             </LayersControl>
           </Map>
         </WidgetPanel>
@@ -102,21 +117,22 @@ class BoxMap extends React.Component {
   }
 }
 
-/** Require an array of Stuff documents in the props. */
 BoxMap.propTypes = {
   ready: PropTypes.bool.isRequired,
   opqBoxes: PropTypes.array.isRequired,
   zipcodeLatLngDict: PropTypes.object.isRequired,
 };
 
-// (Experimental) Need this ReactiveVar outside the computation in order to be able to detect and finish all
-// Meteor method calls in withTracker() before passing props down to the component. This is almost certainly
-// the wrong way of doing things, but it works for now until I figure out how to properly use Meteor methods calls with
-// React's lifecycle methods.
-const methodCallsComplete = new ReactiveVar(false);
-const zipcodeLatLngDict = {};
-/** withTracker connects Meteor data to React components. https://guide.meteor.com/react.html#using-withTracker */
-export default withTracker(() => {
+// Parent/Container state object that will wrap the withTracker HOC via the withStateContainer HOC.
+// (See ui/utils/hocs.jsx for usage/further explanation).
+const containerState = {
+  methodCallsComplete: false,
+  zipcodeLatLngDict: {},
+};
+
+// The function that will be passed to the withTracker HOC.
+const withTrackerCallback = props => {
+  const { zipcodeLatLngDict, methodCallsComplete } = props;
   // Even though this subscription correctly retrieves only the currently logged in user's boxes, remember that
   // Minimongo merges any other OpqBox documents from other OpqBox subscriptions (even from other currently rendered
   // React components!) into the same client side collection.
@@ -127,7 +143,7 @@ export default withTracker(() => {
   // GET_CURRENT_USER_OPQ_BOXES subscription correctly only returns the current user's opq boxes - because of the
   // problems described above about Minimongo, we must be sure to filter out OpqBox documents that might exist
   // in the client side collection that do not belong to the currently logged in user.
-  // There are two approaches:
+  // There are two approaches that I see:
   // 1. Use a Meteor method call that uses findBoxIdsWithOwner() to check which OpqBoxes belong to the user.
   // 2. Subscribe to the BoxOwners collection, also using the findBoxIdsWithOwner() method to check OpqBox ownership.
   //
@@ -146,27 +162,35 @@ export default withTracker(() => {
     opqBoxes = OpqBoxes.find({ box_id: { $in: boxIds } }).fetch();
   }
 
-  if (opqBoxesSub.ready() && boxOwnersSub.ready() && !methodCallsComplete.get()) {
+  // Once OpqBoxes subscriptions ready, we make Meteor method calls to retrieve OpqBox lat-lng (from their zipcode).
+  if (opqBoxesSub.ready() && boxOwnersSub.ready() && !methodCallsComplete) {
     let numCallsRemaining = opqBoxes.length;
-    if (opqBoxes.length === 0) methodCallsComplete.set(true); // If no boxes for user, can skip this entirely.
+    // If no boxes for user, mark as complete immediately.
+    if (opqBoxes.length === 0) props.setContainerState({ methodCallsComplete: true });
     opqBoxes.forEach(box => {
       const zipcode = box.locations[box.locations.length - 1].zipcode;
       getZipcodeLatLng.call({ zipcode }, (error, zipcodeDoc) => {
         --numCallsRemaining;
         if (error) console.log(error);
         else {
-          // console.log('zipcode meteor call result: ', zipcodeDoc);
-          zipcodeLatLngDict[zipcodeDoc.zipcode] = [zipcodeDoc.latitude, zipcodeDoc.longitude];
-          if (numCallsRemaining === 0) methodCallsComplete.set(true);
+          const currentZipcodes = zipcodeLatLngDict;
+          currentZipcodes[zipcodeDoc.zipcode] = [zipcodeDoc.latitude, zipcodeDoc.longitude];
+          props.setContainerState({ zipcodeLatLngDict: currentZipcodes });
+          if (numCallsRemaining === 0) props.setContainerState({ methodCallsComplete: true });
         }
       });
     });
   }
 
   return {
-    ready: opqBoxesSub.ready() && boxOwnersSub.ready() && methodCallsComplete.get(),
+    ready: opqBoxesSub.ready() && boxOwnersSub.ready() && methodCallsComplete,
     opqBoxes: opqBoxes,
-    zipcodeLatLngDict,
+    zipcodeLatLngDict: zipcodeLatLngDict,
   };
-})(BoxMap);
+};
 
+// Component composition.
+export default Lodash.flowRight([
+  withStateContainer(containerState),
+  withTracker(withTrackerCallback),
+])(BoxMap);
