@@ -2,7 +2,7 @@ use zmq;
 use pub_sub::PubSub;
 //use protobuf;
 use std::sync::Arc;
-use protobuf::parse_from_bytes;
+use protobuf::{parse_from_bytes,ProtobufError};
 use opqapi::protocol::TriggerMessage;
 use config::Settings;
 
@@ -44,9 +44,11 @@ impl TriggerReceiver {
                 println!("Message contains {} parts!", msg.len());
                 continue;
             }
-            let msg = parse_from_bytes(&msg[1]);
+            let msg: Result<TriggerMessage, ProtobufError> = parse_from_bytes(&msg[1]);
+
             match msg {
                 Ok(msg) => {
+
                     let trigger_message = Arc::new(msg);
                     self.pub_chan.send(trigger_message).unwrap();
                 }
