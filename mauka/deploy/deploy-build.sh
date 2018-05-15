@@ -36,9 +36,9 @@ cp mauka/deploy/deploy-run.sh mauka/deploy/${TIMESTAMP}
 # Build deployment distribution
 tar cvjf mauka/deploy/${TIMESTAMP}.tar.bz2 -C mauka/deploy ${TIMESTAMP}
 
-# Deploy distribution to emilia
-scp -P 29862 mauka/deploy/${TIMESTAMP}.tar.bz2 opquser@emilia.ics.hawaii.edu:/home/opquser/mauka/.
-
+## Deploy distribution to emilia
+#scp -P 29862 mauka/deploy/${TIMESTAMP}.tar.bz2 opquser@emilia.ics.hawaii.edu:/home/opquser/mauka/.
+#
 # Clean
 rm -rf mauka/deploy/${TIMESTAMP}
 
