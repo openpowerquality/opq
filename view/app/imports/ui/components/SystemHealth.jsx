@@ -129,7 +129,6 @@ class SystemHealth extends React.Component {
 
 /** Require an array of Stuff documents in the props. */
 SystemHealth.propTypes = {
-  stats: PropTypes.object,
   healths: PropTypes.array,
   boxes: PropTypes.array,
   ready: PropTypes.bool.isRequired,
@@ -138,13 +137,13 @@ SystemHealth.propTypes = {
 
 /** withTracker connects Meteor data to React components. https://guide.meteor.com/react.html#using-withTracker */
 export default withTracker(() => {
-  const sub1 = Meteor.subscribe(Healths.getPublicationName());
-  const sub2 = Meteor.subscribe('opq_boxes');
+  const healthsSub = Meteor.subscribe(Healths.getPublicationName());
+  const opqBoxesSub = Meteor.subscribe(OpqBoxes.getPublicationName());
 
   return {
+    ready: healthsSub.ready() && opqBoxesSub.ready(),
     healths:
       Healths.find({ timestamp: { $gt: new Date(Date.now() - (1000 * 62)) } }, { sort: { timestamp: -1 } }).fetch(),
-    ready: sub1.ready() && sub2.ready(),
     boxes: OpqBoxes.find().fetch(),
     boxIDs: OpqBoxes.find().fetch().map(box => box.box_id).sort(),
   };
