@@ -33,7 +33,7 @@ class AcquisitionTriggerPlugin(plugins.base.MaukaPlugin):
         self.zmq_req_ctx = zmq.Context()
         """ZeroMQ context"""
 
-        self.req_socket = self.zmq_req_ctx.socket(zmq.REQ)
+        self.push_socket = self.zmq_req_ctx.socket(zmq.PUSH)
         """ZeroMQ request socket"""
 
         self.ms_before = int(self.config_get("plugins.AcquisitionTriggerPlugin.msBefore"))
@@ -51,7 +51,7 @@ class AcquisitionTriggerPlugin(plugins.base.MaukaPlugin):
         self.event_type_to_last_event = {}
         """Store event types to the last event of that type"""
 
-        self.req_socket.connect(self.config_get("zmq.makai.req.interface"))
+        self.push_socket.connect(self.config_get("zmq.makai.push.interface"))
 
     def request_event_message(self, start_ms: int, end_ms: int, trigger_type: str, percent_magnitude: float,
                               box_ids: typing.List[int], requestee: str, description: str, request_data: bool):
@@ -126,10 +126,6 @@ class AcquisitionTriggerPlugin(plugins.base.MaukaPlugin):
         self.event_type_to_last_event[event_type] = str(event_msg)
         try:
             self.logger.info("Sending event msg: {}".format(event_msg))
-            self.req_socket.send(event_msg)
-            event_id = self.req_socket.recv()
-            if request_data:
-                self.produce("RequestDataEvent".encode(), event_id)
-            self.logger.info(event_id)
+            self.push_socket.send(event_msg)
         except Exception as e:
             self.logger.error("Error sending req to Makai: {}".format(str(e)))

@@ -1,19 +1,8 @@
 [
     {
-        "service": "zeromq",
-        "port": "tcp://127.0.0.1:9881"
-    },
-    {
         "service": "box",
         "interval": 20,
-        "boxdata": [
-          { "boxID": 1 },
-          { "boxID": 2 },
-          { "boxID": 3 },
-          { "boxID": 4 },
-          { "boxID": 5 },
-          { "boxID": 6 }
-        ]
+        "box_port": "tcp://127.0.0.1:9881"
     },
     {
         "service": "mauka",
@@ -32,7 +21,8 @@
         "service": "makai",
         "interval": 60,
         "mongo": "mongodb://localhost:27017/",
-        "acquisition_port": "tcp://localhost:9884"
+        "push_port": "tcp://localhost:9884",
+        "sub_port": "tcp://localhost:9899"
     },
     {
         "service": "view",
