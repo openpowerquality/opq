@@ -70,6 +70,14 @@ class LocationsCollection extends BaseCollection {
   }
 
   /**
+   * Returns all location documents
+   */
+  getLocations() {
+    const docs = this._collection.find({}).fetch();
+    return (docs) ? _.map(docs, doc => doc.slug) : [];
+  }
+
+  /**
    * Returns the Location document associated with slug.
    * @param slug The location slug.
    * @throws { Meteor.Error } If slug is not associated with a location.
