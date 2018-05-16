@@ -1,8 +1,6 @@
 """
 This module provides facilities for managing (stopping, starting, loading, reloading) plugin subprocesses.
 """
-import signal
-
 import argparse
 import importlib
 import inspect
@@ -259,8 +257,6 @@ class PluginManager:
         _logger.info("Stopping tcp server...")
         self.tcp_server_exit_event.set()
 
-
-
     def start_tcp_server(self):
         """Starts a TCP server backed by ZMQ. This server is connected to my out cli client"""
         # def _start_tcp_server():
@@ -284,7 +280,6 @@ class PluginManager:
                 zmq_reply_socket.send_string(self.handle_tcp_request(request))
             except zmq.error.Again:
                 continue
-
 
         _logger.info("Stopping plugin manager TCP server")
 
@@ -405,10 +400,12 @@ class PluginManager:
             process_pid = process.pid if process != "N/A" else "N/A"
             exit_event = self.name_to_exit_event[name].is_set() if name in self.name_to_exit_event else "N/A"
 
-            process_str = "\033[1;32m" + str(process) + "\033[0;0m" if "started" in str(process) else "\033[1;31m" + str(process) + "\033[0;0m"
+            process_str = "\033[1;32m" + str(process) + "\033[0;0m" if "started" in str(
+                process) else "\033[1;31m" + str(process) + "\033[0;0m"
             enabled_str = "\033[1;32mYes\033[0;0m" if enabled else "\033[1;31mNo\033[0;0m"
-            resp += "name:{:<30} enabled:{:<3} process:{} pid:{} exit_event:{}\n".format(name, enabled_str, process_str, process_pid,
-                                                                                  exit_event)
+            resp += "name:{:<30} enabled:{:<3} process:{} pid:{} exit_event:{}\n".format(name, enabled_str, process_str,
+                                                                                         process_pid,
+                                                                                         exit_event)
 
         return resp
 
@@ -495,6 +492,7 @@ class PluginManager:
 
         return ok("Unloaded plugin {}".format(plugin_name))
 
+
 # http://eli.thegreenplace.net/2016/basics-of-using-the-readline-library/
 def make_completer(vocabulary):
     def custom_complete(text, state):
@@ -504,7 +502,9 @@ def make_completer(vocabulary):
         # do this on its own. When a word is fully completed we want to mimic
         # the default readline library behavior of adding a space after it.
         return results[state] + " "
+
     return custom_complete
+
 
 def run_cli(config: typing.Dict):
     """Starts the REPL and sends commands to the plugin manager over TCP using ZMQ

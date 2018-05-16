@@ -1,12 +1,9 @@
-import json
 import unittest
 
 import plugins.base
 import plugins.mock
 import plugins.ThresholdPlugin
 import tests.test_utils
-
-import zmq
 
 config = {
     "zmq.triggering.interface": "tcp://localhost:9881",
@@ -54,7 +51,6 @@ class VoltageThresholdPluginTests(unittest.TestCase):
                                                                  device_id=10,
                                                                  threshold_type="LOW",
                                                                  max_value=100.0)
-
 
     def test_voltage_swell(self):
         pass
