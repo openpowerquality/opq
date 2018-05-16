@@ -30,23 +30,11 @@ class EditBox extends React.Component {
 
    handleSubmit() {
     const { box_id, name, description, calibration_constant, location } = this.state;
-    console.log(this.state);
     editBox.call({ box_id, name, description, calibration_constant, location }, (error) => (error ?
         Bert.alert({ type: 'danger', style: 'growl-bottom-left', message: `Update failed: ${error.message}` }) :
         Bert.alert({ type: 'success', style: 'growl-bottom-left', message: 'Update succeeded' })));
   }
 
-  /** On successful submit, call editBox method to insert data. */
-  /**
-  submit(data) {
-    const { box_id, name, description, calibration_constant, location } = data;
-    console.log(data);
-    editBox.call({ box_id, name, description, calibration_constant, location }, (error) => (error ?
-        Bert.alert({ type: 'danger', style: 'growl-bottom-left', message: `Update failed: ${error.message}` }) :
-        Bert.alert({ type: 'success', style: 'growl-bottom-left', message: 'Update succeeded' })));
-  }
-
-  /** If the subscription(s) have been received, render the page, otherwise show a loading icon. */
   render() {
     return (this.props.ready) ? this.renderPage() : <Loader>Getting data</Loader>;
   }
