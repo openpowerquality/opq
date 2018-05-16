@@ -4,7 +4,6 @@ This module provides classes and base functionality for building OPQMauka plugin
 
 import json
 import logging
-import math
 import multiprocessing
 import signal
 import threading
@@ -14,10 +13,8 @@ import os
 
 import bson
 import bson.objectid
-import numpy
 import zmq
 
-import constants
 import mongo
 
 _logger = logging.getLogger("app")
@@ -121,43 +118,6 @@ class MaukaPlugin:
 
         # Every plugin subscribes to itself to allow for plugin control
         self.subscriptions.append(name)
-
-    def calibrate_waveform(self, waveform: numpy.ndarray, calibration_constant: float = 1.0) -> numpy.ndarray:
-        """
-        Returns a calibrated waveform given a non-calibrated waveform and a constant.
-        :param waveform: The uncalibrated waveform
-        :param calibration_constant: The calibration constant for a specific box
-        :return: The calibrated waveform
-        """
-        return waveform / calibration_constant
-
-    def vrms(self, samples: numpy.ndarray) -> float:
-        """
-        Calculates the Voltage root-mean-square of the supplied samples
-        :param samples: Samples to calculate Vrms over.
-        :return: The Vrms value of the provided samples.
-        """
-        summed_sqs = numpy.sum(numpy.square(samples))
-        return math.sqrt(summed_sqs / len(samples))
-
-    def vrms_waveform(self, waveform: numpy.ndarray, window_size: int = constants.SAMPLES_PER_CYCLE) -> numpy.ndarray:
-        """
-        Calculated Vrms of a waveform using a given window size. In most cases, our window size should be the
-        number of samples in a cycle.
-        :param waveform: The waveform to find Vrms values for.
-        :param window_size: The size of the window used to compute Vrms over the waveform.
-        :return: An array of vrms values calculated for a given waveform.
-        """
-        v = []
-        while len(waveform) >= window_size:
-            samples = waveform[:window_size]
-            waveform = waveform[window_size:]
-            v.append(self.vrms(samples))
-
-        if len(waveform) > 0:
-            v.append(self.vrms(waveform))
-
-        return numpy.array(v)
 
     def get_status(self) -> str:
         """ Return the status of this plugin

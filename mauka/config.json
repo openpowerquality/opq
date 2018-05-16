@@ -22,6 +22,8 @@
 
   "plugins.IticPlugin.getDataAfterS": 10.0,
 
+  "plugins.MakaiEventPlugin.getDataAfterS": 10.0,
+
   "plugins.MeasurementPlugin.sample_every": 3.0,
 
   "plugins.ThdPlugin.getDataAfterS": 10.0,
