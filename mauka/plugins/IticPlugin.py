@@ -6,7 +6,7 @@ import typing
 import multiprocessing
 import threading
 
-import constants
+import mauka
 import mongo
 import plugins.base
 
@@ -175,7 +175,7 @@ class IticPlugin(plugins.base.MaukaPlugin):
         :return: ITIC region name for specified waveform
         """
         vrms_vals = self.vrms_waveform(waveform)
-        duration_ms = (len(waveform) / constants.SAMPLE_RATE_HZ) * 1000
+        duration_ms = (len(waveform) / mauka.SAMPLE_RATE_HZ) * 1000
         vrms_min = numpy.min(vrms_vals)
         vrms_max = numpy.max(vrms_vals)
 
@@ -196,7 +196,7 @@ class IticPlugin(plugins.base.MaukaPlugin):
                 _id = self.object_id(box_event["_id"])
                 box_id = box_event["box_id"]
                 waveform = mongo.get_waveform(self.mongo_client, box_event["data_fs_filename"])
-                calibrated_waveform = self.calibrate_waveform(waveform, constants.cached_calibration_constant(box_id))
+                calibrated_waveform = self.calibrate_waveform(waveform, mauka.cached_calibration_constant(box_id))
                 itic_region_str = self.itic(calibrated_waveform)
 
                 self.mongo_client.box_events_collection.update_one({"_id": _id},

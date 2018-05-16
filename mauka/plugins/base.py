@@ -17,7 +17,7 @@ import bson.objectid
 import numpy
 import zmq
 
-import constants
+import mauka
 import mongo
 
 _logger = logging.getLogger("app")
@@ -138,7 +138,7 @@ class MaukaPlugin:
         summed_sqs = numpy.sum(numpy.square(samples))
         return math.sqrt(summed_sqs / len(samples))
 
-    def vrms_waveform(self, waveform: numpy.ndarray, window_size: int = constants.SAMPLES_PER_CYCLE) -> numpy.ndarray:
+    def vrms_waveform(self, waveform: numpy.ndarray, window_size: int = mauka.SAMPLES_PER_CYCLE) -> numpy.ndarray:
         """
         Calculated Vrms of a waveform using a given window size. In most cases, our window size should be the
         number of samples in a cycle.
