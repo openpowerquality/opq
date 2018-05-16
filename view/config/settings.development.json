@@ -5,44 +5,51 @@
   "dbRestoreFilename": "",
   "systemStatsUpdateIntervalSeconds": 10,
   "opqBoxes" : [
-    { "box_id": "1", "name": "Serge's Box", "description": "Version 2.5?, 2016", "calibration_constant": 152.1,
+    { "box_id": "1", "name": "Kalihi, Residence", "description": "Version 2.5?, 2016", "calibration_constant": 152.1,
       "location": "Kalihi-001", "location_start_time_ms": "2017-05-15 13:00:00" },
 
-    { "box_id": "2", "name": "Watanabe-001", "description": "Unknown", "calibration_constant": 147.37, "unplugged": false,
+    { "box_id": "2", "name": "UH, Watanabe Hall", "description": "Unknown", "calibration_constant": 147.37, "unplugged": false,
       "location": "UHM-Watanabe-001", "location_start_time_ms": "2017-05-15 13:00:00" },
 
-    { "box_id": "3", "name": "CSDL Box", "description": "Version 2.7, 2017", "calibration_constant": 154.2,
+    { "box_id": "3", "name": "UH, POST Floor 3", "description": "Version 2.7, 2017", "calibration_constant": 154.2,
       "location": "UHM-POST-307", "location_start_time_ms": "2017-04-16 13:00:00"},
 
-    { "box_id": "4", "name": "David's Box", "description": "Version 2.8, 2017", "calibration_constant": 146.46,
+    { "box_id": "4", "name": "Unknown", "description": "Version 2.8, 2017", "calibration_constant": 146.46,
       "location": "Honolulu-004", "location_start_time_ms": "2017-04-16 13:00:00"},
 
-    { "box_id": "5", "name": "Philip's Box", "description": "Version 2.8, 2017", "calibration_constant": 146.5,
+    { "box_id": "5", "name": "Kailua, Residence", "description": "Version 2.8, 2017", "calibration_constant": 146.5,
       "location": "Kailua-001", "location_start_time_ms": "2018-01-10 13:00:00",
       "location_archive": [ {"location": "UHM-POST-307", "location_start_time_ms": "2017-04-16 13:00:00" } ]},
 
-    { "box_id": "6", "name": "Dan's Box", "description": "Version 2.8, 2017", "calibration_constant": 146.96,
+    { "box_id": "6", "name": "UH, Shidler", "description": "Version 2.8, 2017", "calibration_constant": 146.96,
       "location": "UHM-Shidler-E601C", "location_start_time_ms": "2018-05-01 13:55:00",
       "location_archive": [{"location": "UHM-POST-307-2", "location_start_time_ms": "2018-03-10 13:00:00"}]},
 
-    { "box_id": "7", "name": "Hamilton LIS", "description": "Version 2.8, 2017", "calibration_constant": 146.56,
+    { "box_id": "7", "name": "UH, Hamilton", "description": "Version 2.8, 2017", "calibration_constant": 146.56,
       "location": "UHM-Hamilton-LIS", "location_start_time_ms": "2018-05-02 13:00:00",
       "location_archive": []},
 
-    { "box_id": "8", "name": "Ag. Engineering Mail Room", "description": "Version 2.8, 2017", "calibration_constant": 146.84,
+    { "box_id": "8", "name": "UH, Ag. Engineering", "description": "Version 2.8, 2017", "calibration_constant": 146.84,
       "location": "UHM-Ag-Engineering-Mail-Room", "location_start_time_ms": "2018-05-15 14:30:00",
       "location_archive": []}
   ],
 
   "userProfiles": [
-    { "username": "achriste@hawaii.edu", "password": "foo", "firstName": "Anthony", "lastName": "Christe", "role": "admin", "boxIds": ["1", "2", "3", "4", "5", "6"]},
+    { "username": "achriste@hawaii.edu", "password": "foo", "firstName": "Anthony", "lastName": "Christe", "role": "admin", "boxIds": ["1", "2", "3", "4", "5", "6", "7", "8"]},
 
-    { "username": "sin8@hawaii.edu", "password": "foo", "firstName": "Serge", "lastName": "Negrashov", "role": "admin", "boxIds": ["1", "2", "3", "4", "5", "6"]},
+    { "username": "sin8@hawaii.edu", "password": "foo", "firstName": "Serge", "lastName": "Negrashov", "role": "admin", "boxIds": ["1", "2", "3", "4", "5", "6", "7", "8"]},
 
-    { "username": "johnson@hawaii.edu", "password": "foo", "firstName": "Philip", "lastName": "Johnson", "role": "admin", "boxIds": ["1", "2", "3"]},
+    { "username": "johnson@hawaii.edu", "password": "foo", "firstName": "Philip", "lastName": "Johnson", "role": "admin", "boxIds": ["1", "2", "3", "4", "5", "6", "7", "8"]},
 
     { "username": "keal@hawaii.edu", "password": "foo", "firstName": "Kea", "lastName": "Uehara", "role": "admin",
-      "boxIds": ["1", "2", "3", "4", "5", "6"]},
+      "boxIds": ["1", "2", "3", "4", "5", "6", "7", "8"]},
+
+    { "username": "foltzk@hawaii.edu", "password": "foo", "firstName": "Kaila", "lastName": "Foltz", "role": "admin",
+      "boxIds": ["1", "2", "3", "4", "5", "6", "7", "8"]},
+
+    { "username": "mtopping@hawaii.edu", "password": "foo", "firstName": "Miles", "lastName": "Topping", "role": "user",
+      "boxIds": ["1", "2", "3", "4", "5", "6", "7", "8"]},
+
     { "username": "dport@hawaii.edu", "password": "foo", "firstName": "Daniel", "lastName": "Port", "role": "user", "boxIds": ["6"]}
   ],
 
