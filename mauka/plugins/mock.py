@@ -32,7 +32,7 @@ def produce(broker: str, topic: str, message: str = None, message_bytes=None):
     zmq_context = zmq.Context()
     zmq_pub_socket = zmq_context.socket(zmq.PUB)
     zmq_pub_socket.connect(broker)
-    time.sleep(0.1) # We need to sleep while the handshake takes place
+    time.sleep(0.1)  # We need to sleep while the handshake takes place
     if message is not None:
         zmq_pub_socket.send_multipart((topic.encode(), message.encode()))
     else:
@@ -49,7 +49,7 @@ if __name__ == "__main__":
         try:
             with open(path, "r") as f:
                 return json.load(f)
-        except FileNotFoundError as e:
+        except FileNotFoundError:
             _logger.error("usage: ./mock.py config topic message")
             exit(0)
 

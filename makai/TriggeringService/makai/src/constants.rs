@@ -35,3 +35,15 @@ pub static MONGO_LONG_TERM_MEASUREMENTS_MIN_FIELD: &str = "min";
 pub static MONGO_LONG_TERM_MEASUREMENTS_MAX_FIELD: &str = "max";
 ///Mongo long term measurements collection statistics average.
 pub static MONGO_LONG_TERM_MEASUREMENTS_FILTERED_FIELD: &str = "average";
+//Mongo long term measurements location.
+pub static MONGO_LONG_TERM_MEASUREMENTS_LOCATION_FIELD: &str = "location";
+//Mongo long term measurements default location.
+pub static MONGO_LONG_TERM_MEASUREMENTS_DEFAULT_LOCATION: &str = "unknown";
+
+
+///Mongo boxes collection.
+pub static MONGO_OPQ_BOXES_COLLECTION: &str = "opq_boxes";
+//Mongo boxes collection box id.
+pub static MONGO_OPQ_BOXES_BOX_ID_FIELD: &str = "box_id";
+//Mongo boxes collection box id.
+pub static MONGO_OPQ_BOXES_LOCATION_FIELD: &str = "location";

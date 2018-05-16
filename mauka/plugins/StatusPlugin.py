@@ -40,6 +40,7 @@ def mauka_health_request_handler_factory():
             self.send_header('Content-type', 'application/json')
             self.end_headers()
 
+        # noinspection PyPep8Naming
         def do_GET(self):
             global health_state
             self._set_headers(200)
@@ -48,9 +49,9 @@ def mauka_health_request_handler_factory():
     return HealthRequestHandler
 
 
-def start_health_sate_httpd_server():
+def start_health_sate_httpd_server(port: int):
     """Helper function to start HTTP server in separate thread"""
-    httpd = http.server.HTTPServer(("", 8911), mauka_health_request_handler_factory())
+    httpd = http.server.HTTPServer(("", port), mauka_health_request_handler_factory())
     httpd.serve_forever()
 
 
@@ -67,7 +68,8 @@ class StatusPlugin(plugins.base.MaukaPlugin):
         :param config: Configuration dictionary
         """
         super().__init__(config, ["heartbeat"], StatusPlugin.NAME, exit_event)
-        self.httpd_thread = threading.Thread(target=start_health_sate_httpd_server)
+        health_porth = int(config["plugins.StatusPlugin.port"])
+        self.httpd_thread = threading.Thread(target=start_health_sate_httpd_server, args=(health_porth,))
         self.httpd_thread.start()
 
     def on_message(self, topic, message):

@@ -12,6 +12,7 @@ def start_mauka_pub_sub_broker(config: typing.Dict):
     Starts an instance of a mauka pub/sub broker in a separate process
     :param config: Configuration dictionary
     """
+
     def _run(config: typing.Dict):
         """
         This is the target function that will run as its own process.
@@ -53,6 +54,7 @@ def start_makai_bridge(config: typing.Dict):
     Starts an instance of the makai bridge to bring makai triggering data into mauka as a separate process
     :param config: Configuration dictionary
     """
+
     def _run(config: typing.Dict):
         import logging
         import signal
@@ -83,11 +85,13 @@ def start_makai_bridge(config: typing.Dict):
     process.start()
     return process
 
+
 def start_makai_event_bridge(config: typing.Dict):
     """
     Starts an instance of the makai bridge to bring makai event information into mauka as a separate process
     :param config: Configuration dictionary
     """
+
     def _run(config: typing.Dict):
         import logging
         import signal

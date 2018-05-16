@@ -69,6 +69,7 @@ impl MakaiPlugin for KetosPlugin {
             Err(e) => {println!("Bad setting file for plugin {}: {:?}", self.name(), e);self.valid = false; return},
         };
         self.interp.scope().register_struct_value::<Measurement>();
+        self.interp.scope().register_struct_value::<Trigger>();
 
         let res = File::open(&self.settings.script_path);
         if let Ok(mut f) = res {
@@ -106,9 +107,11 @@ impl MakaiPlugin for KetosPlugin {
         };
 
         let res = self.interp.call("process_measurement",vec![ketos::Value::new_foreign(m)]).unwrap();
-        //println!("{:?}", res);
         match res {
-            ketos::Value::Struct(_) => {println!("Got a trigger"); None},
+            ketos::Value::Foreign(v) =>{
+
+                None
+            }
             _ => None
         }
 

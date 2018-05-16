@@ -22,6 +22,8 @@
 
   "plugins.IticPlugin.getDataAfterS": 10.0,
 
+  "plugins.MakaiEventPlugin.getDataAfterS": 10.0,
+
   "plugins.MeasurementPlugin.sample_every": 3.0,
 
   "plugins.ThdPlugin.getDataAfterS": 10.0,
@@ -32,5 +34,7 @@
 
   "plugins.ThresholdPlugin.frequency.ref": 60.0,
   "plugins.ThresholdPlugin.frequency.threshold.percent.low": 0.5,
-  "plugins.ThresholdPlugin.frequency.threshold.percent.high": 0.5
+  "plugins.ThresholdPlugin.frequency.threshold.percent.high": 0.5,
+
+  "plugins.StatusPlugin.port": 8911
 }

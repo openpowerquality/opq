@@ -7,7 +7,7 @@ import multiprocessing
 import protobuf.util
 import typing
 
-import mongo.mongo
+import mongo
 import plugins.base
 
 ThresholdEvent = collections.namedtuple("ThresholdEvent", "start "
@@ -54,7 +54,7 @@ class ThresholdPlugin(plugins.base.MaukaPlugin):
         self.threshold_value_high = None
         """High threshold value (calculated from steady state and percent)"""
 
-        self.box_events_collection = self.mongo_client.db[mongo.mongo.Collection.BOX_EVENTS]
+        self.box_events_collection = self.mongo_client.db[mongo.Collection.BOX_EVENTS]
         """OPQ events collection"""
 
         self.device_id_to_low_events = {}
@@ -217,7 +217,8 @@ class ThresholdPlugin(plugins.base.MaukaPlugin):
                 self.update_event(prev_high_event, value)
 
         else:
-            self.logger.error("Unknown configuration {} {} {} {}".format(is_low, is_high, prev_low_event is None, prev_high_event is None))
+            self.logger.error("Unknown configuration {} {} {} {}".format(is_low, is_high, prev_low_event is None,
+                                                                         prev_high_event is None))
 
     def on_event(self, threshold_event):
         """This should be implemented in all child classes and is called async as events are completed
