@@ -2,11 +2,10 @@
 This module contains the voltage threshold plugin which is responsible for classifying voltage dips and swells
 """
 
-import datetime
 import multiprocessing
 import typing
 
-import mongo.mongo
+import mongo
 import plugins.ThresholdPlugin
 
 
@@ -54,9 +53,9 @@ class VoltageThresholdPlugin(plugins.ThresholdPlugin.ThresholdPlugin):
         type = threshold_event.threshold_type
 
         if type == "LOW":
-            event_type = mongo.mongo.BoxEventType.VOLTAGE_DIP
+            event_type = mongo.BoxEventType.VOLTAGE_DIP
         elif type == "HIGH":
-            event_type = mongo.mongo.BoxEventType.VOLTAGE_SWELL
+            event_type = mongo.BoxEventType.VOLTAGE_SWELL
         else:
             self.logger.error("Unknown threshold type {}".format(type))
             return

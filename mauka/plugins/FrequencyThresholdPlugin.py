@@ -2,11 +2,10 @@
 This module contains the frequency threshold plugin which is responsible for classifying frequency dips and swells
 """
 
-import datetime
 import multiprocessing
 import typing
 
-import mongo.mongo
+import mongo
 import plugins.ThresholdPlugin
 
 
@@ -55,9 +54,9 @@ class FrequencyThresholdPlugin(plugins.ThresholdPlugin.ThresholdPlugin):
         type = threshold_event.threshold_type
 
         if type == "LOW":
-            event_type = mongo.mongo.BoxEventType.FREQUENCY_DIP
+            event_type = mongo.BoxEventType.FREQUENCY_DIP
         elif type == "HIGH":
-            event_type = mongo.mongo.BoxEventType.FREQUENCY_SWELL
+            event_type = mongo.BoxEventType.FREQUENCY_SWELL
         else:
             self.logger.error("Unknown threshold type {}".format(type))
             return

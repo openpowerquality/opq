@@ -6,7 +6,7 @@ import multiprocessing
 import protobuf.util
 import typing
 
-import mongo.mongo
+import mongo
 import plugins.base
 
 
@@ -27,7 +27,7 @@ class MeasurementPlugin(plugins.base.MaukaPlugin):
         self.sample_every = int(self.config_get("plugins.MeasurementPlugin.sample_every"))
         """Of all the triggering messages, how often should we sample values from the stream"""
 
-        self.measurements_collection = self.mongo_client.db[mongo.mongo.Collection.MEASUREMENTS]
+        self.measurements_collection = self.mongo_client.db[mongo.Collection.MEASUREMENTS]
         """Mongo OPQ measurements collection"""
 
         self.device_id_to_sample_cnt = {}

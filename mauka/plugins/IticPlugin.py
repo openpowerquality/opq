@@ -7,7 +7,7 @@ import multiprocessing
 import threading
 
 import constants
-import mongo.mongo
+import mongo
 import plugins.base
 
 import numpy
@@ -195,7 +195,7 @@ class IticPlugin(plugins.base.MaukaPlugin):
             for box_event in box_events:
                 _id = self.object_id(box_event["_id"])
                 box_id = box_event["box_id"]
-                waveform = mongo.mongo.get_waveform(self.mongo_client, box_event["data_fs_filename"])
+                waveform = mongo.get_waveform(self.mongo_client, box_event["data_fs_filename"])
                 calibrated_waveform = self.calibrate_waveform(waveform, constants.cached_calibration_constant(box_id))
                 itic_region_str = self.itic(calibrated_waveform)
 

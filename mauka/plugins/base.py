@@ -18,8 +18,7 @@ import numpy
 import zmq
 
 import constants
-import mongo.mongo
-import protobuf.opq_pb2 as opqpb
+import mongo
 
 _logger = logging.getLogger("app")
 logging.basicConfig(
@@ -188,7 +187,7 @@ class MaukaPlugin:
         mongo_host = self.config_get("mongo.host")
         mongo_port = self.config_get("mongo.port")
         mongo_db = self.config_get("mongo.db")
-        return mongo.mongo.OpqMongoClient(mongo_host, mongo_port, mongo_db)
+        return mongo.OpqMongoClient(mongo_host, mongo_port, mongo_db)
 
     def start_heartbeat(self):
         """
