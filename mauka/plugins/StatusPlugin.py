@@ -40,6 +40,7 @@ def mauka_health_request_handler_factory():
             self.send_header('Content-type', 'application/json')
             self.end_headers()
 
+        # noinspection PyPep8Naming
         def do_GET(self):
             global health_state
             self._set_headers(200)

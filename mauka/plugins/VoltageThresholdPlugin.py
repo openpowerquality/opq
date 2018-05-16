@@ -50,14 +50,14 @@ class VoltageThresholdPlugin(plugins.ThresholdPlugin.ThresholdPlugin):
 
         :param threshold_event: The recorded event
         """
-        type = threshold_event.threshold_type
+        threshold_type = threshold_event.threshold_type
 
-        if type == "LOW":
+        if threshold_type == "LOW":
             event_type = mongo.BoxEventType.VOLTAGE_DIP
-        elif type == "HIGH":
+        elif threshold_type == "HIGH":
             event_type = mongo.BoxEventType.VOLTAGE_SWELL
         else:
-            self.logger.error("Unknown threshold type {}".format(type))
+            self.logger.error("Unknown threshold type {}".format(threshold_type))
             return
 
         event = {"eventStart": threshold_event.start,

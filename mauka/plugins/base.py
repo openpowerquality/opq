@@ -17,7 +17,7 @@ import bson.objectid
 import numpy
 import zmq
 
-import mauka
+import constants
 import mongo
 
 _logger = logging.getLogger("app")
@@ -43,6 +43,7 @@ def run_plugin(plugin_class, config: typing.Dict):
     process.start()
     return process
 
+
 class JSONEncoder(json.JSONEncoder):
     """
     This class allows us to serialize items with ObjectIds to JSON
@@ -67,7 +68,8 @@ class MaukaPlugin:
 
     NAME = "MaukaPlugin"
 
-    def __init__(self, config: typing.Dict, subscriptions: typing.List[str], name: str, exit_event: multiprocessing.Event):
+    def __init__(self, config: typing.Dict, subscriptions: typing.List[str], name: str,
+                 exit_event: multiprocessing.Event):
         """ Initializes the base plugin
 
         :param config: Configuration dictionary
@@ -138,7 +140,7 @@ class MaukaPlugin:
         summed_sqs = numpy.sum(numpy.square(samples))
         return math.sqrt(summed_sqs / len(samples))
 
-    def vrms_waveform(self, waveform: numpy.ndarray, window_size: int = mauka.SAMPLES_PER_CYCLE) -> numpy.ndarray:
+    def vrms_waveform(self, waveform: numpy.ndarray, window_size: int = constants.SAMPLES_PER_CYCLE) -> numpy.ndarray:
         """
         Calculated Vrms of a waveform using a given window size. In most cases, our window size should be the
         number of samples in a cycle.
@@ -245,7 +247,6 @@ class MaukaPlugin:
         """
         with self.producer_lock:
             self.zmq_producer.send_multipart((topic, message))
-
 
     def is_self_message(self, topic: str) -> bool:
         """Determines if this is a message directed at this plugin. I.e. the topic is the name of the plugin.

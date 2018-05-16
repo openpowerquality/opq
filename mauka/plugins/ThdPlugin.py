@@ -6,12 +6,12 @@ import multiprocessing
 import threading
 import typing
 
-import mauka
-import mongo
-import plugins.base
-
 import numpy
 import scipy.fftpack
+
+import constants
+import mongo
+import plugins.base
 
 
 class ThdPlugin(plugins.base.MaukaPlugin):
@@ -53,7 +53,7 @@ class ThdPlugin(plugins.base.MaukaPlugin):
         :return:
         """
         y = scipy.fftpack.fft(waveform)
-        x = numpy.fft.fftfreq(y.size, 1 / mauka.SAMPLE_RATE_HZ)
+        x = numpy.fft.fftfreq(y.size, 1 / constants.SAMPLE_RATE_HZ)
 
         new_x = []
         new_y = []
@@ -90,11 +90,11 @@ class ThdPlugin(plugins.base.MaukaPlugin):
                 _id = self.object_id(box_event["_id"])
                 box_id = box_event["box_id"]
                 waveform = mongo.get_waveform(self.mongo_client, box_event["data_fs_filename"])
-                calibrated_waveform = self.calibrate_waveform(waveform, mauka.cached_calibration_constant(box_id))
+                calibrated_waveform = self.calibrate_waveform(waveform, mongo.cached_calibration_constant(box_id))
                 thd = self.thd(calibrated_waveform)
 
                 self.mongo_client.box_events_collection.update_one({"_id": _id},
-                                                        {"$set": {"thd": thd}})
+                                                                   {"$set": {"thd": thd}})
 
                 self.logger.debug("Calculated THD for " + str(event_id) + ":" + str(box_id) + ":" + str(thd))
         except Exception as e:

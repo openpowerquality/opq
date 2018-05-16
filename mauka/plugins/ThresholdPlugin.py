@@ -217,7 +217,8 @@ class ThresholdPlugin(plugins.base.MaukaPlugin):
                 self.update_event(prev_high_event, value)
 
         else:
-            self.logger.error("Unknown configuration {} {} {} {}".format(is_low, is_high, prev_low_event is None, prev_high_event is None))
+            self.logger.error("Unknown configuration {} {} {} {}".format(is_low, is_high, prev_low_event is None,
+                                                                         prev_high_event is None))
 
     def on_event(self, threshold_event):
         """This should be implemented in all child classes and is called async as events are completed

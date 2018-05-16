@@ -12,9 +12,9 @@ import multiprocessing
 import os
 import readline
 import sys
+import time
 import typing
 
-import time
 import zmq
 
 _logger = logging.getLogger("app")
@@ -75,9 +75,9 @@ class MaukaCli:
         self.cli_subparsers = self.cli_parser.add_subparsers()
         self.cmd_names = []
 
-    def add_cmd(self, name: str, help: str, cmd_fn: typing.Callable, arg: str = None, arg_help: str = None):
+    def add_cmd(self, name: str, help_str: str, cmd_fn: typing.Callable, arg: str = None, arg_help: str = None):
         self.cmd_names.append(name)
-        cmd = self.cli_subparsers.add_parser(name, help=help)
+        cmd = self.cli_subparsers.add_parser(name, help=help_str)
         cmd.set_defaults(func=cmd_fn)
         if arg is not None:
             cmd.add_argument(arg, help=arg_help)

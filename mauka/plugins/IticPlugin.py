@@ -6,7 +6,7 @@ import typing
 import multiprocessing
 import threading
 
-import mauka
+import constants
 import mongo
 import plugins.base
 
@@ -175,7 +175,7 @@ class IticPlugin(plugins.base.MaukaPlugin):
         :return: ITIC region name for specified waveform
         """
         vrms_vals = self.vrms_waveform(waveform)
-        duration_ms = (len(waveform) / mauka.SAMPLE_RATE_HZ) * 1000
+        duration_ms = (len(waveform) / constants.SAMPLE_RATE_HZ) * 1000
         vrms_min = numpy.min(vrms_vals)
         vrms_max = numpy.max(vrms_vals)
 
@@ -187,7 +187,8 @@ class IticPlugin(plugins.base.MaukaPlugin):
     def perform_itic_calculations(self, event_id: int):
         """
         Called on a timer in a separate thread to allow raw data to be acquired first by makai.
-        When raw waveforms are found, ITIC calculations are performed and the result is stored back to box_events collection.
+        When raw waveforms are found, ITIC calculations are performed and the result is stored back to box_events
+           collection.
         :param event_id: Event id to calculate itic over.
         """
         try:
@@ -196,11 +197,11 @@ class IticPlugin(plugins.base.MaukaPlugin):
                 _id = self.object_id(box_event["_id"])
                 box_id = box_event["box_id"]
                 waveform = mongo.get_waveform(self.mongo_client, box_event["data_fs_filename"])
-                calibrated_waveform = self.calibrate_waveform(waveform, mauka.cached_calibration_constant(box_id))
+                calibrated_waveform = self.calibrate_waveform(waveform, mongo.cached_calibration_constant(box_id))
                 itic_region_str = self.itic(calibrated_waveform)
 
                 self.mongo_client.box_events_collection.update_one({"_id": _id},
-                                                        {"$set": {"itic": itic_region_str}})
+                                                                   {"$set": {"itic": itic_region_str}})
 
                 self.logger.debug("Calculated ITIC for " + str(event_id) + ":" + str(box_id) + ":" + itic_region_str)
         except Exception as e:
