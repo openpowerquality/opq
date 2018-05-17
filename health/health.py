@@ -13,6 +13,7 @@ from datetime import datetime
 
 # Global valiables
 g_log_file = None
+g_log_file_on = True
 lock = Lock()
 boxes = {}
 
@@ -25,7 +26,7 @@ def get_msg_as_json(service, service_id, status, info):
     return msg
 
 def save_message(message):
-    write_to_log(message)
+    write_to_log(get_log_msg(message))
     write_to_mongo(message)
 
 def get_log_msg(message):
@@ -36,8 +37,11 @@ def get_log_msg(message):
 
     return ' '.join([ctime(), serv, id, stat, info])
 
-def write_to_log(message):
-    log_msg = get_log_msg(message)
+def write_to_log(log_msg):
+    global g_log_file_on
+    if not g_log_file_on:
+        return
+
     try:
         with open(g_log_file, 'a') as log_file:
             log_file.write(log_msg + '\n')
@@ -318,12 +322,23 @@ def parse_cmd_args():
 
 def set_g_log_file(file_name):
     global g_log_file
-    g_log_file = file_name
+    global g_log_file_on
 
+    g_log_file = file_name
+    
+    if g_log_file == 'disable':
+        g_log_file_on = False
+        
 if __name__ == '__main__':
     # Use log_file as global variable
     config_file, log_file = parse_cmd_args()
     set_g_log_file(log_file)
+
     print('... reading configuration information from ' + config_file)
-    print('... writing out health status to ' + log_file)
+
+    if log_file != 'disable':
+        print('... writing out health status to ' + log_file)
+    else:
+        print('... log file disabled')
+
     main(config_file)
