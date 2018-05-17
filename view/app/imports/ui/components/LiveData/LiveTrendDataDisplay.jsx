@@ -111,6 +111,8 @@ class LiveTrendDataManager extends React.Component {
     graphData.forEach(set => { set.data.forEach(point => { wholeDataSet.push(point[1]); }); });
     reference.forEach(value => { wholeDataSet.push(value); });
 
+    console.log(graphData[0]);
+
     return (
       <div>
         <Legend type='swatch' align='left' categories={legend} style={legendStyle}

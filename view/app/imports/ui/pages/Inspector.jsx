@@ -1,7 +1,7 @@
 import React from 'react';
 import { Grid } from 'semantic-ui-react';
 
-import EventInspector from '../components/EventInspector';
+import EventInspector from '../components/EventInspector/EventInspector';
 
 const Inspector = () => (
   <Grid container stackable>

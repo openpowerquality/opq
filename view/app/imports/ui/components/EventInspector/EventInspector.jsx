@@ -1,13 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { withTracker } from 'meteor/react-meteor-data';
-import { Grid, Popup, Input, Button, Dropdown, Loader, Table } from 'semantic-ui-react';
-import Calendar from 'react-calendar';
+import { Grid, Input, Button, Dropdown, Loader, Table } from 'semantic-ui-react';
 import Moment from 'moment/moment';
 
-import WidgetPanel from '../layouts/WidgetPanel';
-import { OpqBoxes } from '../../api/opq-boxes/OpqBoxesCollection';
-import { getEventsInRange } from '../../api/events/EventsCollectionMethods';
+import WidgetPanel from '../../layouts/WidgetPanel';
+import EventSummary from './EventSummary';
+import { OpqBoxes } from '../../../api/opq-boxes/OpqBoxesCollection';
+import { getEventsInRange } from '../../../api/events/EventsCollectionMethods';
 
 /** Displays event details, including the waveform at the time of the event. */
 class EventInspector extends React.Component {
@@ -22,10 +22,8 @@ class EventInspector extends React.Component {
       end: end.format('YYYY-MM-DDTHH:mm'),
       loading: false,
       loaded: false,
-      selectedBoxes: ['1'],
+      selectedBoxes: ['2'],
       events: [],
-      test: '',
-      waveforms: {},
     };
   }
 
@@ -39,7 +37,7 @@ class EventInspector extends React.Component {
   `;
 
   render() {
-    return (
+    return this.props.ready ? (
       <WidgetPanel title='Event Inspector' helpText={this.helpText}>
         <Grid container><Grid.Column width={16}><Grid stackable>
           <Grid.Row>
@@ -73,48 +71,15 @@ class EventInspector extends React.Component {
             <Grid.Row>
               <Grid.Column width={16}>
                 {this.state.events.map(event => (
-                  <Table key={event.event_id} celled>
-                    <Table.Body>
-                      <Table.Row>
-                        <Table.Cell>
-                          <strong>Event ID:</strong> {event.event_id}
-                        </Table.Cell>
-                        <Table.Cell>
-                          <strong>Type: </strong> {event.type}
-                        </Table.Cell>
-                        <Table.Cell>
-                          <strong>Boxes triggered: </strong> {event.boxes_triggered}
-                        </Table.Cell>
-                        <Table.Cell>
-                          <strong>Started at: </strong>
-                          {Moment(event.target_event_start_timestamp_ms).format('MM/DD/YYYY HH:mm:ss')}
-                        </Table.Cell>
-                        <Table.Cell>
-                          <strong>Ended at: </strong>
-                          {Moment(event.target_event_end_timestamp_ms).format('MM/DD/YYYY HH:mm:ss')}
-                        </Table.Cell>
-                      </Table.Row>
-                      <Table.Row>
-                        <Table.Cell colSpan={5}>
-                          <strong>Waveform available for: </strong>
-                          {event.boxes_received.sort().map(boxID => (
-                            <Button key={boxID} toggle content={`Box ${boxID}`} onClick={this.toggleWaveForm} />))}
-                        </Table.Cell>
-                      </Table.Row>
-                    </Table.Body>
-                  </Table>
+                  <EventSummary event={event} key={event.event_id}/>
                 ))}
               </Grid.Column>
             </Grid.Row>
           ) : ''}
         </Grid></Grid.Column></Grid>
       </WidgetPanel>
-    );
+    ) : '';
   }
-
-  toggleWaveForm = (event, data) => {
-    console.log(data);
-  };
 
   changeStart = (event, data) => { this.setState({ start: data.value }); };
   changeEnd = (event, data) => { this.setState({ end: data.value }); };
@@ -126,7 +91,7 @@ class EventInspector extends React.Component {
       getEventsInRange.call({
           boxIDs: selectedBoxes,
           startTime_ms: Moment(start).valueOf(),
-          endTime_ms: Moment(end).valueOf()
+          endTime_ms: Moment(end).valueOf(),
         },
         (error, events) => {
           this.setState({ events, loading: false, loaded: true });
