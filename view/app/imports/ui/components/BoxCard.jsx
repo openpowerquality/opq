@@ -146,7 +146,7 @@ class BoxCard extends React.Component {
           <Card.Header>{this.props.box.name}</Card.Header>
         </Card.Content>
         {this.renderDescription(this.props.box.description)}
-        {this.renderStatus(this.props.box.box_id, this.props.box.unplugged, this.props.boxTrendStats)}
+        {/* this.renderStatus(this.props.box.box_id, this.props.box.unplugged, this.props.boxTrendStats) */}
         {this.renderCalibration(this.props.box.calibration_constant)}
         {this.renderCurrentLocation(this.props.box.location, this.props.box.location_start_time_ms)}
         {this.renderArchivedLocations(this.props.box.location_archive)}

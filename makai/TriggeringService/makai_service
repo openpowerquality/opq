@@ -11,7 +11,7 @@
 ### END INIT INFO
 
 dir="/"
-cmd="/usr/local/bin/makai"
+cmd="/usr/local/bin/makai /etc/opq/makai.json"
 user="opq"
 
 name=`basename $0`

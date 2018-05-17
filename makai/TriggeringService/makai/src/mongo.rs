@@ -7,6 +7,7 @@ use mongodb;
 use mongodb::ThreadedClient;
 use mongodb::db::ThreadedDatabase;
 use mongodb::coll::options::IndexOptions;
+
 use bson::*;
 use bson::Document;
 
@@ -16,6 +17,7 @@ use time::Duration;
 use constants::*;
 use opqapi::protocol::TriggerMessage;
 use config::Settings;
+use mongodb::coll::options::WriteModel;
 
 /// A Buffer for keeping track of the slow measurements.
 struct MeasurementStatistics {
@@ -171,6 +173,7 @@ pub struct MongoMeasurements {
     sub_chan: Subscription<Arc<TriggerMessage>>,
     live_coll: mongodb::coll::Collection,
     slow_coll: mongodb::coll::Collection,
+    box_coll: mongodb::coll::Collection,
     ///Mongo Expire time
     expire_time_sec: u64,
     ///Mongo Trends time
@@ -192,6 +195,9 @@ impl MongoMeasurements {
             live_coll: client
                 .db(MONGO_DATABASE)
                 .collection(MONGO_MEASUREMENT_COLLECTION),
+            box_coll : client
+                .db(MONGO_DATABASE)
+                .collection(MONGO_OPQ_BOXES_COLLECTION),
             slow_coll: client
                 .db(MONGO_DATABASE)
                 .collection(MONGO_LONG_TERM_MEASUREMENT_COLLECTION),
@@ -231,20 +237,52 @@ impl MongoMeasurements {
     ///The mongo store loop. Run this in a thread.
     pub fn run_loop(&self) {
         let mut map = HashMap::new();
+        let mut update_backlog :Vec<WriteModel> = vec!();
+        let mut last_update =  Utc::now();
+
         loop {
             let msg = self.sub_chan.recv().unwrap();
             let doc = self.generate_document(&msg);
-            self.live_coll
-                .insert_one(doc, None)
-                .ok()
-                .expect("Could not insert");
+
+            update_backlog.push(mongodb::coll::options::WriteModel::InsertOne{ document: doc });
+            if  Utc::now() - last_update > Duration::seconds(1) {
+                self.live_coll.bulk_write(update_backlog, false);
+                update_backlog = vec![];
+                last_update = Utc::now();
+            }
+
+
             let box_stat = map.entry(msg.get_id())
                 .or_insert(MeasurementDecimator::new());
+
+
             box_stat.process_message(&msg);
             if box_stat.last_insert + Duration::seconds(self.trend_time_sec as i64) < Utc::now() {
+                //Build the long term measurement header
                 let mut doc = box_stat.generate_document_and_reset();
                 doc.insert(MONGO_BOX_ID_FIELD, msg.get_id().to_string());
                 doc.insert(MONGO_TIMESTAMP_FIELD, msg.get_time());
+
+                //Query mongo for box location
+                let query  = doc!{
+                  MONGO_OPQ_BOXES_BOX_ID_FIELD : msg.get_id().to_string(),
+                };
+                let query_result = self.box_coll.find_one(Some(query), None).unwrap();
+                //Fill in the location for the long term measurement if it is present.
+                match query_result{
+                    None => {
+                        doc.insert(MONGO_LONG_TERM_MEASUREMENTS_LOCATION_FIELD, MONGO_LONG_TERM_MEASUREMENTS_DEFAULT_LOCATION);
+                    },
+                    Some(query) => {
+                        match query.get(MONGO_OPQ_BOXES_LOCATION_FIELD){
+                            None => {
+                                doc.insert(MONGO_LONG_TERM_MEASUREMENTS_LOCATION_FIELD, MONGO_LONG_TERM_MEASUREMENTS_DEFAULT_LOCATION);
+                            },
+                            Some(location) => {doc.insert(MONGO_LONG_TERM_MEASUREMENTS_LOCATION_FIELD, location.clone());},
+                        }
+                    },
+                };
+                //Insert the long term measurement.
                 self.slow_coll
                     .insert_one(doc, None)
                     .ok()

@@ -3,15 +3,14 @@ This plugin calculates total harmonic distortion (THD) over waveforms.
 """
 import math
 import multiprocessing
-import threading
+import pickle
 import typing
-
-import constants
-import mongo.mongo
-import plugins.base
 
 import numpy
 import scipy.fftpack
+
+import constants
+import plugins.base
 
 
 class ThdPlugin(plugins.base.MaukaPlugin):
@@ -79,28 +78,6 @@ class ThdPlugin(plugins.base.MaukaPlugin):
         _thd = (math.sqrt(top) / nth_harmonic[1]) * 100.0
         return _thd
 
-    def perform_thd_calculation(self, event_id: int):
-        """
-        Extract waveforms associated with event_id, perform thd calculations, and store results back to mongodb.
-        :param event_id: Event to calculate THD for.
-        """
-        try:
-            box_events = self.mongo_client.box_events_collection.find({"event_id": event_id})
-            for box_event in box_events:
-                _id = self.object_id(box_event["_id"])
-                box_id = box_event["box_id"]
-                waveform = mongo.mongo.get_waveform(self.mongo_client, box_event["data_fs_filename"])
-                calibrated_waveform = self.calibrate_waveform(waveform, constants.cached_calibration_constant(box_id))
-                thd = self.thd(calibrated_waveform)
-
-                self.mongo_client.box_events_collection.update_one({"_id": _id},
-                                                        {"$set": {"thd": thd}})
-
-                self.logger.debug("Calculated THD for " + str(event_id) + ":" + str(box_id) + ":" + str(thd))
-        except Exception as e:
-            self.logger.error("Error performing THD calculation: " + str(e))
-            pass
-
     def on_message(self, topic, message):
         """
         Fired when this plugin receives a message. This will wait a certain amount of time to make sure that data
@@ -108,6 +85,5 @@ class ThdPlugin(plugins.base.MaukaPlugin):
         :param topic: Topic of the message.
         :param message: Contents of the message.
         """
-        event_id = int(message)
-        timer = threading.Timer(self.get_data_after_s, self.perform_thd_calculation, (event_id,))
-        timer.start()
+        event_id, box_id, calibrated_waveform = pickle.loads(message)
+        self.logger.debug("ThdPlugin {} {} {}".format(event_id, box_id, len(calibrated_waveform)))

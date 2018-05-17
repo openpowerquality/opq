@@ -90,15 +90,11 @@ class ThresholdPluginTests(unittest.TestCase):
         self.assertEqual(event.max_value, 141.0)
 
     def test_close_event_low(self):
-
-
-
         self.threshold_plugin.open_event(1, self.device_id, 100.0, True)
         self.assertTrue(self.device_id in self.threshold_plugin.device_id_to_low_events)
         event = self.threshold_plugin.device_id_to_low_events[self.device_id]
         self.threshold_plugin.close_event(event, 1)
         self.assertFalse(self.device_id in self.threshold_plugin.device_id_to_low_events)
-
 
     def test_close_event_high(self):
         self.threshold_plugin.on_event = lambda e: print(e)
@@ -107,4 +103,3 @@ class ThresholdPluginTests(unittest.TestCase):
         event = self.threshold_plugin.device_id_to_high_events[self.device_id]
         self.threshold_plugin.close_event(event, 1)
         self.assertFalse(self.device_id in self.threshold_plugin.device_id_to_high_events)
-

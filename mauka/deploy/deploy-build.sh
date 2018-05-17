@@ -31,13 +31,10 @@ cp mauka/deploy/mauka-log.sh mauka/deploy/${TIMESTAMP}/scripts
 cp mauka/deploy/mauka-service.sh mauka/deploy/${TIMESTAMP}/scripts
 
 # Copy deploy-run.sh to deployment root
-cp mauka/deploy/deploy-run.sh mauka/deploy/${TIMESTAMP}
+cp mauka/deploy/deploy-install.sh mauka/deploy/${TIMESTAMP}
 
 # Build deployment distribution
 tar cvjf mauka/deploy/${TIMESTAMP}.tar.bz2 -C mauka/deploy ${TIMESTAMP}
-
-# Deploy distribution to emilia
-scp -P 29862 mauka/deploy/${TIMESTAMP}.tar.bz2 opquser@emilia.ics.hawaii.edu:/home/opquser/mauka/.
 
 # Clean
 rm -rf mauka/deploy/${TIMESTAMP}

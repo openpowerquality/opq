@@ -19,8 +19,10 @@ function initEntity(name, collection) {
  * Define entities at system startup.  Locations must be defined before regions and opqBoxes.
  */
 Meteor.startup(() => {
-  initEntity('locations', Locations);
-  initEntity('regions', Regions);
-  initEntity('opqBoxes', OpqBoxes);
-  initEntity('userProfiles', UserProfiles);
+  if (Meteor.settings.initializeEntities) {
+    initEntity('locations', Locations);
+    initEntity('regions', Regions);
+    initEntity('opqBoxes', OpqBoxes);
+    initEntity('userProfiles', UserProfiles);
+  }
 });

@@ -12,6 +12,7 @@ def start_mauka_pub_sub_broker(config: typing.Dict):
     Starts an instance of a mauka pub/sub broker in a separate process
     :param config: Configuration dictionary
     """
+
     def _run(config: typing.Dict):
         """
         This is the target function that will run as its own process.
@@ -53,6 +54,7 @@ def start_makai_bridge(config: typing.Dict):
     Starts an instance of the makai bridge to bring makai triggering data into mauka as a separate process
     :param config: Configuration dictionary
     """
+
     def _run(config: typing.Dict):
         import logging
         import signal
@@ -78,6 +80,43 @@ def start_makai_bridge(config: typing.Dict):
         while True:
             trigger_msg = zmq_sub_trigger_socket.recv_multipart()
             zmq_pub_socket.send_multipart(("measurement".encode(), trigger_msg[1]))
+
+    process = multiprocessing.Process(target=_run, args=(config,))
+    process.start()
+    return process
+
+
+def start_makai_event_bridge(config: typing.Dict):
+    """
+    Starts an instance of the makai bridge to bring makai event information into mauka as a separate process
+    :param config: Configuration dictionary
+    """
+
+    def _run(config: typing.Dict):
+        import logging
+        import signal
+        import os
+        import zmq
+
+        _logger = logging.getLogger("app")
+        logging.basicConfig(
+            format="[%(levelname)s][%(asctime)s][{} %(filename)s:%(lineno)s - %(funcName)s() ] %(message)s".format(
+                os.getpid()))
+
+        signal.signal(signal.SIGINT, signal.SIG_IGN)
+
+        _logger.info("Starting makai event bridge...")
+
+        zmq_context = zmq.Context()
+        zmq_sub_event_socket = zmq_context.socket(zmq.SUB)
+        zmq_sub_event_socket.setsockopt(zmq.SUBSCRIBE, b"")
+        zmq_pub_socket = zmq_context.socket(zmq.PUB)
+        zmq_sub_event_socket.connect(config["zmq.event.interface"])
+        zmq_pub_socket.connect(config["zmq.mauka.plugin.pub.interface"])
+
+        while True:
+            event_msg = zmq_sub_event_socket.recv_multipart()
+            zmq_pub_socket.send_multipart(("RequestDataEvent".encode(), event_msg[1]))
 
     process = multiprocessing.Process(target=_run, args=(config,))
     process.start()
