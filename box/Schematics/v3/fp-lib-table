@@ -1,0 +1,3 @@
+(fp_lib_table
+  (lib (name opqbox3)(type KiCad)(uri "$(KIPRJMOD)/opqbox3.pretty")(options "")(descr ""))
+)

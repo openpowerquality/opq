@@ -1,0 +1,184 @@
+ADUM5010ARSZ,PSU
+pin, type, name, side
+9,  power_in, VIN,   right
+8,  in,       nENABLE,   right
+2,  power_in, GND1,   right
+5,  power_in, GND1,   right
+6,  power_in, GND1,   right
+10, power_in, GND1,   right
+12, power_out, VOUT,  left
+13, in,        VSEL,  left
+11, power_in, GND2, left
+15, power_in, GND2, left
+16, power_in, GND2, left
+19, power_in, GND2, left
+1,,NC, right
+3,,NC, right
+4,,NC, right
+7,,NC, right
+17,,NC, left
+14,,NC, left
+18,,NC, left
+20,,NC, left
+
+AMC1100DWV,
+pin, type, name, side
+1, power_in, VDD1, left
+2, in, VINP, left
+3, in, VINN, left
+4, power_in, GND1, left
+8, power_in, VDD2, right
+7, out, VOUTP, right
+6, out, VOUTN, right
+5, power_in, GND2, right
+
+IRM-15-5,PSU,
+pin, type, name, side
+1, power_in, AC_L, left
+2, power_in, AC_N, left
+3, power_out, V+, right
+4, power_in, V-, right
+
+IRM-05-5,PSU,
+pin, type, name, side
+1, power_in, AC_L, left
+2, power_in, AC_N, left
+3, power_out, V+, right
+4, power_in, V-, right
+
+ISL21010CFH333Z-TK,
+pin, type, name, side
+1, power_in, VIN, left
+2, out, VOUT, right
+3, power_in, GND, bottom
+
+AP2120N-3.3TRG1,REG,
+pin, type, name, side
+1, power_in, GND, bottom
+2, power_out, VOUT, right
+3, power_in, VIN, left
+
+FOX924B,U,
+pin, name, type, side
+4, VCC, power_in, left
+2, GND, power_in, left
+3, OSC, out, right
+
+STM32F373CCT6,U,Housings_QFP:LQFP-48_7x7mm_Pitch0.5mm,
+pin, name, side, type
+48, VDD1, top, power_in
+17, VDD2, top, power_in
+1, VBAT, top, power_in
+9, AVDD1, top, power_in
+25, VREF2, top, in
+24, AVDD2, top, power_in
+40, PB4/USART2_RX/JRST, top, io
+39, PB3/USART2_TX/JTDO, top, io
+38, PA15/JTDI/nCS1, top, io
+37, PA14/JTCK, top, io
+7, nRST, top, in
+34, PA13/JTMS, top, io
+44, BOOT0, top, in
+30, PA9/UART1_TX, right, io
+31, PA10/UART1_RX, right, io
+33, PA12/USB_DP, right, io
+32, PA11/USB_DM, right, io
+46, PB9/UART3_RX, right, io
+45, PB8/UART3_TX, right, io
+13, PA3/MOSI3, right, io
+14, PA4/nCS3, right, io
+11, PA1/SCLK3, right, io
+12, PA2/MISO3, right, io
+47, GND, bottom, power_in
+8, AGND1, bottom, power_in
+23, AGND2, bottom, power_in
+35, PF6, bottom, io
+43, PB7, bottom, io
+42, PB6, bottom, io
+41, PB5, bottom, io
+29, PA8, bottom, io
+15, PA5, bottom, io
+16, PA6, bottom, io
+18, PB0, bottom, io
+36, PF7, bottom, io
+2, PC13, left, io
+3, PC14/OSC32_IN, left, io
+4, PC14/OSC32_OUT, left, io
+5, PF0/OSC_IN, left, io
+6, PF1/OSC_OUT, left, io
+10, PA0, left, io
+26, PB14, left, io
+27, PB15, left, io
+28, PB15, left, io
+19, PB1/SDADC1_6N, left, io
+20, PB2/SDADC1_6P, left, io
+21, PE8/SDADC2_8P, left, io
+22, PE9/SDADC2_8N, left, io
+
+ARM_JTAG_8_PIN,J,
+pin, name, type, side
+1, VDD, power_out, bottom
+2, GND, power_in, bottom
+3, TMS, bi, bottom
+4, nTRST, bi, bottom
+5, TCK, bi, bottom
+6, TDI, bi, bottom
+7, nSRST, bi, bottom
+8, TDO, bi, bottom
+
+CHIP_PRO,U,opqbox3:CHIP_PRO
+pin, name, type, side
+53,GND,power_in,top
+52,USB0,,top
+51,USB0,,top
+50,VBUS,power_in,top
+49,GND,power_in,top
+48,USB1,,top
+47,USB1,,top
+46,GND,power_in,top
+1,GND, power_in, left
+2,VCC_3V3,power_out, left
+3,IPSOUT,power_out,left
+4,CHG_IN,power_in, left
+5,PWRON,,left
+6,GND,power_in,left
+7,BATTEMP,,left
+8,BAT,power_in, left
+9,PWM0,,left
+10,PWM1,,left
+11,PB15,,left
+12,PB16,,left
+13,UART2_TX,out,left
+14,UART2_RX,in,left
+15,UART2_CTS,,left
+16,UART2_RTS,,left
+45,GND,power_in, right
+44,UART1_TX,out,right
+43,UART1_RX,in,right
+42,LRADC0,, right
+41,CSIPCK,,right
+40,CSIMCLK,,right
+39,SCIHSYNC,,right
+38,SPI2_CS0,out,right
+37,SPI2_CLK,out,right
+36,SPI2_MOSI,out,right
+35,SPI2_MISO,in,right
+34,CSID0_SDA,,right
+33,CSID0,,right
+32,CSID0,,right
+31,UART1_TX,out, right
+30,UART1_RX,in, right
+17,GND,power_in,bottom
+18,HPL,,bottom
+19,HPCOM,,bottom
+20,HPR,,bottom
+21,I2S_MCLK,,bottom
+22,PB6,bi,bottom
+23,PB7,bi,bottom
+24,PB8,bi,bottom
+25,I2S_DI,,bottom
+26,AGND,power_in,bottom
+27,MICIN1,,bottom
+28,MICIN2,,bottom
+29,VMIC,,bottom
+
