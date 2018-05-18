@@ -1,12 +1,14 @@
+import { Meteor } from 'meteor/meteor';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { withTracker } from 'meteor/react-meteor-data';
-import { Button, Table } from 'semantic-ui-react';
+import { Button, Table, Grid } from 'semantic-ui-react';
 import Moment from 'moment/moment';
 import {
   Charts, ChartContainer, ChartRow, YAxis, LineChart, Resizable,
 } from 'react-timeseries-charts';
 import { TimeRange, TimeSeries } from 'pondjs';
+import { CSVLink } from 'react-csv';
 
 import { getBoxEvent } from '../../../api/box-events/BoxEventsCollectionMethods';
 import { getEventData } from '../../../api/fs-files/FSFilesCollectionMethods';
@@ -35,7 +37,7 @@ class EventSummary extends React.Component {
     const { event } = this.props;
     const { waveforms, waveformsVisible } = this.state;
     return (
-      <Table key={event.event_id} celled>
+      <Table key={event.event_id} celled stackable>
         <Table.Body>
           <Table.Row>
             <Table.Cell>
@@ -65,7 +67,19 @@ class EventSummary extends React.Component {
                         active={waveformsVisible[boxID]}/>
               ))}
               <br/>
-              {waveforms.map(waveform => this.renderChart(waveform))}
+              {waveforms.map(waveform => (waveformsVisible[waveform.boxID] ? (
+                <Grid stackable key={waveform.boxID}>
+                  <Grid.Column width={14}>
+                    {this.renderChart(waveform)}
+                  </Grid.Column>
+                  <Grid.Column width={2}>
+                    Download:<br/>
+                    <Button as={CSVLink} content='CSV' size='small'
+                            filename={`Event ${event.event_id} Box ${waveform.boxID}.csv`}
+                            data={waveform.raw_voltages.map(item => [item])} />
+                  </Grid.Column>
+                </Grid>
+              ) : ''))}
             </Table.Cell>
           </Table.Row>
         </Table.Body>
@@ -80,63 +94,64 @@ class EventSummary extends React.Component {
 
     if (waveformsVisible[boxID] === undefined) {
       getBoxEvent.call({ event_id: eventID, box_id: boxID }, (error, boxEvent) => {
-        getEventData.call({ filename: boxEvent.data_fs_filename }, (error, waveform) => {
-          waveforms.push({ boxID, data: waveform, windows: boxEvent.window_timestamps_ms });
-          this.setState({ waveforms });
-        });
-      });
-    }
+        if (error) console.log(error);
+        else {
+          getEventData.call({ filename: boxEvent.data_fs_filename }, (e, waveform) => {
+            if (e) console.log(e);
+            else {
+              const calibration_constant = this.props.calibration_constants[boxID];
+              const raw_voltages = waveform.map(raw_measurement => raw_measurement / calibration_constant);
+              const timestamps = boxEvent.window_timestamps_ms;
+              const timestampedVoltages = [];
 
-    waveformsVisible[boxID] = !waveformsVisible[boxID];
-    this.setState({ waveformsVisible });
+              for (let i = 0; i < timestamps.length - 1; i++) {
+                const start = timestamps[i];
+                const end = timestamps[i + 1];
+                const difference = end - start;
+                const step = difference / 200;
+                for (let n = 0; n < 200; n++) {
+                  timestampedVoltages.push([start + (n * step), raw_voltages[(200 * i) + n]]);
+                }
+              }
+
+              const series = new TimeSeries({
+                name: 'waveform',
+                columns: ['time', 'value'],
+                points: timestampedVoltages,
+              });
+
+              waveforms.push({ boxID, series, raw_voltages });
+              waveforms.sort((a, b) => a.boxID - b.boxID);
+              waveformsVisible[boxID] = true;
+              this.setState({ waveforms, waveformsVisible });
+            }
+          });
+        }
+      });
+    } else {
+      waveformsVisible[boxID] = !waveformsVisible[boxID];
+      this.setState({ waveformsVisible });
+    }
   };
 
   renderChart = waveform => {
-    const { waveformsVisible } = this.state;
-    const { boxID, data } = waveform;
-
-    const calibration_constant = this.props.calibration_constants[boxID];
-    const raw_voltages = data.map(raw_measurement => raw_measurement / calibration_constant);
-
-    const timestamps = waveform.windows;
-
-    const timestampedWaveform = [];
-    let start, end, difference, step;
-
-    // Assign timestamps to voltages.
-    for (let i = 0; i < timestamps.length - 1; i++) {
-      start = timestamps[i];
-      end = timestamps[i + 1];
-      difference = end - start;
-      step = difference / 200;
-      for (let n = 0; n < 200; n++) {
-        timestampedWaveform.push([start + n * step, raw_voltages[200 * i + n]]);
-      }
-    }
-
-    console.log(timestampedWaveform);
-    const waveform_series = new TimeSeries({
-      name: 'waveform',
-      columns: ['time', 'value'],
-      points: timestampedWaveform,
-    });
+    const { boxID, series } = waveform;
     const style = { value: { normal: { stroke: 'green' } } };
-
-    return waveformsVisible[boxID] ? (
-      <Resizable key={boxID}>
+    return (
+      <Resizable>
         <ChartContainer timeRange={this.state.timeRange} enablePanZoom minDuration={60000 * 3}
                         onTimeRangeChanged={timeRange => this.setState({ timeRange })}
                         minTime={new Date(this.state.start)} maxTime={new Date(this.state.end)}>
           <ChartRow height={100}>
             <YAxis id='voltage' format={n => n.toFixed(2)} label={`Box ${boxID}`} labelOffset={-10}
-                   width={60} min={Math.min(...raw_voltages)} max={Math.max(...raw_voltages)}/>
+                   width={60} min={series.min()} max={series.max()}/>
             <Charts>
-              <LineChart axis='voltage' series={waveform_series} style={style}/>;
+              <LineChart axis='voltage' series={series} style={style}/>
             </Charts>
           </ChartRow>
         </ChartContainer>
       </Resizable>
-    ) : '';
+    );
   };
 }
 

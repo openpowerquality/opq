@@ -1,7 +1,8 @@
+import { Meteor } from 'meteor/meteor';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { withTracker } from 'meteor/react-meteor-data';
-import { Grid, Input, Button, Dropdown, Loader, Table } from 'semantic-ui-react';
+import { Grid, Input, Button, Dropdown, Loader } from 'semantic-ui-react';
 import Moment from 'moment/moment';
 
 import WidgetPanel from '../../layouts/WidgetPanel';
@@ -22,7 +23,7 @@ class EventInspector extends React.Component {
       end: end.format('YYYY-MM-DDTHH:mm'),
       loading: false,
       loaded: false,
-      selectedBoxes: ['2'],
+      selectedBoxes: [],
       events: [],
     };
   }
@@ -34,6 +35,9 @@ class EventInspector extends React.Component {
   <p>Start and End: Select a starting and ending date/time to search between.</p>
   
   <p>Boxes: select one or more boxes whose events you are interested in.</p>
+  
+  <p>For each event listed, the labeled buttons can be clicked to generate a graph with the waveform at the time of the
+  event, for that box.</p>
   `;
 
   render() {
@@ -54,7 +58,7 @@ class EventInspector extends React.Component {
                         placeholder='Boxes'
                         options={this.props.boxIDs.map(boxID => ({ text: `Box ${boxID}`, value: boxID }))}
                         onChange={this.changeSelectedBoxes}
-                        defaultValue={this.state.selectedBoxes}/>
+                        value={this.state.selectedBoxes}/>
             </Grid.Column>
             <Grid.Column width={3}>
               <Button content='Submit' fluid onClick={this.getEvents}/>
@@ -83,19 +87,21 @@ class EventInspector extends React.Component {
 
   changeStart = (event, data) => { this.setState({ start: data.value }); };
   changeEnd = (event, data) => { this.setState({ end: data.value }); };
-  changeSelectedBoxes = (event, data) => { this.setState({ selectedBoxes: data.value }); };
+  changeSelectedBoxes = (event, data) => { this.setState({ selectedBoxes: data.value.sort() }); };
 
   getEvents = () => {
     const { selectedBoxes, start, end } = this.state;
     this.setState({ loading: true }, () => {
-      getEventsInRange.call({
+      getEventsInRange.call(
+        {
           boxIDs: selectedBoxes,
           startTime_ms: Moment(start).valueOf(),
           endTime_ms: Moment(end).valueOf(),
         },
         (error, events) => {
           this.setState({ events, loading: false, loaded: true });
-        });
+        },
+      );
     });
   };
 }

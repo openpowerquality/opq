@@ -44,7 +44,7 @@ class LiveTrendDataManager extends React.Component {
   }
 
   /** Updates the state based on changes to props. */
-  componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
     if (nextProps.length !== this.state.length) {
       this.setState({
         timeRange: nextProps.timeRange,
@@ -110,8 +110,6 @@ class LiveTrendDataManager extends React.Component {
     const wholeDataSet = [];
     graphData.forEach(set => { set.data.forEach(point => { wholeDataSet.push(point[1]); }); });
     reference.forEach(value => { wholeDataSet.push(value); });
-
-    console.log(graphData[0]);
 
     return (
       <div>

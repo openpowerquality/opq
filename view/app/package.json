@@ -15,6 +15,7 @@
     "react": "^16.3.2",
     "react-addons-pure-render-mixin": "^15.6.2",
     "react-calendar": "^2.14.0",
+    "react-csv": "^1.0.14",
     "react-dom": "^16.3.2",
     "react-meteor-data": "^0.2.11",
     "react-router": "^4.2.0",

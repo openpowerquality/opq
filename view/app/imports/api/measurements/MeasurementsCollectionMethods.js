@@ -193,6 +193,6 @@ export const getLatestMeasurement = new ValidatedMethod({
   name: 'Measurements.getLatestMeasurement',
   validate: new SimpleSchema().validator({ clean: true }),
   run() {
-    return Measurements.findOne({}, { sort: { timestamp_ms: -1 }});
-  }
+    return Measurements.findOne({}, { sort: { timestamp_ms: -1 } });
+  },
 });
