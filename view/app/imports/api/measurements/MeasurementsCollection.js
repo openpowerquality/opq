@@ -112,7 +112,7 @@ class MeasurementsCollection extends BaseCollection {
             {
               fields: { _id: 1, timestamp_ms: 1, voltage: 1, frequency: 1, thd: 1, box_id: 1 },
               sort: { timestamp_ms: -1 },
-              limit: 20,
+              limit: boxIds.length * 2, // Should safely ensure the query returns measurements for all requested boxes.
               pollingIntervalMs: 1000,
             },
         );
