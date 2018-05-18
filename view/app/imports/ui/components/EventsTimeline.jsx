@@ -35,7 +35,6 @@ class EventsTimeline extends React.Component {
   }
 
   renderPage() { // eslint-disable-line class-methods-use-this
-
     const numEvents = this.props.events.length;
     // Start with the list of event types:
     const eventTypes = Events.eventTypes;
@@ -78,27 +77,33 @@ class EventsTimeline extends React.Component {
 
     const divStyle = { paddingLeft: '20px', paddingRight: '20px' };
     const title = `Events Timeline (most recent ${numEvents} events)`;
-    return (
-        <WidgetPanel title={title} helpText={this.helpText}>
-          <div style={divStyle}>
-            <Resizable>
-              <ChartContainer
-                  enablePanZoom={true}
-                  timeRange={this.state.timerange || series.range() }
-                  onTimeRangeChanged={timerange => this.setState({ timerange })}>
-                <ChartRow height='150'>
-                  <YAxis id='num-events' label='Num Events' min={0} max={maxYAxis} width='70' type='linear'/>
-                  <Charts>
-                    <BarChart axis='num-events' style={style} spacing={1} columns={eventTypes} series={series}
-                              minBarHeight={1} />
-                  </Charts>
-                </ChartRow>
-              </ChartContainer>
-            </Resizable>
-            <Legend categories={legendCategories} style={style} type='swatch' />
-          </div>
-        </WidgetPanel>
-    );
+    return numEvents ?
+        (
+            <WidgetPanel title={title} helpText={this.helpText}>
+              <div style={divStyle}>
+                <Resizable>
+                  <ChartContainer
+                      enablePanZoom={true}
+                      timeRange={this.state.timerange || series.range()}
+                      onTimeRangeChanged={timerange => this.setState({ timerange })}>
+                    <ChartRow height='150'>
+                      <YAxis id='num-events' label='Num Events' min={0} max={maxYAxis} width='70' type='linear'/>
+                      <Charts>
+                        <BarChart axis='num-events' style={style} spacing={1} columns={eventTypes} series={series}
+                                  minBarHeight={1}/>
+                      </Charts>
+                    </ChartRow>
+                  </ChartContainer>
+                </Resizable>
+                <Legend categories={legendCategories} style={style} type='swatch'/>
+              </div>
+            </WidgetPanel>
+        ) :
+        (
+            <WidgetPanel title={title} helpText={this.helpText}>
+              <p>No event data.</p>
+            </WidgetPanel>
+        );
   }
 }
 
@@ -106,6 +111,10 @@ class EventsTimeline extends React.Component {
 EventsTimeline.propTypes = {
   ready: PropTypes.bool.isRequired,
   events: PropTypes.array.isRequired,
+};
+
+EventsTimeline.defaultProps = {
+  events: [],
 };
 
 /** withTracker connects Meteor data to React components. https://guide.meteor.com/react.html#using-withTracker */

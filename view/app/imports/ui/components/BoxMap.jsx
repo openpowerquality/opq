@@ -1,5 +1,4 @@
 import React from 'react';
-import 'semantic-ui-css/semantic.css';
 import WidgetPanel from '../layouts/WidgetPanel';
 
 /** Display system statistics. */
