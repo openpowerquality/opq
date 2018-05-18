@@ -11,6 +11,7 @@ set -o xtrace
 
 # This installs mauka as a system service to be started at runtime
 cp scripts/mauka-service.sh /etc/init.d/mauka
+updaterc.d -f mauka remove
 update-rc.d mauka defaults
 
 # Convenience shortcut for accessing mauka command line interface
