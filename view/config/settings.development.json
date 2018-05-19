@@ -16,7 +16,7 @@
       "location": "UHM-POST-307", "location_start_time_ms": "2017-04-16 13:00:00"},
 
     { "box_id": "4", "name": "Unknown", "description": "Version 2.8, 2017", "calibration_constant": 146.46,
-      "location": "Honolulu-004", "location_start_time_ms": "2017-04-16 13:00:00"},
+      "location": "Honolulu-004", "location_start_time_ms": "2017-04-16 13:00:00", "unplugged": true},
 
     { "box_id": "5", "name": "Kailua, Residence", "description": "Version 2.8, 2017", "calibration_constant": 146.5,
       "location": "Kailua-001", "location_start_time_ms": "2018-01-10 13:00:00",
