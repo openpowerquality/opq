@@ -2,6 +2,6 @@
      User Global Variables
 *******************************/
 
-/* In site.variables */
 @smallMonitorBreakpoint : 1200px;
 @largeMonitorBreakpoint : 1500px;
+

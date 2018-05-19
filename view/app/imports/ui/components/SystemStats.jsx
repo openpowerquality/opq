@@ -59,12 +59,12 @@ class SystemStatistics extends React.Component {
     const toDateItems = [
       { key: '1', label: 'Trends', value: formatted(stat.trends_count) },
       { key: '2', label: 'Events', value: formatted(stat.events_count) },
-      { key: '3', label: 'Measurements', value: formatted(stat.measurements_count) },
+      { key: '3', label: 'Measures', value: formatted(stat.measurements_count) },
     ];
     const todayItems = [
       { key: '1', label: 'Trends', value: formatted(stat.trends_count_today) },
       { key: '2', label: 'Events', value: formatted(stat.events_count_today) },
-      { key: '3', label: 'Measurements', value: stat.measurements_count_today },
+      { key: '3', label: 'Measures', value: stat.measurements_count_today },
     ];
     const divStyle = { paddingLeft: '10px', paddingRight: '10px' };
     const divStyle2 = { paddingLeft: '10px', paddingRight: '10px', marginTop: '5px' };
