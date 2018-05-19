@@ -4,7 +4,7 @@
   "integrityCheckCollections": ["fs.files", "fs.chunks", "trends", "measurements", "events", "box_events", "opq_boxes"],
   "dbRestoreFilename": "",
   "systemStatsUpdateIntervalSeconds": 10,
-  "initializeEntities": false,
+  "initializeEntities": true,
   "opqBoxes" : [
     { "box_id": "1", "name": "Kalihi, Residence", "description": "Version 2.5?, 2016", "calibration_constant": 152.1,
       "location": "Kalihi-001", "location_start_time_ms": "2017-05-15 13:00:00" },
