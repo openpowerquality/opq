@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Meteor } from 'meteor/meteor';
-//import 'semantic-ui-css/semantic.css';
 import { HashRouter as Router, Route, Switch, Redirect } from 'react-router-dom';
 import { Roles } from 'meteor/alanning:roles';
 
