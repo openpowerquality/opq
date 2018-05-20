@@ -5,6 +5,7 @@ import { _ } from 'lodash';
 import SimpleSchema from 'simpl-schema';
 import BaseCollection from '../base/BaseCollection';
 import { BoxOwners } from './BoxOwnersCollection';
+import { ROLE } from '../opq/Role';
 
 /**
  * User Profiles (first and last name, role, and username (email).
@@ -46,7 +47,7 @@ class UserProfilesCollection extends BaseCollection {
       });
 
       // Role must be either 'user' or 'admin'.
-      if (role !== 'user' && role !== 'admin') {
+      if (role !== ROLE.USER && role !== ROLE.ADMIN) {
         throw new Meteor.Error('Invalid user role - must either be "user" or "admin"');
       }
 

@@ -1,6 +1,7 @@
 import { Meteor } from 'meteor/meteor';
 import { expect } from 'chai';
 import { UserProfiles } from './UserProfilesCollection';
+import { ROLE } from '../opq/Role';
 
 /* eslint prefer-arrow-callback: "off", no-unused-expressions: "off" */
 /* eslint-env mocha */
@@ -21,7 +22,7 @@ if (Meteor.isServer) {
       const lastName = 'Smith';
       const password = 'foo';
       const boxIds = ['1', '2'];
-      let role = 'admin';
+      let role = ROLE.ADMIN;
       const profileID = UserProfiles.define({ username, password, firstName, lastName, role, boxIds });
       expect(UserProfiles.isDefined(profileID)).to.be.true;
       // Check that we can update the username by calling define again.

@@ -3,7 +3,8 @@ import { Mongo } from 'meteor/mongo';
 import SimpleSchema from 'simpl-schema';
 import _ from 'lodash';
 import Moment from 'moment';
-
+import { Roles } from 'meteor/alanning:roles';
+import { ROLE } from '../opq/Role';
 
 /**
  * BaseCollection is an abstract superclass of all other collection classes.
@@ -206,6 +207,35 @@ class BaseCollection {
   remove(docID) {
     this._collection.remove(docID);
   }
+
+  /**
+   * Internal helper function to simplify definition of the assertValidRoleForMethod method.
+   * @param userId The userID.
+   * @param roles An array of roles.
+   * @throws { Meteor.Error } If userId is not defined or user is not in the specified roles.
+   * @returns True if no error is thrown.
+   * @ignore
+   */
+  _assertRole(userId, roles) {
+    if (!userId) {
+      throw new Meteor.Error('unauthorized', 'You must be logged in.');
+    } else
+      if (!Roles.userIsInRole(userId, roles)) {
+        throw new Meteor.Error('unauthorized', `You must be one of the following roles: ${roles}`);
+      }
+    return true;
+  }
+
+  /**
+   * Default implementation of assertValidRoleForMethod. Asserts that userId is logged in as an Admin.
+   * This function should be invoked by all Meteor Methods to assure that the method is invoked by an authorized user.
+   * @param userId The userId of the logged in user. Can be null or undefined
+   * @throws { Meteor.Error } If there is no logged in user, or the user is not an Admin or Advisor.
+   */
+  assertValidRoleForMethod(userId) {
+    this._assertRole(userId, [ROLE.ADMIN]);
+  }
+
 }
 
 export default BaseCollection;

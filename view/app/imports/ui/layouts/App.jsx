@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { Meteor } from 'meteor/meteor';
 import { HashRouter as Router, Route, Switch, Redirect } from 'react-router-dom';
 import { Roles } from 'meteor/alanning:roles';
+import { ROLE } from '../../api/opq/Role';
 
 // Pages
 import NavBar from '../../ui/components/NavBar.jsx';
@@ -77,7 +78,7 @@ const AdminProtectedRoute = ({ component: Component, ...rest }) => (
     {...rest}
     render={(props) => {
       const isLogged = Meteor.userId() !== null;
-      const isAdmin = Roles.userIsInRole(Meteor.userId(), 'admin');
+      const isAdmin = Roles.userIsInRole(Meteor.userId(), ROLE.ADMIN);
       // For some reason, on browser refresh, isAdmin returns false even when logged in as admin.
       // So, admins go to the signin page on browser refresh even though they are logged in. Weird.
       return (isLogged && isAdmin) ?
