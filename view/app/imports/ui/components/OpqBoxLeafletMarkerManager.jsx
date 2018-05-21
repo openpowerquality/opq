@@ -36,6 +36,7 @@ class OpqBoxLeafletMarkerManager extends React.Component {
 
   componentWillReceiveProps(nextProps) {
     const { opqBoxes } = nextProps;
+
     // Whenever new box measurements are received via props, we must update Markers.
     opqBoxes.forEach(box => {
       // Create new Marker if does not yet exist, or update existing marker with new data.
@@ -260,6 +261,8 @@ class OpqBoxLeafletMarkerManager extends React.Component {
     // 3. From the Ref callback, add a 'markerLeafletElement' property to the entry for the newly created Marker.
     this.createOrUpdateOpqBoxAndMarkersDictEntry(opqBox._id.toHexString(), { opqBox });
     const initialMarkerHtml = `<div><b>${opqBox.name}</div>`;
+    const markerPosition = this.getOpqBoxLocation(opqBox);
+    console.log('markerposition: ', opqBox, markerPosition);
     const newMarker = <Marker
                         ref={this.addMarkerLeafletElementToDict.bind(this)(opqBox)}
                         // icon={this.opqBoxIcon(initialMarkerHtml)}
@@ -267,9 +270,8 @@ class OpqBoxLeafletMarkerManager extends React.Component {
                         key={opqBox._id}
                         rawValue=''
                         formattedValue=''
-                        position={zipcodeLatLngDict[opqBox.locations[opqBox.locations.length - 1].zipcode]
-                                  || [25.0, -71.0]}>
-                        <Popup offset={[-10, -30]}>
+                        position={markerPosition}>
+                        <Popup offset={[-10, -30]} maxWidth={300}>
                           {this.popupContents(opqBox)}
                         </Popup>
                       </Marker>;
@@ -277,24 +279,56 @@ class OpqBoxLeafletMarkerManager extends React.Component {
     this.createOrUpdateOpqBoxAndMarkersDictEntry(opqBox._id.toHexString(), { marker: newMarker });
   }
 
+  getOpqBoxLocation(opqBox) {
+    const { zipcodeLatLngDict } = this.props;
+    console.log('Zipcdoe Dict ', zipcodeLatLngDict);
+    if (opqBox.locations) {
+      const latlng = zipcodeLatLngDict[opqBox.locations[opqBox.locations.length - 1].zipcode];
+      console.log(latlng);
+      // In rare cases, opqBox will have a zipcode, but its an invalid one and thus not in our zipcodeDict.
+      return latlng || [25.0, -71.0];
+    }
+    return [25.0, -71.0]; // Temporary location for marker if no location information available.
+  }
+
   popupContents(opqBox) {
     return (
-        <List divided>
+        <List divided style={{ width: '250px' }}>
           <List.Item>
-            <List.Icon name='disk outline' />
-            <List.Content>Name: {opqBox.name}</List.Content>
+            <List.Icon name='disk outline' color='blue' size='large' verticalAlign='middle' />
+            <List.Content>
+              <List.Header><i>Box Name</i></List.Header>
+              <List.Description>{opqBox.name}</List.Description>
+            </List.Content>
           </List.Item>
           <List.Item>
-            <List.Icon name='marker' />
-            <List.Content>Location: {opqBox.locations[opqBox.locations.length - 1].zipcode.toString()}</List.Content>
+            <List.Icon name='marker' color='blue' size='large' verticalAlign='middle' />
+            <List.Content>
+              <List.Header><i>Location</i></List.Header>
+              <List.Description>UH Manoa Holmes Hall 314</List.Description>
+              <List.Description>{this.getOpqBoxLocation(opqBox).toString()}</List.Description>
+            </List.Content>
           </List.Item>
           <List.Item>
-            <List.Icon name='tag' />
-            <List.Content>Description: {opqBox.description}</List.Content>
+            <List.Icon name='tag' color='blue' size='large' verticalAlign='middle' />
+            <List.Content>
+              <List.Header><i>Description</i></List.Header>
+              <List.Description>{opqBox.description}</List.Description>
+            </List.Content>
           </List.Item>
           <List.Item>
-            <List.Icon name='plug' />
-            <List.Content>Unplugged Status: {opqBox.unplugged.toString()}</List.Content>
+            <List.Icon name='plug' color='blue' size='large' verticalAlign='middle' />
+            <List.Content>
+              <List.Header><i>Unplugged Status</i></List.Header>
+              <List.Description>{opqBox.unplugged.toString()}</List.Description>
+            </List.Content>
+          </List.Item>
+          <List.Item>
+            <List.Icon name='creative commons' color='blue' size='large' verticalAlign='middle' />
+            <List.Content>
+              <List.Header><i>Calibration Constant</i></List.Header>
+              <List.Description>{opqBox.calibration_constant}</List.Description>
+            </List.Content>
           </List.Item>
         </List>
     );
@@ -316,6 +350,16 @@ class OpqBoxLeafletMarkerManager extends React.Component {
     });
   }
 
+  zoomToMarker(box_id) {
+    const { opqBoxAndMarkersDict } = this.state;
+    // Retrieve Marker for the given OpqBox
+    const marker = opqBoxAndMarkersDict[box_id].markerLeafletElement;
+    // Zoom to marker, open its Popup
+    this.markerClusterGroupRefElem.zoomToShowLayer(marker, () => {
+      marker.openPopup(); // Trigger marker's Popup after zoom is completed.
+    });
+  }
+
   render() {
     // Render when props are ready and Markers have been created.
     return (this.props.ready && this.getMarkers().length)
@@ -323,9 +367,19 @@ class OpqBoxLeafletMarkerManager extends React.Component {
         : <Loader active content='Retrieving data...'/>;
   }
 
+  markerClusterGroupRef(elem) {
+    // Ensure we only set this once.
+    if (!this.markerClusterGroupRefElem && elem) {
+      // console.log('ScrollableControl ref elem: ', elem);
+      this.markerClusterGroupRefElem = elem.leafletElement; // Just store the leaflet element itself.
+      console.log('Adding markerClusterGroupRefElem: ', elem);
+    }
+  }
+
   renderPage() {
     return (
         <MarkerClusterGroup
+            ref={this.markerClusterGroupRef.bind(this)}
             animate={true}
             spiderfyDistanceMultiplier={3}
             iconCreateFunction={this.clusterIcon.bind(this)}
@@ -347,7 +401,7 @@ OpqBoxLeafletMarkerManager.propTypes = {
 };
 
 export default withTracker(props => {
-  const { opqBoxes = [], zipcodeLatLngDict } = props;
+  const { opqBoxes = [], zipcodeLatLngDict, childRef } = props;
   const measurementsSub = Meteor.subscribe(
       Measurements.publicationNames.BOX_MAP_MEASUREMENTS,
       opqBoxes.map(box => box.box_id),
@@ -357,5 +411,6 @@ export default withTracker(props => {
     opqBoxes,
     zipcodeLatLngDict,
     measurements: Measurements.find({}, { sort: { timestamp_ms: -1 } }).fetch(),
+    ref: childRef,
   };
 })(OpqBoxLeafletMarkerManager);
