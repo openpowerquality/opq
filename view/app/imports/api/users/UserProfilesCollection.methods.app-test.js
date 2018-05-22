@@ -1,5 +1,6 @@
 import { Meteor } from 'meteor/meteor';
-import { defineMethod, removeItMethod, updateMethod } from '../base/BaseCollection.methods';
+import { expect } from 'chai';
+import { defineMethod, removeMethod, updateMethod } from '../base/BaseCollection.methods';
 import { UserProfiles } from './UserProfilesCollection';
 import { withOpqSubscriptions, withLoggedInUser } from '../test/test-utilities';
 import { ROLE } from '../opq/Role';
@@ -16,25 +17,30 @@ if (Meteor.isClient) {
     const password = 'foo';
     const role = ROLE.ADMIN;
 
-    // before(function (done) {
-    //   defineTestFixturesMethod.call(['minimal'], done);
-    // });
-
-    it('Define Method', async function () {
+    before(async function () {
+      // defineTestFixturesMethod.call(['minimal'], done);
       await withLoggedInUser();
       await withOpqSubscriptions();
+    });
+
+    it('Define Method', async function () {
       const definitionData = { username, firstName, lastName, role, password };
-      await defineMethod.callPromise({ collectionName, definitionData });
+      const docID = await defineMethod.callPromise({ collectionName, definitionData });
+      expect(docID).to.exist;
     });
 
     it('Update Method', async function () {
       const id = UserProfiles.findByUsername(username)._id;
-      await updateMethod.callPromise({ collectionName, updateData: { id, firstName: 'Nikolai' } });
+      const newFirstName = 'Nikolai';
+      const update = await updateMethod.callPromise({ collectionName, updateData: { id, firstName: newFirstName } });
+      expect(update.firstName).to.equal(newFirstName);
     });
 
     it('Remove Method', async function () {
-      const id = UserProfiles.findByUsername(username)._id;
-      await removeItMethod.callPromise({ collectionName, id });
+      const docID = UserProfiles.findByUsername(username)._id;
+      const result = await removeMethod.callPromise({ collectionName, docID });
+      expect(result).to.be.true;
+      expect(() => UserProfiles.findByUsername(username)).to.throw();
     });
   });
 }
