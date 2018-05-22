@@ -102,7 +102,7 @@ export default withTracker(({ boxID }) => {
   const end = Moment().valueOf();
   const timeRange = new TimeRange([start, end]);
 
-  const sub = Meteor.subscribe('recent_measurements', 30, boxID);
+  const sub = Meteor.subscribe(Measurements.publicationNames.RECENT_MEASUREMENTS, 30, boxID);
   const measurementData = Measurements.find({
     timestamp_ms: { $gte: start },
     box_id: boxID,

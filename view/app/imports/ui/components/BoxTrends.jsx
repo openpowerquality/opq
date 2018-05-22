@@ -280,7 +280,7 @@ BoxTrends.propTypes = {
 
 
 export default withTracker(() => {
-  const sub = Meteor.subscribe('opq_boxes');
+  const sub = Meteor.subscribe(OpqBoxes.getPublicationName());
   return {
     ready: sub.ready(),
     boxIDs: OpqBoxes.find().fetch().map(box => box.box_id).sort(),

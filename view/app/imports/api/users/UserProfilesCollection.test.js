@@ -16,7 +16,7 @@ if (Meteor.isServer) {
       UserProfiles.removeAll();
     });
 
-    it('#define, #isDefined, #findBoxIds, #findDoc, #findOne, #remove, #dumpOne, #restoreOne', function test() {
+    it('#define, #isDefined, #findBoxIds, #findDoc, #findOne, #remove', function test() {
       const username = 'opq@hawaii.edu';
       const firstName = 'John';
       const lastName = 'Smith';
@@ -34,14 +34,6 @@ if (Meteor.isServer) {
       const profile = UserProfiles.findOne({ username });
       expect(profile).to.exist;
       expect(profile.role).to.equal(role);
-
-      // Check dump and restore.
-      const dumpObject = UserProfiles.dumpOne(profileID);
-      expect(UserProfiles.remove(dumpObject.username)).to.be.true;
-      expect(UserProfiles.isDefined(profileID)).to.be.false;
-      UserProfiles.restoreOne(_.extend(dumpObject, { password }));
-      const id = UserProfiles.findOne({ username })._id;
-      expect(UserProfiles.isDefined(id)).to.be.true;
     });
   });
 }

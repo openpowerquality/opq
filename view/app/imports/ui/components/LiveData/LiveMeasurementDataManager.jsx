@@ -81,7 +81,7 @@ LiveMeasurementDataManager.propTypes = {
 
 /** withTracker connects Meteor data to React components. https://guide.meteor.com/react.html#using-withTracker */
 export default withTracker(() => {
-  const sub = Meteor.subscribe('BoxOwners');
+  const sub = Meteor.subscribe(BoxOwners.getPublicationName());
   return {
     ready: sub.ready(),
     boxIDs: Meteor.user() ? BoxOwners.findBoxIdsWithOwner(Meteor.user().username).sort() : undefined,

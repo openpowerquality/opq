@@ -3,17 +3,13 @@ import { Mongo } from 'meteor/mongo';
 import { check, Match } from 'meteor/check';
 import SimpleSchema from 'simpl-schema';
 import BaseCollection from '../base/BaseCollection.js';
-import { progressBarSetup } from '../../modules/utils';
 
 /**
- * Collection class for the events collection.
- * Docs: https://open-power-quality.gitbooks.io/open-power-quality-manual/content/datamodel/description.html#events
+ * The Events collection stores abnormal PQ data detected by the system.
+ * @see {@link https://openpowerquality.org/docs/cloud-datamodel.html#events}
  */
 class EventsCollection extends BaseCollection {
 
-  /**
-   * Creates the collection.
-   */
   constructor() {
     super('events', new SimpleSchema({
       _id: { type: Mongo.ObjectID },
@@ -28,18 +24,20 @@ class EventsCollection extends BaseCollection {
       'latencies_ms.$': Number,
     }));
 
-    this.eventTypes = ['FREQUENCY_SAG', 'FREQUENCY_SWELL', 'VOLTAGE_SAG', 'VOLTAGE_SWELL', 'THD', 'OTHER'];
     this.FREQUENCY_SAG_TYPE = 'FREQUENCY_SAG';
     this.FREQUENCY_SWELL_TYPE = 'FREQUENCY_SWELL';
     this.VOLTAGE_SAG_TYPE = 'VOLTAGE_SAG';
     this.VOLTAGE_SWELL_TYPE = 'VOLTAGE_SWELL';
     this.THD_TYPE = 'THD';
     this.OTHER_TYPE = 'OTHER';
+    this.eventTypes = [this.FREQUENCY_SAG_TYPE, this.FREQUENCY_SWELL_TYPE, this.VOLTAGE_SAG_TYPE,
+      this.VOLTAGE_SWELL_TYPE, this.THD_TYPE, this.OTHER_TYPE];
 
     this.publicationNames = {
       GET_EVENTS: 'get_events',
       GET_RECENT_EVENTS: 'get_recent_events',
     };
+
     if (Meteor.server) {
       this._collection.rawCollection().createIndex({ target_event_start_timestamp_ms: 1 }, { background: true });
     }
@@ -60,51 +58,6 @@ class EventsCollection extends BaseCollection {
       target_event_start_timestamp_ms, target_event_end_timestamp_ms, latencies_ms });
     return docID;
   }
-
-  /**
-   * Returns an object representing a single Event.
-   * @param {Object} docID - The Mongo.ObjectID of the Event.
-   * @returns {Object} - An object representing a single Event.
-   */
-  dumpOne(docID) {
-    /* eslint-disable camelcase */
-    const doc = this.findDoc(docID);
-    const event_id = doc.event_id;
-    const type = doc.type;
-    const description = doc.description;
-    const boxes_triggered = doc.boxes_triggered;
-    const boxes_received = doc.boxes_received;
-    const target_event_start_timestamp_ms = doc.target_event_start_timestamp_ms;
-    const target_event_end_timestamp_ms = doc.target_event_end_timestamp_ms;
-    const latencies_ms = doc.latencies_ms;
-
-    return { event_id, type, description, boxes_triggered, boxes_received,
-      target_event_start_timestamp_ms, target_event_end_timestamp_ms, latencies_ms };
-    /* eslint-enable camelcase */
-  }
-
-  checkIntegrity() {
-    const problems = [];
-    const totalCount = this.count();
-    const validationContext = this.getSchema().namedContext('eventsIntegrity');
-    const pb = progressBarSetup(totalCount, 2000, `Checking ${this._collectionName} collection: `);
-
-    this.find().forEach((doc, index) => {
-      pb.updateBar(index); // Update progress bar.
-
-      // Validate each document against the collection schema.
-      validationContext.validate(doc);
-      if (!validationContext.isValid()) {
-        // eslint-disable-next-line max-len
-        problems.push(`Events document failed schema validation: ${doc._id} (Invalid keys: ${JSON.stringify(validationContext.invalidKeys(), null, 2)})`);
-      }
-      validationContext.resetValidation();
-    });
-
-    pb.clearInterval();
-    return problems;
-  }
-
 
   /**
    * Loads all publications related to this collection.

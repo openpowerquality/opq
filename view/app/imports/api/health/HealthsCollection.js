@@ -1,13 +1,12 @@
 import SimpleSchema from 'simpl-schema';
 import BaseCollection from '../base/BaseCollection.js';
 
-/* eslint-disable indent */
-
+/**
+ * The OPQHealth service creates documents representing its findings on the current health of the system.
+ * @see {@link https://openpowerquality.org/docs/cloud-datamodel.html#health}
+ */
 class HealthsCollection extends BaseCollection {
 
-  /**
-   * Creates the System Stats collection.
-   */
   constructor() {
     super('health', new SimpleSchema({
       info: String,
@@ -16,15 +15,6 @@ class HealthsCollection extends BaseCollection {
       status: String,
       serviceID: String,
     }));
-  }
-
-  /**
-   * Not currently checking integrity for this collection.
-   * @returns {Array}
-   */
-  checkIntegrity() { // eslint-disable-line
-    const problems = [];
-    return problems;
   }
 }
 

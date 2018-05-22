@@ -1,4 +1,3 @@
-import { _ } from 'meteor/erasaur:meteor-lodash';
 import { Meteor } from 'meteor/meteor';
 import { BoxEvents } from '../box-events/BoxEventsCollection';
 import { Events } from '../events/EventsCollection';
@@ -14,16 +13,15 @@ import { Trends } from '../trends/TrendsCollection';
 import { BoxOwners } from '../users/BoxOwnersCollection';
 import { UserProfiles } from '../users/UserProfilesCollection';
 
-
 /**
+ * The OPQ class instance provides meta-data about the structure of the OPQ database, including the names and
+ * instances of all collections in the system. It is particularly useful for testing.
  * @memberOf api/opq
  */
 class OpqClass {
 
   constructor() {
-    /**
-     * A list of all OPQ API collections in alphabetical order.
-     */
+    // A list of all OPQ API collections in alphabetical order.
     this.collections = [
       BoxEvents,
       Events,
@@ -40,9 +38,18 @@ class OpqClass {
       UserProfiles,
     ];
 
-    /**
-     * An object with keys equal to the collection name and values the associated collection instance.
-     */
+    // A list of OPQ collections in the order they should be loaded from a fixture file.
+    this.collectionLoadSequence = [
+        Locations,
+        Regions,
+        OpqBoxes,
+        UserProfiles,
+        Events,
+        BoxEvents,
+        Trends,
+    ];
+
+    // An object with keys equal to the collection name and values the associated collection instance.
     this.collectionAssociation = {};
     _.forEach(this.collections, collection => {
       this.collectionAssociation[collection._collectionName] = collection;

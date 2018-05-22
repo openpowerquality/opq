@@ -161,7 +161,7 @@ EventSummary.propTypes = {
 };
 
 export default withTracker(() => {
-  Meteor.subscribe('opq_boxes');
+  Meteor.subscribe(OpqBoxes.getPublicationName());
   return {
     calibration_constants: Object.assign(...OpqBoxes.find().fetch().map(box => (
       { [box.box_id]: box.calibration_constant }

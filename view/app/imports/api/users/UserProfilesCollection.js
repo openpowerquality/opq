@@ -10,13 +10,10 @@ import { ROLE } from '../opq/Role';
 /**
  * User Profiles (first and last name, role, and username (email).
  * To create a new User, call UserProfiles.define(), which both defines the profile and creates the Meteor.user.
- * Docs: https://open-power-quality.gitbooks.io/open-power-quality-manual/content/datamodel/description.html#users
+ * @see {@link https://openpowerquality.org/docs/cloud-datamodel.html#users}
  */
 class UserProfilesCollection extends BaseCollection {
 
-  /**
-   * Creates the User Profiles collection.
-   */
   constructor() {
     super('UserProfiles', new SimpleSchema({
       username: String,
@@ -92,20 +89,6 @@ class UserProfilesCollection extends BaseCollection {
       return profile;
     }
     throw new Meteor.Error(`Could not find profile corresponding to ${username}`);
-  }
-
-  /**
-   * Returns an object representing a single UserProfile.
-   * @param {Object} docID - The Mongo.ObjectID of the User.
-   * @returns {Object} - An object representing a single UserProfile.
-   */
-  dumpOne(docID) {
-    const doc = this.findDoc(docID);
-    const username = doc.username;
-    const firstName = doc.firstName;
-    const lastName = doc.lastName;
-    const role = doc.roles;
-    return { username, firstName, lastName, role };
   }
 
   /**

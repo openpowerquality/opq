@@ -6,14 +6,11 @@ import { Events } from '../events/EventsCollection';
 import { progressBarSetup } from '../../modules/utils';
 
 /**
- * Collection class for the box_events collection.
- * Docs: https://open-power-quality.gitbooks.io/open-power-quality-manual/content/datamodel/description.html#box_events
+ * BoxEvents provides event meta-data for a given OPQ Box.
+ * @see {@link https://openpowerquality.org/docs/cloud-datamodel.html#box-events}
  */
 class BoxEventsCollection extends BaseCollection {
 
-  /**
-   * Creates the collection.
-   */
   constructor() {
     super('box_events', new SimpleSchema({
       _id: { type: Mongo.ObjectID },
@@ -58,28 +55,6 @@ class BoxEventsCollection extends BaseCollection {
     return docID;
   }
 
-  /**
-   * Returns an object representing a single BoxEvent.
-   * @param {Object} docID - The Mongo.ObjectID of the BoxEvent.
-   * @returns {Object} - An object representing a single BoxEvent.
-   */
-  dumpOne(docID) {
-    /* eslint-disable camelcase */
-    const doc = this.findDoc(docID);
-    const event_id = doc.event_id;
-    const box_id = doc.box_id;
-    const event_start = doc.event_start;
-    const event_end = doc.event_end;
-    const window_timestamps = doc.window_timestamps;
-    const thd = doc.thd;
-    const itic = doc.itic;
-    const location = doc.location;
-    const data_fs_filename = doc.data_fs_filename;
-
-    return { event_id, box_id, event_start, event_end, window_timestamps, thd, itic, location, data_fs_filename };
-    /* eslint-enable camelcase */
-  }
-
   checkIntegrity() {
     const problems = [];
     const totalCount = this.count();
@@ -108,13 +83,8 @@ class BoxEventsCollection extends BaseCollection {
     return problems;
   }
 
-  /**
-   * Loads all publications related to this collection.
-   */
-  publish() { // eslint-disable-line class-methods-use-this
-    if (Meteor.isServer) { // eslint-disable-line no-empty
-    }
-  }
+  /** Publications for this collection are disabled. */
+  publish() { }
 }
 
 /**
