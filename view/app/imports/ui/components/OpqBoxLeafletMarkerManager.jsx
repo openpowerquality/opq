@@ -49,13 +49,13 @@ class OpqBoxLeafletMarkerManager extends React.Component {
   }
 
   updateMarker(opqBox) {
-    const { selectedMeasurementType } = this.props;
+    const { currentMapDataDisplay } = this.props;
     // Retrieve box's corresponding Marker leafletElement, and update it.
     const marker = this.state.opqBoxAndMarkersDict[opqBox._id.toHexString()].markerLeafletElement;
     if (marker) {
       const newestMeasurement = this.findNewestMeasurement(opqBox.box_id);
-      const rawMeasurementValue = this.filterSelectedMeasurementType(newestMeasurement, selectedMeasurementType, false);
-      const formattedMeasurement = this.filterSelectedMeasurementType(newestMeasurement, selectedMeasurementType, true);
+      const rawMeasurementValue = this.filterCurrentMapDataDisplay(newestMeasurement, currentMapDataDisplay, false);
+      const formattedMeasurement = this.filterCurrentMapDataDisplay(newestMeasurement, currentMapDataDisplay, true);
       const newOpts = marker.options; // Don't clone this; must modify the original options obj.
       newOpts.rawValue = rawMeasurementValue;
       newOpts.formattedValue = formattedMeasurement;
@@ -65,16 +65,16 @@ class OpqBoxLeafletMarkerManager extends React.Component {
     }
   }
 
-  filterSelectedMeasurementType(measurement, measurementType, format = false) {
-    const { measurementTypeEnum } = this.props;
+  filterCurrentMapDataDisplay(measurement, measurementType, format = false) {
+    const { mapDataDisplayTypes } = this.props;
     if (!measurement && format) return 'No Data';
     if (!measurement) return null;
     switch (measurementType) {
-      case measurementTypeEnum.VOLTAGE_LAYER:
+      case mapDataDisplayTypes.VOLTAGE_DATA:
         return (format) ? this.formatMeasurement(measurement.voltage, measurementType) : measurement.voltage;
-      case measurementTypeEnum.FREQUENCY_LAYER:
+      case mapDataDisplayTypes.FREQUENCY_DATA:
         return (format) ? this.formatMeasurement(measurement.frequency, measurementType) : measurement.frequency;
-      case measurementTypeEnum.THD_LAYER:
+      case mapDataDisplayTypes.THD_DATA:
         return (format) ? this.formatMeasurement(measurement.thd, measurementType) : measurement.thd;
       default:
         return (format) ? this.formatMeasurement(measurement.voltage, measurementType) : measurement.voltage;
@@ -82,13 +82,13 @@ class OpqBoxLeafletMarkerManager extends React.Component {
   }
 
   formatMeasurement(value, measurementType) {
-    const { measurementTypeEnum } = this.props;
+    const { mapDataDisplayTypes } = this.props;
     switch (measurementType) {
-      case measurementTypeEnum.VOLTAGE_LAYER:
+      case mapDataDisplayTypes.VOLTAGE_DATA:
         return `${value.toFixed(2)} V`;
-      case measurementTypeEnum.FREQUENCY_LAYER:
+      case mapDataDisplayTypes.FREQUENCY_DATA:
         return `${value.toFixed(3)} Hz`;
-      case measurementTypeEnum.THD_LAYER:
+      case mapDataDisplayTypes.THD_DATA:
         return `${value.toFixed(4)}`;
       default:
         return `${value.toFixed(2)} V`;
@@ -139,10 +139,10 @@ class OpqBoxLeafletMarkerManager extends React.Component {
   }
 
   opqBoxIcon({ markerHtml, opqBox }) {
-    const { selectedMeasurementType } = this.props;
+    const { currentMapDataDisplay } = this.props;
     const newestMeasurement = this.findNewestMeasurement(opqBox.box_id);
-    const selectedMeasurement = this.filterSelectedMeasurementType(newestMeasurement, selectedMeasurementType);
-    const quality = this.calculateDataQuality(selectedMeasurement);
+    const filteredMeasurement = this.filterCurrentMapDataDisplay(newestMeasurement, currentMapDataDisplay);
+    const quality = this.calculateDataQuality(filteredMeasurement);
     let className = 'opqBoxMarker '; // Note the trailing space.
     if (quality === 'good') {
       className += 'blue';
@@ -161,7 +161,7 @@ class OpqBoxLeafletMarkerManager extends React.Component {
   }
 
   clusterIcon(cluster) {
-    const { selectedMeasurementType = '' } = this.props;
+    const { currentMapDataDisplay = '' } = this.props;
     const children = cluster.getAllChildMarkers();
     let total = 0;
     let clusterActiveBoxesCount = children.length;
@@ -175,7 +175,7 @@ class OpqBoxLeafletMarkerManager extends React.Component {
     });
 
     const avg = (clusterActiveBoxesCount) ? total / clusterActiveBoxesCount : 0;
-    const formattedAvg = this.formatMeasurement(avg, selectedMeasurementType);
+    const formattedAvg = this.formatMeasurement(avg, currentMapDataDisplay);
     const className = this.clusterIconCssClass(avg);
 
     return divIcon({
@@ -199,10 +199,10 @@ class OpqBoxLeafletMarkerManager extends React.Component {
   }
 
   calculateDataQuality(value) {
-    const { selectedMeasurementType, measurementTypeEnum } = this.props;
+    const { currentMapDataDisplay, mapDataDisplayTypes } = this.props;
     let quality = null; // Can be 'poor', 'mediocre', or 'good'.
-    switch (selectedMeasurementType) {
-      case measurementTypeEnum.VOLTAGE_LAYER: {
+    switch (currentMapDataDisplay) {
+      case mapDataDisplayTypes.VOLTAGE_DATA: {
         const NOMINAL = 120;
         const MULTIPLIER = 0.05;
         const HALF_MULTIPLIER = MULTIPLIER / 2.0;
@@ -215,7 +215,7 @@ class OpqBoxLeafletMarkerManager extends React.Component {
         }
         break;
       }
-      case measurementTypeEnum.FREQUENCY_LAYER: {
+      case mapDataDisplayTypes.FREQUENCY_DATA: {
         const NOMINAL = 60;
         const MULTIPLIER = 0.05;
         const HALF_MULTIPLIER = MULTIPLIER / 2.0;
@@ -228,7 +228,7 @@ class OpqBoxLeafletMarkerManager extends React.Component {
         }
         break;
       }
-      case measurementTypeEnum.THD_LAYER: {
+      case mapDataDisplayTypes.THD_DATA: {
         // Found these values by just looking at trends data. Need to find out official values.
         if (value < 0.005 || value > 0.05) {
           quality = 'poor';
@@ -396,8 +396,8 @@ OpqBoxLeafletMarkerManager.propTypes = {
   opqBoxes: PropTypes.array.isRequired,
   zipcodeLatLngDict: PropTypes.object.isRequired,
   measurements: PropTypes.array.isRequired,
-  selectedMeasurementType: PropTypes.string.isRequired,
-  measurementTypeEnum: PropTypes.object.isRequired,
+  currentMapDataDisplay: PropTypes.string.isRequired,
+  mapDataDisplayTypes: PropTypes.object.isRequired,
 };
 
 export default withTracker(props => {

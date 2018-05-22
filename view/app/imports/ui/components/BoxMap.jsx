@@ -21,64 +21,24 @@ class BoxMap extends React.Component {
   constructor(props) {
     super(props);
 
-    this.mapLayerNames = {
-      VOLTAGE_LAYER: 'voltage_layer',
-      FREQUENCY_LAYER: 'frequency_layer',
-      THD_LAYER: 'thd_layer',
+    this.mapDataDisplayTypes = {
+      VOLTAGE_DATA: 'voltage_data',
+      FREQUENCY_DATA: 'frequency_data',
+      THD_DATA: 'thd_data',
     };
 
     this.state = {
       activeBoxIds: [],
       mostRecentBoxMeasurements: [],
       locations: {},
-      currentMapLayer: this.mapLayerNames.VOLTAGE_LAYER,
+      currentMapDataDisplay: this.mapDataDisplayTypes.VOLTAGE_DATA,
       expandedItemBoxId: '', // Refers to the most recently selected Box in the map side panel listing of boxes.
     };
-
-    this.handleBaselayerchange.bind(this);
-    this.handleOverlayadd.bind(this);
-    this.handleOverlayremove.bind(this);
   }
 
   /** If the subscription(s) have been received, render the page, otherwise show a loading icon. */
   render() {
     return (this.props.ready) ? this.renderPage() : <Loader active content='Retrieving data...'/>;
-  }
-
-  handleBaselayerchange(e) {
-    const mapLayerNames = this.mapLayerNames;
-    switch (e.name) {
-      case mapLayerNames.VOLTAGE_LAYER:
-        this.setState({ currentMapLayer: mapLayerNames.VOLTAGE_LAYER });
-        break;
-      case mapLayerNames.FREQUENCY_LAYER:
-        this.setState({ currentMapLayer: mapLayerNames.FREQUENCY_LAYER });
-        break;
-      case mapLayerNames.THD_LAYER:
-        this.setState({ currentMapLayer: mapLayerNames.THD_LAYER });
-        break;
-      default:
-        console.log('Unknown MapLayerName type.');
-        break;
-    }
-  }
-
-  handleOverlayadd(e) {
-    const mapLayerNames = this.mapLayerNames;
-    switch (e.name) {
-      case mapLayerNames.VOLTAGE_LAYER:
-        this.setState({ currentMapLayer: mapLayerNames.VOLTAGE_LAYER });
-        break;
-      case mapLayerNames.FREQUENCY_LAYER:
-        this.setState({ currentMapLayer: mapLayerNames.FREQUENCY_LAYER });
-        break;
-      case mapLayerNames.THD_LAYER:
-        this.setState({ currentMapLayer: mapLayerNames.THD_LAYER });
-        break;
-      default:
-        console.log('Unknown MapLayerName type.');
-        break;
-    }
   }
 
   sidePanel(opqBoxes) {
@@ -264,8 +224,8 @@ class BoxMap extends React.Component {
                 radio
                 label='Voltage'
                 name='measurementsControlRadioGroup'
-                value={this.mapLayerNames.VOLTAGE_LAYER}
-                checked={this.state.currentMapLayer === this.mapLayerNames.VOLTAGE_LAYER}
+                value={this.mapDataDisplayTypes.VOLTAGE_DATA}
+                checked={this.state.currentMapDataDisplay === this.mapDataDisplayTypes.VOLTAGE_DATA}
                 onChange={this.mapMeasurementControlHandleChange.bind(this)}
             />
           </Form.Field>
@@ -274,8 +234,8 @@ class BoxMap extends React.Component {
                 radio
                 label='Frequency'
                 name='measurementsControlRadioGroup'
-                value={this.mapLayerNames.FREQUENCY_LAYER}
-                checked={this.state.currentMapLayer === this.mapLayerNames.FREQUENCY_LAYER}
+                value={this.mapDataDisplayTypes.FREQUENCY_DATA}
+                checked={this.state.currentMapDataDisplay === this.mapDataDisplayTypes.FREQUENCY_DATA}
                 onChange={this.mapMeasurementControlHandleChange.bind(this)}
             />
           </Form.Field>
@@ -284,8 +244,8 @@ class BoxMap extends React.Component {
                 radio
                 label='THD'
                 name='measurementsControlRadioGroup'
-                value={this.mapLayerNames.THD_LAYER}
-                checked={this.state.currentMapLayer === this.mapLayerNames.THD_LAYER}
+                value={this.mapDataDisplayTypes.THD_DATA}
+                checked={this.state.currentMapDataDisplay === this.mapDataDisplayTypes.THD_DATA}
                 onChange={this.mapMeasurementControlHandleChange.bind(this)}
             />
           </Form.Field>
@@ -295,11 +255,7 @@ class BoxMap extends React.Component {
 
   mapMeasurementControlHandleChange(event, selectedComponent) {
     const value = selectedComponent.value;
-    this.setState({ currentMapLayer: value });
-  }
-
-  handleOverlayremove(e) {
-    console.log('Overlay Remove: ', e, e.layer, e.name);
+    this.setState({ currentMapDataDisplay: value });
   }
 
   setMapRef(elem) {
@@ -330,10 +286,7 @@ class BoxMap extends React.Component {
 
     return (
         <WidgetPanel title="Box Map">
-          <Map onBaselayerchange={this.handleBaselayerchange.bind(this)}
-               onOverlayadd={this.handleOverlayadd}
-               onOverlayremove={this.handleOverlayremove}
-               ref={this.setMapRef.bind(this)}
+          <Map ref={this.setMapRef.bind(this)}
                center={center}
                zoom={11}
                zoomControl={false} // We don't want the default topleft zoomcontrol
@@ -354,18 +307,12 @@ class BoxMap extends React.Component {
             <ScrollableControl position='topleft'>
               {this.sidePanel.bind(this)(this.props.opqBoxes)}
             </ScrollableControl>
-            <LayersControl>
-              <BaseLayer checked name={this.mapLayerNames.VOLTAGE_LAYER}>
-                <LayerGroup>
-                  <OpqBoxLeafletMarkerManager
-                      childRef={this.setOpqBoxLeafletMarkerManagerRef.bind(this)}
-                      opqBoxes={opqBoxes}
-                      zipcodeLatLngDict={zipcodeLatLngDict}
-                      selectedMeasurementType={this.state.currentMapLayer}
-                      measurementTypeEnum={this.mapLayerNames} />
-                </LayerGroup>
-              </BaseLayer>
-            </LayersControl>
+            <OpqBoxLeafletMarkerManager
+                childRef={this.setOpqBoxLeafletMarkerManagerRef.bind(this)}
+                opqBoxes={opqBoxes}
+                zipcodeLatLngDict={zipcodeLatLngDict}
+                currentMapDataDisplay={this.state.currentMapDataDisplay}
+                mapDataDisplayTypes={this.mapDataDisplayTypes} />
           </Map>
         </WidgetPanel>
     );
