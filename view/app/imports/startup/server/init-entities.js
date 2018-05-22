@@ -1,10 +1,10 @@
 import { Meteor } from 'meteor/meteor';
-import { Accounts } from 'meteor/accounts-base';
 import { OpqBoxes } from '../../api/opq-boxes/OpqBoxesCollection';
 import { Locations } from '../../api/locations/LocationsCollection';
 import { Regions } from '../../api/regions/RegionsCollection';
 import { UserProfiles } from '../../api/users/UserProfilesCollection';
 import { testUsername, testUserPassword } from '../../api/test/test-utilities';
+import { ROLE } from '../../api/opq/Role';
 
 /**
  * Generic function used to load definitions from the settings.*.json file.
@@ -20,7 +20,8 @@ function initEntity(name, collection) {
 function defineTestUser() {
   if (Meteor.isAppTest) {
     console.log(`Defining test user: ${testUsername}`);
-    Accounts.createUser({ username: testUsername, email: testUsername, password: testUserPassword });
+    UserProfiles.define({ username: testUsername, firstName: 'Test', lastName: 'User', password: testUserPassword,
+    role: ROLE.ADMIN });
   }
 }
 
