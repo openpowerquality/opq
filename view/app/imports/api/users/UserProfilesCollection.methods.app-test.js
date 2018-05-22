@@ -13,6 +13,7 @@ if (Meteor.isClient) {
     const username = 'opqtester@hawaii.edu';
     const firstName = 'Nikola';
     const lastName = 'Tesla';
+    const password = 'foo';
     const role = ROLE.ADMIN;
 
     // before(function (done) {
@@ -22,18 +23,18 @@ if (Meteor.isClient) {
     it('Define Method', async function () {
       await withLoggedInUser();
       await withOpqSubscriptions();
-      const definitionData = { username, firstName, lastName, role };
+      const definitionData = { username, firstName, lastName, role, password };
       await defineMethod.callPromise({ collectionName, definitionData });
     });
 
     it('Update Method', async function () {
-      const id = UserProfiles.getID(username);
+      const id = UserProfiles.findByUsername(username)._id;
       await updateMethod.callPromise({ collectionName, updateData: { id, firstName: 'Nikolai' } });
     });
 
     it('Remove Method', async function () {
-      const instance = UserProfiles.getID(username);
-      await removeItMethod.callPromise({ collectionName, instance });
+      const id = UserProfiles.findByUsername(username)._id;
+      await removeItMethod.callPromise({ collectionName, id });
     });
   });
 }
