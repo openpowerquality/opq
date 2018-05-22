@@ -1,0 +1,12 @@
+Notes on package.json
+
+---------------------------
+5/10/18:
+
+PJ added hoek version 4.2.1 as a devDependency because it was implicitly required by other packages that specified only version 4.2.0, and version 4.2.0 has a security vulnerability as specified here:
+
+https://nvd.nist.gov/vuln/detail/CVE-2018-3728
+
+At some point, once all dependent packages have updated themselves, this can hopefully be removed as a direct dependency.
+
+---------------------------

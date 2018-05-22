@@ -5,6 +5,7 @@ import { withTracker } from 'meteor/react-meteor-data';
 import { withRouter, NavLink } from 'react-router-dom';
 import { Menu, Image, Dropdown } from 'semantic-ui-react';
 import { Roles } from 'meteor/alanning:roles';
+import { ROLE } from '../../api/opq/Role';
 
 /* eslint max-len: 0 */
 class NavBar extends React.Component {
@@ -18,18 +19,36 @@ class NavBar extends React.Component {
         </Menu.Item>
 
         {this.props.currentUser ? (
-          <Menu.Item as={NavLink} activeClassName="active" exact to="/profile" key='profile'><div style={divStyle}>Profile</div></Menu.Item>
+          <Menu.Item as={NavLink} activeClassName="active" exact to="/profile" key='profile'>
+            <div style={divStyle}>Profile</div>
+          </Menu.Item>
         ) : ''}
 
-        {Roles.userIsInRole(Meteor.userId(), 'admin') ? (
-          <Menu.Item as={NavLink} activeClassName="active" exact to="/admin" key='admin'><div style={divStyle}>Admin</div></Menu.Item>
+        {this.props.currentUser ? (
+          <Menu.Item as={NavLink} activeClassName="active" exact to="/livedata" key='livedata'>
+            <div style={divStyle}>Live Data</div>
+          </Menu.Item>
+        ) : ''}
+
+        {this.props.currentUser ? (
+          <Menu.Item as={NavLink} activeClassName="active" exact to="/inspector" key='inspector'>
+            <div style={divStyle}>Inspector</div>
+          </Menu.Item>
         ) : ''}
 
         {this.props.currentUser ? (
             <Menu.Item as={NavLink} activeClassName="active" exact to="/boxmap" key='boxmap'><div style={divStyle}>Box Map</div></Menu.Item>
         ) : ''}
 
-        <Menu.Item position="right" as={NavLink} exact to="/about"><div style={divStyle}>About OPQ</div></Menu.Item>
+        {Roles.userIsInRole(Meteor.userId(), ROLE.ADMIN) ? (
+          <Menu.Item as={NavLink} activeClassName="active" exact to="/admin" key='admin'>
+            <div style={divStyle}>Admin</div>
+          </Menu.Item>
+        ) : ''}
+
+        <Menu.Item position="right" as={NavLink} exact to="/about">
+          <div style={divStyle}>About OPQ</div>
+        </Menu.Item>
 
         <Menu.Item>
           {this.props.currentUser === '' ? (

@@ -1,0 +1,7 @@
+/*******************************
+     User Global Variables
+*******************************/
+
+@computerBreakpoint : 1300px;
+@largeMonitorBreakpoint : 1500px;
+

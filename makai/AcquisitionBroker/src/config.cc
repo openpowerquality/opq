@@ -23,7 +23,7 @@ Config::Config(string fname) {
         private_cert = j["server_cert"].get<string>();
         box_interface_pub = j["box_pub"].get<string>();
         box_interface_pull = j["box_pull"].get<string>();
-        backend_interface_rep = j["backend_rep"].get<string>();
+        backend_interface_pull = j["backend_pull"].get<string>();
         backend_interface_pub = j["backend_pub"].get<string>();
         mongo_uri = j["mongo_uri"].get<string>();
     }

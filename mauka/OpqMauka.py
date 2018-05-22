@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 """
-This module is the entry point into the OPQMauka system.
+This module is the entry point into the OPQ Mauka system.
 """
 
 import json
@@ -12,6 +12,7 @@ import sys
 import typing
 
 import plugins
+import services
 
 _logger = logging.getLogger("app")
 logging.basicConfig(
@@ -50,26 +51,23 @@ if __name__ == "__main__":
 
     config = load_config(sys.argv[1])
 
-    plugin_manager = plugins.PluginManager(config)
-    #plugin_manager.register_plugin(plugins.MeasurementPlugin)
+    plugin_manager = services.PluginManager(config)
     plugin_manager.register_plugin(plugins.FrequencyThresholdPlugin)
     plugin_manager.register_plugin(plugins.VoltageThresholdPlugin)
     plugin_manager.register_plugin(plugins.AcquisitionTriggerPlugin)
+    plugin_manager.register_plugin(plugins.MakaiEventPlugin)
     plugin_manager.register_plugin(plugins.StatusPlugin)
-    plugin_manager.register_plugin(plugins.ThdPlugin)
-    plugin_manager.register_plugin(plugins.IticPlugin)
+    #plugin_manager.register_plugin(plugins.ThdPlugin)
+    #plugin_manager.register_plugin(plugins.IticPlugin)
 
-    broker_process = plugins.start_mauka_pub_sub_broker(config)
-    makai_bridge_process = plugins.start_makai_bridge(config)
+    broker_process = services.start_mauka_pub_sub_broker(config)
+    makai_bridge_process = services.start_makai_bridge(config)
+    makai_bridge_event_process = services.start_makai_event_bridge(config)
 
     # start-stop-daemon sends a SIGTERM, we need to handle it to gracefully shutdown mauka
     def sigterm_handler(signum, frame):
         _logger.info("Received exit signal")
         plugin_manager.clean_exit()
-        #_logger.info("Stopping broker process...")
-        #broker_process.terminate()
-        #sys.exit(0)
-
 
     signal.signal(signal.SIGTERM, sigterm_handler)
     signal.signal(signal.SIGINT, sigterm_handler)
@@ -82,6 +80,8 @@ if __name__ == "__main__":
         broker_process.terminate()
         _logger.info("Killing makai bridge process")
         makai_bridge_process.terminate()
+        _logger.info("Killing makai event bridge process")
+        makai_bridge_event_process.terminate()
         _logger.info("Goodbye")
         sys.exit(0)
     except KeyboardInterrupt:

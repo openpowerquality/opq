@@ -1,9 +1,11 @@
 import React from 'react';
 import { Card, Label, Loader, Header, List, Icon } from 'semantic-ui-react';
+import { withRouter, Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import Moment from 'moment';
 import { Meteor } from 'meteor/meteor';
 import { BoxOwners } from '/imports/api/users/BoxOwnersCollection';
+import { Locations } from '/imports/api/locations/LocationsCollection';
 import { withTracker } from 'meteor/react-meteor-data';
 
 /* eslint class-methods-use-this: 0 */
@@ -14,7 +16,7 @@ class BoxCard extends React.Component {
 
   /** If the subscription(s) have been received, render the page, otherwise show a loading icon. */
   render() {
-    return (this.props.ready) ? this.renderPage() : <Loader>Getting data</Loader>;
+    return (this.props.ready) ? this.renderPage() : <Loader active>Getting data</Loader>;
   }
 
   renderOwners(boxId) {
@@ -47,25 +49,39 @@ class BoxCard extends React.Component {
     );
   }
 
-  renderLocations(locations) {
+  renderCurrentLocation(locationSlug, location_start_time_ms) {
+    const locationString = Locations.getDoc(locationSlug).description;
+    const timeString = (location_start_time_ms) ? Moment(location_start_time_ms).format('lll') : 'N/A';
     return (
-        <Card.Content extra>
-          <Header as='h5'>Locations</Header>
-          <List>
-            {locations.map((location, index) => this.renderLocation(location, index))}
-          </List>
-        </Card.Content>
+      <Card.Content extra>
+        <Header as='h5'>Current Location</Header>
+        <List>
+          <List.Item key={1}>{ locationString }</List.Item>
+          <List.Item key={2}>Since: { timeString }</List.Item>
+        </List>
+      </Card.Content>
     );
   }
 
-  renderLocation(location, index) {
-    const { start_time_ms, zipcode, nickname } = location;
-    const timestamp = Moment(start_time_ms).format('MMMM Do YYYY, h:mm a');
+  renderArchivedLocations(locationArchive) {
     return (
-        <List.Item key={index}>
-          <p>{nickname} ({zipcode})</p>
-          Since: {timestamp}
-        </List.Item>
+      <Card.Content extra>
+        <Header as='h5'>Archived Locations</Header>
+        <List>
+          {locationArchive && locationArchive.map((location, index) => this.renderArchivedLocation(location, index))}
+        </List>
+      </Card.Content>
+    );
+  }
+
+  renderArchivedLocation(archivedLocation, index) {
+    const { location_start_time_ms, location } = archivedLocation;
+    const timestamp = (location_start_time_ms) ? Moment(location_start_time_ms).format('lll') : 'N/A';
+    return (
+      <List.Item key={index}>
+        <p>{ location }</p>
+        Since: { timestamp }
+      </List.Item>
     );
   }
 
@@ -130,11 +146,15 @@ class BoxCard extends React.Component {
           <Card.Header>{this.props.box.name}</Card.Header>
         </Card.Content>
         {this.renderDescription(this.props.box.description)}
-        {this.renderStatus(this.props.box.box_id, this.props.box.unplugged, this.props.boxTrendStats)}
+        {/* this.renderStatus(this.props.box.box_id, this.props.box.unplugged, this.props.boxTrendStats) */}
         {this.renderCalibration(this.props.box.calibration_constant)}
-        {this.renderLocations(this.props.box.locations)}
+        {this.renderCurrentLocation(this.props.box.location, this.props.box.location_start_time_ms)}
+        {this.renderArchivedLocations(this.props.box.location_archive)}
         {this.renderBoxTrendStats(this.props.box.box_id, this.props.boxTrendStats)}
         {this.props.admin ? this.renderOwners(this.props.box.box_id) : ''}
+        <Card.Content extra>
+          <Link to={`/edit/${this.props.box.box_id}`}>Edit</Link>
+        </Card.Content>
       </Card>
     );
   }
@@ -157,9 +177,10 @@ BoxCard.getDefaultProps = {
 /** withTracker connects Meteor data to React components. https://guide.meteor.com/react.html#using-withTracker */
 export default withTracker(() => {
   // Get access to box owners in case of Admin access.
-  const boxOwnersSubscription = Meteor.subscribe(BoxOwners.getPublicationName());
+  const boxOwnersSub = Meteor.subscribe(BoxOwners.getPublicationName());
+  const locationsSub = Meteor.subscribe(Locations.getPublicationName());
   return {
-    ready: boxOwnersSubscription.ready(),
+    ready: boxOwnersSub.ready() && locationsSub.ready(),
   };
-})(BoxCard);
+})(withRouter(BoxCard));
 

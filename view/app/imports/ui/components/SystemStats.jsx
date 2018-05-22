@@ -37,12 +37,13 @@ class SystemStatistics extends React.Component {
   <p>Events: Produced whenever a box measures frequency, voltage, or THD in excess of a default threshold
   (currently +/- 5% of nominal value.</p>
   
-  <p>Measurements: Produced six times a second, these provide instantaneous values for frequency, voltage, and THD.</p>
+  <p>Measurements: Produced six times a second, these provide instantaneous values for frequency, voltage, and THD. 
+  However, only the last 24 hours of Measurement data points are stored in the database. </p>
   `;
 
   /** If the subscription(s) have been received, render the page, otherwise show a loading icon. */
   render() {
-    return (this.props.ready) ? this.renderPage() : <Loader>Getting data</Loader>;
+    return (this.props.ready) ? this.renderPage() : <Loader active>Getting data</Loader>;
   }
 
   /** Here's the system stats page. */
@@ -58,12 +59,12 @@ class SystemStatistics extends React.Component {
     const toDateItems = [
       { key: '1', label: 'Trends', value: formatted(stat.trends_count) },
       { key: '2', label: 'Events', value: formatted(stat.events_count) },
-      { key: '3', label: 'Measurements', value: formatted(stat.measurements_count) },
+      { key: '3', label: 'Measures', value: formatted(stat.measurements_count) },
     ];
     const todayItems = [
-      { key: '1', label: 'Trends', value: stat.trends_count_today },
-      { key: '2', label: 'Events', value: stat.events_count_today },
-      { key: '3', label: 'Measurements', value: stat.measurements_count_today },
+      { key: '1', label: 'Trends', value: formatted(stat.trends_count_today) },
+      { key: '2', label: 'Events', value: formatted(stat.events_count_today) },
+      { key: '3', label: 'Measures', value: stat.measurements_count_today },
     ];
     const divStyle = { paddingLeft: '10px', paddingRight: '10px' };
     const divStyle2 = { paddingLeft: '10px', paddingRight: '10px', marginTop: '5px' };

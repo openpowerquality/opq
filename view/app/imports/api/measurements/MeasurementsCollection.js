@@ -3,14 +3,14 @@ import { Mongo } from 'meteor/mongo';
 import { check } from 'meteor/check';
 import SimpleSchema from 'simpl-schema';
 import BaseCollection from '../base/BaseCollection.js';
-import { OpqBoxes } from '../opq-boxes/OpqBoxesCollection';
-import { progressBarSetup } from '../../modules/utils';
 
+/**
+ * The measurements collection provides short-term, low-fidelity OPQBox snapshot data for a specific moment in time.
+ * Measurements are automatically deleted by the system after 24 hours using a TTL attribute.
+ * @see {@link https://openpowerquality.org/docs/cloud-datamodel.html#measurements}
+ */
 class MeasurementsCollection extends BaseCollection {
 
-  /**
-   * Creates the Measurements collection.
-   */
   constructor() {
     super('measurements', new SimpleSchema({
       _id: { type: Mongo.ObjectID },
@@ -46,57 +46,7 @@ class MeasurementsCollection extends BaseCollection {
   }
 
   /**
-   * Returns an object representing a single Measurement.
-   * @param {Object} docID - The Mongo.ObjectID of the Measurement.
-   * @returns {Object} - An object representing a single Measurement.
-   */
-  dumpOne(docID) {
-    /* eslint-disable camelcase */
-    const doc = this.findDoc(docID);
-    const box_id = doc.box_id;
-    const timestamp_ms = doc.timestamp_ms;
-    const voltage = doc.voltage;
-    const frequency = doc.frequency;
-    const thd = doc.thd;
-
-    return { box_id, timestamp_ms, voltage, frequency, thd };
-    /* eslint-enable camelcase */
-  }
-
-  checkIntegrity() {
-    const problems = [];
-    const totalCount = this.count();
-    const validationContext = this.getSchema().namedContext('measurementsIntegrity');
-    const pb = progressBarSetup(totalCount, 2000, `Checking ${this._collectionName} collection: `);
-
-    // Get all OpqBox IDs.
-    const boxIDs = OpqBoxes.find().map(doc => doc.box_id);
-
-    this.find().forEach((doc, index) => {
-      pb.updateBar(index); // Update progress bar.
-
-      // Validate each document against the collection schema.
-      validationContext.validate(doc);
-      if (!validationContext.isValid()) {
-        // eslint-disable-next-line max-len
-        problems.push(`Measurements document failed schema validation: ${doc._id} (Invalid keys: ${JSON.stringify(validationContext.invalidKeys(), null, 2)})`);
-      }
-      validationContext.resetValidation();
-
-      // Ensure box_id of the measurement exists in opq_boxes collection.
-      if (!boxIDs.includes(doc.box_id)) {
-        problems.push(`Measurements box_id does not exist in opq_boxes collection: ${doc.box_id} (docID: ${doc._id})`);
-      }
-    });
-
-    pb.clearInterval();
-    return problems;
-  }
-
-  /**
    * Loads all publications related to the Measurements collection.
-   * Note: We conditionally import the publications file only on the server as a way to hide publication code from
-   * being sent to the client.
    */
   publish() { // eslint-disable-line class-methods-use-this
     if (Meteor.isServer) {

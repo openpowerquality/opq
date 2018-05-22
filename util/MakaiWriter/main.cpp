@@ -19,9 +19,16 @@ inline uint64_t chrono_to_mili_now(){
 int main() {
     zmqpp::context ctx;
     // generate a sub socket
-    zmqpp::socket_type type = zmqpp::socket_type::req;
-    auto req = zmqpp::socket(ctx, type);
-    req.connect("tcp://localhost:9884");
+    zmqpp::socket_type type = zmqpp::socket_type::push;
+
+    auto push = zmqpp::socket(ctx, type);
+    push.connect("tcp://localhost:9884");
+
+    type = zmqpp::socket_type::sub;
+    auto sub = zmqpp::socket(ctx, type);
+    sub.connect("tcp://localhost:9882");
+    sub.subscribe("");
+
     opq::proto::RequestEventMessage m;
 
     uint64_t now = chrono_to_mili_now();
@@ -34,8 +41,10 @@ int main() {
     m.set_requestee("test");
     m.set_description("Test event");
     m.set_request_data(true);
-    req.send(m.SerializeAsString());
+    push.send(m.SerializeAsString());
     std::string out;
-    req.receive(out);
+    zmqpp::message_t msg;
+    sub.receive(msg);
+    out = msg.get(1);
     cout << out << endl;
 }

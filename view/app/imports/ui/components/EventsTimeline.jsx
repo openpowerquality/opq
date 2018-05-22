@@ -31,11 +31,10 @@ class EventsTimeline extends React.Component {
 
   /** If the subscription(s) have been received, render the page, otherwise show a loading icon. */
   render() {
-    return (this.props.ready) ? this.renderPage() : <Loader>Getting data</Loader>;
+    return (this.props.ready) ? this.renderPage() : <Loader active>Getting data</Loader>;
   }
 
   renderPage() { // eslint-disable-line class-methods-use-this
-
     const numEvents = this.props.events.length;
     // Start with the list of event types:
     const eventTypes = Events.eventTypes;
@@ -78,27 +77,33 @@ class EventsTimeline extends React.Component {
 
     const divStyle = { paddingLeft: '20px', paddingRight: '20px' };
     const title = `Events Timeline (most recent ${numEvents} events)`;
-    return (
-        <WidgetPanel title={title} helpText={this.helpText}>
-          <div style={divStyle}>
-            <Resizable>
-              <ChartContainer
-                  enablePanZoom={true}
-                  timeRange={this.state.timerange || series.range() }
-                  onTimeRangeChanged={timerange => this.setState({ timerange })}>
-                <ChartRow height='150'>
-                  <YAxis id='num-events' label='Num Events' min={0} max={maxYAxis} width='70' type='linear'/>
-                  <Charts>
-                    <BarChart axis='num-events' style={style} spacing={1} columns={eventTypes} series={series}
-                              minBarHeight={1} />
-                  </Charts>
-                </ChartRow>
-              </ChartContainer>
-            </Resizable>
-            <Legend categories={legendCategories} style={style} type='swatch' />
-          </div>
-        </WidgetPanel>
-    );
+    return numEvents ?
+        (
+            <WidgetPanel title={title} helpText={this.helpText}>
+              <div style={divStyle}>
+                <Resizable>
+                  <ChartContainer
+                      enablePanZoom={true}
+                      timeRange={this.state.timerange || series.range()}
+                      onTimeRangeChanged={timerange => this.setState({ timerange })}>
+                    <ChartRow height='150'>
+                      <YAxis id='num-events' label='Num Events' min={0} max={maxYAxis} width='70' type='linear'/>
+                      <Charts>
+                        <BarChart axis='num-events' style={style} spacing={1} columns={eventTypes} series={series}
+                                  minBarHeight={1}/>
+                      </Charts>
+                    </ChartRow>
+                  </ChartContainer>
+                </Resizable>
+                <Legend categories={legendCategories} style={style} type='swatch'/>
+              </div>
+            </WidgetPanel>
+        ) :
+        (
+            <WidgetPanel title={title} helpText={this.helpText}>
+              <p>No event data.</p>
+            </WidgetPanel>
+        );
   }
 }
 
@@ -108,12 +113,16 @@ EventsTimeline.propTypes = {
   events: PropTypes.array.isRequired,
 };
 
+EventsTimeline.defaultProps = {
+  events: [],
+};
+
 /** withTracker connects Meteor data to React components. https://guide.meteor.com/react.html#using-withTracker */
 export default withTracker(() => {
   const sub = Meteor.subscribe(Events.publicationNames.GET_RECENT_EVENTS, { numEvents: 500, excludeOther: false });
   return {
     ready: sub.ready(),
-    events: Events.find({}).fetch().reverse(),
+    events: Events.find({}, { sort: { target_event_start_timestamp_ms: 1 } }).fetch(),
   };
 })(EventsTimeline);
 

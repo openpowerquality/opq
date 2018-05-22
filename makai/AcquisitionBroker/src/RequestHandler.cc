@@ -17,10 +17,12 @@ RequestHandler::RequestHandler(Config &c, zmqpp::context &ctx) : _ctx(ctx), _con
 
 void RequestHandler::handle_request_loop() {
 
-    auto backend_rep = zmqpp::socket(_ctx, zmqpp::socket_type::rep);
+    auto backend_pull = zmqpp::socket(_ctx, zmqpp::socket_type::pull);
+    auto backend_pub = zmqpp::socket(_ctx, zmqpp::socket_type::pub);
     //Connect to mauka broker
     //This is where the data requests come in.
-    backend_rep.bind(_config.backend_interface_rep);
+    backend_pull.bind(_config.backend_interface_pull);
+    backend_pub.bind(_config.backend_interface_pub);
 
     MongoDriver mongo{};
 
@@ -44,7 +46,7 @@ void RequestHandler::handle_request_loop() {
     while(!_done){
         //recieve a request for event message
         zmqpp::message z_request_event;
-        if(!backend_rep.receive(z_request_event, true)){
+        if(!backend_pull.receive(z_request_event, true)){
             std::this_thread::sleep_for(500ms);
             ping_counter++;
             if(ping_counter > 25) {
@@ -76,10 +78,12 @@ void RequestHandler::handle_request_loop() {
 
         mongo.create_event(request_event, event_time, event_number);
 
-        //Reply to the requester with an event id
-        zmqpp::message z_reply_event;
-        z_reply_event.add(to_string(event_number));
-        backend_rep.send(z_reply_event);
+        //Reply to the pub socket with an event id
+        zmqpp::message z_new_event;
+        z_new_event.add(BOX_EVENT_PUB_TOPIC);
+        z_new_event.add(to_string(event_number));
+
+        backend_pub.send(z_new_event);
         if(!request_event.request_data()){
             event_number++;
             continue;

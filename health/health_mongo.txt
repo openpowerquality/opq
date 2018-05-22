@@ -9,3 +9,4 @@ db.createCollection( "health", {
     }
 ); 
 
+db.health.createIndex( { "timestamp": 1 }, {expireAfterSeconds: 3600} )

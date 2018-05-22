@@ -6,7 +6,7 @@ import threading
 import time
 import unittest
 
-import plugins.broker
+import services.brokers
 
 import zmq
 
@@ -17,7 +17,7 @@ class BrokerTests(unittest.TestCase):
                        "zmq.mauka.broker.sub.interface": "tcp://*:9882",
                        "zmq.mauka.plugin.pub.interface": "tcp://localhost:9882",
                        "zmq.mauka.plugin.sub.interface": "tcp://localhost:9883"}
-        self.broker_process = plugins.broker.start_mauka_pub_sub_broker(self.config)
+        self.broker_process = services.brokers.start_mauka_pub_sub_broker(self.config)
         self.zmq_context = zmq.Context()
         self.sub_socket = self.zmq_context.socket(zmq.SUB)
         self.pub_socket = self.zmq_context.socket(zmq.PUB)

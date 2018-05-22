@@ -1,21 +1,16 @@
 import SimpleSchema from 'simpl-schema';
 import { Meteor } from 'meteor/meteor';
-import { check, Match } from 'meteor/check';
 import Moment from 'moment';
 import BaseCollection from '../base/BaseCollection.js';
 import { BoxOwners } from '../users/BoxOwnersCollection';
-import { progressBarSetup } from '../../modules/utils';
-
+import { Locations } from '../locations/LocationsCollection.js';
 
 /**
- * Collection class for the opq_boxes collection.
- * Docs: https://open-power-quality.gitbooks.io/open-power-quality-manual/content/datamodel/description.html#opq_boxes
+ * Provides information about each OPQ Box in the system
+ * @see {@link https://openpowerquality.org/docs/cloud-datamodel.html#opqboxes}
  */
 class OpqBoxesCollection extends BaseCollection {
 
-  /**
-   * Creates the collection.
-   */
   constructor() {
     super('opq_boxes', new SimpleSchema({
       box_id: String,
@@ -23,8 +18,10 @@ class OpqBoxesCollection extends BaseCollection {
       description: { type: String, optional: true },
       unplugged: { type: Boolean, optional: true },
       calibration_constant: Number,
-      locations: { type: Array },
-      'locations.$': { type: Object, blackbox: true },
+      location: { type: String, optional: true },
+      location_start_time_ms: { type: Number, optional: true },
+      location_archive: { type: Array, optional: true },
+      'location_archive.$': { type: Object, blackbox: true },
     }));
 
     this.publicationNames = {
@@ -42,16 +39,26 @@ class OpqBoxesCollection extends BaseCollection {
    * @param {String} description - The (optional) description of the OPQBox.
    * @param {Boolean} unplugged - True if the box is not attached to an outlet. Default: false (plugged in)
    * @param {Number} calibration_constant - The calibration constant value of the box. See docs for details.
-   * @param {[Object]} locations - The history of locations of the OPQBox.
+   * @param {String} location - A location slug indicating this boxes current location. (optional)
+   * @param {Number | String} location_start_time_ms - The timestamp when this box became active at this location.
+   *        Any representation legal to Moment() will work. (Optional)
+   * @param {Array} location_archive An array of {location,location_start_time_ms} objects. (Optional).
    * @returns The docID of the new or changed OPQBox document, or undefined if invoked on the client side.
    */
-  define({ box_id, name, description, calibration_constant, locations, unplugged = false }) {
+  define({ box_id, name, description, unplugged = false, calibration_constant, location, location_start_time_ms,
+         location_archive }) {
     if (Meteor.isServer) {
+      if (location && !Locations.isLocation(location)) {
+        throw new Meteor.Error(`Location ${location} is not a defined location.`);
+      }
       // Create or modify the OpqBox document associated with this box_id.
-      const newLocs = this.makeLocationArray(locations);
+      const fixedArchive = location_archive && this.makeLocationArchive(location_archive);
+      const fixedLocationTimestamp = this.getUTCTimestamp(location_start_time_ms);
       this._collection.upsert(
         { box_id },
-        { $set: { name, description, calibration_constant, locations: newLocs, unplugged } },
+        { $set: { name, description, calibration_constant, location, unplugged,
+            location_start_time_ms: fixedLocationTimestamp,
+            location_archive: fixedArchive } },
         );
       const docID = this.findOne({ box_id })._id;
       return docID;
@@ -60,18 +67,31 @@ class OpqBoxesCollection extends BaseCollection {
   }
 
   /**
-   * Returns a new locations array structure where time_stamp_ms has been passed through Moment so that
-   * the settings file can provide more user-friendly versions of the timestamp.
-   * @param locations The locations array.
-   * @returns A new locations array in which time_stamp_ms has been converted to UTC milliseconds.
+   * Returns the UTC millisecond representation of the passed timestamp if possible.
+   * If timestamp undefined or not convertible to UTC millisecond format, then returns it unchanged.
+   * @param timestamp The timestamp
+   * @returns {*} The UTC millisecond format, or the timestamp.
    */
-  makeLocationArray(locations) {
-    return locations.map(location => {
-      const momentTimestamp = Moment(location.time_stamp_ms);
-      if (momentTimestamp.isValid()) {
-        location.time_stamp_ms = momentTimestamp.valueOf(); // eslint-disable-line
+  getUTCTimestamp(timestamp) {
+    if (timestamp) {
+      const momentTimestamp = Moment(timestamp);
+      return (momentTimestamp.isValid()) ? momentTimestamp.valueOf() : timestamp;
       }
-      return location;
+    return timestamp;
+  }
+
+  /**
+   * Returns a new location_archive array structure where location_time_stamp_ms has been passed through Moment so that
+   * the settings file can provide more user-friendly versions of the timestamp.
+   * @param locationArchive The location_archive array.
+   * @returns A new location_archive array in which time_stamp_ms has been converted to UTC milliseconds.
+   */
+  makeLocationArchive(locationArchive) {
+    return locationArchive.map(loc => {  // eslint-disable-line
+      if (!Locations.isLocation(loc.location)) {
+        throw new Meteor.Error(`Location ${loc.location} is not a defined location.`);
+      }
+      return { location: loc.location, location_start_time_ms: this.getUTCTimestamp(loc.location_start_time_ms) };
     });
   }
 
@@ -96,53 +116,6 @@ class OpqBoxesCollection extends BaseCollection {
   findBoxIds() {
     const docs = this._collection.find({}).fetch();
     return (docs) ? _.map(docs, doc => doc.box_id) : [];
-  }
-
-  /**
-   * Returns an object representing a single OpqBox.
-   * @param {Object} docID - The Mongo.ObjectID of the OpqBox.
-   * @returns {Object} - An object representing a single OpqBox.
-   */
-  dumpOne(docID) {
-    /* eslint-disable camelcase */
-    const doc = this.findDoc(docID);
-    const box_id = doc.box_id;
-    const name = doc.name;
-    const description = doc.description;
-    const calibration_constant = doc.calibration_constant;
-    const locations = doc.locations;
-
-    return { box_id, name, description, calibration_constant, locations };
-    /* eslint-enable camelcase */
-  }
-
-  checkIntegrity() {
-    const problems = [];
-    const totalCount = this.count();
-    const validationContext = this.getSchema().namedContext('opqBoxesIntegrity');
-    const pb = progressBarSetup(totalCount, 2000, `Checking ${this._collectionName} collection: `);
-
-    this.find().forEach((doc, index) => {
-      pb.updateBar(index); // Update progress bar.
-
-      // Validate each document against the collection schema.
-      validationContext.validate(doc);
-      if (!validationContext.isValid()) {
-        // eslint-disable-next-line max-len
-        problems.push(`OpqBox document failed schema validation: ${doc._id} (Invalid keys: ${JSON.stringify(validationContext.invalidKeys(), null, 2)})`);
-      }
-      validationContext.resetValidation();
-
-      // Ensure box_id field is unique
-      if (this.find({ box_id: doc.box_id }).count() > 1) problems.push(`OpqBox box_id is not unique: ${doc.box_id}`);
-
-      // Ensure name field is unique (not counting an unset name - represented by empty strings)
-      // eslint-disable-next-line max-len
-      if (doc.name && this.find({ name: doc.name }).count() > 1) problems.push(`OpqBox name is not unique: ${doc.name}`);
-    });
-
-    pb.clearInterval();
-    return problems;
   }
 
   /**

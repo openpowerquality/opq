@@ -3,14 +3,13 @@ import { Mongo } from 'meteor/mongo';
 import SimpleSchema from 'simpl-schema';
 import { check } from 'meteor/check';
 import BaseCollection from '../base/BaseCollection.js';
-import { OpqBoxes } from '../opq-boxes/OpqBoxesCollection';
-import { progressBarSetup } from '../../modules/utils';
 
+/**
+ * The trends collection provides long term OPQBox trend data.
+ * @see {@link https://openpowerquality.org/docs/cloud-datamodel.html#trends}
+ */
 class TrendsCollection extends BaseCollection {
 
-  /**
-   * Creates the Trends collection.
-   */
   constructor() {
     super('trends', new SimpleSchema({
       _id: { type: Mongo.ObjectID },
@@ -32,6 +31,7 @@ class TrendsCollection extends BaseCollection {
 
     this.publicationNames = {
       GET_RECENT_TRENDS: 'get_recent_trends',
+      TRENDS_AFTER_TIMESTAMP: 'trends_after_timestamp',
       TRENDS_RECENT_MONTH: 'trends_recent_month',
     };
     if (Meteor.server) {
@@ -81,54 +81,6 @@ class TrendsCollection extends BaseCollection {
   }
 
   /**
-   * Returns an object representing a single Trend.
-   * @param {Object} docID - The Mongo.ObjectID of the Trend.
-   * @returns {Object} - An object representing a single Trend.
-   */
-  dumpOne(docID) {
-    /* eslint-disable camelcase */
-    const doc = this.findDoc(docID);
-    const box_id = doc.box_id;
-    const timestamp_ms = doc.timestamp_ms;
-    const voltage = doc.voltage;
-    const frequency = doc.frequency;
-    const thd = doc.thd;
-
-    return { box_id, timestamp_ms, voltage, frequency, thd };
-    /* eslint-enable camelcase */
-  }
-
-  checkIntegrity() {
-    const problems = [];
-    const totalCount = this.count();
-    const validationContext = this.getSchema().namedContext('trendsIntegrity');
-    const pb = progressBarSetup(totalCount, 2000, `Checking ${this._collectionName} collection: `);
-
-    // Get all OpqBox IDs.
-    const boxIDs = OpqBoxes.find().map(doc => doc.box_id);
-
-    this.find().forEach((doc, index) => {
-      pb.updateBar(index); // Update progress bar.
-
-      // Validate each document against the collection schema.
-      validationContext.validate(doc);
-      if (!validationContext.isValid()) {
-        // eslint-disable-next-line max-len
-        problems.push(`Trends document failed schema validation: ${doc._id} (Invalid keys: ${JSON.stringify(validationContext.invalidKeys(), null, 2)})`);
-      }
-      validationContext.resetValidation();
-
-      // Ensure box_id of the trend exists in opq_boxes collection.
-      if (!boxIDs.includes(doc.box_id)) {
-        problems.push(`Trends box_id does not exist in opq_boxes collection: ${doc.box_id} (docID: ${doc._id})`);
-      }
-    });
-
-    pb.clearInterval();
-    return problems;
-  }
-
-  /**
    * Loads all publications related to the Trends collection.
    */
   publish() { // eslint-disable-line class-methods-use-this
@@ -140,6 +92,12 @@ class TrendsCollection extends BaseCollection {
 
         const trends = self.find({}, { sort: { timestamp_ms: -1 }, limit: numTrends });
         return trends;
+      });
+
+      Meteor.publish(this.publicationNames.TRENDS_AFTER_TIMESTAMP, ({ timestamp, boxIDs }) => {
+        check(timestamp, Number);
+        check(boxIDs, [String]);
+        return this.find({ timestamp_ms: { $gte: timestamp }, box_id: { $in: boxIDs } });
       });
     }
   }
