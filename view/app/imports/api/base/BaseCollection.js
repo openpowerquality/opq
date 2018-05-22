@@ -123,6 +123,25 @@ class BaseCollection {
   }
 
   /**
+   * Returns the collection name.
+   * @return {string} The collection name as a string.
+   */
+  getCollectionName() {
+    return this._collectionName;
+  }
+
+  /**
+   * Default subscription method for entities.
+   * It subscribes to the entire collection.
+   * This is generally useful only during testing.
+   */
+  subscribe() {
+    if (Meteor.isClient) {
+      Meteor.subscribe(this._collectionName);
+    }
+  }
+
+  /**
    * Finds and returns the entire document of the given docID.
    * @param {Object} docID - The Mongo.ObjectID of the document to find.
    * @returns {Object} - The found document.

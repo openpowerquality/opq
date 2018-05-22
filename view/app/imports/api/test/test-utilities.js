@@ -57,18 +57,6 @@ export function defineTestFixtures(fixtureNames) {
   _.each(fixtureNames, fixtureName => defineTestFixture(`${fixtureName}.fixture.json`));
 }
 
-// /**
-//  * A validated method that loads the passed fixture file.
-//  */
-// export const defineTestFixtureMethod = new ValidatedMethod({
-//   name: 'test.defineTestFixtureMethod',
-//   validate: null,
-//   run(fixtureName) {
-//     defineTestFixture(fixtureName);
-//     return true;
-//   },
-// });
-
 /**
  * A validated method that loads the passed list of fixture files in the order passed.
  * @memberOf api/test
@@ -88,7 +76,7 @@ export const defineTestFixturesMethod = new ValidatedMethod({
  * @see {@link https://guide.meteor.com/testing.html#full-app-integration-test}
  * @memberOf api/test
  */
-export function withRadGradSubscriptions() {
+export function withOpqSubscriptions() {
   return new Promise(resolve => {
     _.each(OPQ.collections, collection => collection.subscribe());
     const poll = Meteor.setInterval(() => {
