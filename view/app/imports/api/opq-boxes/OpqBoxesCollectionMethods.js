@@ -1,3 +1,4 @@
+import { Meteor } from 'meteor/meteor';
 import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import SimpleSchema from 'simpl-schema';
 import { OpqBoxes } from './OpqBoxesCollection';
@@ -16,7 +17,7 @@ export const getBoxCalibrationConstant = new ValidatedMethod({
     box_id: { type: String },
   }).validator({ clean: true }),
   run({ box_id }) {
-    if (!this.isSimulation) {
+    if (Meteor.isServer) {
       const opqBox = OpqBoxes.findOne({ box_id });
       return (opqBox) ? opqBox.calibration_constant : null;
     }
@@ -28,7 +29,7 @@ export const getBoxIDs = new ValidatedMethod({
   name: 'OpqBoxes.getBoxIDs',
   validate: new SimpleSchema({}).validator({ clean: true }),
   run() {
-    if (!this.isSimulation) {
+    if (Meteor.isServer) {
       const opqBoxes = OpqBoxes.find({});
       const boxIDs = opqBoxes.map(box => box.box_id);
       return boxIDs;

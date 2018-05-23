@@ -1,3 +1,4 @@
+import { Meteor } from 'meteor/meteor';
 import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import SimpleSchema from 'simpl-schema';
 import { FSFiles } from './FSFilesCollection';
@@ -9,7 +10,7 @@ export const getEventData = new ValidatedMethod({
     filename: { type: String },
   }).validator({ clean: true }),
   run({ filename }) {
-    if (!this.isSimulation) {
+    if (Meteor.isServer) {
       // Get file and chunks
       const file = FSFiles.findOne({ filename });
       const chunks = FSChunks.find({ files_id: file._id }, { sort: { n: 1 } }).fetch();
