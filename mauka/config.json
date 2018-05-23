@@ -26,7 +26,8 @@
 
   "plugins.MeasurementPlugin.sample_every": 3.0,
 
-  "plugins.ThdPlugin.getDataAfterS": 10.0,
+  "plugins.ThdPlugin.threshold.percent": 5.0,
+  "plugins.ThdPlugin.window.size.ms": 200,
 
   "plugins.ThresholdPlugin.voltage.ref": 120.0,
   "plugins.ThresholdPlugin.voltage.threshold.percent.low": 5.0,

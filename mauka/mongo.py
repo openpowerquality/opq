@@ -1,11 +1,12 @@
 """
 This module contains classes and functions for querying and manipulating data within a mongo database.
 """
+import enum
 import typing
 
+import gridfs
 import numpy
 import pymongo
-import gridfs
 
 
 def to_s16bit(data: bytes) -> numpy.ndarray:
@@ -17,7 +18,7 @@ def to_s16bit(data: bytes) -> numpy.ndarray:
     return numpy.frombuffer(data, numpy.int16)
 
 
-class BoxEventType:
+class BoxEventType(enum.Enum):
     """String enumerations and constants for event types"""
     FREQUENCY_DIP = "FREQUENCY_SAG"
     FREQUENCY_SWELL = "FREQUENCY_SWELL"
@@ -27,12 +28,13 @@ class BoxEventType:
     OTHER = "OTHER"
 
 
-class Collection:
+class Collection(enum.Enum):
     """String enumerations and constants for collection names"""
     MEASUREMENTS = "measurements"
     EVENTS = "events"
     BOX_EVENTS = "box_events"
     OPQ_BOXES = "opq_boxes"
+    ANOMALIES = "anomalies"
 
 
 class OpqMongoClient:
@@ -55,17 +57,20 @@ class OpqMongoClient:
         self.fs = gridfs.GridFS(self.db)
         """Access to MongoDB gridfs"""
 
-        self.events_collection = self.get_collection(Collection.EVENTS)
+        self.events_collection = self.get_collection(Collection.EVENTS.name)
         """Events collections"""
 
-        self.measurements_collection = self.get_collection(Collection.MEASUREMENTS)
+        self.measurements_collection = self.get_collection(Collection.MEASUREMENTS.name)
         """Measurements collection"""
 
-        self.box_events_collection = self.get_collection(Collection.BOX_EVENTS)
+        self.box_events_collection = self.get_collection(Collection.BOX_EVENTS.name)
         """Box events collection"""
 
-        self.opq_boxes_collection = self.get_collection(Collection.OPQ_BOXES)
+        self.opq_boxes_collection = self.get_collection(Collection.OPQ_BOXES.name)
         """Opq boxes collection"""
+
+        self.anomalies_collection = self.get_collection(Collection.ANOMALIES.name)
+        "Anomalies collection"
 
     def get_collection(self, collection: str):
         """ Returns a mongo collection by name
@@ -155,21 +160,33 @@ def get_default_client(mongo_client: OpqMongoClient = None) -> OpqMongoClient:
         return mongo_client
 
 
-def make_anomaly_document(box_event_id: int,
+def make_anomaly_document(event_id: int,
+                          box_id: str,
                           anomaly_type: str,
                           location: str,
-                          start_timestamp_ms: int,
-                          end_timestamp_ms: int,
-                          data: typing.Dict = None) -> typing.Dict:
+                          start_timestamp_ms: float,
+                          end_timestamp_ms: float,
+                          duration_ms: float,
+                          start_idx: int,
+                          end_idx: int,
+                          data: typing.Dict = None,
+                          measurements = None,
+                          trends = None) -> typing.Dict:
     if data is None:
         data = dict()
     return {
-        "box_event_id": box_event_id,
+        "event_id": event_id,
+        "box_id": box_id,
         "anomaly_type": anomaly_type,
         "location": location,
         "start_timestamp_ms": start_timestamp_ms,
         "end_timestamp_ms": end_timestamp_ms,
-        "data": data
+        "duration_ms": duration_ms,
+        "start_idx": start_idx,
+        "end_idx": end_idx,
+        "data": data,
+        "measurements": measurements,
+        "trends": trends
     }
 
 
