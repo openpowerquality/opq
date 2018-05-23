@@ -12,7 +12,7 @@
   "zmq.mauka.plugin.management.rep.interface": "tcp://*:12000",
   "zmq.mauka.plugin.management.req.interface": "tcp://localhost:12000",
 
-  "mongo.host": "emilia.ics.hawaii.edu",
+  "mongo.host": "localhost",
   "mongo.port": 27017,
   "mongo.db": "opq",
 
