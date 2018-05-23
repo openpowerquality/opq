@@ -131,10 +131,13 @@ class OpqBoxLeafletMarkerManager extends React.Component {
   }
 
   addMarkerLeafletElementToDict(opqBox) {
-    return (ref) => {
-      this.createOrUpdateOpqBoxAndMarkersDictEntry(opqBox._id.toHexString(), {
-        markerLeafletElement: ref.leafletElement,
-      });
+    return (elem) => {
+      // Elem can sometimes be null due to React's mounting and unmounting behavior.
+      if (elem) {
+        this.createOrUpdateOpqBoxAndMarkersDictEntry(opqBox._id.toHexString(), {
+          markerLeafletElement: elem.leafletElement,
+        });
+      }
     };
   }
 
