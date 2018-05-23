@@ -105,7 +105,7 @@ class ThdPlugin(plugins.base.MaukaPlugin):
             else:
                 # We only care if this is the end of an anomaly
                 if prev_beyond_threshold:
-                    self.debug("ThdPlugin: Found anomaly.")
+                    self.debug("Found anomaly.")
                     anomaly = mongo.make_anomaly_document(event_id,                                 # Event id
                                                           box_id,                                   # box id
                                                           mongo.BoxEventType.THD.value,              # Event name
@@ -129,7 +129,7 @@ class ThdPlugin(plugins.base.MaukaPlugin):
         :param message: Contents of the message.
         """
         event_id, box_id, waveform = pickle.loads(message)
-        self.debug("ThdPlugin: Calculating THD for event {} and box {} with waveform of len {}".format(event_id, box_id,
+        self.debug("Calculating THD for event {} and box {} with waveform of len {}".format(event_id, box_id,
                                                                                                        len(waveform)))
         self.sliding_thd(event_id, box_id, waveform)
 

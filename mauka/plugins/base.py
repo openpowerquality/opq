@@ -228,7 +228,7 @@ class MaukaPlugin:
 
     def debug(self, msg: str):
         if self.mauka_debug:
-            self.logger.debug(msg)
+            self.logger.debug("{}: {}".format(self.name, msg))
 
     def _run(self):
         """This is the run loop for this plugin process"""

@@ -50,6 +50,7 @@ class MakaiEventPlugin(plugins.base.MaukaPlugin):
 
     def acquire_data(self, event_id: int):
         box_events = self.mongo_client.box_events_collection.find({"event_id": event_id})
+        self.debug("len(box_events): {}".format(box_events.count()))
         for box_event in box_events:
             waveform = mongo.get_waveform(self.mongo_client, box_event["data_fs_filename"])
             box_id = box_event["box_id"]
@@ -58,10 +59,14 @@ class MakaiEventPlugin(plugins.base.MaukaPlugin):
             waveform_vrms = vrms_waveform(waveform_calibrated)
 
             self.produce("Waveform", pickle.dumps((event_id, box_id, waveform)))
+            self.debug("Sending waveform {}".format(len(waveform)))
             self.produce("CalibratedWaveform", pickle.dumps((event_id, box_id, waveform_calibrated)))
+            self.debug("Sending calibrated waveform {}".format(len(waveform_calibrated)))
             self.produce("VrmsWaveform", pickle.dumps((event_id, box_id, waveform_vrms)))
+            self.debug("Sending vrms waveform {}".format(len(waveform_vrms)))
 
     def on_message(self, topic, message):
         event_id = int(message)
-        timer = threading.Timer(self.get_data_after_s, self.acquire_data, [event_id])
+        self.debug("Recv event_id {}".format(event_id))
+        timer = threading.Timer(self.get_data_after_s, function=self.acquire_data, args=[event_id])
         timer.start()
