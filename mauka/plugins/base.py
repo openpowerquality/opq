@@ -119,6 +119,8 @@ class MaukaPlugin:
         # Every plugin subscribes to itself to allow for plugin control
         self.subscriptions.append(name)
 
+        self.mauka_debug = self.config["mauka.debug"]
+
     def get_status(self) -> str:
         """ Return the status of this plugin
         :return: The status of this plugin
@@ -223,6 +225,10 @@ class MaukaPlugin:
         """
         if "EXIT" == message:
             self.exit_event.set()
+
+    def debug(self, msg: str):
+        if self.mauka_debug:
+            self.logger.debug(msg)
 
     def _run(self):
         """This is the run loop for this plugin process"""

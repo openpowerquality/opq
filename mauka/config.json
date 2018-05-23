@@ -1,4 +1,6 @@
 {
+  "mauka.debug": true,
+
   "zmq.triggering.interface"      : "tcp://localhost:9881",
   "zmq.event.interface"           : "tcp://localhost:9899",
   "zmq.mauka.broker.pub.interface": "tcp://*:9883",
