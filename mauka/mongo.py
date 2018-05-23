@@ -57,19 +57,19 @@ class OpqMongoClient:
         self.fs = gridfs.GridFS(self.db)
         """Access to MongoDB gridfs"""
 
-        self.events_collection = self.get_collection(Collection.EVENTS.name)
+        self.events_collection = self.get_collection(Collection.EVENTS.value)
         """Events collections"""
 
-        self.measurements_collection = self.get_collection(Collection.MEASUREMENTS.name)
+        self.measurements_collection = self.get_collection(Collection.MEASUREMENTS.value)
         """Measurements collection"""
 
-        self.box_events_collection = self.get_collection(Collection.BOX_EVENTS.name)
+        self.box_events_collection = self.get_collection(Collection.BOX_EVENTS.value)
         """Box events collection"""
 
-        self.opq_boxes_collection = self.get_collection(Collection.OPQ_BOXES.name)
+        self.opq_boxes_collection = self.get_collection(Collection.OPQ_BOXES.value)
         """Opq boxes collection"""
 
-        self.anomalies_collection = self.get_collection(Collection.ANOMALIES.name)
+        self.anomalies_collection = self.get_collection(Collection.ANOMALIES.value)
         "Anomalies collection"
 
     def get_collection(self, collection: str):
