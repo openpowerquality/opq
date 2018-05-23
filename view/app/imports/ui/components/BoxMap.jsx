@@ -11,6 +11,7 @@ import { withStateContainer } from '../utils/hocs';
 import { OpqBoxes } from '../../api/opq-boxes/OpqBoxesCollection';
 import { BoxOwners } from '../../api/users/BoxOwnersCollection';
 import { Locations } from '../../api/locations/LocationsCollection';
+import { Regions } from '../../api/regions/RegionsCollection';
 import { getZipcodeLatLng } from '../../api/zipcodes/ZipcodesCollectionMethods';
 import WidgetPanel from '../layouts/WidgetPanel';
 import OpqBoxLeafletMarkerManager from './OpqBoxLeafletMarkerManager';
@@ -26,8 +27,14 @@ class BoxMap extends React.Component {
       THD_DATA: 'thd_data',
     };
 
+    this.mapLocationGranularityTypes = {
+      BOX_LOCATION: 'box_location',
+      BOX_REGION: 'box_region',
+    };
+
     this.state = {
       currentMapDataDisplay: this.mapDataDisplayTypes.VOLTAGE_DATA,
+      currentMapLocationGranularity: this.mapLocationGranularityTypes.BOX_LOCATION,
       expandedItemBoxId: '', // Refers to the most recently selected Box in the map side panel listing of boxes.
     };
   }
@@ -218,36 +225,62 @@ class BoxMap extends React.Component {
   mapMeasurementsControl() {
     return (
         <Form>
-          <Form.Field>
-            <Checkbox
-                radio
-                label='Voltage'
-                name='measurementsControlRadioGroup'
-                value={this.mapDataDisplayTypes.VOLTAGE_DATA}
-                checked={this.state.currentMapDataDisplay === this.mapDataDisplayTypes.VOLTAGE_DATA}
-                onChange={this.mapMeasurementControlHandleChange.bind(this)}
-            />
-          </Form.Field>
-          <Form.Field>
-            <Checkbox
-                radio
-                label='Frequency'
-                name='measurementsControlRadioGroup'
-                value={this.mapDataDisplayTypes.FREQUENCY_DATA}
-                checked={this.state.currentMapDataDisplay === this.mapDataDisplayTypes.FREQUENCY_DATA}
-                onChange={this.mapMeasurementControlHandleChange.bind(this)}
-            />
-          </Form.Field>
-          <Form.Field>
-            <Checkbox
-                radio
-                label='THD'
-                name='measurementsControlRadioGroup'
-                value={this.mapDataDisplayTypes.THD_DATA}
-                checked={this.state.currentMapDataDisplay === this.mapDataDisplayTypes.THD_DATA}
-                onChange={this.mapMeasurementControlHandleChange.bind(this)}
-            />
-          </Form.Field>
+          <Form.Group grouped>
+            <label>Measurement Type</label>
+            <Form.Field>
+              <Checkbox
+                  radio
+                  label='Voltage'
+                  name='measurementTypeRadioGroup'
+                  value={this.mapDataDisplayTypes.VOLTAGE_DATA}
+                  checked={this.state.currentMapDataDisplay === this.mapDataDisplayTypes.VOLTAGE_DATA}
+                  onChange={this.mapMeasurementControlHandleChange.bind(this)}
+              />
+            </Form.Field>
+            <Form.Field>
+              <Checkbox
+                  radio
+                  label='Frequency'
+                  name='measurementTypeRadioGroup'
+                  value={this.mapDataDisplayTypes.FREQUENCY_DATA}
+                  checked={this.state.currentMapDataDisplay === this.mapDataDisplayTypes.FREQUENCY_DATA}
+                  onChange={this.mapMeasurementControlHandleChange.bind(this)}
+              />
+            </Form.Field>
+            <Form.Field>
+              <Checkbox
+                  radio
+                  label='THD'
+                  name='measurementTypeRadioGroup'
+                  value={this.mapDataDisplayTypes.THD_DATA}
+                  checked={this.state.currentMapDataDisplay === this.mapDataDisplayTypes.THD_DATA}
+                  onChange={this.mapMeasurementControlHandleChange.bind(this)}
+              />
+            </Form.Field>
+          </Form.Group>
+          <Form.Group grouped>
+            <label>Box Location Granularity</label>
+            <Form.Field>
+              <Checkbox
+                  radio
+                  label='Exact Location'
+                  name='clusterControlGroup'
+                  value={this.mapLocationGranularityTypes.BOX_LOCATION}
+                  checked={this.state.currentMapLocationGranularity === this.mapLocationGranularityTypes.BOX_LOCATION}
+                  onChange={this.mapLocationGranularityHandleChange.bind(this)}
+              />
+            </Form.Field>
+            <Form.Field>
+              <Checkbox
+                  radio
+                  label='Region'
+                  name='clusterControlGroup'
+                  value={this.mapLocationGranularityTypes.BOX_REGION}
+                  checked={this.state.currentMapLocationGranularity === this.mapLocationGranularityTypes.BOX_REGION}
+                  onChange={this.mapLocationGranularityHandleChange.bind(this)}
+              />
+            </Form.Field>
+          </Form.Group>
         </Form>
     );
   }
@@ -255,6 +288,12 @@ class BoxMap extends React.Component {
   mapMeasurementControlHandleChange(event, selectedComponent) {
     const value = selectedComponent.value;
     this.setState({ currentMapDataDisplay: value });
+  }
+
+  mapLocationGranularityHandleChange(event, selectedComponent) {
+    const value = selectedComponent.value;
+    this.setState({ currentMapLocationGranularity: value });
+    this.opqBoxLeafletMarkerManagerRefElem.updateMarkerPositions(value);
   }
 
   setMapRef(elem) {
@@ -279,10 +318,10 @@ class BoxMap extends React.Component {
   }
 
   renderPage() {
-    const { opqBoxes, locations, zipcodeLatLngDict } = this.props;
+    const { opqBoxes, locations, regions, zipcodeLatLngDict } = this.props;
     // Initial map center based on arbitrarily chosen OpqBox location. Sidenote: It seems like we're storing location
     // coordinates as [lng, lat] instead of the more traditional [lat, lng]. Intentional?
-    const center = this.getOpqBoxLocationDoc(opqBoxes[0]).coordinates.reverse();
+    const center = this.getOpqBoxLocationDoc(opqBoxes[0]).coordinates.slice().reverse();
 
     return (
         <WidgetPanel title="Box Map">
@@ -312,7 +351,9 @@ class BoxMap extends React.Component {
                 opqBoxes={opqBoxes}
                 zipcodeLatLngDict={zipcodeLatLngDict}
                 locations={locations}
+                regions={regions}
                 currentMapDataDisplay={this.state.currentMapDataDisplay}
+                mapLocationGranularityTypes={this.mapLocationGranularityTypes}
                 mapDataDisplayTypes={this.mapDataDisplayTypes} />
           </Map>
         </WidgetPanel>
@@ -324,6 +365,7 @@ BoxMap.propTypes = {
   ready: PropTypes.bool.isRequired,
   opqBoxes: PropTypes.array.isRequired,
   locations: PropTypes.array.isRequired,
+  regions: PropTypes.array.isRequired,
   zipcodeLatLngDict: PropTypes.object.isRequired,
 };
 
@@ -360,6 +402,7 @@ const withTrackerCallback = props => {
   const opqBoxesSub = Meteor.subscribe(OpqBoxes.publicationNames.GET_CURRENT_USER_OPQ_BOXES);
   const boxOwnersSub = Meteor.subscribe(BoxOwners.publicationNames.GET_CURRENT_USER_BOX_OWNERS);
   const locationsSub = Meteor.subscribe(Locations.getCollectionName()); // We'll just grab all locations for now.
+  const regionsSub = Meteor.subscribe(Regions.getCollectionName()); // Grab all regions as well.
   const currentUser = Meteor.user();
   let opqBoxes = [];
   if (currentUser) {
@@ -367,33 +410,50 @@ const withTrackerCallback = props => {
     opqBoxes = OpqBoxes.find({ box_id: { $in: boxIds } }).fetch();
   }
 
-  // Once OpqBoxes subscriptions ready, we make Meteor method calls to retrieve OpqBox lat-lng (from their zipcode).
-  if (opqBoxesSub.ready() && boxOwnersSub.ready() && !methodCallsComplete) {
-    let numCallsRemaining = opqBoxes.filter(opqBox => opqBox.locations).length;
-    // If no boxes for user, mark as complete immediately.
-    if (opqBoxes.length === 0) props.setContainerState({ methodCallsComplete: true });
-    opqBoxes.forEach(box => {
-      // Not all boxes have a locations field anymore. Might remove this altogether once new data model is confirmed.
-      if (box.locations) {
-        const zipcode = box.locations[box.locations.length - 1].zipcode;
-        getZipcodeLatLng.call({ zipcode }, (error, zipcodeDoc) => {
-          if (error) console.log(error);
-          else {
-            const currentZipcodes = zipcodeLatLngDict;
-            currentZipcodes[zipcodeDoc.zipcode] = [zipcodeDoc.latitude, zipcodeDoc.longitude];
-            props.setContainerState({ zipcodeLatLngDict: currentZipcodes });
-          }
-          --numCallsRemaining;
-          if (numCallsRemaining === 0) props.setContainerState({ methodCallsComplete: true });
-        });
-      }
+  // Once OpqBoxes subscriptions ready, we make Meteor method calls to retrieve lat-lng from zipcodes for each
+  // Region document and OpqBox document that has a locations property.
+  // Note: OpqBox.locations might be deprecated now that we have a Locations entity; double check with team.
+  if (opqBoxesSub.ready() && boxOwnersSub.ready() && regionsSub.ready() && !methodCallsComplete) {
+    // Combine all zipcodes (regions and boxes) that we need to check into a single array for simplicity.
+    const boxZipcodes = opqBoxes
+                            .filter(opqBox => opqBox.locations && opqBox.locations.length)
+                            .map(opqBox => opqBox.locations[opqBox.locations.length - 1].zipcode);
+
+    const regions = Regions.find().fetch();
+    // Currently, regionSlug is only storing zipcodes (string), but this might change in the future, so let's
+    // ensure we are only dealing with a zipcode here by checking that the string has 5 characters and is numeric.
+    const regionZipcodes = regions
+                              .filter(region => region.regionSlug && region.regionSlug.length === 5
+                                                && !Number.isNaN(region.regionSlug))
+                              .map(region => region.regionSlug);
+
+    // Combine zipcodes and filter unique values so we don't perform extra Meteor method calls.
+    const combinedZipcodes = [...regionZipcodes, ...boxZipcodes]
+                                  .filter((zipcode, idx, arr) => arr.indexOf(zipcode) === idx);
+
+    let numCallsRemaining = combinedZipcodes.length;
+    // If no zipcodes to check, mark as complete immediately.
+    if (!combinedZipcodes.length) props.setContainerState({ methodCallsComplete: true });
+    combinedZipcodes.forEach(zipcode => {
+      getZipcodeLatLng.call({ zipcode }, (error, zipcodeDoc) => {
+        if (error) console.log(error);
+        else {
+          const currentZipcodes = zipcodeLatLngDict;
+          currentZipcodes[zipcodeDoc.zipcode] = [zipcodeDoc.latitude, zipcodeDoc.longitude];
+          props.setContainerState({ zipcodeLatLngDict: currentZipcodes });
+        }
+        --numCallsRemaining;
+        if (numCallsRemaining === 0) props.setContainerState({ methodCallsComplete: true });
+      });
     });
   }
 
   return {
-    ready: opqBoxesSub.ready() && boxOwnersSub.ready() && locationsSub.ready() && methodCallsComplete,
+    ready: opqBoxesSub.ready() && boxOwnersSub.ready() && locationsSub.ready() &&
+    regionsSub.ready() && methodCallsComplete,
     opqBoxes: opqBoxes,
     locations: Locations.find().fetch(),
+    regions: Regions.find().fetch(),
     zipcodeLatLngDict: zipcodeLatLngDict,
   };
 };

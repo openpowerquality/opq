@@ -65,6 +65,48 @@ class OpqBoxLeafletMarkerManager extends React.Component {
     }
   }
 
+  updateMarkerPositions(currentMapLocationGranularity) {
+    const { opqBoxAndMarkersDict } = this.state;
+    const { opqBoxes, mapLocationGranularityTypes } = this.props;
+
+    opqBoxes.forEach(opqBox => {
+      const marker = opqBoxAndMarkersDict[opqBox._id.toHexString()].markerLeafletElement;
+      let newLatLng = null;
+      switch (currentMapLocationGranularity) {
+        case mapLocationGranularityTypes.BOX_LOCATION:
+          // For some reason, we are storing coordinates as [lng, lat] rather than [lat, lng]
+          newLatLng = this.getOpqBoxLocationDoc(opqBox).coordinates.slice().reverse();
+          break;
+        case mapLocationGranularityTypes.BOX_REGION:
+          newLatLng = this.getOpqBoxRegionCoords(opqBox);
+          break;
+        default:
+          break;
+      }
+      if (newLatLng) marker.setLatLng(newLatLng);
+    });
+  }
+
+  getOpqBoxRegionDoc(opqBox) {
+    const { regions } = this.props;
+    return regions.find(region => region.locationSlug === opqBox.location);
+  }
+
+  getOpqBoxRegionCoords(opqBox) {
+    const { zipcodeLatLngDict } = this.props;
+    const regionDoc = this.getOpqBoxRegionDoc(opqBox);
+    // Ensure that regionSlug is a zipcode. Currently, regionSlug is only storing zipcodes (string), but this might
+    // change in the future, so let's ensure we are only dealing with a zipcode here by checking that the string
+    // has 5 characters and is numeric.
+    if (regionDoc && regionDoc.regionSlug && regionDoc.regionSlug.length === 5 && !Number.isNaN(regionDoc.regionSlug)) {
+      const zipcode = regionDoc.regionSlug; // We now know that regionSlug is a zipcode string.
+      // Retrieve zipcode coords from dict
+      const coords = zipcodeLatLngDict[zipcode];
+      return coords;
+    }
+    return null;
+  }
+
   filterCurrentMapDataDisplay(measurement, measurementType, format = false) {
     const { mapDataDisplayTypes } = this.props;
     if (!measurement && format) return 'No Data';
@@ -264,7 +306,7 @@ class OpqBoxLeafletMarkerManager extends React.Component {
     this.createOrUpdateOpqBoxAndMarkersDictEntry(opqBox._id.toHexString(), { opqBox });
     const initialMarkerHtml = `<div><b>${opqBox.name}</div>`;
     // For some reason, we are storing coordinates as [lng, lat] rather than [lat, lng]
-    const markerPosition = this.getOpqBoxLocationDoc(opqBox).coordinates.reverse();
+    const markerPosition = this.getOpqBoxLocationDoc(opqBox).coordinates.slice().reverse();
     const newMarker = <Marker
                         ref={this.addMarkerLeafletElementToDict.bind(this)(opqBox)}
                         // icon={this.opqBoxIcon(initialMarkerHtml)}
@@ -407,10 +449,12 @@ OpqBoxLeafletMarkerManager.propTypes = {
   ready: PropTypes.bool.isRequired,
   opqBoxes: PropTypes.array.isRequired,
   locations: PropTypes.array.isRequired,
+  regions: PropTypes.array.isRequired,
   zipcodeLatLngDict: PropTypes.object.isRequired,
   measurements: PropTypes.array.isRequired,
   currentMapDataDisplay: PropTypes.string.isRequired,
   mapDataDisplayTypes: PropTypes.object.isRequired,
+  mapLocationGranularityTypes: PropTypes.object.isRequired,
 };
 
 export default withTracker(props => {

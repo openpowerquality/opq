@@ -8,6 +8,7 @@ import { SystemStats } from '../../api/system-stats/SystemStatsCollection.js';
 import { OpqBoxes } from '../../api/opq-boxes/OpqBoxesCollection';
 import { Measurements } from '../../api/measurements/MeasurementsCollection';
 import { UserProfiles } from '../../api/users/UserProfilesCollection';
+import { Regions } from '../../api/regions/RegionsCollection';
 
 BoxEvents.publish();
 BoxOwners.publish();
@@ -19,3 +20,4 @@ OpqBoxes.publish();
 SystemStats.publish();
 Trends.publish();
 UserProfiles.publish();
+Regions.publish();
