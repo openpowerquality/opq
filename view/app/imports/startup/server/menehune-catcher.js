@@ -15,24 +15,27 @@ import { OpqBoxes } from '../../api/opq-boxes/OpqBoxesCollection';
  *   * The first entry is the first minute that box2 was observed to be unplugged.
  */
 function startupMenehuneCatcherCronjob() {
-  const updateIntervalSeconds = 60;
-  SyncedCron.add({
-    name: 'Catch the menehune who are setting OPQBox 2 to unplugged!',
-    schedule(parser) {
-      return parser.text(`every ${updateIntervalSeconds} seconds`); // Parser is a later.js parse object.
-    },
-    job() {
-      const box2 = OpqBoxes.findBox('2');
-      if (!box2) {
-        return 'Box 2 not found';
-      }
-      const box2Unplugged = OpqBoxes.findBox('2').unplugged;
-      const currentTime = Moment().format('lll');
-      return `${currentTime}: ${box2Unplugged ? 'CAUGHT A MENEHUNE!!!!!!!!!!!!!!!!' : ''}`;
-    },
-  });
-  console.log(`Starting MenehuneCatcher every ${updateIntervalSeconds} seconds.`);
-  SyncedCron.start();
+  // Only set up Cron Job when not in Test mode.
+  if (!Meteor.isTest && !Meteor.isAppTest) {
+    const updateIntervalSeconds = 60;
+    SyncedCron.add({
+      name: 'Catch the menehune who are setting OPQBox 2 to unplugged!',
+      schedule(parser) {
+        return parser.text(`every ${updateIntervalSeconds} seconds`); // Parser is a later.js parse object.
+      },
+      job() {
+        const box2 = OpqBoxes.findBox('2');
+        if (!box2) {
+          return 'Box 2 not found';
+        }
+        const box2Unplugged = OpqBoxes.findBox('2').unplugged;
+        const currentTime = Moment().format('lll');
+        return `${currentTime}: ${box2Unplugged ? 'CAUGHT A MENEHUNE!!!!!!!!!!!!!!!!' : ''}`;
+      },
+    });
+    console.log(`Starting MenehuneCatcher every ${updateIntervalSeconds} seconds.`);
+    SyncedCron.start();
+  }
 }
 
 Meteor.startup(() => {

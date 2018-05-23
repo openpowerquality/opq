@@ -1,3 +1,4 @@
+import { Meteor } from 'meteor/meteor';
 import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import SimpleSchema from 'simpl-schema';
 import Moment from 'moment';
@@ -17,7 +18,7 @@ export const getMostRecentTrendMonth = new ValidatedMethod({
   name: 'Trends.mostRecentTrendMonth',
   validate: new SimpleSchema({}).validator({ clean: true }),
   run() {
-    if (!this.isSimulation) {
+    if (Meteor.isServer) {
       const trend = Trends.findOne({}, { sort: { timestamp_ms: -1 } });
       const trendMoment = Moment(trend.timestamp_ms);
       const month = trendMoment.month(); // 0-indexed month integers (January is 0)

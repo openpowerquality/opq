@@ -24,7 +24,7 @@ if (Meteor.isServer) {
       const boxIds = ['1', '2'];
       let role = ROLE.ADMIN;
       const profileID = UserProfiles.define({ username, password, firstName, lastName, role, boxIds });
-      expect(UserProfiles.isDefined(profileID)).to.be.true;
+      expect(UserProfiles.isDefined(profileID)).to.exist;
       // Check that we can update the username by calling define again.
       role = 'user';
       const profileID2 = UserProfiles.define({ username, password, firstName, lastName, role });

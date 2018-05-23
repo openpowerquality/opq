@@ -73,7 +73,7 @@ class UserProfilesCollection extends BaseCollection {
       // Return the profileID if executed on the server.
       return profileId;
     }
-    // Return undefined if executed on the client (which shouldn't ever happen.)
+    // Return undefined if executed on the client.
     return undefined;
   }
 
@@ -92,25 +92,50 @@ class UserProfilesCollection extends BaseCollection {
   }
 
   /**
-   * Removes the user from Meteor.users and from UserProfiles.
-   * If username does not exist, then returns false.
-   * Will only work on the server-side.
-   * @param username A username
-   * @returns True if the username exists and was deleted, false otherwise.
+   * Updates the User Profile.
+   * @param id Must be a valid UserProfile docID.
+   * @param args An object containing fields to be updated.
+   * The only two fields that can be updated are firstName and lastName.
+   * @throws { Meteor.Error } If docID is not defined.
+   * @returns An object containing the updated fields.
    */
-  remove(username) {
+  update(docID, args) {
     if (Meteor.isServer) {
-      const profile = this.findOne({ username });
+      this.assertIsDefined(docID);
+      const updateData = {};
+      if (args.firstName) {
+        updateData.firstName = args.firstName;
+      }
+      if (args.lastName) {
+        updateData.lastName = args.lastName;
+      }
+      this._collection.update(docID, { $set: updateData });
+      return updateData;
+    }
+    return undefined;
+  }
+
+  /**
+   * Removes the user from Meteor.users and from UserProfiles.
+   * If docID does not exist, then returns false.
+   * Will only work on the server-side.
+   * @param docID A docID
+   * @returns True if the docID exists and was deleted, false otherwise.
+   */
+  remove(docID) {
+    if (Meteor.isServer) {
+      const profile = this.findOne(docID);
       if (profile) {
-        this._collection.remove({ username });
-        const user = Accounts.findUserByUsername(username);
+        this._collection.remove(docID);
+        const user = Accounts.findUserByUsername(profile.username);
         if (user) {
           Meteor.users.remove(user._id);
         }
         return true;
       }
+      return false;
     }
-    return false;
+    return undefined;
   }
 
   /**

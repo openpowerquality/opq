@@ -18,7 +18,7 @@ export const getBoxEvent = new ValidatedMethod({
     box_id: { type: String },
   }).validator({ clean: true }),
   run({ event_id, box_id }) {
-    if (!this.isSimulation) {
+    if (Meteor.isServer) {
       const boxEvent = BoxEvents.findOne({ event_id, box_id }, {});
       // eslint-disable-next-line max-len, camelcase
       if (!boxEvent) throw new Meteor.Error('BoxEvents document not found', `Document not found for event_number: ${event_id}, box_id: ${box_id}`);

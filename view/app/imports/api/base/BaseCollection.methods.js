@@ -26,19 +26,17 @@ export const updateMethod = new ValidatedMethod({
   run({ collectionName, updateData }) {
     const collection = OPQ.getCollection(collectionName);
     collection.assertValidRoleForMethod(this.userId);
-    collection.update(updateData.id, updateData);
-    return true;
+    return collection.update(updateData.id, updateData);
   },
 });
 
-export const removeItMethod = new ValidatedMethod({
-  name: 'BaseCollection.removeIt',
+export const removeMethod = new ValidatedMethod({
+  name: 'BaseCollection.remove',
   mixins: [CallPromiseMixin],
   validate: null,
-  run({ collectionName, instance }) {
+  run({ collectionName, docID }) {
     const collection = OPQ.getCollection(collectionName);
     collection.assertValidRoleForMethod(this.userId);
-    collection.removeIt(instance);
-    return true;
+    return collection.remove(docID);
   },
 });

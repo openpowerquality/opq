@@ -1,0 +1,88 @@
+{
+  "timestamp": "2018-05-22T20:00:00.000Z",
+  "fixtureDescription": "Defines a single entity in a selection of OPQ collections to show how it's done.",
+  "collections": [
+    {
+      "name": "opq_boxes",
+      "contents": [
+        {
+          "box_id": "1000",
+          "name": "Test Box 1000",
+          "description": "Version 2.5, 2016",
+          "calibration_constant": 152.1,
+          "location": "Test-Location-001",
+          "location_start_time_ms": "2017-05-15 13:00:00"
+        },
+        {
+          "box_id": "1001",
+          "name": "Test Box 1001",
+          "description": "Version 2.5, 2016",
+          "calibration_constant": 152.1,
+          "location": "Test-Location-002",
+          "location_start_time_ms": "2017-05-15 13:00:00"
+        }
+      ]
+    },
+    {
+      "name": "UserProfiles",
+      "contents": [
+        {
+          "username": "test-user-001@hawaii.edu",
+          "password": "foo",
+          "firstName": "Test",
+          "lastName": "User-001",
+          "role": "admin",
+          "boxIds": [
+            "1000",
+            "1001"
+          ]
+        },
+        {
+          "username": "test-user-002@hawaii.edu",
+          "password": "foo",
+          "firstName": "Test",
+          "lastName": "User-002",
+          "role": "admin",
+          "boxIds": [
+            "1000",
+            "1001"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "locations",
+      "contents": [
+        {
+          "coordinates": [
+            -157.751399,
+            21.409958
+          ],
+          "slug": "Test-Location-001",
+          "description": "Residence, Kailua"
+        },
+        {
+          "coordinates": [
+            -157.816176,
+            21.297421
+          ],
+          "slug": "Test-Location-002",
+          "description": "POST 307, UH"
+        }
+      ]
+    },
+    {
+      "name": "regions",
+      "contents": [
+        {
+          "regionSlug": "Test-Region-001",
+          "locationSlug": "Test-Location-001"
+        },
+        {
+          "regionSlug": "Test-Region-002",
+          "locationSlug": "Test-Location-002"
+        }
+      ]
+    }
+  ]
+}
