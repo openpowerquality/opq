@@ -53,9 +53,9 @@ class VoltageThresholdPlugin(plugins.ThresholdPlugin.ThresholdPlugin):
         threshold_type = threshold_event.threshold_type
 
         if threshold_type == "LOW":
-            event_type = mongo.BoxEventType.VOLTAGE_DIP
+            event_type = mongo.BoxEventType.VOLTAGE_DIP.value
         elif threshold_type == "HIGH":
-            event_type = mongo.BoxEventType.VOLTAGE_SWELL
+            event_type = mongo.BoxEventType.VOLTAGE_SWELL.value
         else:
             self.logger.error("Unknown threshold type {}".format(threshold_type))
             return

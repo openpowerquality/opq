@@ -108,7 +108,7 @@ class ThdPlugin(plugins.base.MaukaPlugin):
                     self.debug("ThdPlugin: Found anomaly.")
                     anomaly = mongo.make_anomaly_document(event_id,                                 # Event id
                                                           box_id,                                   # box id
-                                                          mongo.BoxEventType.THD.name,              # Event name
+                                                          mongo.BoxEventType.THD.value,              # Event name
                                                           "unknown",                                # Location
                                                           0,                                        # Start ts ms
                                                           0,                                        # End ts ms
