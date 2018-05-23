@@ -5,17 +5,15 @@ import { _ } from 'lodash';
 import SimpleSchema from 'simpl-schema';
 import BaseCollection from '../base/BaseCollection';
 import { BoxOwners } from './BoxOwnersCollection';
+import { ROLE } from '../opq/Role';
 
 /**
  * User Profiles (first and last name, role, and username (email).
  * To create a new User, call UserProfiles.define(), which both defines the profile and creates the Meteor.user.
- * Docs: https://open-power-quality.gitbooks.io/open-power-quality-manual/content/datamodel/description.html#users
+ * @see {@link https://openpowerquality.org/docs/cloud-datamodel.html#users}
  */
 class UserProfilesCollection extends BaseCollection {
 
-  /**
-   * Creates the User Profiles collection.
-   */
   constructor() {
     super('UserProfiles', new SimpleSchema({
       username: String,
@@ -46,7 +44,7 @@ class UserProfilesCollection extends BaseCollection {
       });
 
       // Role must be either 'user' or 'admin'.
-      if (role !== 'user' && role !== 'admin') {
+      if (role !== ROLE.USER && role !== ROLE.ADMIN) {
         throw new Meteor.Error('Invalid user role - must either be "user" or "admin"');
       }
 
@@ -75,7 +73,7 @@ class UserProfilesCollection extends BaseCollection {
       // Return the profileID if executed on the server.
       return profileId;
     }
-    // Return undefined if executed on the client (which shouldn't ever happen.)
+    // Return undefined if executed on the client.
     return undefined;
   }
 
@@ -94,39 +92,50 @@ class UserProfilesCollection extends BaseCollection {
   }
 
   /**
-   * Returns an object representing a single UserProfile.
-   * @param {Object} docID - The Mongo.ObjectID of the User.
-   * @returns {Object} - An object representing a single UserProfile.
+   * Updates the User Profile.
+   * @param id Must be a valid UserProfile docID.
+   * @param args An object containing fields to be updated.
+   * The only two fields that can be updated are firstName and lastName.
+   * @throws { Meteor.Error } If docID is not defined.
+   * @returns An object containing the updated fields.
    */
-  dumpOne(docID) {
-    const doc = this.findDoc(docID);
-    const username = doc.username;
-    const firstName = doc.firstName;
-    const lastName = doc.lastName;
-    const role = doc.roles;
-    return { username, firstName, lastName, role };
+  update(docID, args) {
+    if (Meteor.isServer) {
+      this.assertIsDefined(docID);
+      const updateData = {};
+      if (args.firstName) {
+        updateData.firstName = args.firstName;
+      }
+      if (args.lastName) {
+        updateData.lastName = args.lastName;
+      }
+      this._collection.update(docID, { $set: updateData });
+      return updateData;
+    }
+    return undefined;
   }
 
   /**
    * Removes the user from Meteor.users and from UserProfiles.
-   * If username does not exist, then returns false.
+   * If docID does not exist, then returns false.
    * Will only work on the server-side.
-   * @param username A username
-   * @returns True if the username exists and was deleted, false otherwise.
+   * @param docID A docID
+   * @returns True if the docID exists and was deleted, false otherwise.
    */
-  remove(username) {
+  remove(docID) {
     if (Meteor.isServer) {
-      const profile = this.findOne({ username });
+      const profile = this.findOne(docID);
       if (profile) {
-        this._collection.remove({ username });
-        const user = Accounts.findUserByUsername(username);
+        this._collection.remove(docID);
+        const user = Accounts.findUserByUsername(profile.username);
         if (user) {
           Meteor.users.remove(user._id);
         }
         return true;
       }
+      return false;
     }
-    return false;
+    return undefined;
   }
 
   /**

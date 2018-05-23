@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import 'semantic-ui-css/semantic.css';
 import { Segment, Header, Icon, Popup } from 'semantic-ui-react';
 
 /** Provides a standard Panel in which to embed an OPQ UI widget with its title. */

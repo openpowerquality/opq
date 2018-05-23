@@ -3,15 +3,12 @@ import SimpleSchema from 'simpl-schema';
 import BaseCollection from '../base/BaseCollection';
 
 /**
- * User Profiles (first and last name, role, and username (email).
+ * BoxOwners provides a bi-directional mapping from Box IDs to their Owners.
  * To create a new User, call UserProfiles.define(), which both defines the profile and creates the Meteor.user.
- * Docs: https://open-power-quality.gitbooks.io/open-power-quality-manual/content/datamodel/description.html#users
+ * @see {@link https://openpowerquality.org/docs/cloud-datamodel.html#users}
  */
 class BoxOwnersCollection extends BaseCollection {
 
-  /**
-   * Creates the User Profiles collection.
-   */
   constructor() {
     super('BoxOwners', new SimpleSchema({
       username: String,
@@ -82,20 +79,6 @@ class BoxOwnersCollection extends BaseCollection {
   removeBoxesWithOwner(username) {
     this._collection.remove({ username });
   }
-
-  /**
-   * Returns an object representing a single BoxOwner document.
-   * @param {Object} docID - The Mongo.ObjectID of the BoxOwner.
-   * @returns {Object} - An object representing a single BoxOwner document.
-   */
-  dumpOne(docID) {
-    const doc = this.findDoc(docID);
-    const username = doc.username;
-    const boxId = doc.boxId;
-    return { username, boxId };
-  }
-
-
 }
 
 /**

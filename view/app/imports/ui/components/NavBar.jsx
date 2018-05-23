@@ -5,6 +5,7 @@ import { withTracker } from 'meteor/react-meteor-data';
 import { withRouter, NavLink } from 'react-router-dom';
 import { Menu, Image, Dropdown } from 'semantic-ui-react';
 import { Roles } from 'meteor/alanning:roles';
+import { ROLE } from '../../api/opq/Role';
 
 /* eslint max-len: 0 */
 class NavBar extends React.Component {
@@ -29,7 +30,13 @@ class NavBar extends React.Component {
           </Menu.Item>
         ) : ''}
 
-        {Roles.userIsInRole(Meteor.userId(), 'admin') ? (
+        {this.props.currentUser ? (
+          <Menu.Item as={NavLink} activeClassName="active" exact to="/inspector" key='inspector'>
+            <div style={divStyle}>Inspector</div>
+          </Menu.Item>
+        ) : ''}
+
+        {Roles.userIsInRole(Meteor.userId(), ROLE.ADMIN) ? (
           <Menu.Item as={NavLink} activeClassName="active" exact to="/admin" key='admin'>
             <div style={divStyle}>Admin</div>
           </Menu.Item>

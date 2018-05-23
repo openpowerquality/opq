@@ -16,12 +16,11 @@ mkdir -p mauka/deploy/${TIMESTAMP}
 mkdir -p mauka/deploy/${TIMESTAMP}/mauka
 
 # Copy over required files -- Mauka
-cp -r mauka/constants mauka/deploy/${TIMESTAMP}/mauka
-cp -r mauka/mongo mauka/deploy/${TIMESTAMP}/mauka
 cp -r mauka/plugins mauka/deploy/${TIMESTAMP}/mauka
 cp -r mauka/protobuf mauka/deploy/${TIMESTAMP}/mauka
+cp -r mauka/services mauka/deploy/${TIMESTAMP}/mauka
+cp mauka/*.py mauka/deploy/${TIMESTAMP}/mauka
 cp mauka/config.json mauka/deploy/${TIMESTAMP}/mauka
-cp mauka/OpqMauka.py mauka/deploy/${TIMESTAMP}/mauka
 cp mauka/requirements.txt mauka/deploy/${TIMESTAMP}/mauka
 
 # Copy over required files -- Installs scripts and utilities

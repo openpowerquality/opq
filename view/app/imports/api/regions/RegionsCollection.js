@@ -3,11 +3,12 @@ import SimpleSchema from 'simpl-schema';
 import BaseCollection from '../base/BaseCollection.js';
 import { Locations } from '../locations/LocationsCollection';
 
+/**
+ * Regions represent aggregations of Locations.
+ * @see {@link https://openpowerquality.org/docs/cloud-datamodel.html#regions}
+ */
 class RegionsCollection extends BaseCollection {
 
-  /**
-   * Creates the Regions collection.
-   */
   constructor() {
     super('regions', new SimpleSchema({
       regionSlug: String,
@@ -59,23 +60,6 @@ class RegionsCollection extends BaseCollection {
   findRegionsForLocation(locationSlug) {
     const regionDocs = this._collection.find({ locationSlug }).fetch();
     return regionDocs.map(doc => doc.regionSlug);
-  }
-
-  /**
-   * Returns an object representing a single Region.
-   * @param {Object} docID - The Mongo.ObjectID of the Region.
-   * @returns {Object} - An object representing a single Region.
-   */
-  dumpOne(docID) {
-    const doc = this.findDoc(docID);
-    const regionSlug = doc.regionSlug;
-    const locationSlug = doc.locationSlug;
-    return { regionSlug, locationSlug };
-  }
-
-  checkIntegrity() {
-    const problems = [];
-    return problems;
   }
 }
 

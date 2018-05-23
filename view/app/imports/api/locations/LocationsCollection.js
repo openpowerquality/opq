@@ -3,11 +3,13 @@ import SimpleSchema from 'simpl-schema';
 import BaseCollection from '../base/BaseCollection';
 import { Regions } from '../regions/RegionsCollection';
 
+/**
+ * The locations collection provides entities that define locations that can be associated with OPQBoxes, Trends,
+ * Events, and other entities in the system.
+ * @see {@link https://openpowerquality.org/docs/cloud-datamodel.html#locations}
+ */
 class LocationsCollection extends BaseCollection {
 
-  /**
-   * Creates the Locations collection.
-   */
   constructor() {
     super('locations', new SimpleSchema({
       slug: String,
@@ -63,14 +65,8 @@ class LocationsCollection extends BaseCollection {
     return doc;
   }
 
-
-  checkIntegrity() {
-    const problems = [];
-    return problems;
-  }
-
   /**
-   * Returns all location documents
+   * Returns all location documents.
    */
   getLocations() {
     const docs = this._collection.find({}).fetch();

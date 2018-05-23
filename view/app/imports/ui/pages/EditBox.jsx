@@ -43,13 +43,8 @@ class EditBox extends React.Component {
   renderPage() {
     const currentLocation = Locations.findLocation(this.props.doc.location).description;
     const locations = Locations.getLocations();
-    const options = _.map(locations, loc => {
-      return {
-        text: Locations.findLocation(loc).description,
-        value: Locations.findLocation(loc).slug,
-      };
-    });
-
+    const options = _.map(locations, loc => ({ text: Locations.findLocation(loc).description,
+                                               value: Locations.findLocation(loc).slug }));
     return (
         <Grid container centered>
           <Grid.Column>

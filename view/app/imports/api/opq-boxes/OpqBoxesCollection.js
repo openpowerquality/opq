@@ -3,18 +3,13 @@ import { Meteor } from 'meteor/meteor';
 import Moment from 'moment';
 import BaseCollection from '../base/BaseCollection.js';
 import { Locations } from '../locations/LocationsCollection.js';
-import { progressBarSetup } from '../../modules/utils';
-
 
 /**
- * Collection class for the opq_boxes collection.
- * Docs: https://open-power-quality.gitbooks.io/open-power-quality-manual/content/datamodel/description.html#opq_boxes
+ * Provides information about each OPQ Box in the system
+ * @see {@link https://openpowerquality.org/docs/cloud-datamodel.html#opqboxes}
  */
 class OpqBoxesCollection extends BaseCollection {
 
-  /**
-   * Creates the collection.
-   */
   constructor() {
     super('opq_boxes', new SimpleSchema({
       box_id: String,
@@ -115,35 +110,6 @@ class OpqBoxesCollection extends BaseCollection {
   findBoxIds() {
     const docs = this._collection.find({}).fetch();
     return (docs) ? _.map(docs, doc => doc.box_id) : [];
-  }
-
-  checkIntegrity() {
-    const problems = [];
-    const totalCount = this.count();
-    const validationContext = this.getSchema().namedContext('opqBoxesIntegrity');
-    const pb = progressBarSetup(totalCount, 2000, `Checking ${this._collectionName} collection: `);
-
-    this.find().forEach((doc, index) => {
-      pb.updateBar(index); // Update progress bar.
-
-      // Validate each document against the collection schema.
-      validationContext.validate(doc);
-      if (!validationContext.isValid()) {
-        // eslint-disable-next-line max-len
-        problems.push(`OpqBox document failed schema validation: ${doc._id} (Invalid keys: ${JSON.stringify(validationContext.invalidKeys(), null, 2)})`);
-      }
-      validationContext.resetValidation();
-
-      // Ensure box_id field is unique
-      if (this.find({ box_id: doc.box_id }).count() > 1) problems.push(`OpqBox box_id is not unique: ${doc.box_id}`);
-
-      // Ensure name field is unique (not counting an unset name - represented by empty strings)
-      // eslint-disable-next-line max-len
-      if (doc.name && this.find({ name: doc.name }).count() > 1) problems.push(`OpqBox name is not unique: ${doc.name}`);
-    });
-
-    pb.clearInterval();
-    return problems;
   }
 }
 

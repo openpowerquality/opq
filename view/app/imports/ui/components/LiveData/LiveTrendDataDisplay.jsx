@@ -44,7 +44,7 @@ class LiveTrendDataManager extends React.Component {
   }
 
   /** Updates the state based on changes to props. */
-  componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
     if (nextProps.length !== this.state.length) {
       this.setState({
         timeRange: nextProps.timeRange,
@@ -88,8 +88,8 @@ class LiveTrendDataManager extends React.Component {
   renderPage = () => this.generateGraph(this.props.measurement);
 
 
-  /** Doing it this way instead of directly putting code in renderPage(), so that it is easier to see the parallels
-   * between the other similar components */
+/** Doing it this way instead of putting code directly in renderPage(), so that it is easier to see the parallels
+ * between the other similar components */
   generateGraph = (measurement) => {
     // @formatter:off
     let headerContent = '';
@@ -116,12 +116,12 @@ class LiveTrendDataManager extends React.Component {
         <Legend type='swatch' align='left' categories={legend} style={legendStyle}
                 onSelectionChange={this.legendClicked}/>
         <Resizable>
-          <ChartContainer timeRange={this.state.timeRange} enablePanZoom
+          <ChartContainer timeRange={this.state.timeRange} enablePanZoom minDuration={60000 * 3}
                           onTimeRangeChanged={timeRange => this.setState({ timeRange })}
                           minTime={new Date(this.props.start)} maxTime={new Date(this.props.end)}>
             <ChartRow height={100}>
               <YAxis id={measurement} format={n => n.toFixed(2)} label={headerContent} labelOffset={-10} width={60}
-                     min={Math.min(...wholeDataSet)} max={Math.max(...wholeDataSet)} minDuration={60000 * 3}/>
+                     min={Math.min(...wholeDataSet)} max={Math.max(...wholeDataSet)} />
               <Charts>
                 {graphData.map(set => {
                   const series = new TimeSeries({
@@ -196,7 +196,7 @@ export default withTracker(({ boxIDs, timestamp, length }) => {
   const end = Moment().valueOf();
   const timeRange = new TimeRange([start, end]);
 
-  const sub = Meteor.subscribe('trends_after_timestamp', { timestamp, boxIDs });
+  const sub = Meteor.subscribe(Trends.publicationNames.TRENDS_AFTER_TIMESTAMP, { timestamp, boxIDs });
   const trendData = Trends.find({
     timestamp_ms: { $gte: start },
     box_id: { $in: boxIDs },

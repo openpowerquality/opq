@@ -1,15 +1,15 @@
 #!/bin/bash
 ### BEGIN INIT INFO
-# Provides:          mauka_service
+# Provides:          mauka
 # Required-Start:    $remote_fs $network $time $syslog
 # Required-Stop:     $remote_fs $network $time $syslog
 # Default-Start:     2 3 4 5
 # Default-Stop:      0 1 6
-# Description:       mauka_service = Start mauka
+# Description:       mauka = Start mauka
 ### END INIT INFO
 
 PATH=/sbin:/usr/sbin:/bin:/usr/bin:/usr/local/bin
-NAME=mauka_service
+NAME=mauka
 RUN_DIR=/var/run
 
 #Paths to service binaries

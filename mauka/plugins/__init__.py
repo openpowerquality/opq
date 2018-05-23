@@ -7,6 +7,7 @@ plugins individually.
 from plugins.AcquisitionTriggerPlugin import AcquisitionTriggerPlugin
 from plugins.FrequencyThresholdPlugin import FrequencyThresholdPlugin
 from plugins.IticPlugin import IticPlugin
+from plugins.MakaiEventPlugin import MakaiEventPlugin
 from plugins.StatusPlugin import StatusPlugin
 from plugins.ThdPlugin import ThdPlugin
 from plugins.VoltageThresholdPlugin import VoltageThresholdPlugin

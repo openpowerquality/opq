@@ -3,6 +3,8 @@ import { OpqBoxes } from '../../api/opq-boxes/OpqBoxesCollection';
 import { Locations } from '../../api/locations/LocationsCollection';
 import { Regions } from '../../api/regions/RegionsCollection';
 import { UserProfiles } from '../../api/users/UserProfilesCollection';
+import { testUsername, testUserPassword } from '../../api/test/test-utilities';
+import { ROLE } from '../../api/opq/Role';
 
 /**
  * Generic function used to load definitions from the settings.*.json file.
@@ -15,6 +17,14 @@ function initEntity(name, collection) {
   definitions.map(definition => collection.define(definition));
 }
 
+function defineTestUser() {
+  if (Meteor.isAppTest) {
+    console.log(`Defining test user: ${testUsername}`);
+    UserProfiles.define({ username: testUsername, firstName: 'Test', lastName: 'User', password: testUserPassword,
+    role: ROLE.ADMIN });
+  }
+}
+
 /**
  * Define entities at system startup.  Locations must be defined before regions and opqBoxes.
  */
@@ -25,4 +35,11 @@ Meteor.startup(() => {
     initEntity('opqBoxes', OpqBoxes);
     initEntity('userProfiles', UserProfiles);
   }
+});
+
+/**
+ * Define the test user at startup if we are in test mode.
+ */
+Meteor.startup(() => {
+  defineTestUser();
 });

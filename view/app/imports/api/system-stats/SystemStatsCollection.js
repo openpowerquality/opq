@@ -7,13 +7,11 @@ import { OpqBoxes } from '../opq-boxes/OpqBoxesCollection.js';
 import { Trends } from '../trends/TrendsCollection.js';
 import { UserProfiles } from '../users/UserProfilesCollection.js';
 
-/* eslint-disable indent */
-
+/**
+ * System stats are generated once a minute and provide summary statistics about the state of the system.
+ */
 class SystemStatsCollection extends BaseCollection {
 
-  /**
-   * Creates the System Stats collection.
-   */
   constructor() {
     super('system_stats', new SimpleSchema({
       events_count: Number,
@@ -55,41 +53,6 @@ class SystemStatsCollection extends BaseCollection {
       trends_count, users_count, timestamp: new Date(), box_trend_stats, health,
     events_count_today, box_events_count_today, measurements_count_today, trends_count_today });
     return docID;
-  }
-
-  /**
-   * Returns an object representing a single SystemStats.
-   * @param {Object} docID - The Mongo.ObjectID of the SystemStat.
-   * @returns {Object} - An object representing a single SystemStat.
-   */
-  dumpOne(docID) {
-    /* eslint-disable camelcase */
-    const doc = this.findDoc(docID);
-    const events_count = doc.events_count;
-    const events_count_today = doc.events_count_today;
-    const box_events_count = doc.box_events_count;
-    const box_events_count_today = doc.box_events_count_today;
-    const measurements_count = doc.measurements_count;
-    const measurements_count_today = doc.measurements_count_today;
-    const trends_count = doc.trends_count;
-    const trends_count_today = doc.trends_count_today;
-    const opq_boxes_count = doc.opq_boxes_count;
-    const users_count = doc.users_count;
-    const timestamp = doc.timestamp;
-    const box_trend_stats = doc.box_trend_stats;
-    return { events_count, box_events_count, measurements_count, opq_boxes_count, trends_count, users_count,
-      timestamp, box_trend_stats, events_count_today, box_events_count_today, measurements_count_today,
-    trends_count_today };
-    /* eslint-enable camelcase */
-  }
-
-  /**
-   * No need to check integrity for this collection.
-   * @returns {Array}
-   */
-  checkIntegrity() { // eslint-disable-line
-    const problems = [];
-    return problems;
   }
 
   /**

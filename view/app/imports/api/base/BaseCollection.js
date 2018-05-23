@@ -3,7 +3,8 @@ import { Mongo } from 'meteor/mongo';
 import SimpleSchema from 'simpl-schema';
 import _ from 'lodash';
 import Moment from 'moment';
-
+import { Roles } from 'meteor/alanning:roles';
+import { ROLE } from '../opq/Role';
 
 /**
  * BaseCollection is an abstract superclass of all other collection classes.
@@ -81,25 +82,16 @@ class BaseCollection {
 
   /**
    * Returns true if the passed entity is in this collection.
-   * @param { String | Object } name The docID, or an object specifying a document.
-   * @returns {boolean} True if name exists in this collection.
+   * @param { id } id The docID.
+   * @returns Truthy (the document) if docID is in the collection, false (null) otherwise.
    */
-  isDefined(name) {
-    return (
-      !!this._collection.findOne(name) ||
-      !!this._collection.findOne({ name }) ||
-      !!this._collection.findOne({ _id: name }));
+  isDefined(id) {
+    return this._collection.findOne({ _id: id });
   }
 
-  /**
-   * Update the collection.
-   * @param selector
-   * @param modifier
-   * @param options
-   * @returns {any}
-   */
-  update(selector = {}, modifier = {}, options = {}) {
-    return this._collection.update(selector, modifier, options);
+  /** Default update method throws an error. All subclasses must write their own so they can validate arguments. */
+  update(id, args) {
+    throw new Meteor.Error(`BaseCollection.update() method called with id ${id} and args ${args}.`);
   }
 
   /**
@@ -122,24 +114,22 @@ class BaseCollection {
   }
 
   /**
-   * Returns an object representing the definition of docID in a format appropriate to the restoreOne function.
-   * Must be overridden by each collection.
-   * @param docID - A docID from this collection.
-   * @returns { Object } - An object representing this document.
+   * Returns the collection name.
+   * @return {string} The collection name as a string.
    */
-  dumpOne(docID) { // eslint-disable-line no-unused-vars
-    throw new Meteor.Error(`Default dumpOne method invoked by collection ${this._collectionName}`);
+  getCollectionName() {
+    return this._collectionName;
   }
 
   /**
-   * Dumps the entire collection as a single object with two fields: name and contents.
-   * The name is the name of the collection.
-   * The contents is an array of all documents within the collection. These documents are generated using the
-   * dumpOne() method and subsequently are meant to be used with the restore() method.
-   * @returns {Object} An object representing the contents of this collection.
+   * Default subscription method for entities.
+   * It subscribes to the entire collection.
+   * This is generally useful only during testing.
    */
-  dumpAll() {
-    return { name: this._collectionName, contents: this.find().map(doc => this.dumpOne(doc._id)) };
+  subscribe() {
+    if (Meteor.isClient) {
+      Meteor.subscribe(this._collectionName);
+    }
   }
 
   /**
@@ -165,25 +155,6 @@ class BaseCollection {
   }
 
   /**
-   * Defines a single collection document represented by dumpObject.
-   * @returns {String} - The newly created document ID.
-   */
-  restoreOne(dumpObject) {
-    if (typeof this.define === 'function') {
-      return this.define(dumpObject);
-    }
-    return null;
-  }
-
-  /**
-   * Defines each collection entity given by the passed array of dumpObjects.
-   * @param dumpObjects - The array of objects representing entities of the collection.
-   */
-  restoreAll(dumpObjects) {
-    _.each(dumpObjects, dumpObject => this.restoreOne(dumpObject));
-  }
-
-  /**
    * Removes all elements of this collection.
    * This is implemented by mapping through all elements because mini-mongo does not implement the remove operation.
    * So this approach can be used on both client and server side.
@@ -206,6 +177,46 @@ class BaseCollection {
   remove(docID) {
     this._collection.remove(docID);
   }
+
+  /**
+   * Internal helper function to simplify definition of the assertValidRoleForMethod method.
+   * @param userId The userID.
+   * @param roles An array of roles.
+   * @throws { Meteor.Error } If userId is not defined or user is not in the specified roles.
+   * @returns True if no error is thrown.
+   * @ignore
+   */
+  _assertRole(userId, roles) {
+    if (!userId) {
+      throw new Meteor.Error('unauthorized', 'You must be logged in.');
+    } else
+      if (!Roles.userIsInRole(userId, roles)) {
+        throw new Meteor.Error('unauthorized', `You must be one of the following roles: ${roles}`);
+      }
+    return true;
+  }
+
+  /**
+   * Default implementation of assertValidRoleForMethod. Asserts that userId is logged in as an Admin.
+   * This function should be invoked by all Meteor Methods to assure that the method is invoked by an authorized user.
+   * @param userId The userId of the logged in user. Can be null or undefined
+   * @throws { Meteor.Error } If there is no logged in user, or the user is not an Admin or Advisor.
+   */
+  assertValidRoleForMethod(userId) {
+    this._assertRole(userId, [ROLE.ADMIN]);
+  }
+
+  /**
+   * Throws an error if id is not a valid docID in this collection.
+   * @param id The docID.
+   * @throws { Meteor.Error } If it's not a defined docID.
+   */
+  assertIsDefined(id) {
+    if (!this.isDefined(id)) {
+      throw new Meteor.Error(`Undefined ID: ${id}`);
+    }
+  }
+
 }
 
 export default BaseCollection;

@@ -1,20 +1,13 @@
-import { Meteor } from 'meteor/meteor';
 import { Mongo } from 'meteor/mongo';
 import SimpleSchema from 'simpl-schema';
 import BaseCollection from '../base/BaseCollection.js';
-import { Events } from '../events/EventsCollection';
-import { BoxEvents } from '../box-events/BoxEventsCollection';
-import { progressBarSetup } from '../../modules/utils';
 
 /**
- * Collection class for the fs.files collection.
- * Docs: https://open-power-quality.gitbooks.io/open-power-quality-manual/content/datamodel/description.html#box_events
+ * FSFiles is internal to GridFS and stores file metadata.
+ * @see {@link https://openpowerquality.org/docs/cloud-datamodel.html#fsfiles}
  */
 class FSFilesCollection extends BaseCollection {
 
-  /**
-   * Creates the collection.
-   */
   constructor() {
     super('fs.files', new SimpleSchema({
       _id: { type: Mongo.ObjectID },
@@ -27,9 +20,6 @@ class FSFilesCollection extends BaseCollection {
       'metadata.event_id': { type: Number },
       'metadata.box_id': { type: String },
     }));
-
-    this.publicationNames = {
-    };
   }
 
   /**
@@ -47,67 +37,8 @@ class FSFilesCollection extends BaseCollection {
     return docID;
   }
 
-  /**
-   * Returns an object representing a single fs.file.
-   * @param {Object} docID - The Mongo.ObjectID of the fs.files document.
-   * @returns {Object} - An object representing a single fs.files document.
-   */
-  dumpOne(docID) {
-    /* eslint-disable camelcase */
-    const doc = this.findDoc(docID);
-    const filename = doc.filename;
-    const length = doc.length;
-    const chunkSize = doc.chunkSize;
-    const uploadDate = doc.uploadDate;
-    const md5 = doc.md5;
-    const metadata = doc.metadata;
-
-    return { filename, length, chunkSize, uploadDate, md5, metadata };
-    /* eslint-enable camelcase */
-  }
-
-  checkIntegrity() {
-    const problems = [];
-    const totalCount = this.count();
-    const validationContext = this.getSchema().namedContext('fsFilesIntegrity');
-    const pb = progressBarSetup(totalCount, 2000, `Checking ${this._collectionName} collection: `);
-
-    this.find().forEach((doc, index) => {
-      pb.updateBar(index); // Update progress bar.
-
-      // Validate each document against the collection schema.
-      validationContext.validate(doc);
-      if (!validationContext.isValid()) {
-        // eslint-disable-next-line max-len
-        problems.push(`FS.Files document failed schema validation: ${doc._id} (Invalid keys: ${JSON.stringify(validationContext.invalidKeys(), null, 2)})`);
-      }
-      validationContext.resetValidation();
-
-      const event = Events.findOne({ event_id: doc.metadata.event_id });
-      // Ensure metadata.event_id points to an existing Event document.
-      if (!event) {
-        problems.push(`FS.Files metadata.event_id does not exist in Events collection: ${doc._id}`);
-      }
-
-      // Ensure metadata.event_id and metadata.box_id points to an existing BoxEvent document.
-      const boxEvent = BoxEvents.findOne({ event_id: doc.metadata.event_id, box_id: doc.metadata.box_id });
-      if (!boxEvent) {
-        // eslint-disable-next-line max-len
-        problems.push(`FS.Files metadata.event_id and metadata_box_id pair does not exist in the BoxEvents collection: ${doc._id}`);
-      }
-    });
-
-    pb.clearInterval();
-    return problems;
-  }
-
-  /**
-   * Loads all publications related to this collection.
-   */
-  publish() { // eslint-disable-line class-methods-use-this
-    if (Meteor.isServer) { // eslint-disable-line no-empty
-    }
-  }
+  /** Publications for this collection are disabled. */
+  publish() { }
 }
 
 /**

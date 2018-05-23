@@ -37,7 +37,7 @@ class LiveMeasurementDataManager extends React.Component {
           <Grid.Column width={16}>
             <Grid stackable>
               <Grid.Column width={8}>
-                <Dropdown search selection fluid placeholder='Boxes'
+                <Dropdown search selection fluid placeholder='Box'
                           options={this.props.boxIDs.map(boxID => ({ text: `Box ${boxID}`, value: boxID }))}
                           onChange={this.changeBoxes} value={this.state.boxID}/>
               </Grid.Column>
@@ -81,7 +81,7 @@ LiveMeasurementDataManager.propTypes = {
 
 /** withTracker connects Meteor data to React components. https://guide.meteor.com/react.html#using-withTracker */
 export default withTracker(() => {
-  const sub = Meteor.subscribe('BoxOwners');
+  const sub = Meteor.subscribe(BoxOwners.getPublicationName());
   return {
     ready: sub.ready(),
     boxIDs: Meteor.user() ? BoxOwners.findBoxIdsWithOwner(Meteor.user().username).sort() : undefined,

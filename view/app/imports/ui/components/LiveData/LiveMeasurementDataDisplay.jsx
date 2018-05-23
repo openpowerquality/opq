@@ -10,7 +10,7 @@ import { TimeRange, TimeSeries } from 'pondjs';
 
 import { Measurements } from '../../../api/measurements/MeasurementsCollection';
 
-class LiveMeasurementDataManager extends React.Component {
+class LiveMeasurementDataDisplay extends React.Component {
   render() {
     return this.props.ready ? this.renderPage() : '';
   }
@@ -88,7 +88,7 @@ class LiveMeasurementDataManager extends React.Component {
 }
 
 
-LiveMeasurementDataManager.propTypes = {
+LiveMeasurementDataDisplay.propTypes = {
   ready: PropTypes.bool.isRequired,
   boxID: PropTypes.string,
   measurements: PropTypes.array,
@@ -102,7 +102,7 @@ export default withTracker(({ boxID }) => {
   const end = Moment().valueOf();
   const timeRange = new TimeRange([start, end]);
 
-  const sub = Meteor.subscribe('recent_measurements', 30, boxID);
+  const sub = Meteor.subscribe(Measurements.publicationNames.RECENT_MEASUREMENTS, 30, boxID);
   const measurementData = Measurements.find({
     timestamp_ms: { $gte: start },
     box_id: boxID,
@@ -115,4 +115,4 @@ export default withTracker(({ boxID }) => {
     end,
     timeRange,
   };
-})(LiveMeasurementDataManager);
+})(LiveMeasurementDataDisplay);

@@ -1,3 +1,4 @@
+import { Meteor } from 'meteor/meteor';
 import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import SimpleSchema from 'simpl-schema';
 import Moment from 'moment';
@@ -17,7 +18,7 @@ export const getMostRecentTrendMonth = new ValidatedMethod({
   name: 'Trends.mostRecentTrendMonth',
   validate: new SimpleSchema({}).validator({ clean: true }),
   run() {
-    if (!this.isSimulation) {
+    if (Meteor.isServer) {
       const trend = Trends.findOne({}, { sort: { timestamp_ms: -1 } });
       const trendMoment = Moment(trend.timestamp_ms);
       const month = trendMoment.month(); // 0-indexed month integers (January is 0)
@@ -236,7 +237,7 @@ export const dailyTrends = new ValidatedMethod({
         timestamp_ms: { $gt: startDate_ms, $lte: Moment(endDate_ms).endOf('day').valueOf() },
       }).fetch();
 
-      // New Moments are instantiated every time, because they mutate even when reassigned to a variable.
+      // New Moments are instantiated every time, because they are mutable.
       const start = Moment(startDate_ms);
       const end = Moment(endDate_ms);
       // Create structure of the dailyTrend object

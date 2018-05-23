@@ -1,3 +1,4 @@
+import { Meteor } from 'meteor/meteor';
 import { Mongo } from 'meteor/mongo';
 import _ from 'lodash';
 import Moment from 'moment';
@@ -20,7 +21,7 @@ export const checkBoxStatus = new ValidatedMethod({
     box_id: { type: String },
   }).validator({ clean: true }),
   run({ box_id }) {
-    if (!this.isSimulation) {
+    if (Meteor.isServer) {
       const oneMinuteAgo = Moment().subtract(60, 'seconds').valueOf();
       const measurements = Measurements.findOne({ box_id, timestamp_ms: { $gte: oneMinuteAgo } });
       return !!measurements;
@@ -33,7 +34,7 @@ export const activeBoxIDs = new ValidatedMethod({
   name: 'Measurements.activeBoxIDs',
   validate: new SimpleSchema().validator({ clean: true }),
   run() {
-    if (!this.isSimulation) {
+    if (Meteor.isServer) {
       const oneMinuteAgo = Moment().subtract(60, 'seconds').valueOf();
       const measurements = Measurements.find({ timestamp_ms: { $gte: oneMinuteAgo } }).fetch();
       if (measurements.length > 0) {
@@ -69,7 +70,7 @@ export const getEventMeasurementsByMetaDataId = new ValidatedMethod({
     eventMetaDataId: { type: Mongo.ObjectID },
   }).validator({ clean: true }),
   run({ eventMetaDataId }) {
-    if (!this.isSimulation) {
+    if (Meteor.isServer) {
       const eventMetaData = Events.findOne({ _id: eventMetaDataId });
 
       const eventMeasurements = Measurements.find({
@@ -112,7 +113,7 @@ export const getEventMeasurements = new ValidatedMethod({
     endTime: { type: Number, optional: true },
   }).validator({ clean: true }),
   run({ box_id, startTime, endTime }) {
-    if (!this.isSimulation) {
+    if (Meteor.isServer) {
       console.log(box_id, startTime, endTime);
       const eventMeasurements = Measurements.find({
         box_id,
@@ -187,3 +188,12 @@ export const dygraphMergeDatasets = (xFieldName, yFieldName, ...datasets) => {
 
   return mergedDataset;
 };
+
+
+export const getLatestMeasurement = new ValidatedMethod({
+  name: 'Measurements.getLatestMeasurement',
+  validate: new SimpleSchema().validator({ clean: true }),
+  run() {
+    return Measurements.findOne({}, { sort: { timestamp_ms: -1 } });
+  },
+});
