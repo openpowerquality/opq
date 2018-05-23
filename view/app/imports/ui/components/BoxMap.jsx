@@ -2,20 +2,19 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Meteor } from 'meteor/meteor';
 import { Loader, Form, Checkbox, Button, Icon, Popup, Item, List, Transition } from 'semantic-ui-react';
-import 'semantic-ui-css/semantic.css';
+// import 'semantic-ui-css/semantic.css';
 import Lodash from 'lodash';
-import { Map, TileLayer, LayerGroup, LayersControl, ZoomControl } from 'react-leaflet';
+import { Map, TileLayer, ZoomControl } from 'react-leaflet';
 import Control from 'react-leaflet-control';
 import { withTracker } from 'meteor/react-meteor-data';
 import { withStateContainer } from '../utils/hocs';
 import { OpqBoxes } from '../../api/opq-boxes/OpqBoxesCollection';
 import { BoxOwners } from '../../api/users/BoxOwnersCollection';
+import { Locations } from '../../api/locations/LocationsCollection';
 import { getZipcodeLatLng } from '../../api/zipcodes/ZipcodesCollectionMethods';
 import WidgetPanel from '../layouts/WidgetPanel';
 import OpqBoxLeafletMarkerManager from './OpqBoxLeafletMarkerManager';
 import ScrollableControl from '../utils/ScrollableControl';
-
-const { BaseLayer } = LayersControl;
 
 class BoxMap extends React.Component {
   constructor(props) {
@@ -28,9 +27,6 @@ class BoxMap extends React.Component {
     };
 
     this.state = {
-      activeBoxIds: [],
-      mostRecentBoxMeasurements: [],
-      locations: {},
       currentMapDataDisplay: this.mapDataDisplayTypes.VOLTAGE_DATA,
       expandedItemBoxId: '', // Refers to the most recently selected Box in the map side panel listing of boxes.
     };
@@ -75,11 +71,12 @@ class BoxMap extends React.Component {
     this.opqBoxLeafletMarkerManagerRefElem.zoomToMarker(box_id);
   }
 
-  popupContents(opqBox) {
+  opqBoxDetailsList(opqBox) {
+    const boxLocationDoc = this.getOpqBoxLocationDoc(opqBox);
     return (
         <List divided style={{ width: '250px' }}>
           <List.Item>
-            <List.Icon name='disk outline' color='blue' size='large' verticalAlign='middle' />
+            <List.Icon name='desktop' color='blue' size='large' verticalAlign='middle' />
             <List.Content>
               <List.Header><i>Box Name</i></List.Header>
               <List.Description>{opqBox.name}</List.Description>
@@ -89,8 +86,11 @@ class BoxMap extends React.Component {
             <List.Icon name='marker' color='blue' size='large' verticalAlign='middle' />
             <List.Content>
               <List.Header><i>Location</i></List.Header>
-              <List.Description>UH Manoa Holmes Hall 314</List.Description>
-              {/*<List.Description>{this.getOpqBoxLocation(opqBox).toString()}</List.Description>*/}
+              <List.Description>{boxLocationDoc.description}</List.Description>
+              <List.Description>{boxLocationDoc.slug}</List.Description>
+              <List.Description>
+                {`[${boxLocationDoc.coordinates[0]}, ${boxLocationDoc.coordinates[1]}]`}
+              </List.Description>
             </List.Content>
           </List.Item>
           <List.Item>
@@ -127,7 +127,9 @@ class BoxMap extends React.Component {
           <div className='mapListingBoxId'><h2 className={h2classname}>{opqBox.box_id}</h2></div>
           <Item.Content>
             <Item.Header>{opqBox.name}</Item.Header>
-            <Item.Description style={{ marginTop: '0px' }}>UH Holmes Hall 314</Item.Description>
+            <Item.Description style={{ marginTop: '0px' }}>
+              {this.getOpqBoxLocationDoc(opqBox).description}
+            </Item.Description>
             <Item.Extra>
               <Button.Group basic size='tiny'>
                 <Popup
@@ -186,7 +188,7 @@ class BoxMap extends React.Component {
             duration={200}>
           <Item style={{ paddingLeft: '20px', backgroundColor: 'white' }}>
             <Item.Content>
-              {this.popupContents(opqBox)}
+              {this.opqBoxDetailsList(opqBox)}
             </Item.Content>
           </Item>
         </Transition>
@@ -196,8 +198,9 @@ class BoxMap extends React.Component {
     return [mainItem, fullBoxDetails];
   }
 
-  getOpqBoxLocation(opqBox) {
-
+  getOpqBoxLocationDoc(opqBox) {
+    const { locations } = this.props;
+    return locations.find(location => opqBox.location === location.slug);
   }
 
   getOpqBoxLatLngFromZipcode(opqBox) {
@@ -210,10 +213,6 @@ class BoxMap extends React.Component {
       return latlng || [25.0, -71.0];
     }
     return [25.0, -71.0]; // Temporary location for marker if no location information available.
-  }
-
-  getOpqBoxLatLngFromLocation(opqBox) {
-
   }
 
   mapMeasurementsControl() {
@@ -280,9 +279,10 @@ class BoxMap extends React.Component {
   }
 
   renderPage() {
-    const { opqBoxes, zipcodeLatLngDict } = this.props;
-    const firstZipcode = Object.keys(zipcodeLatLngDict).reverse()[0]; // Reverse so Hawaii zipcodes first.
-    const center = (firstZipcode) ? zipcodeLatLngDict[firstZipcode] : [21.31, -157.86]; // Default view on Oahu.
+    const { opqBoxes, locations, zipcodeLatLngDict } = this.props;
+    // Initial map center based on arbitrarily chosen OpqBox location. Sidenote: It seems like we're storing location
+    // coordinates as [lng, lat] instead of the more traditional [lat, lng]. Intentional?
+    const center = this.getOpqBoxLocationDoc(opqBoxes[0]).coordinates.reverse();
 
     return (
         <WidgetPanel title="Box Map">
@@ -311,6 +311,7 @@ class BoxMap extends React.Component {
                 childRef={this.setOpqBoxLeafletMarkerManagerRef.bind(this)}
                 opqBoxes={opqBoxes}
                 zipcodeLatLngDict={zipcodeLatLngDict}
+                locations={locations}
                 currentMapDataDisplay={this.state.currentMapDataDisplay}
                 mapDataDisplayTypes={this.mapDataDisplayTypes} />
           </Map>
@@ -322,6 +323,7 @@ class BoxMap extends React.Component {
 BoxMap.propTypes = {
   ready: PropTypes.bool.isRequired,
   opqBoxes: PropTypes.array.isRequired,
+  locations: PropTypes.array.isRequired,
   zipcodeLatLngDict: PropTypes.object.isRequired,
 };
 
@@ -357,6 +359,7 @@ const withTrackerCallback = props => {
   // used if we do not care about fine-tuned reactivity.
   const opqBoxesSub = Meteor.subscribe(OpqBoxes.publicationNames.GET_CURRENT_USER_OPQ_BOXES);
   const boxOwnersSub = Meteor.subscribe(BoxOwners.publicationNames.GET_CURRENT_USER_BOX_OWNERS);
+  const locationsSub = Meteor.subscribe(Locations.getCollectionName()); // We'll just grab all locations for now.
   const currentUser = Meteor.user();
   let opqBoxes = [];
   if (currentUser) {
@@ -388,8 +391,9 @@ const withTrackerCallback = props => {
   }
 
   return {
-    ready: opqBoxesSub.ready() && boxOwnersSub.ready() && methodCallsComplete,
+    ready: opqBoxesSub.ready() && boxOwnersSub.ready() && locationsSub.ready() && methodCallsComplete,
     opqBoxes: opqBoxes,
+    locations: Locations.find().fetch(),
     zipcodeLatLngDict: zipcodeLatLngDict,
   };
 };

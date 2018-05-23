@@ -251,7 +251,6 @@ class OpqBoxLeafletMarkerManager extends React.Component {
   }
 
   createMarker(opqBox) {
-    const { zipcodeLatLngDict } = this.props;
     // Create new object for the dictionary for the given OpqBox and populate it with the following properties:
     // {opqBox, marker, markerLeafletElement}. See constructor for more details on these properties.
 
@@ -261,8 +260,8 @@ class OpqBoxLeafletMarkerManager extends React.Component {
     // 3. From the Ref callback, add a 'markerLeafletElement' property to the entry for the newly created Marker.
     this.createOrUpdateOpqBoxAndMarkersDictEntry(opqBox._id.toHexString(), { opqBox });
     const initialMarkerHtml = `<div><b>${opqBox.name}</div>`;
-    const markerPosition = this.getOpqBoxLocation(opqBox);
-    console.log('markerposition: ', opqBox, markerPosition);
+    // For some reason, we are storing coordinates as [lng, lat] rather than [lat, lng]
+    const markerPosition = this.getOpqBoxLocationDoc(opqBox).coordinates.reverse();
     const newMarker = <Marker
                         ref={this.addMarkerLeafletElementToDict.bind(this)(opqBox)}
                         // icon={this.opqBoxIcon(initialMarkerHtml)}
@@ -272,7 +271,7 @@ class OpqBoxLeafletMarkerManager extends React.Component {
                         formattedValue=''
                         position={markerPosition}>
                         <Popup offset={[-10, -30]} maxWidth={300}>
-                          {this.popupContents(opqBox)}
+                          {this.opqBoxDetailsList(opqBox)}
                         </Popup>
                       </Marker>;
 
@@ -291,11 +290,17 @@ class OpqBoxLeafletMarkerManager extends React.Component {
     return [25.0, -71.0]; // Temporary location for marker if no location information available.
   }
 
-  popupContents(opqBox) {
+  getOpqBoxLocationDoc(opqBox) {
+    const { locations } = this.props;
+    return locations.find(location => opqBox.location === location.slug);
+  }
+
+  opqBoxDetailsList(opqBox) {
+    const boxLocationDoc = this.getOpqBoxLocationDoc(opqBox);
     return (
         <List divided style={{ width: '250px' }}>
           <List.Item>
-            <List.Icon name='disk outline' color='blue' size='large' verticalAlign='middle' />
+            <List.Icon name='desktop' color='blue' size='large' verticalAlign='middle' />
             <List.Content>
               <List.Header><i>Box Name</i></List.Header>
               <List.Description>{opqBox.name}</List.Description>
@@ -305,8 +310,11 @@ class OpqBoxLeafletMarkerManager extends React.Component {
             <List.Icon name='marker' color='blue' size='large' verticalAlign='middle' />
             <List.Content>
               <List.Header><i>Location</i></List.Header>
-              <List.Description>UH Manoa Holmes Hall 314</List.Description>
-              <List.Description>{this.getOpqBoxLocation(opqBox).toString()}</List.Description>
+              <List.Description>{boxLocationDoc.description}</List.Description>
+              <List.Description>{boxLocationDoc.slug}</List.Description>
+              <List.Description>
+                {`[${boxLocationDoc.coordinates[0]}, ${boxLocationDoc.coordinates[1]}]`}
+              </List.Description>
             </List.Content>
           </List.Item>
           <List.Item>
@@ -381,7 +389,8 @@ class OpqBoxLeafletMarkerManager extends React.Component {
         <MarkerClusterGroup
             ref={this.markerClusterGroupRef.bind(this)}
             animate={true}
-            spiderfyDistanceMultiplier={3}
+            maxClusterRadius={100}
+            spiderfyDistanceMultiplier={5}
             iconCreateFunction={this.clusterIcon.bind(this)}
             onSpiderfied={(cluster, markers) => console.log(cluster, markers, cluster.getAllChildMarkers())}>
           {this.getMarkers()}
@@ -394,6 +403,7 @@ class OpqBoxLeafletMarkerManager extends React.Component {
 OpqBoxLeafletMarkerManager.propTypes = {
   ready: PropTypes.bool.isRequired,
   opqBoxes: PropTypes.array.isRequired,
+  locations: PropTypes.array.isRequired,
   zipcodeLatLngDict: PropTypes.object.isRequired,
   measurements: PropTypes.array.isRequired,
   currentMapDataDisplay: PropTypes.string.isRequired,
