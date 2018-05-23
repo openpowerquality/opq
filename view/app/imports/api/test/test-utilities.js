@@ -1,6 +1,7 @@
 import { Meteor } from 'meteor/meteor';
 import { DDP } from 'meteor/ddp-client';
 import { ValidatedMethod } from 'meteor/mdg:validated-method';
+import { CallPromiseMixin } from 'meteor/didericis:callpromise-mixin';
 import { OPQ } from '../opq/Opq';
 import { removeAllEntities } from '../base/BaseUtilities';
 
@@ -36,15 +37,15 @@ export function loadCollection(collection, loadJSON, consolep) {
 
 /**
  * Loads data from a modular test fixture file.
- * @param fixtureName The name of the test fixture data file. (located in private/database/modular).
+ * @param fixtureName The name of the test fixture data file. (located in private/database/fixture).
  * @memberOf api/test
  */
 export function defineTestFixture(fixtureName) {
   if (Meteor.isServer) {
-    const loadFileName = `database/modular/${fixtureName}`;
+    const loadFileName = `database/fixture/${fixtureName}`;
     const loadJSON = JSON.parse(Assets.getText(loadFileName));
     console.log(`    Loaded ${loadFileName}: ${loadJSON.fixtureDescription}`);
-    _.each(OPQ.collectionLoadSequence, collection => loadCollection(collection, loadJSON, false));
+    _.each(OPQ.collectionLoadSequence, collection => loadCollection(collection, loadJSON, true));
   }
 }
 
@@ -63,6 +64,7 @@ export function defineTestFixtures(fixtureNames) {
  */
 export const defineTestFixturesMethod = new ValidatedMethod({
   name: 'test.defineTestFixturesMethod',
+  mixins: [CallPromiseMixin],
   validate: null,
   run(fixtureNames) {
     removeAllEntities();

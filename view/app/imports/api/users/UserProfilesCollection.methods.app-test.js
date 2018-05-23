@@ -2,7 +2,10 @@ import { Meteor } from 'meteor/meteor';
 import { expect } from 'chai';
 import { defineMethod, removeMethod, updateMethod } from '../base/BaseCollection.methods';
 import { UserProfiles } from './UserProfilesCollection';
-import { withOpqSubscriptions, withLoggedInUser } from '../test/test-utilities';
+import { Locations } from '../locations/LocationsCollection';
+import { Regions } from '../regions/RegionsCollection';
+import { OpqBoxes } from '../opq-boxes/OpqBoxesCollection';
+import { withOpqSubscriptions, withLoggedInUser, defineTestFixturesMethod } from '../test/test-utilities';
 import { ROLE } from '../opq/Role';
 
 /* eslint prefer-arrow-callback: "off", no-unused-expressions: "off" */
@@ -18,9 +21,19 @@ if (Meteor.isClient) {
     const role = ROLE.ADMIN;
 
     before(async function () {
-      // defineTestFixturesMethod.call(['minimal'], done);
+      await defineTestFixturesMethod.callPromise(['minimal']);
       await withLoggedInUser();
       await withOpqSubscriptions();
+    });
+
+    it('Verify DB fixture', function () {
+      // It's useful to verify that the client side has whatever data we expect it to have as shown here.
+      // Note that we don't actually need the 'minimal' fixture to test UserProfiles.
+      // We're loading it and verifying it just for illustrative purposes.
+      expect(Regions.count()).to.equal(2);
+      expect(Locations.count()).to.equal(2);
+      expect(UserProfiles.count()).to.equal(2);
+      expect(OpqBoxes.count()).to.equal(2);
     });
 
     it('Define Method', async function () {
