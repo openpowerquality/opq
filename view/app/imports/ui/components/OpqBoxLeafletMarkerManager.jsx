@@ -49,7 +49,7 @@ class OpqBoxLeafletMarkerManager extends React.Component {
   }
 
   updateMarker(opqBox) {
-    const { currentMapDataDisplay } = this.props;
+    const { currentMapDataDisplay, currentMapLocationGranularity, mapLocationGranularityTypes } = this.props;
     // Retrieve box's corresponding Marker leafletElement, and update it.
     const marker = this.state.opqBoxAndMarkersDict[opqBox._id.toHexString()].markerLeafletElement;
     if (marker) {
@@ -59,7 +59,15 @@ class OpqBoxLeafletMarkerManager extends React.Component {
       const newOpts = marker.options; // Don't clone this; must modify the original options obj.
       newOpts.rawValue = rawMeasurementValue;
       newOpts.formattedValue = formattedMeasurement;
-      const markerHtml = `<div><b>${opqBox.name}<br />${formattedMeasurement}</b></div>`;
+      // Create appropriate html for marker icon.
+      let markerHtml = '';
+      if (currentMapLocationGranularity === mapLocationGranularityTypes.BOX_REGION) {
+        const regionDoc = this.getOpqBoxRegionDoc(opqBox);
+        const region = (regionDoc) ? regionDoc.regionSlug : null;
+        markerHtml = `<div><b>${opqBox.name}<br />Region: ${region}<br />${formattedMeasurement}</b></div>`;
+      } else {
+        markerHtml = `<div><b>${opqBox.name}<br />${formattedMeasurement}</b></div>`;
+      }
       newOpts.icon = this.opqBoxIcon({ markerHtml, opqBox });
       marker.refreshIconOptions(newOpts, true);
     }
@@ -206,7 +214,8 @@ class OpqBoxLeafletMarkerManager extends React.Component {
   }
 
   clusterIcon(cluster) {
-    const { currentMapDataDisplay = '' } = this.props;
+    const { opqBoxAndMarkersDict } = this.state;
+    const { currentMapDataDisplay = '', currentMapLocationGranularity, mapLocationGranularityTypes } = this.props;
     const children = cluster.getAllChildMarkers();
     let total = 0;
     let clusterActiveBoxesCount = children.length;
@@ -223,10 +232,35 @@ class OpqBoxLeafletMarkerManager extends React.Component {
     const formattedAvg = this.formatMeasurement(avg, currentMapDataDisplay);
     const className = this.clusterIconCssClass(avg);
 
+    // Determine regions of all child markers
+    const regions = [];
+    const boxIds = children.map(boxMarker => boxMarker.options.boxId); // Mongo ids
+    boxIds.forEach(id => {
+      const opqBoxEntry = opqBoxAndMarkersDict[id];
+      if (opqBoxEntry) {
+        const region = this.getOpqBoxRegionDoc(opqBoxEntry.opqBox);
+        if (region && region.regionSlug) {
+          regions.push(region.regionSlug);
+        }
+      }
+    });
+
+    const uniqRegions = regions.filter((region, idx, arr) => arr.indexOf(region) === idx);
+
+    let markerHtml = `
+      <div class="marker-cluster container-fix ${className}">
+        <div><span><b>${formattedAvg}</b></span></div>
+      </div>`;
+
+    if (currentMapLocationGranularity === mapLocationGranularityTypes.BOX_REGION) {
+      const regionStr = (uniqRegions.length > 1) ? 'Regions:' : 'Region:';
+      markerHtml += `<div class="marker-cluster-sideLabel"><b>${regionStr} ${uniqRegions.toString()}</b></div>`;
+    }
+
     return divIcon({
-      html: `<div><span><b>${formattedAvg}</b></span></div>`,
-      className: `marker-cluster ${className}`,
-      iconSize: [70, 70], // Should be equal to marker-cluster div width (or height) + margin-left + margin-right
+      html: markerHtml,
+      className: 'marker-cluster-container',
+      iconSize: [70, 70], // Should be equal to marker-cluster div width (or height) + (margin-left x 2)
     });
   }
 
@@ -314,6 +348,7 @@ class OpqBoxLeafletMarkerManager extends React.Component {
                         key={opqBox._id}
                         rawValue=''
                         formattedValue=''
+                        boxId={opqBox._id.toHexString()}
                         position={markerPosition}>
                         <Popup offset={[-10, -30]} maxWidth={300}>
                           {this.opqBoxDetailsList(opqBox)}
@@ -321,18 +356,6 @@ class OpqBoxLeafletMarkerManager extends React.Component {
                       </Marker>;
 
     this.createOrUpdateOpqBoxAndMarkersDictEntry(opqBox._id.toHexString(), { marker: newMarker });
-  }
-
-  getOpqBoxLocation(opqBox) {
-    const { zipcodeLatLngDict } = this.props;
-    console.log('Zipcdoe Dict ', zipcodeLatLngDict);
-    if (opqBox.locations) {
-      const latlng = zipcodeLatLngDict[opqBox.locations[opqBox.locations.length - 1].zipcode];
-      console.log(latlng);
-      // In rare cases, opqBox will have a zipcode, but its an invalid one and thus not in our zipcodeDict.
-      return latlng || [25.0, -71.0];
-    }
-    return [25.0, -71.0]; // Temporary location for marker if no location information available.
   }
 
   getOpqBoxLocationDoc(opqBox) {
@@ -423,9 +446,7 @@ class OpqBoxLeafletMarkerManager extends React.Component {
   markerClusterGroupRef(elem) {
     // Ensure we only set this once.
     if (!this.markerClusterGroupRefElem && elem) {
-      // console.log('ScrollableControl ref elem: ', elem);
       this.markerClusterGroupRefElem = elem.leafletElement; // Just store the leaflet element itself.
-      console.log('Adding markerClusterGroupRefElem: ', elem);
     }
   }
 
@@ -435,9 +456,8 @@ class OpqBoxLeafletMarkerManager extends React.Component {
             ref={this.markerClusterGroupRef.bind(this)}
             animate={true}
             maxClusterRadius={100}
-            spiderfyDistanceMultiplier={5}
-            iconCreateFunction={this.clusterIcon.bind(this)}
-            onSpiderfied={(cluster, markers) => console.log(cluster, markers, cluster.getAllChildMarkers())}>
+            spiderfyDistanceMultiplier={6}
+            iconCreateFunction={this.clusterIcon.bind(this)}>
           {this.getMarkers()}
         </MarkerClusterGroup>
     );
@@ -453,6 +473,7 @@ OpqBoxLeafletMarkerManager.propTypes = {
   zipcodeLatLngDict: PropTypes.object.isRequired,
   measurements: PropTypes.array.isRequired,
   currentMapDataDisplay: PropTypes.string.isRequired,
+  currentMapLocationGranularity: PropTypes.string.isRequired,
   mapDataDisplayTypes: PropTypes.object.isRequired,
   mapLocationGranularityTypes: PropTypes.object.isRequired,
 };

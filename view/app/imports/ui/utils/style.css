@@ -1,4 +1,7 @@
 .opqBoxMarker {
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
+    background-color: rgba(92, 159, 199, 0.3);
     width: 40px;
     height: 40px;
     font: 12px "Helvetica Neue", Arial, Helvetica, sans-serif;
@@ -20,18 +23,40 @@
 }
 
 .opqBoxMarker div {
-    display: flex;
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+    background-color: rgba(92, 159, 199, 0.3);
+    display: inline-flex;
     justify-content: center;
     flex-direction: column;
     height: 40px;
-    width: 100px;
+    white-space: nowrap;
+    width: auto;
+    max-width: 200px;
     margin-left: 40px;
+    padding: 0px 5px 0px 0px;
     line-height: 12px;
+}
+
+/* Container div for the marker-cluster and marker-cluster-sidelabel divs. Doesn't actually need any properties, but
+   still required because the leaflet-marker-cluster package's iconCreateFunction callback requires us to pass
+   in a Leaflet divIcon (which requires us to specific a parent class).
+   Note that this div's height and width is intended to be set by the divIcon's iconSize property, so we don't need
+   to specify it here because it would be overwritten eventually.
+*/
+.marker-cluster-container {
+    /*background-color: #b515ab;*/
 }
 
 .marker-cluster {
     background-clip: padding-box;
     border-radius: 35px; /* marker-cluster div border-radius + 5 */
+}
+
+/* Use this whenever using marker-cluster-container as parent div */
+.marker-cluster.container-fix {
+    padding-top: 1px;
+    padding-bottom: 6px;
 }
 .marker-cluster div {
     width: 60px;
@@ -42,6 +67,20 @@
     border-radius: 30px;
     font: 12px "Helvetica Neue", Arial, Helvetica, sans-serif;
 }
+
+
+.marker-cluster-sideLabel {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    height: 70px;
+    width: 100px;
+    margin-top: -72px; /* 70 + 2 due to container-fix issue */
+    /* Offset the divIcon's iconSize in OpqBoxLeafletMarkerManager's clusterIcon() method, plus a little extra space */
+    margin-left: 75px;
+    line-height: 12px;
+}
+
 .marker-cluster span {
     line-height: 60px; /* Should be equal to marker-cluster div width and height */
 }

@@ -78,8 +78,14 @@ class BoxMap extends React.Component {
     this.opqBoxLeafletMarkerManagerRefElem.zoomToMarker(box_id);
   }
 
+  getOpqBoxRegionDoc(opqBox) {
+    const { regions } = this.props;
+    return regions.find(region => region.locationSlug === opqBox.location);
+  }
+
   opqBoxDetailsList(opqBox) {
     const boxLocationDoc = this.getOpqBoxLocationDoc(opqBox);
+    const regionDoc = this.getOpqBoxRegionDoc(opqBox);
     return (
         <List divided style={{ width: '250px' }}>
           <List.Item>
@@ -98,6 +104,12 @@ class BoxMap extends React.Component {
               <List.Description>
                 {`[${boxLocationDoc.coordinates[0]}, ${boxLocationDoc.coordinates[1]}]`}
               </List.Description>
+              {regionDoc &&
+                  <React.Fragment>
+                    <List.Header><i>Region</i></List.Header>
+                    <List.Description>{this.getOpqBoxRegionDoc(opqBox).regionSlug}</List.Description>
+                  </React.Fragment>
+              }
             </List.Content>
           </List.Item>
           <List.Item>
@@ -353,6 +365,7 @@ class BoxMap extends React.Component {
                 locations={locations}
                 regions={regions}
                 currentMapDataDisplay={this.state.currentMapDataDisplay}
+                currentMapLocationGranularity={this.state.currentMapLocationGranularity}
                 mapLocationGranularityTypes={this.mapLocationGranularityTypes}
                 mapDataDisplayTypes={this.mapDataDisplayTypes} />
           </Map>
