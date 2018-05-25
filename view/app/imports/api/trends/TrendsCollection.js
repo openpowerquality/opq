@@ -119,10 +119,13 @@ class TrendsCollection extends BaseCollection {
    * @private
    */
   _stats(docs, field) {
-    const values = _.compact(_.pluck(docs, field));
+    const fieldDocs = _.compact(_.pluck(docs, field));
+    const minValues = _.pluck(fieldDocs, 'min');
+    const maxValues = _.pluck(fieldDocs, 'max');
+    const aveValues = _.pluck(fieldDocs, 'average');
     const averagefn = (vals) => ((vals.reduce((a, b) => (a + b))) / vals.length);
-    return (values) ?
-      { min: _.min(values), max: _.max(values), average: averagefn(values) } :
+    return (minValues && maxValues && aveValues) ?
+      { min: _.min(minValues), max: _.max(maxValues), average: averagefn(aveValues) } :
       { min: 0, max: 0, average: 0 };
   }
 

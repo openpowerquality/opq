@@ -43,7 +43,11 @@ if (Meteor.isServer) {
 
       // Now test the dailyTrendData computation.
       const dailyTrendData = Trends.dailyTrendData(timestamp_ms, box_id);
-      console.log(dailyTrendData);
+      // console.log(dailyTrendData);
+      expect(dailyTrendData.frequency.min).to.equal(-100);
+      expect(dailyTrendData.frequency.max).to.equal(100);
+      expect(Math.trunc(dailyTrendData.frequency.average)).to.equal(3);
+      expect(dailyTrendData.thd.average).to.equal(0);
     });
 
   });
