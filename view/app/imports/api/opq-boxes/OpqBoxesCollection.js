@@ -120,6 +120,32 @@ class OpqBoxesCollection extends BaseCollection {
     const docs = this._collection.find({}).fetch();
     return (docs) ? _.map(docs, doc => doc.box_id) : [];
   }
+
+  /**
+   * Throws an error if boxId is not a valid boxId.
+   * @param boxId A string representing a boxId.
+   * @returns True if it's a valid boxId.
+   * @throws { Meteor.Error } If not valid.
+   */
+  assertValidBoxId(boxId) {
+    if (!_.isString(boxId)) {
+      throw new Meteor.Error(`BoxId is not a string: ${boxId}`);
+    }
+    if (!this.isBoxId(boxId)) {
+      throw new Meteor.Error(`Undefined boxId: ${boxId}`);
+    }
+    return true;
+  }
+
+  /**
+   * Throws an error if any of boxIds are not a valid boxId.
+   * @param boxIds An array of box_ids.
+   * @returns True if all are boxIds.
+   * @throws { Meteor.Error } If not valid.
+   */
+  assertValidBoxIds(boxIds) {
+    boxIds.forEach(boxId => this.assertValidBoxId(boxId));
+  }
 }
 
 /**

@@ -1,8 +1,9 @@
 import { Meteor } from 'meteor/meteor';
 import SimpleSchema from 'simpl-schema';
+import moment from 'moment';
 import { check } from 'meteor/check';
 import BaseCollection from '../base/BaseCollection.js';
-// import { OpqBoxes } from '../opq-boxes/OpqBoxesCollection';
+import { OpqBoxes } from '../opq-boxes/OpqBoxesCollection';
 
 /**
  * The trends collection provides long term OPQBox trend data.
@@ -77,6 +78,52 @@ class TrendsCollection extends BaseCollection {
    */
   countTrends(box_id) {
     return this._collection.find({ box_id }).count();
+  }
+
+  /**
+   * Returns an object with min, max, and average values of voltage, frequency, and THD for the given day and box_id.
+   * @param day A Date object indicating the day of interest. Must be valid argument to Moment.
+   * @param box_id A string with a box_id.
+   * @returns An object with top-level fields frequency, voltage, and thd. The value of each of those fields is another
+   * object with fields min, max, and average. If there is no
+   * data for the top-level field for the given day, then zero is returned for min, max, and average.
+   * @throws { Meteor.Error } If day is not a date or box_id is not a box_id.
+   */
+  dailyTrendData(day, box_id) {
+    // Make sure day and box_id are valid.
+    OpqBoxes.assertValidBoxId(box_id);
+    const date = moment(day);
+    if (!date.isValid()) {
+      throw new Meteor.Error(`Invalid date passed to dailyTrendData: ${day}`);
+    }
+
+    // Get all the trend documents for this box and day.
+    const startOfDay = moment(date).startOf('day').valueOf();
+    const endOfDay = moment(date).endOf('day').valueOf();
+    const docs = this.find({ box_id, timestamp_ms: { $gt: startOfDay, $lte: endOfDay } }).fetch();
+
+    // Return an object with min, max, and average values of frequency, voltage, and thd.
+    return {
+      frequency: this._stats(docs, 'frequency'),
+      voltage: this._stats(docs, 'voltage'),
+      thd: this._stats(docs, 'thd'),
+    };
+  }
+
+  /**
+   * Compute the min, max, and average values for the passed field in the array of docs.
+   * @param docs An array of documents (i.e. objects) which may or may not contain the passed field.
+   * @param field The field of interest in the passed array of documents.
+   * @returns An object with fields min, max, and average. If there are no values associated with the field of interest,
+   * then an object with the value 0 for min, max, and average is returned.
+   * @private
+   */
+  _stats(docs, field) {
+    const values = _.compact(_.pluck(docs, field));
+    const averagefn = (vals) => ((vals.reduce((a, b) => (a + b))) / vals.length);
+    return (values) ?
+      { min: _.min(values), max: _.max(values), average: averagefn(values) } :
+      { min: 0, max: 0, average: 0 };
   }
 
   /**

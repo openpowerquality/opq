@@ -38,7 +38,7 @@ class UserProfilesCollection extends BaseCollection {
   define({ username, password, firstName, lastName, boxIds = [], role = 'user' }) {
     if (Meteor.isServer) {
 
-      this.assertValidBoxIds(boxIds);
+      OpqBoxes.assertValidBoxIds(boxIds);
 
       // Role must be either 'user' or 'admin'.
       if (role !== ROLE.USER && role !== ROLE.ADMIN) {
@@ -74,21 +74,6 @@ class UserProfilesCollection extends BaseCollection {
   }
 
   /**
-   * Throws error if any of boxIds is not a valid box ID.
-   * @param boxIds An array of box_id.
-   */
-  assertValidBoxIds(boxIds) {
-    boxIds.forEach(boxId => {
-      if (!_.isString(boxId)) {
-        throw new Meteor.Error(`BoxId is not a string: ${boxId}`);
-      }
-      if (!OpqBoxes.isBoxId(boxId)) {
-        throw new Meteor.Error(`Undefined boxId: ${boxId}`);
-      }
-    });
-  }
-
-  /**
    * Internal method to perform updating of the BoxOwnersCollection with a new set of box ownerships for this user.
    * @param boxIds An array containing the new list of box ownership.
    * @private
@@ -114,8 +99,8 @@ class UserProfilesCollection extends BaseCollection {
   }
 
   /**
-   * Updates the User Profile.
-   * Runs on server side only. Only admins should be able to update the user profile.
+   * Updates the User Profile (firstName, lastName, boxIds).
+   * Runs on server side only. Only admins should update the user profile to control box ownership.
    * @param id Must be a valid UserProfile docID.
    * @param args An object containing fields that can be updated: firstName, lastName, and boxIDs.
    * @throws { Meteor.Error } If docID is not defined or any of the boxIds are not defined.
@@ -133,8 +118,7 @@ class UserProfilesCollection extends BaseCollection {
       }
       if (args.boxIds) {
         this.assertValidBoxIds(args.boxIds);
-        this._updateBoxIds(userProfileDoc.username, args.boxIds)
-
+        this._updateBoxIds(userProfileDoc.username, args.boxIds);
       }
       this._collection.update(docID, { $set: updateData });
       return updateData;
