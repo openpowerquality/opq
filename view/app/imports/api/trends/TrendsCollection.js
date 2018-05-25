@@ -1,8 +1,8 @@
 import { Meteor } from 'meteor/meteor';
-import { Mongo } from 'meteor/mongo';
 import SimpleSchema from 'simpl-schema';
 import { check } from 'meteor/check';
 import BaseCollection from '../base/BaseCollection.js';
+// import { OpqBoxes } from '../opq-boxes/OpqBoxesCollection';
 
 /**
  * The trends collection provides long term OPQBox trend data.
@@ -12,7 +12,6 @@ class TrendsCollection extends BaseCollection {
 
   constructor() {
     super('trends', new SimpleSchema({
-      _id: { type: Mongo.ObjectID },
       box_id: { type: String },
       timestamp_ms: { type: Number },
       voltage: { type: Object },
@@ -32,7 +31,6 @@ class TrendsCollection extends BaseCollection {
     this.publicationNames = {
       GET_RECENT_TRENDS: 'get_recent_trends',
       TRENDS_AFTER_TIMESTAMP: 'trends_after_timestamp',
-      TRENDS_RECENT_MONTH: 'trends_recent_month',
     };
     if (Meteor.server) {
       this._collection.rawCollection().createIndex({ timestamp_ms: 1, box_id: 1 }, { background: true });
@@ -41,7 +39,7 @@ class TrendsCollection extends BaseCollection {
 
   /**
    * Defines a new Trends document.
-   * @param {String} box_id - The OPQBox's id value (not Mongo ID)
+   * @param {String} box_id - The OPQBox's id. Must be defined.
    * @param {Number} timestamp_ms - The unix timestamp (millis) of the trend.
    * @param {Number} voltage - The voltage trend object.
    * @param {Number} frequency - The frequency trend object.
@@ -49,6 +47,7 @@ class TrendsCollection extends BaseCollection {
    * @returns The newly created document ID.
    */
   define({ box_id, timestamp_ms, voltage, frequency, thd }) {
+    // TODO: Need to check that box_id is valid.
     const docID = this._collection.insert({ box_id, timestamp_ms, voltage, frequency, thd });
     return docID;
   }
