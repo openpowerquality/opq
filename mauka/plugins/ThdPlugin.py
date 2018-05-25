@@ -62,7 +62,7 @@ def thd(waveform: numpy.ndarray) -> float:
     """
     y = numpy.abs(scipy.fftpack.fft(waveform))
     # x = numpy.fft.fftfreq(y.size, 1 / constants.SAMPLE_RATE_HZ)
-    # x = memoized_get_x(y.size)
+    x = memoized_get_x(y.size)
     # print(x)
     #
     # new_x = []
@@ -84,25 +84,25 @@ def thd(waveform: numpy.ndarray) -> float:
     # print(closest_idx(x, 360.0))
     # print(closest_idx(x, 420.0))
 
-    # nth_harmonic = {
-    #     1: new_y[closest_idx(x, 60.0)],
-    #     2: new_y[closest_idx(x, 120.0)],
-    #     3: new_y[closest_idx(x, 180.0)],
-    #     4: new_y[closest_idx(x, 240.0)],
-    #     5: new_y[closest_idx(x, 300.0)],
-    #     6: new_y[closest_idx(x, 360.0)],
-    #     7: new_y[closest_idx(x, 420.0)]
-    # }
-
     nth_harmonic = {
-        1: y[12],
-        2: y[24],
-        3: y[36],
-        4: y[48],
-        5: y[60],
-        6: y[72],
-        7: y[84]
+        1: y[closest_idx(x, 60.0)],
+        2: y[closest_idx(x, 120.0)],
+        3: y[closest_idx(x, 180.0)],
+        4: y[closest_idx(x, 240.0)],
+        5: y[closest_idx(x, 300.0)],
+        6: y[closest_idx(x, 360.0)],
+        7: y[closest_idx(x, 420.0)]
     }
+
+    # nth_harmonic = {
+    #     1: y[12],
+    #     2: y[24],
+    #     3: y[36],
+    #     4: y[48],
+    #     5: y[60],
+    #     6: y[72],
+    #     7: y[84]
+    # }
 
     top = sq(nth_harmonic[2]) + sq(nth_harmonic[3]) + sq(nth_harmonic[4]) + sq(nth_harmonic[5])
     _thd = (math.sqrt(top) / nth_harmonic[1]) * 100.0
