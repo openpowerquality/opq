@@ -48,6 +48,8 @@ if (Meteor.isServer) {
       expect(dailyTrendData.frequency.max).to.equal(100);
       expect(Math.trunc(dailyTrendData.frequency.average)).to.equal(3);
       expect(dailyTrendData.thd.average).to.equal(0);
+      expect(dailyTrendData.frequency.count).to.equal(3);
+      expect(dailyTrendData.thd.count).to.equal(2);
     });
 
   });

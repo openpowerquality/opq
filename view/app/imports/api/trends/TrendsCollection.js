@@ -111,11 +111,12 @@ class TrendsCollection extends BaseCollection {
   }
 
   /**
-   * Compute the min, max, and average values for the passed field in the array of docs.
+   * Compute the min, max, average, and count of values for the passed field in the array of docs.
    * @param docs An array of documents (i.e. objects) which may or may not contain the passed field.
    * @param field The field of interest in the passed array of documents.
-   * @returns An object with fields min, max, and average. If there are no values associated with the field of interest,
-   * then an object with the value 0 for min, max, and average is returned.
+   * @returns An object with fields min, max, average, count.
+   * If there are no values associated with the field of interest, then an object with the value 0 for
+   * min, max, average, and count is returned.
    * @private
    */
   _stats(docs, field) {
@@ -125,8 +126,8 @@ class TrendsCollection extends BaseCollection {
     const aveValues = _.pluck(fieldDocs, 'average');
     const averagefn = (vals) => ((vals.reduce((a, b) => (a + b))) / vals.length);
     return (minValues && maxValues && aveValues) ?
-      { min: _.min(minValues), max: _.max(maxValues), average: averagefn(aveValues) } :
-      { min: 0, max: 0, average: 0 };
+      { min: _.min(minValues), max: _.max(maxValues), average: averagefn(aveValues), count: minValues.length } :
+      { min: 0, max: 0, average: 0, count: 0 };
   }
 
   /**
