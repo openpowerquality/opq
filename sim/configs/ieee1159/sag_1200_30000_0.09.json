@@ -2,16 +2,16 @@
   "filters": [
     {
       "name": "nop",
-      "delay_samples": 12000
+      "delay_samples": 1200
     },
     {
       "name": "vrms",
-      "target_vrms": 126.0,
+      "target_vrms": 10.799999999999999,
       "delay_samples": 400
     },
     {
       "name": "nop",
-      "delay_samples": 35200
+      "delay_samples": 29200
     },
     {
       "name": "vrms",
@@ -20,7 +20,7 @@
     },
     {
       "name": "nop",
-      "delay_samples": 12000
+      "delay_samples": 1200
     }
   ],
   "does_repeat": false

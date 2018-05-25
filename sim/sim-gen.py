@@ -45,16 +45,17 @@ class DelayedAmplitudeFilter:
         self.d = (target_amplitude - initial_amplitude) / delay_samples
         self.waveform_generator = waveform_generator
 
-    def seen_initial_amplitude_from_current_state(self):
+    def seed_initial_amplitude_from_current_state(self):
         self.initial_amplitude = self.waveform_generator.amplitude
         self.d = (self.target_amplitude - self.initial_amplitude) / self.delay_samples
+        # print("!", self.initial_amplitude, self.target_amplitude, self.d)
 
     def has_next_state(self) -> bool:
-        return self.i < self.delay_samples
+        return self.i <= self.delay_samples
 
     def next_state(self) -> typing.Dict[str, typing.Dict[str, float]]:
         if self.i == 0:
-            self.seen_initial_amplitude_from_current_state()
+            self.seed_initial_amplitude_from_current_state()
         s = {"state": {"amplitude": self.initial_amplitude + (self.i * self.d)}}
         self.i += 1
         return s
@@ -173,7 +174,7 @@ if __name__ == "__main__":
         gen = WaveformGenerator()
         gen.safe_update(state)
         for i in range(total_samples):
-            # print(scale_to_sint16(gen.next()[1]))
             print(scale_to_sint16(gen.next()[1]))
+            # print(as_vrms(scale_to_sint16(gen.next()[1])))
 
 
