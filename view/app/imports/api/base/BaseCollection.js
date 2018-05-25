@@ -209,12 +209,15 @@ class BaseCollection {
   /**
    * Throws an error if id is not a valid docID in this collection.
    * @param id The docID.
+   * @returns The document associated with docID, if docID is defined.
    * @throws { Meteor.Error } If it's not a defined docID.
    */
   assertIsDefined(id) {
-    if (!this.isDefined(id)) {
+    const doc = this.isDefined(id);
+    if (!doc) {
       throw new Meteor.Error(`Undefined ID: ${id}`);
     }
+    return doc;
   }
 
 }
