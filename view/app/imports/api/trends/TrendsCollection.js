@@ -81,6 +81,21 @@ class TrendsCollection extends BaseCollection {
   }
 
   /**
+   * Returns an object whose keys are dates (utc milliseconds) and values are dailyTrendData objects.
+   * @param startDate The first day to provide trend data for.
+   * @param endDate The last day to provide trend data for.
+   * @param box_id The box_id.
+   * @returns An object with daily trend data for the date interval.
+   */
+  dailyTrendsData(startDate, endDate, box_id) {
+    const dailyTrends = {};
+    for (let day = moment(startDate).startOf('day'); day <= moment(endDate).startOf('day'); day = day.add(1, 'days')) {
+      dailyTrends[day.valueOf()] = this.dailyTrendData(day, box_id);
+    }
+    return dailyTrends;
+  }
+
+  /**
    * Returns an object with min, max, and average values of voltage, frequency, and THD for the given day and box_id.
    * @param day A Date object indicating the day of interest. Must be valid argument to Moment.
    * @param box_id A string with a box_id.
