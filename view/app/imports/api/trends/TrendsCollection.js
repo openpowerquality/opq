@@ -111,12 +111,10 @@ class TrendsCollection extends BaseCollection {
     if (!date.isValid()) {
       throw new Meteor.Error(`Invalid date passed to dailyTrendData: ${day}`);
     }
-
     // Get all the trend documents for this box and day.
     const startOfDay = moment(date).startOf('day').valueOf();
     const endOfDay = moment(date).endOf('day').valueOf();
     const docs = this.find({ box_id, timestamp_ms: { $gt: startOfDay, $lte: endOfDay } }).fetch();
-
     // Return an object with min, max, and average values of frequency, voltage, and thd.
     return {
       frequency: this._stats(docs, 'frequency'),
@@ -139,8 +137,8 @@ class TrendsCollection extends BaseCollection {
     const minValues = _.pluck(fieldDocs, 'min');
     const maxValues = _.pluck(fieldDocs, 'max');
     const aveValues = _.pluck(fieldDocs, 'average');
-    const averagefn = (vals) => ((vals.reduce((a, b) => (a + b))) / vals.length);
-    return (minValues && maxValues && aveValues) ?
+    const averagefn = (vals) => ((vals.reduce((a, b) => (a + b), 0)) / vals.length);
+    return (minValues.length > 0 && maxValues.length > 0 && aveValues.length > 0) ?
       { min: _.min(minValues), max: _.max(maxValues), average: averagefn(aveValues), count: minValues.length } :
       { min: 0, max: 0, average: 0, count: 0 };
   }

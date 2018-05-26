@@ -47,7 +47,7 @@ if (Meteor.isServer) {
       expect(Trends.newestTrend(box_id).timestamp_ms).to.equal(timestamp_ms);
     });
 
-    it('#dailyTrendData', function test() {
+    it('#dailyTrendData (single day)', function test() {
       const dailyTrendData = Trends.dailyTrendData(timestamp_ms, box_id);
       // console.log(dailyTrendData);
       expect(dailyTrendData.frequency.min).to.equal(-100);
@@ -58,7 +58,19 @@ if (Meteor.isServer) {
       expect(dailyTrendData.thd.count).to.equal(2);
     });
 
+    it('#dailyTrendsData (multiple days)', function test() {
+      // Get daily trends for four days. Only day 1 has data.
+      const dailyTrendsData = Trends.dailyTrendsData(timestamp_ms, moment(timestamp_ms).add(3, 'day'), box_id);
+      // check a few values from jan1 (same as previous test case).
+      const jan1key = moment(timestamp_ms).startOf('day').valueOf();
+      const jan1TrendData = dailyTrendsData[jan1key];
+      expect(jan1TrendData.frequency.min).to.equal(-100);
+      expect(jan1TrendData.frequency.max).to.equal(100);
+      // check a couple of values from jan2 (note: there is no trend data for this day).
+      const jan2key = moment(jan1key).add(1, 'day').startOf('day').valueOf();
+      const jan2TrendData = dailyTrendsData[jan2key];
+      expect(jan2TrendData.thd.average).to.equal(0);
+      expect(jan2TrendData.frequency.count).to.equal(0);
+    });
   });
-
-
 }

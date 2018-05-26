@@ -11,6 +11,27 @@ import { Trends } from './TrendsCollection';
  * @param {Number} endDate_ms: End of range in Unix epoch time
  * @returns An Object of objects, in this form: { boxID: dailyTrends }}.
  */
+export const dailyTrends2 = new ValidatedMethod({
+  name: 'Trends.dailyTrends2',
+  validate: new SimpleSchema({
+    boxIDs: { type: Array },
+    'boxIDs.$': { type: String },
+    startDate_ms: { type: Number },
+    endDate_ms: { type: Number },
+  }).validator(),
+  run({ boxIDs, startDate, endDate }) {
+    return boxIDs.map(box_id => Trends.dailyTrendsData(startDate, endDate, box_id));
+  },
+});
+
+
+/**
+ * Returns an array of daily trend data with the box IDs as their keys
+ * @param {String[]} boxIDs: List of box IDs to get data for
+ * @param {Number} startDate_ms: Start of range in Unix epoch time
+ * @param {Number} endDate_ms: End of range in Unix epoch time
+ * @returns An Object of objects, in this form: { boxID: dailyTrends }}.
+ */
 export const dailyTrends = new ValidatedMethod({
   name: 'Trends.dailyTrends',
   validate: new SimpleSchema({
