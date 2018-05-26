@@ -126,12 +126,9 @@ class ThdPlugin(plugins.base.MaukaPlugin):
         self.sliding_window_ms = float(self.config_get("plugins.ThdPlugin.window.size.ms"))
 
     def sliding_thd(self, event_id: int, box_id: str, waveform: numpy.ndarray):
-        self.debug("sliding thd A")
         window_size = int(constants.SAMPLE_RATE_HZ * (self.sliding_window_ms / 1000.0))
         windows = rolling_window(waveform, window_size)
-        self.debug("sliding thd B")
         thds = numpy.apply_along_axis(thd, 1, windows)
-        self.debug("sliding thd C")
         prev_beyond_threshold = False
         prev_idx = -1
         for i in range(len(thds)):
@@ -143,7 +140,6 @@ class ThdPlugin(plugins.base.MaukaPlugin):
             else:
                 # We only care if this is the end of an anomaly
                 if prev_beyond_threshold:
-                    self.debug("Found anomaly.")
                     anomaly = mongo.make_anomaly_document(event_id,  # Event id
                                                           box_id,  # box id
                                                           mongo.BoxEventType.THD.value,  # Event name
@@ -158,7 +154,6 @@ class ThdPlugin(plugins.base.MaukaPlugin):
                                                            "avg": numpy.average(thds[prev_idx:i])})
                     self.mongo_client.anomalies_collection.insert_one(anomaly)
                     prev_beyond_threshold = False
-        self.debug("sliding thd D")
 
     def on_message(self, topic, message):
         """
