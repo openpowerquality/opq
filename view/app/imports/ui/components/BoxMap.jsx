@@ -176,52 +176,62 @@ class BoxMap extends React.Component {
 
   opqBoxDetailsList(opqBox) {
     const boxLocationDoc = this.getOpqBoxLocationDoc(opqBox);
-    const regionDoc = this.getOpqBoxRegionDoc(opqBox);
+    const boxRegionDoc = this.getOpqBoxRegionDoc(opqBox);
     return (
         <List divided style={{ width: '250px' }}>
           <List.Item>
-            <List.Icon name='desktop' color='blue' size='large' verticalAlign='middle' />
+            <List.Icon name='hdd outline' color='blue' size='large' verticalAlign='middle' />
+            <List.Content style={{ paddingLeft: '2px' }}>
+              <List.Header>Box Name</List.Header>
+              <List.Description><i>{opqBox.name}</i></List.Description>
+            </List.Content>
+          </List.Item>
+          <List.Item>
+            <List.Icon name='hashtag' color='blue' size='large' verticalAlign='middle' />
             <List.Content>
-              <List.Header><i>Box Name</i></List.Header>
-              <List.Description>{opqBox.name}</List.Description>
+              <List.Header>Box ID</List.Header>
+              <List.Description><i>{opqBox.box_id}</i></List.Description>
             </List.Content>
           </List.Item>
           <List.Item>
             <List.Icon name='marker' color='blue' size='large' verticalAlign='middle' />
             <List.Content>
-              <List.Header><i>Location</i></List.Header>
-              <List.Description>{boxLocationDoc.description}</List.Description>
-              <List.Description>{boxLocationDoc.slug}</List.Description>
+              <List.Header>Location</List.Header>
               <List.Description>
-                {`[${boxLocationDoc.coordinates[0]}, ${boxLocationDoc.coordinates[1]}]`}
+                <i>{boxLocationDoc ? (boxLocationDoc.description) : ('None')}</i>
               </List.Description>
-              {regionDoc &&
-                  <React.Fragment>
-                    <List.Header><i>Region</i></List.Header>
-                    <List.Description>{this.getOpqBoxRegionDoc(opqBox).regionSlug}</List.Description>
-                  </React.Fragment>
-              }
+              <List.Header>Coordinates</List.Header>
+              <List.Description>
+                <i>{boxLocationDoc
+                    ? (`Lat: ${boxLocationDoc.coordinates[1]}, Lng: ${boxLocationDoc.coordinates[0]}`)
+                    : ('None')}
+                </i>
+              </List.Description>
+              <List.Header><i>Region</i></List.Header>
+              <List.Description>
+                {boxRegionDoc ? (<i>{boxRegionDoc.regionSlug}</i>) : ('None')}
+              </List.Description>
             </List.Content>
           </List.Item>
           <List.Item>
             <List.Icon name='tag' color='blue' size='large' verticalAlign='middle' />
-            <List.Content>
+            <List.Content style={{ paddingLeft: '4px' }}>
               <List.Header><i>Description</i></List.Header>
-              <List.Description>{opqBox.description}</List.Description>
+              <List.Description><i>{opqBox.description}</i></List.Description>
             </List.Content>
           </List.Item>
           <List.Item>
             <List.Icon name='plug' color='blue' size='large' verticalAlign='middle' />
             <List.Content>
               <List.Header><i>Unplugged Status</i></List.Header>
-              <List.Description>{opqBox.unplugged.toString()}</List.Description>
+              <List.Description><i>{opqBox.unplugged.toString()}</i></List.Description>
             </List.Content>
           </List.Item>
           <List.Item>
             <List.Icon name='creative commons' color='blue' size='large' verticalAlign='middle' />
-            <List.Content>
-              <List.Header><i>Calibration Constant</i></List.Header>
-              <List.Description>{opqBox.calibration_constant}</List.Description>
+            <List.Content style={{ paddingLeft: '4px' }}>
+              <List.Header>Calibration Constant</List.Header>
+              <List.Description><i>{opqBox.calibration_constant}</i></List.Description>
             </List.Content>
           </List.Item>
         </List>
