@@ -11,29 +11,37 @@ import { Trends } from './TrendsCollection';
  * @param {Number} endDate_ms: End of range in Unix epoch time
  * @returns An Object of objects, in this form: { boxID: dailyTrends }}.
  */
-export const dailyTrends2 = new ValidatedMethod({
-  name: 'Trends.dailyTrends2',
+export const dailyTrends = new ValidatedMethod({
+  name: 'Trends.dailyTrends',
   validate: new SimpleSchema({
     boxIDs: { type: Array },
     'boxIDs.$': { type: String },
     startDate_ms: { type: Number },
     endDate_ms: { type: Number },
   }).validator(),
-  run({ boxIDs, startDate, endDate }) {
-    return boxIDs.map(box_id => Trends.dailyTrendsData(startDate, endDate, box_id));
+  run({ boxIDs, startDate_ms, endDate_ms }) {
+    return Trends.dailyTrends({ boxIDs, startDate_ms, endDate_ms });
   },
 });
 
 
 /**
+ * This is the original version of dailyTrends, left here temporarily for reference purposes.
+ * The problem with this implementation is:
+ *   * All the implementation logic is in the Method. This makes it harder to test.
+ *   * Lots of nested loops. This makes it harder to understand, debug, and extend.
+ * The implementation above moves the logic into the Trends class, which makes it possible to break down the
+ * processing into multiple internal methods, and also simplifies testing.
+ * The new implementation also uses underscore to simplify coding. This cuts the amount of code in half, but does
+ * slow down the method somewhat.
  * Returns an array of daily trend data with the box IDs as their keys
  * @param {String[]} boxIDs: List of box IDs to get data for
  * @param {Number} startDate_ms: Start of range in Unix epoch time
  * @param {Number} endDate_ms: End of range in Unix epoch time
  * @returns An Object of objects, in this form: { boxID: dailyTrends }}.
  */
-export const dailyTrends = new ValidatedMethod({
-  name: 'Trends.dailyTrends',
+export const dailyTrendsOLD = new ValidatedMethod({
+  name: 'Trends.dailyTrendsOLD',
   validate: new SimpleSchema({
     boxIDs: { type: Array },
     'boxIDs.$': { type: String },

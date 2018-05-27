@@ -81,16 +81,30 @@ class TrendsCollection extends BaseCollection {
   }
 
   /**
+   * Called by the dailyTrends Meteor Method to return an object containing Trend data (min, max, average) rolled up
+   * to the day level for the specified set of boxes.
+   * @param boxIDs An array of boxIDs.
+   * @param startDate_ms The start date in milliseconds.
+   * @param endDate_ms The end data in milliseconds.
+   */
+  dailyTrends({ boxIDs, startDate_ms, endDate_ms }) {
+    const trendDict = {};
+    const self = this;
+    boxIDs.forEach(function (box_id) { trendDict[box_id] = self.dailyTrendsBox(startDate_ms, endDate_ms, box_id); });
+    return trendDict;
+  }
+
+  /**
    * Returns an object whose keys are dates (utc milliseconds) and values are dailyTrendData objects.
    * @param startDate The first day to provide trend data for.
    * @param endDate The last day to provide trend data for.
    * @param box_id The box_id.
    * @returns An object with daily trend data for the date interval.
    */
-  dailyTrendsData(startDate, endDate, box_id) {
+  dailyTrendsBox(startDate, endDate, box_id) {
     const dailyTrends = {};
     for (let day = moment(startDate).startOf('day'); day <= moment(endDate).startOf('day'); day = day.add(1, 'days')) {
-      dailyTrends[day.valueOf()] = this.dailyTrendData(day, box_id);
+      dailyTrends[day.valueOf()] = this.dailyTrendBoxDay(day, box_id);
     }
     return dailyTrends;
   }
@@ -104,7 +118,7 @@ class TrendsCollection extends BaseCollection {
    * data for the top-level field for the given day, then zero is returned for min, max, and average.
    * @throws { Meteor.Error } If day is not a date or box_id is not a box_id.
    */
-  dailyTrendData(day, box_id) {
+  dailyTrendBoxDay(day, box_id) {
     // Make sure day and box_id are valid.
     OpqBoxes.assertValidBoxId(box_id);
     const date = moment(day);
@@ -115,12 +129,14 @@ class TrendsCollection extends BaseCollection {
     const startOfDay = moment(date).startOf('day').valueOf();
     const endOfDay = moment(date).endOf('day').valueOf();
     const docs = this.find({ box_id, timestamp_ms: { $gt: startOfDay, $lte: endOfDay } }).fetch();
-    // Return an object with min, max, and average values of frequency, voltage, and thd.
-    return {
-      frequency: this._stats(docs, 'frequency'),
-      voltage: this._stats(docs, 'voltage'),
-      thd: this._stats(docs, 'thd'),
+    // Return an object with min, max, and average values of frequency, voltage, and thd, if present.
+    // Or an empty object is there is no data for that day.
+    const dataObject = {
+      frequency: this._dailyTrendStats(docs, 'frequency'),
+      voltage: this._dailyTrendStats(docs, 'voltage'),
+      thd: this._dailyTrendStats(docs, 'thd'),
     };
+    return (dataObject.frequency.count > 0) ? dataObject : {};
   }
 
   /**
@@ -132,7 +148,7 @@ class TrendsCollection extends BaseCollection {
    * min, max, average, and count is returned.
    * @private
    */
-  _stats(docs, field) {
+  _dailyTrendStats(docs, field) {
     const fieldDocs = _.compact(_.pluck(docs, field));
     const minValues = _.pluck(fieldDocs, 'min');
     const maxValues = _.pluck(fieldDocs, 'max');
