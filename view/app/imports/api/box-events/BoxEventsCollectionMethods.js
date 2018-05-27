@@ -2,6 +2,7 @@ import { Meteor } from 'meteor/meteor';
 import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import SimpleSchema from 'simpl-schema';
 import { BoxEvents } from './BoxEventsCollection.js';
+import { Events } from '../events/EventsCollection';
 
 export const totalBoxEventsCount = new ValidatedMethod({
   name: 'BoxEvents.totalBoxEventsCount',
@@ -25,5 +26,24 @@ export const getBoxEvent = new ValidatedMethod({
       return boxEvent;
     }
     return null;
+  },
+});
+
+export const getBoxEventsByType = new ValidatedMethod({
+  name: 'BoxEvents.getBoxEventsByType',
+  validate: new SimpleSchema({
+    itic_region: { type: String },
+    boxIDs: { type: Array },
+    'boxIDs.$': { type: String },
+    startTime_ms: { type: Number },
+    endTime_ms: { type: Number },
+  }).validator({ clean: true }),
+  run({ itic_region, boxIDs, startTime_ms, endTime_ms }) {
+    return Events.find({
+      itic: { $eq: itic_region },
+      boxes_id: { $in: boxIDs },
+      event_start_timestamp_ms: { $gte: startTime_ms },
+      event_end_timestamp_ms: { $lte: endTime_ms },
+    }).fetch();
   },
 });

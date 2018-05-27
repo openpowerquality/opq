@@ -83,3 +83,22 @@ export const getEventsInRange = new ValidatedMethod({
     }).fetch();
   },
 });
+
+export const getEventsByType = new ValidatedMethod({
+  name: 'Events.getEventsByType',
+  validate: new SimpleSchema({
+    event_type: { type: String },
+    boxIDs: { type: Array },
+    'boxIDs.$': { type: String },
+    startTime_ms: { type: Number },
+    endTime_ms: { type: Number },
+  }).validator({ clean: true }),
+  run({ event_type, boxIDs, startTime_ms, endTime_ms }) {
+    return Events.find({
+      type: { $eq: event_type },
+      boxes_triggered: { $in: boxIDs },
+      target_event_start_timestamp_ms: { $gte: startTime_ms },
+      target_event_end_timestamp_ms: { $lte: endTime_ms },
+    }).fetch();
+  },
+});

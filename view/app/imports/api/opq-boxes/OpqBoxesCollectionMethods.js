@@ -25,6 +25,21 @@ export const getBoxCalibrationConstant = new ValidatedMethod({
   },
 });
 
+export const getBoxesInLoc = new ValidatedMethod({
+  name: 'OpqBoxes.getBoxesInLoc',
+  validate: new SimpleSchema({
+    locations: Array,
+    'locations.$': String,
+  }).validator({ clean: true }),
+  run({ locations }) {
+    const boxes = OpqBoxes.find({
+      location: { $in: locations },
+    });
+    const boxIds = boxes.map(box => box.box_id);
+    return boxIds;
+  },
+});
+
 export const getBoxIDs = new ValidatedMethod({
   name: 'OpqBoxes.getBoxIDs',
   validate: new SimpleSchema({}).validator({ clean: true }),
