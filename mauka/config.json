@@ -1,4 +1,6 @@
 {
+  "mauka.debug": true,
+
   "zmq.triggering.interface"      : "tcp://localhost:9881",
   "zmq.event.interface"           : "tcp://localhost:9899",
   "zmq.mauka.broker.pub.interface": "tcp://*:9883",
@@ -10,7 +12,7 @@
   "zmq.mauka.plugin.management.rep.interface": "tcp://*:12000",
   "zmq.mauka.plugin.management.req.interface": "tcp://localhost:12000",
 
-  "mongo.host": "emilia.ics.hawaii.edu",
+  "mongo.host": "localhost",
   "mongo.port": 27017,
   "mongo.db": "opq",
 
@@ -26,7 +28,8 @@
 
   "plugins.MeasurementPlugin.sample_every": 3.0,
 
-  "plugins.ThdPlugin.getDataAfterS": 10.0,
+  "plugins.ThdPlugin.threshold.percent": 5.0,
+  "plugins.ThdPlugin.window.size.ms": 200,
 
   "plugins.ThresholdPlugin.voltage.ref": 120.0,
   "plugins.ThresholdPlugin.voltage.threshold.percent.low": 5.0,
