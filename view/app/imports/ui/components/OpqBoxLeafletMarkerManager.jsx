@@ -180,6 +180,19 @@ class OpqBoxLeafletMarkerManager extends React.Component {
     return Object.values(opqBoxAndMarkersDict).map(boxAndMarkers => boxAndMarkers.markerLeafletElement);
   }
 
+  markersToRender() {
+    const { opqBoxes } = this.props;
+    const { opqBoxAndMarkersDict } = this.state;
+    // Only display the opqBoxes that were passed in props (even though more may exist in opqBoxMarkersDict)
+    const boxMarkers = [];
+    opqBoxes.forEach(box => {
+      const marker = opqBoxAndMarkersDict[box._id.toHexString()].marker;
+      if (marker) boxMarkers.push(marker);
+    });
+    // console.log('MarkersToRender: ', boxMarkers);
+    return boxMarkers;
+  }
+
   addMarkerLeafletElementToDict(opqBox) {
     return (elem) => {
       // Elem can sometimes be null due to React's mounting and unmounting behavior.
@@ -444,9 +457,21 @@ class OpqBoxLeafletMarkerManager extends React.Component {
   }
 
   markerClusterGroupRef(elem) {
-    // Ensure we only set this once.
-    if (!this.markerClusterGroupRefElem && elem) {
+    // We need to store the MarkerClusterGroup component's leaflet element because the React component does not expose
+    // the zoomToShowLayer() method to us.
+    // Only need to store ref on initial call, or when we have a new MCG instance - which occurs whenever we pass in a
+    // new set of OpqBox markers to the MCG component. If we do not do this, the zoomToMarker() method will not work
+    // because it is pointing to an outdated MCG instance.
+    // Note that we always have to check for elem because React seems to always call this ref function twice, with the
+    // initial call passing in a null elem.
+    if (elem && !this.markerClusterGroupRefElem) {
       this.markerClusterGroupRefElem = elem.leafletElement; // Just store the leaflet element itself.
+    } else {
+      const isNewInstance = (elem) ? elem.leafletElement._leaflet_id !== this.markerClusterGroupRefElem._leaflet_id
+          : false;
+      if (elem && isNewInstance) {
+        this.markerClusterGroupRefElem = elem.leafletElement; // Just store the leaflet element itself.
+      }
     }
   }
 
@@ -458,7 +483,7 @@ class OpqBoxLeafletMarkerManager extends React.Component {
             maxClusterRadius={100}
             spiderfyDistanceMultiplier={6}
             iconCreateFunction={this.clusterIcon.bind(this)}>
-          {this.getMarkers()}
+          {this.markersToRender()}
         </MarkerClusterGroup>
     );
   }

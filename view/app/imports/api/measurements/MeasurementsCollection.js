@@ -54,9 +54,12 @@ class MeasurementsCollection extends BaseCollection {
 
       Meteor.publish(this.publicationNames.BOX_MAP_MEASUREMENTS, function (boxIds) {
         check(boxIds, [String]);
-        // Get measurements for each given box.
-        // const now_ms = Date.now();
+        // As a fallback option for the cases when Emilia's NTP time is drifted, we can ensure we are still receiving
+        // the latest measurement docs by first querying for the newest measurement timestamp in the collection.
+        // Food for thought: Should we actually not do this and allow this publication to return nothing as a way
+        // to notify us that something is wrong with the NTP server? Probably not...
         const now_ms = self.findOne({}, { sort: { timestamp_ms: -1 } }).timestamp_ms;
+        // const now_ms = Date.now();
         const measurements = self.find(
             { box_id: { $in: boxIds }, timestamp_ms: { $gte: now_ms } },
             {

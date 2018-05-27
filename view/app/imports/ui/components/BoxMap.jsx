@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Meteor } from 'meteor/meteor';
-import { Loader, Form, Checkbox, Button, Icon, Popup, Item, List, Transition } from 'semantic-ui-react';
+import { Loader, Form, Checkbox, Button, Icon, Popup, Item, List, Transition, Dropdown, Divider, Label } from 'semantic-ui-react';
 // import 'semantic-ui-css/semantic.css';
 import Lodash from 'lodash';
 import { Map, TileLayer, ZoomControl } from 'react-leaflet';
@@ -33,6 +33,7 @@ class BoxMap extends React.Component {
     };
 
     this.state = {
+      filteredOpqBoxes: [],
       currentMapDataDisplay: this.mapDataDisplayTypes.VOLTAGE_DATA,
       currentMapLocationGranularity: this.mapLocationGranularityTypes.BOX_LOCATION,
       expandedItemBoxId: '', // Refers to the most recently selected Box in the map side panel listing of boxes.
@@ -52,16 +53,106 @@ class BoxMap extends React.Component {
       <div
           className='mapListShadow'
           style={{ height: `${mapHeight}px`, width: '300px', marginLeft: '-10px', marginTop: '-10px',
-                    overflow: 'auto', backgroundColor: '#f9f9f9' }}>
+                  overflow: 'auto', backgroundColor: '#f9f9f9' }}>
+
+        <div style={{ paddingLeft: '10px', paddingRight: '10px', marginTop: '10px', width: '100%' }}>
+          <Label style={{ marginBottom: '5px' }}>
+            <Icon name='filter'></Icon>Filter by Region/Location
+          </Label>
+          {this.locationRegionDropdown()}
+        </div>
+        <Divider />
         {this.opqBoxItemGroup(opqBoxes)}
       </div>
     );
   }
 
+  locationRegionDropdown() {
+    const { opqBoxes, regions } = this.props;
+    // Question: Do we want to list all known locations and regions, or only the ones relevant to the current user's
+    // boxes? Going for the latter choice for now.
+
+    // For each OpqBox, get its location's description (rather than slug).
+    // OpqBox.locationSlug --> Location.slug -> Location.description
+    const opqBoxLocationSlugs = opqBoxes
+        .map(box => box.location)
+        .filter((slug, idx, arr) => arr.indexOf(slug) === idx); // Filter for unique values.
+    const locationDescriptions = opqBoxLocationSlugs.map(slug => this.getLocationDescription(slug));
+
+    // For each OpqBox's location slug, get its region slug.
+    // OpqBox.locationSlug --> Region.locationSlug -> Region.regionSlug
+    const opqBoxRegionSlugs = opqBoxLocationSlugs
+        .map(locSlug => regions.find(region => region.locationSlug === locSlug)) // Find location's region doc.
+        .filter(regionDoc => regionDoc) // Removes any undefined results from above map.
+        .map(regionDoc => regionDoc.regionSlug) // Grab the Region's slug.
+        .filter((slug, idx, arr) => arr.indexOf(slug) === idx); // Filter for unique values.
+
+    // We want to use Semantic-UI's Dropdown component's props API rather than its subcomponent API because using the
+    // former gives us access to a bunch of features that we would otherwise have to implement ourselves if we opt
+    // to use the subcomponent API. One caveat, however, is that the props API requires us to pass our dropdown items
+    // via an options object - which does not allow us to add headers and dividers to the dropdown list of items.
+    // As a (clever?) workaround, we will use disabled dropdown items so act as our 'headers'.
+    const dropdownOptions = [];
+    // Add 'Region' Label and then all unique Regions.
+    dropdownOptions.push({ key: 'regionLabel', value: 'Regions', label: 'Regions', disabled: true });
+    opqBoxRegionSlugs.forEach(slug => dropdownOptions.push(({ key: slug, value: slug, text: slug })));
+    // Add 'Locations' Label and then all unique Location (descriptions).
+    dropdownOptions.push({ key: 'locationLabel', value: 'Locations', label: 'Locations', disabled: true });
+    locationDescriptions.forEach(locDesc => dropdownOptions.push(({ key: locDesc, value: locDesc, text: locDesc })));
+
+    return <Dropdown placeholder='Region/Location Filter'
+                     fluid={true}
+                     multiple={true}
+                     openOnFocus={false}
+                     selectOnBlur={false}
+                     selectOnNavigation={false}
+                     selection
+                     options={dropdownOptions}
+                     onChange={this.handleLocationRegionDropdownOnChange.bind(this)} />;
+  }
+
+  getLocationDescription(locationSlug) {
+    const { locations } = this.props;
+    const locationDoc = locations.find(loc => loc.slug === locationSlug);
+    return (locationDoc) ? locationDoc.description : null;
+  }
+
+  handleLocationRegionDropdownOnChange(event, data) {
+    const { regions, locations, opqBoxes } = this.props;
+    // The locationRegionDropdown is a single dropdown module that can contain either Region slugs or Location
+    // descriptions. Data.value is an array containing any selected dropdown items.
+    const regSlugsOrLocDescriptions = data.value;
+    const foundBoxIds = [];
+
+    regSlugsOrLocDescriptions.forEach(val => {
+      // Val can either be a region slug or a location description.
+      const regs = regions.filter(reg => reg.regionSlug === val);
+      const locs = locations.filter(loc => loc.description === val);
+
+      regs.forEach(reg => {
+        opqBoxes
+            .filter(box => box.location === reg.locationSlug)
+            .forEach(box => foundBoxIds.push(box.box_id));
+      });
+
+      locs.forEach(loc => {
+        opqBoxes
+            .filter(box => box.location === loc.slug)
+            .forEach(box => foundBoxIds.push(box.box_id));
+      });
+    });
+
+    // Must filter out duplicate box_ids. Can occur because selected Regions and Locations can refer to same Box.
+    const uniqBoxIds = foundBoxIds.filter((boxId, idx, arr) => arr.indexOf(boxId) === idx);
+    const selectedOpqBoxes = opqBoxes.filter(box => uniqBoxIds.includes(box.box_id));
+    // Update state with selected OpqBoxes
+    this.setState({ filteredOpqBoxes: selectedOpqBoxes });
+  }
+
   opqBoxItemGroup(opqBoxes) {
     const opqBoxItems = opqBoxes.map(box => this.opqBoxItem(box));
     return (
-        <Item.Group divided style={{ paddingTop: '10px', paddingBottom: '10px' }}>
+        <Item.Group divided style={{ paddingTop: '0px', paddingBottom: '10px' }}>
           {opqBoxItems}
         </Item.Group>
     );
@@ -323,14 +414,17 @@ class BoxMap extends React.Component {
   }
 
   setOpqBoxLeafletMarkerManagerRef(elem) {
+    // Need to store the OpqBoxLeafletMarkerManager child component's ref instance so that we can call its
+    // zoomToMarker() method from this component. We just need to set this once.
     if (!this.opqBoxLeafletMarkerManagerRefElem && elem) {
-      console.log('setting marker manager ref: ', elem);
       this.opqBoxLeafletMarkerManagerRefElem = elem;
     }
   }
 
   renderPage() {
+    const { filteredOpqBoxes } = this.state;
     const { opqBoxes, locations, regions, zipcodeLatLngDict } = this.props;
+    const boxes = (filteredOpqBoxes.length) ? filteredOpqBoxes : opqBoxes;
     // Initial map center based on arbitrarily chosen OpqBox location. Sidenote: It seems like we're storing location
     // coordinates as [lng, lat] instead of the more traditional [lat, lng]. Intentional?
     const center = this.getOpqBoxLocationDoc(opqBoxes[0]).coordinates.slice().reverse();
@@ -356,11 +450,11 @@ class BoxMap extends React.Component {
               />
             </Control>
             <ScrollableControl position='topleft'>
-              {this.sidePanel.bind(this)(this.props.opqBoxes)}
+              {this.sidePanel.bind(this)(boxes)}
             </ScrollableControl>
             <OpqBoxLeafletMarkerManager
                 childRef={this.setOpqBoxLeafletMarkerManagerRef.bind(this)}
-                opqBoxes={opqBoxes}
+                opqBoxes={boxes}
                 zipcodeLatLngDict={zipcodeLatLngDict}
                 locations={locations}
                 regions={regions}
