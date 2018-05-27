@@ -57,7 +57,7 @@ if __name__ == "__main__":
     plugin_manager.register_plugin(plugins.AcquisitionTriggerPlugin)
     plugin_manager.register_plugin(plugins.MakaiEventPlugin)
     plugin_manager.register_plugin(plugins.StatusPlugin)
-    #plugin_manager.register_plugin(plugins.ThdPlugin)
+    plugin_manager.register_plugin(plugins.ThdPlugin)
     #plugin_manager.register_plugin(plugins.IticPlugin)
 
     broker_process = services.start_mauka_pub_sub_broker(config)
