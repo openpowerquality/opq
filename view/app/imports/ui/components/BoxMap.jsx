@@ -406,7 +406,6 @@ class BoxMap extends React.Component {
   mapLocationGranularityHandleChange(event, selectedComponent) {
     const value = selectedComponent.value;
     this.setState({ currentMapLocationGranularity: value });
-    this.opqBoxLeafletMarkerManagerRefElem.updateMarkerPositions(value);
   }
 
   setMapRef(elem) {

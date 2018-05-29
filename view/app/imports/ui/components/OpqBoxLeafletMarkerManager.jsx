@@ -34,13 +34,31 @@ class OpqBoxLeafletMarkerManager extends React.Component {
     this.createMarkers(opqBoxes);
   }
 
-  componentWillReceiveProps(nextProps) {
-    const { opqBoxes } = nextProps;
+  componentDidUpdate(prevProps) {
+    const { opqBoxes, currentMapLocationGranularity } = this.props;
+    const { currentMapLocationGranularity: prevMapLocationGranularity } = prevProps;
+
+    // We destroy all markers and recreate new ones whenever we need to change their positions. Currently, the only
+    // event that requires us to change Marker positions is when the mapLocationGranularity option changes.
+    // The main reason we do this is because React-Leaflet's Marker component doesn't expose its setLatLng() method.
+    // While we could get its internal leaflet element and call setLatLng() on it, and the marker position would
+    // successfully change, it turns out that this would not actually update the Marker component's 'position' props
+    // value. Subsequently, whenever a re-render occurs, we end up passing 'old' Markers with incorrect position props
+    // to the MCG component.
+    let mustRecreateMarkers = false;
+    if (currentMapLocationGranularity !== prevMapLocationGranularity) {
+      mustRecreateMarkers = true;
+    }
+
+    // Delete all old Markers before recreating new ones.
+    if (mustRecreateMarkers) {
+      this.setState({ opqBoxAndMarkersDict: {} });
+    }
 
     // Whenever new box measurements are received via props, we must update Markers.
     opqBoxes.forEach(box => {
       // Create new Marker if does not yet exist, or update existing marker with new data.
-      if (!this.opqBoxExists(box)) {
+      if (!this.opqBoxExists(box) || mustRecreateMarkers) {
         this.createMarker(box);
       } else {
         this.updateMarker(box);
@@ -51,7 +69,7 @@ class OpqBoxLeafletMarkerManager extends React.Component {
   updateMarker(opqBox) {
     const { currentMapDataDisplay, currentMapLocationGranularity, mapLocationGranularityTypes } = this.props;
     // Retrieve box's corresponding Marker leafletElement, and update it.
-    const marker = this.state.opqBoxAndMarkersDict[opqBox._id.toHexString()].markerLeafletElement;
+    const marker = this.getMarkerLeafletElement(opqBox);
     if (marker) {
       const newestMeasurement = this.findNewestMeasurement(opqBox.box_id);
       const rawMeasurementValue = this.filterCurrentMapDataDisplay(newestMeasurement, currentMapDataDisplay, false);
@@ -73,26 +91,24 @@ class OpqBoxLeafletMarkerManager extends React.Component {
     }
   }
 
-  updateMarkerPositions(currentMapLocationGranularity) {
-    const { opqBoxAndMarkersDict } = this.state;
-    const { opqBoxes, mapLocationGranularityTypes } = this.props;
+  calcMarkerPosition(opqBox) {
+    const { currentMapLocationGranularity, mapLocationGranularityTypes } = this.props;
 
-    opqBoxes.forEach(opqBox => {
-      const marker = opqBoxAndMarkersDict[opqBox._id.toHexString()].markerLeafletElement;
-      let newLatLng = null;
-      switch (currentMapLocationGranularity) {
-        case mapLocationGranularityTypes.BOX_LOCATION:
-          // For some reason, we are storing coordinates as [lng, lat] rather than [lat, lng]
-          newLatLng = this.getOpqBoxLocationDoc(opqBox).coordinates.slice().reverse();
-          break;
-        case mapLocationGranularityTypes.BOX_REGION:
-          newLatLng = this.getOpqBoxRegionCoords(opqBox);
-          break;
-        default:
-          break;
-      }
-      if (newLatLng) marker.setLatLng(newLatLng);
-    });
+    let newLatLng = null;
+    switch (currentMapLocationGranularity) {
+      case mapLocationGranularityTypes.BOX_LOCATION:
+        // For some reason, we are storing coordinates as [lng, lat] rather than [lat, lng]
+        newLatLng = this.getOpqBoxLocationDoc(opqBox).coordinates.slice().reverse();
+        break;
+      case mapLocationGranularityTypes.BOX_REGION:
+        newLatLng = this.getOpqBoxRegionCoords(opqBox);
+        // Use Location coords if no set region.
+        if (!newLatLng) newLatLng = this.getOpqBoxLocationDoc(opqBox).coordinates.slice().reverse();
+        break;
+      default:
+        break;
+    }
+    return newLatLng;
   }
 
   getOpqBoxRegionDoc(opqBox) {
@@ -175,21 +191,33 @@ class OpqBoxLeafletMarkerManager extends React.Component {
     return Object.values(opqBoxAndMarkersDict).map(boxAndMarkers => boxAndMarkers.marker);
   }
 
+  getMarker(opqBox) {
+    const { opqBoxAndMarkersDict } = this.state;
+    const boxEntry = opqBoxAndMarkersDict[opqBox._id.toHexString()];
+    return (boxEntry) ? boxEntry.marker : null;
+  }
+
   getMarkerLeafletElements() {
     const { opqBoxAndMarkersDict } = this.state;
     return Object.values(opqBoxAndMarkersDict).map(boxAndMarkers => boxAndMarkers.markerLeafletElement);
   }
 
+  getMarkerLeafletElement(opqBox) {
+    const { opqBoxAndMarkersDict } = this.state;
+    const boxEntry = opqBoxAndMarkersDict[opqBox._id.toHexString()];
+    return (boxEntry) ? boxEntry.markerLeafletElement : null;
+  }
+
   markersToRender() {
     const { opqBoxes } = this.props;
-    const { opqBoxAndMarkersDict } = this.state;
-    // Only display the opqBoxes that were passed in props (even though more may exist in opqBoxMarkersDict)
+
+    // Only display the current subset of opqBoxes that were passed in props (even though more may exist in
+    // opqBoxMarkersDict)
     const boxMarkers = [];
     opqBoxes.forEach(box => {
-      const marker = opqBoxAndMarkersDict[box._id.toHexString()].marker;
+      const marker = this.getMarker(box);
       if (marker) boxMarkers.push(marker);
     });
-    // console.log('MarkersToRender: ', boxMarkers);
     return boxMarkers;
   }
 
@@ -353,10 +381,12 @@ class OpqBoxLeafletMarkerManager extends React.Component {
     this.createOrUpdateOpqBoxAndMarkersDictEntry(opqBox._id.toHexString(), { opqBox });
     const initialMarkerHtml = `<div><b>${opqBox.name}</div>`;
     // For some reason, we are storing coordinates as [lng, lat] rather than [lat, lng]
-    const markerPosition = this.getOpqBoxLocationDoc(opqBox).coordinates.slice().reverse();
+    const markerPosition = this.calcMarkerPosition(opqBox);
+
+    // Note: The props passed to Marker here are just the initial values for the Marker component. RawValue and
+    // formattedValue are given up-to-date measurement values during updateMarker().
     const newMarker = <Marker
                         ref={this.addMarkerLeafletElementToDict.bind(this)(opqBox)}
-                        // icon={this.opqBoxIcon(initialMarkerHtml)}
                         icon={this.opqBoxIcon({ markerHtml: initialMarkerHtml, opqBox })}
                         key={opqBox._id}
                         rawValue=''
