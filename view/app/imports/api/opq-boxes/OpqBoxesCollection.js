@@ -35,7 +35,7 @@ class OpqBoxesCollection extends BaseCollection {
    * @param {Number} calibration_constant - The calibration constant value of the box. Defaults to 1.
    * @param {String} location - A location slug indicating this boxes current location. (optional)
    * @param {Number | String} location_start_time_ms - The timestamp when this box became active at this location.
-   *        Any representation legal to Moment() will work. (Optional)
+   *        Any representation legal to Moment() will work. (Optional, defaults to now if location is supplied.)
    * @param {Array} location_archive An array of {location, location_start_time_ms} objects. (Optional).
    * @returns The docID of the new or changed OPQBox document, or undefined if invoked on the client side.
    */
@@ -45,14 +45,21 @@ class OpqBoxesCollection extends BaseCollection {
       if (location && !Locations.isLocation(location)) {
         throw new Meteor.Error(`Location ${location} is not a defined location.`);
       }
+      if (location && !location_start_time_ms) {
+        location_start_time_ms = moment().valueOf(); // eslint-disable-line
+      }
+      if (location_start_time_ms) {
+        const parsedLocationStartTime = moment(location_start_time_ms); //eslint-disable-line
+        if (!parsedLocationStartTime.isValid()) {
+          throw new Meteor.Error(`location_start_time_ms (${location_start_time_ms} is not valid`);
+        }
+        location_start_time_ms = parsedLocationStartTime.valueOf();  // eslint-disable-line
+      }
       // Create or modify the OpqBox document associated with this box_id.
-      const fixedArchive = location_archive && this.makeLocationArchive(location_archive);
-      const fixedLocationTimestamp = this.getUTCTimestamp(location_start_time_ms);
       this._collection.upsert(
         { box_id },
-        { $set: { name, description, calibration_constant, location, unplugged,
-            location_start_time_ms: fixedLocationTimestamp,
-            location_archive: fixedArchive } },
+        { $set: { name, description, calibration_constant, location, unplugged, location_start_time_ms,
+            location_archive } },
         );
       const docID = this.findOne({ box_id })._id;
       return docID;
@@ -63,6 +70,7 @@ class OpqBoxesCollection extends BaseCollection {
   /**
    * Updates an OPQBox document (name, description, unplugged, calibration_constant, location, location_start_time_ms).
    * Runs on server side only. Only admins can update OPQBoxes at present.
+   * Passing a new location will result in an update to the location_archive property.
    * @param id Must be a valid OPQBox docID.
    * @param args An object containing fields that can be updated.
    * @throws { Meteor.Error } If docID is not defined.
@@ -91,7 +99,8 @@ class OpqBoxesCollection extends BaseCollection {
         if (opqBoxDoc.location !== args.location) {
           const entry = { location: opqBoxDoc.location, location_start_time_ms: opqBoxDoc.location_start_time_ms };
           const archive = opqBoxDoc.location_archive || [];
-          updateData.location_archive = archive.push(entry);
+          archive.push(entry);
+          updateData.location_archive = archive;
           updateData.location = args.location;
           updateData.location_start_time_ms = moment().valueOf();
         }

@@ -2,7 +2,7 @@ import React from 'react';
 import { Grid, Loader, Header, Segment, Form } from 'semantic-ui-react';
 import { OpqBoxes } from '/imports/api/opq-boxes/OpqBoxesCollection';
 import { Locations } from '/imports/api/locations/LocationsCollection';
-import { editBox } from '/imports/api/opq-boxes/OpqBoxesCollectionMethods';
+import { editBox } from '/imports/api/opq-boxes/OpqBoxesCollection.methods';
 import { Bert } from 'meteor/themeteorchef:bert';
 import { Meteor } from 'meteor/meteor';
 import { withTracker } from 'meteor/react-meteor-data';
