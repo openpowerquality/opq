@@ -1,6 +1,6 @@
 import SimpleSchema from 'simpl-schema';
 import { Meteor } from 'meteor/meteor';
-import Moment from 'moment';
+import moment from 'moment';
 import BaseCollection from '../base/BaseCollection.js';
 import { Locations } from '../locations/LocationsCollection.js';
 
@@ -36,7 +36,7 @@ class OpqBoxesCollection extends BaseCollection {
    * @param {String} location - A location slug indicating this boxes current location. (optional)
    * @param {Number | String} location_start_time_ms - The timestamp when this box became active at this location.
    *        Any representation legal to Moment() will work. (Optional)
-   * @param {Array} location_archive An array of {location,location_start_time_ms} objects. (Optional).
+   * @param {Array} location_archive An array of {location, location_start_time_ms} objects. (Optional).
    * @returns The docID of the new or changed OPQBox document, or undefined if invoked on the client side.
    */
   define({ box_id, name, description, unplugged = false, calibration_constant = 1, location, location_start_time_ms,
@@ -61,6 +61,48 @@ class OpqBoxesCollection extends BaseCollection {
   }
 
   /**
+   * Updates an OPQBox document (name, description, unplugged, calibration_constant, location, location_start_time_ms).
+   * Runs on server side only. Only admins can update OPQBoxes at present.
+   * @param id Must be a valid OPQBox docID.
+   * @param args An object containing fields that can be updated.
+   * @throws { Meteor.Error } If docID is not defined.
+   * @returns An object containing the updated fields.
+   */
+  update(docID, args) {
+    if (Meteor.isServer) {
+      const opqBoxDoc = this.assertIsDefined(docID);
+      const updateData = {};
+      if (args.name) {
+        updateData.name = args.name;
+      }
+      if (args.description) {
+        updateData.description = args.description;
+      }
+      if (_.has(args, 'unplugged')) {
+        updateData.unplugged = args.unplugged;
+      }
+      if (_.has(args, 'calibration_constant')) {
+        updateData.calibration_constant = args.calibration_constant;
+      }
+      if (args.location) {
+        if (!Locations.isLocation(args.location)) {
+          throw new Meteor.Error(`Location ${args.location} is not defined.`);
+        }
+        if (opqBoxDoc.location !== args.location) {
+          const entry = { location: opqBoxDoc.location, location_start_time_ms: opqBoxDoc.location_start_time_ms };
+          const archive = opqBoxDoc.location_archive || [];
+          updateData.location_archive = archive.push(entry);
+          updateData.location = args.location;
+          updateData.location_start_time_ms = moment().valueOf();
+        }
+      }
+      this._collection.update(docID, { $set: updateData });
+      return updateData;
+    }
+    return undefined;
+  }
+
+  /**
    * Returns the UTC millisecond representation of the passed timestamp if possible.
    * If timestamp undefined or not convertible to UTC millisecond format, then returns it unchanged.
    * @param timestamp The timestamp
@@ -68,7 +110,7 @@ class OpqBoxesCollection extends BaseCollection {
    */
   getUTCTimestamp(timestamp) {
     if (timestamp) {
-      const momentTimestamp = Moment(timestamp);
+      const momentTimestamp = moment(timestamp);
       return (momentTimestamp.isValid()) ? momentTimestamp.valueOf() : timestamp;
       }
     return timestamp;

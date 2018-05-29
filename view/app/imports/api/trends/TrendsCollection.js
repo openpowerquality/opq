@@ -48,7 +48,8 @@ class TrendsCollection extends BaseCollection {
    * @returns The newly created document ID.
    */
   define({ box_id, timestamp_ms, voltage, frequency, thd }) {
-    // TODO: Need to check that box_id is valid.
+    OpqBoxes.assertValidBoxId(box_id);
+    timestamp_ms = moment(timestamp_ms).valueOf(); // eslint-disable-line
     const docID = this._collection.insert({ box_id, timestamp_ms, voltage, frequency, thd });
     return docID;
   }
