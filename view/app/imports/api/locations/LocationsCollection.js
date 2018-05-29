@@ -66,7 +66,7 @@ class LocationsCollection extends BaseCollection {
   }
 
   /**
-   * Returns all location documents.
+   * Returns an array of all defined location slugs.
    */
   getLocations() {
     const docs = this._collection.find({}).fetch();
