@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Meteor } from 'meteor/meteor';
+import { withRouter, Link, Redirect } from 'react-router-dom';
 import { Loader, Form, Checkbox, Button, Icon, Popup, Item, List, Transition, Dropdown, Divider, Label } from 'semantic-ui-react';
 // import 'semantic-ui-css/semantic.css';
 import Lodash from 'lodash';
@@ -240,6 +241,21 @@ class BoxMap extends React.Component {
     );
   }
 
+  handleBoxSettingsButtonOnClick(opqBox) {
+    // eslint-disable-next-line react/prop-types
+    this.props.history.push(`/edit/${opqBox.box_id}`);
+  }
+
+  handleBoxEventsButtonOnClick() {
+    // eslint-disable-next-line react/prop-types
+    this.props.history.push('/inspector');
+  }
+
+  handleBoxMeasurementsTrendsButtonOnClick() {
+    // eslint-disable-next-line react/prop-types
+    this.props.history.push('/livedata');
+  }
+
   opqBoxItem(opqBox) {
     const { expandedItemBoxId } = this.state;
     const h2classname = (opqBox.box_id.length > 1) ? 'small' : 'large';
@@ -272,7 +288,7 @@ class BoxMap extends React.Component {
                 />
                 <Popup
                     trigger={
-                      <Button icon>
+                      <Button icon onClick={this.handleBoxSettingsButtonOnClick.bind(this, opqBox)}>
                         <Icon size='large' name='setting' />
                       </Button>
                     }
@@ -280,7 +296,7 @@ class BoxMap extends React.Component {
                 />
                 <Popup
                     trigger={
-                      <Button icon>
+                      <Button icon onClick={this.handleBoxEventsButtonOnClick.bind(this)}>
                         <Icon size='large' name='lightning' />
                       </Button>
                     }
@@ -288,7 +304,7 @@ class BoxMap extends React.Component {
                 />
                 <Popup
                     trigger={
-                      <Button icon>
+                      <Button icon onClick={this.handleBoxMeasurementsTrendsButtonOnClick.bind(this)}>
                         <Icon size='large' name='line chart' />
                       </Button>
                     }
@@ -604,4 +620,5 @@ const withTrackerCallback = props => {
 export default Lodash.flowRight([
   withStateContainer(containerState),
   withTracker(withTrackerCallback),
+  withRouter,
 ])(BoxMap);
