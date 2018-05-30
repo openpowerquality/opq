@@ -9,7 +9,7 @@ import { Charts, ChartContainer, ChartRow, YAxis, LineChart, Baseline, Resizable
     'react-timeseries-charts';
 import { TimeRange, TimeSeries } from 'pondjs';
 import { OpqBoxes } from '../../api/opq-boxes/OpqBoxesCollection';
-import { dailyTrends } from '../../api/trends/TrendsCollectionMethods';
+import { dailyTrends } from '../../api/trends/TrendsCollection.methods';
 import WidgetPanel from '../layouts/WidgetPanel';
 
 import colors from '../utils/colors';
