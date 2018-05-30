@@ -1,8 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Meteor } from 'meteor/meteor';
-import { withRouter, Link, Redirect } from 'react-router-dom';
-import { Loader, Form, Checkbox, Button, Icon, Popup, Item, List, Transition, Dropdown, Divider, Label } from 'semantic-ui-react';
+import { withRouter } from 'react-router-dom';
+import { Loader, Form, Checkbox, Button, Icon, Popup, Item, List,
+          Transition, Dropdown, Divider, Label } from 'semantic-ui-react';
 // import 'semantic-ui-css/semantic.css';
 import Lodash from 'lodash';
 import { Map, TileLayer, ZoomControl } from 'react-leaflet';
