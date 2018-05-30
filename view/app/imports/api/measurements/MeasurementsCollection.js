@@ -24,6 +24,7 @@ class MeasurementsCollection extends BaseCollection {
 
     this.publicationNames = {
       RECENT_MEASUREMENTS: 'recent_measurements',
+      BOX_MAP_MEASUREMENTS: 'box_map_measurements',
     };
     if (Meteor.server) {
       this._collection.rawCollection().createIndex({ timestamp_ms: 1, box_id: 1 }, { background: true });
@@ -50,6 +51,27 @@ class MeasurementsCollection extends BaseCollection {
   publish() { // eslint-disable-line class-methods-use-this
     if (Meteor.isServer) {
       const self = this;
+
+      Meteor.publish(this.publicationNames.BOX_MAP_MEASUREMENTS, function (boxIds) {
+        check(boxIds, [String]);
+        // As a fallback option for the cases when Emilia's NTP time is drifted, we can ensure we are still receiving
+        // the latest measurement docs by first querying for the newest measurement timestamp in the collection.
+        // Food for thought: Should we actually not do this and allow this publication to return nothing as a way
+        // to notify us that something is wrong with the NTP server? Probably not...
+        const now_ms = self.findOne({}, { sort: { timestamp_ms: -1 } }).timestamp_ms;
+        // const now_ms = Date.now();
+        const measurements = self.find(
+            { box_id: { $in: boxIds }, timestamp_ms: { $gte: now_ms } },
+            {
+              fields: { _id: 1, timestamp_ms: 1, voltage: 1, frequency: 1, thd: 1, box_id: 1 },
+              sort: { timestamp_ms: -1 },
+              limit: boxIds.length * 2, // Should safely ensure the query returns measurements for all requested boxes.
+              pollingIntervalMs: 1000,
+            },
+        );
+        return measurements;
+      });
+
       Meteor.publish(this.publicationNames.RECENT_MEASUREMENTS, function (startTimeSecondsAgo, boxID) {
         check(startTimeSecondsAgo, Number);
         check(boxID, String);

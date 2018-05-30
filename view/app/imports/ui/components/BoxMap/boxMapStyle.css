@@ -1,0 +1,153 @@
+.opqBoxMarker {
+    /*border-top-left-radius: 10px;*/
+    /*border-bottom-left-radius: 10px;*/
+    /*background-color: rgba(92, 159, 199, 0.3);*/
+    width: 40px;
+    height: 40px;
+    font: 12px "Helvetica Neue", Arial, Helvetica, sans-serif;
+}
+
+.opqBoxMarker.blue {
+    background-image: url('/images/opqlogo.png');
+    background-size: cover;
+}
+
+.opqBoxMarker.yellow {
+    background-image: url('/images/opqlogoyellow.png');
+    background-size: cover;
+}
+
+.opqBoxMarker.red {
+    background-image: url('/images/opqlogored.png');
+    background-size: cover;
+}
+
+.opqBoxMarker div {
+    border-radius: 5px;
+    /*border-top-right-radius: 10px;*/
+    /*border-bottom-right-radius: 10px;*/
+    background-color: rgba(92, 159, 199, 0.3);
+    display: inline-flex;
+    justify-content: center;
+    flex-direction: column;
+    min-height: 40px;
+    white-space: nowrap;
+    width: auto;
+    max-width: 200px;
+    margin-left: 40px;
+    padding: 0px 5px 0px 5px;
+    line-height: 12px;
+}
+
+/* Container div for the marker-cluster and marker-cluster-sidelabel divs. Doesn't actually need any properties, but
+   still required because the leaflet-marker-cluster package's iconCreateFunction callback requires us to pass
+   in a Leaflet divIcon (which requires us to specific a parent class).
+   Note that this div's height and width is intended to be set by the divIcon's iconSize property, so we don't need
+   to specify it here because it would be overwritten eventually.
+*/
+.marker-cluster-container {
+    /*background-color: #b515ab;*/
+}
+
+.marker-cluster {
+    background-clip: padding-box;
+    border-radius: 35px; /* marker-cluster div border-radius + 5 */
+}
+
+/* Use this whenever using marker-cluster-container as parent div */
+.marker-cluster.container-fix {
+    padding-top: 1px;
+    padding-bottom: 6px;
+}
+.marker-cluster div {
+    width: 60px;
+    height: 60px;
+    margin-left: 5px;
+    margin-top: 5px;
+    text-align: center;
+    border-radius: 30px;
+    font: 12px "Helvetica Neue", Arial, Helvetica, sans-serif;
+}
+
+
+.marker-cluster-sideLabel {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    height: 70px;
+    width: 100px;
+    margin-top: -72px; /* 70 + 2 due to container-fix issue */
+    /* Offset the divIcon's iconSize in OpqBoxLeafletMarkerManager's clusterIcon() method, plus a little extra space */
+    margin-left: 75px;
+    line-height: 12px;
+}
+
+.marker-cluster span {
+    line-height: 60px; /* Should be equal to marker-cluster div width and height */
+}
+
+.marker-cluster-blue {
+    background-color: rgba(92, 159, 199, 0.6);
+}
+.marker-cluster-blue div {
+    background-color: rgba(20, 120, 199, 0.6);
+}
+
+.marker-cluster-yellow {
+    background-color: rgba(241, 211, 87, 0.6);
+}
+.marker-cluster-yellow div {
+    background-color: rgba(240, 194, 12, 0.6);
+}
+
+.marker-cluster-red {
+    background-color: rgba(253, 156, 115, 0.6);
+}
+.marker-cluster-red div {
+    background-color: rgba(241, 128, 23, 0.6);
+}
+
+/* IE 6-8 fallback colors */
+.leaflet-oldie .marker-cluster-blue {
+    background-color: rgb(92, 159, 199);
+}
+.leaflet-oldie .marker-cluster-blue div {
+    background-color: rgb(20, 120, 199);
+}
+
+.leaflet-oldie .marker-cluster-yellow {
+    background-color: rgb(241, 211, 87);
+}
+.leaflet-oldie .marker-cluster-yellow div {
+    background-color: rgb(240, 194, 12);
+}
+
+.leaflet-oldie .marker-cluster-red {
+    background-color: rgb(253, 156, 115);
+}
+.leaflet-oldie .marker-cluster-red div {
+    background-color: rgb(241, 128, 23);
+}
+
+.mapListShadow {
+    box-shadow: 0 1px 8px rgba(0,0,0,.5);
+}
+
+.mapListingBoxId {
+    border: 2px solid #2f8acf;
+    font-size: 25px;
+    font-weight: 500;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    line-height: 98%;
+    margin: 20px 10px 0px 10px;
+}
+
+.mapListingBoxId h2.large {
+    margin-left: 9px;
+}
+
+.mapListingBoxId h2.small {
+    margin-left: 2px;
+}
