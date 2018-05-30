@@ -7,6 +7,8 @@ message MaukaMessage {
         Payload payload = 3;
         Heartbeat heartbeat = 4;
         MakaiEvent makai_event = 5;
+        Measurement measurement = 6;
+        MakaiTrigger makai_trigger = 7;
     }
 }
 
@@ -14,6 +16,15 @@ message Payload {
     uint32 event_id = 1;
     string box_id = 2;
     repeated double waveform = 3;
+    PayloadType payload_type = 4;
+}
+
+enum PayloadType {
+    ADC_SAMPLES = 0;
+    VOLTAGE_PP = 1;
+    VOLTAGE_RMS = 2;
+    VOLTAGE_RMS_WINDOWED = 3;
+    FREQUENCY_WINDOWED = 4;
 }
 
 message Heartbeat {
