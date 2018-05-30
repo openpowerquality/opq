@@ -6,6 +6,8 @@ import { Loader, Form, Checkbox, Button, Icon, Popup, Item, List, Transition, Dr
 import Lodash from 'lodash';
 import { Map, TileLayer, ZoomControl } from 'react-leaflet';
 import Control from 'react-leaflet-control';
+import 'react-leaflet-fullscreen/dist/styles.css';
+import FullscreenControl from 'react-leaflet-fullscreen';
 import { withTracker } from 'meteor/react-meteor-data';
 import { withStateContainer } from '../utils/hocs';
 import { OpqBoxes } from '../../api/opq-boxes/OpqBoxesCollection';
@@ -13,7 +15,6 @@ import { BoxOwners } from '../../api/users/BoxOwnersCollection';
 import { Locations } from '../../api/locations/LocationsCollection';
 import { Regions } from '../../api/regions/RegionsCollection';
 import { getZipcodeLatLng } from '../../api/zipcodes/ZipcodesCollectionMethods';
-import WidgetPanel from '../layouts/WidgetPanel';
 import OpqBoxLeafletMarkerManager from './OpqBoxLeafletMarkerManager';
 import ScrollableControl from '../utils/ScrollableControl';
 
@@ -37,6 +38,8 @@ class BoxMap extends React.Component {
       currentMapDataDisplay: this.mapDataDisplayTypes.VOLTAGE_DATA,
       currentMapLocationGranularity: this.mapLocationGranularityTypes.BOX_LOCATION,
       expandedItemBoxId: '', // Refers to the most recently selected Box in the map side panel listing of boxes.
+      mapSidePanelHeight: '600px', // Changes between map fullscreen and regular mode.
+      showDataDisplayButtonContents: false,
     };
   }
 
@@ -46,13 +49,12 @@ class BoxMap extends React.Component {
   }
 
   sidePanel(opqBoxes) {
-    // Want side panel height to be equal to Map component height. Since Map can be set to 100% height, we dynamically
-    // measure the height (set in state) and use that value for the sidePanel div height.
-    const { mapHeight = 600 } = this.state;
+    // Side panel height should be equal to Map component height.
+    const { mapSidePanelHeight } = this.state;
     return (
       <div
           className='mapListShadow'
-          style={{ height: `${mapHeight}px`, width: '300px', marginLeft: '-10px', marginTop: '-10px',
+          style={{ height: mapSidePanelHeight, width: '300px', marginLeft: '-10px', marginTop: '-10px',
                   overflow: 'auto', backgroundColor: '#f9f9f9' }}>
 
         <div style={{ paddingLeft: '10px', paddingRight: '10px', marginTop: '10px', width: '100%' }}>
@@ -323,18 +325,6 @@ class BoxMap extends React.Component {
     return locations.find(location => opqBox.location === location.slug);
   }
 
-  getOpqBoxLatLngFromZipcode(opqBox) {
-    const { zipcodeLatLngDict } = this.props;
-    if (opqBox.locations) {
-      const zipcode = opqBox.locations[opqBox.locations.length - 1].zipcode;
-      const latlng = zipcodeLatLngDict[zipcode];
-      console.log(latlng);
-      // In rare cases, opqBox will have a zipcode, but its an invalid one and thus not in our zipcodeDict.
-      return latlng || [25.0, -71.0];
-    }
-    return [25.0, -71.0]; // Temporary location for marker if no location information available.
-  }
-
   mapMeasurementsControl() {
     return (
         <Form>
@@ -412,13 +402,7 @@ class BoxMap extends React.Component {
     // Have to check for elem because this function gets called multiple times during the rendering process,
     // and elem is sometimes undefined.
     if (!this.mapRef && elem) {
-      // We store the map height in state so that we can later create the sidePanel div with an equal height.
-      // This is needed when we create our map with 100% height, as we don't know the exact height in pixels.
-      // Since the sidePanel div is deeply nested within the Map component's Control divs, we can't just simply set
-      // the sidePanel div to 100% - we must give it an exact height in pixels.
-      const mapHeight = elem.container.clientHeight; // Grab the map's height
       this.mapRef = elem; // Store the Map leaflet ref (not needed in state; just store as instance property)
-      this.setState({ mapHeight: mapHeight });
     }
   }
 
@@ -430,6 +414,50 @@ class BoxMap extends React.Component {
     }
   }
 
+  handleMapOnClick() {
+    // Close Data Display button whenever map is clicked. This is a simple workaround for not being able to
+    // close the data display button onBlur, which what we actually want.
+    this.setState({ showDataDisplayButtonContents: false });
+  }
+
+  handleMapOnResize() {
+    const mapHeight = this.mapRef.container.clientHeight;
+    this.setState({ mapSidePanelHeight: `${mapHeight}px` });
+  }
+
+  handleDataDisplayButtonClick() {
+    this.setState((prevState) => ({ showDataDisplayButtonContents: !prevState.showDataDisplayButtonContents }));
+  }
+
+  mapDataDisplayButton() {
+    const { showDataDisplayButtonContents } = this.state;
+    // Previously, we were simply using a Semantic-UI Popup component. However, it had problems displaying the popup
+    // contents while the map was in full screen mode. It turns out the reason for this was because the Popup component
+    // utilizes React's Portal mechanism, in which the popup contents are placed elsewhere in the DOM away from where
+    // the Popup component is created. The react-leaflet-fullscreen component will only display contents that are a
+    // child of the Map component. Since the Popup content's are placed in a Portal outside of the map component, they
+    // were not rendering properly.
+    // Fortunately, it's simple enough to create a basic popup ourselves, utilizing a single state boolean variable
+    // to tell us whether the button contents should be hidden or shown.
+    return (
+        <div>
+          <Button onClick={this.handleDataDisplayButtonClick.bind(this)}
+                  color='blue'
+                  icon='flask'
+                  content='Data Display'
+                  style={{ float: 'right' }} />
+          {showDataDisplayButtonContents &&
+            <Label onBlur={() => console.log('blurred')}
+                   pointing='above'
+                   style={{ backgroundColor: 'white', fontWeight: 'normal', padding: '15px',
+                            float: 'right', clear: 'both' }}>
+              {this.mapMeasurementsControl()}
+            </Label>
+          }
+        </div>
+    );
+  }
+
   renderPage() {
     const { filteredOpqBoxes } = this.state;
     const { opqBoxes, locations, regions, zipcodeLatLngDict } = this.props;
@@ -439,24 +467,22 @@ class BoxMap extends React.Component {
     const center = this.getOpqBoxLocationDoc(opqBoxes[0]).coordinates.slice().reverse();
 
     return (
-        <WidgetPanel title="Box Map">
+        <div style={{ height: '600px' }}>
           <Map ref={this.setMapRef.bind(this)}
+               onClick={this.handleMapOnClick.bind(this)}
+               onResize={this.handleMapOnResize.bind(this)}
                center={center}
                zoom={11}
                zoomControl={false} // We don't want the default topleft zoomcontrol
-               style={{ height: 600 }}>
+               style={{ height: '100%' }}>
             <TileLayer
                 attribution="&amp;copy <a href=&quot;http://osm.org/copyright&quot;>OpenStreetMap</a> contributors"
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
             <ZoomControl position='bottomright' />
+            <FullscreenControl position='bottomright'/>
             <Control position="topright">
-              <Popup
-                  trigger={<Button color='blue' icon='flask' content='Data Display' />}
-                  content={this.mapMeasurementsControl()}
-                  on='click'
-                  position='bottom right'
-              />
+              {this.mapDataDisplayButton()}
             </Control>
             <ScrollableControl position='topleft'>
               {this.sidePanel.bind(this)(boxes)}
@@ -472,7 +498,7 @@ class BoxMap extends React.Component {
                 mapLocationGranularityTypes={this.mapLocationGranularityTypes}
                 mapDataDisplayTypes={this.mapDataDisplayTypes} />
           </Map>
-        </WidgetPanel>
+        </div>
     );
   }
 }
