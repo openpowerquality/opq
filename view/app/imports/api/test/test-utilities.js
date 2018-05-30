@@ -5,8 +5,10 @@ import { CallPromiseMixin } from 'meteor/didericis:callpromise-mixin';
 import { OPQ } from '../opq/Opq';
 import { removeAllEntities } from '../base/BaseUtilities';
 
-
 /* global Assets */
+
+/** Whether or not to print out a line indicating how many objects were defined in each collection. */
+const consolep = false;
 
 /**
  * Returns the definition array associated with collectionName in the loadJSON structure,
@@ -27,9 +29,9 @@ function getDefinitions(loadJSON, collection) {
  * @param consolep output console.log message if truey.
  * @memberOf api/test
  */
-export function loadCollection(collection, loadJSON, consolep) {
+export function loadCollection(collection, loadJSON) {
   const definitions = getDefinitions(loadJSON, collection._collectionName);
-  if (consolep) {
+  if (consolep && definitions.length) {
     console.log(`Defining ${definitions.length} ${collection._collectionName} documents.`); // eslint-disable-line
   }
   _.each(definitions, definition => collection.define(definition));
@@ -44,8 +46,8 @@ export function defineTestFixture(fixtureName) {
   if (Meteor.isServer) {
     const loadFileName = `database/fixture/${fixtureName}`;
     const loadJSON = JSON.parse(Assets.getText(loadFileName));
-    console.log(`    Loaded ${loadFileName}: ${loadJSON.fixtureDescription}`);
-    _.each(OPQ.collectionLoadSequence, collection => loadCollection(collection, loadJSON, true));
+    console.log(`    Loaded ${fixtureName} (${loadJSON.fixtureDescription})`);
+    _.each(OPQ.collectionLoadSequence, collection => loadCollection(collection, loadJSON));
   }
 }
 

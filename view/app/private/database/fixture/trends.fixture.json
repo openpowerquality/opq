@@ -1,0 +1,24 @@
+{
+  "timestamp": "2018-05-29",
+  "fixtureDescription": "Basic trends. Requires minimal.",
+  "collections": [
+    {
+      "name": "trends",
+      "contents": [
+        {
+          "box_id": "1000",
+          "timestamp_ms": "2018-01-01T12:00:00",
+          "voltage": { "min": 120, "max": 120, "average": 120 },
+          "frequency": { "min": 60, "max": 60, "average": 60 },
+          "thd": { "min": 0.5, "max": 0.5, "average": 0.5 }
+        },
+        {
+          "box_id": "1000",
+          "timestamp_ms": "2018-01-01T12:00:01",
+          "voltage": { "min": 130, "max": 130, "average": 130 },
+          "frequency": { "min": 70, "max": 70, "average": 70 }
+        }
+      ]
+    }
+  ]
+}

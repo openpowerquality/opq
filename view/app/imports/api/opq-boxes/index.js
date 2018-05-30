@@ -1,2 +1,2 @@
 import './OpqBoxesCollection.js';
-import './OpqBoxesCollectionMethods.js';
+import './OpqBoxesCollection.methods.js';
