@@ -148,16 +148,18 @@ bool MongoDriver::append_data_to_event(std::vector<opq::proto::DataMessage> &mes
     try {
         mongocxx::options::find opts{};
         auto location = _box_collection.find_one(document{} << BOX_ID_FIELD << std::to_string(id) << finalize);
-        using namespace std;
         if(location){
             auto element = (*location).view()[OPQ_BOX_LOCATION_FIELD];
             if(element){
-                builder << BOX_EVENT_LOCATION_FIELD << element.get_utf8();
+                builder << BOX_EVENT_LOCATION_FIELD << element.get_value();
             }
         }
     }
     catch (const mongocxx::query_exception &e) {
         syslog(LOG_WARNING, "%s", ("Could not find location: " + std::string(e.what())).c_str() );
+    }
+    catch (...) {
+        syslog(LOG_WARNING, "%s", ("Could not find location."));
     }
 
     bsoncxx::document::value doc_value = builder << finalize;
