@@ -1,6 +1,6 @@
 import React from 'react';
 import { Grid } from 'semantic-ui-react';
-import BoxMap from '../components/BoxMap';
+import BoxMap from '../components/BoxMap/BoxMap';
 import WidgetPanel from '../layouts/WidgetPanel';
 
 const BoxMapPage = () => (

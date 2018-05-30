@@ -9,14 +9,14 @@ import Control from 'react-leaflet-control';
 import 'react-leaflet-fullscreen/dist/styles.css';
 import FullscreenControl from 'react-leaflet-fullscreen';
 import { withTracker } from 'meteor/react-meteor-data';
-import { withStateContainer } from '../utils/hocs';
-import { OpqBoxes } from '../../api/opq-boxes/OpqBoxesCollection';
-import { BoxOwners } from '../../api/users/BoxOwnersCollection';
-import { Locations } from '../../api/locations/LocationsCollection';
-import { Regions } from '../../api/regions/RegionsCollection';
-import { getZipcodeLatLng } from '../../api/zipcodes/ZipcodesCollectionMethods';
+import { withStateContainer } from './hocs';
+import { OpqBoxes } from '../../../api/opq-boxes/OpqBoxesCollection';
+import { BoxOwners } from '../../../api/users/BoxOwnersCollection';
+import { Locations } from '../../../api/locations/LocationsCollection';
+import { Regions } from '../../../api/regions/RegionsCollection';
+import { getZipcodeLatLng } from '../../../api/zipcodes/ZipcodesCollectionMethods';
 import OpqBoxLeafletMarkerManager from './OpqBoxLeafletMarkerManager';
-import ScrollableControl from '../utils/ScrollableControl';
+import ScrollableControl from './ScrollableControl';
 
 class BoxMap extends React.Component {
   constructor(props) {

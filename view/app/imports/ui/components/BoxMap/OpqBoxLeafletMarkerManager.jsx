@@ -7,8 +7,8 @@ import { divIcon } from 'leaflet';
 import MarkerClusterGroup from 'react-leaflet-markercluster';
 import 'react-leaflet-markercluster/dist/styles.min.css';
 import { Loader, List } from 'semantic-ui-react';
-import { Measurements } from '../../api/measurements/MeasurementsCollection';
-import '../utils/style.css';
+import { Measurements } from '../../../api/measurements/MeasurementsCollection';
+import './boxMapStyle.css';
 
 class OpqBoxLeafletMarkerManager extends React.Component {
   constructor(props) {
