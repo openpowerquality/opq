@@ -32,6 +32,7 @@ class LocationsCollection extends BaseCollection {
       if (Regions.findOne({ regionSlug: slug })) {
         throw new Meteor.Error(`Slug ${slug} is already defined as a region.`);
       }
+      // TODO: description must also be unique.
       this._collection.upsert(
         { slug },
         { $set: { slug, coordinates, description } },
@@ -66,11 +67,24 @@ class LocationsCollection extends BaseCollection {
   }
 
   /**
-   * Returns an array of all defined location slugs.
+   * Returns an array of all the defined Location documents.
    */
-  getLocations() {
-    const docs = this._collection.find({}).fetch();
-    return (docs) ? _.map(docs, doc => doc.slug) : [];
+  getDocs() {
+    return this._collection.find({}).fetch();
+  }
+
+  /**
+   * Returns the Location slug associated with description.
+   * @param description The location description.
+   * @throws { Meteor.Error } If description is not associated with a location.
+   * @returns The Location slug.
+   */
+  findSlugFromDescription(description) {
+    const locationDoc = this.findOne({ description });
+    if (!locationDoc) {
+      throw new Meteor.Error(`Location description ${description} is not defined.`);
+    }
+    return locationDoc.slug;
   }
 
   /**

@@ -1,108 +1,89 @@
+import { Meteor } from 'meteor/meteor';
 import React from 'react';
-import { Grid, Loader, Header, Segment, Form } from 'semantic-ui-react';
+import PropTypes from 'prop-types';
+import { Bert } from 'meteor/themeteorchef:bert';
+import { Grid, Loader, Header, Segment } from 'semantic-ui-react';
+import AutoForm from 'uniforms-semantic/AutoForm';
+import AutoField from 'uniforms-semantic/AutoField';
+import SubmitField from 'uniforms-semantic/SubmitField';
+import HiddenField from 'uniforms-semantic/HiddenField';
+import ErrorsField from 'uniforms-semantic/ErrorsField';
 import { OpqBoxes } from '/imports/api/opq-boxes/OpqBoxesCollection';
 import { Locations } from '/imports/api/locations/LocationsCollection';
-import { editBox } from '/imports/api/opq-boxes/OpqBoxesCollection.methods';
-import { Bert } from 'meteor/themeteorchef:bert';
-import { Meteor } from 'meteor/meteor';
 import { withTracker } from 'meteor/react-meteor-data';
-import PropTypes from 'prop-types';
-import { _ } from 'lodash';
+import SimpleSchema from 'simpl-schema';
+import { updateMethod } from '../../api/base/BaseCollection.methods';
 
-/** Renders the Page for editing a single document. */
 class EditBox extends React.Component {
-  constructor(props) {
-    super(props);
-    const doc = OpqBoxes.findBox(props.boxID);
-    this.state = {
-      box_id: doc.box_id,
-      name: doc.name,
-      description: doc.description,
-      calibration_constant: doc.calibration_constant,
-      location: doc.location,
-    };
-    this.handleChange = this.handleChange.bind(this);
-    this.handleSubmit = this.handleSubmit.bind(this);
-  }
 
-   handleChange(e, { name, value }) {
-    this.setState({ [name]: value });
-    console.log('state', this.state);
-  }
-
-   handleSubmit() {
-    const { box_id, name, description, calibration_constant, location } = this.state;
-    console.log('submitting', this.state);
-    editBox.call({ box_id, name, description, calibration_constant, location }, (error) => (error ?
+  /** On submit, look up location slug from description, then call generic base.updateMethod. */
+  submit(data) {
+    const { _id, name, description, calibration_constant, locationDescription } = data;
+    const location = Locations.findSlugFromDescription(locationDescription);
+    const collectionName = OpqBoxes.getCollectionName();
+    const updateData = { id: _id, name, description, calibration_constant, location };
+    updateMethod.call({ collectionName, updateData }, (error) => (error ?
         Bert.alert({ type: 'danger', style: 'growl-bottom-left', message: `Update failed: ${error.message}` }) :
         Bert.alert({ type: 'success', style: 'growl-bottom-left', message: 'Update succeeded' })));
   }
 
+  /** If the subscription(s) have been received, render the page, otherwise show a loading icon. */
   render() {
     return (this.props.ready) ? this.renderPage() : <Loader>Getting data</Loader>;
   }
 
-  /** Form using Uniforms: https://github.com/vazco/uniforms */
+  /**
+   * Render the form. Use Uniforms: https://github.com/vazco/uniforms.
+   * Create a custom schema for the form. Convert location slugs (from doc) into descriptions for display.
+   */
   renderPage() {
-    const currentLocationDoc = Locations.findLocation(this.state.location);
-    const slugs = Locations.getLocations();
-    const options = _.map(slugs, function (slug) {
-      const text = Locations.findLocation(slug).description;
-      const value = slug;
-      return (currentLocationDoc.slug === slug) ? { text, value, selected: true } : { text, value };
+    const locationDescriptions = Locations.getDocs().map(doc => doc.description);
+    const formSchema = new SimpleSchema({
+      box_id: String,
+      name: String,
+      description: String,
+      unplugged: Boolean,
+      calibration_constant: Number,
+      locationDescription: { type: String, allowedValues: locationDescriptions, label: 'Location' },
     });
+    this.props.doc.locationDescription = Locations.getDoc(this.props.doc.location).description;
     return (
-        <Grid container centered>
-          <Grid.Column>
-            <Header as="h2" textAlign="center">Edit Box</Header>
-            <Form onSubmit={this.handleSubmit}>
-              <Segment>
-                <Form.Field>
-                  <label>Name</label>
-                  <Form.Input defaultValue={this.state.name} name="name" onChange={this.handleChange}/>
-                </Form.Field>
-                <Form.Field>
-                  <label>Description</label>
-                  <Form.Input placeholder='Enter additional box information...'
-                              defaultValue={this.state.description}
-                              name="description"
-                              onChange={this.handleChange}/>
-                </Form.Field>
-                <Form.Field>
-                  <label>Calibration Constant</label>
-                  <Form.Input name="calibration_constant" placeholder='Enter value...' type='number' step='any'
-                              defaultValue={this.state.calibration_constant}
-                              onChange={this.handleChange}/>
-                </Form.Field>
-                <Form.Field>
-                  <label>Current location</label>
-                  <Form.Select name="location" options={options} onChange={this.handleChange}/>
-                </Form.Field>
-                <Form.Button content="Submit"/>
-              </Segment>
-            </Form>
-          </Grid.Column>
-        </Grid>
+      <Grid container centered>
+        <Grid.Column>
+          <Header as="h2" textAlign="center">Edit OPQ Box</Header>
+          <AutoForm schema={formSchema} onSubmit={this.submit} model={this.props.doc}>
+            <Segment>
+              <HiddenField name='box_id'/>
+              <AutoField name='name'/>
+              <AutoField name='description'/>
+              <AutoField name='unplugged'/>
+              <AutoField name='calibration_constant'/>
+              <AutoField name='locationDescription' />
+              <SubmitField value='Submit'/>
+              <ErrorsField/>
+            </Segment>
+          </AutoForm>
+        </Grid.Column>
+      </Grid>
     );
   }
 }
 
-/** Uniforms adds 'model' to the props */
+/** Uniforms adds 'model' to the props, which we use. */
 EditBox.propTypes = {
+  doc: PropTypes.object,
   model: PropTypes.object,
   ready: PropTypes.bool.isRequired,
-  boxID: PropTypes.string,
 };
 
 /** withTracker connects Meteor data to React components. https://guide.meteor.com/react.html#using-withTracker */
 export default withTracker(({ match }) => {
   // Get the documentID from the URL field. See imports/ui/layouts/App.jsx for the route containing :_id.
   const boxID = match.params.box_id;
-  // Get access to OpqBoxes documents.
   const opqBoxesSubscription = Meteor.subscribe(OpqBoxes.getPublicationName());
   const locationsSubscription = Meteor.subscribe(Locations.getPublicationName());
   return {
     ready: opqBoxesSubscription.ready() && locationsSubscription.ready(),
-    boxID,
+    doc: OpqBoxes.findBox(boxID),
   };
 })(EditBox);
