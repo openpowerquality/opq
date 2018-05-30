@@ -1,0 +1,39 @@
+syntax = "proto3";
+
+message MaukaMessage {
+    uint64 timestamp_ms = 1;
+    string source = 2;
+    oneof message {
+        Payload payload = 3;
+        Heartbeat heartbeat = 4;
+        MakaiEvent makai_event = 5;
+    }
+}
+
+message Payload {
+    uint32 event_id = 1;
+    string box_id = 2;
+    repeated double waveform = 3;
+}
+
+message Heartbeat {
+    uint64 last_received = 1;
+    uint32 on_message_count = 2;
+    string status = 3;
+}
+
+message MakaiEvent {
+    uint32 event_id = 1;
+}
+
+message Measurement {
+
+}
+
+message MakaiTrigger {
+    uint64 event_start_timestamp_ms = 1;
+    uint64 event_end_timestamp_ms = 2;
+    string event_type = 3;
+    double max_value = 4;
+    string box_id = 5;
+}
