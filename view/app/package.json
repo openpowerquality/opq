@@ -42,10 +42,10 @@
   "scripts": {
     "start": "METEOR_NO_RELEASE_CHECK=1 meteor --settings ../config/settings.development.json",
     "build": "meteor build ../deploy --architecture os.linux.x86_64",
-    "lint": "eslint --quiet --ext .jsx --ext .js ./imports",
-    "pretest": "npm run lint",
+    "lint": "METEOR_NO_RELEASE_CHECK=1 eslint --quiet --ext .jsx --ext .js ./imports",
     "test": "METEOR_NO_RELEASE_CHECK=1 TEST_BROWSER_DRIVER=nightmare meteor test --once --driver-package meteortesting:mocha --no-release-check --port 3100",
     "test-app": "METEOR_NO_RELEASE_CHECK=1 TEST_BROWSER_DRIVER=nightmare meteor test --full-app --once --driver-package meteortesting:mocha --port 3100",
+    "test-all": "meteor npm run lint && meteor npm run test && meteor npm run test-app",
     "jsdoc": "./node_modules/.bin/jsdoc -c ./jsdoc.json -r ."
   }
 }

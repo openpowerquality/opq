@@ -5,11 +5,9 @@ import { Meteor } from 'meteor/meteor';
 import { Grid, Header, Dropdown, Checkbox, Popup, Input, Button, Loader } from 'semantic-ui-react';
 import Moment from 'moment';
 import Calendar from 'react-calendar';
-import {
-  Charts, ChartContainer, ChartRow, YAxis, LineChart, Baseline, Resizable, Legend, styler,
-} from 'react-timeseries-charts';
+import { Charts, ChartContainer, ChartRow, YAxis, LineChart, Baseline, Resizable, Legend, styler } from
+    'react-timeseries-charts';
 import { TimeRange, TimeSeries } from 'pondjs';
-
 import { OpqBoxes } from '../../api/opq-boxes/OpqBoxesCollection';
 import { dailyTrends } from '../../api/trends/TrendsCollectionMethods';
 import WidgetPanel from '../layouts/WidgetPanel';
@@ -228,9 +226,11 @@ class BoxTrends extends React.Component {
                   <Baseline axis={field} style={{ line: { stroke: 'grey' } }}
                             value={reference[1]} label='Nominal' position='right'/>
                   <Baseline axis={field} style={{ line: { stroke: 'lightgrey' } }}
-                            value={reference[2]} label='+5%' position='right'/>
+                            value={reference[2]} label='+5%' position='right'
+                            visible={(field !== 'frequency')}/>
                   <Baseline axis={field} style={{ line: { stroke: 'lightgrey' } }}
-                            value={reference[0]} label='-5%' position='right' visible={field !== 'thd'}/>
+                            value={reference[0]} label='-5%' position='right'
+                            visible={(field !== 'thd') || (field !== 'frequency')}/>
                 </Charts>
               </ChartRow>
             </ChartContainer>
@@ -264,7 +264,7 @@ class BoxTrends extends React.Component {
     // @formatter:off
     switch (this.state.field) {
       case 'voltage': references = [114, 120, 126]; break;
-      case 'frequency': references = [57, 60, 63]; break;
+      case 'frequency': references = [59, 60, 61]; break;
       case 'thd': references = [null, 0, 0.05]; break;
       default: break;
     }

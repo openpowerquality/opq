@@ -32,14 +32,14 @@ class OpqBoxesCollection extends BaseCollection {
    * @param {String} name - The unique user-friendly name of the OPQBox.
    * @param {String} description - The (optional) description of the OPQBox.
    * @param {Boolean} unplugged - True if the box is not attached to an outlet. Default: false (plugged in)
-   * @param {Number} calibration_constant - The calibration constant value of the box. See docs for details.
+   * @param {Number} calibration_constant - The calibration constant value of the box. Defaults to 1.
    * @param {String} location - A location slug indicating this boxes current location. (optional)
    * @param {Number | String} location_start_time_ms - The timestamp when this box became active at this location.
    *        Any representation legal to Moment() will work. (Optional)
    * @param {Array} location_archive An array of {location,location_start_time_ms} objects. (Optional).
    * @returns The docID of the new or changed OPQBox document, or undefined if invoked on the client side.
    */
-  define({ box_id, name, description, unplugged = false, calibration_constant, location, location_start_time_ms,
+  define({ box_id, name, description, unplugged = false, calibration_constant = 1, location, location_start_time_ms,
          location_archive }) {
     if (Meteor.isServer) {
       if (location && !Locations.isLocation(location)) {
@@ -90,6 +90,15 @@ class OpqBoxesCollection extends BaseCollection {
   }
 
   /**
+   * Returns true if boxId is the id of a defined OpqBox.
+   * @param boxId A possible boxId.
+   * @returns { Any } A truthy value if boxId is a defined BoxId, false-y otherwise.
+   */
+  isBoxId(boxId) {
+    return this._collection.findOne({ box_id: boxId });
+  }
+
+  /**
    * Returns the box document associated with box_id.
    * Throws an error if no box document was found for the passed box_id.
    * @param box_id The box ID.
@@ -110,6 +119,32 @@ class OpqBoxesCollection extends BaseCollection {
   findBoxIds() {
     const docs = this._collection.find({}).fetch();
     return (docs) ? _.map(docs, doc => doc.box_id) : [];
+  }
+
+  /**
+   * Throws an error if boxId is not a valid boxId.
+   * @param boxId A string representing a boxId.
+   * @returns True if it's a valid boxId.
+   * @throws { Meteor.Error } If not valid.
+   */
+  assertValidBoxId(boxId) {
+    if (!_.isString(boxId)) {
+      throw new Meteor.Error(`BoxId is not a string: ${boxId}`);
+    }
+    if (!this.isBoxId(boxId)) {
+      throw new Meteor.Error(`Undefined boxId: ${boxId}`);
+    }
+    return true;
+  }
+
+  /**
+   * Throws an error if any of boxIds are not a valid boxId.
+   * @param boxIds An array of box_ids.
+   * @returns True if all are boxIds.
+   * @throws { Meteor.Error } If not valid.
+   */
+  assertValidBoxIds(boxIds) {
+    boxIds.forEach(boxId => this.assertValidBoxId(boxId));
   }
 }
 

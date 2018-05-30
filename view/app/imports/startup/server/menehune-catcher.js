@@ -14,7 +14,7 @@ import { OpqBoxes } from '../../api/opq-boxes/OpqBoxesCollection';
  *   * invoke 'db.cronHistory.find({result: {$regex: 'MENEHUNE'}}).sort({startedAt: 1});'
  *   * The first entry is the first minute that box2 was observed to be unplugged.
  */
-function startupMenehuneCatcherCronjob() {
+function startupMenehuneCatcherCronjob() { // eslint-disable-line
   // Only set up Cron Job when not in Test mode.
   if (!Meteor.isTest && !Meteor.isAppTest) {
     const updateIntervalSeconds = 60;
@@ -38,6 +38,8 @@ function startupMenehuneCatcherCronjob() {
   }
 }
 
-Meteor.startup(() => {
-  startupMenehuneCatcherCronjob();
-});
+// It seems the menehune have left the building, so we will disable this cron job for now.
+// Later, we can delete this code entirely.
+// Meteor.startup(() => {
+//   startupMenehuneCatcherCronjob();
+// });
