@@ -39,7 +39,7 @@ static const std::string BOX_EVENT_WINDOW_TIME_STAMP_FIELD = "window_timestamps_
 static const std::string BOX_EVENT_TIME_DATA_FIELD = "data_fs_filename";
 static const std::string BOX_EVENT_LOCATION_FIELD = "location";
 
-static const std::string OPQ_BOX_LOCATION_FIELD = "locations";
+static const std::string OPQ_BOX_LOCATION_FIELD = "location";
 
 
 
@@ -147,16 +147,12 @@ bool MongoDriver::append_data_to_event(std::vector<opq::proto::DataMessage> &mes
     //Fill in location.
     try {
         mongocxx::options::find opts{};
-        opts.projection(document{} << OPQ_BOX_LOCATION_FIELD << open_document << "$slice" << -1 << close_document << finalize);
-
-        auto locations = _box_collection.find_one(document{} << BOX_ID_FIELD << std::to_string(id) << finalize,
-                                                 opts
-        );
+        auto location = _box_collection.find_one(document{} << BOX_ID_FIELD << std::to_string(id) << finalize);
         using namespace std;
-        if(locations){
-            auto element = (*locations).view()[OPQ_BOX_LOCATION_FIELD][0];
+        if(location){
+            auto element = (*location).view()[OPQ_BOX_LOCATION_FIELD];
             if(element){
-                builder << BOX_EVENT_LOCATION_FIELD << element.get_document();
+                builder << BOX_EVENT_LOCATION_FIELD << element.get_utf8();
             }
         }
     }
