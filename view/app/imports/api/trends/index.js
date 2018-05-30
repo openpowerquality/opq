@@ -1,2 +1,2 @@
 import './TrendsCollection.js';
-import './TrendsCollectionMethods.js';
+import './TrendsCollection.methods.js';

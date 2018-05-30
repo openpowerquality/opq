@@ -14,6 +14,10 @@ class BoxOwnersCollection extends BaseCollection {
       username: String,
       boxId: String,
     }));
+
+    this.publicationNames = {
+      GET_CURRENT_USER_BOX_OWNERS: 'get_current_user_box_owners',
+    };
   }
 
   /**
@@ -78,6 +82,26 @@ class BoxOwnersCollection extends BaseCollection {
    */
   removeBoxesWithOwner(username) {
     this._collection.remove({ username });
+  }
+
+  /**
+   * Loads all publications related to this collection.
+   */
+  publish() {
+    if (Meteor.isServer) {
+      const self = this;
+
+      // Default publication based on the collection's name - returns all documents in collection.
+      Meteor.publish(this.getCollectionName(), function () {
+        return self.find();
+      });
+
+      Meteor.publish(this.publicationNames.GET_CURRENT_USER_BOX_OWNERS, function () {
+        // Publications should check current user with this.userId instead of relying on client-side input.
+        const currentUser = Meteor.users.findOne({ _id: this.userId });
+        return (currentUser) ? self.find({ username: currentUser.username }) : [];
+      });
+    }
   }
 }
 
