@@ -91,6 +91,11 @@ class BoxOwnersCollection extends BaseCollection {
     if (Meteor.isServer) {
       const self = this;
 
+      // Default publication based on the collection's name - returns all documents in collection.
+      Meteor.publish(this.getCollectionName(), function () {
+        return self.find();
+      });
+
       Meteor.publish(this.publicationNames.GET_CURRENT_USER_BOX_OWNERS, function () {
         // Publications should check current user with this.userId instead of relying on client-side input.
         const currentUser = Meteor.users.findOne({ _id: this.userId });

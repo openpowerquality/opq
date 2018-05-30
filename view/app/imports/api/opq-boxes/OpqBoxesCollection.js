@@ -125,11 +125,9 @@ class OpqBoxesCollection extends BaseCollection {
     if (Meteor.isServer) {
       const self = this;
 
-      Meteor.publish(this.publicationNames.GET_OPQ_BOXES, function () {
-        // check(startTime, Match.Maybe(Number));
-        // check(endTime, Match.Maybe(Number));
-        const opqBoxes = self.find({});
-        return opqBoxes;
+      // Default publication based on the collection's name - returns all documents in collection.
+      Meteor.publish(this.getCollectionName(), function () {
+        return self.find();
       });
 
       Meteor.publish(this.publicationNames.GET_CURRENT_USER_OPQ_BOXES, function () {
