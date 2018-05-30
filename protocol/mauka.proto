@@ -21,7 +21,7 @@ message Payload {
 
 enum PayloadType {
     ADC_SAMPLES = 0;
-    VOLTAGE_PP = 1;
+    VOLTAGE_RAW = 1;
     VOLTAGE_RMS = 2;
     VOLTAGE_RMS_WINDOWED = 3;
     FREQUENCY_WINDOWED = 4;
