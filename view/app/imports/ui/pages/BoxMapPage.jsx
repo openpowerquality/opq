@@ -6,7 +6,7 @@ import WidgetPanel from '../layouts/WidgetPanel';
 const BoxMapPage = () => (
     <Grid container stackable>
       <Grid.Column width={16}>
-        <WidgetPanel title="Box Map">
+        <WidgetPanel title="Box Map" noPadding={true}>
           <BoxMap/>
         </WidgetPanel>
       </Grid.Column>
