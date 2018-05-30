@@ -5,6 +5,7 @@ import { _ } from 'lodash';
 import SimpleSchema from 'simpl-schema';
 import BaseCollection from '../base/BaseCollection';
 import { BoxOwners } from './BoxOwnersCollection';
+import { OpqBoxes } from '../opq-boxes/OpqBoxesCollection';
 import { ROLE } from '../opq/Role';
 
 /**
@@ -36,12 +37,8 @@ class UserProfilesCollection extends BaseCollection {
   // eslint-disable-next-line class-methods-use-this
   define({ username, password, firstName, lastName, boxIds = [], role = 'user' }) {
     if (Meteor.isServer) {
-      // boxIds array must contain integers.
-      boxIds.forEach(boxId => {
-        if (!_.isString(boxId)) {
-          throw new Meteor.Error(`All boxIds must be a string: ${boxId}`);
-        }
-      });
+
+      OpqBoxes.assertValidBoxIds(boxIds);
 
       // Role must be either 'user' or 'admin'.
       if (role !== ROLE.USER && role !== ROLE.ADMIN) {
@@ -67,14 +64,24 @@ class UserProfilesCollection extends BaseCollection {
       }
 
       // Remove any current box ownerships, add new ownerships as specified in boxIds.
-      BoxOwners.removeBoxesWithOwner(username);
-      boxIds.map(boxId => BoxOwners.define({ username, boxId }));
+      this._updateBoxIds(username, boxIds);
 
       // Return the profileID if executed on the server.
       return profileId;
     }
-    // Return undefined if executed on the client (which shouldn't ever happen.)
+    // Return undefined if executed on the client.
     return undefined;
+  }
+
+  /**
+   * Internal method to perform updating of the BoxOwnersCollection with a new set of box ownerships for this user.
+   * @param boxIds An array containing the new list of box ownership.
+   * @private
+   */
+  _updateBoxIds(username, boxIds) {
+    // Remove any current box ownerships, add new ownerships as specified in boxIds.
+    BoxOwners.removeBoxesWithOwner(username);
+    boxIds.map(boxId => BoxOwners.define({ username, boxId }));
   }
 
   /**
@@ -92,25 +99,54 @@ class UserProfilesCollection extends BaseCollection {
   }
 
   /**
-   * Removes the user from Meteor.users and from UserProfiles.
-   * If username does not exist, then returns false.
-   * Will only work on the server-side.
-   * @param username A username
-   * @returns True if the username exists and was deleted, false otherwise.
+   * Updates the User Profile (firstName, lastName, boxIds).
+   * Runs on server side only. Only admins should update the user profile to control box ownership.
+   * @param id Must be a valid UserProfile docID.
+   * @param args An object containing fields that can be updated: firstName, lastName, and boxIDs.
+   * @throws { Meteor.Error } If docID is not defined or any of the boxIds are not defined.
+   * @returns An object containing the updated fields.
    */
-  remove(username) {
+  update(docID, args) {
     if (Meteor.isServer) {
-      const profile = this.findOne({ username });
+      const userProfileDoc = this.assertIsDefined(docID);
+      const updateData = {};
+      if (args.firstName) {
+        updateData.firstName = args.firstName;
+      }
+      if (args.lastName) {
+        updateData.lastName = args.lastName;
+      }
+      if (args.boxIds) {
+        this.assertValidBoxIds(args.boxIds);
+        this._updateBoxIds(userProfileDoc.username, args.boxIds);
+      }
+      this._collection.update(docID, { $set: updateData });
+      return updateData;
+    }
+    return undefined;
+  }
+
+  /**
+   * Removes the user from Meteor.users and from UserProfiles.
+   * If docID does not exist, then returns false.
+   * Will only work on the server-side.
+   * @param docID A docID
+   * @returns True if the docID exists and was deleted, false otherwise.
+   */
+  remove(docID) {
+    if (Meteor.isServer) {
+      const profile = this.findOne(docID);
       if (profile) {
-        this._collection.remove({ username });
-        const user = Accounts.findUserByUsername(username);
+        this._collection.remove(docID);
+        const user = Accounts.findUserByUsername(profile.username);
         if (user) {
           Meteor.users.remove(user._id);
         }
         return true;
       }
+      return false;
     }
-    return false;
+    return undefined;
   }
 
   /**

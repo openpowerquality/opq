@@ -1,6 +1,7 @@
 import { Meteor } from 'meteor/meteor';
 import { expect } from 'chai';
 import { UserProfiles } from './UserProfilesCollection';
+import { OpqBoxes } from '../opq-boxes/OpqBoxesCollection';
 import { ROLE } from '../opq/Role';
 
 /* eslint prefer-arrow-callback: "off", no-unused-expressions: "off" */
@@ -21,10 +22,12 @@ if (Meteor.isServer) {
       const firstName = 'John';
       const lastName = 'Smith';
       const password = 'foo';
-      const boxIds = ['1', '2'];
+      const boxId = '1';
+      OpqBoxes.define({ box_id: boxId, name: 'Test Box 1' });
+      const boxIds = [boxId];
       let role = ROLE.ADMIN;
       const profileID = UserProfiles.define({ username, password, firstName, lastName, role, boxIds });
-      expect(UserProfiles.isDefined(profileID)).to.be.true;
+      expect(UserProfiles.isDefined(profileID)).to.exist;
       // Check that we can update the username by calling define again.
       role = 'user';
       const profileID2 = UserProfiles.define({ username, password, firstName, lastName, role });

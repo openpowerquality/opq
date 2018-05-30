@@ -82,25 +82,16 @@ class BaseCollection {
 
   /**
    * Returns true if the passed entity is in this collection.
-   * @param { String | Object } name The docID, or an object specifying a document.
-   * @returns {boolean} True if name exists in this collection.
+   * @param { id } id The docID.
+   * @returns Truthy (the document) if docID is in the collection, false (null) otherwise.
    */
-  isDefined(name) {
-    return (
-      !!this._collection.findOne(name) ||
-      !!this._collection.findOne({ name }) ||
-      !!this._collection.findOne({ _id: name }));
+  isDefined(id) {
+    return this._collection.findOne({ _id: id });
   }
 
-  /**
-   * Update the collection.
-   * @param selector
-   * @param modifier
-   * @param options
-   * @returns {any}
-   */
-  update(selector = {}, modifier = {}, options = {}) {
-    return this._collection.update(selector, modifier, options);
+  /** Default update method throws an error. All subclasses must write their own so they can validate arguments. */
+  update(id, args) {
+    throw new Meteor.Error(`BaseCollection.update() method called with id ${id} and args ${args}.`);
   }
 
   /**
@@ -213,6 +204,20 @@ class BaseCollection {
    */
   assertValidRoleForMethod(userId) {
     this._assertRole(userId, [ROLE.ADMIN]);
+  }
+
+  /**
+   * Throws an error if id is not a valid docID in this collection.
+   * @param id The docID.
+   * @returns The document associated with docID, if docID is defined.
+   * @throws { Meteor.Error } If it's not a defined docID.
+   */
+  assertIsDefined(id) {
+    const doc = this.isDefined(id);
+    if (!doc) {
+      throw new Meteor.Error(`Undefined ID: ${id}`);
+    }
+    return doc;
   }
 
 }

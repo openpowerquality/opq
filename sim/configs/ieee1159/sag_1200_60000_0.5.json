@@ -1,0 +1,27 @@
+{
+  "filters": [
+    {
+      "name": "nop",
+      "delay_samples": 1200
+    },
+    {
+      "name": "vrms",
+      "target_vrms": 60.0,
+      "delay_samples": 400
+    },
+    {
+      "name": "nop",
+      "delay_samples": 59200
+    },
+    {
+      "name": "vrms",
+      "target_vrms": 120.0,
+      "delay_samples": 400
+    },
+    {
+      "name": "nop",
+      "delay_samples": 1200
+    }
+  ],
+  "does_repeat": false
+}
