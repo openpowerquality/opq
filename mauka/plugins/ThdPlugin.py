@@ -12,6 +12,8 @@ import scipy.fftpack
 import constants
 import mongo
 import plugins.base
+import protobuf.util
+import protobuf.mauka_pb2
 
 
 def rolling_window(a, window):
@@ -71,20 +73,32 @@ class ThdPlugin(plugins.base.MaukaPlugin):
                                                           {"min": numpy.min(thds[prev_idx:i]),  # Other fields
                                                            "max": numpy.max(thds[prev_idx:i]),
                                                            "avg": numpy.average(thds[prev_idx:i])})
-                    self.mongo_client.anomalies_collection.insert_one(anomaly)
+                    #self.mongo_client.anomalies_collection.insert_one(anomaly)
+                    self.debug(str(anomaly))
                     prev_beyond_threshold = False
 
-    def on_message(self, topic, message):
+    def on_message(self, topic, mauka_message_bytes):
         """
         Fired when this plugin receives a message. This will wait a certain amount of time to make sure that data
         is in the database before starting thd calculations.
         :param topic: Topic of the message.
         :param message: Contents of the message.
         """
-        event_id, box_id, waveform = pickle.loads(message)
-        self.debug("Calculating THD for event {} and box {} with waveform of len {}".format(event_id, box_id,
-                                                                                            len(waveform)))
-        self.sliding_thd(event_id, box_id, waveform)
+        # event_id, box_id, waveform = pickle.loads(message)
+        # self.debug("Calculating THD for event {} and box {} with waveform of len {}".format(event_id, box_id,
+        #                                                                                     len(waveform)))
+        mauka_message = protobuf.util.deserialize_mauka_message(mauka_message_bytes)
+        self.debug("on_message {}".format(mauka_message))
+        if protobuf.util.is_payload(mauka_message, protobuf.mauka_pb2.ADC_SAMPLES):
+            self.sliding_thd(mauka_message.payload.event_id,
+                             mauka_message.payload.box_id,
+                             protobuf.util.repeated_as_ndarray(
+                                 mauka_message.payload.data
+                             ))
+        else:
+            self.logger.error("Received incorrect mauka message [{}] at ThdPlugin".format(
+                protobuf.util.which_message_oneof(mauka_message)
+            ))
 
 
 

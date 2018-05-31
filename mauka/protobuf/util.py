@@ -1,4 +1,7 @@
 import time
+import typing
+
+import numpy
 
 import protobuf.mauka_pb2 as mauka_pb2
 import protobuf.opq_pb2
@@ -36,6 +39,19 @@ def build_mauka_message(source: str,
     mauka_message = mauka_pb2.MaukaMessage()
     mauka_message.source = source
     mauka_message.timestamp_ms = timestamp_ms
+    return mauka_message
+
+
+def build_payload(source: str,
+                  event_id: int,
+                  box_id: str,
+                  payload_type: mauka_pb2.PayloadType,
+                  data: typing.Union[numpy.ndarray, typing.List]) -> mauka_pb2.MaukaMessage:
+    mauka_message = build_mauka_message(source)
+    mauka_message.payload.event_id = event_id
+    mauka_message.payload.box_id = box_id
+    mauka_message.payload.payload_type = payload_type
+    mauka_message.payload.data.extend(data)
     return mauka_message
 
 
@@ -101,6 +117,13 @@ def which_message_oneof(mauka_message: mauka_pb2.MaukaMessage) -> str:
     return mauka_message.WhichOneof("message")
 
 
+def is_payload(mauka_message: mauka_pb2.MaukaMessage, payload_type: mauka_pb2.PayloadType = None) -> bool:
+    if payload_type is None:
+        return which_message_oneof(mauka_message) == "payload"
+    else:
+        return which_message_oneof(mauka_message) == "payload" and mauka_message.payload.payload_type == payload_type
+
+
 def is_heartbeat_message(mauka_message: mauka_pb2.MaukaMessage) -> bool:
     return which_message_oneof(mauka_message) == "heartbeat"
 
@@ -117,11 +140,15 @@ def is_measurement(mauka_message: mauka_pb2.Measurement) -> bool:
     return which_message_oneof(mauka_message) == "measurement"
 
 
+def repeated_as_ndarray(repeated) -> numpy.ndarray:
+    # Maybe someone knows a better way to do this?
+    return numpy.ndarray(repeated[0:len(repeated)])
+
+
 if __name__ == "__main__":
-    heartbeat = build_heartbeat("test_source", 10, 100, "test status")
-    print(heartbeat)
-    serialized = serialize_mauka_message(heartbeat)
-    print(serialized)
-    deserialized = deserialize_mauka_message(serialized)
-    print(deserialized)
-    print(which_message_oneof(deserialized))
+    mauka_message = build_payload("test_source",
+                                  1,
+                                  "2",
+                                  mauka_pb2.VOLTAGE_RAW,
+                                  numpy.array([1, 2, 3]))
+    print(mauka_message)
