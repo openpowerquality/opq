@@ -9,6 +9,7 @@ import numpy
 import constants
 import mongo
 import plugins.base
+import protobuf.util
 
 
 def vrms(samples: numpy.ndarray) -> float:
@@ -46,7 +47,7 @@ class MakaiEventPlugin(plugins.base.MaukaPlugin):
     NAME = "MakaiEventPlugin"
 
     def __init__(self, config: typing.Dict, exit_event: multiprocessing.Event):
-        super().__init__(config, ["RequestDataEvent"], MakaiEventPlugin.NAME, exit_event)
+        super().__init__(config, ["MakaiEvent"], MakaiEventPlugin.NAME, exit_event)
         self.get_data_after_s = float(self.config["plugins.MakaiEventPlugin.getDataAfterS"])
 
     def acquire_data(self, event_id: int):
@@ -63,7 +64,14 @@ class MakaiEventPlugin(plugins.base.MaukaPlugin):
             self.produce("VrmsWaveform".encode(), pickle.dumps((event_id, box_id, waveform_vrms)))
 
 
-    def on_message(self, topic, message):
-        event_id = int(message)
-        timer = threading.Timer(self.get_data_after_s, function=self.acquire_data, args=[event_id])
-        timer.start()
+    def on_message(self, topic, mauka_message_bytes):
+        mauka_message = protobuf.util.deserialize_mauka_message(mauka_message_bytes)
+        if protobuf.util.is_makai_event_message(mauka_message):
+            timer = threading.Timer(self.get_data_after_s,
+                                    function=self.acquire_data,
+                                    args=[mauka_message.makai_event.event_id])
+            timer.start()
+        else:
+            self.logger.error("Received incorrect mauka message [{}] for MakaiEventPlugin".format(
+                protobuf.util.which_message_oneof(mauka_message)
+            ))

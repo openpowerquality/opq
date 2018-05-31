@@ -6,6 +6,8 @@ data from Makai in the Mauka environment.
 import multiprocessing
 import typing
 
+import protobuf.util
+
 
 def start_mauka_pub_sub_broker(config: typing.Dict):
     """
@@ -116,7 +118,10 @@ def start_makai_event_bridge(config: typing.Dict):
 
         while True:
             event_msg = zmq_sub_event_socket.recv_multipart()
-            zmq_pub_socket.send_multipart(("RequestDataEvent".encode(), event_msg[1]))
+            event_id = int(event_msg[1])
+            makai_event = protobuf.util.build_makai_event("makai_event_bridge", event_id)
+            mauka_message_bytes = protobuf.util.serialize_mauka_message(makai_event)
+            zmq_pub_socket.send_multipart(("MakaiEvent".encode(), mauka_message_bytes))
 
     process = multiprocessing.Process(target=_run, args=(config,))
     process.start()

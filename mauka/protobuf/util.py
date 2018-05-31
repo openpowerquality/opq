@@ -51,6 +51,12 @@ def build_heartbeat(source: str,
     return mauka_message
 
 
+def build_makai_event(source: str, event_id: int) -> mauka_pb2.MaukaMessage:
+    mauka_message = build_mauka_message(source)
+    mauka_message.makai_event.event_id = event_id
+    return mauka_message
+
+
 def serialize_mauka_message(mauka_message: mauka_pb2.MaukaMessage) -> bytes:
     return mauka_message.SerializeToString()
 
@@ -67,6 +73,9 @@ def which_message_oneof(mauka_message: mauka_pb2.MaukaMessage) -> str:
 
 def is_heartbeat_message(mauka_message: mauka_pb2.MaukaMessage) -> bool:
     return which_message_oneof(mauka_message) == "heartbeat"
+
+def is_makai_event_message(mauka_message: mauka_pb2.MaukaMessage) -> bool:
+    return which_message_oneof(mauka_message) == "makai_event"
 
 
 if __name__ == "__main__":
