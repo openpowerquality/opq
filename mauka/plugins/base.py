@@ -264,7 +264,7 @@ class MaukaPlugin:
             else:
                 # Update statistics
                 self.on_message_cnt += 1
-                self.last_received = time.time()
+                self.last_received = protobuf.util.get_timestamp_ms()
                 self.on_message(topic, message)
 
         _logger.info("Exiting Mauka plugin: {}".format(self.name))
