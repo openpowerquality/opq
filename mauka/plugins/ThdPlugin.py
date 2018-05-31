@@ -1,9 +1,7 @@
 """
 This plugin calculates total harmonic distortion (THD) over waveforms.
 """
-import math
 import multiprocessing
-import pickle
 import typing
 
 import numpy
@@ -23,12 +21,14 @@ def rolling_window(a, window):
     strides = a.strides + (a.strides[-1],)
     return numpy.lib.stride_tricks.as_strided(a, shape=shape, strides=strides)
 
+
 def thd(waveform: numpy.ndarray, fundamental: int) -> float:
     y = numpy.abs(scipy.fftpack.fft(waveform))
 
-    top = numpy.sqrt(numpy.sum(y[i]**2 for i in numpy.arange(2 * fundamental, len(y)//2, fundamental)))
+    top = numpy.sqrt(numpy.sum(y[i] ** 2 for i in numpy.arange(2 * fundamental, len(y) // 2, fundamental)))
     bottom = y[fundamental]
     return (top / bottom) * 100.0
+
 
 class ThdPlugin(plugins.base.MaukaPlugin):
     """
@@ -73,7 +73,7 @@ class ThdPlugin(plugins.base.MaukaPlugin):
                                                           {"min": numpy.min(thds[prev_idx:i]),  # Other fields
                                                            "max": numpy.max(thds[prev_idx:i]),
                                                            "avg": numpy.average(thds[prev_idx:i])})
-                    #self.mongo_client.anomalies_collection.insert_one(anomaly)
+                    # self.mongo_client.anomalies_collection.insert_one(anomaly)
                     self.debug(str(anomaly))
                     prev_beyond_threshold = False
 
@@ -84,9 +84,6 @@ class ThdPlugin(plugins.base.MaukaPlugin):
         :param topic: Topic of the message.
         :param message: Contents of the message.
         """
-        # event_id, box_id, waveform = pickle.loads(message)
-        # self.debug("Calculating THD for event {} and box {} with waveform of len {}".format(event_id, box_id,
-        #                                                                                     len(waveform)))
         mauka_message = protobuf.util.deserialize_mauka_message(mauka_message_bytes)
         self.debug("on_message")
         if protobuf.util.is_payload(mauka_message, protobuf.mauka_pb2.ADC_SAMPLES):
@@ -99,6 +96,3 @@ class ThdPlugin(plugins.base.MaukaPlugin):
             self.logger.error("Received incorrect mauka message [{}] at ThdPlugin".format(
                 protobuf.util.which_message_oneof(mauka_message)
             ))
-
-
-
