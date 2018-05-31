@@ -88,7 +88,7 @@ class ThdPlugin(plugins.base.MaukaPlugin):
         # self.debug("Calculating THD for event {} and box {} with waveform of len {}".format(event_id, box_id,
         #                                                                                     len(waveform)))
         mauka_message = protobuf.util.deserialize_mauka_message(mauka_message_bytes)
-        self.debug("on_message {}".format(mauka_message))
+        self.debug("on_message")
         if protobuf.util.is_payload(mauka_message, protobuf.mauka_pb2.ADC_SAMPLES):
             self.sliding_thd(mauka_message.payload.event_id,
                              mauka_message.payload.box_id,

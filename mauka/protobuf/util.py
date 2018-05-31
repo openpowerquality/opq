@@ -142,7 +142,7 @@ def is_measurement(mauka_message: mauka_pb2.Measurement) -> bool:
 
 def repeated_as_ndarray(repeated) -> numpy.ndarray:
     # Maybe someone knows a better way to do this?
-    return numpy.ndarray(list(repeated))
+    return numpy.array(repeated)
 
 
 if __name__ == "__main__":
