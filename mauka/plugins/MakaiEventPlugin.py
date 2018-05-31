@@ -66,6 +66,7 @@ class MakaiEventPlugin(plugins.base.MaukaPlugin):
     def on_message(self, topic, mauka_message_bytes):
         mauka_message = protobuf.util.deserialize_mauka_message(mauka_message_bytes)
         if protobuf.util.is_makai_event_message(mauka_message):
+            self.debug(mauka_message)
             timer = threading.Timer(self.get_data_after_s,
                                     function=self.acquire_data,
                                     args=[mauka_message.makai_event.event_id])
