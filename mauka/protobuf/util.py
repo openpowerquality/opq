@@ -72,6 +72,21 @@ def build_makai_trigger(source: str,
     return mauka_message
 
 
+def build_measurement(source: str,
+                      box_id: str,
+                      timestamp_ms: int,
+                      frequency: float,
+                      voltage_rms: float,
+                      thd: float) -> mauka_pb2.MaukaMessage:
+    mauka_message = build_mauka_message(source)
+    mauka_message.measurement.box_id = box_id
+    mauka_message.measurement.timestamp_ms = timestamp_ms
+    mauka_message.measurement.frequency = frequency
+    mauka_message.measurement.voltage_rms = voltage_rms
+    mauka_message.measurement.thd = thd
+    return mauka_message
+
+
 def serialize_mauka_message(mauka_message: mauka_pb2.MaukaMessage) -> bytes:
     return mauka_message.SerializeToString()
 
@@ -96,6 +111,10 @@ def is_makai_event_message(mauka_message: mauka_pb2.MaukaMessage) -> bool:
 
 def is_makai_trigger(mauka_message: mauka_pb2.MaukaMessage) -> bool:
     return which_message_oneof(mauka_message) == "makai_trigger"
+
+
+def is_measurement(mauka_message: mauka_pb2.Measurement) -> bool:
+    return which_message_oneof(mauka_message) == "measurement"
 
 
 if __name__ == "__main__":

@@ -8,9 +8,10 @@ import typing
 import mongo
 import plugins.ThresholdPlugin
 import protobuf.util
+import protobuf.mauka_pb2
 
 
-def extract_frequency(measurement) -> float:
+def extract_frequency(measurement: protobuf.mauka_pb2.Measurement) -> float:
     """Extracts the frequency value from the TriggeringMessage
 
     :param measurement: Deserialized triggering message instance

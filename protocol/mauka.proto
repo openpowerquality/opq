@@ -5,11 +5,11 @@ message MaukaMessage {
     uint64 timestamp_ms = 1;                // Timestamp of message creation. Useful for load monitoring.
     string source = 2;                      // Name of producer (most likely a plugin).
     oneof message {                         // Contains one of the following...
-        Payload payload = 3;
-        Heartbeat heartbeat = 4;
-        MakaiEvent makai_event = 5;
-        Measurement measurement = 6;
-        MakaiTrigger makai_trigger = 7;
+                                            Payload payload = 3;
+                                            Heartbeat heartbeat = 4;
+                                            MakaiEvent makai_event = 5;
+                                            Measurement measurement = 6;
+                                            MakaiTrigger makai_trigger = 7;
     }
 }
 
@@ -53,12 +53,16 @@ message MakaiEvent {
 // Measurements are received from Makai in the Makai Bride Broker and then produced by the broker into Mauka.
 // Measurements are consumed by ThresholdPlugin (and by inheritance Frequency and Voltage)
 message Measurement {
-
+    string box_id = 1;
+    uint64 timestamp_ms = 2;
+    double frequency = 3;
+    double voltage_rms = 4;
+    double thd = 5;
 }
 
 // This message is used to send a trigger to Makai.
 // MakaiTriggers are produced by VoltageThresholdPlugin and FrequencyThresholdPlugin
-// MakaiTriggers are consumed by no plugins in Mauka since they are used to inform Makai.
+// MakaiTriggers are consumed by AcquisitionTriggerPlugin.
 message MakaiTrigger {
     uint64 event_start_timestamp_ms = 1;
     uint64 event_end_timestamp_ms = 2;

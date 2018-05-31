@@ -81,7 +81,15 @@ def start_makai_bridge(config: typing.Dict):
 
         while True:
             trigger_msg = zmq_sub_trigger_socket.recv_multipart()
-            zmq_pub_socket.send_multipart(("measurement".encode(), trigger_msg[1]))
+            makaipb = protobuf.util.decode_trigger_message(trigger_msg[1])
+            maukapb = protobuf.util.build_measurement("makai_bridge",
+                                                      str(makaipb.id),
+                                                      makaipb.time,
+                                                      makaipb.frequency,
+                                                      makaipb.rms,
+                                                      makaipb.thd)
+            mauka_message_bytes = protobuf.util.serialize_mauka_message(maukapb)
+            zmq_pub_socket.send_multipart(("measurement".encode(), mauka_message_bytes))
 
     process = multiprocessing.Process(target=_run, args=(config,))
     process.start()

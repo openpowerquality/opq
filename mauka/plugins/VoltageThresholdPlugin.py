@@ -8,15 +8,16 @@ import typing
 import mongo
 import plugins.ThresholdPlugin
 import protobuf.util
+import protobuf.mauka_pb2
 
 
-def extract_voltage(measurement) -> float:
+def extract_voltage(measurement: protobuf.mauka_pb2.Measurement) -> float:
     """Extracts the voltage value from the TriggeringMessage
 
     :param measurement: Deserialized triggering message instance
     :return: The voltage rms value
     """
-    return measurement.rms
+    return measurement.voltage_rms
 
 
 class VoltageThresholdPlugin(plugins.ThresholdPlugin.ThresholdPlugin):
