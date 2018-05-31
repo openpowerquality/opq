@@ -164,7 +164,7 @@ class ThresholdPlugin(plugins.base.MaukaPlugin):
             pass
 
         mauka_message = protobuf.util.deserialize_mauka_message(mauka_message_bytes)
-        if protobuf.util.is_measurement(mauka_message_bytes):
+        if protobuf.util.is_measurement(mauka_message):
             device_id = mauka_message.measurement.box_id
             timestamp_ms = mauka_message.measurement.timestamp_ms
             value = self.measurement_value_fn(mauka_message.measurement)
