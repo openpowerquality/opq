@@ -63,7 +63,6 @@ class MakaiEventPlugin(plugins.base.MaukaPlugin):
             self.produce("CalibratedWaveform".encode(), pickle.dumps((event_id, box_id, waveform_calibrated)))
             self.produce("VrmsWaveform".encode(), pickle.dumps((event_id, box_id, waveform_vrms)))
 
-
     def on_message(self, topic, mauka_message_bytes):
         mauka_message = protobuf.util.deserialize_mauka_message(mauka_message_bytes)
         if protobuf.util.is_makai_event_message(mauka_message):
