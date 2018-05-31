@@ -16,10 +16,10 @@ set -x
 BUNDLE=${1}
 DIR=${BUNDLE%%.*}
 
+tar xf ${BUNDLE}
 cd ${DIR}
 ./deploy-install.sh
-cd -
+cd ..
 rm -rf ${DIR}
-
 
 set +x
