@@ -23,7 +23,7 @@ class PrintPlugin(plugins.base.MaukaPlugin):
         """
         super().__init__(config, [""], PrintPlugin.NAME, exit_event)
 
-    def on_message(self, topic, mauka_message_bytes):
+    def on_message(self, topic, mauka_message):
         """Subscribed messages occur async
 
         Messages are printed to stdout
@@ -31,5 +31,4 @@ class PrintPlugin(plugins.base.MaukaPlugin):
         :param topic: The topic that this message is associated with
         :param message: The message
         """
-        mauka_message = protobuf.util.deserialize_mauka_message(mauka_message_bytes)
         self.logger.info("topic: {} message: {}...".format(topic, mauka_message))

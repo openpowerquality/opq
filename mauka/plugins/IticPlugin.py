@@ -164,16 +164,15 @@ class IticPlugin(plugins.base.MaukaPlugin):
         :param config: Configuration dictionary
         :param exit_event: Exit event
         """
-        super().__init__(config, ["VrmsWaveform"], IticPlugin.NAME, exit_event)
+        super().__init__(config, ["RmsWindowedVoltage"], IticPlugin.NAME, exit_event)
         self.get_data_after_s = self.config["plugins.IticPlugin.getDataAfterS"]
 
-    def on_message(self, topic, mauka_message_bytes):
+    def on_message(self, topic, mauka_message):
         """
         Called async when a topic this plugin subscribes to produces a message
         :param topic: The topic that is producing the message
         :param message: The message that was produced
         """
-        mauka_message = protobuf.util.deserialize_mauka_message(mauka_message_bytes)
         self.debug("on_message")
         if protobuf.util.is_payload(mauka_message, protobuf.mauka_pb2.VOLTAGE_RMS_WINDOWED):
             pass

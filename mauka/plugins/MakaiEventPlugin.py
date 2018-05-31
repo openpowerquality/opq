@@ -1,6 +1,5 @@
 import math
 import multiprocessing
-import pickle
 import threading
 import typing
 
@@ -60,33 +59,27 @@ class MakaiEventPlugin(plugins.base.MaukaPlugin):
             waveform_calibrated = waveform / calibration_constant
             waveform_vrms = vrms_waveform(waveform_calibrated, int(constants.SAMPLES_PER_CYCLE))
 
-            adc_samples_bytes = protobuf.util.serialize_mauka_message(
-                protobuf.util.build_payload(self.name,
-                                            event_id,
-                                            box_id,
-                                            protobuf.mauka_pb2.ADC_SAMPLES,
-                                            waveform)
-            )
+            adc_samples = protobuf.util.build_payload(self.name,
+                                                      event_id,
+                                                      box_id,
+                                                      protobuf.mauka_pb2.ADC_SAMPLES,
+                                                      waveform)
 
-            raw_voltage_bytes = protobuf.util.serialize_mauka_message(
-                protobuf.util.build_payload(self.name,
-                                            event_id,
-                                            box_id,
-                                            protobuf.mauka_pb2.VOLTAGE_RAW,
-                                            waveform_calibrated)
-            )
+            raw_voltage = protobuf.util.build_payload(self.name,
+                                                      event_id,
+                                                      box_id,
+                                                      protobuf.mauka_pb2.VOLTAGE_RAW,
+                                                      waveform_calibrated)
 
-            rms_windowed_voltage_bytes = protobuf.util.serialize_mauka_message(
-                protobuf.util.build_payload(self.name,
-                                            event_id,
-                                            box_id,
-                                            protobuf.mauka_pb2.VOLTAGE_RMS_WINDOWED,
-                                            waveform_vrms)
-            )
+            rms_windowed_voltage = protobuf.util.build_payload(self.name,
+                                                               event_id,
+                                                               box_id,
+                                                               protobuf.mauka_pb2.VOLTAGE_RMS_WINDOWED,
+                                                               waveform_vrms)
 
-            self.produce("AdcSamples".encode(), adc_samples_bytes)
-            self.produce("RawVoltage".encode(), raw_voltage_bytes)
-            self.produce("RmsWindowedVoltage".encode(), rms_windowed_voltage_bytes)
+            self.produce("AdcSamples", adc_samples)
+            self.produce("RawVoltage", raw_voltage)
+            self.produce("RmsWindowedVoltage", rms_windowed_voltage)
 
     def on_message(self, topic, mauka_message_bytes):
         mauka_message = protobuf.util.deserialize_mauka_message(mauka_message_bytes)

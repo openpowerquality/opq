@@ -77,14 +77,13 @@ class ThdPlugin(plugins.base.MaukaPlugin):
                     self.debug(str(anomaly))
                     prev_beyond_threshold = False
 
-    def on_message(self, topic, mauka_message_bytes):
+    def on_message(self, topic, mauka_message):
         """
         Fired when this plugin receives a message. This will wait a certain amount of time to make sure that data
         is in the database before starting thd calculations.
         :param topic: Topic of the message.
         :param message: Contents of the message.
         """
-        mauka_message = protobuf.util.deserialize_mauka_message(mauka_message_bytes)
         self.debug("on_message")
         if protobuf.util.is_payload(mauka_message, protobuf.mauka_pb2.ADC_SAMPLES):
             self.sliding_thd(mauka_message.payload.event_id,

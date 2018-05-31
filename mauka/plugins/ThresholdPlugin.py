@@ -151,7 +151,7 @@ class ThresholdPlugin(plugins.base.MaukaPlugin):
     def get_status(self):
         return "{} -- {}".format(self.device_id_to_low_events, self.device_id_to_high_events)
 
-    def on_message(self, topic, mauka_message_bytes):
+    def on_message(self, topic, mauka_message):
         """Subscribed messages occur async
 
         Messages cause our FSM to be ran and can create new events, update events, and close out events
@@ -163,7 +163,6 @@ class ThresholdPlugin(plugins.base.MaukaPlugin):
         if not self.subscribed:
             pass
 
-        mauka_message = protobuf.util.deserialize_mauka_message(mauka_message_bytes)
         if protobuf.util.is_measurement(mauka_message):
             device_id = mauka_message.measurement.box_id
             timestamp_ms = mauka_message.measurement.timestamp_ms

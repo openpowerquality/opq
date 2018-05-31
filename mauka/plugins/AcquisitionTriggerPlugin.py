@@ -96,13 +96,12 @@ class AcquisitionTriggerPlugin(plugins.base.MaukaPlugin):
         # return str(self.event_type_to_last_event_timestamp)
         return "{} {}".format(self.event_type_to_last_event_timestamp, self.event_type_to_last_event)
 
-    def on_message(self, topic, mauka_message_bytes):
+    def on_message(self, topic, mauka_message):
         """Subscribed messages appear here
 
         :param topic: The topic that this message is associated with
         :param message: The message
         """
-        mauka_message = protobuf.util.deserialize_mauka_message(mauka_message_bytes)
         if protobuf.util.is_makai_trigger(mauka_message):
             self.debug("on_message {}".format(mauka_message))
             event_type = mauka_message.makai_trigger.event_type
