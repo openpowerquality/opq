@@ -42,7 +42,7 @@ class ThdPlugin(plugins.base.MaukaPlugin):
         :param config: Mauka configuration
         :param exit_event: Exit event that can disable this plugin from parent process
         """
-        super().__init__(config, ["Waveform", "ThdRequestEvent"], ThdPlugin.NAME, exit_event)
+        super().__init__(config, ["AdcSamples", "ThdRequestEvent"], ThdPlugin.NAME, exit_event)
         self.threshold_percent = float(self.config_get("plugins.ThdPlugin.threshold.percent"))
         self.sliding_window_ms = float(self.config_get("plugins.ThdPlugin.window.size.ms"))
 
