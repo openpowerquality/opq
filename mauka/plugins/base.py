@@ -16,6 +16,7 @@ import bson.objectid
 import zmq
 
 import mongo
+import protobuf.util
 
 _logger = logging.getLogger("app")
 logging.basicConfig(
@@ -164,8 +165,12 @@ class MaukaPlugin:
         start_after_seconds = 5.0
 
         def heartbeat():
-            self.produce("heartbeat".encode(), "{}:{}:{}:{}".format(self.name, self.on_message_cnt, self.last_received,
-                                                                    self.get_status()).encode())
+            heartbeat = protobuf.util.build_heartbeat(self.name,
+                                                      self.last_received,
+                                                      self.on_message_cnt,
+                                                      self.get_status())
+            mauka_message_bytes = protobuf.util.serialize_mauka_message(heartbeat)
+            self.produce("heartbeat".encode(), mauka_message_bytes)
             timer = threading.Timer(self.heartbeat_interval_s, heartbeat)
             timer.start()
 

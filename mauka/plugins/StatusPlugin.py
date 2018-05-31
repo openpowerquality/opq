@@ -10,6 +10,7 @@ import time
 import typing
 
 import plugins.base
+import protobuf.util
 
 
 class HealthState:
@@ -72,7 +73,7 @@ class StatusPlugin(plugins.base.MaukaPlugin):
         self.httpd_thread = threading.Thread(target=start_health_sate_httpd_server, args=(health_porth,))
         self.httpd_thread.start()
 
-    def on_message(self, topic, message):
+    def on_message(self, topic, mauka_message_bytes):
         global health_state
         """Subscribed messages occur async
 
@@ -81,8 +82,17 @@ class StatusPlugin(plugins.base.MaukaPlugin):
         :param topic: The topic that this message is associated with
         :param message: The message
         """
-        split_message = message.decode().split(":")
-        plugin_name = split_message[0]
-        last_recv = time.time()
-        health_state.set_key(plugin_name, last_recv)
-        self.logger.info("HB {}:{}".format(topic, message))
+        # split_message = message.decode().split(":")
+        # plugin_name = split_message[0]
+        # last_recv = time.time()
+        # health_state.set_key(plugin_name, last_recv)
+        # self.logger.info("HB {}:{}".format(topic, message))
+
+        mauka_message = protobuf.util.deserialize_mauka_message(mauka_message_bytes)
+        if protobuf.util.is_heartbeat_message(mauka_message):
+            self.debug(str(mauka_message))
+            health_state.set_key(mauka_message.source, time.time())
+        else:
+            self.logger.error("Incorrect mauka message type [{}] for StatusPlugin".format(
+                protobuf.util.which_message_oneof(mauka_message)
+            ))
