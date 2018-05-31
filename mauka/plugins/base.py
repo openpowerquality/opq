@@ -166,9 +166,9 @@ class MaukaPlugin:
 
         def heartbeat():
             heartbeat_message = protobuf.util.build_heartbeat(self.name,
-                                                      self.last_received,
-                                                      self.on_message_cnt,
-                                                      self.get_status())
+                                                              self.last_received,
+                                                              self.on_message_cnt,
+                                                              self.get_status())
             mauka_message_bytes = protobuf.util.serialize_mauka_message(heartbeat_message)
             self.produce("heartbeat".encode(), mauka_message_bytes)
             timer = threading.Timer(self.heartbeat_interval_s, heartbeat)
