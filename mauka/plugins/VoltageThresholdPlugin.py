@@ -7,6 +7,7 @@ import typing
 
 import mongo
 import plugins.ThresholdPlugin
+import protobuf.util
 
 
 def extract_voltage(measurement) -> float:
@@ -60,10 +61,20 @@ class VoltageThresholdPlugin(plugins.ThresholdPlugin.ThresholdPlugin):
             self.logger.error("Unknown threshold type {}".format(threshold_type))
             return
 
-        event = {"eventStart": threshold_event.start,
-                 "eventEnd": threshold_event.end,
-                 "eventType": event_type,
-                 "percent": threshold_event.max_value,
-                 "deviceId": threshold_event.device_id}
-        self.logger.info("Event: {}".format(str(event)))
-        self.produce("VoltageEvent".encode(), self.to_json(event).encode())
+        # event = {"eventStart": threshold_event.start,
+        #          "eventEnd": threshold_event.end,
+        #          "eventType": event_type,
+        #          "percent": threshold_event.max_value,
+        #          "deviceId": threshold_event.device_id}
+        # self.logger.info("Event: {}".format(str(event)))
+        # self.produce("VoltageEvent".encode(), self.to_json(event).encode())
+        makai_trigger = protobuf.util.build_makai_trigger(
+            self.name,
+            threshold_event.start,
+            threshold_event.end,
+            event_type,
+            threshold_event.max_value,
+            threshold_event.device_id
+        )
+        mauka_message_bytes = protobuf.util.serialize_mauka_message(makai_trigger)
+        self.produce("VoltageEvent".encode(), mauka_message_bytes)

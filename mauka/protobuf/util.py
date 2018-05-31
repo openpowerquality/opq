@@ -57,6 +57,21 @@ def build_makai_event(source: str, event_id: int) -> mauka_pb2.MaukaMessage:
     return mauka_message
 
 
+def build_makai_trigger(source: str,
+                        event_start_timestamp_ms: int,
+                        event_end_timestamp_ms: int,
+                        event_type: str,
+                        max_value: float,
+                        box_id: str) -> mauka_pb2.MaukaMessage:
+    mauka_message = build_mauka_message(source)
+    mauka_message.makai_trigger.event_start_timestamp_ms = event_start_timestamp_ms
+    mauka_message.makai_trigger.event_end_timestamp_ms = event_end_timestamp_ms
+    mauka_message.makai_trigger.event_type = event_type
+    mauka_message.makai_trigger.max_value = max_value
+    mauka_message.makai_trigger.box_id = box_id
+    return mauka_message
+
+
 def serialize_mauka_message(mauka_message: mauka_pb2.MaukaMessage) -> bytes:
     return mauka_message.SerializeToString()
 
@@ -74,8 +89,13 @@ def which_message_oneof(mauka_message: mauka_pb2.MaukaMessage) -> str:
 def is_heartbeat_message(mauka_message: mauka_pb2.MaukaMessage) -> bool:
     return which_message_oneof(mauka_message) == "heartbeat"
 
+
 def is_makai_event_message(mauka_message: mauka_pb2.MaukaMessage) -> bool:
     return which_message_oneof(mauka_message) == "makai_event"
+
+
+def is_makai_trigger(mauka_message: mauka_pb2.MaukaMessage) -> bool:
+    return which_message_oneof(mauka_message) == "makai_trigger"
 
 
 if __name__ == "__main__":
