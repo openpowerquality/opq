@@ -58,7 +58,7 @@ message Measurement {
 
 // This message is used to send a trigger to Makai.
 // MakaiTriggers are produced by VoltageThresholdPlugin and FrequencyThresholdPlugin
-// MakaiTriggers are consumed by no plugins in Mauka since they are used to inform Makai.
+// MakaiTriggers are consumed by AcquisitionTriggerPlugin.
 message MakaiTrigger {
     uint64 event_start_timestamp_ms = 1;
     uint64 event_end_timestamp_ms = 2;
