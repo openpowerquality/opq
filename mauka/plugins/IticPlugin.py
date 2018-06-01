@@ -152,6 +152,12 @@ def itic_region(rms_voltage: float, duration_ms: float) -> enum.Enum:
     return IticRegion.NO_INTERRUPTION
 
 
+def itic(event_id: int, box_id: str, windowed_rms: numpy.ndarray) -> IticRegion:
+    duration_cycles = len(windowed_rms)
+    if duration_cycles < 0.01:
+        return IticRegion.NO_INTERRUPTION
+
+
 class IticPlugin(plugins.base.MaukaPlugin):
     """
     Mauka plugin that calculates ITIC for any event that includes a raw waveform
@@ -175,10 +181,10 @@ class IticPlugin(plugins.base.MaukaPlugin):
         """
         self.debug("on_message")
         if protobuf.util.is_payload(mauka_message, protobuf.mauka_pb2.VOLTAGE_RMS_WINDOWED):
-            pass
+            itic(mauka_message.payload.event_id,
+                 mauka_message.payload.box_id,
+                 protobuf.util.repeated_as_ndarray(mauka_message.payload.data))
         else:
             self.logger.error("Received incorrect mauka message [{}] at IticPlugin".format(
                 protobuf.util.which_message_oneof(mauka_message)
             ))
-
-
