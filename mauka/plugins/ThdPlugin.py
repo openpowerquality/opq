@@ -84,8 +84,10 @@ class ThdPlugin(plugins.base.MaukaPlugin):
         :param topic: Topic of the message.
         :param message: Contents of the message.
         """
-        self.debug("on_message")
         if protobuf.util.is_payload(mauka_message, protobuf.mauka_pb2.ADC_SAMPLES):
+            self.debug("on_message {}:{} len:{}".format(mauka_message.payload.event_id,
+                                                        mauka_message.payload.box_id,
+                                                        len(mauka_message.payload.data)))
             self.sliding_thd(mauka_message.payload.event_id,
                              mauka_message.payload.box_id,
                              protobuf.util.repeated_as_ndarray(
