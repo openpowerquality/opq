@@ -3,5 +3,6 @@
 *.iml
 .DS_Store
 settings-production.*
+settings.production.json
 node_modules
 _book

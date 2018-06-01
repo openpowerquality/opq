@@ -7,9 +7,11 @@ import typing
 
 import mongo
 import plugins.ThresholdPlugin
+import protobuf.util
+import protobuf.mauka_pb2
 
 
-def extract_frequency(measurement) -> float:
+def extract_frequency(measurement: protobuf.mauka_pb2.Measurement) -> float:
     """Extracts the frequency value from the TriggeringMessage
 
     :param measurement: Deserialized triggering message instance
@@ -61,11 +63,12 @@ class FrequencyThresholdPlugin(plugins.ThresholdPlugin.ThresholdPlugin):
             self.logger.error("Unknown threshold type {}".format(threshold_type))
             return
 
-        event = {"eventStart": threshold_event.start,
-                 "eventEnd": threshold_event.end,
-                 "eventType": event_type,
-                 "percent": threshold_event.max_value,
-                 "deviceId": threshold_event.device_id}
-
-        self.logger.info("Event: {}".format(str(event)))
-        self.produce("FrequencyEvent".encode(), self.to_json(event).encode())
+        makai_trigger = protobuf.util.build_makai_trigger(
+            self.name,
+            threshold_event.start,
+            threshold_event.end,
+            event_type,
+            threshold_event.max_value,
+            threshold_event.device_id
+        )
+        self.produce("FrequencyEvent", makai_trigger)

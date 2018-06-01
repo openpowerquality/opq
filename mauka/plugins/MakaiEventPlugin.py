@@ -1,6 +1,5 @@
 import math
 import multiprocessing
-import pickle
 import threading
 import typing
 
@@ -9,6 +8,8 @@ import numpy
 import constants
 import mongo
 import plugins.base
+import protobuf.mauka_pb2
+import protobuf.util
 
 
 def vrms(samples: numpy.ndarray) -> float:
@@ -46,7 +47,7 @@ class MakaiEventPlugin(plugins.base.MaukaPlugin):
     NAME = "MakaiEventPlugin"
 
     def __init__(self, config: typing.Dict, exit_event: multiprocessing.Event):
-        super().__init__(config, ["RequestDataEvent"], MakaiEventPlugin.NAME, exit_event)
+        super().__init__(config, ["MakaiEvent"], MakaiEventPlugin.NAME, exit_event)
         self.get_data_after_s = float(self.config["plugins.MakaiEventPlugin.getDataAfterS"])
 
     def acquire_data(self, event_id: int):
@@ -58,12 +59,36 @@ class MakaiEventPlugin(plugins.base.MaukaPlugin):
             waveform_calibrated = waveform / calibration_constant
             waveform_vrms = vrms_waveform(waveform_calibrated, int(constants.SAMPLES_PER_CYCLE))
 
-            self.produce("Waveform".encode(), pickle.dumps((event_id, box_id, waveform)))
-            self.produce("CalibratedWaveform".encode(), pickle.dumps((event_id, box_id, waveform_calibrated)))
-            self.produce("VrmsWaveform".encode(), pickle.dumps((event_id, box_id, waveform_vrms)))
+            adc_samples = protobuf.util.build_payload(self.name,
+                                                      event_id,
+                                                      box_id,
+                                                      protobuf.mauka_pb2.ADC_SAMPLES,
+                                                      waveform)
 
+            raw_voltage = protobuf.util.build_payload(self.name,
+                                                      event_id,
+                                                      box_id,
+                                                      protobuf.mauka_pb2.VOLTAGE_RAW,
+                                                      waveform_calibrated)
 
-    def on_message(self, topic, message):
-        event_id = int(message)
-        timer = threading.Timer(self.get_data_after_s, function=self.acquire_data, args=[event_id])
-        timer.start()
+            rms_windowed_voltage = protobuf.util.build_payload(self.name,
+                                                               event_id,
+                                                               box_id,
+                                                               protobuf.mauka_pb2.VOLTAGE_RMS_WINDOWED,
+                                                               waveform_vrms)
+
+            self.produce("AdcSamples", adc_samples)
+            self.produce("RawVoltage", raw_voltage)
+            self.produce("RmsWindowedVoltage", rms_windowed_voltage)
+
+    def on_message(self, topic, mauka_message):
+        if protobuf.util.is_makai_event_message(mauka_message):
+            self.debug("on_message: {}".format(mauka_message))
+            timer = threading.Timer(self.get_data_after_s,
+                                    function=self.acquire_data,
+                                    args=[mauka_message.makai_event.event_id])
+            timer.start()
+        else:
+            self.logger.error("Received incorrect mauka message [{}] for MakaiEventPlugin".format(
+                protobuf.util.which_message_oneof(mauka_message)
+            ))

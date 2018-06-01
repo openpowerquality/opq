@@ -1,6 +1,7 @@
 import '../../api/box-events';
 import '../../api/events';
 import '../../api/fs-chunks';
+import '../../api/zipcodes';
 import '../../api/fs-files';
 import '../../api/health';
 import '../../api/measurements';

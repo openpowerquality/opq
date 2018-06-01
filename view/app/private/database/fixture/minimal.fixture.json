@@ -1,6 +1,6 @@
 {
   "timestamp": "2018-05-22T20:00:00.000Z",
-  "fixtureDescription": "Defines a single entity in a selection of OPQ collections to show how it's done.",
+  "fixtureDescription": "Minimal OPQBoxes, UserProfiles, Locations, Regions.",
   "collections": [
     {
       "name": "opq_boxes",

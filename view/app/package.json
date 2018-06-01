@@ -7,6 +7,8 @@
     "classnames": "^2.2.5",
     "es6-mapify": "1.0.0",
     "jsdoc": "^3.5.5",
+    "leaflet": "^1.3.1",
+    "leaflet.markercluster": "^1.3.0",
     "lodash": "^4.17.10",
     "meteor-node-stubs": "^0.3.3",
     "moment": "^2.22.1",
@@ -17,6 +19,10 @@
     "react-calendar": "^2.14.0",
     "react-csv": "^1.0.14",
     "react-dom": "^16.3.2",
+    "react-leaflet": "^1.9.1",
+    "react-leaflet-control": "^1.4.1",
+    "react-leaflet-fullscreen": "0.0.6",
+    "react-leaflet-markercluster": "^1.1.8",
     "react-meteor-data": "^0.2.11",
     "react-router": "^4.2.0",
     "react-router-dom": "^4.2.2",
@@ -24,8 +30,8 @@
     "semantic-ui-css": "^2.3.1",
     "semantic-ui-react": "^0.77.2",
     "simpl-schema": "^1.5.0",
-    "uniforms": "^1.24.3",
-    "uniforms-semantic": "^1.24.3"
+    "uniforms": "^1.24.4",
+    "uniforms-semantic": "^1.24.4"
   },
   "devDependencies": {
     "hoek": "^4.2.1",
@@ -41,6 +47,7 @@
   },
   "scripts": {
     "start": "METEOR_NO_RELEASE_CHECK=1 meteor --settings ../config/settings.development.json",
+    "start-production": "METEOR_NO_RELEASE_CHECK=1 meteor --settings ../config/settings.production.json",
     "build": "meteor build ../deploy --architecture os.linux.x86_64",
     "lint": "METEOR_NO_RELEASE_CHECK=1 eslint --quiet --ext .jsx --ext .js ./imports",
     "test": "METEOR_NO_RELEASE_CHECK=1 TEST_BROWSER_DRIVER=nightmare meteor test --once --driver-package meteortesting:mocha --no-release-check --port 3100",

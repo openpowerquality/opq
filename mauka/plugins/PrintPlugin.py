@@ -6,6 +6,7 @@ import multiprocessing
 import typing
 
 import plugins.base
+import protobuf.util
 
 
 class PrintPlugin(plugins.base.MaukaPlugin):
@@ -22,7 +23,7 @@ class PrintPlugin(plugins.base.MaukaPlugin):
         """
         super().__init__(config, [""], PrintPlugin.NAME, exit_event)
 
-    def on_message(self, topic, message):
+    def on_message(self, topic, mauka_message):
         """Subscribed messages occur async
 
         Messages are printed to stdout
@@ -30,4 +31,4 @@ class PrintPlugin(plugins.base.MaukaPlugin):
         :param topic: The topic that this message is associated with
         :param message: The message
         """
-        self.logger.info("topic: {} message: {}...".format(topic, str(message)[:30]))
+        self.logger.info("topic: {} message: {}...".format(topic, mauka_message))

@@ -8,7 +8,6 @@ import multiprocessing
 import signal
 import threading
 import typing
-import time
 import os
 
 import bson
@@ -16,6 +15,8 @@ import bson.objectid
 import zmq
 
 import mongo
+import protobuf.mauka_pb2
+import protobuf.util
 
 _logger = logging.getLogger("app")
 logging.basicConfig(
@@ -164,8 +165,11 @@ class MaukaPlugin:
         start_after_seconds = 5.0
 
         def heartbeat():
-            self.produce("heartbeat".encode(), "{}:{}:{}:{}".format(self.name, self.on_message_cnt, self.last_received,
-                                                                    self.get_status()).encode())
+            heartbeat_message = protobuf.util.build_heartbeat(self.name,
+                                                              self.last_received,
+                                                              self.on_message_cnt,
+                                                              self.get_status())
+            self.produce("heartbeat", heartbeat_message)
             timer = threading.Timer(self.heartbeat_interval_s, heartbeat)
             timer.start()
 
@@ -191,7 +195,7 @@ class MaukaPlugin:
         """
         return bson.objectid.ObjectId(oid)
 
-    def on_message(self, topic, message):
+    def on_message(self, topic: str, mauka_message: protobuf.mauka_pb2.MaukaMessage):
         """This gets called when a subscriber receives a message from a topic they are subscribed too.
 
         This should be implemented in all subclasses.
@@ -201,14 +205,15 @@ class MaukaPlugin:
         """
         _logger.info("on_message not implemented")
 
-    def produce(self, topic, message):
+    def produce(self, topic: str, mauka_message: protobuf.mauka_pb2.MaukaMessage):
         """Produces a message with a given topic to the system
 
         :param topic: The topic to produce this message to
         :param message: The message to produce
         """
+        serialized_mauka_message = protobuf.util.serialize_mauka_message(mauka_message)
         with self.producer_lock:
-            self.zmq_producer.send_multipart((topic, message))
+            self.zmq_producer.send_multipart((topic.encode(), serialized_mauka_message))
 
     def is_self_message(self, topic: str) -> bool:
         """Determines if this is a message directed at this plugin. I.e. the topic is the name of the plugin.
@@ -228,7 +233,7 @@ class MaukaPlugin:
 
     def debug(self, msg: str):
         if self.mauka_debug:
-            self.logger.debug("{}: {}".format(self.name, msg))
+            self.logger.debug("{}\n{}".format(self.name, msg))
 
     def _run(self):
         """This is the run loop for this plugin process"""
@@ -259,7 +264,8 @@ class MaukaPlugin:
             else:
                 # Update statistics
                 self.on_message_cnt += 1
-                self.last_received = time.time()
-                self.on_message(topic, message)
+                self.last_received = protobuf.util.get_timestamp_ms()
+                mauka_message = protobuf.util.deserialize_mauka_message(message)
+                self.on_message(topic, mauka_message)
 
         _logger.info("Exiting Mauka plugin: {}".format(self.name))

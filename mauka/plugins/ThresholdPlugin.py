@@ -4,11 +4,11 @@ This module contains a base plugin that allows us to check for threshold crossin
 
 import collections
 import multiprocessing
-import protobuf.util
 import typing
 
 import mongo
 import plugins.base
+import protobuf.util
 
 ThresholdEvent = collections.namedtuple("ThresholdEvent", "start "
                                                           "end "
@@ -151,7 +151,7 @@ class ThresholdPlugin(plugins.base.MaukaPlugin):
     def get_status(self):
         return "{} -- {}".format(self.device_id_to_low_events, self.device_id_to_high_events)
 
-    def on_message(self, topic, message):
+    def on_message(self, topic, mauka_message):
         """Subscribed messages occur async
 
         Messages cause our FSM to be ran and can create new events, update events, and close out events
@@ -163,62 +163,66 @@ class ThresholdPlugin(plugins.base.MaukaPlugin):
         if not self.subscribed:
             pass
 
-        measurement = protobuf.util.decode_trigger_message(message)
-        device_id = measurement.id
-        timestamp_ms = measurement.time
-        value = self.measurement_value_fn(measurement)
+        if protobuf.util.is_measurement(mauka_message):
+            device_id = mauka_message.measurement.box_id
+            timestamp_ms = mauka_message.measurement.timestamp_ms
+            value = self.measurement_value_fn(mauka_message.measurement)
 
-        is_low = value < self.threshold_value_low
-        is_high = value > self.threshold_value_high
-        is_stable = not is_low and not is_high
+            is_low = value < self.threshold_value_low
+            is_high = value > self.threshold_value_high
+            is_stable = not is_low and not is_high
 
-        prev_low_event = self.device_id_to_low_events[device_id] if device_id in self.device_id_to_low_events else None
-        prev_high_event = self.device_id_to_high_events[
-            device_id] if device_id in self.device_id_to_high_events else None
+            prev_low_event = self.device_id_to_low_events[device_id] if device_id in self.device_id_to_low_events else None
+            prev_high_event = self.device_id_to_high_events[
+                device_id] if device_id in self.device_id_to_high_events else None
 
-        # Low to low, update low event
-        if is_low and prev_low_event is not None:
-            if value < prev_low_event.max_value:
-                self.update_event(prev_low_event, value)
+            # Low to low, update low event
+            if is_low and prev_low_event is not None:
+                if value < prev_low_event.max_value:
+                    self.update_event(prev_low_event, value)
 
-        # Low to stable, complete low event, produces event message
-        elif is_stable and prev_low_event is not None:
-            self.close_event(prev_low_event, timestamp_ms)
+            # Low to stable, complete low event, produces event message
+            elif is_stable and prev_low_event is not None:
+                self.close_event(prev_low_event, timestamp_ms)
 
-        # Low to high, complete low event, start high, produces event message
-        elif is_high and prev_low_event is not None:
-            self.close_event(prev_low_event, timestamp_ms)
-            self.open_event(timestamp_ms, device_id, value, False)
+            # Low to high, complete low event, start high, produces event message
+            elif is_high and prev_low_event is not None:
+                self.close_event(prev_low_event, timestamp_ms)
+                self.open_event(timestamp_ms, device_id, value, False)
 
-        # Stable to low, start low
-        elif is_low and prev_low_event is None:
-            self.open_event(timestamp_ms, device_id, value, True)
+            # Stable to low, start low
+            elif is_low and prev_low_event is None:
+                self.open_event(timestamp_ms, device_id, value, True)
 
-        # Stable to stable, no problem, move along citizen
-        elif is_stable and prev_low_event is None and prev_high_event is None:
-            pass
+            # Stable to stable, no problem, move along citizen
+            elif is_stable and prev_low_event is None and prev_high_event is None:
+                pass
 
-        # Stable to high, start high
-        elif is_high and prev_high_event is None:
-            self.open_event(timestamp_ms, device_id, value, False)
+            # Stable to high, start high
+            elif is_high and prev_high_event is None:
+                self.open_event(timestamp_ms, device_id, value, False)
 
-        # High to low, complete high, start low, produces event message
-        elif is_low and prev_high_event is not None:
-            self.close_event(prev_high_event, timestamp_ms)
-            self.open_event(timestamp_ms, device_id, value, True)
+            # High to low, complete high, start low, produces event message
+            elif is_low and prev_high_event is not None:
+                self.close_event(prev_high_event, timestamp_ms)
+                self.open_event(timestamp_ms, device_id, value, True)
 
-        # High to stable, complete high, produces event message
-        elif is_stable and prev_high_event is not None:
-            self.close_event(prev_high_event, timestamp_ms)
+            # High to stable, complete high, produces event message
+            elif is_stable and prev_high_event is not None:
+                self.close_event(prev_high_event, timestamp_ms)
 
-        # High to high, update high
-        elif is_high and prev_high_event is not None:
-            if value > prev_high_event.max_value:
-                self.update_event(prev_high_event, value)
+            # High to high, update high
+            elif is_high and prev_high_event is not None:
+                if value > prev_high_event.max_value:
+                    self.update_event(prev_high_event, value)
 
+            else:
+                self.logger.error("Unknown configuration {} {} {} {}".format(is_low, is_high, prev_low_event is None,
+                                                                             prev_high_event is None))
         else:
-            self.logger.error("Unknown configuration {} {} {} {}".format(is_low, is_high, prev_low_event is None,
-                                                                         prev_high_event is None))
+            self.logger.error("Received incorrect mauka message [{}] at ThresholdPlugin".format(
+                protobuf.util.which_message_oneof(mauka_message)
+            ))
 
     def on_event(self, threshold_event):
         """This should be implemented in all child classes and is called async as events are completed
