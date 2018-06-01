@@ -167,11 +167,12 @@ def itic(event_id: int, box_id: str, windowed_rms: numpy.ndarray, logger = None)
         if itic_enum == IticRegion.NO_INTERRUPTION:
             continue
         else:
-            logger.debug("Found ITIC incident [{}] from event {} and box {}".format(
-                itic_enum,
-                event_id,
-                box_id
-            ))
+            if logger is not None:
+                logger.debug("Found ITIC incident [{}] from event {} and box {}".format(
+                    itic_enum,
+                    event_id,
+                    box_id
+                ))
 
 
 class IticPlugin(plugins.base.MaukaPlugin):
@@ -199,7 +200,8 @@ class IticPlugin(plugins.base.MaukaPlugin):
         if protobuf.util.is_payload(mauka_message, protobuf.mauka_pb2.VOLTAGE_RMS_WINDOWED):
             itic(mauka_message.payload.event_id,
                  mauka_message.payload.box_id,
-                 protobuf.util.repeated_as_ndarray(mauka_message.payload.data))
+                 protobuf.util.repeated_as_ndarray(mauka_message.payload.data),
+                 self.logger)
         else:
             self.logger.error("Received incorrect mauka message [{}] at IticPlugin".format(
                 protobuf.util.which_message_oneof(mauka_message)
