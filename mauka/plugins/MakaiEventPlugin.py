@@ -49,7 +49,7 @@ def frequency(samples: numpy.ndarray) -> float:
     :return: The frequency value of the provided samples in Hz.
     """
 
-    zero_crossing_indices = numpy.diff(numpy.array(samples))
+    zero_crossing_indices = numpy.diff(numpy.array(samples) > 0)
     num_zero_crossings = sum(zero_crossing_indices)
     zero_crossing_time_intervals = numpy.diff(numpy.array(range(len(zero_crossing_indices)))[zero_crossing_indices])
 
