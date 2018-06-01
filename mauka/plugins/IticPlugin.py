@@ -148,12 +148,12 @@ def itic_region(rms_voltage: float, duration_ms: float) -> IticRegion:
     return IticRegion.NO_INTERRUPTION
 
 
-def itic(event_id: int, box_id: str, windowed_rms: numpy.ndarray, logger = None) -> IticRegion:
+def itic(event_id: int, box_id: str, windowed_rms: numpy.ndarray, segment_threshold: float, logger = None) -> IticRegion:
     duration_cycles = len(windowed_rms)
     if duration_cycles < 0.01:
         return IticRegion.NO_INTERRUPTION
 
-    segments = analysis.segment(windowed_rms, .1)
+    segments = analysis.segment(windowed_rms, segment_threshold)
 
     if logger is not None:
         logger.debug("Calculating ITIC with {} segments.".format(len(segments)))
@@ -188,7 +188,7 @@ class IticPlugin(plugins.base.MaukaPlugin):
         :param exit_event: Exit event
         """
         super().__init__(config, ["RmsWindowedVoltage"], IticPlugin.NAME, exit_event)
-        self.get_data_after_s = self.config["plugins.IticPlugin.getDataAfterS"]
+        self.segment_threshold = self.config["plugins.IticPlugin.segment.threshold.rms"]
 
     def on_message(self, topic, mauka_message):
         """
@@ -201,6 +201,7 @@ class IticPlugin(plugins.base.MaukaPlugin):
             itic(mauka_message.payload.event_id,
                  mauka_message.payload.box_id,
                  protobuf.util.repeated_as_ndarray(mauka_message.payload.data),
+                 self.segment_threshold,
                  self.logger)
         else:
             self.logger.error("Received incorrect mauka message [{}] at IticPlugin".format(
