@@ -257,7 +257,6 @@ class MaukaPlugin:
 
             topic = data[0].decode()
             message = data[1]
-            mauka_message = protobuf.util.deserialize_mauka_message(message)
 
             if self.is_self_message(topic):
                 _logger.info("Receive self message")
@@ -266,6 +265,7 @@ class MaukaPlugin:
                 # Update statistics
                 self.on_message_cnt += 1
                 self.last_received = protobuf.util.get_timestamp_ms()
+                mauka_message = protobuf.util.deserialize_mauka_message(message)
                 self.on_message(topic, mauka_message)
 
         _logger.info("Exiting Mauka plugin: {}".format(self.name))

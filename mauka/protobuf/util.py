@@ -141,14 +141,5 @@ def is_measurement(mauka_message: mauka_pb2.Measurement) -> bool:
 
 
 def repeated_as_ndarray(repeated) -> numpy.ndarray:
-    # Maybe someone knows a better way to do this?
     return numpy.array(repeated)
 
-
-if __name__ == "__main__":
-    mauka_message = build_payload("test_source",
-                                  1,
-                                  "2",
-                                  mauka_pb2.VOLTAGE_RAW,
-                                  numpy.array([1, 2, 3]))
-    print(mauka_message)
