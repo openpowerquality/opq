@@ -81,8 +81,7 @@ class MakaiEventPlugin(plugins.base.MaukaPlugin):
             self.produce("RawVoltage", raw_voltage)
             self.produce("RmsWindowedVoltage", rms_windowed_voltage)
 
-    def on_message(self, topic, mauka_message_bytes):
-        mauka_message = protobuf.util.deserialize_mauka_message(mauka_message_bytes)
+    def on_message(self, topic, mauka_message):
         if protobuf.util.is_makai_event_message(mauka_message):
             self.debug("on_message: {}".format(mauka_message))
             timer = threading.Timer(self.get_data_after_s,
