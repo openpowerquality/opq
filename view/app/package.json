@@ -47,6 +47,7 @@
   },
   "scripts": {
     "start": "METEOR_NO_RELEASE_CHECK=1 meteor --settings ../config/settings.development.json",
+    "start-production": "METEOR_NO_RELEASE_CHECK=1 meteor --settings ../config/settings.production.json",
     "build": "meteor build ../deploy --architecture os.linux.x86_64",
     "lint": "METEOR_NO_RELEASE_CHECK=1 eslint --quiet --ext .jsx --ext .js ./imports",
     "test": "METEOR_NO_RELEASE_CHECK=1 TEST_BROWSER_DRIVER=nightmare meteor test --once --driver-package meteortesting:mocha --no-release-check --port 3100",
