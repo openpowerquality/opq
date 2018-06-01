@@ -42,6 +42,39 @@ def vrms_waveform(waveform: numpy.ndarray, window_size: int = constants.SAMPLES_
 
     return numpy.array(v)
 
+def frequency(samples: numpy.ndarray) -> float:
+    """
+    Calculates the frequency of the supplied samples
+    :param samples: Samples to calculate frequency over.
+    :return: The frequency value of the provided samples in Hz.
+    """
+
+    zero_crossing_indices = numpy.diff(numpy.array(samples))
+    num_zero_crossings = sum(zero_crossing_indices)
+    zero_crossing_time_intervals = numpy.diff(numpy.array(range(len(zero_crossing_indices)))[zero_crossing_indices])
+
+    return (num_zero_crossings * constants.SAMPLE_RATE_HZ) / (2 * sum(zero_crossing_time_intervals))
+
+def frequency_waveform(waveform: numpy.ndarray, window_size: int = constants.SAMPLES_PER_CYCLE) -> numpy.ndarray:
+    """
+    Calculated frequency of a waveform using a given window size. In most cases, our window size should be the
+    number of samples in a cycle.
+    :param waveform: The waveform to find frequency values for.
+    :param window_size: The size of the window used to compute frequency over the waveform.
+    :return: An array of frequency values calculated for a given waveform.
+    """
+
+    f = []
+    window_size = int(window_size)
+    while len(waveform) >= window_size:
+        samples = waveform[:window_size]
+        waveform = waveform[window_size:]
+        f.append(frequency(samples))
+
+    if len(waveform) > 0:
+        f.append(frequency(waveform))
+
+    return numpy.array(f)
 
 class MakaiEventPlugin(plugins.base.MaukaPlugin):
     NAME = "MakaiEventPlugin"
@@ -58,6 +91,7 @@ class MakaiEventPlugin(plugins.base.MaukaPlugin):
             calibration_constant = mongo.cached_calibration_constant(box_id)
             waveform_calibrated = waveform / calibration_constant
             waveform_vrms = vrms_waveform(waveform_calibrated, int(constants.SAMPLES_PER_CYCLE))
+            waveform_frequency = frequency_waveform(waveform_calibrated, int(constants.SAMPLES_PER_CYCLE))
 
             adc_samples = protobuf.util.build_payload(self.name,
                                                       event_id,
@@ -77,9 +111,16 @@ class MakaiEventPlugin(plugins.base.MaukaPlugin):
                                                                protobuf.mauka_pb2.VOLTAGE_RMS_WINDOWED,
                                                                waveform_vrms)
 
+            frequency_windowed = protobuf.util.build_payload(self.name,
+                                                               event_id,
+                                                               box_id,
+                                                               protobuf.mauka_pb2.FREQUENCY_WINDOWED,
+                                                               waveform_frequency)
+
             self.produce("AdcSamples", adc_samples)
             self.produce("RawVoltage", raw_voltage)
             self.produce("RmsWindowedVoltage", rms_windowed_voltage)
+            self.produce("Frequencies", frequency_windowed)
 
     def on_message(self, topic, mauka_message):
         if protobuf.util.is_makai_event_message(mauka_message):
