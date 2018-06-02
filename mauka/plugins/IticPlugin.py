@@ -8,6 +8,8 @@ import multiprocessing
 import numpy
 import matplotlib.path
 
+import analysis
+import constants
 import plugins.base
 import protobuf.mauka_pb2
 import protobuf.util
@@ -23,16 +25,10 @@ class IticRegion(enum.Enum):
     OTHER = "OTHER"
 
 
-def c_to_ms(c: float) -> float:
-    """
-    Convert cycles to milliseconds
-    :param c: cycles
-    :return: milliseconds
-    """
-    return (c * (1 / 60)) * 1000.0
 
 
-HUNDREDTH_OF_A_CYCLE = c_to_ms(0.01)
+
+HUNDREDTH_OF_A_CYCLE = analysis.c_to_ms(0.01)
 """Hundredth of a power cycle in milliseconds"""
 
 prohibited_region_polygon = [
@@ -97,7 +93,7 @@ def point_in_polygon(x: float, y: float, polygon: typing.List[typing.List[float]
     return path.contains_point([x, y])
 
 
-def itic_region(rms_voltage: float, duration_ms: float) -> enum.Enum:
+def itic_region(rms_voltage: float, duration_ms: float) -> IticRegion:
     """
     Returns the ITIC region of a given RMS voltage and duration.
     The reference curve is at http://www.keysight.com/upload/cmc_upload/All/1.pdf
@@ -109,7 +105,7 @@ def itic_region(rms_voltage: float, duration_ms: float) -> enum.Enum:
     percent_nominal = (rms_voltage / 120.0) * 100.0
 
     # First, let's check the extreme edge cases
-    if duration_ms < c_to_ms(0.01):
+    if duration_ms < analysis.c_to_ms(0.01):
         return IticRegion.NO_INTERRUPTION
 
     if rms_voltage <= 0:
@@ -152,6 +148,33 @@ def itic_region(rms_voltage: float, duration_ms: float) -> enum.Enum:
     return IticRegion.NO_INTERRUPTION
 
 
+def itic(event_id: int, box_id: str, windowed_rms: numpy.ndarray, segment_threshold: float, logger = None) -> IticRegion:
+    duration_cycles = len(windowed_rms)
+    if duration_cycles < 0.01:
+        return IticRegion.NO_INTERRUPTION
+
+    segments = analysis.segment(windowed_rms, segment_threshold)
+
+    if logger is not None:
+        logger.debug("Calculating ITIC with {} segments.".format(len(segments)))
+
+    for segment in segments:
+        mean_rms = numpy.mean(segment)
+        duration_ms = analysis.c_to_ms(len(segment))
+
+        itic_enum = itic_region(mean_rms, duration_ms)
+
+        if itic_enum == IticRegion.NO_INTERRUPTION:
+            continue
+        else:
+            if logger is not None:
+                logger.debug("Found ITIC incident [{}] from event {} and box {}".format(
+                    itic_enum,
+                    event_id,
+                    box_id
+                ))
+
+
 class IticPlugin(plugins.base.MaukaPlugin):
     """
     Mauka plugin that calculates ITIC for any event that includes a raw waveform
@@ -165,7 +188,7 @@ class IticPlugin(plugins.base.MaukaPlugin):
         :param exit_event: Exit event
         """
         super().__init__(config, ["RmsWindowedVoltage"], IticPlugin.NAME, exit_event)
-        self.get_data_after_s = self.config["plugins.IticPlugin.getDataAfterS"]
+        self.segment_threshold = self.config["plugins.IticPlugin.segment.threshold.rms"]
 
     def on_message(self, topic, mauka_message):
         """
@@ -175,10 +198,12 @@ class IticPlugin(plugins.base.MaukaPlugin):
         """
         self.debug("on_message")
         if protobuf.util.is_payload(mauka_message, protobuf.mauka_pb2.VOLTAGE_RMS_WINDOWED):
-            pass
+            itic(mauka_message.payload.event_id,
+                 mauka_message.payload.box_id,
+                 protobuf.util.repeated_as_ndarray(mauka_message.payload.data),
+                 self.segment_threshold,
+                 self.logger)
         else:
             self.logger.error("Received incorrect mauka message [{}] at IticPlugin".format(
                 protobuf.util.which_message_oneof(mauka_message)
             ))
-
-

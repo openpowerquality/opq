@@ -22,7 +22,7 @@
 
   "plugins.base.heartbeatIntervalS": 60.0,
 
-  "plugins.IticPlugin.getDataAfterS": 10.0,
+  "plugins.IticPlugin.segment.threshold.rms": 0.01,
 
   "plugins.MakaiEventPlugin.getDataAfterS": 10.0,
 

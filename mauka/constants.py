@@ -8,6 +8,9 @@ SAMPLES_PER_CYCLE = 200.0
 SAMPLE_RATE_HZ = 12000.0
 """Sample rate of OPQ box"""
 
+CYCLES_PER_SECOND = 60.0
+"""Cycles per second"""
+
 
 
 
