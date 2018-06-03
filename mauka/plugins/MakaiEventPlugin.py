@@ -52,8 +52,7 @@ def frequency(samples: numpy.ndarray) -> float:
     zero_crossing_indices = numpy.diff(numpy.array(samples) > 0)
     num_zero_crossings = sum(zero_crossing_indices)
     zero_crossing_time_intervals = numpy.diff(numpy.array(range(len(zero_crossing_indices)))[zero_crossing_indices])
-
-    return (num_zero_crossings * constants.SAMPLE_RATE_HZ) / (2 * sum(zero_crossing_time_intervals))
+    return ((num_zero_crossings - 1) * constants.SAMPLE_RATE_HZ) / (2 * sum(zero_crossing_time_intervals))
 
 def frequency_waveform(waveform: numpy.ndarray, window_size: int = constants.SAMPLES_PER_CYCLE) -> numpy.ndarray:
     """
