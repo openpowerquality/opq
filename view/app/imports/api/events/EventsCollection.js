@@ -1,8 +1,9 @@
 import { Meteor } from 'meteor/meteor';
-import { Mongo } from 'meteor/mongo';
 import { check, Match } from 'meteor/check';
 import SimpleSchema from 'simpl-schema';
+import moment from 'moment/moment';
 import BaseCollection from '../base/BaseCollection.js';
+import { OpqBoxes } from '../opq-boxes/OpqBoxesCollection';
 
 /**
  * The Events collection stores abnormal PQ data detected by the system.
@@ -12,7 +13,6 @@ class EventsCollection extends BaseCollection {
 
   constructor() {
     super('events', new SimpleSchema({
-      _id: { type: Mongo.ObjectID },
       event_id: Number,
       type: String,
       description: String,
@@ -24,6 +24,7 @@ class EventsCollection extends BaseCollection {
       'latencies_ms.$': Number,
     }));
 
+    // Event Type classifications will eventually move to the Incident level.
     this.FREQUENCY_SAG_TYPE = 'FREQUENCY_SAG';
     this.FREQUENCY_SWELL_TYPE = 'FREQUENCY_SWELL';
     this.VOLTAGE_SAG_TYPE = 'VOLTAGE_SAG';
@@ -39,28 +40,43 @@ class EventsCollection extends BaseCollection {
     };
 
     if (Meteor.server) {
-      this._collection.rawCollection().createIndex({ target_event_start_timestamp_ms: 1 }, { background: true });
+      this._collection.rawCollection().createIndex(
+          { target_event_start_timestamp_ms: 1 },
+          { background: true },
+          );
+      this._collection.rawCollection().createIndex(
+          { event_id: 1 },
+          { background: true, unique: true },
+      );
     }
   }
 
   /**
    * Defines a new Event document.
    * @param {Number} event_id - The event's id value (not Mongo ID)
-   * @param {String} type - The unix timestamp (millis) of the measurement.
+   * @param {String} type - The unix timestamp (millis) of the measurement. (Deprecated, now optional).
    * @param {String} description - The description of the event.
    * @param {String} boxes_triggered - The OPQBoxes from which data was requested for this event.
-   * @param {Number} latencies - Array of unix timestamps for the event. See docs for details.
+   * @param {String} boxes_received - The OPQBoxes from which data was received for this event.
+   * @param {String} target_event_start_timestamp_ms - The time this event started. Anything acceptable to moment().
+   * @param {String} target_event_end_timestamp_ms - The time this event ended. Anything acceptable to moment().
+   * @param {Number} latencies_ms - Array of unix timestamps for the event. See docs for details.
    * @returns The newly created document ID.
    */
   define({ event_id, type, description, boxes_triggered, boxes_received, target_event_start_timestamp_ms,
     target_event_end_timestamp_ms, latencies_ms }) {
+    // Allow start and end times to be anything acceptable to the moment() parser.
+    target_event_start_timestamp_ms = moment(target_event_start_timestamp_ms).valueOf(); // eslint-disable-line
+    target_event_end_timestamp_ms = moment(target_event_end_timestamp_ms).valueOf(); // eslint-disable-line
+    // Make sure boxes_triggered contains valid box_ids.
+    OpqBoxes.assertValidBoxIds(boxes_triggered);
     const docID = this._collection.insert({ event_id, type, description, boxes_triggered, boxes_received,
       target_event_start_timestamp_ms, target_event_end_timestamp_ms, latencies_ms });
     return docID;
   }
 
   /**
-   * Loads all publications related to this collection.
+   * Defines all publications related to this collection.
    */
   publish() {
     if (Meteor.isServer) {
@@ -69,7 +85,6 @@ class EventsCollection extends BaseCollection {
       Meteor.publish(this.publicationNames.GET_EVENTS, function ({ startTime, endTime }) {
         check(startTime, Match.Maybe(Number));
         check(endTime, Match.Maybe(Number));
-
         const selector = self.queryConstructors().getEvents({ startTime, endTime });
         return self.find(selector);
       });
@@ -83,6 +98,10 @@ class EventsCollection extends BaseCollection {
     }
   }
 
+  /**
+   * Supports the GET_EVENTS publication method.
+   * @returns { Object } An object formatted for the publication optional object.
+   */
   queryConstructors() { // eslint-disable-line class-methods-use-this
     return {
       getEvents({ startTime, endTime }) {

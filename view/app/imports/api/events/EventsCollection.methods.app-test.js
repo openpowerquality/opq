@@ -1,41 +1,28 @@
 import { Meteor } from 'meteor/meteor';
 import { expect } from 'chai';
-import { withLoggedInUser, defineTestFixturesMethod, withOpqSubscriptions } from '../test/test-utilities';
-import { defineMethod, updateMethod } from '../base/BaseCollection.methods';
-import { Events } from './EventsCollection';
+import moment from 'moment';
+import { withLoggedInUser, defineTestFixturesMethod } from '../test/test-utilities';
+import { getEventsInRange } from './EventsCollection.methods';
 
 /* eslint prefer-arrow-callback: "off", no-unused-expressions: "off" */
 /* eslint-env mocha */
 
 if (Meteor.isClient) {
   describe('Events Meteor Methods ', function test() {
-    const collectionName = Events.getCollectionName();
-    const box_id = '2000';
-    const name = 'box';
-    const description = 'description';
-    const calibration_constant = 2.3;
-    const unplugged = false;
-    const location = 'Test-Location-001';
 
     before(async function () {
-      await defineTestFixturesMethod.callPromise(['minimal']);
+      await defineTestFixturesMethod.callPromise(['minimal', 'events']);
       await withLoggedInUser();
-      await withOpqSubscriptions();
     });
 
-    it('Define Method', async function () {
-      const definitionData = { box_id, name, description, calibration_constant, unplugged, location };
-      const docID = await defineMethod.callPromise({ collectionName, definitionData });
-      expect(docID).to.exist;
-    });
-
-    it('Update Method', async function () {
-      const id = Events.findBox(box_id)._id;
-      const newUnplugged = true;
-      const newLocation = 'Test-Location-002';
-      const updateData = { id, unplugged: newUnplugged, location: newLocation };
-      const update = await updateMethod.callPromise({ collectionName, updateData });
-      expect(update.location).to.equal(newLocation);
+    it('getEventsInRange', async function () {
+      const boxIDs = ['1000', '1001'];
+      const startTime_ms = moment('2018-01-01T09:00:00').valueOf();
+      const endTime_ms = moment('2018-01-01T21:00:00').valueOf();
+      const events = await getEventsInRange.callPromise({ boxIDs, startTime_ms, endTime_ms });
+      expect(events.length).to.equal(2);
+      expect(events[0].event_id).to.equal(1);
+      expect(events[1].event_id).to.equal(2);
     });
   });
 }

@@ -1,4 +1,5 @@
 import { ValidatedMethod } from 'meteor/mdg:validated-method';
+import { CallPromiseMixin } from 'meteor/didericis:callpromise-mixin';
 import SimpleSchema from 'simpl-schema';
 import { Events } from './EventsCollection.js';
 
@@ -9,6 +10,7 @@ import { Events } from './EventsCollection.js';
  */
 export const getEventsInRange = new ValidatedMethod({
   name: 'Events.getEventsInRange',
+  mixins: [CallPromiseMixin],
   validate: new SimpleSchema({
     boxIDs: { type: Array },
     'boxIDs.$': { type: String },
