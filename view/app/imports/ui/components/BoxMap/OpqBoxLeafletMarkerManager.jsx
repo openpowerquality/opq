@@ -67,25 +67,12 @@ class OpqBoxLeafletMarkerManager extends React.Component {
   }
 
   updateMarker(opqBox) {
-    const { currentMapDataDisplay, currentMapLocationGranularity, mapLocationGranularityTypes } = this.props;
+    const { boxMarkerLabelFunc } = this.props;
     // Retrieve box's corresponding Marker leafletElement, and update it.
     const marker = this.getMarkerLeafletElement(opqBox);
     if (marker) {
-      const newestMeasurement = this.findNewestMeasurement(opqBox.box_id);
-      const rawMeasurementValue = this.filterCurrentMapDataDisplay(newestMeasurement, currentMapDataDisplay, false);
-      const formattedMeasurement = this.filterCurrentMapDataDisplay(newestMeasurement, currentMapDataDisplay, true);
       const newOpts = marker.options; // Don't clone this; must modify the original options obj.
-      newOpts.rawValue = rawMeasurementValue;
-      newOpts.formattedValue = formattedMeasurement;
-      // Create appropriate html for marker icon.
-      let markerHtml = '';
-      if (currentMapLocationGranularity === mapLocationGranularityTypes.BOX_REGION) {
-        const regionDoc = this.getOpqBoxRegionDoc(opqBox);
-        const region = (regionDoc) ? regionDoc.regionSlug : null;
-        markerHtml = `<div><b>${opqBox.name}<br />Region: ${region}<br />${formattedMeasurement}</b></div>`;
-      } else {
-        markerHtml = `<div><b>${opqBox.name}<br />${formattedMeasurement}</b></div>`;
-      }
+      const markerHtml = boxMarkerLabelFunc(opqBox);
       newOpts.icon = this.opqBoxIcon({ markerHtml, opqBox });
       marker.refreshIconOptions(newOpts, true);
     }
@@ -389,8 +376,6 @@ class OpqBoxLeafletMarkerManager extends React.Component {
                         ref={this.addMarkerLeafletElementToDict.bind(this)(opqBox)}
                         icon={this.opqBoxIcon({ markerHtml: initialMarkerHtml, opqBox })}
                         key={opqBox._id}
-                        rawValue=''
-                        formattedValue=''
                         boxId={opqBox._id.toHexString()}
                         position={markerPosition}>
                         <Popup offset={[-10, -30]} maxWidth={300}>
@@ -540,6 +525,7 @@ class OpqBoxLeafletMarkerManager extends React.Component {
 OpqBoxLeafletMarkerManager.propTypes = {
   ready: PropTypes.bool.isRequired,
   opqBoxes: PropTypes.array.isRequired,
+  boxMarkerLabelFunc: PropTypes.func.isRequired,
   locations: PropTypes.array.isRequired,
   regions: PropTypes.array.isRequired,
   zipcodeLatLngDict: PropTypes.object.isRequired,

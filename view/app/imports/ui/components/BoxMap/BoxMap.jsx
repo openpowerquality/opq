@@ -16,6 +16,7 @@ import { OpqBoxes } from '../../../api/opq-boxes/OpqBoxesCollection';
 import { BoxOwners } from '../../../api/users/BoxOwnersCollection';
 import { Locations } from '../../../api/locations/LocationsCollection';
 import { Regions } from '../../../api/regions/RegionsCollection';
+import { SystemStats } from '../../../api/system-stats/SystemStatsCollection';
 import { getZipcodeLatLng } from '../../../api/zipcodes/ZipcodesCollectionMethods';
 import OpqBoxLeafletMarkerManager from './OpqBoxLeafletMarkerManager';
 import ScrollableControl from './ScrollableControl';
@@ -48,6 +49,28 @@ class BoxMap extends React.Component {
   /** If the subscription(s) have been received, render the page, otherwise show a loading icon. */
   render() {
     return (this.props.ready) ? this.renderPage() : <Loader active content='Retrieving data...'/>;
+  }
+
+  createBoxMarkerTrendsLabel(opqBoxDoc) {
+    const { systemStats } = this.props;
+    const latestBoxTrends = systemStats.latest_box_trends;
+    const trend = latestBoxTrends.find(boxTrend => boxTrend.box_id === opqBoxDoc.box_id);
+    const isRecentTrend = (trend && (Date.now() - trend.timestamp_ms) <= 5 * 1000 * 60);
+    let trendHtml = '';
+    if (trend) {
+      trendHtml = `
+        <b>${trend.voltage.average.toFixed(2)} V</b>
+        <b>${trend.frequency.average.toFixed(3)} F</b>
+        <b>${trend.thd.average.toFixed(4)} THD</b>
+      `;
+    }
+
+    const markerHtml = `
+        <div>
+          <b>${opqBoxDoc.name}</b>
+          ${isRecentTrend ? trendHtml : '<b>No Recent Data</b>'}
+        </div>`;
+    return markerHtml;
   }
 
   sidePanel(opqBoxes) {
@@ -507,6 +530,7 @@ class BoxMap extends React.Component {
             <OpqBoxLeafletMarkerManager
                 childRef={this.setOpqBoxLeafletMarkerManagerRef.bind(this)}
                 opqBoxes={boxes}
+                boxMarkerLabelFunc={this.createBoxMarkerTrendsLabel.bind(this)}
                 zipcodeLatLngDict={zipcodeLatLngDict}
                 locations={locations}
                 regions={regions}
@@ -526,6 +550,7 @@ BoxMap.propTypes = {
   locations: PropTypes.array.isRequired,
   regions: PropTypes.array.isRequired,
   zipcodeLatLngDict: PropTypes.object.isRequired,
+  systemStats: PropTypes.object,
 };
 
 // Parent/Container state object that will wrap the withTracker HOC via the withStateContainer HOC.
@@ -562,6 +587,7 @@ const withTrackerCallback = props => {
   const boxOwnersSub = Meteor.subscribe(BoxOwners.publicationNames.GET_CURRENT_USER_BOX_OWNERS);
   const locationsSub = Meteor.subscribe(Locations.getCollectionName()); // We'll just grab all locations for now.
   const regionsSub = Meteor.subscribe(Regions.getCollectionName()); // Grab all regions as well.
+  const systemStatsSub = Meteor.subscribe(SystemStats.getCollectionName());
   const currentUser = Meteor.user();
   let opqBoxes = [];
   if (currentUser) {
@@ -609,11 +635,12 @@ const withTrackerCallback = props => {
 
   return {
     ready: opqBoxesSub.ready() && boxOwnersSub.ready() && locationsSub.ready() &&
-    regionsSub.ready() && methodCallsComplete,
+    regionsSub.ready() && systemStatsSub.ready() && methodCallsComplete,
     opqBoxes: opqBoxes,
     locations: Locations.find().fetch(),
     regions: Regions.find().fetch(),
     zipcodeLatLngDict: zipcodeLatLngDict,
+    systemStats: SystemStats.findOne(), // Collection should only have 1 actual document.
   };
 };
 
