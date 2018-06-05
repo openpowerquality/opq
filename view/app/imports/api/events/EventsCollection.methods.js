@@ -1,3 +1,4 @@
+import { Meteor } from 'meteor/meteor';
 import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import { CallPromiseMixin } from 'meteor/didericis:callpromise-mixin';
 import SimpleSchema from 'simpl-schema';
@@ -18,10 +19,13 @@ export const getEventsInRange = new ValidatedMethod({
     endTime_ms: { type: Number },
   }).validator({ clean: true }),
   run({ boxIDs, startTime_ms, endTime_ms }) {
-    return Events.find({
-      boxes_triggered: { $in: boxIDs },
-      target_event_start_timestamp_ms: { $gte: startTime_ms },
-      target_event_end_timestamp_ms: { $lte: endTime_ms },
-    }).fetch();
+    if (Meteor.isServer) {
+      return Events.find({
+        boxes_triggered: { $in: boxIDs },
+        target_event_start_timestamp_ms: { $gte: startTime_ms },
+        target_event_end_timestamp_ms: { $lte: endTime_ms },
+      }).fetch();
+    }
+    return null;
   },
 });
