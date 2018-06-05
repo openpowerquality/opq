@@ -1,87 +1,243 @@
 {
-  "syncedCronLogging": false,
-  "enableStartupIntegrityCheck": false,
-  "integrityCheckCollections": ["fs.files", "fs.chunks", "trends", "measurements", "events", "box_events", "opq_boxes"],
-  "dbRestoreFilename": "",
-  "systemStatsUpdateIntervalSeconds": 10,
-  "initializeEntities": false,
-  "opqBoxes" : [
-    { "box_id": "1", "name": "Kalihi, Residence", "description": "Version 2.5?, 2016", "calibration_constant": 152.1,
-      "location": "Kalihi-001", "location_start_time_ms": "2017-05-15 13:00:00" },
-
-    { "box_id": "2", "name": "UH, Watanabe Hall", "description": "Unknown", "calibration_constant": 147.37, "unplugged": false,
-      "location": "UHM-Watanabe-001", "location_start_time_ms": "2017-05-15 13:00:00" },
-
-    { "box_id": "3", "name": "UH, POST Floor 3", "description": "Version 2.7, 2017", "calibration_constant": 154.2,
-      "location": "UHM-POST-307", "location_start_time_ms": "2017-04-16 13:00:00"},
-
-    { "box_id": "4", "name": "Unknown", "description": "Version 2.8, 2017", "calibration_constant": 146.46,
-      "location": "Honolulu-004", "location_start_time_ms": "2017-04-16 13:00:00", "unplugged": true},
-
-    { "box_id": "5", "name": "Kailua, Residence", "description": "Version 2.8, 2017", "calibration_constant": 146.5,
-      "location": "Kailua-001", "location_start_time_ms": "2018-01-10 13:00:00",
-      "location_archive": [ {"location": "UHM-POST-307", "location_start_time_ms": "2017-04-16 13:00:00" } ]},
-
-    { "box_id": "6", "name": "UH, Shidler", "description": "Version 2.8, 2017", "calibration_constant": 146.96,
-      "location": "UHM-Shidler-E601C", "location_start_time_ms": "2018-05-01 13:55:00",
-      "location_archive": [{"location": "UHM-POST-307-2", "location_start_time_ms": "2018-03-10 13:00:00"}]},
-
-    { "box_id": "7", "name": "UH, Hamilton", "description": "Version 2.8, 2017", "calibration_constant": 146.56,
-      "location": "UHM-Hamilton-LIS", "location_start_time_ms": "2018-05-02 13:00:00",
-      "location_archive": []},
-
-    { "box_id": "8", "name": "UH, Ag. Engineering", "description": "Version 2.8, 2017", "calibration_constant": 146.84,
-      "location": "UHM-Ag-Engineering-Mail-Room", "location_start_time_ms": "2018-05-15 14:30:00",
-      "location_archive": []}
-  ],
-
-  "userProfiles": [
-    { "username": "achriste@hawaii.edu", "password": "foo", "firstName": "Anthony", "lastName": "Christe", "role": "admin", "boxIds": ["1", "2", "3", "4", "5", "6", "7", "8"]},
-
-    { "username": "sin8@hawaii.edu", "password": "foo", "firstName": "Serge", "lastName": "Negrashov", "role": "admin", "boxIds": ["1", "2", "3", "4", "5", "6", "7", "8"]},
-
-    { "username": "johnson@hawaii.edu", "password": "foo", "firstName": "Philip", "lastName": "Johnson", "role": "admin", "boxIds": ["1", "2", "3", "4", "5", "6", "7", "8"]},
-
-    { "username": "keal@hawaii.edu", "password": "foo", "firstName": "Kea", "lastName": "Uehara", "role": "admin",
-      "boxIds": ["1", "2", "3", "4", "5", "6", "7", "8"]},
-
-    { "username": "foltzk@hawaii.edu", "password": "foo", "firstName": "Kaila", "lastName": "Foltz", "role": "admin",
-      "boxIds": ["1", "2", "3", "4", "5", "6", "7", "8"]},
-
-    { "username": "mtopping@hawaii.edu", "password": "foo", "firstName": "Miles", "lastName": "Topping", "role": "user",
-      "boxIds": ["1", "2", "3", "4", "5", "6", "7", "8"]},
-
-    { "username": "dport@hawaii.edu", "password": "foo", "firstName": "Daniel", "lastName": "Port", "role": "user", "boxIds": ["6"]},
-
-    { "username": "Michael.Farrell@gtri.gatech.edu", "password": "foo", "firstName": "Michael", "lastName": "Farrell", "role": "user", "boxIds": ["1", "2", "3", "4", "5", "6", "7", "8"]}
-  ],
-
-  "locations": [
-    { "coordinates": [-157.751399, 21.409958], "slug": "Kailua-001", "description": "Residence, Kailua" },
-    { "coordinates": [-157.816176, 21.297421], "slug": "UHM-POST-307", "description": "POST 307, UH" },
-    { "coordinates": [-157.816176, 21.297421], "slug": "UHM-POST-307-2", "description": "POST 307 (2), UH" },
-    { "coordinates": [-157.828921, 21.300010], "slug": "Honolulu-001", "description": "Residence, Makiki" },
-    { "coordinates": [-157.825917, 21.294651], "slug": "Honolulu-002", "description": "Residence, Moiliili" },
-    { "coordinates": [-157.792919, 21.299199], "slug": "Honolulu-003", "description": "Residence, Palolo" },
-    { "coordinates": [-157.802593, 21.278053], "slug": "Honolulu-004", "description": "Residence, Kaimuki" },
-    { "coordinates": [-157.820392, 21.300877], "slug": "UHM-Shidler-E601C", "description": "Shidler E601-C, UH" },
-    { "coordinates": [-157.816112, 21.300300], "slug": "UHM-Hamilton-LIS", "description": "Hamilton, LIS, UH" },
-    { "coordinates": [-157.816272, 21.296940], "slug": "UHM-Holmes-FabLab", "description": "Holmes, FabLab, UH" },
-    { "coordinates": [-157.816128, 21.301550], "slug": "UHM-Ag-Engineering-Mail-Room", "description": "Ag. Engineering, Mail Room, UH"},
-    { "coordinates": [-157.815807, 21.298290], "slug": "UHM-Watanabe-001", "description": "Watanabe Hall, UH"},
-    { "coordinates": [-157.816128, 21.301550], "slug": "Kalihi-001", "description": "Residence, Kalihi"}
-  ],
-
-  "regions": [
-    { "regionSlug": "96734", "locationSlug": "Kailua-001" },
-    { "regionSlug": "96819", "locationSlug": "Kalihi-001" },
-    { "regionSlug": "96822", "locationSlug": "UHM-POST-307" },
-    { "regionSlug": "96822", "locationSlug": "Honolulu-001" },
-    { "regionSlug": "96822", "locationSlug": "Honolulu-002" },
-    { "regionSlug": "96822", "locationSlug": "UHM-Shidler-E601C" },
-    { "regionSlug": "96822", "locationSlug": "UHM-Hamilton-LIS" },
-    { "regionSlug": "96822", "locationSlug": "UHM-Holmes-FabLab" },
-    { "regionSlug": "96822", "locationSlug": "UHM-Ag-Engineering-Mail-Room" },
-    { "regionSlug": "96822", "locationSlug": "UHM-Watanabe-001" }
-  ]
+  "syncedCron": {
+    "logging": true
+  },
+  "integrityCheck": {
+    "enabled": true,
+    "type": "print-summary",
+    "collections": ["events", "box_events", "opq_boxes"]
+  },
+  "systemStats": {
+    "updateIntervalSeconds": 10
+  },
+  "initialEntities": {
+    "enabled": false,
+    "opqBoxes": [
+      {
+        "box_id": "1",
+        "name": "Kalihi, Residence",
+        "description": "Version 2.5?, 2016",
+        "calibration_constant": 152.1,
+        "location": "Kalihi-001",
+        "location_start_time_ms": "2017-05-15 13:00:00"
+      },
+      {
+        "box_id": "2",
+        "name": "UH, Watanabe Hall",
+        "description": "Unknown",
+        "calibration_constant": 147.37,
+        "unplugged": false,
+        "location": "UHM-Watanabe-001",
+        "location_start_time_ms": "2017-05-15 13:00:00"
+      },
+      {
+        "box_id": "3",
+        "name": "UH, POST Floor 3",
+        "description": "Version 2.7, 2017",
+        "calibration_constant": 154.2,
+        "location": "UHM-POST-307",
+        "location_start_time_ms": "2017-04-16 13:00:00"
+      },
+      {
+        "box_id": "4",
+        "name": "Unknown",
+        "description": "Version 2.8, 2017",
+        "calibration_constant": 146.46,
+        "location": "Honolulu-004",
+        "location_start_time_ms": "2017-04-16 13:00:00",
+        "unplugged": true
+      },
+      {
+        "box_id": "5",
+        "name": "Kailua, Residence",
+        "description": "Version 2.8, 2017",
+        "calibration_constant": 146.5,
+        "location": "Kailua-001",
+        "location_start_time_ms": "2018-01-10 13:00:00",
+        "location_archive": [
+          {
+            "location": "UHM-POST-307",
+            "location_start_time_ms": "2017-04-16 13:00:00"
+          }
+        ]
+      },
+      {
+        "box_id": "6",
+        "name": "UH, Shidler",
+        "description": "Version 2.8, 2017",
+        "calibration_constant": 146.96,
+        "location": "UHM-Shidler-E601C",
+        "location_start_time_ms": "2018-05-01 13:55:00",
+        "location_archive": [
+          {
+            "location": "UHM-POST-307-2",
+            "location_start_time_ms": "2018-03-10 13:00:00"
+          }
+        ]
+      },
+      {
+        "box_id": "7",
+        "name": "UH, Hamilton",
+        "description": "Version 2.8, 2017",
+        "calibration_constant": 146.56,
+        "location": "UHM-Hamilton-LIS",
+        "location_start_time_ms": "2018-05-02 13:00:00",
+        "location_archive": []
+      },
+      {
+        "box_id": "8",
+        "name": "UH, Ag. Engineering",
+        "description": "Version 2.8, 2017",
+        "calibration_constant": 146.84,
+        "location": "UHM-Ag-Engineering-Mail-Room",
+        "location_start_time_ms": "2018-05-15 14:30:00",
+        "location_archive": []
+      }
+    ],
+    "userProfiles": [
+      {
+        "username": "achriste@hawaii.edu",
+        "password": "foo",
+        "firstName": "Anthony",
+        "lastName": "Christe",
+        "role": "admin",
+        "boxIds": ["1", "2", "3", "4", "5", "6", "7", "8"]
+      },
+      {
+        "username": "sin8@hawaii.edu",
+        "password": "foo",
+        "firstName": "Serge",
+        "lastName": "Negrashov",
+        "role": "admin",
+        "boxIds": ["1", "2", "3", "4", "5", "6", "7", "8"]
+      },
+      {
+        "username": "johnson@hawaii.edu",
+        "password": "foo",
+        "firstName": "Philip",
+        "lastName": "Johnson",
+        "role": "admin",
+        "boxIds": ["1", "2", "3", "4", "5", "6", "7", "8"]
+      },
+      {
+        "username": "keal@hawaii.edu",
+        "password": "foo",
+        "firstName": "Kea",
+        "lastName": "Uehara",
+        "role": "admin",
+        "boxIds": ["1", "2", "3", "4", "5", "6", "7", "8"]
+      },
+      {
+        "username": "foltzk@hawaii.edu",
+        "password": "foo",
+        "firstName": "Kaila",
+        "lastName": "Foltz",
+        "role": "admin",
+        "boxIds": ["1", "2", "3", "4", "5", "6", "7", "8"]
+      },
+      {
+        "username": "mtopping@hawaii.edu",
+        "password": "foo",
+        "firstName": "Miles",
+        "lastName": "Topping",
+        "role": "user",
+        "boxIds": ["1", "2", "3", "4", "5", "6", "7", "8"]
+      },
+      {
+        "username": "dport@hawaii.edu",
+        "password": "foo",
+        "firstName": "Daniel",
+        "lastName": "Port",
+        "role": "user",
+        "boxIds": ["6"]
+      },
+      {
+        "username": "Michael.Farrell@gtri.gatech.edu",
+        "password": "foo",
+        "firstName": "Michael",
+        "lastName": "Farrell",
+        "role": "user",
+        "boxIds": ["1", "2", "3", "4", "5", "6", "7", "8"]
+      }
+    ],
+    "locations": [
+      {
+        "coordinates": [-157.751399, 21.409958],
+        "slug": "Kailua-001",
+        "description": "Residence, Kailua"
+      },
+      {
+        "coordinates": [-157.816176, 21.297421],
+        "slug": "UHM-POST-307",
+        "description": "POST 307, UH"
+      },
+      {
+        "coordinates": [-157.816176, 21.297421],
+        "slug": "UHM-POST-307-2",
+        "description": "POST 307 (2), UH"
+      },
+      {
+        "coordinates": [-157.828921, 21.300010],
+        "slug": "Honolulu-001",
+        "description": "Residence, Makiki"
+      },
+      {
+        "coordinates": [-157.825917, 21.294651],
+        "slug": "Honolulu-002",
+        "description": "Residence, Moiliili"
+      },
+      {
+        "coordinates": [-157.792919, 21.299199],
+        "slug": "Honolulu-003",
+        "description": "Residence, Palolo"
+      },
+      {
+        "coordinates": [-157.802593, 21.278053],
+        "slug": "Honolulu-004",
+        "description": "Residence, Kaimuki"
+      },
+      {
+        "coordinates": [-157.820392, 21.300877],
+        "slug": "UHM-Shidler-E601C",
+        "description": "Shidler E601-C, UH"
+      },
+      {
+        "coordinates": [-157.816112, 21.300300],
+        "slug": "UHM-Hamilton-LIS",
+        "description": "Hamilton, LIS, UH"
+      },
+      {
+        "coordinates": [-157.816272, 21.296940],
+        "slug": "UHM-Holmes-FabLab",
+        "description": "Holmes, FabLab, UH"
+      },
+      {
+        "coordinates": [-157.816128, 21.301550],
+        "slug": "UHM-Ag-Engineering-Mail-Room",
+        "description": "Ag. Engineering, Mail Room, UH"
+      },
+      {
+        "coordinates": [-157.815807, 21.298290],
+        "slug": "UHM-Watanabe-001",
+        "description": "Watanabe Hall, UH"
+      },
+      {
+        "coordinates": [-157.816128, 21.301550],
+        "slug": "Kalihi-001",
+        "description": "Residence, Kalihi"
+      }
+    ],
+    "regions": [
+      {"regionSlug": "96734", "locationSlug": "Kailua-001"},
+      {"regionSlug": "96819", "locationSlug": "Kalihi-001"},
+      {"regionSlug": "96822", "locationSlug": "UHM-POST-307"},
+      {"regionSlug": "96822", "locationSlug": "Honolulu-001"},
+      {"regionSlug": "96822", "locationSlug": "Honolulu-002"},
+      {"regionSlug": "96822", "locationSlug": "UHM-Shidler-E601C"},
+      {"regionSlug": "96822", "locationSlug": "UHM-Hamilton-LIS"},
+      {"regionSlug": "96822", "locationSlug": "UHM-Holmes-FabLab"},
+      {"regionSlug": "96822", "locationSlug": "UHM-Ag-Engineering-Mail-Room"},
+      {"regionSlug": "96822", "locationSlug": "UHM-Watanabe-001"}
+    ]
+  }
 }
