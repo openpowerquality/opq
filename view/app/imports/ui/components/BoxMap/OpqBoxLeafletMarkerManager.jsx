@@ -180,7 +180,7 @@ class OpqBoxLeafletMarkerManager extends React.Component {
 
   getMarker(opqBox) {
     const { opqBoxAndMarkersDict } = this.state;
-    const boxEntry = opqBoxAndMarkersDict[opqBox._id.toHexString()];
+    const boxEntry = opqBoxAndMarkersDict[opqBox.box_id];
     return (boxEntry) ? boxEntry.marker : null;
   }
 
@@ -191,7 +191,7 @@ class OpqBoxLeafletMarkerManager extends React.Component {
 
   getMarkerLeafletElement(opqBox) {
     const { opqBoxAndMarkersDict } = this.state;
-    const boxEntry = opqBoxAndMarkersDict[opqBox._id.toHexString()];
+    const boxEntry = opqBoxAndMarkersDict[opqBox.box_id];
     return (boxEntry) ? boxEntry.markerLeafletElement : null;
   }
 
@@ -212,7 +212,7 @@ class OpqBoxLeafletMarkerManager extends React.Component {
     return (elem) => {
       // Elem can sometimes be null due to React's mounting and unmounting behavior.
       if (elem) {
-        this.createOrUpdateOpqBoxAndMarkersDictEntry(opqBox._id.toHexString(), {
+        this.createOrUpdateOpqBoxAndMarkersDictEntry(opqBox.box_id, {
           markerLeafletElement: elem.leafletElement,
         });
       }
@@ -349,7 +349,7 @@ class OpqBoxLeafletMarkerManager extends React.Component {
     // 1. Create new entry in the Dict for the new box id, store the OpqBox document as 'opqBox' property.
     // 2. Create a new Marker for the Box, then update entry with a 'marker' property.
     // 3. From the Ref callback, add a 'markerLeafletElement' property to the entry for the newly created Marker.
-    this.createOrUpdateOpqBoxAndMarkersDictEntry(opqBox._id.toHexString(), { opqBox });
+    this.createOrUpdateOpqBoxAndMarkersDictEntry(opqBox.box_id, { opqBox });
     const initialMarkerHtml = `<div><b>${opqBox.name}</div>`;
     // For some reason, we are storing coordinates as [lng, lat] rather than [lat, lng]
     const markerPosition = this.calcMarkerPosition(opqBox);
@@ -359,8 +359,7 @@ class OpqBoxLeafletMarkerManager extends React.Component {
     const newMarker = <Marker
                         ref={this.addMarkerLeafletElementToDict.bind(this)(opqBox)}
                         icon={this.opqBoxIcon({ markerHtml: initialMarkerHtml, opqBox })}
-                        key={opqBox._id}
-                        boxId={opqBox._id.toHexString()}
+                        key={opqBox.box_id}
                         box_id={opqBox.box_id}
                         position={markerPosition}>
                         <Popup offset={[-10, -30]} maxWidth={300}>
@@ -368,7 +367,7 @@ class OpqBoxLeafletMarkerManager extends React.Component {
                         </Popup>
                       </Marker>;
 
-    this.createOrUpdateOpqBoxAndMarkersDictEntry(opqBox._id.toHexString(), { marker: newMarker });
+    this.createOrUpdateOpqBoxAndMarkersDictEntry(opqBox.box_id, { marker: newMarker });
   }
 
   getOpqBoxLocationDoc(opqBox) {
@@ -440,16 +439,16 @@ class OpqBoxLeafletMarkerManager extends React.Component {
     );
   }
 
-  createOrUpdateOpqBoxAndMarkersDictEntry(boxIdString, opqBoxAndMarkersObj) {
+  createOrUpdateOpqBoxAndMarkersDictEntry(boxId, opqBoxAndMarkersObj) {
     this.setState(prevState => {
       // Always treat state (and prevState) as immutable. (Actually, this might not be enough for nested objects,
       // see: https://stackoverflow.com/questions/43040721/how-to-update-a-nested-state-in-react)
       const currentDict = { ...prevState.opqBoxAndMarkersDict };
       // FYI: It seems like || {} is not necessary - if currentVal is undefined and we try to spread it, it will simply
       // be ignored. But will keep it like this because it's a bit more clear.
-      const currentVal = currentDict[boxIdString] || {};
+      const currentVal = currentDict[boxId] || {};
       const updatedVal = { ...currentVal, ...opqBoxAndMarkersObj };
-      currentDict[boxIdString] = updatedVal;
+      currentDict[boxId] = updatedVal;
       return {
         opqBoxAndMarkersDict: currentDict,
       };

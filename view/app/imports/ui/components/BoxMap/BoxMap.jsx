@@ -267,7 +267,7 @@ class BoxMap extends React.Component {
               <Button.Group basic size='tiny'>
                 <Popup
                     trigger={
-                      <Button icon onClick={this.handleZoomButtonClick.bind(this, opqBox._id.toHexString())}>
+                      <Button icon onClick={this.handleZoomButtonClick.bind(this, opqBox.box_id)}>
                         <Icon size='large' name='crosshairs' />
                       </Button>
                     }
