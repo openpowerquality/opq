@@ -34,31 +34,13 @@ class OpqBoxLeafletMarkerManager extends React.Component {
     this.createMarkers(opqBoxes);
   }
 
-  componentDidUpdate(prevProps) {
-    const { opqBoxes, currentMapLocationGranularity } = this.props;
-    const { currentMapLocationGranularity: prevMapLocationGranularity } = prevProps;
-
-    // We destroy all markers and recreate new ones whenever we need to change their positions. Currently, the only
-    // event that requires us to change Marker positions is when the mapLocationGranularity option changes.
-    // The main reason we do this is because React-Leaflet's Marker component doesn't expose its setLatLng() method.
-    // While we could get its internal leaflet element and call setLatLng() on it, and the marker position would
-    // successfully change, it turns out that this would not actually update the Marker component's 'position' props
-    // value. Subsequently, whenever a re-render occurs, we end up passing 'old' Markers with incorrect position props
-    // to the MCG component.
-    let mustRecreateMarkers = false;
-    if (currentMapLocationGranularity !== prevMapLocationGranularity) {
-      mustRecreateMarkers = true;
-    }
-
-    // Delete all old Markers before recreating new ones.
-    if (mustRecreateMarkers) {
-      this.setState({ opqBoxAndMarkersDict: {} });
-    }
+  componentDidUpdate() {
+    const { opqBoxes } = this.props;
 
     // Whenever new box measurements are received via props, we must update Markers.
     opqBoxes.forEach(box => {
       // Create new Marker if does not yet exist, or update existing marker with new data.
-      if (!this.opqBoxExists(box) || mustRecreateMarkers) {
+      if (!this.opqBoxExists(box)) {
         this.createMarker(box);
       } else {
         this.updateMarker(box);
@@ -73,29 +55,18 @@ class OpqBoxLeafletMarkerManager extends React.Component {
     if (marker) {
       const newOpts = marker.options; // Don't clone this; must modify the original options obj.
       const markerHtml = boxMarkerLabelFunc(opqBox);
-      newOpts.icon = this.opqBoxIcon({ markerHtml, opqBox });
+      newOpts.icon = this.opqBoxIcon({ markerHtml, iconColor: 'blue' });
       marker.refreshIconOptions(newOpts, true);
     }
   }
 
-  calcMarkerPosition(opqBox) {
-    const { currentMapLocationGranularity, mapLocationGranularityTypes } = this.props;
-
-    let newLatLng = null;
-    switch (currentMapLocationGranularity) {
-      case mapLocationGranularityTypes.BOX_LOCATION:
-        // For some reason, we are storing coordinates as [lng, lat] rather than [lat, lng]
-        newLatLng = this.getOpqBoxLocationDoc(opqBox).coordinates.slice().reverse();
-        break;
-      case mapLocationGranularityTypes.BOX_REGION:
-        newLatLng = this.getOpqBoxRegionCoords(opqBox);
-        // Use Location coords if no set region.
-        if (!newLatLng) newLatLng = this.getOpqBoxLocationDoc(opqBox).coordinates.slice().reverse();
-        break;
-      default:
-        break;
+  getBoxLatLng(opqBox) {
+    const boxLocationDoc = this.getOpqBoxLocationDoc(opqBox);
+    if (boxLocationDoc) {
+      // We're storing coordinates as [lng, lat]. Leaflet Marker requires [lat, lng].
+      return boxLocationDoc.coordinates.slice().reverse();
     }
-    return newLatLng;
+    return null;
   }
 
   getOpqBoxRegionDoc(opqBox) {
@@ -114,45 +85,6 @@ class OpqBoxLeafletMarkerManager extends React.Component {
       // Retrieve zipcode coords from dict
       const coords = zipcodeLatLngDict[zipcode];
       return coords;
-    }
-    return null;
-  }
-
-  filterCurrentMapDataDisplay(measurement, measurementType, format = false) {
-    const { mapDataDisplayTypes } = this.props;
-    if (!measurement && format) return 'No Data';
-    if (!measurement) return null;
-    switch (measurementType) {
-      case mapDataDisplayTypes.VOLTAGE_DATA:
-        return (format) ? this.formatMeasurement(measurement.voltage, measurementType) : measurement.voltage;
-      case mapDataDisplayTypes.FREQUENCY_DATA:
-        return (format) ? this.formatMeasurement(measurement.frequency, measurementType) : measurement.frequency;
-      case mapDataDisplayTypes.THD_DATA:
-        return (format) ? this.formatMeasurement(measurement.thd, measurementType) : measurement.thd;
-      default:
-        return (format) ? this.formatMeasurement(measurement.voltage, measurementType) : measurement.voltage;
-    }
-  }
-
-  formatMeasurement(value, measurementType) {
-    const { mapDataDisplayTypes } = this.props;
-    switch (measurementType) {
-      case mapDataDisplayTypes.VOLTAGE_DATA:
-        return `${value.toFixed(2)} V`;
-      case mapDataDisplayTypes.FREQUENCY_DATA:
-        return `${value.toFixed(3)} Hz`;
-      case mapDataDisplayTypes.THD_DATA:
-        return `${value.toFixed(4)}`;
-      default:
-        return `${value.toFixed(2)} V`;
-    }
-  }
-
-  findNewestMeasurement(boxId) {
-    const { measurements } = this.props;
-    if (measurements.length) {
-      // Measurements are already sorted before being passed to the BoxMap component, so Array.find() is appropriate.
-      return measurements.find(measurement => measurement.box_id === boxId);
     }
     return null;
   }
@@ -219,18 +151,21 @@ class OpqBoxLeafletMarkerManager extends React.Component {
     };
   }
 
-  opqBoxIcon({ markerHtml, opqBox }) {
-    const { currentMapDataDisplay } = this.props;
-    const newestMeasurement = this.findNewestMeasurement(opqBox.box_id);
-    const filteredMeasurement = this.filterCurrentMapDataDisplay(newestMeasurement, currentMapDataDisplay);
-    const quality = this.calculateDataQuality(filteredMeasurement);
+  opqBoxIcon({ markerHtml, iconColor = 'blue' }) {
     let className = 'opqBoxMarker '; // Note the trailing space.
-    if (quality === 'good') {
-      className += 'blue';
-    } else if (quality === 'mediocre') {
-      className += 'yellow';
-    } else if (quality === 'poor') {
-      className += 'red';
+    switch (iconColor) {
+      case 'blue':
+        className += 'blue';
+        break;
+      case 'yellow':
+        className += 'yellow';
+        break;
+      case 'red':
+        className += 'red';
+        break;
+      default:
+        className += 'blue';
+        break;
     }
 
     return divIcon({
@@ -276,67 +211,6 @@ class OpqBoxLeafletMarkerManager extends React.Component {
     });
   }
 
-  clusterIconCssClass(value) {
-    const quality = this.calculateDataQuality(value);
-    let className = 'marker-cluster-';
-    if (quality === 'poor') {
-      className += 'red';
-    } else if (quality === 'mediocre') {
-      className += 'yellow';
-    } else if (quality === 'good') {
-      className += 'blue';
-    }
-    return className;
-  }
-
-  calculateDataQuality(value) {
-    const { currentMapDataDisplay, mapDataDisplayTypes } = this.props;
-    let quality = null; // Can be 'poor', 'mediocre', or 'good'.
-    switch (currentMapDataDisplay) {
-      case mapDataDisplayTypes.VOLTAGE_DATA: {
-        const NOMINAL = 120;
-        const MULTIPLIER = 0.05;
-        const HALF_MULTIPLIER = MULTIPLIER / 2.0;
-        if (value < NOMINAL * (1.0 - MULTIPLIER) || value > NOMINAL * (1.0 + MULTIPLIER)) {
-          quality = 'poor';
-        } else if (value < NOMINAL * (1.0 - HALF_MULTIPLIER) || value > NOMINAL * (1.0 + HALF_MULTIPLIER)) {
-          quality = 'mediocre';
-        } else {
-          quality = 'good';
-        }
-        break;
-      }
-      case mapDataDisplayTypes.FREQUENCY_DATA: {
-        const NOMINAL = 60;
-        const MULTIPLIER = 0.05;
-        const HALF_MULTIPLIER = MULTIPLIER / 2.0;
-        if (value < NOMINAL * (1.0 - MULTIPLIER) || value > NOMINAL * (1.0 + MULTIPLIER)) {
-          quality = 'poor';
-        } else if (value < NOMINAL * (1.0 - HALF_MULTIPLIER) || value > NOMINAL * (1.0 + HALF_MULTIPLIER)) {
-          quality = 'mediocre';
-        } else {
-          quality = 'good';
-        }
-        break;
-      }
-      case mapDataDisplayTypes.THD_DATA: {
-        // Found these values by just looking at trends data. Need to find out official values.
-        if (value < 0.005 || value > 0.05) {
-          quality = 'poor';
-        } else if (value < 0.01 || value > 0.04) {
-          quality = 'mediocre';
-        } else {
-          quality = 'good';
-        }
-        break;
-      }
-      default: {
-        break;
-      }
-    }
-    return quality;
-  }
-
   createMarkers(opqBoxes) {
     opqBoxes.forEach(opqBox => this.createMarker(opqBox));
   }
@@ -351,14 +225,14 @@ class OpqBoxLeafletMarkerManager extends React.Component {
     // 3. From the Ref callback, add a 'markerLeafletElement' property to the entry for the newly created Marker.
     this.createOrUpdateOpqBoxAndMarkersDictEntry(opqBox.box_id, { opqBox });
     const initialMarkerHtml = `<div><b>${opqBox.name}</div>`;
-    // For some reason, we are storing coordinates as [lng, lat] rather than [lat, lng]
-    const markerPosition = this.calcMarkerPosition(opqBox);
+    // Get Box coordinates.
+    const markerPosition = this.getBoxLatLng(opqBox);
 
     // Note: The props passed to Marker here are just the initial values for the Marker component. RawValue and
     // formattedValue are given up-to-date measurement values during updateMarker().
     const newMarker = <Marker
                         ref={this.addMarkerLeafletElementToDict.bind(this)(opqBox)}
-                        icon={this.opqBoxIcon({ markerHtml: initialMarkerHtml, opqBox })}
+                        icon={this.opqBoxIcon({ markerHtml: initialMarkerHtml, iconColor: 'blue' })}
                         key={opqBox.box_id}
                         box_id={opqBox.box_id}
                         position={markerPosition}>
@@ -516,10 +390,6 @@ OpqBoxLeafletMarkerManager.propTypes = {
   regions: PropTypes.array.isRequired,
   zipcodeLatLngDict: PropTypes.object.isRequired,
   measurements: PropTypes.array.isRequired,
-  currentMapDataDisplay: PropTypes.string.isRequired,
-  currentMapLocationGranularity: PropTypes.string.isRequired,
-  mapDataDisplayTypes: PropTypes.object.isRequired,
-  mapLocationGranularityTypes: PropTypes.object.isRequired,
 };
 
 export default withTracker(props => {

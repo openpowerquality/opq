@@ -2,12 +2,10 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Meteor } from 'meteor/meteor';
 import { withRouter } from 'react-router-dom';
-import { Loader, Form, Checkbox, Button, Icon, Popup, Item, List,
+import { Loader, Button, Icon, Popup, Item, List,
           Transition, Dropdown, Divider, Label } from 'semantic-ui-react';
-// import 'semantic-ui-css/semantic.css';
 import Lodash from 'lodash';
 import { Map, TileLayer, ZoomControl } from 'react-leaflet';
-import Control from 'react-leaflet-control';
 import 'react-leaflet-fullscreen/dist/styles.css';
 import FullscreenControl from 'react-leaflet-fullscreen';
 import { withTracker } from 'meteor/react-meteor-data';
@@ -25,24 +23,10 @@ class BoxMap extends React.Component {
   constructor(props) {
     super(props);
 
-    this.mapDataDisplayTypes = {
-      VOLTAGE_DATA: 'voltage_data',
-      FREQUENCY_DATA: 'frequency_data',
-      THD_DATA: 'thd_data',
-    };
-
-    this.mapLocationGranularityTypes = {
-      BOX_LOCATION: 'box_location',
-      BOX_REGION: 'box_region',
-    };
-
     this.state = {
       filteredOpqBoxes: [],
-      currentMapDataDisplay: this.mapDataDisplayTypes.VOLTAGE_DATA,
-      currentMapLocationGranularity: this.mapLocationGranularityTypes.BOX_LOCATION,
       expandedItemBoxId: '', // Refers to the most recently selected Box in the map side panel listing of boxes.
       mapSidePanelHeight: '600px', // Changes between map fullscreen and regular mode.
-      showDataDisplayButtonContents: false,
     };
   }
 
@@ -336,79 +320,6 @@ class BoxMap extends React.Component {
     return locations.find(location => opqBox.location === location.slug);
   }
 
-  mapMeasurementsControl() {
-    return (
-        <Form>
-          <Form.Group grouped>
-            <label>Measurement Type</label>
-            <Form.Field>
-              <Checkbox
-                  radio
-                  label='Voltage'
-                  name='measurementTypeRadioGroup'
-                  value={this.mapDataDisplayTypes.VOLTAGE_DATA}
-                  checked={this.state.currentMapDataDisplay === this.mapDataDisplayTypes.VOLTAGE_DATA}
-                  onChange={this.mapMeasurementControlHandleChange.bind(this)}
-              />
-            </Form.Field>
-            <Form.Field>
-              <Checkbox
-                  radio
-                  label='Frequency'
-                  name='measurementTypeRadioGroup'
-                  value={this.mapDataDisplayTypes.FREQUENCY_DATA}
-                  checked={this.state.currentMapDataDisplay === this.mapDataDisplayTypes.FREQUENCY_DATA}
-                  onChange={this.mapMeasurementControlHandleChange.bind(this)}
-              />
-            </Form.Field>
-            <Form.Field>
-              <Checkbox
-                  radio
-                  label='THD'
-                  name='measurementTypeRadioGroup'
-                  value={this.mapDataDisplayTypes.THD_DATA}
-                  checked={this.state.currentMapDataDisplay === this.mapDataDisplayTypes.THD_DATA}
-                  onChange={this.mapMeasurementControlHandleChange.bind(this)}
-              />
-            </Form.Field>
-          </Form.Group>
-          <Form.Group grouped>
-            <label>Box Location Granularity</label>
-            <Form.Field>
-              <Checkbox
-                  radio
-                  label='Exact Location'
-                  name='clusterControlGroup'
-                  value={this.mapLocationGranularityTypes.BOX_LOCATION}
-                  checked={this.state.currentMapLocationGranularity === this.mapLocationGranularityTypes.BOX_LOCATION}
-                  onChange={this.mapLocationGranularityHandleChange.bind(this)}
-              />
-            </Form.Field>
-            <Form.Field>
-              <Checkbox
-                  radio
-                  label='Region'
-                  name='clusterControlGroup'
-                  value={this.mapLocationGranularityTypes.BOX_REGION}
-                  checked={this.state.currentMapLocationGranularity === this.mapLocationGranularityTypes.BOX_REGION}
-                  onChange={this.mapLocationGranularityHandleChange.bind(this)}
-              />
-            </Form.Field>
-          </Form.Group>
-        </Form>
-    );
-  }
-
-  mapMeasurementControlHandleChange(event, selectedComponent) {
-    const value = selectedComponent.value;
-    this.setState({ currentMapDataDisplay: value });
-  }
-
-  mapLocationGranularityHandleChange(event, selectedComponent) {
-    const value = selectedComponent.value;
-    this.setState({ currentMapLocationGranularity: value });
-  }
-
   setMapRef(elem) {
     // Have to check for elem because this function gets called multiple times during the rendering process,
     // and elem is sometimes undefined.
@@ -425,48 +336,9 @@ class BoxMap extends React.Component {
     }
   }
 
-  handleMapOnClick() {
-    // Close Data Display button whenever map is clicked. This is a simple workaround for not being able to
-    // close the data display button onBlur, which what we actually want.
-    this.setState({ showDataDisplayButtonContents: false });
-  }
-
   handleMapOnResize() {
     const mapHeight = this.mapRef.container.clientHeight;
     this.setState({ mapSidePanelHeight: `${mapHeight}px` });
-  }
-
-  handleDataDisplayButtonClick() {
-    this.setState((prevState) => ({ showDataDisplayButtonContents: !prevState.showDataDisplayButtonContents }));
-  }
-
-  mapDataDisplayButton() {
-    const { showDataDisplayButtonContents } = this.state;
-    // Previously, we were simply using a Semantic-UI Popup component. However, it had problems displaying the popup
-    // contents while the map was in full screen mode. It turns out the reason for this was because the Popup component
-    // utilizes React's Portal mechanism, in which the popup contents are placed elsewhere in the DOM away from where
-    // the Popup component is created. The react-leaflet-fullscreen component will only display contents that are a
-    // child of the Map component. Since the Popup content's are placed in a Portal outside of the map component, they
-    // were not rendering properly.
-    // Fortunately, it's simple enough to create a basic popup ourselves, utilizing a single state boolean variable
-    // to tell us whether the button contents should be hidden or shown.
-    return (
-        <div>
-          <Button onClick={this.handleDataDisplayButtonClick.bind(this)}
-                  color='blue'
-                  icon='flask'
-                  content='Data Display'
-                  style={{ float: 'right' }} />
-          {showDataDisplayButtonContents &&
-            <Label onBlur={() => console.log('blurred')}
-                   pointing='above'
-                   style={{ backgroundColor: 'white', fontWeight: 'normal', padding: '15px',
-                            float: 'right', clear: 'both' }}>
-              {this.mapMeasurementsControl()}
-            </Label>
-          }
-        </div>
-    );
   }
 
   renderPage() {
@@ -480,7 +352,6 @@ class BoxMap extends React.Component {
     return (
         <div style={{ height: '600px' }}>
           <Map ref={this.setMapRef.bind(this)}
-               onClick={this.handleMapOnClick.bind(this)}
                onResize={this.handleMapOnResize.bind(this)}
                center={center}
                zoom={11}
@@ -490,11 +361,8 @@ class BoxMap extends React.Component {
                 attribution="&amp;copy <a href=&quot;http://osm.org/copyright&quot;>OpenStreetMap</a> contributors"
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
-            <ZoomControl position='bottomright' />
-            <FullscreenControl position='bottomright'/>
-            <Control position="topright">
-              {this.mapDataDisplayButton()}
-            </Control>
+            <ZoomControl position='topright' />
+            <FullscreenControl position='topright'/>
             <ScrollableControl position='topleft'>
               {this.sidePanel.bind(this)(boxes)}
             </ScrollableControl>
@@ -506,11 +374,7 @@ class BoxMap extends React.Component {
                 markerClusterSideLabelFunc={this.createClusterBoxCountSideLabel.bind(this)}
                 zipcodeLatLngDict={zipcodeLatLngDict}
                 locations={locations}
-                regions={regions}
-                currentMapDataDisplay={this.state.currentMapDataDisplay}
-                currentMapLocationGranularity={this.state.currentMapLocationGranularity}
-                mapLocationGranularityTypes={this.mapLocationGranularityTypes}
-                mapDataDisplayTypes={this.mapDataDisplayTypes} />
+                regions={regions} />
           </Map>
         </div>
     );
