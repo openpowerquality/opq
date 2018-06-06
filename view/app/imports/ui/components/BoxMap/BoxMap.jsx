@@ -94,9 +94,9 @@ class BoxMap extends React.Component {
 
         <div style={{ paddingLeft: '10px', paddingRight: '10px', marginTop: '10px', width: '100%' }}>
           <Label style={{ marginBottom: '5px' }}>
-            <Icon name='filter'></Icon>Filter by Region/Location
+            <Icon name='filter'></Icon>Filter by Region
           </Label>
-          {this.locationRegionDropdown()}
+          {this.renderRegionDropdown()}
         </div>
         <Divider />
         {this.opqBoxItemGroup(opqBoxes)}
@@ -104,40 +104,23 @@ class BoxMap extends React.Component {
     );
   }
 
-  locationRegionDropdown() {
+  renderRegionDropdown() {
     const { opqBoxes, regions } = this.props;
-    // Question: Do we want to list all known locations and regions, or only the ones relevant to the current user's
-    // boxes? Going for the latter choice for now.
-
-    // For each OpqBox, get its location's description (rather than slug).
-    // OpqBox.locationSlug --> Location.slug -> Location.description
-    const opqBoxLocationSlugs = opqBoxes
-        .map(box => box.location)
-        .filter((slug, idx, arr) => arr.indexOf(slug) === idx); // Filter for unique values.
-    const locationDescriptions = opqBoxLocationSlugs.map(slug => this.getLocationDescription(slug));
+    // Question: Do we want to list all known regions, or only the ones relevant to the current user's boxes? Going
+    // for the latter choice for now.
 
     // For each OpqBox's location slug, get its region slug.
-    // OpqBox.locationSlug --> Region.locationSlug -> Region.regionSlug
-    const opqBoxRegionSlugs = opqBoxLocationSlugs
+    // Recall: OpqBox.locationSlug --> Region.locationSlug -> Region.regionSlug
+    const opqBoxRegionSlugs = opqBoxes
+        .map(box => box.location) // Get box's location slug.
         .map(locSlug => regions.find(region => region.locationSlug === locSlug)) // Find location's region doc.
         .filter(regionDoc => regionDoc) // Removes any undefined results from above map.
         .map(regionDoc => regionDoc.regionSlug) // Grab the Region's slug.
         .filter((slug, idx, arr) => arr.indexOf(slug) === idx); // Filter for unique values.
 
-    // We want to use Semantic-UI's Dropdown component's props API rather than its subcomponent API because using the
-    // former gives us access to a bunch of features that we would otherwise have to implement ourselves if we opt
-    // to use the subcomponent API. One caveat, however, is that the props API requires us to pass our dropdown items
-    // via an options object - which does not allow us to add headers and dividers to the dropdown list of items.
-    // As a (clever?) workaround, we will use disabled dropdown items so act as our 'headers'.
-    const dropdownOptions = [];
-    // Add 'Region' Label and then all unique Regions.
-    dropdownOptions.push({ key: 'regionLabel', value: 'Regions', label: 'Regions', disabled: true });
-    opqBoxRegionSlugs.forEach(slug => dropdownOptions.push(({ key: slug, value: slug, text: slug })));
-    // Add 'Locations' Label and then all unique Location (descriptions).
-    dropdownOptions.push({ key: 'locationLabel', value: 'Locations', label: 'Locations', disabled: true });
-    locationDescriptions.forEach(locDesc => dropdownOptions.push(({ key: locDesc, value: locDesc, text: locDesc })));
+    const dropdownOptions = opqBoxRegionSlugs.map(slug => ({ key: slug, value: slug, text: slug }));
 
-    return <Dropdown placeholder='Region/Location Filter'
+    return <Dropdown placeholder='Region Filter'
                      fluid={true}
                      multiple={true}
                      openOnFocus={false}
@@ -145,45 +128,23 @@ class BoxMap extends React.Component {
                      selectOnNavigation={false}
                      selection
                      options={dropdownOptions}
-                     onChange={this.handleLocationRegionDropdownOnChange.bind(this)} />;
+                     onChange={this.handleRegionDropdownOnChange.bind(this)} />;
   }
 
-  getLocationDescription(locationSlug) {
-    const { locations } = this.props;
-    const locationDoc = locations.find(loc => loc.slug === locationSlug);
-    return (locationDoc) ? locationDoc.description : null;
-  }
+  handleRegionDropdownOnChange(event, data) {
+    const { regions, opqBoxes } = this.props;
 
-  handleLocationRegionDropdownOnChange(event, data) {
-    const { regions, locations, opqBoxes } = this.props;
-    // The locationRegionDropdown is a single dropdown module that can contain either Region slugs or Location
-    // descriptions. Data.value is an array containing any selected dropdown items.
-    const regSlugsOrLocDescriptions = data.value;
-    const foundBoxIds = [];
+    const selectedRegions = data.value; // Given to us as an array.
 
-    regSlugsOrLocDescriptions.forEach(val => {
-      // Val can either be a region slug or a location description.
-      const regs = regions.filter(reg => reg.regionSlug === val);
-      const locs = locations.filter(loc => loc.description === val);
+    // Find all boxIds associated with the selected list of regions.
+    // First, get locationSlug of each regionSlug
+    const locSlugs = regions
+        .filter(reg => selectedRegions.includes(reg.regionSlug))
+        .map(reg => reg.locationSlug);
 
-      regs.forEach(reg => {
-        opqBoxes
-            .filter(box => box.location === reg.locationSlug)
-            .forEach(box => foundBoxIds.push(box.box_id));
-      });
-
-      locs.forEach(loc => {
-        opqBoxes
-            .filter(box => box.location === loc.slug)
-            .forEach(box => foundBoxIds.push(box.box_id));
-      });
-    });
-
-    // Must filter out duplicate box_ids. Can occur because selected Regions and Locations can refer to same Box.
-    const uniqBoxIds = foundBoxIds.filter((boxId, idx, arr) => arr.indexOf(boxId) === idx);
-    const selectedOpqBoxes = opqBoxes.filter(box => uniqBoxIds.includes(box.box_id));
-    // Update state with selected OpqBoxes
-    this.setState({ filteredOpqBoxes: selectedOpqBoxes });
+    // Then filter boxes and update state.
+    const filteredOpqBoxes = opqBoxes.filter(box => locSlugs.includes(box.location));
+    this.setState({ filteredOpqBoxes: filteredOpqBoxes });
   }
 
   opqBoxItemGroup(opqBoxes) {
