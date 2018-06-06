@@ -49,7 +49,7 @@ def frequency(samples: numpy.ndarray) -> float:
     :return: The frequency value of the provided samples in Hz.
     """
 
-    zero_crossing_indices = numpy.diff(numpy.array(samples) > 0)
+    zero_crossing_indices = numpy.diff(samples > 0)
     num_zero_crossings = sum(zero_crossing_indices)
     zero_crossing_time_intervals = numpy.diff(numpy.array(range(len(zero_crossing_indices)))[zero_crossing_indices])
     if num_zero_crossings >= 2:
@@ -123,6 +123,7 @@ class MakaiEventPlugin(plugins.base.MaukaPlugin):
             self.produce("RawVoltage", raw_voltage)
             self.produce("RmsWindowedVoltage", rms_windowed_voltage)
             self.produce("Frequencies", frequency_windowed)
+            self.debug(str(waveform_frequency))
 
     def on_message(self, topic, mauka_message):
         if protobuf.util.is_makai_event_message(mauka_message):
