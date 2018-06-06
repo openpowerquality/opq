@@ -73,6 +73,16 @@ class BoxMap extends React.Component {
     return markerHtml;
   }
 
+  createClusterBoxCountLabel(clusterBoxIds) {
+    const boxCount = clusterBoxIds.length;
+    return `<div style='font-size: 26px;'><b>${boxCount}</b></div>`;
+  }
+
+  createClusterBoxCountSideLabel(clusterBoxIds) {
+    const boxCount = clusterBoxIds.length;
+    return `<div><b>Box Count:</b><br />${boxCount}</div>`;
+  }
+
   sidePanel(opqBoxes) {
     // Side panel height should be equal to Map component height.
     const { mapSidePanelHeight } = this.state;
@@ -531,6 +541,8 @@ class BoxMap extends React.Component {
                 childRef={this.setOpqBoxLeafletMarkerManagerRef.bind(this)}
                 opqBoxes={boxes}
                 boxMarkerLabelFunc={this.createBoxMarkerTrendsLabel.bind(this)}
+                markerClusterLabelFunc={this.createClusterBoxCountLabel.bind(this)}
+                markerClusterSideLabelFunc={this.createClusterBoxCountSideLabel.bind(this)}
                 zipcodeLatLngDict={zipcodeLatLngDict}
                 locations={locations}
                 regions={regions}

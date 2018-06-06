@@ -242,51 +242,35 @@ class OpqBoxLeafletMarkerManager extends React.Component {
   }
 
   clusterIcon(cluster) {
-    const { opqBoxAndMarkersDict } = this.state;
-    const { currentMapDataDisplay = '', currentMapLocationGranularity, mapLocationGranularityTypes } = this.props;
-    const children = cluster.getAllChildMarkers();
-    let total = 0;
-    let clusterActiveBoxesCount = children.length;
-    children.forEach(child => {
-      const value = Number(child.options.rawValue);
-      if (value) { // Reminder: When rawValue = null, Number(null) == 0 == falsy.
-        total += value;
-      } else {
-        clusterActiveBoxesCount--;
-      }
-    });
+    const { markerClusterLabelFunc, markerClusterSideLabelFunc } = this.props;
 
-    const avg = (clusterActiveBoxesCount) ? total / clusterActiveBoxesCount : 0;
-    const formattedAvg = this.formatMeasurement(avg, currentMapDataDisplay);
-    const className = this.clusterIconCssClass(avg);
+    // Get BoxIds of all boxes within the cluster.
+    const clusterMarkers = cluster.getAllChildMarkers();
+    const clusterBoxIds = clusterMarkers.map(marker => marker.options.box_id);
 
-    // Determine regions of all child markers
-    const regions = [];
-    const boxIds = children.map(boxMarker => boxMarker.options.boxId); // Mongo ids
-    boxIds.forEach(id => {
-      const opqBoxEntry = opqBoxAndMarkersDict[id];
-      if (opqBoxEntry) {
-        const region = this.getOpqBoxRegionDoc(opqBoxEntry.opqBox);
-        if (region && region.regionSlug) {
-          regions.push(region.regionSlug);
-        }
-      }
-    });
+    // Pass boxIds to callback to generate inner cluster display.
+    let innerClusterLabelHtml = '';
+    if (markerClusterLabelFunc) {
+      innerClusterLabelHtml = markerClusterLabelFunc(clusterBoxIds);
+    } else {
+      // If callback not passed, default behavior to to display cluster's box count.
+      const boxCount = clusterBoxIds.length;
+      innerClusterLabelHtml = `<div style='font-size: 26px;'><b>${boxCount}</b></div>`;
+    }
 
-    const uniqRegions = regions.filter((region, idx, arr) => arr.indexOf(region) === idx);
-
-    let markerHtml = `
-      <div class="marker-cluster container-fix ${className}">
-        <div><span><b>${formattedAvg}</b></span></div>
+    let clusterHtml = `
+      <div class="marker-cluster container-fix marker-cluster-blue">
+        <div><span>${innerClusterLabelHtml}</span></div>
       </div>`;
 
-    if (currentMapLocationGranularity === mapLocationGranularityTypes.BOX_REGION) {
-      const regionStr = (uniqRegions.length > 1) ? 'Regions:' : 'Region:';
-      markerHtml += `<div class="marker-cluster-sideLabel"><b>${regionStr} ${uniqRegions.toString()}</b></div>`;
+    // If present, also pass boxIds to side label callback to generate cluster side label display.
+    if (markerClusterSideLabelFunc) {
+      const sideClusterLabelHtml = markerClusterSideLabelFunc(clusterBoxIds);
+      clusterHtml += `<div class="marker-cluster-sideLabel">${sideClusterLabelHtml}</div>`;
     }
 
     return divIcon({
-      html: markerHtml,
+      html: clusterHtml,
       className: 'marker-cluster-container',
       iconSize: [70, 70], // Should be equal to marker-cluster div width (or height) + (margin-left x 2)
     });
@@ -377,6 +361,7 @@ class OpqBoxLeafletMarkerManager extends React.Component {
                         icon={this.opqBoxIcon({ markerHtml: initialMarkerHtml, opqBox })}
                         key={opqBox._id}
                         boxId={opqBox._id.toHexString()}
+                        box_id={opqBox.box_id}
                         position={markerPosition}>
                         <Popup offset={[-10, -30]} maxWidth={300}>
                           {this.opqBoxDetailsList(opqBox)}
@@ -525,7 +510,9 @@ class OpqBoxLeafletMarkerManager extends React.Component {
 OpqBoxLeafletMarkerManager.propTypes = {
   ready: PropTypes.bool.isRequired,
   opqBoxes: PropTypes.array.isRequired,
-  boxMarkerLabelFunc: PropTypes.func.isRequired,
+  boxMarkerLabelFunc: PropTypes.func,
+  markerClusterLabelFunc: PropTypes.func,
+  markerClusterSideLabelFunc: PropTypes.func,
   locations: PropTypes.array.isRequired,
   regions: PropTypes.array.isRequired,
   zipcodeLatLngDict: PropTypes.object.isRequired,

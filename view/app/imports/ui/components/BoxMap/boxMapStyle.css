@@ -59,7 +59,7 @@
     padding-top: 1px;
     padding-bottom: 6px;
 }
-.marker-cluster div {
+.marker-cluster > div {
     width: 60px;
     height: 60px;
     margin-left: 5px;
@@ -82,8 +82,13 @@
     line-height: 12px;
 }
 
-.marker-cluster span {
+.marker-cluster span div {
     line-height: 60px; /* Should be equal to marker-cluster div width and height */
+    height: 60px;
+    width: 60px;
+    border-radius: 30px;
+    margin-left: 0px;
+    margin-top: 0px;
 }
 
 .marker-cluster-blue {
