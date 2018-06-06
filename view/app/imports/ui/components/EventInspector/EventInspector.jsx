@@ -8,7 +8,7 @@ import Moment from 'moment/moment';
 import WidgetPanel from '../../layouts/WidgetPanel';
 import EventSummary from './EventSummary';
 import { OpqBoxes } from '../../../api/opq-boxes/OpqBoxesCollection';
-import { getEventsInRange } from '../../../api/events/EventsCollectionMethods';
+import { getEventsInRange } from '../../../api/events/EventsCollection.methods';
 
 /** Displays event details, including the waveform at the time of the event. */
 class EventInspector extends React.Component {

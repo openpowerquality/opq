@@ -14,7 +14,6 @@ export const getEventData = new ValidatedMethod({
       // Get file and chunks
       const file = FSFiles.findOne({ filename });
       const chunks = FSChunks.find({ files_id: file._id }, { sort: { n: 1 } }).fetch();
-
       // Gridfs seems to store chunks as
       // Need to parse binary data chunks as 16-bit signed int.
       const int16Chunks = []; // Array of chunks.
@@ -33,7 +32,6 @@ export const getEventData = new ValidatedMethod({
         combinedInt16Chunks.set(chunk, offset);
         offset += chunk.length;
       });
-
       return Array.from(combinedInt16Chunks); // Return data as regular array.
     }
     return null;
