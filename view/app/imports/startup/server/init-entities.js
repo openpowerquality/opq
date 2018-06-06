@@ -12,7 +12,7 @@ import { ROLE } from '../../api/opq/Role';
  * @param collection The collection whose define method will be called on each definition.
  */
 function initEntity(name, collection) {
-  const definitions = Meteor.settings[name] || [];
+  const definitions = Meteor.settings.initialEntities[name] || [];
   console.log(`Initializing ${definitions.length} ${name}`);
   definitions.map(definition => collection.define(definition));
 }
@@ -29,7 +29,7 @@ function defineTestUser() {
  * Define entities at system startup.  Locations must be defined before regions and opqBoxes.
  */
 Meteor.startup(() => {
-  if (Meteor.settings.initializeEntities) {
+  if (Meteor.settings.initialEntities.enabled) {
     initEntity('locations', Locations);
     initEntity('regions', Regions);
     initEntity('opqBoxes', OpqBoxes);

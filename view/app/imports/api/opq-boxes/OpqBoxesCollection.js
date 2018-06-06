@@ -156,6 +156,15 @@ class OpqBoxesCollection extends BaseCollection {
   }
 
   /**
+   * Returns true if all of the passed boxIDs are valid boxIds.
+   * @param boxIDs An array of boxIDs.
+   * @returns {boolean|Boolean} True if all are valid boxIds.
+   */
+  areBoxIds(boxIDs) {
+    return _.every(boxIDs, boxId => this._collection.findOne({ box_id: boxId }));
+  }
+
+  /**
    * Returns the box document associated with box_id.
    * Throws an error if no box document was found for the passed box_id.
    * @param box_id The box ID.
