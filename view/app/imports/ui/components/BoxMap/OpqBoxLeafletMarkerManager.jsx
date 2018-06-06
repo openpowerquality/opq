@@ -2,11 +2,11 @@ import { Meteor } from 'meteor/meteor';
 import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import PropTypes from 'prop-types';
-import { Marker, Popup } from 'react-leaflet';
+import { Marker } from 'react-leaflet';
 import { divIcon } from 'leaflet';
 import MarkerClusterGroup from 'react-leaflet-markercluster';
 import 'react-leaflet-markercluster/dist/styles.min.css';
-import { Loader, List } from 'semantic-ui-react';
+import { Loader } from 'semantic-ui-react';
 import { Measurements } from '../../../api/measurements/MeasurementsCollection';
 import './boxMapStyle.css';
 
@@ -236,9 +236,6 @@ class OpqBoxLeafletMarkerManager extends React.Component {
                         key={opqBox.box_id}
                         box_id={opqBox.box_id}
                         position={markerPosition}>
-                        <Popup offset={[-10, -30]} maxWidth={300}>
-                          {this.opqBoxDetailsList(opqBox)}
-                        </Popup>
                       </Marker>;
 
     this.createOrUpdateOpqBoxAndMarkersDictEntry(opqBox.box_id, { marker: newMarker });
@@ -247,70 +244,6 @@ class OpqBoxLeafletMarkerManager extends React.Component {
   getOpqBoxLocationDoc(opqBox) {
     const { locations } = this.props;
     return locations.find(location => opqBox.location === location.slug);
-  }
-
-  opqBoxDetailsList(opqBox) {
-    const boxLocationDoc = this.getOpqBoxLocationDoc(opqBox);
-    const boxRegionDoc = this.getOpqBoxRegionDoc(opqBox);
-    return (
-        <List divided style={{ width: '250px' }}>
-          <List.Item>
-            <List.Icon name='hdd outline' color='blue' size='large' verticalAlign='middle' />
-            <List.Content style={{ paddingLeft: '2px' }}>
-              <List.Header>Box Name</List.Header>
-              <List.Description><i>{opqBox.name}</i></List.Description>
-            </List.Content>
-          </List.Item>
-          <List.Item>
-            <List.Icon name='hashtag' color='blue' size='large' verticalAlign='middle' />
-            <List.Content>
-              <List.Header>Box ID</List.Header>
-              <List.Description><i>{opqBox.box_id}</i></List.Description>
-            </List.Content>
-          </List.Item>
-          <List.Item>
-            <List.Icon name='marker' color='blue' size='large' verticalAlign='middle' />
-            <List.Content>
-              <List.Header>Location</List.Header>
-              <List.Description>
-                <i>{boxLocationDoc ? (boxLocationDoc.description) : ('None')}</i>
-              </List.Description>
-              <List.Header>Coordinates</List.Header>
-              <List.Description>
-                <i>{boxLocationDoc
-                    ? (`Lat: ${boxLocationDoc.coordinates[1]}, Lng: ${boxLocationDoc.coordinates[0]}`)
-                    : ('None')}
-                </i>
-              </List.Description>
-              <List.Header><i>Region</i></List.Header>
-              <List.Description>
-                {boxRegionDoc ? (<i>{boxRegionDoc.regionSlug}</i>) : ('None')}
-              </List.Description>
-            </List.Content>
-          </List.Item>
-          <List.Item>
-            <List.Icon name='tag' color='blue' size='large' verticalAlign='middle' />
-            <List.Content style={{ paddingLeft: '4px' }}>
-              <List.Header><i>Description</i></List.Header>
-              <List.Description><i>{opqBox.description}</i></List.Description>
-            </List.Content>
-          </List.Item>
-          <List.Item>
-            <List.Icon name='plug' color='blue' size='large' verticalAlign='middle' />
-            <List.Content>
-              <List.Header><i>Unplugged Status</i></List.Header>
-              <List.Description><i>{opqBox.unplugged.toString()}</i></List.Description>
-            </List.Content>
-          </List.Item>
-          <List.Item>
-            <List.Icon name='creative commons' color='blue' size='large' verticalAlign='middle' />
-            <List.Content style={{ paddingLeft: '4px' }}>
-              <List.Header>Calibration Constant</List.Header>
-              <List.Description><i>{opqBox.calibration_constant}</i></List.Description>
-            </List.Content>
-          </List.Item>
-        </List>
-    );
   }
 
   createOrUpdateOpqBoxAndMarkersDictEntry(boxId, opqBoxAndMarkersObj) {
@@ -333,10 +266,8 @@ class OpqBoxLeafletMarkerManager extends React.Component {
     const { opqBoxAndMarkersDict } = this.state;
     // Retrieve Marker for the given OpqBox
     const marker = opqBoxAndMarkersDict[box_id].markerLeafletElement;
-    // Zoom to marker, open its Popup
-    this.markerClusterGroupRefElem.zoomToShowLayer(marker, () => {
-      marker.openPopup(); // Trigger marker's Popup after zoom is completed.
-    });
+    // Zoom to marker
+    this.markerClusterGroupRefElem.zoomToShowLayer(marker);
   }
 
   render() {
