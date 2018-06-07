@@ -4,6 +4,9 @@ import SimpleSchema from 'simpl-schema';
 import moment from 'moment/moment';
 import BaseCollection from '../base/BaseCollection.js';
 import { OpqBoxes } from '../opq-boxes/OpqBoxesCollection';
+import { BoxEvents } from '../box-events/BoxEventsCollection';
+import { FSFiles } from '../fs-files/FSFilesCollection';
+import { FSChunks } from '../fs-chunks/FSChunksCollection';
 
 /**
  * The Events collection stores abnormal PQ data detected by the system.
@@ -121,19 +124,10 @@ class EventsCollection extends BaseCollection {
   /**
    * Checks the integrity of the passed Event document.
    * @param doc The event document.
+   * @param repair Whether to "repair" (i.e. delete) a problematic Event document.
    * @returns {Array} An array of strings describing any problems that were found.
    */
-  checkIntegrity(doc) {
-    // Event_ids with duplicate documents:
-    // { "_id" : 212, "value" : 4 }
-    // { "_id" : 214, "value" : 12 }
-    // { "_id" : 215, "value" : 7 }
-    // { "_id" : 216, "value" : 6 }
-    // { "_id" : 217, "value" : 10 }
-    // { "_id" : 219, "value" : 6 }
-    // { "_id" : 221, "value" : 9 }
-    // { "_id" : 222, "value" : 2 }
-    // { "_id" : 223, "value" : 20 }
+  checkIntegrity(doc, repair) {
     const problems = [];
     if (!_.isNumber(doc.event_id)) {
       problems.push(`event_id not a number: ${doc.event_id}`);
@@ -150,7 +144,31 @@ class EventsCollection extends BaseCollection {
     if (!this.isValidTimestamp(doc.target_event_end_timestamp_ms)) {
       problems.push(`target_event_end_timestamp_ms is invalid: ${doc.target_event_end_timestamp_ms}`);
     }
-    return problems;
+    return (repair && problems.length > 0) ? [this.deleteEventId(doc.event_id)] : problems;
+  }
+
+  /**
+   * Delete an Event. This means also deleting the associated box_events, fs.files, and fs.chunks.
+   * @param event_id The event_id of interest.
+   * @return A string indicating how many box_events, fs.files, and fs.chunks were deleted.
+   */
+  deleteEventId(event_id) {
+    const boxEventDocs = BoxEvents.find({ event_id }).fetch();
+    const boxEventIDs = _.pluck(boxEventDocs, '_id');
+    const fsFilenames = _.pluck(boxEventDocs, 'data_fs_filename');
+    const fsFileDocs = FSFiles.find({ filename: { $in: fsFilenames } }).fetch();
+    const fsFileIDs = _.pluck(fsFileDocs, '_id');
+    const fsFileChunkDocs = FSChunks.find({ files_id: { $in: fsFileIDs } }).fetch();
+    const fsChunkIDs = _.pluck(fsFileChunkDocs, '_id');
+
+    const returnString = `Deleting event_id: ${event_id}: ${boxEventDocs.length} BoxEvents, ${fsFileDocs.length} FSFiles, ${fsFileChunkDocs.length} FSChunks`;  //eslint-disable-line
+
+    BoxEvents._collection.remove({ _id: { $in: boxEventIDs } });
+    FSFiles._collection.remove({ _id: { $in: fsFileIDs } });
+    FSChunks._collection.remove({ _id: { $in: fsChunkIDs } });
+    this._collection.remove({ event_id });
+
+    return returnString;
   }
 }
 

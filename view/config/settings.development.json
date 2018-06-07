@@ -5,7 +5,8 @@
   "integrityCheck": {
     "enabled": true,
     "verbose": true,
-    "repair": false,
+    "maxChecks": 75000,
+    "repair": true,
     "collections": ["events"]
   },
   "systemStats": {
