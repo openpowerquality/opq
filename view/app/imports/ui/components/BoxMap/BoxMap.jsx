@@ -44,17 +44,38 @@ class BoxMap extends React.Component {
     if (trend) {
       trendHtml = `
         <b>${trend.voltage.average.toFixed(2)} V</b>
-        <b>${trend.frequency.average.toFixed(3)} F</b>
+        <b>${trend.frequency.average.toFixed(3)} Hz</b>
         <b>${trend.thd.average.toFixed(4)} THD</b>
       `;
     }
 
-    const markerHtml = `
+    return `
         <div>
           <b>${opqBoxDoc.name}</b>
           ${isRecentTrend ? trendHtml : '<b>No Recent Data</b>'}
-        </div>`;
-    return markerHtml;
+        </div>
+    `;
+  }
+
+  createBoxMarkerTrendsPopup(opqBoxDoc) {
+    const { systemStats } = this.props;
+    const latestBoxTrends = systemStats.latest_box_trends;
+    const trend = latestBoxTrends.find(boxTrend => boxTrend.box_id === opqBoxDoc.box_id);
+    const isRecentTrend = (trend && (Date.now() - trend.timestamp_ms) <= 5 * 1000 * 60);
+    return (
+        <div>
+          <b>{opqBoxDoc.name}</b><br />
+          {isRecentTrend ? (
+              <React.Fragment>
+                <b>{trend.voltage.average.toFixed(2)} V</b><br />
+                <b>{trend.frequency.average.toFixed(3)} Hz</b><br />
+                <b>{trend.thd.average.toFixed(4)} THD</b><br />
+              </React.Fragment>
+          ) : (
+            <b>No Recent Data</b>
+          )}
+        </div>
+    );
   }
 
   createClusterBoxCountLabel(clusterBoxIds) {
@@ -370,6 +391,7 @@ class BoxMap extends React.Component {
                 childRef={this.setOpqBoxLeafletMarkerManagerRef.bind(this)}
                 opqBoxes={boxes}
                 boxMarkerLabelFunc={this.createBoxMarkerTrendsLabel.bind(this)}
+                boxMarkerPopupFunc={this.createBoxMarkerTrendsPopup.bind(this)}
                 markerClusterLabelFunc={this.createClusterBoxCountLabel.bind(this)}
                 markerClusterSideLabelFunc={this.createClusterBoxCountSideLabel.bind(this)}
                 zipcodeLatLngDict={zipcodeLatLngDict}
