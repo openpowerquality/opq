@@ -4,10 +4,10 @@
   },
   "integrityCheck": {
     "enabled": true,
-    "verbose": true,
-    "maxChecks": { "events": 10, "box_events": 10 },
+    "verbose": false,
+    "maxChecks": { "events": 3000, "box_events": 1000, "opq_boxes": 10 },
     "repair": true,
-    "collections": ["box_events"]
+    "collections": ["events", "box_events", "opq_boxes"]
   },
   "systemStats": {
     "updateIntervalSeconds": 10

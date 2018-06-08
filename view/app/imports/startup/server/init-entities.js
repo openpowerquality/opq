@@ -29,7 +29,7 @@ function defineTestUser() {
  * Define entities at system startup.  Locations must be defined before regions and opqBoxes.
  */
 Meteor.startup(() => {
-  if (Meteor.settings.initialEntities.enabled) {
+  if (Meteor.settings.initialEntities && Meteor.settings.initialEntities.enabled) {
     initEntity('locations', Locations);
     initEntity('regions', Regions);
     initEntity('opqBoxes', OpqBoxes);

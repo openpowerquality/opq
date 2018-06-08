@@ -43,14 +43,8 @@ class EventsCollection extends BaseCollection {
     };
 
     if (Meteor.server) {
-      this._collection.rawCollection().createIndex(
-          { target_event_start_timestamp_ms: 1 },
-          { background: true },
-          );
-      this._collection.rawCollection().createIndex(
-          { event_id: 1 },
-          { background: true, unique: true },
-      );
+      this._collection.rawCollection().createIndex({ target_event_start_timestamp_ms: 1 }, { background: true });
+      this._collection.rawCollection().createIndex({ event_id: 1 }, { background: true, unique: true });
     }
   }
 

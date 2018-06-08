@@ -1,13 +1,23 @@
 import { Meteor } from 'meteor/meteor';
+import { SyncedCron } from 'meteor/percolate:synced-cron';
 import { OPQ } from '../../api/opq/Opq';
 
-
+/**
+ * Checks a collection, printing to console when checking starts and completes, as well as the strings returned
+ * from the collection-specific integrityCheck() function to provide details on what problems were encountered and
+ * how they were resolved.
+ * @param name The name of the Mongo collection to check.
+ * @param repair True if the collection-specific repair() method should be called on documents that fail the check.
+ * @param verbose True if strings should be printed out detailing each document that failed the check.
+ * @param maxChecks The maximum number of documents in the collection to check.
+ */
 function checkCollection(name, repair, verbose, maxChecks) {
   // We want to check the most recently added documents first, and specify the number of documents to check based on
   // the collection. The following variable accomplishes that.
   const findOptions = {
     events: { limit: maxChecks[name], sort: { event_id: -1 } },
     box_events: { limit: maxChecks[name], sort: { event_id: 1 } },
+    opq_boxes: { limit: maxChecks[name], sort: { box_id: 1 } },
   };
   const collectionClass = OPQ.getCollection(name);
   console.log(`Checking ${name} (${collectionClass.count()} docs) repair: ${repair}, verbose: ${verbose}, maxChecks: ${maxChecks[name]}`); // eslint-disable-line
@@ -31,13 +41,26 @@ function checkCollection(name, repair, verbose, maxChecks) {
   console.log(`Finished collection: ${name}: total: ${totalChecked}, problems: ${totalProblems}`);
 }
 
+/**
+ * Sets up a cron job to run integrity checking once a day at 1:00am.
+ */
 function startupIntegrityCheck() {
-  if (Meteor.settings.integrityCheck.enabled) {
-    console.log('Starting Integrity Check.');
-    const repair = Meteor.settings.integrityCheck.repair;
-    const verbose = Meteor.settings.integrityCheck.verbose;
-    const maxChecks = Meteor.settings.integrityCheck.maxChecks;
-    Meteor.settings.integrityCheck.collections.forEach(name => checkCollection(name, repair, verbose, maxChecks));
+  // If not in test mode and if integrity checking is enabled.
+  if (!Meteor.isTest && !Meteor.isAppTest && Meteor.settings.integrityCheck.enabled) {
+    SyncedCron.add({
+      name: 'Run Integrity Checking',
+      schedule(parser) {
+        return parser.text('every 30 seconds'); // Parser is a later.js parse object.
+      },
+      job() {
+        const repair = Meteor.settings.integrityCheck.repair;
+        const verbose = Meteor.settings.integrityCheck.verbose;
+        const maxChecks = Meteor.settings.integrityCheck.maxChecks;
+        Meteor.settings.integrityCheck.collections.forEach(name => checkCollection(name, repair, verbose, maxChecks));
+      },
+    });
+    console.log('Starting SyncedCron to run integrity check each day at 1:00am.');
+    SyncedCron.start();
   }
 }
 
