@@ -241,11 +241,6 @@ class BoxMap extends React.Component {
     );
   }
 
-  handleBoxSettingsButtonOnClick(opqBox) {
-    // eslint-disable-next-line react/prop-types
-    this.props.history.push(`/edit/${opqBox.box_id}`);
-  }
-
   handleBoxEventsButtonOnClick() {
     // eslint-disable-next-line react/prop-types
     this.props.history.push('/inspector');
@@ -285,14 +280,6 @@ class BoxMap extends React.Component {
                       </Button>
                     }
                     content='View additional box details'
-                />
-                <Popup
-                    trigger={
-                      <Button icon onClick={this.handleBoxSettingsButtonOnClick.bind(this, opqBox)}>
-                        <Icon size='large' name='setting' />
-                      </Button>
-                    }
-                    content='Box Settings'
                 />
                 <Popup
                     trigger={
