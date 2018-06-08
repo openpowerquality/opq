@@ -89,7 +89,7 @@ class BoxEventsCollection extends BaseCollection {
       problems.push(`event_end_timestamp_ms ${doc.event_end_timestamp_ms} (invalid)`);
     }
     const result = { docName: `Box_Event ${doc.event_id}, ${doc.box_id}`, problems };
-    if (repair) {
+    if ((problems.length > 0) && repair) {
       result.repair = this.repair(doc);
     }
     return result;

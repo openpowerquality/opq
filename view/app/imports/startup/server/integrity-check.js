@@ -47,10 +47,11 @@ function checkCollection(name, repair, verbose, maxChecks) {
 function startupIntegrityCheck() {
   // If not in test mode and if integrity checking is enabled.
   if (!Meteor.isTest && !Meteor.isAppTest && Meteor.settings.integrityCheck.enabled) {
+    const parseText = 'at 1:00 am';
     SyncedCron.add({
       name: 'Run Integrity Checking',
       schedule(parser) {
-        return parser.text('every 30 seconds'); // Parser is a later.js parse object.
+        return parser.text(parseText); // Parser is a later.js parse object.
       },
       job() {
         const repair = Meteor.settings.integrityCheck.repair;
@@ -59,7 +60,7 @@ function startupIntegrityCheck() {
         Meteor.settings.integrityCheck.collections.forEach(name => checkCollection(name, repair, verbose, maxChecks));
       },
     });
-    console.log('Starting SyncedCron to run integrity check each day at 1:00am.');
+    console.log(`Starting SyncedCron to run integrity check ${parseText}`);
     SyncedCron.start();
   }
 }

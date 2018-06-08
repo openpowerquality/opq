@@ -254,7 +254,7 @@ class OpqBoxesCollection extends BaseCollection {
       problems.push(`location ${doc.location} (invalid)`);
     }
     const result = { docName: `OpqBox ${doc.box_id}`, problems };
-    if (repair) {
+    if ((problems.length > 0) && repair) {
       result.repair = this.repair(doc);
     }
     return result;

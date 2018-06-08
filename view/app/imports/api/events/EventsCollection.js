@@ -154,7 +154,7 @@ class EventsCollection extends BaseCollection {
       problems.push(`description: ${doc.description} (false event)`);
     }
     const result = { docName: `Event ${doc.event_id}`, problems };
-    if (repair) {
+    if ((problems.length > 0) && repair) {
         result.repair = this.repair(doc);
       }
     return result;
