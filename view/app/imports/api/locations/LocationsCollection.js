@@ -49,7 +49,7 @@ class LocationsCollection extends BaseCollection {
    * @returns {*|Object} Truthy if slug is a location slug.
    */
   isLocation(slug) {
-    return slug && this._collection.findOne({ slug });
+    return _.isString(slug) && this._collection.findOne({ slug });
   }
 
   /**

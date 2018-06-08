@@ -9,7 +9,7 @@ function checkCollection(name, repair, verbose, maxChecks) {
   collectionClass._collection.find({}, { limit: maxChecks }).forEach(function (doc) {
     const integrityResult = collectionClass.checkIntegrity(doc, repair);
     if ((integrityResult.length > 0) && verbose) {
-      console.log(`  ${integrityResult.join()}, ${JSON.stringify(doc)}`);
+      console.log(`  ${integrityResult.join()}, DocID: ${JSON.stringify(doc._id)}`);
     }
     totalChecked += 1;
     totalProblems += (integrityResult.length > 0) ? 1 : 0;

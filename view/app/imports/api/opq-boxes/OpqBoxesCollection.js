@@ -152,7 +152,7 @@ class OpqBoxesCollection extends BaseCollection {
    * @returns { Any } A truthy value if boxId is a defined BoxId, false-y otherwise.
    */
   isBoxId(boxId) {
-    return this._collection.findOne({ box_id: boxId });
+    return _.isString(boxId) && this._collection.findOne({ box_id: boxId });
   }
 
   /**
