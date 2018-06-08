@@ -61,8 +61,8 @@ class BoxEventsCollection extends BaseCollection {
    *   * Is the event_id associated with a known Event?
    *   * Is the box_id associated with a known Box?
    *   * Are event_start and event_end reasonable unix millisecond timestamps?
-   *   * Is Location a valid Location string?
    *   * Does data_fs_filename specify a valid document in the FS.Files collection?
+   * Note we are not checking for a valid Location right now, since perhaps the location can be inferred.
    * @param doc The box_event document.
    * @param repair If repair is true, and an integrity problem is discovered, then this Box_Event and the
    * corresponding FSFile and FSChunk are deleted.
@@ -76,9 +76,10 @@ class BoxEventsCollection extends BaseCollection {
     if (!OpqBoxes.isBoxId(doc.box_id)) {
       problems.push(`box_id is invalid: ${doc.box_id}`);
     }
-    if (!Locations.isLocation(doc.location)) {
-      problems.push(`location is invalid: ${doc.location}`);
-    }
+    // Don't check location, we might get that from elsewhere.
+    // if (!Locations.isLocation(doc.location)) {
+    //   problems.push(`location is invalid: ${doc.location}`);
+    // }
     if (!FSFiles.isFilename(doc.data_fs_filename)) {
       problems.push(`data_fs_filename is invalid: ${doc.data_fs_filename}`);
     }
