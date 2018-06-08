@@ -9,13 +9,11 @@ import { Map, TileLayer, ZoomControl } from 'react-leaflet';
 import 'react-leaflet-fullscreen/dist/styles.css';
 import FullscreenControl from 'react-leaflet-fullscreen';
 import { withTracker } from 'meteor/react-meteor-data';
-import { withStateContainer } from './hocs';
 import { OpqBoxes } from '../../../api/opq-boxes/OpqBoxesCollection';
 import { BoxOwners } from '../../../api/users/BoxOwnersCollection';
 import { Locations } from '../../../api/locations/LocationsCollection';
 import { Regions } from '../../../api/regions/RegionsCollection';
 import { SystemStats } from '../../../api/system-stats/SystemStatsCollection';
-import { getZipcodeLatLng } from '../../../api/zipcodes/ZipcodesCollectionMethods';
 import OpqBoxLeafletMarkerManager from './OpqBoxLeafletMarkerManager';
 import ScrollableControl from './ScrollableControl';
 
@@ -351,7 +349,7 @@ class BoxMap extends React.Component {
 
   renderPage() {
     const { filteredOpqBoxes } = this.state;
-    const { opqBoxes, locations, regions, zipcodeLatLngDict } = this.props;
+    const { opqBoxes, locations, regions } = this.props;
     const boxes = (filteredOpqBoxes.length) ? filteredOpqBoxes : opqBoxes;
     // Initial map center based on arbitrarily chosen OpqBox location. Sidenote: It seems like we're storing location
     // coordinates as [lng, lat] instead of the more traditional [lat, lng]. Intentional?
@@ -381,7 +379,6 @@ class BoxMap extends React.Component {
                 boxMarkerPopupFunc={this.createBoxMarkerTrendsPopup.bind(this)}
                 markerClusterLabelFunc={this.createClusterBoxCountLabel.bind(this)}
                 markerClusterSideLabelFunc={this.createClusterBoxCountSideLabel.bind(this)}
-                zipcodeLatLngDict={zipcodeLatLngDict}
                 locations={locations}
                 regions={regions} />
           </Map>
@@ -395,20 +392,11 @@ BoxMap.propTypes = {
   opqBoxes: PropTypes.array.isRequired,
   locations: PropTypes.array.isRequired,
   regions: PropTypes.array.isRequired,
-  zipcodeLatLngDict: PropTypes.object.isRequired,
   systemStats: PropTypes.object,
 };
 
-// Parent/Container state object that will wrap the withTracker HOC via the withStateContainer HOC.
-// (See ui/utils/hocs.jsx for usage/further explanation).
-const containerState = {
-  methodCallsComplete: false,
-  zipcodeLatLngDict: {},
-};
-
 // The function that will be passed to the withTracker HOC.
-const withTrackerCallback = props => {
-  const { zipcodeLatLngDict, methodCallsComplete } = props;
+const withTrackerCallback = () => {
   // Even though this subscription correctly retrieves only the currently logged in user's boxes, remember that
   // Minimongo merges any other OpqBox documents from other OpqBox subscriptions (even from other currently rendered
   // React components!) into the same client side collection.
@@ -441,58 +429,18 @@ const withTrackerCallback = props => {
     opqBoxes = OpqBoxes.find({ box_id: { $in: boxIds } }).fetch();
   }
 
-  // Once OpqBoxes subscriptions ready, we make Meteor method calls to retrieve lat-lng from zipcodes for each
-  // Region document and OpqBox document that has a locations property.
-  // Note: OpqBox.locations might be deprecated now that we have a Locations entity; double check with team.
-  if (opqBoxesSub.ready() && boxOwnersSub.ready() && regionsSub.ready() && !methodCallsComplete) {
-    // Combine all zipcodes (regions and boxes) that we need to check into a single array for simplicity.
-    const boxZipcodes = opqBoxes
-                            .filter(opqBox => opqBox.locations && opqBox.locations.length)
-                            .map(opqBox => opqBox.locations[opqBox.locations.length - 1].zipcode);
-
-    const regions = Regions.find().fetch();
-    // Currently, regionSlug is only storing zipcodes (string), but this might change in the future, so let's
-    // ensure we are only dealing with a zipcode here by checking that the string has 5 characters and is numeric.
-    const regionZipcodes = regions
-                              .filter(region => region.regionSlug && region.regionSlug.length === 5
-                                                && !Number.isNaN(region.regionSlug))
-                              .map(region => region.regionSlug);
-
-    // Combine zipcodes and filter unique values so we don't perform extra Meteor method calls.
-    const combinedZipcodes = [...regionZipcodes, ...boxZipcodes]
-                                  .filter((zipcode, idx, arr) => arr.indexOf(zipcode) === idx);
-
-    let numCallsRemaining = combinedZipcodes.length;
-    // If no zipcodes to check, mark as complete immediately.
-    if (!combinedZipcodes.length) props.setContainerState({ methodCallsComplete: true });
-    combinedZipcodes.forEach(zipcode => {
-      getZipcodeLatLng.call({ zipcode }, (error, zipcodeDoc) => {
-        if (error) console.log(error);
-        else {
-          const currentZipcodes = zipcodeLatLngDict;
-          currentZipcodes[zipcodeDoc.zipcode] = [zipcodeDoc.latitude, zipcodeDoc.longitude];
-          props.setContainerState({ zipcodeLatLngDict: currentZipcodes });
-        }
-        --numCallsRemaining;
-        if (numCallsRemaining === 0) props.setContainerState({ methodCallsComplete: true });
-      });
-    });
-  }
-
   return {
     ready: opqBoxesSub.ready() && boxOwnersSub.ready() && locationsSub.ready() &&
-    regionsSub.ready() && systemStatsSub.ready() && methodCallsComplete,
+    regionsSub.ready() && systemStatsSub.ready(),
     opqBoxes: opqBoxes,
     locations: Locations.find().fetch(),
     regions: Regions.find().fetch(),
-    zipcodeLatLngDict: zipcodeLatLngDict,
     systemStats: SystemStats.findOne(), // Collection should only have 1 actual document.
   };
 };
 
 // Component composition.
 export default Lodash.flowRight([
-  withStateContainer(containerState),
   withTracker(withTrackerCallback),
   withRouter,
 ])(BoxMap);

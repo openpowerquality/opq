@@ -322,12 +322,11 @@ OpqBoxLeafletMarkerManager.propTypes = {
   markerClusterSideLabelFunc: PropTypes.func,
   locations: PropTypes.array.isRequired,
   regions: PropTypes.array.isRequired,
-  zipcodeLatLngDict: PropTypes.object.isRequired,
   // measurements: PropTypes.array.isRequired,
 };
 
 export default withTracker(props => {
-  const { opqBoxes = [], zipcodeLatLngDict, childRef } = props;
+  const { opqBoxes = [], childRef } = props;
   // const measurementsSub = Meteor.subscribe(
   //     Measurements.publicationNames.BOX_MAP_MEASUREMENTS,
   //     opqBoxes.map(box => box.box_id),
@@ -336,7 +335,6 @@ export default withTracker(props => {
     // ready: measurementsSub.ready(),
     ready: true,
     opqBoxes,
-    zipcodeLatLngDict,
     // measurements: Measurements.find({}, { sort: { timestamp_ms: -1 } }).fetch(),
     ref: childRef,
   };
