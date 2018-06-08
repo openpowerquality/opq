@@ -49,13 +49,19 @@ def frequency(samples: numpy.ndarray) -> float:
     :return: The frequency value of the provided samples in Hz.
     """
 
-    zero_crossing_indices = numpy.diff(samples > 0)
-    num_zero_crossings = sum(zero_crossing_indices)
-    zero_crossing_time_intervals = numpy.diff(numpy.array(range(len(zero_crossing_indices)))[zero_crossing_indices])
-    if num_zero_crossings >= 2:
-        return ((num_zero_crossings - 1) * constants.SAMPLE_RATE_HZ) / (2 * sum(zero_crossing_time_intervals))
-    else:
-        return 0.0
+    """Zero Crossing Method:"""
+    # zero_crossing_indices = numpy.diff(samples > 0)
+    # num_zero_crossings = sum(zero_crossing_indices)
+    # zero_crossing_time_intervals = numpy.diff(numpy.array(range(len(zero_crossing_indices)))[zero_crossing_indices])
+    # if num_zero_crossings >= 2:
+    #     return ((num_zero_crossings - 1) * constants.SAMPLE_RATE_HZ) / (2 * sum(zero_crossing_time_intervals))
+    # else:
+    #     return 0.0
+
+    """DFT of Sampled Waveform Using Numpy's FFT Implementation"""
+    dft = numpy.abs(numpy.fft.rfft(samples)) #amplitude spectrum of dft
+    freq = numpy.fft.rfftfreq((len(dft) - 1) * 2, d = 1 / constants.SAMPLE_RATE_HZ)
+    return freq[dft.argmax()]
 
 def frequency_waveform(waveform: numpy.ndarray, window_size: int = constants.SAMPLES_PER_CYCLE) -> numpy.ndarray:
     """
