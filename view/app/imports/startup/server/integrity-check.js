@@ -1,18 +1,29 @@
 import { Meteor } from 'meteor/meteor';
 import { OPQ } from '../../api/opq/Opq';
 
+
 function checkCollection(name, repair, verbose, maxChecks) {
-  console.log(`Checking collection: ${name}, repair: ${repair}, verbose: ${verbose}`);
+  // We want to check the most recently added documents first, and specify the number of documents to check based on
+  // the collection. The following variable accomplishes that.
+  const findOptions = {
+    events: { limit: maxChecks[name], sort: { event_id: -1 } },
+    box_events: { limit: maxChecks[name], sort: { event_id: 1 } },
+  };
   const collectionClass = OPQ.getCollection(name);
+  console.log(`Checking ${name} (${collectionClass.count()} docs) repair: ${repair}, verbose: ${verbose}, maxChecks: ${maxChecks[name]}`); // eslint-disable-line
   let totalChecked = 0;
   let totalProblems = 0;
-  collectionClass._collection.find({}, { limit: maxChecks }).forEach(function (doc) {
+  collectionClass._collection.find({}, findOptions[name]).forEach(function (doc) {
     const integrityResult = collectionClass.checkIntegrity(doc, repair);
-    if ((integrityResult.length > 0) && verbose) {
-      console.log(`  ${integrityResult.join()}, DocID: ${JSON.stringify(doc._id)}`);
+    if ((integrityResult.problems.length > 0) && verbose) {
+      console.log(`${integrityResult.docName}:`);
+      console.log(`  Problems: ${integrityResult.problems.join()}`);
+      if (integrityResult.repair) {
+        console.log(`  Repair: ${integrityResult.repair}`);
+      }
     }
     totalChecked += 1;
-    totalProblems += (integrityResult.length > 0) ? 1 : 0;
+    totalProblems += (integrityResult.problems.length > 0) ? 1 : 0;
     if ((totalChecked % 10000) === 0) {
       console.log(`Completed checking ${totalChecked} ${name} docs, ${totalProblems} problems so far.`);
     }

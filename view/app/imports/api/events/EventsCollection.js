@@ -142,21 +142,28 @@ class EventsCollection extends BaseCollection {
   checkIntegrity(doc, repair) {
     const problems = [];
     if (!_.isNumber(doc.event_id)) {
-      problems.push(`event_id not a number: ${doc.event_id}`);
+      problems.push(`event_id ${doc.event_id} (non-number)`);
     }
     if (!OpqBoxes.areBoxIds(doc.boxes_triggered)) {
-      problems.push(`boxes_triggered contains a non-box: ${doc.boxes_triggered}`);
+      problems.push(`boxes_triggered ${doc.boxes_triggered} (non-box)`);
     }
     if (!OpqBoxes.areBoxIds(doc.boxes_received)) {
-      problems.push(`boxes_received contains a non-box: ${doc.boxes_received}`);
+      problems.push(`boxes_received ${doc.boxes_received} (non-box)`);
     }
     if (!this.isValidTimestamp(doc.target_event_start_timestamp_ms)) {
-      problems.push(`target_event_start_timestamp_ms is invalid: ${doc.target_event_start_timestamp_ms}`);
+      problems.push(`target_event_start_timestamp_ms ${doc.target_event_start_timestamp_ms} (invalid)`);
     }
     if (!this.isValidTimestamp(doc.target_event_end_timestamp_ms)) {
-      problems.push(`target_event_end_timestamp_ms is invalid: ${doc.target_event_end_timestamp_ms}`);
+      problems.push(`target_event_end_timestamp_ms ${doc.target_event_end_timestamp_ms} (invalid)`);
     }
-    return (repair && problems.length > 0) ? [this.repair(doc)] : problems;
+    if (doc.description === 'Health check') {
+      problems.push(`description: ${doc.description} (false event)`);
+    }
+    const result = { docName: `Event ${doc.event_id}`, problems };
+    if (repair) {
+        result.repair = this.repair(doc);
+      }
+    return result;
   }
 
   /**
@@ -173,7 +180,7 @@ class EventsCollection extends BaseCollection {
     const fsFileIDs = _.pluck(fsFileDocs, '_id');
     const fsFileChunkDocs = FSChunks.find({ files_id: { $in: fsFileIDs } }).fetch();
     const fsChunkIDs = _.pluck(fsFileChunkDocs, '_id');
-    const returnString = `Deleting event_id: ${event_id}: ${boxEventDocs.length} BoxEvents, ${fsFileDocs.length} FSFiles, ${fsFileChunkDocs.length} FSChunks`;  //eslint-disable-line
+    const returnString = `Deleting event_id: ${event_id} as well as ${boxEventDocs.length} BoxEvents, ${fsFileDocs.length} FSFiles, and ${fsFileChunkDocs.length} FSChunks`;  //eslint-disable-line
 
     BoxEvents._collection.remove({ _id: { $in: boxEventIDs } });
     FSFiles._collection.remove({ _id: { $in: fsFileIDs } });

@@ -3,7 +3,6 @@ import SimpleSchema from 'simpl-schema';
 import BaseCollection from '../base/BaseCollection.js';
 import { Events } from '../events/EventsCollection';
 import { OpqBoxes } from '../opq-boxes/OpqBoxesCollection';
-import { Locations } from '../locations/LocationsCollection';
 import { FSFiles } from '../fs-files/FSFilesCollection';
 import { FSChunks } from '../fs-chunks/FSChunksCollection';
 
@@ -62,7 +61,7 @@ class BoxEventsCollection extends BaseCollection {
    *   * Is the box_id associated with a known Box?
    *   * Are event_start and event_end reasonable unix millisecond timestamps?
    *   * Does data_fs_filename specify a valid document in the FS.Files collection?
-   * Note we are not checking for a valid Location right now, since perhaps the location can be inferred.
+   * Note we are not checking for a valid Location yet.
    * @param doc The box_event document.
    * @param repair If repair is true, and an integrity problem is discovered, then this Box_Event and the
    * corresponding FSFile and FSChunk are deleted.
@@ -71,28 +70,29 @@ class BoxEventsCollection extends BaseCollection {
   checkIntegrity(doc, repair) {
     const problems = [];
     if (!Events.isEventId(doc.event_id)) {
-      problems.push(`event_id is invalid: ${doc.event_id}`);
+      problems.push(`event_id ${doc.event_id} (invalid)`);
     }
     if (!OpqBoxes.isBoxId(doc.box_id)) {
-      problems.push(`box_id is invalid: ${doc.box_id}`);
+      problems.push(`box_id ${doc.box_id} (invalid)`);
     }
-    // Don't check location, we might get that from elsewhere.
+    // Don't check for valid location yet.
     // if (!Locations.isLocation(doc.location)) {
-    //   problems.push(`location is invalid: ${doc.location}`);
+    //   problems.push(`location ${doc.location} (invalid)`);
     // }
     if (!FSFiles.isFilename(doc.data_fs_filename)) {
-      problems.push(`data_fs_filename is invalid: ${doc.data_fs_filename}`);
+      problems.push(`data_fs_filename ${doc.data_fs_filename} (invalid)`);
     }
     if (!this.isValidTimestamp(doc.event_start_timestamp_ms)) {
-      problems.push(`event_start_timestamp_ms is invalid: ${doc.event_start_timestamp_ms}`);
+      problems.push(`event_start_timestamp_ms ${doc.event_start_timestamp_ms} (invalid)`);
     }
     if (!this.isValidTimestamp(doc.event_end_timestamp_ms)) {
-      problems.push(`event_end_timestamp_ms is invalid: ${doc.event_end_timestamp_ms}`);
+      problems.push(`event_end_timestamp_ms ${doc.event_end_timestamp_ms} (invalid)`);
     }
+    const result = { docName: `Box_Event ${doc.event_id}, ${doc.box_id}`, problems };
     if (repair) {
-      problems.push(this.repair(doc));
+      result.repair = this.repair(doc);
     }
-    return problems;
+    return result;
   }
 
   /**
@@ -107,11 +107,11 @@ class BoxEventsCollection extends BaseCollection {
       const files_id = FSFiles._collection.findOne({ filename })._id;
       const fsFileChunkDocs = FSChunks.find({ files_id }).fetch();
       const fsChunkIDs = _.pluck(fsFileChunkDocs, '_id');
-      returnString += `Deleting FSFile ${files_id} and ${fsChunkIDs.length} FSChunks. `;
+      returnString += `Deleting FSFile ${files_id}, ${fsChunkIDs.length} FSChunks, and `;
       FSFiles._collection.remove({ filename });
       FSChunks._collection.remove({ _id: { $in: fsChunkIDs } });
     }
-    returnString += `Deleting box_event ${doc._id}`;
+    returnString += `box_event ${doc._id}`;
     this._collection.remove({ _id: doc._id });
     return returnString;
   }
