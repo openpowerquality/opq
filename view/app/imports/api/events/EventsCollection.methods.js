@@ -29,3 +29,6 @@ export const getEventsInRange = new ValidatedMethod({
     return null;
   },
 });
+
+// jun12018: 1527890400000
+// jan12017: 1483308000000
