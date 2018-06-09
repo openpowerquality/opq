@@ -1,5 +1,4 @@
 import { Meteor } from 'meteor/meteor';
-import { Mongo } from 'meteor/mongo';
 import { check } from 'meteor/check';
 import SimpleSchema from 'simpl-schema';
 import BaseCollection from '../base/BaseCollection.js';
@@ -13,7 +12,6 @@ class MeasurementsCollection extends BaseCollection {
 
   constructor() {
     super('measurements', new SimpleSchema({
-      _id: { type: Mongo.ObjectID },
       box_id: { type: String },
       timestamp_ms: { type: Number },
       voltage: { type: Number },
