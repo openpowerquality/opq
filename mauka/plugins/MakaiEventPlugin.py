@@ -128,8 +128,8 @@ class MakaiEventPlugin(plugins.base.MaukaPlugin):
             self.produce("AdcSamples", adc_samples)
             self.produce("RawVoltage", raw_voltage)
             self.produce("RmsWindowedVoltage", rms_windowed_voltage)
-            self.produce("Frequencies", frequency_windowed)
-            self.debug(str(waveform_frequency))
+            self.produce("WindowedFrequency", frequency_windowed)
+            #self.debug(str(waveform_frequency))
 
     def on_message(self, topic, mauka_message):
         if protobuf.util.is_makai_event_message(mauka_message):
