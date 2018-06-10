@@ -10,11 +10,11 @@ import plugins.base
 import protobuf.mauka_pb2
 import protobuf.util
 
-class IEEE1159FrequencyPlugin(plugins.base.MaukaPlugin):
+class FrequencyVariationPlugin(plugins.base.MaukaPlugin):
     """
     Mauka plugin that calculates ITIC for any event that includes a raw waveform
     """
-    NAME = "IEEE1159FrequencyPlugin"
+    NAME = "FrequencyVariationPlugin"
 
     def __init__(self, config: typing.Dict, exit_event: multiprocessing.Event):
         """
@@ -22,8 +22,10 @@ class IEEE1159FrequencyPlugin(plugins.base.MaukaPlugin):
         :param config: Mauka configuration
         :param exit_event: Exit event that can disable this plugin from parent process
         """
-        super().__init__(config, [""], IEEE1159FrequencyPlugin.NAME, exit_event)
-
+        super().__init__(config, ["WindowedFrequency"], FrequencyVariationPlugin.NAME, exit_event)
+        self.freq_ref = float(self.config_get("plugins.FrequencyVariationPlugin.frequency.ref"))
+        self.freq_var_low = float(self.config_get("plugins.FrequencyVariationPlugin.frequency.variation.threshold.low"))
+        self.freq_var_high = float(self.config_get("plugins.FrequencyVariationPlugin.frequency.variation.threshold.high"))
 
     def on_message(self, topic, mauka_message):
         """
@@ -35,6 +37,6 @@ class IEEE1159FrequencyPlugin(plugins.base.MaukaPlugin):
         if protobuf.util.is_payload(mauka_message, protobuf.mauka_pb2.VOLTAGE_RMS_WINDOWED):
            """TODO"""
         else:
-            self.logger.error("Received incorrect mauka message [{}] at IEEE1159FrequencyPlugin".format(
+            self.logger.error("Received incorrect mauka message [{}] at FrequencyVariationPlugin".format(
                 protobuf.util.which_message_oneof(mauka_message)
             ))
