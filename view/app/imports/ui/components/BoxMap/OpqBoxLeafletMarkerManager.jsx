@@ -213,6 +213,11 @@ class OpqBoxLeafletMarkerManager extends React.Component {
     this.createOrUpdateOpqBoxAndMarkersDictEntry(opqBox.box_id, { opqBox });
     // Get Box coordinates.
     const markerPosition = this.getBoxLatLng(opqBox);
+    if (!markerPosition) {
+      // eslint-disable-next-line no-console, max-len
+      console.log(`Notice: Unable to retrieve location coordinates for box_id: ${opqBox.box_id}. Please ensure that the Locations collection is available and populated in your development environment.`);
+      return;
+    }
     const newMarker = <Marker
                         ref={this.addMarkerLeafletElementToDict.bind(this)(opqBox)}
                         icon={this.opqBoxIcon({ opqBox, iconColor: 'blue' })}

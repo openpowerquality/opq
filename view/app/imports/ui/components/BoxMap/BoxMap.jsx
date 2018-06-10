@@ -200,7 +200,7 @@ class BoxMap extends React.Component {
             <List.Content>
               <List.Header>Location</List.Header>
               <List.Description>
-                <i>{boxLocationDoc ? (boxLocationDoc.description) : ('None')}</i>
+                <i>{boxLocationDoc ? boxLocationDoc.description : 'None'}</i>
               </List.Description>
               <List.Header>Coordinates</List.Header>
               <List.Description>
@@ -242,6 +242,7 @@ class BoxMap extends React.Component {
 
   opqBoxItem(opqBox) {
     const { expandedItemBoxId } = this.state;
+    const boxLocationDoc = this.getOpqBoxLocationDoc(opqBox);
     const h2classname = (opqBox.box_id.length > 1) ? 'small' : 'large';
     // Using a regular Semantic-UI Link component here triggers the following warning:
     // Warning: Failed context type: The context `router` is marked as required in `Link`, but its value is `undefined`.
@@ -262,7 +263,7 @@ class BoxMap extends React.Component {
           <Item.Content>
             <Item.Header>{opqBox.name}</Item.Header>
             <Item.Description style={{ marginTop: '0px' }}>
-              {this.getOpqBoxLocationDoc(opqBox).description}
+              {boxLocationDoc ? boxLocationDoc.description : 'None'}
             </Item.Description>
             <Item.Extra>
               <Button.Group basic size='tiny'>
@@ -338,7 +339,10 @@ class BoxMap extends React.Component {
 
   getOpqBoxLocationDoc(opqBox) {
     const { locations } = this.props;
-    return locations.find(location => opqBox.location === location.slug);
+    if (opqBox && opqBox.location) {
+      return locations.find(location => opqBox.location === location.slug);
+    }
+    return null;
   }
 
   setMapRef(elem) {
@@ -367,8 +371,10 @@ class BoxMap extends React.Component {
     const { opqBoxes, locations, regions } = this.props;
     const boxes = (filteredOpqBoxes.length) ? filteredOpqBoxes : opqBoxes;
     // Initial map center based on arbitrarily chosen OpqBox location. Also note that we store coordinates as
-    // [lng, lat], but Leaflet requires [lat, lng] - hence the reverse.
-    const center = this.getOpqBoxLocationDoc(opqBoxes[0]).coordinates.slice().reverse();
+    // [lng, lat], but Leaflet requires [lat, lng] - hence the reverse. In the rare case that no Locations are
+    // available, we set the map center to Oahu coordinates by default.
+    const boxLocation = this.getOpqBoxLocationDoc(opqBoxes[0]);
+    const center = (boxLocation) ? boxLocation.coordinates.slice().reverse() : [21.44, -158.0];
 
     return (
         <div style={{ height: '600px' }}>
