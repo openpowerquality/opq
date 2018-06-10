@@ -17,6 +17,7 @@ import { SystemStats } from '../../../api/system-stats/SystemStatsCollection';
 import OpqBoxLeafletMarkerManager from './OpqBoxLeafletMarkerManager';
 import ScrollableControl from './ScrollableControl';
 import { withContext } from './hocs';
+import WidgetPanel from '../../layouts/WidgetPanel';
 
 class BoxMap extends React.Component {
   constructor(props) {
@@ -28,6 +29,22 @@ class BoxMap extends React.Component {
       mapSidePanelHeight: '600px', // Changes between map fullscreen and regular mode.
     };
   }
+
+  helpText = `
+  <p>The Box Map component allows you to view the location of your OPQBoxes on an interactive map.</p>
+  <p>The panel on the left side of the map lists all of the OPQBoxes connected to your account. The dropdown box
+  at the top of this panel allows you to filter your OPQBoxes based on any given region</p>
+  <p>Each OPQBox item in the side panel has a set of buttons that can help you in the following ways:
+  <br />
+  <b>Zoom to Box</b>: Finds and zooms to this OPQBox on the map.
+  <br />
+  <b>View Additional Box Details</b>: Display additional information about this OPQBox.
+  <br />
+  <b>View Box Events</b>: See all PQ events for this OPQBox
+  <br />
+  <b>View Box Measurements and Trends</b>: See the trends and measurements for this OPQBox.
+  </p>
+  `;
 
   /** If the subscription(s) have been received, render the page, otherwise show a loading icon. */
   render() {
@@ -377,33 +394,35 @@ class BoxMap extends React.Component {
     const center = (boxLocation) ? boxLocation.coordinates.slice().reverse() : [21.44, -158.0];
 
     return (
-        <div style={{ height: '600px' }}>
-          <Map ref={this.setMapRef.bind(this)}
-               onResize={this.handleMapOnResize.bind(this)}
-               center={center}
-               zoom={11}
-               zoomControl={false} // We don't want the default topleft zoomcontrol
-               style={{ height: '100%' }}>
-            <TileLayer
-                attribution="&amp;copy <a href=&quot;http://osm.org/copyright&quot;>OpenStreetMap</a> contributors"
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            />
-            <ZoomControl position='topright' />
-            <FullscreenControl position='topright'/>
-            <ScrollableControl position='topleft'>
-              {this.sidePanel(boxes)}
-            </ScrollableControl>
-            <OpqBoxLeafletMarkerManager
-                childRef={this.setOpqBoxLeafletMarkerManagerRef.bind(this)}
-                opqBoxes={boxes}
-                boxMarkerLabelFunc={this.createBoxMarkerTrendsLabel.bind(this)}
-                boxMarkerPopupFunc={this.createBoxMarkerTrendsPopup.bind(this)}
-                markerClusterLabelFunc={this.createClusterBoxCountLabel.bind(this)}
-                markerClusterSideLabelFunc={this.createClusterBoxCountSideLabel.bind(this)}
-                locations={locations}
-                regions={regions} />
-          </Map>
-        </div>
+        <WidgetPanel title="Box Map" noPadding={true} helpText={this.helpText}>
+          <div style={{ height: '600px' }}>
+            <Map ref={this.setMapRef.bind(this)}
+                 onResize={this.handleMapOnResize.bind(this)}
+                 center={center}
+                 zoom={11}
+                 zoomControl={false} // We don't want the default topleft zoomcontrol
+                 style={{ height: '100%' }}>
+              <TileLayer
+                  attribution="&amp;copy <a href=&quot;http://osm.org/copyright&quot;>OpenStreetMap</a> contributors"
+                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              />
+              <ZoomControl position='topright' />
+              <FullscreenControl position='topright'/>
+              <ScrollableControl position='topleft'>
+                {this.sidePanel(boxes)}
+              </ScrollableControl>
+              <OpqBoxLeafletMarkerManager
+                  childRef={this.setOpqBoxLeafletMarkerManagerRef.bind(this)}
+                  opqBoxes={boxes}
+                  boxMarkerLabelFunc={this.createBoxMarkerTrendsLabel.bind(this)}
+                  boxMarkerPopupFunc={this.createBoxMarkerTrendsPopup.bind(this)}
+                  markerClusterLabelFunc={this.createClusterBoxCountLabel.bind(this)}
+                  markerClusterSideLabelFunc={this.createClusterBoxCountSideLabel.bind(this)}
+                  locations={locations}
+                  regions={regions} />
+            </Map>
+          </div>
+        </WidgetPanel>
     );
   }
 }
