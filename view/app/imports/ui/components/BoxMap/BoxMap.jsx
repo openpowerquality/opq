@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Meteor } from 'meteor/meteor';
-import { withRouter } from 'react-router-dom';
+import { withRouter, Link } from 'react-router-dom';
 import { Loader, Button, Icon, Popup, Item, List,
           Transition, Dropdown, Divider, Label } from 'semantic-ui-react';
 import Lodash from 'lodash';
@@ -16,6 +16,7 @@ import { Regions } from '../../../api/regions/RegionsCollection';
 import { SystemStats } from '../../../api/system-stats/SystemStatsCollection';
 import OpqBoxLeafletMarkerManager from './OpqBoxLeafletMarkerManager';
 import ScrollableControl from './ScrollableControl';
+import { withContext } from './hocs';
 
 class BoxMap extends React.Component {
   constructor(props) {
@@ -239,19 +240,21 @@ class BoxMap extends React.Component {
     );
   }
 
-  handleBoxEventsButtonOnClick() {
-    // eslint-disable-next-line react/prop-types
-    this.props.history.push('/inspector');
-  }
-
-  handleBoxMeasurementsTrendsButtonOnClick() {
-    // eslint-disable-next-line react/prop-types
-    this.props.history.push('/livedata');
-  }
-
   opqBoxItem(opqBox) {
     const { expandedItemBoxId } = this.state;
     const h2classname = (opqBox.box_id.length > 1) ? 'small' : 'large';
+    // Using a regular Semantic-UI Link component here triggers the following warning:
+    // Warning: Failed context type: The context `router` is marked as required in `Link`, but its value is `undefined`.
+    // The reason: The Link component normally inherits the 'router' context by just being a child of the Router
+    // component. However, when passed into the Leaflet Map, it loses the 'router' context (managed by React-Router)
+    // since the Leaflet Map handles rendering to the DOM separately from React. See:
+    // (https://react-leaflet.js.org/docs/en/intro.html#dom-rendering).
+    // As a side-note, it seems that React-Router is still utilizing the legacy Context API:
+    // (https://reactjs.org/docs/legacy-context.html). However, they also seem to be working to upgrade to the new
+    // Context API: (https://github.com/ReactTraining/react-router/pull/5908).
+
+    // We use the withContext() HOC to provide the React Router context to the Link component.
+    const LinkWithContext = withContext(Link, this.context);
 
     const mainItem = (
         <Item key={opqBox.box_id}>
@@ -281,7 +284,13 @@ class BoxMap extends React.Component {
                 />
                 <Popup
                     trigger={
-                      <Button icon onClick={this.handleBoxEventsButtonOnClick.bind(this)}>
+                      <Button
+                          icon
+                          as={LinkWithContext}
+                          to={{
+                            pathname: '/inspector',
+                            state: { initialBoxIds: [opqBox.box_id] },
+                          }}>
                         <Icon size='large' name='lightning' />
                       </Button>
                     }
@@ -289,7 +298,13 @@ class BoxMap extends React.Component {
                 />
                 <Popup
                     trigger={
-                      <Button icon onClick={this.handleBoxMeasurementsTrendsButtonOnClick.bind(this)}>
+                      <Button
+                          icon
+                          as={LinkWithContext}
+                          to={{
+                            pathname: '/livedata',
+                            state: { initialBoxIds: [opqBox.box_id] },
+                          }}>
                         <Icon size='large' name='line chart' />
                       </Button>
                     }
@@ -351,8 +366,8 @@ class BoxMap extends React.Component {
     const { filteredOpqBoxes } = this.state;
     const { opqBoxes, locations, regions } = this.props;
     const boxes = (filteredOpqBoxes.length) ? filteredOpqBoxes : opqBoxes;
-    // Initial map center based on arbitrarily chosen OpqBox location. Sidenote: It seems like we're storing location
-    // coordinates as [lng, lat] instead of the more traditional [lat, lng]. Intentional?
+    // Initial map center based on arbitrarily chosen OpqBox location. Also note that we store coordinates as
+    // [lng, lat], but Leaflet requires [lat, lng] - hence the reverse.
     const center = this.getOpqBoxLocationDoc(opqBoxes[0]).coordinates.slice().reverse();
 
     return (
@@ -370,7 +385,7 @@ class BoxMap extends React.Component {
             <ZoomControl position='topright' />
             <FullscreenControl position='topright'/>
             <ScrollableControl position='topleft'>
-              {this.sidePanel.bind(this)(boxes)}
+              {this.sidePanel(boxes)}
             </ScrollableControl>
             <OpqBoxLeafletMarkerManager
                 childRef={this.setOpqBoxLeafletMarkerManagerRef.bind(this)}
@@ -393,6 +408,11 @@ BoxMap.propTypes = {
   locations: PropTypes.array.isRequired,
   regions: PropTypes.array.isRequired,
   systemStats: PropTypes.object,
+};
+
+// Required due to DOM conflict between React-Router and Leaflet. See the opqBoxItem() method for more details.
+BoxMap.contextTypes = {
+  router: PropTypes.object.isRequired,
 };
 
 // The function that will be passed to the withTracker HOC.
@@ -439,7 +459,7 @@ const withTrackerCallback = () => {
   };
 };
 
-// Component composition.
+// Component/HOC composition.
 export default Lodash.flowRight([
   withTracker(withTrackerCallback),
   withRouter,
