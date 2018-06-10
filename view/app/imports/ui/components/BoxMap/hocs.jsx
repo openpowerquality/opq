@@ -70,14 +70,13 @@ export function withContext(WrappedComponent, context) {
 
 // Higher order component that will retrieve the given keys from React Router's Location state object and, if present,
 // pass them as props into the wrapped component.
-export function withRouterLocationStateAsProps(stateKeysAsProps, clearState = false) {
+export function withRouterLocationStateAsProps(stateKeysAsProps) {
   return function (WrappedComponent) {
-    class WithRouterLocationStateCleared extends React.Component {
+    class WithRouterLocationStateAsProps extends React.Component {
       constructor(props) {
         super(props);
         this.state = {};
         this.currRouterLocationState = (props.location && props.location.state) ? props.location.state : null;
-        this.currRouterLocationPathname = (props.location && props.location.pathname) ? props.location.pathname : null;
       }
 
       // FYI: Calling setState in this method will NOT cause an additional render to occur.
@@ -96,17 +95,6 @@ export function withRouterLocationStateAsProps(stateKeysAsProps, clearState = fa
           // Don't call setState if object is empty.
           if (Object.keys(locStateAsProps).length) this.setState(locStateAsProps);
         }
-
-        // Experimental: The router's Location.state object will actually persist on page reload. If we don't want this
-        // behavior for whatever reason, we can 'clear' the appropriate state keys. This option is disabled by default.
-        if (clearState && this.currRouterLocationPathname && this.currRouterLocationState
-            && Object.keys(this.currRouterLocationState).length) {
-          const newState = _.omit(this.currRouterLocationState, stateKeysAsProps);
-          this.props.history.replace({
-            pathname: this.currRouterLocationPathname,
-            state: newState,
-          });
-        }
       }
 
       render() {
@@ -115,16 +103,16 @@ export function withRouterLocationStateAsProps(stateKeysAsProps, clearState = fa
     }
 
     // WithRouter's provided props.
-    WithRouterLocationStateCleared.propTypes = {
+    WithRouterLocationStateAsProps.propTypes = {
       match: PropTypes.object.isRequired,
       location: PropTypes.object.isRequired,
       history: PropTypes.object.isRequired,
     };
 
     // Give the component a more useful display name for debugging purposes.
-    WithRouterLocationStateCleared.displayName = `WithRouterLocationStateCleared(${WrappedComponent.displayName
+    WithRouterLocationStateAsProps.displayName = `WithRouterLocationStateAsProps(${WrappedComponent.displayName
       || WrappedComponent.name || 'Component'})`;
 
-    return withRouter(WithRouterLocationStateCleared);
+    return withRouter(WithRouterLocationStateAsProps);
   };
 }
