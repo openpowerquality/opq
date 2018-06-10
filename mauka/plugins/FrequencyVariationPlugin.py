@@ -12,7 +12,7 @@ import protobuf.util
 
 class FrequencyVariationPlugin(plugins.base.MaukaPlugin):
     """
-    Mauka plugin that calculates ITIC for any event that includes a raw waveform
+    Mauka plugin that classifies and stores frequency variation incidents for any event that includes a raw waveform
     """
     NAME = "FrequencyVariationPlugin"
 
