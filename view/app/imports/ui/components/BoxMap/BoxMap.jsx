@@ -2,13 +2,13 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Meteor } from 'meteor/meteor';
 import { withRouter, Link } from 'react-router-dom';
-import { Loader, Button, Icon, Popup, Item, List,
-          Transition, Dropdown, Divider, Label } from 'semantic-ui-react';
+import { Loader, Button, Icon, Popup, Item, List, Transition, Dropdown, Divider, Label } from 'semantic-ui-react';
 import Lodash from 'lodash';
 import { Map, TileLayer, ZoomControl } from 'react-leaflet';
 import 'react-leaflet-fullscreen/dist/styles.css';
 import FullscreenControl from 'react-leaflet-fullscreen';
 import { withTracker } from 'meteor/react-meteor-data';
+
 import { OpqBoxes } from '../../../api/opq-boxes/OpqBoxesCollection';
 import { BoxOwners } from '../../../api/users/BoxOwnersCollection';
 import { Locations } from '../../../api/locations/LocationsCollection';
@@ -46,10 +46,13 @@ class BoxMap extends React.Component {
   </p>
   `;
 
-  /** If the subscription(s) have been received, render the page, otherwise show a loading icon. */
-  render() {
-    return (this.props.ready) ? this.renderPage() : <Loader active content='Retrieving data...'/>;
-  }
+
+  /**
+   * Marker label, marker popup, and cluster label creation callbacks.
+   * To customize the marker, cluster, and popup displays, we define and pass callback functions to the
+   * OpqBoxLeafletMarkerManager component as props.
+   * See the OpqBoxLeafletMarkerManager PropTypes declaration for more details.
+   */
 
   createBoxMarkerTrendsLabel(opqBoxDoc) {
     const { systemStats } = this.props;
@@ -104,8 +107,59 @@ class BoxMap extends React.Component {
     return `<div><b>Box Count:</b><br />${boxCount}</div>`;
   }
 
-  sidePanel(opqBoxes) {
-    // Side panel height should be equal to Map component height.
+  /**
+   * Render Methods
+   */
+
+  render() {
+    return (this.props.ready) ? this.renderPage() : <Loader active content='Retrieving data...'/>;
+  }
+
+  renderPage() {
+    const { filteredOpqBoxes } = this.state;
+    const { opqBoxes, locations } = this.props;
+    const boxes = (filteredOpqBoxes.length) ? filteredOpqBoxes : opqBoxes;
+    // Initial map center based on arbitrarily chosen OpqBox location. Also note that we store coordinates as
+    // [lng, lat], but Leaflet requires [lat, lng] - hence the reverse. If no Locations are available, we set the map
+    // center to Oahu coordinates by default.
+    const boxLocation = this.getOpqBoxLocationDoc(opqBoxes[0]);
+    const center = (boxLocation) ? boxLocation.coordinates.slice().reverse() : [21.44, -158.0];
+
+    return (
+        <WidgetPanel title="Box Map" noPadding={true} helpText={this.helpText}>
+          <div style={{ height: '600px' }}>
+            <Map ref={this.setMapRef.bind(this)}
+                 onResize={this.handleMapOnResize.bind(this)}
+                 center={center}
+                 zoom={11}
+                 zoomControl={false} // We don't want the default topleft zoomcontrol
+                 style={{ height: '100%' }}>
+              <TileLayer
+                  attribution="&amp;copy <a href=&quot;http://osm.org/copyright&quot;>OpenStreetMap</a> contributors"
+                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              />
+              <ZoomControl position='topright' />
+              <FullscreenControl position='topright'/>
+              <ScrollableControl position='topleft'>
+                {this.renderMapSidePanel(boxes)}
+              </ScrollableControl>
+              <OpqBoxLeafletMarkerManager
+                  opqBoxes={boxes}
+                  locations={locations}
+                  boxMarkerLabelFunc={this.createBoxMarkerTrendsLabel.bind(this)}
+                  boxMarkerPopupFunc={this.createBoxMarkerTrendsPopup.bind(this)}
+                  markerClusterLabelFunc={this.createClusterBoxCountLabel.bind(this)}
+                  markerClusterSideLabelFunc={this.createClusterBoxCountSideLabel.bind(this)}
+                  ref={this.setOpqBoxLeafletMarkerManagerRef.bind(this)} />
+            </Map>
+          </div>
+        </WidgetPanel>
+    );
+  }
+
+  renderMapSidePanel(opqBoxes) {
+    // Side panel height should be equal to Map component height, which can change when map switches between regular
+    // and full-screen mode.
     const { mapSidePanelHeight } = this.state;
     return (
       <div
@@ -120,56 +174,13 @@ class BoxMap extends React.Component {
           {this.renderRegionDropdown()}
         </div>
         <Divider />
-        {this.opqBoxItemGroup(opqBoxes)}
+        {this.renderOpqBoxLegendItemGroup(opqBoxes)}
       </div>
     );
   }
 
-  renderRegionDropdown() {
-    const { opqBoxes, regions } = this.props;
-    // Question: Do we want to list all known regions, or only the ones relevant to the current user's boxes? Going
-    // for the latter choice for now.
-
-    // For each OpqBox's location slug, get its region slug.
-    // Recall: OpqBox.locationSlug --> Region.locationSlug -> Region.regionSlug
-    const opqBoxRegionSlugs = opqBoxes
-        .map(box => box.location) // Get box's location slug.
-        .map(locSlug => regions.find(region => region.locationSlug === locSlug)) // Find location's region doc.
-        .filter(regionDoc => regionDoc) // Removes any undefined results from above map.
-        .map(regionDoc => regionDoc.regionSlug) // Grab the Region's slug.
-        .filter((slug, idx, arr) => arr.indexOf(slug) === idx); // Filter for unique values.
-
-    const dropdownOptions = opqBoxRegionSlugs.map(slug => ({ key: slug, value: slug, text: slug }));
-
-    return <Dropdown placeholder='Region Filter'
-                     fluid={true}
-                     multiple={true}
-                     openOnFocus={false}
-                     selectOnBlur={false}
-                     selectOnNavigation={false}
-                     selection
-                     options={dropdownOptions}
-                     onChange={this.handleRegionDropdownOnChange.bind(this)} />;
-  }
-
-  handleRegionDropdownOnChange(event, data) {
-    const { regions, opqBoxes } = this.props;
-
-    const selectedRegions = data.value; // Given to us as an array.
-
-    // Find all boxIds associated with the selected list of regions.
-    // First, get locationSlug of each regionSlug
-    const locSlugs = regions
-        .filter(reg => selectedRegions.includes(reg.regionSlug))
-        .map(reg => reg.locationSlug);
-
-    // Then filter boxes and update state.
-    const filteredOpqBoxes = opqBoxes.filter(box => locSlugs.includes(box.location));
-    this.setState({ filteredOpqBoxes: filteredOpqBoxes });
-  }
-
-  opqBoxItemGroup(opqBoxes) {
-    const opqBoxItems = opqBoxes.map(box => this.opqBoxItem(box));
+  renderOpqBoxLegendItemGroup(opqBoxes) {
+    const opqBoxItems = opqBoxes.map(box => this.renderOpqBoxLegendItem(box));
     return (
         <Item.Group divided style={{ paddingTop: '0px', paddingBottom: '10px' }}>
           {opqBoxItems}
@@ -177,23 +188,104 @@ class BoxMap extends React.Component {
     );
   }
 
-  handleDetailsButtonClick(opqBox) {
-    this.setState({ expandedItemBoxId: opqBox.box_id });
+  renderOpqBoxLegendItem(opqBox) {
+    const { expandedItemBoxId } = this.state;
+    const boxLocationDoc = this.getOpqBoxLocationDoc(opqBox);
+    const h2classname = (opqBox.box_id.length > 1) ? 'small' : 'large';
+    // Using a regular Semantic-UI Link component here triggers the following warning:
+    // Warning: Failed context type: The context `router` is marked as required in `Link`, but its value is `undefined`.
+    // The reason: The Link component normally inherits the 'router' context by just being a child of the Router
+    // component. However, when passed into the Leaflet Map, it loses the 'router' context (managed by React-Router)
+    // since the Leaflet Map handles rendering to the DOM separately from React. See:
+    // (https://react-leaflet.js.org/docs/en/intro.html#dom-rendering).
+    // As a side-note, it seems that React-Router is still utilizing the legacy Context API:
+    // (https://reactjs.org/docs/legacy-context.html). However, they also seem to be working to upgrade to the new
+    // Context API: (https://github.com/ReactTraining/react-router/pull/5908).
+
+    // We use the withContext() HOC to provide the React Router context to the Link component.
+    const LinkWithContext = withContext(Link, this.context);
+
+    const opqBoxItem = (
+        <Item key={opqBox.box_id}>
+          <div className='mapListingBoxId'><h2 className={h2classname}>{opqBox.box_id}</h2></div>
+          <Item.Content>
+            <Item.Header>{opqBox.name}</Item.Header>
+            <Item.Description style={{ marginTop: '0px' }}>
+              {boxLocationDoc ? boxLocationDoc.description : 'None'}
+            </Item.Description>
+            <Item.Extra>
+              <Button.Group basic size='tiny'>
+                <Popup
+                    trigger={
+                      <Button icon onClick={this.handleZoomButtonClick.bind(this, opqBox.box_id)}>
+                        <Icon size='large' name='crosshairs' />
+                      </Button>
+                    }
+                    content='Zoom to box location'
+                />
+                <Popup
+                    trigger={
+                      <Button icon onClick={this.handleDetailsButtonClick.bind(this, opqBox)}>
+                        <Icon size='large' name='list' />
+                      </Button>
+                    }
+                    content='View additional box details'
+                />
+                <Popup
+                    trigger={
+                      <Button
+                          icon
+                          as={LinkWithContext}
+                          to={{
+                            pathname: '/inspector',
+                            state: { initialBoxIds: [opqBox.box_id] },
+                          }}>
+                        <Icon size='large' name='lightning' />
+                      </Button>
+                    }
+                    content='View box events'
+                />
+                <Popup
+                    trigger={
+                      <Button
+                          icon
+                          as={LinkWithContext}
+                          to={{
+                            pathname: '/livedata',
+                            state: { initialBoxIds: [opqBox.box_id] },
+                          }}>
+                        <Icon size='large' name='line chart' />
+                      </Button>
+                    }
+                    content='View box measurements and trends'
+                />
+              </Button.Group>
+            </Item.Extra>
+          </Item.Content>
+        </Item>
+    );
+
+    const isVisible = expandedItemBoxId === opqBox.box_id;
+    const boxDetails = (
+        <Transition
+            key={`${opqBox.box_id}_details`}
+            unmountOnHide={true}
+            visible={isVisible}
+            animation='slide down' // Transition component smart enough to change to 'slide up' on hide
+            duration={200}>
+          <Item style={{ paddingLeft: '20px', backgroundColor: 'white' }}>
+            <Item.Content>
+              {this.renderOpqBoxDetailsList(opqBox)}
+            </Item.Content>
+          </Item>
+        </Transition>
+    );
+
+    // Returning an array allows us to return two sibling components (two Items, though one wrapped by Transition)
+    return [opqBoxItem, boxDetails];
   }
 
-  handleZoomButtonClick(box_id) {
-    // Since we stored a ref to the OpqBoxLeafletMarkerManager child component, we can call its zoomToMarker method.
-    // This is the simplest way to accomplish this task, because the OpqBoxLeafletMarkerManager component maintains
-    // the list of Map markers, not this component.
-    this.opqBoxLeafletMarkerManagerRefElem.zoomToMarker(box_id);
-  }
-
-  getOpqBoxRegionDoc(opqBox) {
-    const { regions } = this.props;
-    return regions.find(region => region.locationSlug === opqBox.location);
-  }
-
-  opqBoxDetailsList(opqBox) {
+  renderOpqBoxDetailsList(opqBox) {
     const boxLocationDoc = this.getOpqBoxLocationDoc(opqBox);
     const boxRegionDoc = this.getOpqBoxRegionDoc(opqBox);
     return (
@@ -257,101 +349,74 @@ class BoxMap extends React.Component {
     );
   }
 
-  opqBoxItem(opqBox) {
-    const { expandedItemBoxId } = this.state;
-    const boxLocationDoc = this.getOpqBoxLocationDoc(opqBox);
-    const h2classname = (opqBox.box_id.length > 1) ? 'small' : 'large';
-    // Using a regular Semantic-UI Link component here triggers the following warning:
-    // Warning: Failed context type: The context `router` is marked as required in `Link`, but its value is `undefined`.
-    // The reason: The Link component normally inherits the 'router' context by just being a child of the Router
-    // component. However, when passed into the Leaflet Map, it loses the 'router' context (managed by React-Router)
-    // since the Leaflet Map handles rendering to the DOM separately from React. See:
-    // (https://react-leaflet.js.org/docs/en/intro.html#dom-rendering).
-    // As a side-note, it seems that React-Router is still utilizing the legacy Context API:
-    // (https://reactjs.org/docs/legacy-context.html). However, they also seem to be working to upgrade to the new
-    // Context API: (https://github.com/ReactTraining/react-router/pull/5908).
+  renderRegionDropdown() {
+    const { opqBoxes, regions } = this.props;
+    // Question: Do we want to list all known regions, or only the ones relevant to the current user's boxes? Going
+    // for the latter choice for now.
 
-    // We use the withContext() HOC to provide the React Router context to the Link component.
-    const LinkWithContext = withContext(Link, this.context);
+    // For each OpqBox's location slug, get its region slug.
+    // Recall: OpqBox.locationSlug --> Region.locationSlug -> Region.regionSlug
+    const opqBoxRegionSlugs = opqBoxes
+        .map(box => box.location) // Get box's location slug.
+        .map(locSlug => regions.find(region => region.locationSlug === locSlug)) // Find location's region doc.
+        .filter(regionDoc => regionDoc) // Removes any undefined results from above map.
+        .map(regionDoc => regionDoc.regionSlug) // Grab the Region's slug.
+        .filter((slug, idx, arr) => arr.indexOf(slug) === idx); // Filter for unique values.
 
-    const mainItem = (
-        <Item key={opqBox.box_id}>
-          <div className='mapListingBoxId'><h2 className={h2classname}>{opqBox.box_id}</h2></div>
-          <Item.Content>
-            <Item.Header>{opqBox.name}</Item.Header>
-            <Item.Description style={{ marginTop: '0px' }}>
-              {boxLocationDoc ? boxLocationDoc.description : 'None'}
-            </Item.Description>
-            <Item.Extra>
-              <Button.Group basic size='tiny'>
-                <Popup
-                    trigger={
-                      <Button icon onClick={this.handleZoomButtonClick.bind(this, opqBox.box_id)}>
-                        <Icon size='large' name='crosshairs' />
-                      </Button>
-                    }
-                    content='Zoom to box location'
-                />
-                <Popup
-                    trigger={
-                      <Button icon onClick={this.handleDetailsButtonClick.bind(this, opqBox)}>
-                        <Icon size='large' name='list' />
-                      </Button>
-                    }
-                    content='View additional box details'
-                />
-                <Popup
-                    trigger={
-                      <Button
-                          icon
-                          as={LinkWithContext}
-                          to={{
-                            pathname: '/inspector',
-                            state: { initialBoxIds: [opqBox.box_id] },
-                          }}>
-                        <Icon size='large' name='lightning' />
-                      </Button>
-                    }
-                    content='View box events'
-                />
-                <Popup
-                    trigger={
-                      <Button
-                          icon
-                          as={LinkWithContext}
-                          to={{
-                            pathname: '/livedata',
-                            state: { initialBoxIds: [opqBox.box_id] },
-                          }}>
-                        <Icon size='large' name='line chart' />
-                      </Button>
-                    }
-                    content='View box measurements and trends'
-                />
-              </Button.Group>
-            </Item.Extra>
-          </Item.Content>
-        </Item>
-    );
+    const dropdownOptions = opqBoxRegionSlugs.map(slug => ({ key: slug, value: slug, text: slug }));
 
-    const isVisible = expandedItemBoxId === opqBox.box_id;
-    const fullBoxDetails = (
-        <Transition
-            key={`${opqBox.box_id}_details`}
-            unmountOnHide={true}
-            visible={isVisible}
-            animation='slide down' // Transition component smart enough to change to 'slide up' on hide
-            duration={200}>
-          <Item style={{ paddingLeft: '20px', backgroundColor: 'white' }}>
-            <Item.Content>
-              {this.opqBoxDetailsList(opqBox)}
-            </Item.Content>
-          </Item>
-        </Transition>
-    );
+    return <Dropdown placeholder='Region Filter'
+                     fluid={true}
+                     multiple={true}
+                     openOnFocus={false}
+                     selectOnBlur={false}
+                     selectOnNavigation={false}
+                     selection
+                     options={dropdownOptions}
+                     onChange={this.handleRegionDropdownOnChange.bind(this)} />;
+  }
 
-    // Returning an array allows us to return two sibling components (two Items, though one wrapped by Transition)
-    return [mainItem, fullBoxDetails];
+  /**
+   * Event Handlers
+   */
+
+  handleRegionDropdownOnChange(event, data) {
+    const { regions, opqBoxes } = this.props;
+
+    const selectedRegions = data.value; // Given to us as an array.
+
+    // Find all boxIds associated with the selected list of regions.
+    // First, get locationSlug of each regionSlug
+    const locSlugs = regions
+        .filter(reg => selectedRegions.includes(reg.regionSlug))
+        .map(reg => reg.locationSlug);
+
+    // Then filter boxes and update state.
+    const filteredOpqBoxes = opqBoxes.filter(box => locSlugs.includes(box.location));
+    this.setState({ filteredOpqBoxes: filteredOpqBoxes });
+  }
+
+  handleDetailsButtonClick(opqBox) {
+    this.setState({ expandedItemBoxId: opqBox.box_id });
+  }
+
+  handleZoomButtonClick(box_id) {
+    // Since we stored a ref to the OpqBoxLeafletMarkerManager child component, we can call its zoomToMarker method.
+    // This is the simplest way to accomplish this task, because the OpqBoxLeafletMarkerManager component maintains
+    // the list of Map markers, not this component.
+    this.opqBoxLeafletMarkerManagerRefElem.zoomToMarker(box_id);
+  }
+
+  handleMapOnResize() {
+    const mapHeight = this.mapRef.container.clientHeight;
+    this.setState({ mapSidePanelHeight: `${mapHeight}px` });
+  }
+
+  /** Helper methods */
+
+  getOpqBoxRegionDoc(opqBox) {
+    const { regions } = this.props;
+    return regions.find(region => region.locationSlug === opqBox.location);
   }
 
   getOpqBoxLocationDoc(opqBox) {
@@ -361,6 +426,8 @@ class BoxMap extends React.Component {
     }
     return null;
   }
+
+  /** Ref Callbacks */
 
   setMapRef(elem) {
     // Have to check for elem because this function gets called multiple times during the rendering process,
@@ -377,54 +444,6 @@ class BoxMap extends React.Component {
       this.opqBoxLeafletMarkerManagerRefElem = elem;
     }
   }
-
-  handleMapOnResize() {
-    const mapHeight = this.mapRef.container.clientHeight;
-    this.setState({ mapSidePanelHeight: `${mapHeight}px` });
-  }
-
-  renderPage() {
-    const { filteredOpqBoxes } = this.state;
-    const { opqBoxes, locations, regions } = this.props;
-    const boxes = (filteredOpqBoxes.length) ? filteredOpqBoxes : opqBoxes;
-    // Initial map center based on arbitrarily chosen OpqBox location. Also note that we store coordinates as
-    // [lng, lat], but Leaflet requires [lat, lng] - hence the reverse. In the rare case that no Locations are
-    // available, we set the map center to Oahu coordinates by default.
-    const boxLocation = this.getOpqBoxLocationDoc(opqBoxes[0]);
-    const center = (boxLocation) ? boxLocation.coordinates.slice().reverse() : [21.44, -158.0];
-
-    return (
-        <WidgetPanel title="Box Map" noPadding={true} helpText={this.helpText}>
-          <div style={{ height: '600px' }}>
-            <Map ref={this.setMapRef.bind(this)}
-                 onResize={this.handleMapOnResize.bind(this)}
-                 center={center}
-                 zoom={11}
-                 zoomControl={false} // We don't want the default topleft zoomcontrol
-                 style={{ height: '100%' }}>
-              <TileLayer
-                  attribution="&amp;copy <a href=&quot;http://osm.org/copyright&quot;>OpenStreetMap</a> contributors"
-                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-              />
-              <ZoomControl position='topright' />
-              <FullscreenControl position='topright'/>
-              <ScrollableControl position='topleft'>
-                {this.sidePanel(boxes)}
-              </ScrollableControl>
-              <OpqBoxLeafletMarkerManager
-                  childRef={this.setOpqBoxLeafletMarkerManagerRef.bind(this)}
-                  opqBoxes={boxes}
-                  boxMarkerLabelFunc={this.createBoxMarkerTrendsLabel.bind(this)}
-                  boxMarkerPopupFunc={this.createBoxMarkerTrendsPopup.bind(this)}
-                  markerClusterLabelFunc={this.createClusterBoxCountLabel.bind(this)}
-                  markerClusterSideLabelFunc={this.createClusterBoxCountSideLabel.bind(this)}
-                  locations={locations}
-                  regions={regions} />
-            </Map>
-          </div>
-        </WidgetPanel>
-    );
-  }
 }
 
 BoxMap.propTypes = {
@@ -435,7 +454,8 @@ BoxMap.propTypes = {
   systemStats: PropTypes.object,
 };
 
-// Required due to DOM conflict between React-Router and Leaflet. See the opqBoxItem() method for more details.
+// Required due to DOM conflict between React-Router and Leaflet. See the renderOpqBoxLegendItem() method for
+// more details.
 BoxMap.contextTypes = {
   router: PropTypes.object.isRequired,
 };

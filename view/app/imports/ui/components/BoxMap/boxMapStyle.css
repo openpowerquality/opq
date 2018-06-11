@@ -77,7 +77,7 @@
     height: 70px;
     width: 100px;
     margin-top: -72px; /* 70 + 2 due to container-fix issue */
-    /* Offset the divIcon's iconSize in OpqBoxLeafletMarkerManager's clusterIcon() method, plus a little extra space */
+    /* Offset the divIcon's iconSize in OpqBoxLeafletMarkerManager's clusterIconAndLabel() method, plus a little extra space */
     margin-left: 75px;
     line-height: 12px;
 }
