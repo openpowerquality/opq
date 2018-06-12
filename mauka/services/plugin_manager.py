@@ -10,6 +10,7 @@ import multiprocessing
 import os
 import readline
 import sys
+import threading
 import time
 import typing
 
@@ -243,6 +244,11 @@ class PluginManager:
                 return val
             return None
 
+    def exit(self):
+        self.tcp_server_exit_event.set()
+        for _, process in self.name_to_process.items():
+            process.terminate()
+
     def clean_exit(self):
         # First, stop all the plugins
         _logger.info("Stopping all plugins...")
@@ -257,35 +263,40 @@ class PluginManager:
         _logger.info("Stopping tcp server...")
         self.tcp_server_exit_event.set()
 
-    def start_tcp_server(self):
+    def start_tcp_server(self, blocking: bool = True):
         """Starts a TCP server backed by ZMQ. This server is connected to my out cli client"""
-        # def _start_tcp_server():
-        _logger.info("Starting plugin manager TCP server")
-        zmq_context = zmq.Context()
-        zmq_reply_socket = zmq_context.socket(zmq.REP)
-        zmq_reply_socket.bind(self.config["zmq.mauka.plugin.management.rep.interface"])
-        zmq_reply_socket.setsockopt(zmq.RCVTIMEO, 1)
+        def _start_tcp_server():
+            _logger.info("Starting plugin manager TCP server")
+            zmq_context = zmq.Context()
+            zmq_reply_socket = zmq_context.socket(zmq.REP)
+            zmq_reply_socket.bind(self.config["zmq.mauka.plugin.management.rep.interface"])
+            zmq_reply_socket.setsockopt(zmq.RCVTIMEO, 1)
 
-        while not self.tcp_server_exit_event.is_set():
-            try:
-                request = zmq_reply_socket.recv_string()
-                _logger.debug("Recv req {}".format(request))
+            while not self.tcp_server_exit_event.is_set():
+                try:
+                    request = zmq_reply_socket.recv_string()
+                    _logger.debug("Recv req {}".format(request))
 
-                if request.strip() == "stop-tcp-server":
-                    resp = ok("Stopping TCP server")
-                    zmq_reply_socket.send_string(resp)
-                    self.tcp_server_exit_event.set()
-                    break
+                    if request.strip() == "stop-tcp-server":
+                        resp = ok("Stopping TCP server")
+                        zmq_reply_socket.send_string(resp)
+                        self.tcp_server_exit_event.set()
+                        break
 
-                zmq_reply_socket.send_string(self.handle_tcp_request(request))
-            except zmq.error.Again:
-                continue
+                    zmq_reply_socket.send_string(self.handle_tcp_request(request))
+                except zmq.error.Again:
+                    continue
 
-        _logger.info("Stopping plugin manager TCP server")
+            _logger.info("Stopping plugin manager TCP server")
 
-        # process = multiprocessing.Process(target=_start_tcp_server)
-        # process.start()
-        # return process
+        if blocking:
+            _start_tcp_server()
+        else:
+            process = multiprocessing.Process(target=_start_tcp_server)
+            process.start()
+            return process
+
+
 
     def handle_tcp_request(self, request: str) -> str:
         return self.cli_parser.parse(request.split(" "))
