@@ -27,6 +27,7 @@
   "plugins.FrequencyVariationPlugin.frequency.ref": 60.0,
   "plugins.FrequencyVariationPlugin.frequency.variation.threshold.low": 0.1,
   "plugins.FrequencyVariationPlugin.frequency.variation.threshold.high": 0.1,
+  "plugins.FrequencyVariationPlugin.frequency.interruption": 0.1,
 
   "plugins.MakaiEventPlugin.getDataAfterS": 10.0,
 
