@@ -6,7 +6,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { withRouter } from 'react-router-dom';
-import _ from 'lodash';
 
 // Simple HOC that wraps a component with a new component that has the passed in state. This essentially serves as
 // a reusable React container component.
