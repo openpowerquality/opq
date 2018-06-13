@@ -1,17 +1,17 @@
 #!/bin/bash
 
-DATE_STR=`/bin/date +%d%b%Y`
-ARCHIVE=opq.dump.${DATE_STR}.tar.gz
+# This script will creates a dated dump of the OPQ database.
 
-# Delete any old backups
-rm -rf /var/opq/backup/mongodb/opq
+DATE_STR=`/bin/date +%Y-%m-%d`
+ARCHIVE=opq.dump.${DATE_STR}.tar.gz
+BACKUPS_DIR=/home/opquser/backups
 
 # Dump the database
-/usr/local/bin/mongodump --db opq --gzip --out /var/opq/backup/mongodb
+/usr/local/bin/mongodump --db opq --gzip --out ${BACKUPS_DIR}
 
 # Compress the output
-cd /var/opq/backup/mongodb
+cd ${BACKUPS_DIR}
 /bin/tar czf ${ARCHIVE} opq/
 
-# Upload to google drive
-/usr/local/bin/gdrive upload --parent "1K6S8pmlUt6Cc5CWNs_PJyikhdQ9_KXDS" ${ARCHIVE} && rm ${ARCHIVE}
+# Delete the uncompressed output
+/bin/rm -rf opq/

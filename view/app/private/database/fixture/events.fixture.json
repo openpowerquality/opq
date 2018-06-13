@@ -1,0 +1,31 @@
+{
+  "timestamp": "2018-06-04",
+  "fixtureDescription": "Basic events. Requires minimal.",
+  "collections": [
+    {
+      "name": "events",
+      "contents": [
+        {
+          "event_id": "01",
+          "type": "VOLTAGE_SWELL",
+          "description": "Event 01",
+          "boxes_triggered": ["1000"],
+          "boxes_received": [],
+          "latencies_ms": [],
+          "target_event_start_timestamp_ms": "2018-01-01T13:00:00",
+          "target_event_end_timestamp_ms": "2018-01-01T13:00:01"
+        },
+        {
+          "event_id": "02",
+          "type": "VOLTAGE_SWELL",
+          "description": "Event 02",
+          "boxes_triggered": ["1001"],
+          "boxes_received": [],
+          "latencies_ms": [],
+          "target_event_start_timestamp_ms": "2018-01-01T14:00:00",
+          "target_event_end_timestamp_ms": "2018-01-01T14:00:01"
+        }
+      ]
+    }
+  ]
+}
