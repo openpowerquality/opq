@@ -12,7 +12,7 @@ cd ${BACKUPS_DIR}
 /bin/tar czf ${ARCHIVE} opq/
 
 # Delete the uncompressed output
-rm -rf opq/
+/bin/rm -rf opq/
 
 ## Upload to google drive
 #/usr/local/bin/gdrive upload --parent "1K6S8pmlUt6Cc5CWNs_PJyikhdQ9_KXDS" ${ARCHIVE} && rm ${ARCHIVE}
