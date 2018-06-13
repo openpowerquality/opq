@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# This script will creates a dated dump of the OPQ database.
+
 DATE_STR=`/bin/date +%Y-%m-%d`
 ARCHIVE=opq.dump.${DATE_STR}.tar.gz
 BACKUPS_DIR=/home/opquser/backups
@@ -13,6 +15,3 @@ cd ${BACKUPS_DIR}
 
 # Delete the uncompressed output
 /bin/rm -rf opq/
-
-## Upload to google drive
-#/usr/local/bin/gdrive upload --parent "1K6S8pmlUt6Cc5CWNs_PJyikhdQ9_KXDS" ${ARCHIVE} && rm ${ARCHIVE}
