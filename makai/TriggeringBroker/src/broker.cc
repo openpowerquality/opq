@@ -11,6 +11,9 @@
 #include <fstream>
 #include <syslog.h>
 
+#include <mongocxx/client.hpp>
+#include <mongocxx/instance.hpp>
+
 using namespace std::string_literals;
 using namespace std;
 namespace fs = std::experimental::filesystem;
@@ -41,12 +44,29 @@ int main (int argc, char **argv) {
     auth.configure_domain("*");
     int count = 0;
     //Load all of the client public keys.
+    mongocxx::instance inst{};
+    mongocxx::client conn{mongocxx::uri{}};
+
+    auto opq_boxes = conn["opq"]["opq_boxes"];
+    auto cursor = opq_boxes.find({});
+
+    for (auto&& doc : cursor) {
+	    auto public_key = doc["public_key"];
+	    auto client_public_cert = public_key? public_key.get_utf8().value.to_string() : ""s;
+
+	    auth.configure_curve(client_public_cert);
+	    count++;
+	    cout << ".";
+    }
+
+    /*
     for(auto& cert_enrty: fs::recursive_directory_iterator(config.publicCerts())){
         auto client_public_cert = load_certificate(cert_enrty.path().string()).first;
         auth.configure_curve(client_public_cert);
         count++;
         cout << ".";
     }
+    */
     syslog(LOG_NOTICE, "%s", ("Loaded " + std::to_string(count) + " keys").c_str());
 
     //Unencrypted end.
