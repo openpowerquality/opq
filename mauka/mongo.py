@@ -1,12 +1,16 @@
 """
 This module contains classes and functions for querying and manipulating data within a mongo database.
 """
+import analysis
+
 import enum
 import typing
 
 import gridfs
 import numpy
 import pymongo
+
+import constants
 
 
 def to_s16bit(data: bytes) -> numpy.ndarray:
@@ -34,7 +38,7 @@ class Collection(enum.Enum):
     EVENTS = "events"
     BOX_EVENTS = "box_events"
     OPQ_BOXES = "opq_boxes"
-    ANOMALIES = "anomalies"
+    INCIDENTS = "incidents"
 
 
 class OpqMongoClient:
@@ -69,8 +73,8 @@ class OpqMongoClient:
         self.opq_boxes_collection = self.get_collection(Collection.OPQ_BOXES.value)
         """Opq boxes collection"""
 
-        self.anomalies_collection = self.get_collection(Collection.ANOMALIES.value)
-        "Anomalies collection"
+        self.incidents_collection = self.get_collection(Collection.INCIDENTS.value)
+        "Incidents collection"
 
     def get_collection(self, collection: str):
         """ Returns a mongo collection by name
@@ -120,11 +124,15 @@ class OpqMongoClient:
         """
         return self.fs.find_one({"filename": fid}).read()
 
+    def write_incident_waveform(self, anomaly_id: int, gridfs_filename: str, payload: bytes):
+        self.fs.put(payload, **{"filename": gridfs_filename,
+                                "metadata.anomaly_id": anomaly_id})
 
 def get_waveform(mongo_client: OpqMongoClient, data_fs_filename: str) -> numpy.ndarray:
     data = mongo_client.read_file(data_fs_filename)
     waveform = to_s16bit(data)
     return waveform
+
 
 
 def get_box_calibration_constants(mongo_client: OpqMongoClient = None, defaults: typing.Dict[int, float] = {}) -> \
@@ -154,40 +162,116 @@ def get_default_client(mongo_client: OpqMongoClient = None) -> OpqMongoClient:
     :param mongo_client: Mongo client
     :return: Mongo client
     """
-    if mongo_client is None:
-        return OpqMongoClient()
+    return mongo_client if mongo_client is not None else OpqMongoClient()
+
+
+class IncidentMeasurementType(enum.Enum):
+    VOLTAGE = "VOLTAGE"
+    FREQUENCY = "FREQUENCY"
+    THD = "THD"
+    TRANSIENT = "TRANSIENT"
+
+
+class IncidentClassification(enum.Enum):
+    EXCESSIVE_THD = "EXCESSIVE_THD"
+    ITIC_PROHIBITED = "ITIC_PROHIBITED"
+    ITIC_NO_DAMAGE = "ITIC_NO_DAMAGE"
+    VOLTAGE_SWELL = "VOLTAGE_SWELL"
+    VOLTAGE_SAG = "VOLTAGE_SAG"
+    VOLTAGE_INTERRUPTION = "VOLTAGE_INTERRUPTION"
+    FREQUENCY_SWELL = "FREQUENCY_SWELL"
+    FREQUENCY_SAG = "FREQUENCY_SAG"
+    FREQUENCY_INTERRUPTION = "FREQUENCY_INTERRUPTION"
+    SEMI_F47_VIOLATION = "SEMI_F47_VIOLATION"
+
+
+class IncidentIeeeDuration(enum.Enum):
+    INSTANTANEOUS = "INSTANTANEOUS"
+    MOMENTARY = "MOMENTARY"
+    TEMPORARY = "TEMPORARY"
+    SUSTAINED = "SUSTAINED"
+    UNDEFINED = "UNDEFINED"
+
+
+def get_ieee_duration(duration_ms: float) -> IncidentIeeeDuration:
+    ms_half_c = analysis.c_to_ms(0.5)
+    ms_30_c = analysis.c_to_ms(30)
+    ms_3_s = 3_000
+    ms_1_m = 60_000
+
+    if ms_half_c < duration_ms <= ms_30_c:
+        return IncidentIeeeDuration.INSTANTANEOUS
+    elif ms_30_c < duration_ms <= ms_3_s:
+        return IncidentIeeeDuration.MOMENTARY
+    elif ms_3_s < duration_ms <= ms_1_m:
+        return IncidentIeeeDuration.TEMPORARY
+    elif duration_ms > ms_1_m:
+        return IncidentIeeeDuration.SUSTAINED
     else:
-        return mongo_client
+        return IncidentIeeeDuration.UNDEFINED
 
 
-def make_anomaly_document(event_id: int,
-                          box_id: str,
-                          anomaly_type: str,
-                          location: str,
-                          start_timestamp_ms: float,
-                          end_timestamp_ms: float,
-                          duration_ms: float,
-                          start_idx: int,
-                          end_idx: int,
-                          data: typing.Dict = None,
-                          measurements = None,
-                          trends = None) -> typing.Dict:
-    if data is None:
-        data = dict()
-    return {
-        "event_id": event_id,
+def next_available_incident_id(opq_mongo_client: OpqMongoClient) -> int:
+    mongo_client = get_default_client(opq_mongo_client)
+    last_incident = mongo_client.incidents_collection.find_one().sort("incident_id", pymongo.DESCENDING)
+    last_incident_id = last_incident["incident_id"] if last_incident is not None else 0
+    return last_incident_id + 1
+
+
+def store_incident(event_id: int,
+                   box_id: str,
+                   start_timestamp_ms: int,
+                   end_timestamp_ms: int,
+                   measurement_type: IncidentMeasurementType,
+                   deviation_from_nominal: float,
+                   classifications: typing.List[IncidentClassification],
+                   annotations: typing.List = None,
+                   metadata: typing.Dict = None,
+                   opq_mongo_client: OpqMongoClient = None):
+
+    mongo_client = get_default_client(opq_mongo_client)
+
+
+    box_event = mongo_client.box_events_collection.find_one({"event_id": event_id,
+                                                             "box_id": box_id})
+    measurements = mongo_client.measurements_collection.find({"box_id": box_id,
+                                                              "timestamp_ms": {"$gte": start_timestamp_ms,
+                                                                               "$lte": end_timestamp_ms}},
+                                                             {"_id": False,
+                                                              "expireAt": False})
+
+    event_adc_samples = get_waveform(mongo_client, box_event["data_fs_filename"])
+    event_start_timestamp_ms = box_event["event_start_timestamp_ms"]
+    delta_start_ms = start_timestamp_ms - event_start_timestamp_ms
+    delta_end_ms = end_timestamp_ms - event_start_timestamp_ms
+    # Provide a ms worth of buffer to account for floating point error?
+    incident_start_idx = max(0, round(analysis.ms_to_samples(delta_start_ms)) - constants.SAMPLES_PER_MILLISECOND)
+    incident_end_idx = min(len(event_adc_samples), round(analysis.ms_to_samples(delta_end_ms)) + constants.SAMPLES_PER_MILLISECOND)
+    incident_adc_samples_bytes = event_adc_samples[incident_start_idx:incident_end_idx].tobytes()
+
+    ieee_duration = get_ieee_duration(end_timestamp_ms - start_timestamp_ms)
+
+    incident_id = next_available_incident_id(mongo_client)
+    gridfs_filename = "incident_{}".format(incident_id)
+    mongo_client.write_incident_waveform(incident_id, gridfs_filename, incident_adc_samples_bytes)
+
+    incident = {
+        "incident_id": incident_id,
         "box_id": box_id,
-        "anomaly_type": anomaly_type,
-        "location": location,
         "start_timestamp_ms": start_timestamp_ms,
         "end_timestamp_ms": end_timestamp_ms,
-        "duration_ms": duration_ms,
-        "start_idx": start_idx,
-        "end_idx": end_idx,
-        "data": data,
+        "location": box_event["location"],
+        "measurement_type": measurement_type,
+        "deviation_from_nominal": deviation_from_nominal,
         "measurements": measurements,
-        "trends": trends
+        "gridfs_filename": gridfs_filename,
+        "classifications": classifications,
+        "ieee_duration": ieee_duration,
+        "annotations": annotations,
+        "metadata": metadata
     }
+
+    mongo_client.incidents_collection.insert_one(incident)
 
 
 def get_calibration_constant(box_id: int) -> float:
