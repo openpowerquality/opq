@@ -24,9 +24,9 @@ class MeasurementsCollection extends BaseCollection {
       RECENT_MEASUREMENTS: 'recent_measurements',
       BOX_MAP_MEASUREMENTS: 'box_map_measurements',
     };
-    if (Meteor.server) {
-      this._collection.rawCollection().createIndex({ timestamp_ms: 1, box_id: 1 }, { background: true });
-    }
+    // if (Meteor.server) {
+    //   this._collection.rawCollection().createIndex({ timestamp_ms: 1, box_id: 1 }, { background: true });
+    // }
   }
 
   /**

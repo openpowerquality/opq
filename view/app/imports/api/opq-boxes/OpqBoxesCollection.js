@@ -28,9 +28,10 @@ class OpqBoxesCollection extends BaseCollection {
       GET_OPQ_BOXES: 'get_opq_boxes',
       GET_CURRENT_USER_OPQ_BOXES: 'get_current_user_opq_boxes',
     };
-    if (Meteor.server) {
-      this._collection.rawCollection().createIndex({ box_id: 1 }, { unique: true });
-    }
+
+    // if (Meteor.server) {
+    //   this._collection.rawCollection().createIndex({ box_id: 1 }, { unique: true });
+    // }
   }
 
   /**

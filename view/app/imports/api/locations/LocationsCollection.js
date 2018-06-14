@@ -18,10 +18,10 @@ class LocationsCollection extends BaseCollection {
       description: String,
     }));
     // Guarantee that both slugs and descriptions are unique.
-    if (Meteor.server) {
-      this._collection.rawCollection().createIndex({ slug: 1 }, { background: true, unique: true });
-      this._collection.rawCollection().createIndex({ description: 1 }, { background: true, unique: true });
-    }
+    // if (Meteor.server) {
+    //   this._collection.rawCollection().createIndex({ slug: 1 }, { background: true, unique: true });
+    //   this._collection.rawCollection().createIndex({ description: 1 }, { background: true, unique: true });
+    // }
   }
 
   /**

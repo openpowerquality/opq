@@ -1,4 +1,3 @@
-import { Meteor } from 'meteor/meteor';
 import SimpleSchema from 'simpl-schema';
 import BaseCollection from '../base/BaseCollection.js';
 import { Events } from '../events/EventsCollection';
@@ -30,9 +29,9 @@ class BoxEventsCollection extends BaseCollection {
     this.publicationNames = {
       EVENT_DATA: 'event_data',
     };
-    if (Meteor.server) {
-      this._collection.rawCollection().createIndex({ event_start_timestamp_ms: 1, box_id: 1 }, { background: true });
-    }
+    // if (Meteor.server) {
+    //   this._collection.rawCollection().createIndex({ event_start_timestamp_ms: 1, box_id: 1 }, { background: true });
+    // }
   }
 
   /**
