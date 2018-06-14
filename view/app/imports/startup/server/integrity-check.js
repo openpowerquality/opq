@@ -48,7 +48,7 @@ function checkCollection(name, repair, verbose, maxChecks) {
 function startupIntegrityCheck() {
   // If not in test mode and if integrity checking is enabled.
   if (!Meteor.isTest && !Meteor.isAppTest && Meteor.settings.integrityCheck.enabled) {
-    const parseText = 'every 30 seconds';
+    const parseText = 'at 1:00 am';
     SyncedCron.add({
       name: 'Run Integrity Checking',
       schedule(parser) {
