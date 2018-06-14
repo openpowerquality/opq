@@ -213,9 +213,12 @@ def get_ieee_duration(duration_ms: float) -> IncidentIeeeDuration:
 
 def next_available_incident_id(opq_mongo_client: OpqMongoClient) -> int:
     mongo_client = get_default_client(opq_mongo_client)
-    last_incident = mongo_client.incidents_collection.find_one().sort("incident_id", pymongo.DESCENDING)
-    last_incident_id = last_incident["incident_id"] if last_incident is not None else 0
-    return last_incident_id + 1
+    if mongo_client.incidents_collection.count() > 0:
+        last_incident = mongo_client.incidents_collection.find_one().sort("incident_id", pymongo.DESCENDING)
+        last_incident_id = last_incident["incident_id"]
+        return last_incident_id + 1
+    else:
+        return 1
 
 
 def store_incident(event_id: int,
