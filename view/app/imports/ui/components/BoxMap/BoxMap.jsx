@@ -57,7 +57,7 @@ class BoxMap extends React.Component {
   createBoxMarkerTrendsLabel(opqBoxDoc) {
     const { systemStats } = this.props;
     const latestBoxTrends = systemStats.latest_box_trends;
-    const trend = latestBoxTrends.find(boxTrend => boxTrend.box_id === opqBoxDoc.box_id);
+    const trend = latestBoxTrends.find(boxTrend => boxTrend && boxTrend.box_id === opqBoxDoc.box_id);
     const isRecentTrend = (trend && (Date.now() - trend.timestamp_ms) <= 5 * 1000 * 60);
     let trendHtml = '';
     if (trend) {
@@ -79,7 +79,7 @@ class BoxMap extends React.Component {
   createBoxMarkerTrendsPopup(opqBoxDoc) {
     const { systemStats } = this.props;
     const latestBoxTrends = systemStats.latest_box_trends;
-    const trend = latestBoxTrends.find(boxTrend => boxTrend.box_id === opqBoxDoc.box_id);
+    const trend = latestBoxTrends.find(boxTrend => boxTrend && boxTrend.box_id === opqBoxDoc.box_id);
     const isRecentTrend = (trend && (Date.now() - trend.timestamp_ms) <= 5 * 1000 * 60);
     return (
         <div>
@@ -358,7 +358,7 @@ class BoxMap extends React.Component {
     // Recall: OpqBox.locationSlug --> Region.locationSlug -> Region.regionSlug
     const opqBoxRegionSlugs = opqBoxes
         .map(box => box.location) // Get box's location slug.
-        .map(locSlug => regions.find(region => region.locationSlug === locSlug)) // Find location's region doc.
+        .map(locSlug => regions.find(region => region && region.locationSlug === locSlug)) // Find location's region doc
         .filter(regionDoc => regionDoc) // Removes any undefined results from above map.
         .map(regionDoc => regionDoc.regionSlug) // Grab the Region's slug.
         .filter((slug, idx, arr) => arr.indexOf(slug) === idx); // Filter for unique values.
@@ -416,13 +416,13 @@ class BoxMap extends React.Component {
 
   getOpqBoxRegionDoc(opqBox) {
     const { regions } = this.props;
-    return regions.find(region => region.locationSlug === opqBox.location);
+    return regions.find(region => region && region.locationSlug === opqBox.location);
   }
 
   getOpqBoxLocationDoc(opqBox) {
     const { locations } = this.props;
     if (opqBox && opqBox.location) {
-      return locations.find(location => opqBox.location === location.slug);
+      return locations.find(location => location && location.slug === opqBox.location);
     }
     return null;
   }

@@ -151,7 +151,7 @@ class OpqBoxLeafletMarkerManager extends React.Component {
 
   getOpqBoxLocationDoc(opqBox) {
     const { locations } = this.props;
-    return locations.find(location => opqBox.location === location.slug);
+    return locations.find(location => location && location.slug === opqBox.location);
   }
 
   opqBoxExists(opqBox) {
