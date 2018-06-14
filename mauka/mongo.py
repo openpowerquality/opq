@@ -128,11 +128,11 @@ class OpqMongoClient:
         self.fs.put(payload, **{"filename": gridfs_filename,
                                 "metadata.anomaly_id": anomaly_id})
 
+
 def get_waveform(mongo_client: OpqMongoClient, data_fs_filename: str) -> numpy.ndarray:
     data = mongo_client.read_file(data_fs_filename)
     waveform = to_s16bit(data)
     return waveform
-
 
 
 def get_box_calibration_constants(mongo_client: OpqMongoClient = None, defaults: typing.Dict[int, float] = {}) -> \
@@ -228,9 +228,7 @@ def store_incident(event_id: int,
                    annotations: typing.List = None,
                    metadata: typing.Dict = None,
                    opq_mongo_client: OpqMongoClient = None):
-
     mongo_client = get_default_client(opq_mongo_client)
-
 
     box_event = mongo_client.box_events_collection.find_one({"event_id": event_id,
                                                              "box_id": box_id})
@@ -246,7 +244,8 @@ def store_incident(event_id: int,
     delta_end_ms = end_timestamp_ms - event_start_timestamp_ms
     # Provide a ms worth of buffer to account for floating point error?
     incident_start_idx = max(0, round(analysis.ms_to_samples(delta_start_ms)) - constants.SAMPLES_PER_MILLISECOND)
-    incident_end_idx = min(len(event_adc_samples), round(analysis.ms_to_samples(delta_end_ms)) + constants.SAMPLES_PER_MILLISECOND)
+    incident_end_idx = min(len(event_adc_samples),
+                           round(analysis.ms_to_samples(delta_end_ms)) + constants.SAMPLES_PER_MILLISECOND)
     incident_adc_samples_bytes = event_adc_samples[incident_start_idx:incident_end_idx].tobytes()
 
     ieee_duration = get_ieee_duration(end_timestamp_ms - start_timestamp_ms)
@@ -272,6 +271,12 @@ def store_incident(event_id: int,
     }
 
     mongo_client.incidents_collection.insert_one(incident)
+
+
+def get_box_event(event_id: int, box_id: str, opq_mongo_client: OpqMongoClient = None) -> typing.Dict:
+    mongo_client = get_default_client(opq_mongo_client)
+    return mongo_client.box_events_collection.find_one({"event_id": event_id,
+                                                        "box_id": box_id})
 
 
 def get_calibration_constant(box_id: int) -> float:
