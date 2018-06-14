@@ -185,7 +185,7 @@ def itic(event_id: int, box_id: str, windowed_rms: numpy.ndarray, segment_thresh
                 mean_rms - 120.0,
                 [incident_classification],
                 [],
-                [],
+                {},
                 mongo_client
             )
             if logger is not None:
