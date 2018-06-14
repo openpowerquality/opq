@@ -124,9 +124,9 @@ class OpqMongoClient:
         """
         return self.fs.find_one({"filename": fid}).read()
 
-    def write_incident_waveform(self, anomaly_id: int, gridfs_filename: str, payload: bytes):
+    def write_incident_waveform(self, incident_id: int, gridfs_filename: str, payload: bytes):
         self.fs.put(payload, **{"filename": gridfs_filename,
-                                "metadata.anomaly_id": anomaly_id})
+                                "metadata": {"incident_id": incident_id}})
 
 
 def get_waveform(mongo_client: OpqMongoClient, data_fs_filename: str) -> numpy.ndarray:
@@ -214,7 +214,7 @@ def get_ieee_duration(duration_ms: float) -> IncidentIeeeDuration:
 def next_available_incident_id(opq_mongo_client: OpqMongoClient) -> int:
     mongo_client = get_default_client(opq_mongo_client)
     if mongo_client.incidents_collection.count() > 0:
-        last_incident = mongo_client.incidents_collection.find_one().sort("incident_id", pymongo.DESCENDING)
+        last_incident = mongo_client.incidents_collection.find().sort("incident_id", pymongo.DESCENDING).limit(1)[0]
         last_incident_id = last_incident["incident_id"]
         return last_incident_id + 1
     else:
@@ -235,23 +235,24 @@ def store_incident(event_id: int,
 
     box_event = mongo_client.box_events_collection.find_one({"event_id": event_id,
                                                              "box_id": box_id})
-    measurements = mongo_client.measurements_collection.find({"box_id": box_id,
-                                                              "timestamp_ms": {"$gte": start_timestamp_ms,
-                                                                               "$lte": end_timestamp_ms}},
-                                                             {"_id": False,
-                                                              "expireAt": False})
+    measurements = list(mongo_client.measurements_collection.find({"box_id": box_id,
+                                                                   "timestamp_ms": {"$gte": start_timestamp_ms,
+                                                                                    "$lte": end_timestamp_ms}},
+                                                                  {"_id": False,
+                                                                   "expireAt": False}))
 
     event_adc_samples = get_waveform(mongo_client, box_event["data_fs_filename"])
     event_start_timestamp_ms = box_event["event_start_timestamp_ms"]
     delta_start_ms = start_timestamp_ms - event_start_timestamp_ms
     delta_end_ms = end_timestamp_ms - event_start_timestamp_ms
     # Provide a ms worth of buffer to account for floating point error?
-    incident_start_idx = max(0, round(analysis.ms_to_samples(delta_start_ms)) - constants.SAMPLES_PER_MILLISECOND)
-    incident_end_idx = min(len(event_adc_samples),
-                           round(analysis.ms_to_samples(delta_end_ms)) + constants.SAMPLES_PER_MILLISECOND)
+    incident_start_idx = int(max(0, round(analysis.ms_to_samples(delta_start_ms)) - constants.SAMPLES_PER_MILLISECOND))
+    incident_end_idx = int(min(len(event_adc_samples),
+                               round(analysis.ms_to_samples(delta_end_ms)) + constants.SAMPLES_PER_MILLISECOND))
     incident_adc_samples_bytes = event_adc_samples[incident_start_idx:incident_end_idx].tobytes()
 
-    ieee_duration = get_ieee_duration(end_timestamp_ms - start_timestamp_ms)
+    ieee_duration = get_ieee_duration(end_timestamp_ms - start_timestamp_ms).value
+    location = get_location(box_id, mongo_client)
 
     incident_id = next_available_incident_id(mongo_client)
     gridfs_filename = "incident_{}".format(incident_id)
@@ -262,12 +263,12 @@ def store_incident(event_id: int,
         "box_id": box_id,
         "start_timestamp_ms": start_timestamp_ms,
         "end_timestamp_ms": end_timestamp_ms,
-        "location": box_event["location"],
-        "measurement_type": measurement_type,
+        "location": location,
+        "measurement_type": measurement_type.value,
         "deviation_from_nominal": deviation_from_nominal,
         "measurements": measurements,
         "gridfs_filename": gridfs_filename,
-        "classifications": classifications,
+        "classifications": list(map(lambda e: e.value, classifications)),
         "ieee_duration": ieee_duration,
         "annotations": annotations,
         "metadata": metadata
@@ -280,6 +281,20 @@ def get_box_event(event_id: int, box_id: str, opq_mongo_client: OpqMongoClient =
     mongo_client = get_default_client(opq_mongo_client)
     return mongo_client.box_events_collection.find_one({"event_id": event_id,
                                                         "box_id": box_id})
+
+
+def get_location(box_id: str, opq_mongo_client: OpqMongoClient) -> str:
+    UNKNOWN = "UNKNOWN"
+    mongo_client = get_default_client(opq_mongo_client)
+    box = mongo_client.opq_boxes_collection.find_one({"box_id": box_id})
+
+    if box is None:
+        return UNKNOWN
+
+    if "location" not in box:
+        return UNKNOWN
+
+    return box["location"]
 
 
 def get_calibration_constant(box_id: int) -> float:
