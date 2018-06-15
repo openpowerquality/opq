@@ -1,3 +1,5 @@
+// Credit to https://stackoverflow.com/a/39013357
+
 var conn = new Mongo();
 var db = conn.getDB("opq");
 var duplicates = [];
