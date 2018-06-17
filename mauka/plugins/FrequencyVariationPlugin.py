@@ -29,25 +29,27 @@ class FrequencyVariationPlugin(plugins.base.MaukaPlugin):
         self.freq_var_high = float(self.config_get("plugins.FrequencyVariationPlugin.frequency.variation.threshold.high"))
         self.freq_interruption = float(self.config_get("plugins.FrequencyVariationPlugin.frequency.interruption"))
 
-    def __frequency_variation_type(self, frequency: float):
+    def __frequency_variation(self, frequency: float):
         """
         Determine the variation type if any based on IEEE 1159 standards
         :param frequency: the frequency measured over the window
         :return: variation_type: the variation type if there is a variation from the reference, otherwise False
         """
-        variation_type = False
 
         if frequency >= (self.freq_ref + self.freq_var_high):
-            variation_type = mongo.BoxEventType.FREQUENCY_SWELL
+            variation_type = mongo.IncidentClassification.FREQUENCY_SWELL
         elif frequency <= self.freq_interruption:
-            variation_type = mongo.BoxEventType.FREQUENCY_INTERRUPTION
+            variation_type = mongo.IncidentClassification.FREQUENCY_INTERRUPTION
         elif frequency <= (self.freq_ref - self.freq_var_low):
-            variation_type = mongo.BoxEventType.FREQUENCY_DIP
+            variation_type = mongo.IncidentClassification.FREQUENCY_DIP
+        else:
+            variation_type = False
 
-        return variation_type
+        return variation_type, frequency - self.freq_ref
 
     def __frequency_incident_classifier(self, event_id: int, box_id: str, windowed_frequencies: numpy.ndarray,
-                                       window_size: float = constants.SAMPLES_PER_CYCLE):
+                                        window_size: float = constants.SAMPLES_PER_CYCLE,
+                                        opq_mongo_client: mongo.OpqMongoClient = None):
         """
         Classifies a frequency incident as a Sag, Swell, or Interruption. Creates a Mongo Anomaly document
         :param event_id: Makai Event ID
@@ -56,34 +58,58 @@ class FrequencyVariationPlugin(plugins.base.MaukaPlugin):
         :param window_size: The number of samples per window
         """
 
+        mongo_client = mongo.get_default_client(opq_mongo_client)
+        box_event = mongo.get_box_event(event_id, box_id, mongo_client)
+        box_event_start_ts = box_event["event_start_timestamp_ms"]
         window_duration_ms = (window_size / constants.SAMPLE_RATE_HZ) * 1000
-        prev_anomaly = False
-        anomaly_start = 0
+        prev_incident = False
+        incident_start_ts = box_event_start_ts
+        incident_variations = []
 
         for i in range(len(windowed_frequencies)):
             # check whether there is a frequency variation and if so what type
-            curr_anomaly = self.__frequency_variation_type(windowed_frequencies[i])
-            if prev_anomaly != curr_anomaly:  # start of new anomaly and or end of anomaly
-                if prev_anomaly:  # make anomaly doc
-                    duration  = (i - anomaly_start) * window_size * window_duration_ms
-                    anomaly = mongo.make_anomaly_document(event_id,  # Event id
-                                                          box_id,  # box id
-                                                          prev_anomaly.value,  # Event name
-                                                          "unknown",  # Location
-                                                          0,  # Start ts ms
-                                                          0,  # End ts ms
-                                                          duration,  # Duration ms
-                                                          anomaly_start,  # Start idx
-                                                          i,  # End idx
-                                                          {"min": numpy.min(windowed_frequencies[anomaly_start:i]),
-                                                           "max": numpy.max(windowed_frequencies[anomaly_start:i]),
-                                                           "avg": numpy.average(windowed_frequencies[anomaly_start:i])})
-                    # self.mongo_client.anomalies_collection.insert_one(anomaly)
-                    self.debug(str(anomaly))
+            curr_incident, curr_variation = self.__frequency_variation(windowed_frequencies[i])
 
-                anomaly_start = i
+            if prev_incident != curr_incident:  # start of new incident and or end of incident
+                if prev_incident:  # make and store incident doc if end of incident
+                    incident_end_ts = i * window_duration_ms + box_event_start_ts
+                    mongo.store_incident(
+                        event_id,  # Event id
+                        box_id,  # box id
+                        incident_start_ts,  # Start ts ms
+                        incident_end_ts,  # End ts ms
+                        mongo.IncidentMeasurementType.FREQUENCY,
+                        numpy.average(incident_variations),  # incident's average deviation from nominal
+                        [prev_incident],  # incident classifications
+                        [], # annotations
+                        {}, # metadata
+                        mongo_client, # mongo client
+                    )
 
-            prev_anomaly = curr_anomaly
+                incident_variations = [curr_variation]
+                incident_start_ts = i * window_duration_ms + box_event_start_ts
+
+            else:
+                incident_variations.append(curr_variation)
+
+            prev_incident = curr_incident
+
+        # ensure if there is any frequency variation at the end of the event then it is still saved
+        if prev_incident:  # make and store incident doc
+            incident_end_ts = (i + 1) * window_duration_ms + box_event_start_ts
+            mongo.store_incident(
+                event_id,  # Event id
+                box_id,  # box id
+                incident_start_ts,  # Start ts ms
+                incident_end_ts,  # End ts ms
+                mongo.IncidentMeasurementType.FREQUENCY,
+                numpy.average(incident_variations),  # incident's average deviation from nominal
+                [prev_incident],  # incident classifications
+                [],  # annotations
+                {},  # metadata
+                mongo_client,  # mongo client
+            )
+
 
     def on_message(self, topic, mauka_message):
         """
