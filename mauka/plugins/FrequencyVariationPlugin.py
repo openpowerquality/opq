@@ -48,7 +48,7 @@ class FrequencyVariationPlugin(plugins.base.MaukaPlugin):
         return variation_type, frequency - self.freq_ref
 
     def __frequency_incident_classifier(self, event_id: int, box_id: str, windowed_frequencies: numpy.ndarray,
-                                        window_size: float = constants.SAMPLES_PER_CYCLE,
+                                        box_event_start_ts: int, window_size: float = constants.SAMPLES_PER_CYCLE,
                                         opq_mongo_client: mongo.OpqMongoClient = None):
         """
         Classifies a frequency incident as a Sag, Swell, or Interruption. Creates a Mongo Anomaly document
@@ -59,8 +59,6 @@ class FrequencyVariationPlugin(plugins.base.MaukaPlugin):
         """
 
         mongo_client = mongo.get_default_client(opq_mongo_client)
-        box_event = mongo.get_box_event(event_id, box_id, mongo_client)
-        box_event_start_ts = box_event["event_start_timestamp_ms"]
         window_duration_ms = (window_size / constants.SAMPLE_RATE_HZ) * 1000
         prev_incident = False
         incident_start_ts = box_event_start_ts
@@ -123,10 +121,11 @@ class FrequencyVariationPlugin(plugins.base.MaukaPlugin):
                                                         mauka_message.payload.box_id,
                                                         len(mauka_message.payload.data)))
             self.__frequency_incident_classifier(mauka_message.payload.event_id,
-                                                mauka_message.payload.box_id,
-                                                protobuf.util.repeated_as_ndarray(
-                                                mauka_message.payload.data
-                                                ))
+                                                 mauka_message.payload.box_id,
+                                                 protobuf.util.repeated_as_ndarray(
+                                                    mauka_message.payload.data
+                                                 ),
+                                                 mauka_message.payload.start_timestamp_ms)
 
         else:
             self.logger.error("Received incorrect mauka message [{}] at FrequencyVariationPlugin".format(
