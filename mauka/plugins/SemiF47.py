@@ -31,17 +31,21 @@ def viol_check(data,prev,lvl):
     
     return (f,prev)
 
-#d=numpy.random.randint(40,70,10)+numpy.random.random_sample(10)
-#d=numpy.array([60, 60, 30, 60, 60, 60, 60])
-#print(d)
-#print(viol_check(d,2,5))
+
+def semiF47_check(data,prev_val):
+    flg=[]
+    lvl=[5, 7, 8]
+    for k in [0,1,2]:
+        viol=viol_check(data,prev_val[k],lvl[k])
+        prev_val[k]=viol(1)
+        flg.append(len(viol(0))>0)
+    return (any(flg),prev_val)
+    
                 
         
 
 class SemiF47Plugin(plugins.base.MaukaPlugin):
-    V_05=0;
-    V_07=0;
-    V_08=0;
+    prev_val=[0,0,0]
     def __init__(self, config, exit_event):
         super().__init__(config, ["RmsWindowedVoltage"], "SemiF47Plugin", exit_event)
 
@@ -51,5 +55,8 @@ class SemiF47Plugin(plugins.base.MaukaPlugin):
         data=protobuf.util.repeated_as_ndarray(mauka_message.payload.data)
         
     # this will call semiF47 to check if a violation ocurred or not
-        viol_bool=semiF47(data,self.V_05, self.V_07, self.V_08)
-        
+        (viol_bool,self.prev_val)=semiF47_check(data,self.prev_val)
+        if viol_bool:
+            print("aha")
+        else:
+            print("nill")
