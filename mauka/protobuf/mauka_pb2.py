@@ -20,7 +20,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='mauka.proto',
   package='',
   syntax='proto3',
-  serialized_pb=_b('\n\x0bmauka.proto\"\xee\x01\n\x0cMaukaMessage\x12\x14\n\x0ctimestamp_ms\x18\x01 \x01(\x04\x12\x0e\n\x06source\x18\x02 \x01(\t\x12\x1b\n\x07payload\x18\x03 \x01(\x0b\x32\x08.PayloadH\x00\x12\x1f\n\theartbeat\x18\x04 \x01(\x0b\x32\n.HeartbeatH\x00\x12\"\n\x0bmakai_event\x18\x05 \x01(\x0b\x32\x0b.MakaiEventH\x00\x12#\n\x0bmeasurement\x18\x06 \x01(\x0b\x32\x0c.MeasurementH\x00\x12&\n\rmakai_trigger\x18\x07 \x01(\x0b\x32\r.MakaiTriggerH\x00\x42\t\n\x07message\"]\n\x07Payload\x12\x10\n\x08\x65vent_id\x18\x01 \x01(\r\x12\x0e\n\x06\x62ox_id\x18\x02 \x01(\t\x12\x0c\n\x04\x64\x61ta\x18\x03 \x03(\x01\x12\"\n\x0cpayload_type\x18\x04 \x01(\x0e\x32\x0c.PayloadType\"Y\n\tHeartbeat\x12\"\n\x1alast_received_timestamp_ms\x18\x01 \x01(\x04\x12\x18\n\x10on_message_count\x18\x02 \x01(\r\x12\x0e\n\x06status\x18\x03 \x01(\t\"\x1e\n\nMakaiEvent\x12\x10\n\x08\x65vent_id\x18\x01 \x01(\r\"h\n\x0bMeasurement\x12\x0e\n\x06\x62ox_id\x18\x01 \x01(\t\x12\x14\n\x0ctimestamp_ms\x18\x02 \x01(\x04\x12\x11\n\tfrequency\x18\x03 \x01(\x01\x12\x13\n\x0bvoltage_rms\x18\x04 \x01(\x01\x12\x0b\n\x03thd\x18\x05 \x01(\x01\"\x87\x01\n\x0cMakaiTrigger\x12 \n\x18\x65vent_start_timestamp_ms\x18\x01 \x01(\x04\x12\x1e\n\x16\x65vent_end_timestamp_ms\x18\x02 \x01(\x04\x12\x12\n\nevent_type\x18\x03 \x01(\t\x12\x11\n\tmax_value\x18\x04 \x01(\x01\x12\x0e\n\x06\x62ox_id\x18\x05 \x01(\t*r\n\x0bPayloadType\x12\x0f\n\x0b\x41\x44\x43_SAMPLES\x10\x00\x12\x0f\n\x0bVOLTAGE_RAW\x10\x01\x12\x0f\n\x0bVOLTAGE_RMS\x10\x02\x12\x18\n\x14VOLTAGE_RMS_WINDOWED\x10\x03\x12\x16\n\x12\x46REQUENCY_WINDOWED\x10\x04\x62\x06proto3')
+  serialized_pb=_b('\n\x0bmauka.proto\"\xee\x01\n\x0cMaukaMessage\x12\x14\n\x0ctimestamp_ms\x18\x01 \x01(\x04\x12\x0e\n\x06source\x18\x02 \x01(\t\x12\x1b\n\x07payload\x18\x03 \x01(\x0b\x32\x08.PayloadH\x00\x12\x1f\n\theartbeat\x18\x04 \x01(\x0b\x32\n.HeartbeatH\x00\x12\"\n\x0bmakai_event\x18\x05 \x01(\x0b\x32\x0b.MakaiEventH\x00\x12#\n\x0bmeasurement\x18\x06 \x01(\x0b\x32\x0c.MeasurementH\x00\x12&\n\rmakai_trigger\x18\x07 \x01(\x0b\x32\r.MakaiTriggerH\x00\x42\t\n\x07message\"\x93\x01\n\x07Payload\x12\x10\n\x08\x65vent_id\x18\x01 \x01(\r\x12\x0e\n\x06\x62ox_id\x18\x02 \x01(\t\x12\x0c\n\x04\x64\x61ta\x18\x03 \x03(\x01\x12\"\n\x0cpayload_type\x18\x04 \x01(\x0e\x32\x0c.PayloadType\x12\x1a\n\x12start_timestamp_ms\x18\x05 \x01(\x04\x12\x18\n\x10\x65nd_timestamp_ms\x18\x06 \x01(\x04\"Y\n\tHeartbeat\x12\"\n\x1alast_received_timestamp_ms\x18\x01 \x01(\x04\x12\x18\n\x10on_message_count\x18\x02 \x01(\r\x12\x0e\n\x06status\x18\x03 \x01(\t\"\x1e\n\nMakaiEvent\x12\x10\n\x08\x65vent_id\x18\x01 \x01(\r\"h\n\x0bMeasurement\x12\x0e\n\x06\x62ox_id\x18\x01 \x01(\t\x12\x14\n\x0ctimestamp_ms\x18\x02 \x01(\x04\x12\x11\n\tfrequency\x18\x03 \x01(\x01\x12\x13\n\x0bvoltage_rms\x18\x04 \x01(\x01\x12\x0b\n\x03thd\x18\x05 \x01(\x01\"\x87\x01\n\x0cMakaiTrigger\x12 \n\x18\x65vent_start_timestamp_ms\x18\x01 \x01(\x04\x12\x1e\n\x16\x65vent_end_timestamp_ms\x18\x02 \x01(\x04\x12\x12\n\nevent_type\x18\x03 \x01(\t\x12\x11\n\tmax_value\x18\x04 \x01(\x01\x12\x0e\n\x06\x62ox_id\x18\x05 \x01(\t*r\n\x0bPayloadType\x12\x0f\n\x0b\x41\x44\x43_SAMPLES\x10\x00\x12\x0f\n\x0bVOLTAGE_RAW\x10\x01\x12\x0f\n\x0bVOLTAGE_RMS\x10\x02\x12\x18\n\x14VOLTAGE_RMS_WINDOWED\x10\x03\x12\x16\n\x12\x46REQUENCY_WINDOWED\x10\x04\x62\x06proto3')
 )
 
 _PAYLOADTYPE = _descriptor.EnumDescriptor(
@@ -52,8 +52,8 @@ _PAYLOADTYPE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   options=None,
-  serialized_start=718,
-  serialized_end=832,
+  serialized_start=773,
+  serialized_end=887,
 )
 _sym_db.RegisterEnumDescriptor(_PAYLOADTYPE)
 
@@ -177,6 +177,20 @@ _PAYLOAD = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='start_timestamp_ms', full_name='Payload.start_timestamp_ms', index=4,
+      number=5, type=4, cpp_type=4, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='end_timestamp_ms', full_name='Payload.end_timestamp_ms', index=5,
+      number=6, type=4, cpp_type=4, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
@@ -189,8 +203,8 @@ _PAYLOAD = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=256,
-  serialized_end=349,
+  serialized_start=257,
+  serialized_end=404,
 )
 
 
@@ -234,8 +248,8 @@ _HEARTBEAT = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=351,
-  serialized_end=440,
+  serialized_start=406,
+  serialized_end=495,
 )
 
 
@@ -265,8 +279,8 @@ _MAKAIEVENT = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=442,
-  serialized_end=472,
+  serialized_start=497,
+  serialized_end=527,
 )
 
 
@@ -324,8 +338,8 @@ _MEASUREMENT = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=474,
-  serialized_end=578,
+  serialized_start=529,
+  serialized_end=633,
 )
 
 
@@ -383,8 +397,8 @@ _MAKAITRIGGER = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=581,
-  serialized_end=716,
+  serialized_start=636,
+  serialized_end=771,
 )
 
 _MAUKAMESSAGE.fields_by_name['payload'].message_type = _PAYLOAD
