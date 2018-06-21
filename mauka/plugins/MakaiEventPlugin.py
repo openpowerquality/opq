@@ -53,15 +53,15 @@ def frequency(samples: numpy.ndarray) -> float:
 
     """Fit sinusoidal curve to data"""
     guess_amp = 120.0
-    guess_freq = 1.0
+    guess_freq = constants.CYCLES_PER_SECOND
     guess_phase = 0.0
     guess_mean = 0.0
-    t = numpy.arange(0, 1, 1 / 200)
+    t = numpy.arange(0, len(samples) / constants.SAMPLE_RATE_HZ, 1 / constants.SAMPLE_RATE_HZ)
 
     optimize_func = lambda x: x[0] * numpy.sin(x[1] * 2 * numpy.pi * t + x[2]) + x[3] - samples
     est_amp, est_freq, est_phase, est_mean = optimize.leastsq(optimize_func,
                                                                     [guess_amp, guess_freq, guess_phase, guess_mean])[0]
-    return numpy.round(est_freq * 60, decimals = 2)
+    return numpy.round(est_freq, decimals = 2)
 
     """Zero Crossing Method:"""
     # zero_crossing_indices = numpy.diff(samples > 0)
