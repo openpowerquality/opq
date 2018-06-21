@@ -23,10 +23,11 @@ def rolling_window(a, window):
 
 
 def thd(waveform: numpy.ndarray, fundamental: int) -> float:
+    fundamental = int(fundamental)
     y = numpy.abs(scipy.fftpack.fft(waveform))
 
-    top = numpy.sqrt(numpy.sum(y[i] ** 2 for i in numpy.arange(2 * fundamental, len(y) // 2, int(fundamental))))
-    bottom = y[int(fundamental)]
+    top = numpy.sqrt(numpy.sum(y[i] ** 2 for i in numpy.arange(2 * fundamental, len(y) // 2, fundamental)))
+    bottom = y[fundamental]
     return (top / bottom) * 100.0
 
 
@@ -69,7 +70,8 @@ class ThdPlugin(plugins.base.MaukaPlugin):
 
                     # Every thd value is a sample over a 200 ms window
                     incident_start_timestamp = int(box_event_start_timestamp + (prev_idx * self.sliding_window_ms))
-                    incident_end_timestamp = int(box_event_start_timestamp + (i * self.sliding_window_ms) + self.sliding_window_ms)
+                    incident_end_timestamp = int(
+                        box_event_start_timestamp + (i * self.sliding_window_ms) + self.sliding_window_ms)
 
                     mongo.store_incident(
                         event_id,
