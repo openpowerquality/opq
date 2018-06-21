@@ -281,7 +281,8 @@ def store_incident(event_id: int,
         "metadata": metadata
     }
 
-    mongo_client.incidents_collection.insert_one(incident)
+    print(incident)
+    #mongo_client.incidents_collection.insert_one(incident)
 
 
 def get_box_event(event_id: int, box_id: str, opq_mongo_client: OpqMongoClient = None) -> typing.Dict:
