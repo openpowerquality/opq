@@ -26,7 +26,7 @@ def thd(waveform: numpy.ndarray, fundamental: int) -> float:
     y = numpy.abs(scipy.fftpack.fft(waveform))
 
     top = numpy.sqrt(numpy.sum(y[i] ** 2 for i in numpy.arange(2 * fundamental, len(y) // 2, int(fundamental))))
-    bottom = y[fundamental]
+    bottom = y[int(fundamental)]
     return (top / bottom) * 100.0
 
 
