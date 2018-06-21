@@ -5,11 +5,11 @@ message MaukaMessage {
     uint64 timestamp_ms = 1;                // Timestamp of message creation. Useful for load monitoring.
     string source = 2;                      // Name of producer (most likely a plugin).
     oneof message {                         // Contains one of the following...
-        Payload payload = 3;
-        Heartbeat heartbeat = 4;
-        MakaiEvent makai_event = 5;
-        Measurement measurement = 6;
-        MakaiTrigger makai_trigger = 7;
+                                            Payload payload = 3;
+                                            Heartbeat heartbeat = 4;
+                                            MakaiEvent makai_event = 5;
+                                            Measurement measurement = 6;
+                                            MakaiTrigger makai_trigger = 7;
     }
 }
 
@@ -21,6 +21,8 @@ message Payload {
     string box_id = 2;              // Box that this payload originated from.
     repeated double data = 3;       // Data cast to double precision floats.
     PayloadType payload_type = 4;   // Enumeration providing payload type information.
+    uint64 start_timestamp_ms = 5;  // Start timestamp ms from epoch of first payload element
+    uint64 end_timestamp_ms = 6;    // End timestamp ms from of epoch
 }
 
 // Types of payloads available within Mauka.

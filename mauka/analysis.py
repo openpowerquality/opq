@@ -1,15 +1,25 @@
+import constants
+
 import typing
 
 import numpy
 
 
-def c_to_ms(c: float) -> float:
+def c_to_ms(cycles: float) -> float:
     """
     Convert cycles to milliseconds
-    :param c: cycles
+    :param cycles: cycles
     :return: milliseconds
     """
-    return (c * (1 / 60)) * 1000.0
+    return cycles / constants.CYCLES_PER_MILLISECOND
+
+
+def ms_to_c(duration_ms: float) -> float:
+    return duration_ms * constants.CYCLES_PER_MILLISECOND
+
+
+def ms_to_samples(duration_ms: float) -> float:
+    return duration_ms * constants.SAMPLES_PER_MILLISECOND
 
 
 def segment(a: numpy.ndarray, delta: float) -> typing.List[numpy.ndarray]:

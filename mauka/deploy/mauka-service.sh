@@ -13,7 +13,7 @@ NAME=mauka
 RUN_DIR=/var/run
 
 #Paths to service binaries
-MAUKA_SERVICE=/usr/bin/python3
+MAUKA_SERVICE=/usr/local/bin/python3
 MAUKA_SCRIPT=/usr/local/bin/opq/mauka/OpqMauka.py
 MAUKA_CONFIG=/etc/opq/mauka/config.json
 MAUKA_ARGS="${MAUKA_SCRIPT} ${MAUKA_CONFIG}"
