@@ -10,6 +10,7 @@ import mongo
 import plugins.base
 import protobuf.mauka_pb2
 import protobuf.util
+from scipy import optimize
 
 
 def vrms(samples: numpy.ndarray) -> float:
@@ -42,12 +43,25 @@ def vrms_waveform(waveform: numpy.ndarray, window_size: int = constants.SAMPLES_
 
     return numpy.array(v)
 
+
 def frequency(samples: numpy.ndarray) -> float:
     """
     Calculates the frequency of the supplied samples
     :param samples: Samples to calculate frequency over.
     :return: The frequency value of the provided samples in Hz.
     """
+
+    """Fit sinusoidal curve to data"""
+    guess_amp = 120.0
+    guess_freq = constants.CYCLES_PER_SECOND
+    guess_phase = 0.0
+    guess_mean = 0.0
+    t = numpy.arange(0, len(samples) / constants.SAMPLE_RATE_HZ, 1 / constants.SAMPLE_RATE_HZ)
+
+    optimize_func = lambda x: x[0] * numpy.sin(x[1] * 2 * numpy.pi * t + x[2]) + x[3] - samples
+    est_amp, est_freq, est_phase, est_mean = optimize.leastsq(optimize_func,
+                                                                    [guess_amp, guess_freq, guess_phase, guess_mean])[0]
+    return numpy.round(est_freq, decimals = 2)
 
     """Zero Crossing Method:"""
     # zero_crossing_indices = numpy.diff(samples > 0)
@@ -59,9 +73,10 @@ def frequency(samples: numpy.ndarray) -> float:
     #     return 0.0
 
     """DFT of Sampled Waveform Using Numpy's FFT Implementation"""
-    dft = numpy.abs(numpy.fft.rfft(samples)) #amplitude spectrum of dft
-    freq = numpy.fft.rfftfreq((len(dft) - 1) * 2, d = 1 / constants.SAMPLE_RATE_HZ)
-    return freq[dft.argmax()]
+    # f = interpolate.interp1d(range(len(samples)), samples)
+    # dft = numpy.abs(numpy.fft.rfft(f(numpy.arange(0, 199, 0.001)))) #amplitude spectrum of dft
+    # freq = numpy.fft.rfftfreq((len(dft) - 1) * 2, d = 0.001 / (constants.SAMPLE_RATE_HZ))
+    # return freq[dft.argmax()]
 
 def frequency_waveform(waveform: numpy.ndarray, window_size: int = constants.SAMPLES_PER_CYCLE) -> numpy.ndarray:
     """
@@ -129,7 +144,7 @@ class MakaiEventPlugin(plugins.base.MaukaPlugin):
             self.produce("RawVoltage", raw_voltage)
             self.produce("RmsWindowedVoltage", rms_windowed_voltage)
             self.produce("WindowedFrequency", frequency_windowed)
-            #self.debug(str(waveform_frequency))
+            # self.debug(str(waveform_frequency))
 
     def on_message(self, topic, mauka_message):
         if protobuf.util.is_makai_event_message(mauka_message):
