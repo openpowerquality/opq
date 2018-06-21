@@ -43,9 +43,16 @@ class NavBar extends React.Component {
         ) : ''}
 
         {Roles.userIsInRole(Meteor.userId(), ROLE.ADMIN) ? (
-          <Menu.Item as={NavLink} activeClassName="active" exact to="/admin" key='admin'>
-            <div style={divStyle}>Admin</div>
-          </Menu.Item>
+            <Menu.Item>
+            <Dropdown text="Admin" pointing="top left" style={divStyle}>
+              <Dropdown.Menu>
+                <Dropdown.Item key="ManageBoxPage" text="Manage OPQBoxes" as={NavLink} exact to="/admin/manage/opqbox"/>
+                <Dropdown.Item key="ManageLocationPage" text="Manage Locations" as={NavLink} exact to="/admin/manage/location"/>
+                <Dropdown.Item key="ManageRegionPage" text="Manage Regions" as={NavLink} exact to="/admin/manage/region"/>
+                <Dropdown.Item key="ManageUserPage" text="Manage Users" as={NavLink} exact to="/admin/manage/user"/>
+              </Dropdown.Menu>
+            </Dropdown>
+            </Menu.Item>
         ) : ''}
 
         <Menu.Item position="right" as={NavLink} exact to="/about">
