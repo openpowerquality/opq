@@ -46,12 +46,16 @@ def build_payload(source: str,
                   event_id: int,
                   box_id: str,
                   payload_type: mauka_pb2.PayloadType,
-                  data: typing.Union[numpy.ndarray, typing.List]) -> mauka_pb2.MaukaMessage:
+                  data: typing.Union[numpy.ndarray, typing.List],
+                  start_timestamp_ms: int,
+                  end_timestamp_ms: int) -> mauka_pb2.MaukaMessage:
     mauka_message = build_mauka_message(source)
     mauka_message.payload.event_id = event_id
     mauka_message.payload.box_id = box_id
     mauka_message.payload.payload_type = payload_type
     mauka_message.payload.data.extend(data)
+    mauka_message.payload.start_timestamp_ms = start_timestamp_ms
+    mauka_message.payload.end_timestamp_ms = end_timestamp_ms
     return mauka_message
 
 

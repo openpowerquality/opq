@@ -3,7 +3,7 @@ import { Meteor } from 'meteor/meteor';
 import moment from 'moment';
 import BaseCollection from '../base/BaseCollection.js';
 import { BoxOwners } from '../users/BoxOwnersCollection';
-import { Locations } from '../locations/LocationsCollection.js';
+import { Locations } from '../locations/LocationsCollection';
 
 /**
  * Provides information about each OPQ Box in the system
@@ -28,6 +28,10 @@ class OpqBoxesCollection extends BaseCollection {
       GET_OPQ_BOXES: 'get_opq_boxes',
       GET_CURRENT_USER_OPQ_BOXES: 'get_current_user_opq_boxes',
     };
+
+    // if (Meteor.server) {
+    //   this._collection.rawCollection().createIndex({ box_id: 1 }, { unique: true });
+    // }
   }
 
   /**
@@ -152,7 +156,16 @@ class OpqBoxesCollection extends BaseCollection {
    * @returns { Any } A truthy value if boxId is a defined BoxId, false-y otherwise.
    */
   isBoxId(boxId) {
-    return this._collection.findOne({ box_id: boxId });
+    return _.isString(boxId) && this._collection.findOne({ box_id: boxId });
+  }
+
+  /**
+   * Returns true if all of the passed boxIDs are valid boxIds.
+   * @param boxIDs An array of boxIDs.
+   * @returns {boolean|Boolean} True if all are valid boxIds.
+   */
+  areBoxIds(boxIDs) {
+    return _.every(boxIDs, boxId => this._collection.findOne({ box_id: boxId }));
   }
 
   /**
@@ -224,6 +237,38 @@ class OpqBoxesCollection extends BaseCollection {
   assertValidBoxIds(boxIds) {
     boxIds.forEach(boxId => this.assertValidBoxId(boxId));
   }
+
+  /**
+   * Checks the integrity of the passed OpqBox document. The checks include:
+   *   * Is box_id a non-empty string?
+   *   * Is the location field a valid location?
+   * @param doc The OpqBox document.
+   * @param repair No repair is attempted on OpqBoxes at this time
+   * @returns {Array} An array of strings describing any problems that were found.
+   */
+  checkIntegrity(doc, repair) {
+    const problems = [];
+    if (!_.isString(doc.box_id) || doc.box_id.length === 0) {
+      problems.push(`box_id ${doc.box_id} (invalid)`);
+    }
+    if (!Locations.isLocation(doc.location)) {
+      problems.push(`location ${doc.location} (invalid)`);
+    }
+    const result = { docName: `OpqBox ${doc.box_id}`, problems };
+    if ((problems.length > 0) && repair) {
+      result.repair = this.repair(doc);
+    }
+    return result;
+  }
+
+  /**
+   * Repair an OpqBox. (Nothing done for now.)
+   * @return A string indicating that no repair was attempted.
+   */
+  repair() {
+    return 'No repair attempted.';
+  }
+
 }
 
 /**
