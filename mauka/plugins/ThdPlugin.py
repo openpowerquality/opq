@@ -46,13 +46,17 @@ class ThdPlugin(plugins.base.MaukaPlugin):
         self.threshold_percent = float(self.config_get("plugins.ThdPlugin.threshold.percent"))
         self.sliding_window_ms = float(self.config_get("plugins.ThdPlugin.window.size.ms"))
 
-    def sliding_thd(self, event_id: int, box_id: str, waveform: numpy.ndarray):
-        window_size = int(constants.SAMPLE_RATE_HZ * (self.sliding_window_ms / 1000.0))
+    def sliding_thd(self, event_id: int, box_id: str, box_event_start_timestamp: int, waveform: numpy.ndarray):
+        window_size = int(constants.SAMPLE_RATE_HZ * (self.sliding_window_ms / constants.MILLISECONDS_PER_SECOND))
         windows = rolling_window(waveform, window_size)
-        thds = [thd(window, 60) for window in windows]
+        thds = [thd(window, constants.CYCLES_PER_SECOND) for window in windows]
         prev_beyond_threshold = False
         prev_idx = -1
+        max_thd = -1
         for i in range(len(thds)):
+            if thds[i] > max_thd:
+                max_thd = thds[i]
+
             if thds[i] > self.threshold_percent:
                 # We only care if this is the start of a new anomaly
                 if not prev_beyond_threshold:
@@ -61,21 +65,24 @@ class ThdPlugin(plugins.base.MaukaPlugin):
             else:
                 # We only care if this is the end of an anomaly
                 if prev_beyond_threshold:
-                    anomaly = mongo.make_anomaly_document(event_id,  # Event id
-                                                          box_id,  # box id
-                                                          mongo.BoxEventType.THD.value,  # Event name
-                                                          "unknown",  # Location
-                                                          0,  # Start ts ms
-                                                          0,  # End ts ms
-                                                          0,  # Duration ms
-                                                          prev_idx,  # Start idx
-                                                          i,  # End idx
-                                                          {"min": numpy.min(thds[prev_idx:i]),  # Other fields
-                                                           "max": numpy.max(thds[prev_idx:i]),
-                                                           "avg": numpy.average(thds[prev_idx:i])})
-                    # self.mongo_client.anomalies_collection.insert_one(anomaly)
-                    self.debug(str(anomaly))
                     prev_beyond_threshold = False
+
+                    # Every thd value is a sample over a 200 ms window
+                    incident_start_timestamp = int(box_event_start_timestamp + (prev_idx * self.sliding_window_ms))
+                    incident_end_timestamp = int(box_event_start_timestamp + (i * self.sliding_window_ms) + self.sliding_window_ms)
+
+                    mongo.store_incident(
+                        event_id,
+                        box_id,
+                        incident_start_timestamp,
+                        incident_end_timestamp,
+                        mongo.IncidentMeasurementType.THD,
+                        max_thd,
+                        [mongo.IncidentClassification.EXCESSIVE_THD],
+                        [],
+                        {},
+                        self.mongo_client
+                    )
 
     def on_message(self, topic, mauka_message):
         """
@@ -90,6 +97,7 @@ class ThdPlugin(plugins.base.MaukaPlugin):
                                                         len(mauka_message.payload.data)))
             self.sliding_thd(mauka_message.payload.event_id,
                              mauka_message.payload.box_id,
+                             mauka_message.payload.start_timestamp_ms,
                              protobuf.util.repeated_as_ndarray(
                                  mauka_message.payload.data
                              ))
