@@ -83,6 +83,12 @@ class FrequencyVariationPlugin(plugins.base.MaukaPlugin):
                         {}, # metadata
                         mongo_client, # mongo client
                     )
+                    # print("Storing Incident")
+                    # print(incident_start_ts)
+                    # print(incident_end_ts)
+                    # print(mongo.IncidentMeasurementType.FREQUENCY)
+                    # print(numpy.average(incident_variations))
+                    # print([prev_incident])
 
                 incident_variations = [curr_variation]
                 incident_start_ts = i * window_duration_ms + box_event_start_ts
@@ -94,7 +100,7 @@ class FrequencyVariationPlugin(plugins.base.MaukaPlugin):
 
         # ensure if there is any frequency variation at the end of the event then it is still saved
         if prev_incident:  # make and store incident doc
-            incident_end_ts = (i + 1) * window_duration_ms + box_event_start_ts
+            incident_end_ts = len(windowed_frequencies) * window_duration_ms + box_event_start_ts
             mongo.store_incident(
                 event_id,  # Event id
                 box_id,  # box id
@@ -107,6 +113,12 @@ class FrequencyVariationPlugin(plugins.base.MaukaPlugin):
                 {},  # metadata
                 mongo_client,  # mongo client
             )
+            # print("Storing Incident")
+            # print(incident_start_ts)
+            # print(incident_end_ts)
+            # print(mongo.IncidentMeasurementType.FREQUENCY)
+            # print(numpy.average(incident_variations))
+            # print([prev_incident])
 
 
     def on_message(self, topic, mauka_message):

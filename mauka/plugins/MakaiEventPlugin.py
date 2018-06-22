@@ -60,7 +60,9 @@ def frequency(samples: numpy.ndarray) -> float:
 
     optimize_func = lambda x: x[0] * numpy.sin(x[1] * 2 * numpy.pi * t + x[2]) + x[3] - samples
     est_amp, est_freq, est_phase, est_mean = optimize.leastsq(optimize_func,
-                                                              [guess_amp, guess_freq, guess_phase, guess_mean])[0]
+                                                              numpy.array(
+                                                                  [guess_amp, guess_freq, guess_phase, guess_mean])
+                                                              )[0]
     return numpy.round(est_freq, decimals=2)
 
     """Zero Crossing Method:"""
