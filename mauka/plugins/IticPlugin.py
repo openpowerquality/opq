@@ -34,8 +34,8 @@ prohibited_region_polygon = [
     [3, 140],
     [3, 120],
     [20, 120],
-    [5000, 120],
-    [5000, 110],
+    [500, 120],
+    [500, 110],
     [10000, 110],
     [10000, 500],
     [HUNDREDTH_OF_A_CYCLE, 500]
@@ -46,8 +46,8 @@ no_damage_region_polygon = [
     [20, 0],
     [20, 40],
     [20, 70],
-    [5000, 70],
-    [5000, 80],
+    [500, 70],
+    [500, 80],
     [10000, 80],
     [10000, 90],
     [10000, 0],
@@ -63,13 +63,13 @@ no_interruption_region_polygon = [
     [3, 140],
     [3, 120],
     [20, 120],
-    [5000, 120],
-    [5000, 110],
+    [500, 120],
+    [500, 110],
     [10000, 110],
     [10000, 90],
     [10000, 80],
-    [5000, 80],
-    [5000, 70],
+    [500, 80],
+    [500, 70],
     [20, 70],
     [20, 40],
     [20, 0],
@@ -98,10 +98,10 @@ def itic_region(rms_voltage: float, duration_ms: float) -> IticRegion:
     :param duration_ms: The duration of the voltage event in milliseconds
     :return: The appropriate ITIC region enum
     """
-
     percent_nominal = (rms_voltage / 120.0) * 100.0
 
-    # First, let's check the extreme edge cases
+    # First, let's check the extreme edge cases. This can save us some time computing
+    # point in polygon if we can identify an extreme edge case first.
     if duration_ms < analysis.c_to_ms(0.01):
         return IticRegion.NO_INTERRUPTION
 
