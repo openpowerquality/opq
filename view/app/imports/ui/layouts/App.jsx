@@ -4,8 +4,6 @@ import { Meteor } from 'meteor/meteor';
 import { HashRouter as Router, Route, Switch, Redirect } from 'react-router-dom';
 import { Roles } from 'meteor/alanning:roles';
 import { ROLE } from '../../api/opq/Role';
-
-// Pages
 import NavBar from '../../ui/components/NavBar.jsx';
 import NotFound from '../../ui/pages/NotFound.jsx';
 import Signin from '../../ui/pages/Signin.jsx';
@@ -13,7 +11,10 @@ import About from '../../ui/pages/About.jsx';
 import Signout from '../../ui/pages/Signout.jsx';
 import Landing from '../../ui/pages/Landing';
 import Profile from '../../ui/pages/Profile';
-import Admin from '../../ui/pages/Admin';
+import ManageBoxPage from '../../ui/pages/ManageBoxPage';
+import ManageLocationPage from '../../ui/pages/ManageLocationPage';
+import ManageRegionPage from '../../ui/pages/ManageRegionPage';
+import ManageUserPage from '../../ui/pages/ManageUserPage';
 import BoxMapPage from '../../ui/pages/BoxMapPage';
 import EditBox from '../../ui/pages/EditBox';
 import LiveDataManager from '../../ui/pages/LiveDataManager';
@@ -29,7 +30,10 @@ class App extends React.Component {
             <Switch>
               <Route exact path="/" component={Landing} />
               <Route path="/about" component={About} />
-              <AdminProtectedRoute path="/admin" component={Admin}/>
+              <AdminProtectedRoute path="/admin/manage/opqbox" component={ManageBoxPage}/>
+              <AdminProtectedRoute path="/admin/manage/location" component={ManageLocationPage}/>
+              <AdminProtectedRoute path="/admin/manage/region" component={ManageRegionPage}/>
+              <AdminProtectedRoute path="/admin/manage/user" component={ManageUserPage}/>
               <ProtectedRoute path="/profile" component={Profile}/>
               <ProtectedRoute path="/boxmap" component={BoxMapPage}/>
               <ProtectedRoute path="/signout" component={Signout} />
