@@ -52,7 +52,7 @@ def frequency(samples: numpy.ndarray) -> float:
     """
 
     """Fit sinusoidal curve to data"""
-    guess_amp = 120.0
+    guess_amp = 120.0 * numpy.sqrt(2)
     guess_freq = constants.CYCLES_PER_SECOND
     guess_phase = 0.0
     guess_mean = 0.0
@@ -63,7 +63,7 @@ def frequency(samples: numpy.ndarray) -> float:
                                                               numpy.array(
                                                                   [guess_amp, guess_freq, guess_phase, guess_mean])
                                                               )[0]
-    return numpy.round(est_freq, decimals=2)
+    return float(numpy.round(est_freq, decimals=2))
 
     """Zero Crossing Method:"""
     # zero_crossing_indices = numpy.diff(samples > 0)
