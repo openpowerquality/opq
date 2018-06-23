@@ -30,6 +30,7 @@ class App extends React.Component {
             <Switch>
               <Route exact path="/" component={Landing} />
               <Route path="/about" component={About} />
+              <AdminProtectedRoute path="/admin/manage/opqbox/edit/:box_id" component={EditBox}/>
               <AdminProtectedRoute path="/admin/manage/opqbox" component={ManageBoxPage}/>
               <AdminProtectedRoute path="/admin/manage/location" component={ManageLocationPage}/>
               <AdminProtectedRoute path="/admin/manage/region" component={ManageRegionPage}/>
