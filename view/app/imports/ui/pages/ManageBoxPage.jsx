@@ -7,7 +7,6 @@ import { BoxOwners } from '/imports/api/users/BoxOwnersCollection';
 import { OpqBoxes } from '/imports/api/opq-boxes/OpqBoxesCollection';
 import { withTracker } from 'meteor/react-meteor-data';
 import PropTypes from 'prop-types';
-import Boxes from '/imports/ui/components/Boxes';
 import { _ } from 'lodash';
 
 /** Renders a table containing all of the Stuff documents. Use <StuffItem> to render each row. */
@@ -16,17 +15,6 @@ class ManageBoxPage extends React.Component {
   /** If the subscription(s) have been received, render the page, otherwise show a loading icon. */
   render() {
     return (this.props.ready) ? this.renderPage() : <Loader active>Getting data</Loader>;
-  }
-
-  /** Render the page once subscriptions have been received. */
-  renderPage2() { // eslint-disable-line class-methods-use-this
-    const boxIds = OpqBoxes.findBoxIds();
-    const boxes = _.sortBy(boxIds.map(id => OpqBoxes.findBox(id)), doc => doc.box_id);
-    return (
-        <Container>
-          <Boxes title="All Boxes" boxes={boxes} admin={true}/>
-        </Container>
-    );
   }
 
   /** Render the page once subscriptions have been received. */
@@ -53,7 +41,7 @@ class ManageBoxPage extends React.Component {
               <Table.Cell>{this.getBoxInfoString(box)}</Table.Cell>
               <Table.Cell>
                 <Button size='tiny'><Link to={`/admin/manage/opqbox/edit/${box.box_id}`}>Edit</Link></Button>
-              </Table.Cell> 
+              </Table.Cell>
             </Table.Row>)}
             </Table.Body>
             <Table.Footer fullWidth>
