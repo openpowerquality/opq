@@ -50,7 +50,8 @@ class IticPluginTests(unittest.TestCase):
 
     def test_itic_region_prohibited(self):
         """
-        All test results should return a prohibited ITIC region.
+        All test results should return a prohibited ITIC region. First we'll test a few that are clearly prohibited
+        and then we will probe around the edge of the prohibited region to test edge cases.
         """
         self.assertEqual(IticRegion.PROHIBITED, itic_region(percent_nominal_to_rms(300), 500))
         self.assertEqual(IticRegion.PROHIBITED, itic_region(percent_nominal_to_rms(600), 3))
@@ -58,5 +59,37 @@ class IticPluginTests(unittest.TestCase):
         self.assertEqual(IticRegion.PROHIBITED, itic_region(percent_nominal_to_rms(500), analysis.c_to_ms(.02)))
         self.assertEqual(IticRegion.PROHIBITED, itic_region(percent_nominal_to_rms(200), 1))
         self.assertEqual(IticRegion.PROHIBITED, itic_region(percent_nominal_to_rms(140), 3))
+        self.assertEqual(IticRegion.PROHIBITED, itic_region(percent_nominal_to_rms(121), 3))
+        self.assertEqual(IticRegion.PROHIBITED, itic_region(percent_nominal_to_rms(120), 500))
+        self.assertEqual(IticRegion.PROHIBITED, itic_region(percent_nominal_to_rms(110), 501))
+        self.assertEqual(IticRegion.PROHIBITED, itic_region(percent_nominal_to_rms(110), 501))
+        self.assertEqual(IticRegion.PROHIBITED, itic_region(percent_nominal_to_rms(110), 1000000))
+        self.assertEqual(IticRegion.PROHIBITED, itic_region(percent_nominal_to_rms(10000), analysis.c_to_ms(.02)))
+
+    def test_itic_region_no_damange(self):
+        """
+        All test results should return a prohibited ITIC region. First we'll test a few that are clearly prohibited
+        and then we will probe around the edge of the prohibited region to test edge cases.
+        """
+        self.assertEqual(IticRegion.NO_DAMAGE, itic_region(percent_nominal_to_rms(40), 500))
+        self.assertEqual(IticRegion.NO_DAMAGE, itic_region(percent_nominal_to_rms(40), 1000000))
+        self.assertEqual(IticRegion.NO_DAMAGE, itic_region(percent_nominal_to_rms(70), 10000))
+        self.assertEqual(IticRegion.NO_DAMAGE, itic_region(percent_nominal_to_rms(70), 500))
+        self.assertEqual(IticRegion.NO_DAMAGE, itic_region(percent_nominal_to_rms(70), 20.1))
+        self.assertEqual(IticRegion.NO_DAMAGE, itic_region(percent_nominal_to_rms(80), 500.1))
+        self.assertEqual(IticRegion.NO_DAMAGE, itic_region(percent_nominal_to_rms(90), 10000.1))
+        self.assertEqual(IticRegion.NO_DAMAGE, itic_region(percent_nominal_to_rms(90), 1000000))
+        self.assertEqual(IticRegion.NO_DAMAGE, itic_region(percent_nominal_to_rms(40), 20.1))
+        self.assertEqual(IticRegion.NO_DAMAGE, itic_region(percent_nominal_to_rms(0), 1000000))
+
+    def test_itic_region_no_interruption(self):
+        pass
+
+
+
+
+
+
+
 
 
