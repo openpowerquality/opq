@@ -86,7 +86,7 @@ class SemiF47Plugin(plugins.base.MaukaPlugin):
                         start_time_ms+(f[k][1]+1)*time_datum,
                         mongo.IncidentMeasurementType.VOLTAGE,
                         dev,
-                        ["SEMI_F47_VIOLATION"],
+                        [mongo.IncidentClassification.SEMI_F47_VIOLATION],
                         [],
                         {},
                         self.mongo_client
