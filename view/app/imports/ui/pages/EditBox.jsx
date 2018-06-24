@@ -18,10 +18,10 @@ class EditBox extends React.Component {
 
   /** On submit, look up location slug from description, then call generic base.updateMethod. */
   submit(data) {
-    const { _id, name, description, calibration_constant, locationDescription } = data;
+    const { _id, name, description, calibration_constant, unplugged, locationDescription } = data;
     const location = Locations.findSlugFromDescription(locationDescription);
     const collectionName = OpqBoxes.getCollectionName();
-    const updateData = { id: _id, name, description, calibration_constant, location };
+    const updateData = { id: _id, name, description, calibration_constant, unplugged, location };
     updateMethod.call({ collectionName, updateData }, (error) => (error ?
         Bert.alert({ type: 'danger', style: 'growl-bottom-left', message: `Update failed: ${error.message}` }) :
         Bert.alert({ type: 'success', style: 'growl-bottom-left', message: 'Update succeeded' })));

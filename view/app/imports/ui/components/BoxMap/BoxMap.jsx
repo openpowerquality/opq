@@ -124,6 +124,9 @@ class BoxMap extends React.Component {
     // center to Oahu coordinates by default.
     const boxLocation = this.getOpqBoxLocationDoc(opqBoxes[0]);
     const center = (boxLocation) ? boxLocation.coordinates.slice().reverse() : [21.44, -158.0];
+    // It seems that the dropdown menu from the navigation bar has a z-index of 11, which results in the menu clipping
+    // beneath the Leaflet map. We set the map's z-index to 10 to fix this.
+    const mapStyle = { height: '100%', zIndex: 10 };
 
     return (
         <WidgetPanel title="Box Map" noPadding={true} helpText={this.helpText}>
@@ -133,7 +136,7 @@ class BoxMap extends React.Component {
                  center={center}
                  zoom={11}
                  zoomControl={false} // We don't want the default topleft zoomcontrol
-                 style={{ height: '100%' }}>
+                 style={mapStyle}>
               <TileLayer
                   attribution="&amp;copy <a href=&quot;http://osm.org/copyright&quot;>OpenStreetMap</a> contributors"
                   url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
