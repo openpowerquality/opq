@@ -29,7 +29,7 @@ def frequency_variation(frequency: float, freq_ref: float, freq_var_high: float,
     elif frequency <= freq_interruption:
         variation_type = mongo.IncidentClassification.FREQUENCY_INTERRUPTION
     elif frequency <= (freq_ref - freq_var_low):
-        variation_type = mongo.IncidentClassification.FREQUENCY_DIP
+        variation_type = mongo.IncidentClassification.FREQUENCY_SAG
     else:
         variation_type = False
 
@@ -41,7 +41,7 @@ def frequency_incident_classifier(event_id: int, box_id: str, windowed_frequenci
                                     freq_interruption: float, window_size: float = constants.SAMPLES_PER_CYCLE,
                                     opq_mongo_client: mongo.OpqMongoClient = None, logger = None):
     """
-    Classifies a frequency incident as a Sag, Swell, or Interruption. Creates a Mongo Anomaly document
+    Classifies a frequency incident as a Sag, Swell, or Interruption. Creates a Mongo Incident document
     :param event_id: Makai Event ID
     :param box_id: Box reporting event
     :param windowed_frequencies: High fidelity frequency measurements of windows
@@ -51,6 +51,7 @@ def frequency_incident_classifier(event_id: int, box_id: str, windowed_frequenci
     :param freq_interruption:
     :param window_size: The number of samples per window
     :param opq_mongo_client:
+    :param logger:
     """
 
     mongo_client = mongo.get_default_client(opq_mongo_client)
@@ -147,7 +148,6 @@ class FrequencyVariationPlugin(plugins.base.MaukaPlugin):
         self.freq_var_low = float(self.config_get("plugins.FrequencyVariationPlugin.frequency.variation.threshold.low"))
         self.freq_var_high = float(self.config_get("plugins.FrequencyVariationPlugin.frequency.variation.threshold.high"))
         self.freq_interruption = float(self.config_get("plugins.FrequencyVariationPlugin.frequency.interruption"))
-
 
     def on_message(self, topic, mauka_message):
         """
