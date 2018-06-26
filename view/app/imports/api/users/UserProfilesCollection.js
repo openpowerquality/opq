@@ -99,6 +99,17 @@ class UserProfilesCollection extends BaseCollection {
   }
 
   /**
+   * Returns a list of all of the currently defined usernames.
+   * @param sort If truthy, then sort the list before returning.
+   * @returns {*} A list of strings, each one corresponding to a username.
+   */
+  findUsernames(sort = false) {
+    const docs = this._collection.find({});
+    const usernames = _.pick(docs, 'username');
+    return (sort) ? usernames.sort() : usernames;
+  }
+
+  /**
    * Updates the User Profile (firstName, lastName, boxIds).
    * Runs on server side only. Only admins should update the user profile to control box ownership.
    * @param id Must be a valid UserProfile docID.
