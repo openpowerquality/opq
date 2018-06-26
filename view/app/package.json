@@ -34,19 +34,20 @@
     "uniforms-semantic": "^1.24.4"
   },
   "devDependencies": {
-    "hoek": "^4.2.1",
     "babel-eslint": "^8.2.3",
     "chai": "*",
+    "cross-env": "^5.2.0",
     "eslint": "^4.19.1",
     "eslint-config-airbnb": "^16.1.0",
     "eslint-plugin-import": "^2.12.0",
     "eslint-plugin-jsx-a11y": "^6.0.3",
     "eslint-plugin-meteor": "^4.2.2",
     "eslint-plugin-react": "^7.8.2",
+    "hoek": "^4.2.1",
     "nightmare": "^2.10.0"
   },
   "scripts": {
-    "start": "METEOR_NO_RELEASE_CHECK=1 meteor --settings ../config/settings.development.json",
+    "start": "cross-env METEOR_NO_RELEASE_CHECK=1 meteor --settings ../config/settings.development.json",
     "start-production": "METEOR_NO_RELEASE_CHECK=1 meteor --settings ../config/settings.production.json",
     "build": "meteor build ../deploy --architecture os.linux.x86_64",
     "lint": "METEOR_NO_RELEASE_CHECK=1 eslint --quiet --ext .jsx --ext .js ./imports",
