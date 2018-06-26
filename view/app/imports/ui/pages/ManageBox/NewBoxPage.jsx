@@ -1,8 +1,9 @@
 import { Meteor } from 'meteor/meteor';
 import React from 'react';
 import PropTypes from 'prop-types';
+import { withRouter, Link } from 'react-router-dom';
 import { Bert } from 'meteor/themeteorchef:bert';
-import { Grid, Loader, Header, Segment } from 'semantic-ui-react';
+import { Loader, Header, Segment, Container, Button } from 'semantic-ui-react';
 import AutoForm from 'uniforms-semantic/AutoForm';
 import AutoField from 'uniforms-semantic/AutoField';
 import SubmitField from 'uniforms-semantic/SubmitField';
@@ -52,9 +53,8 @@ class NewBoxPage extends React.Component {
       locationDescription: { type: String, allowedValues: locationDescriptions, label: 'Location' },
     });
     return (
-      <Grid container centered>
-        <Grid.Column>
-          <Header as="h2" textAlign="center">New OPQ Box</Header>
+      <Container>
+          <Header attached="top" as="h2" textAlign="center">New OPQ Box</Header>
           <AutoForm schema={formSchema} onSubmit={this.submit}>
             <Segment>
               <AutoField name='box_id'/>
@@ -68,8 +68,10 @@ class NewBoxPage extends React.Component {
               <ErrorsField/>
             </Segment>
           </AutoForm>
-        </Grid.Column>
-      </Grid>
+        <Button attached='bottom' size='tiny'>
+          <Link to={'/admin/manage/opqbox/'}>Back to Manage OPQBoxes</Link>
+        </Button>
+      </Container>
     );
   }
 }
@@ -88,4 +90,4 @@ export default withTracker(() => {
     ready: opqBoxesSubscription.ready() && locationsSubscription.ready() &&
     userProfilesSubscription.ready(),
   };
-})(NewBoxPage);
+})(withRouter(NewBoxPage));

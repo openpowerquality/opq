@@ -3,7 +3,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Bert } from 'meteor/themeteorchef:bert';
 import { withRouter, Link } from 'react-router-dom';
-import { Grid, Loader, Header, Segment, Button } from 'semantic-ui-react';
+import { Container, Loader, Header, Segment, Button } from 'semantic-ui-react';
 import AutoForm from 'uniforms-semantic/AutoForm';
 import AutoField from 'uniforms-semantic/AutoField';
 import SubmitField from 'uniforms-semantic/SubmitField';
@@ -56,8 +56,7 @@ class EditBoxPage extends React.Component {
     this.props.doc.locationDescription = Locations.getDoc(this.props.doc.location).description;
     this.props.doc.owners = BoxOwners.findOwnersWithBoxId(this.props.doc.box_id);
     return (
-      <Grid container centered>
-        <Grid.Column>
+      <Container>
           <Header attached="top" as="h3" textAlign="center">Edit OPQ Box</Header>
           <AutoForm schema={formSchema} onSubmit={this.submit} model={this.props.doc}>
             <Segment>
@@ -72,9 +71,10 @@ class EditBoxPage extends React.Component {
               <ErrorsField/>
             </Segment>
           </AutoForm>
-          <Button attached='bottom' size='tiny'><Link to={'/admin/manage/opqbox/'}>Back to Manage OPQBoxes</Link></Button>
-        </Grid.Column>
-      </Grid>
+          <Button attached='bottom' size='tiny'>
+            <Link to={'/admin/manage/opqbox/'}>Back to Manage OPQBoxes</Link>
+          </Button>
+      </Container>
     );
   }
 }
