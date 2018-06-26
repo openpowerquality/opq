@@ -1,7 +1,7 @@
 import React from 'react';
 import { Meteor } from 'meteor/meteor';
 import { withRouter, Link } from 'react-router-dom';
-import { Container, Loader, Table, Button } from 'semantic-ui-react';
+import { Container, Loader, Table, Button, Header } from 'semantic-ui-react';
 import { Locations } from '/imports/api/locations/LocationsCollection';
 import { BoxOwners } from '/imports/api/users/BoxOwnersCollection';
 import { OpqBoxes } from '/imports/api/opq-boxes/OpqBoxesCollection';
@@ -22,6 +22,7 @@ class ManageBoxPage extends React.Component {
     const boxes = boxIds.map(id => OpqBoxes.findBox(id));
     return (
         <Container>
+          <Header attached="top" as="h3" textAlign="center">Manage OPQ Boxes</Header>
           <Table>
             <Table.Header>
               <Table.Row>

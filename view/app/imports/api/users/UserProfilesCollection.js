@@ -1,7 +1,7 @@
 import { Meteor } from 'meteor/meteor';
 import { Accounts } from 'meteor/accounts-base';
 import { Roles } from 'meteor/alanning:roles';
-import { _ } from 'lodash';
+import { _ } from 'underscore';
 import SimpleSchema from 'simpl-schema';
 import BaseCollection from '../base/BaseCollection';
 import { BoxOwners } from './BoxOwnersCollection';
@@ -104,9 +104,9 @@ class UserProfilesCollection extends BaseCollection {
    * @returns {*} A list of strings, each one corresponding to a username.
    */
   findUsernames(sort = false) {
-    const docs = this._collection.find({});
-    const usernames = _.pick(docs, 'username');
-    return (sort) ? usernames.sort() : usernames;
+    const docs = this._collection.find({}).fetch();
+    const usernames = _.pluck(docs, 'username');
+    return (sort) ? _.sortBy(usernames, username => username.toLowerCase()) : usernames;
   }
 
   /**
