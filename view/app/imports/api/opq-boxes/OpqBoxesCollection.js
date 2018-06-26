@@ -52,7 +52,7 @@ class OpqBoxesCollection extends BaseCollection {
    * @returns The docID of the new or changed OPQBox document, or undefined if invoked on the client side.
    */
   define({ box_id, name, description, unplugged = false, calibration_constant = 1, location, location_start_time_ms,
-         location_archive, allowRedefinition = false }) {
+         location_archive, allowRedefinition = false, owners }) {
     if (Meteor.isServer) {
       if (!allowRedefinition && this.isBoxId(box_id)) {
         throw new Meteor.Error(`Box ID ${box_id} is already defined.`);
@@ -76,6 +76,10 @@ class OpqBoxesCollection extends BaseCollection {
         { $set: { name, description, calibration_constant, location, unplugged, location_start_time_ms,
             location_archive } },
         );
+      // Define or update the owners associated with this box if owners is supplied.
+      if (owners) {
+        BoxOwners.updateOwnersForBox(box_id, owners);
+      }
       const docID = this.findOne({ box_id })._id;
       return docID;
     }
@@ -106,6 +110,9 @@ class OpqBoxesCollection extends BaseCollection {
       }
       if (_.has(args, 'calibration_constant')) {
         updateData.calibration_constant = args.calibration_constant;
+      }
+      if (args.owners) {
+        BoxOwners.updateOwnersForBox(opqBoxDoc.box_id, args.owners);
       }
       if (args.location) {
         if (!Locations.isLocation(args.location)) {

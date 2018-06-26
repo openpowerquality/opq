@@ -2,7 +2,8 @@ import { Meteor } from 'meteor/meteor';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Bert } from 'meteor/themeteorchef:bert';
-import { Grid, Loader, Header, Segment } from 'semantic-ui-react';
+import { withRouter, Link } from 'react-router-dom';
+import { Container, Loader, Header, Segment, Button } from 'semantic-ui-react';
 import AutoForm from 'uniforms-semantic/AutoForm';
 import AutoField from 'uniforms-semantic/AutoField';
 import SubmitField from 'uniforms-semantic/SubmitField';
@@ -10,6 +11,8 @@ import HiddenField from 'uniforms-semantic/HiddenField';
 import ErrorsField from 'uniforms-semantic/ErrorsField';
 import { OpqBoxes } from '/imports/api/opq-boxes/OpqBoxesCollection';
 import { Locations } from '/imports/api/locations/LocationsCollection';
+import { UserProfiles } from '/imports/api/users/UserProfilesCollection';
+import { BoxOwners } from '/imports/api/users/BoxOwnersCollection';
 import { withTracker } from 'meteor/react-meteor-data';
 import SimpleSchema from 'simpl-schema';
 import { updateMethod } from '/imports/api/base/BaseCollection.methods';
@@ -18,10 +21,10 @@ class EditBoxPage extends React.Component {
 
   /** On submit, look up location slug from description, then call generic base.updateMethod. */
   submit(data) {
-    const { _id, name, description, calibration_constant, unplugged, locationDescription } = data;
+    const { _id, name, description, calibration_constant, unplugged, locationDescription, owners } = data;
     const location = Locations.findSlugFromDescription(locationDescription);
     const collectionName = OpqBoxes.getCollectionName();
-    const updateData = { id: _id, name, description, calibration_constant, unplugged, location };
+    const updateData = { id: _id, name, description, calibration_constant, unplugged, location, owners };
     updateMethod.call({ collectionName, updateData }, (error) => (error ?
         Bert.alert({ type: 'danger', style: 'growl-bottom-left', message: `Update failed: ${error.message}` }) :
         Bert.alert({ type: 'success', style: 'growl-bottom-left', message: 'Update succeeded' })));
@@ -38,19 +41,23 @@ class EditBoxPage extends React.Component {
    */
   renderPage() {
     const locationDescriptions = Locations.getDocs().map(doc => doc.description);
+    const owners = UserProfiles.findUsernames(true);
     const formSchema = new SimpleSchema({
       box_id: String,
       name: String,
       description: String,
+      owners: { type: Array },
+      'owners.$': { type: String, allowedValues: owners },
       unplugged: Boolean,
       calibration_constant: Number,
       locationDescription: { type: String, allowedValues: locationDescriptions, label: 'Location' },
     });
+    // Update the Uniforms model with current values for locationDescription and Owners.
     this.props.doc.locationDescription = Locations.getDoc(this.props.doc.location).description;
+    this.props.doc.owners = BoxOwners.findOwnersWithBoxId(this.props.doc.box_id);
     return (
-      <Grid container centered>
-        <Grid.Column>
-          <Header as="h2" textAlign="center">Edit OPQ Box</Header>
+      <Container>
+          <Header attached="top" as="h3" textAlign="center">Edit OPQ Box</Header>
           <AutoForm schema={formSchema} onSubmit={this.submit} model={this.props.doc}>
             <Segment>
               <HiddenField name='box_id'/>
@@ -59,12 +66,15 @@ class EditBoxPage extends React.Component {
               <AutoField name='unplugged'/>
               <AutoField name='calibration_constant'/>
               <AutoField name='locationDescription' />
+              <AutoField name='owners' />
               <SubmitField value='Submit'/>
               <ErrorsField/>
             </Segment>
           </AutoForm>
-        </Grid.Column>
-      </Grid>
+          <Button attached='bottom' size='tiny'>
+            <Link to={'/admin/manage/opqbox/'}>Back to Manage OPQBoxes</Link>
+          </Button>
+      </Container>
     );
   }
 }
@@ -82,8 +92,11 @@ export default withTracker(({ match }) => {
   const boxID = match.params.box_id;
   const opqBoxesSubscription = Meteor.subscribe(OpqBoxes.getPublicationName());
   const locationsSubscription = Meteor.subscribe(Locations.getPublicationName());
+  const userProfilesSubscription = Meteor.subscribe(UserProfiles.getPublicationName());
+  const boxOwnersSubscription = Meteor.subscribe(BoxOwners.getPublicationName());
   return {
-    ready: opqBoxesSubscription.ready() && locationsSubscription.ready(),
+    ready: opqBoxesSubscription.ready() && locationsSubscription.ready() &&
+    userProfilesSubscription.ready() && boxOwnersSubscription.ready(),
     doc: OpqBoxes.findBox(boxID),
   };
-})(EditBoxPage);
+})(withRouter(EditBoxPage));
