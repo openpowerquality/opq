@@ -7,7 +7,6 @@ import { BoxOwners } from '/imports/api/users/BoxOwnersCollection';
 import { OpqBoxes } from '/imports/api/opq-boxes/OpqBoxesCollection';
 import { withTracker } from 'meteor/react-meteor-data';
 import PropTypes from 'prop-types';
-import { _ } from 'lodash';
 
 /** Renders a table containing all of the OPQBox documents. */
 class ManageBoxPage extends React.Component {
@@ -19,8 +18,8 @@ class ManageBoxPage extends React.Component {
 
   /** Render the page once subscriptions have been received. */
   renderPage() { // eslint-disable-line class-methods-use-this
-    const boxIds = OpqBoxes.findBoxIds();
-    const boxes = _.sortBy(boxIds.map(id => OpqBoxes.findBox(id)), doc => doc.box_id);
+    const boxIds = OpqBoxes.findBoxIds(true);
+    const boxes = boxIds.map(id => OpqBoxes.findBox(id));
     return (
         <Container>
           <Table>
