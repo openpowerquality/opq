@@ -1,8 +1,12 @@
-import constants
+"""
+This module provides analysis/util functions that may be called from multiple locations.
+"""
 
 import typing
 
 import numpy
+
+import constants
 
 
 def c_to_ms(cycles: float) -> float:
@@ -15,10 +19,20 @@ def c_to_ms(cycles: float) -> float:
 
 
 def ms_to_c(duration_ms: float) -> float:
+    """
+    Convert a duration in milliseconds to cycles.
+    :param duration_ms: milliseconds
+    :return: cycles
+    """
     return duration_ms * constants.CYCLES_PER_MILLISECOND
 
 
 def ms_to_samples(duration_ms: float) -> float:
+    """
+    Convert a duration in milliseconds to cycles.
+    :param duration_ms: milliseconds
+    :return: Number of samples over that duration
+    """
     return duration_ms * constants.SAMPLES_PER_MILLISECOND
 
 

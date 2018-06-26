@@ -1,6 +1,4 @@
 import signal
-import sys
-import threading
 import typing
 
 import plugins.base
