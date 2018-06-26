@@ -15,6 +15,7 @@ import protobuf.util
 
 class HealthState:
     """Thread safe class for passing plugin state to HTTP server"""
+
     def __init__(self):
         self.lock = threading.RLock()
         self.state = {}

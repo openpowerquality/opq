@@ -104,11 +104,3 @@ class IticPluginTests(unittest.TestCase):
         self.assertEqual(IticRegion.NO_INTERRUPTION, itic_region(percent_nominal_to_rms(80), 499))
         self.assertEqual(IticRegion.NO_INTERRUPTION, itic_region(percent_nominal_to_rms(70), 19))
         self.assertEqual(IticRegion.NO_INTERRUPTION, itic_region(percent_nominal_to_rms(40), 19))
-
-
-
-
-
-
-
-

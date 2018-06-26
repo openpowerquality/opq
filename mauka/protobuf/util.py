@@ -146,4 +146,3 @@ def is_measurement(mauka_message: mauka_pb2.Measurement) -> bool:
 
 def repeated_as_ndarray(repeated) -> numpy.ndarray:
     return numpy.array(repeated)
-

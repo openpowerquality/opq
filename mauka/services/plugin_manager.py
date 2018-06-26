@@ -296,8 +296,6 @@ class PluginManager:
             process.start()
             return process
 
-
-
     def handle_tcp_request(self, request: str) -> str:
         return self.cli_parser.parse(request.split(" "))
 

@@ -53,7 +53,6 @@ if __name__ == "__main__":
             _logger.error("usage: ./mock.py config topic message")
             exit(0)
 
-
     if len(sys.argv) != 4:
         sys.exit("usage: ./mock.py config topic message")
 

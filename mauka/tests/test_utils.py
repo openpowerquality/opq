@@ -55,8 +55,6 @@ class MaukaService:
             self.plugin_manager_thread.terminate()
 
 
-
-
 def setup_mauka(config: typing.Dict, plugins: typing.List[plugins.base.MaukaPlugin]):
     """Setup a running, testable, mock version of Mauka."""
     mauka_service = MaukaService(config, plugins)
@@ -66,4 +64,3 @@ def setup_mauka(config: typing.Dict, plugins: typing.List[plugins.base.MaukaPlug
 
 def tear_down_mauka(mauka_service: MaukaService):
     mauka_service.stop_mauka_service()
-
