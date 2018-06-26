@@ -45,13 +45,18 @@ class OpqBoxesCollection extends BaseCollection {
    * @param {Number} calibration_constant - The calibration constant value of the box. Defaults to 1.
    * @param {String} location - A location slug indicating this boxes current location. (optional)
    * @param {Number | String} location_start_time_ms - The timestamp when this box became active at this location.
-   *        Any representation legal to Moment() will work. (Optional, defaults to now if location is supplied.)
+   *        Any representation legal to Moment() will work. (Optional, defaults to now if location is not supplied.)
    * @param {Array} location_archive An array of {location, location_start_time_ms} objects. (Optional).
+   * @param {Boolean} allowRedefinition - If true, then box_id can exist and this definition will update it. Otherwise
+   * box_id must not already exist.
    * @returns The docID of the new or changed OPQBox document, or undefined if invoked on the client side.
    */
   define({ box_id, name, description, unplugged = false, calibration_constant = 1, location, location_start_time_ms,
-         location_archive }) {
+         location_archive, allowRedefinition = false }) {
     if (Meteor.isServer) {
+      if (!allowRedefinition && this.isBoxId(box_id)) {
+        throw new Meteor.Error(`Box ID ${box_id} is already defined.`);
+      }
       if (location && !Locations.isLocation(location)) {
         throw new Meteor.Error(`Location ${location} is not a defined location.`);
       }
@@ -186,9 +191,16 @@ class OpqBoxesCollection extends BaseCollection {
    * Returns the boxIDs of all boxes in the collection.
    * @return { Array } An array of boxIds.
    */
-  findBoxIds() {
+  findBoxIds(sort = false) {
     const docs = this._collection.find({}).fetch();
-    return (docs) ? _.map(docs, doc => doc.box_id) : [];
+    if (!docs) {
+      return [];
+    }
+    let boxIds = _.map(docs, doc => doc.box_id);
+    if (sort) {
+      boxIds = _.sortBy(boxIds, boxId => (_.isNumber(parseInt(boxId, 10)) ? parseInt(boxId, 10) : boxId));
+    }
+    return boxIds;
   }
 
   publish() {

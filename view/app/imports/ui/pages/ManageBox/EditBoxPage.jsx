@@ -12,9 +12,9 @@ import { OpqBoxes } from '/imports/api/opq-boxes/OpqBoxesCollection';
 import { Locations } from '/imports/api/locations/LocationsCollection';
 import { withTracker } from 'meteor/react-meteor-data';
 import SimpleSchema from 'simpl-schema';
-import { updateMethod } from '../../api/base/BaseCollection.methods';
+import { updateMethod } from '/imports/api/base/BaseCollection.methods';
 
-class EditBox extends React.Component {
+class EditBoxPage extends React.Component {
 
   /** On submit, look up location slug from description, then call generic base.updateMethod. */
   submit(data) {
@@ -70,7 +70,7 @@ class EditBox extends React.Component {
 }
 
 /** Uniforms adds 'model' to the props, which we use. */
-EditBox.propTypes = {
+EditBoxPage.propTypes = {
   doc: PropTypes.object,
   model: PropTypes.object,
   ready: PropTypes.bool.isRequired,
@@ -86,4 +86,4 @@ export default withTracker(({ match }) => {
     ready: opqBoxesSubscription.ready() && locationsSubscription.ready(),
     doc: OpqBoxes.findBox(boxID),
   };
-})(EditBox);
+})(EditBoxPage);
