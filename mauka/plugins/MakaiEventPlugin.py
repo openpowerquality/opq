@@ -63,9 +63,8 @@ def frequency(samples: numpy.ndarray) -> float:
                                                               numpy.array(
                                                                   [guess_amp, guess_freq, guess_phase, guess_mean])
                                                               )[0]
-    est_freq = est_freq - est_freq % 0.01
 
-    return float(est_freq)
+    return round(est_freq, ndigits=2)
 
     """Zero Crossing Method:"""
     # zero_crossing_indices = numpy.diff(samples > 0)

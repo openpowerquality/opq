@@ -36,6 +36,7 @@ def frequency_variation(frequency: float, freq_ref: float, freq_var_high: float,
     return variation_type, frequency - freq_ref
 
 
+
 def frequency_incident_classifier(event_id: int, box_id: str, windowed_frequencies: numpy.ndarray,
                                     box_event_start_ts: int, freq_ref: float, freq_var_high: float, freq_var_low: float,
                                     freq_interruption: float, window_size: float = constants.SAMPLES_PER_CYCLE,
