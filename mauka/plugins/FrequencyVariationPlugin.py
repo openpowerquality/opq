@@ -36,11 +36,10 @@ def frequency_variation(frequency: float, freq_ref: float, freq_var_high: float,
     return variation_type, frequency - freq_ref
 
 
-
 def frequency_incident_classifier(event_id: int, box_id: str, windowed_frequencies: numpy.ndarray,
-                                    box_event_start_ts: int, freq_ref: float, freq_var_high: float, freq_var_low: float,
-                                    freq_interruption: float, window_size: float = constants.SAMPLES_PER_CYCLE,
-                                    opq_mongo_client: mongo.OpqMongoClient = None, logger = None):
+                                  box_event_start_ts: int, freq_ref: float, freq_var_high: float, freq_var_low: float,
+                                  freq_interruption: float, window_size: float = constants.SAMPLES_PER_CYCLE,
+                                  opq_mongo_client: mongo.OpqMongoClient = None, logger = None):
     """
     Classifies a frequency incident as a Sag, Swell, or Interruption. Creates a Mongo Incident document
     :param event_id: Makai Event ID
@@ -60,6 +59,7 @@ def frequency_incident_classifier(event_id: int, box_id: str, windowed_frequenci
     prev_incident = False
     incident_start_ts = box_event_start_ts
     incident_variations = []
+    incidents = []
 
     if logger is not None:
         logger.debug("Calculating frequency with {} segments.".format(len(windowed_frequencies)))
@@ -77,24 +77,13 @@ def frequency_incident_classifier(event_id: int, box_id: str, windowed_frequenci
                         event_id,
                         box_id
                     ))
-                mongo.store_incident(
-                    event_id,  # Event id
-                    box_id,  # box id
-                    incident_start_ts,  # Start ts ms
-                    incident_end_ts,  # End ts ms
-                    mongo.IncidentMeasurementType.FREQUENCY,
-                    numpy.average(incident_variations),  # incident's average deviation from nominal
-                    [prev_incident],  # incident classifications
-                    [],  # annotations
-                    {},  # metadata
-                    mongo_client,  # mongo client
-                )
-                # print("Storing Incident")
-                # print(incident_start_ts)
-                # print(incident_end_ts)
-                # print(mongo.IncidentMeasurementType.FREQUENCY)
-                # print(numpy.average(incident_variations))
-                # print([prev_incident])
+                incidents.append({"event_id": event_id, "box_id": box_id, "incident_start_ts": incident_start_ts,
+                                  "incident_end_ts": incident_end_ts,
+                                  "incident_type": mongo.IncidentMeasurementType.FREQUENCY,
+                                  "avg_deviation": numpy.average(incident_variations),
+                                  "incident_classifications": [prev_incident], "annotations": [], "metadata": {},
+                                  "mongo_client": mongo_client}
+                                 )
 
             incident_variations = [curr_variation]
             incident_start_ts = i * window_duration_ms + box_event_start_ts
@@ -113,24 +102,14 @@ def frequency_incident_classifier(event_id: int, box_id: str, windowed_frequenci
                 event_id,
                 box_id
             ))
-        mongo.store_incident(
-            event_id,  # Event id
-            box_id,  # box id
-            incident_start_ts,  # Start ts ms
-            incident_end_ts,  # End ts ms
-            mongo.IncidentMeasurementType.FREQUENCY,
-            numpy.average(incident_variations),  # incident's average deviation from nominal
-            [prev_incident],  # incident classifications
-            [],  # annotations
-            {},  # metadata
-            mongo_client,  # mongo client
-        )
-        # print("Storing Incident")
-        # print(incident_start_ts)
-        # print(incident_end_ts)
-        # print(mongo.IncidentMeasurementType.FREQUENCY)
-        # print(numpy.average(incident_variations))
-        # print([prev_incident])
+        incidents.append({"event_id": event_id, "box_id": box_id, "incident_start_ts": incident_start_ts,
+                          "incident_end_ts": incident_end_ts,
+                          "incident_type": mongo.IncidentMeasurementType.FREQUENCY,
+                          "avg_deviation": numpy.average(incident_variations),
+                          "incident_classifications": [prev_incident], "annotations": [], "metadata": {},
+                          "mongo_client": mongo_client}
+                         )
+    return incidents
 
 class FrequencyVariationPlugin(plugins.base.MaukaPlugin):
     """
@@ -161,15 +140,26 @@ class FrequencyVariationPlugin(plugins.base.MaukaPlugin):
             self.debug("on_message {}:{} len:{}".format(mauka_message.payload.event_id,
                                                         mauka_message.payload.box_id,
                                                         len(mauka_message.payload.data)))
-            frequency_incident_classifier(mauka_message.payload.event_id,
-                                                 mauka_message.payload.box_id,
-                                                 protobuf.util.repeated_as_ndarray(
-                                                    mauka_message.payload.data
-                                                 ),
-                                                 mauka_message.payload.start_timestamp_ms,
-                                                 self.freq_ref, self.freq_var_high, self.freq_var_low,
-                                                 self.freq_interruption, logger=self.logger)
 
+            incidents = frequency_incident_classifier(mauka_message.payload.event_id, mauka_message.payload.box_id,
+                                                      protobuf.util.repeated_as_ndarray(mauka_message.payload.data),
+                                                      mauka_message.payload.start_timestamp_ms,
+                                                      self.freq_ref, self.freq_var_high, self.freq_var_low,
+                                                      self.freq_interruption, logger=self.logger)
+
+            for incident in incidents:
+                mongo.store_incident(
+                    incident["event_id"],
+                    incident["box_id"],
+                    incident["incident_start_ts"],
+                    incident["incident_end_ts"],
+                    incident["incident_type"],
+                    incident["avg_deviation"],
+                    incident["incident_classifications"],
+                    incident["annotations"],
+                    incident["metadata"],
+                    incident["mongo_client"]
+                )
         else:
             self.logger.error("Received incorrect mauka message [{}] at FrequencyVariationPlugin".format(
                 protobuf.util.which_message_oneof(mauka_message)
