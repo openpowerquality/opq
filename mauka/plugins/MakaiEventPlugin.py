@@ -9,12 +9,13 @@ import typing
 
 import numpy
 
+from scipy import optimize
+
 import constants
 import mongo
 import plugins.base
 import protobuf.mauka_pb2
 import protobuf.util
-from scipy import optimize
 
 
 def vrms(samples: numpy.ndarray) -> float:

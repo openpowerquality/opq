@@ -1,7 +1,6 @@
 """
 This module contains classes and functions for querying and manipulating data within a mongo database.
 """
-import analysis
 
 import enum
 import typing
@@ -10,6 +9,7 @@ import gridfs
 import numpy
 import pymongo
 
+import analysis
 import constants
 
 

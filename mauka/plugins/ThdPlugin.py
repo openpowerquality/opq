@@ -75,11 +75,11 @@ class ThdPlugin(plugins.base.MaukaPlugin):
         prev_beyond_threshold = False
         prev_idx = -1
         max_thd = -1
-        for i in range(len(thds)):
-            if thds[i] > max_thd:
-                max_thd = thds[i]
+        for i, thd_i in enumerate(thds):
+            if thd_i > max_thd:
+                max_thd = thd_i
 
-            if thds[i] > self.threshold_percent:
+            if thd_i > self.threshold_percent:
                 # We only care if this is the start of a new anomaly
                 if not prev_beyond_threshold:
                     prev_idx = i

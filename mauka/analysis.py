@@ -62,8 +62,8 @@ def segment(a: numpy.ndarray, delta: float) -> typing.List[numpy.ndarray]:
     stable = (abs_diffs < delta)
 
     stable_segments = []
-    for i in range(len(stable)):
-        if stable[i]:
+    for i, v in enumerate(stable):
+        if v:
             if len(stable_segments) == 0:
                 stable_segments.append([i, i + 1])
             else:

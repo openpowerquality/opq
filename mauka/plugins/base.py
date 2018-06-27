@@ -231,7 +231,7 @@ class MaukaPlugin:
 
         :param message: The message to handle
         """
-        if "EXIT" == message:
+        if message == "EXIT":
             self.exit_event.set()
 
     def debug(self, msg: str):

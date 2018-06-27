@@ -12,8 +12,8 @@ max_line_length = 120
 
 [mauka.pylint]
 bears = PyLintBear
-pylint_disable = C, E, F, I, R, W
-pylint_enable = C0111, C0112
+pylint_disable = C0103, C0301, C1801, E, R, W
+
 
 [mauka.pyflakes]
 ignore += plugins/__init__.py, services/__init__.py
