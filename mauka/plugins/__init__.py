@@ -4,10 +4,10 @@ That is, when you import plugins, you can access all of the plugins from the plu
 plugins individually.
 """
 
-from plugins.AcquisitionTriggerPlugin import AcquisitionTriggerPlugin
-from plugins.FrequencyThresholdPlugin import FrequencyThresholdPlugin
-from plugins.IticPlugin import IticPlugin
-from plugins.MakaiEventPlugin import MakaiEventPlugin
-from plugins.StatusPlugin import StatusPlugin
-from plugins.ThdPlugin import ThdPlugin
-from plugins.VoltageThresholdPlugin import VoltageThresholdPlugin
+from plugins.acquisition_trigger_plugin import AcquisitionTriggerPlugin
+from plugins.frequency_threshold_plugin import FrequencyThresholdPlugin
+from plugins.itic_plugin import IticPlugin
+from plugins.makai_event_plugin import MakaiEventPlugin
+from plugins.status_plugin import StatusPlugin
+from plugins.thd_plugin import ThdPlugin
+from plugins.voltage_threshold_plugin import VoltageThresholdPlugin

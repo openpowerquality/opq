@@ -1,7 +1,7 @@
 import unittest
 
 import analysis
-from plugins.IticPlugin import IticRegion, itic_region
+from plugins.itic_plugin import IticRegion, itic_region
 
 
 def percent_nominal_to_rms(percent_nominal: float) -> float:

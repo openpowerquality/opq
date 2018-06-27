@@ -6,7 +6,7 @@ import multiprocessing
 import typing
 
 import mongo
-import plugins.ThresholdPlugin
+import plugins.threshold_plugin
 import protobuf.util
 import protobuf.mauka_pb2
 
@@ -20,7 +20,7 @@ def extract_voltage(measurement: protobuf.mauka_pb2.Measurement) -> float:
     return measurement.voltage_rms
 
 
-class VoltageThresholdPlugin(plugins.ThresholdPlugin.ThresholdPlugin):
+class VoltageThresholdPlugin(plugins.threshold_plugin.ThresholdPlugin):
     """
     This module contains the voltage threshold plugin which is responsible for classifying voltage dips and swells
     """
