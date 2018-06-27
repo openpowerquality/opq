@@ -63,6 +63,11 @@ def frequency(samples: numpy.ndarray) -> float:
     t = numpy.arange(0, len(samples) / constants.SAMPLE_RATE_HZ, 1 / constants.SAMPLE_RATE_HZ)
 
     def optimize_func(x):
+        """
+        Opimized the function for finding and fitting the frequency.
+        :param x: A list containing in this order: guess_amp, guess_freq, guess_phase, guess_mean.
+        :return: Optimized function.
+        """
         return x[0] * numpy.sin(x[1] * 2 * numpy.pi * t + x[2]) + x[3] - samples
 
     est_amp, est_freq, est_phase, est_mean = optimize.leastsq(optimize_func,
