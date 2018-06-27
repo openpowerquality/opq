@@ -15,6 +15,12 @@ import protobuf.mauka_pb2
 
 
 def rolling_window(a, window):
+    """
+    Given an array and window, restructure the data so that it is in a rolling window of size "window" and step = 1.
+    :param a: The array to roll a window over
+    :param window: The window size
+    :return: A 2D array where each row is a window into the provided data.
+    """
     if len(a) <= window:
         return numpy.array([a])
     shape = a.shape[:-1] + (a.shape[-1] - window + 1, window)
@@ -23,6 +29,13 @@ def rolling_window(a, window):
 
 
 def thd(waveform: numpy.ndarray, fundamental: int) -> float:
+    """
+    Calculates the total harmonic distortion (THD) of the provided waveform with the provided fundamental of the
+    waveform.
+    :param waveform: The waveform to find the THD of.
+    :param fundamental: The fundamental frequency (in Hz) of the provided waveform.
+    :return: The calculated THD of the provided waveform.
+    """
     fundamental = int(fundamental)
     y = numpy.abs(scipy.fftpack.fft(waveform))
 
@@ -48,6 +61,14 @@ class ThdPlugin(plugins.base.MaukaPlugin):
         self.sliding_window_ms = float(self.config_get("plugins.ThdPlugin.window.size.ms"))
 
     def sliding_thd(self, event_id: int, box_id: str, box_event_start_timestamp: int, waveform: numpy.ndarray):
+        """
+        Calculates sliding THD over a waveform.
+        High THD values are then stored as incidents to the database.
+        :param event_id: Event that this waveform came form.
+        :param box_id: Box that this waveform came from.
+        :param box_event_start_timestamp: Start timestamp of the provided waveform
+        :param waveform: The waveform to calculate THD over.
+        """
         window_size = int(constants.SAMPLE_RATE_HZ * (self.sliding_window_ms / constants.MILLISECONDS_PER_SECOND))
         windows = rolling_window(waveform, window_size)
         thds = [thd(window, constants.CYCLES_PER_SECOND) for window in windows]

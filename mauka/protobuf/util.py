@@ -1,3 +1,7 @@
+"""
+Utility methods for interacting with protobuf messages from Makai and/or Mauka.
+"""
+
 import time
 import typing
 
@@ -22,6 +26,14 @@ def encode_trigger_message(idd,
                            time,
                            frequency,
                            rms):
+    """
+    Encodes a Makai trigger message
+    :param idd: Id of the box
+    :param time: Timestamp ms
+    :param frequency: The inst frequency
+    :param rms: The inst voltage RMS
+    :return: Serialized Makai trigger message
+    """
     trigger_message = protobuf.opq_pb2.TriggerMessage()
     trigger_message.id = idd
     trigger_message.time = time
@@ -31,11 +43,21 @@ def encode_trigger_message(idd,
 
 
 def get_timestamp_ms() -> int:
+    """
+    Returns the current time as a timestamp as the number of milliseconds since the epoch.
+    :return: The number of milliseconds since the epoch.
+    """
     return int(round(time.time() * 1000))
 
 
 def build_mauka_message(source: str,
                         timestamp_ms: int = get_timestamp_ms()) -> mauka_pb2.MaukaMessage:
+    """
+    Instantiates a MaukaMessage.
+    :param source: Where this message is created from (plugin name or service name)
+    :param timestamp_ms: When this message was created (ms since epoch)
+    :return: Insantiated MaukaMessage
+    """
     mauka_message = mauka_pb2.MaukaMessage()
     mauka_message.source = source
     mauka_message.timestamp_ms = timestamp_ms
@@ -49,6 +71,17 @@ def build_payload(source: str,
                   data: typing.Union[numpy.ndarray, typing.List],
                   start_timestamp_ms: int,
                   end_timestamp_ms: int) -> mauka_pb2.MaukaMessage:
+    """
+    Builds an instance of a MaukaMessage with message type Payload
+    :param source: Where this message is created from (plugin name or service name)
+    :param event_id: Event_id this payload is associated with
+    :param box_id: Box id this payload is associated with
+    :param payload_type: The type of payload that this represents (see PayloadType of mauka.proto)
+    :param data: Payload data cast to float64's
+    :param start_timestamp_ms: Start timestamp of this payload
+    :param end_timestamp_ms: End timestamp of this payload
+    :return: Instance of MaukaMessage Payload
+    """
     mauka_message = build_mauka_message(source)
     mauka_message.payload.event_id = event_id
     mauka_message.payload.box_id = box_id
@@ -63,6 +96,14 @@ def build_heartbeat(source: str,
                     last_received_timestamp_ms: int,
                     on_message_count: int,
                     status: str) -> mauka_pb2.MaukaMessage:
+    """
+    Instance of Heartbeat protobuf message
+    :param source: Where this message is created from (plugin name or service name)
+    :param last_received_timestamp_ms: Last time a plugin received a on_message
+    :param on_message_count: Number of times a plugin's on_message has been fired
+    :param status: Custom status message
+    :return: Insantiated MaukaMessage with message type heartbeat
+    """
     mauka_message = build_mauka_message(source)
     mauka_message.heartbeat.last_received_timestamp_ms = last_received_timestamp_ms
     mauka_message.heartbeat.on_message_count = on_message_count
@@ -72,6 +113,12 @@ def build_heartbeat(source: str,
 
 
 def build_makai_event(source: str, event_id: int) -> mauka_pb2.MaukaMessage:
+    """
+    Instance of a MakaiEvent that gets injected into the Mauka system by a service broker.
+    :param source: Where this message is created from (plugin name or service name)
+    :param event_id:
+    :return:
+    """
     mauka_message = build_mauka_message(source)
     mauka_message.makai_event.event_id = event_id
     return mauka_message
@@ -83,6 +130,16 @@ def build_makai_trigger(source: str,
                         event_type: str,
                         max_value: float,
                         box_id: str) -> mauka_pb2.MaukaMessage:
+    """
+    Instantiates a makai trigger message.
+    :param source: Where this message is created from (plugin name or service name)
+    :param event_start_timestamp_ms: Start time of makai trigger
+    :param event_end_timestamp_ms: End time of makai trigger
+    :param event_type: Type of event that causes this trigger
+    :param max_value: Max deviation from nominal
+    :param box_id: Box id that caused this trigger message to be created
+    :return: Instantiated MaukaMessage with a message type of makai trigger
+    """
     mauka_message = build_mauka_message(source)
     mauka_message.makai_trigger.event_start_timestamp_ms = event_start_timestamp_ms
     mauka_message.makai_trigger.event_end_timestamp_ms = event_end_timestamp_ms
@@ -98,6 +155,16 @@ def build_measurement(source: str,
                       frequency: float,
                       voltage_rms: float,
                       thd: float) -> mauka_pb2.MaukaMessage:
+    """
+    Instantiates a protobuf mauka measurement.
+    :param source: Where this message is created from (plugin name or service name)
+    :param box_id: Id of the box that created this measurement
+    :param timestamp_ms: Timestamp that this measurement was created
+    :param frequency: Frequency value when this measurement was recorded
+    :param voltage_rms: Voltage value when this measurement was recorded
+    :param thd: THD value when this measurement was recorded
+    :return: Instance of MaukaMessage with message type of measurement.
+    """
     mauka_message = build_mauka_message(source)
     mauka_message.measurement.box_id = box_id
     mauka_message.measurement.timestamp_ms = timestamp_ms
@@ -108,20 +175,41 @@ def build_measurement(source: str,
 
 
 def serialize_mauka_message(mauka_message: mauka_pb2.MaukaMessage) -> bytes:
+    """
+    Serializes an instance of a MaukaMessage into bytes.
+    :param mauka_message: The MaukaMessage to serialize.
+    :return: Serialized bytes.
+    """
     return mauka_message.SerializeToString()
 
 
 def deserialize_mauka_message(mauka_message_bytes: bytes) -> mauka_pb2.MaukaMessage:
+    """
+    Deserialized a mauka message from bytes to an instance of MaukaMessage.
+    :param mauka_message_bytes: Serialized bytes
+    :return: An instance of MaukaMessage
+    """
     mauka_message = mauka_pb2.MaukaMessage()
     mauka_message.ParseFromString(mauka_message_bytes)
     return mauka_message
 
 
 def which_message_oneof(mauka_message: mauka_pb2.MaukaMessage) -> str:
+    """
+    Returns the one_of field type of the message field in the mauka_message.
+    :param mauka_message: Mauka message to inspect.
+    :return: The message type assigned in the one_of.
+    """
     return mauka_message.WhichOneof("message")
 
 
 def is_payload(mauka_message: mauka_pb2.MaukaMessage, payload_type: mauka_pb2.PayloadType = None) -> bool:
+    """
+    Determine if message type is payload and optionally checks payload type if provided.
+    :param mauka_message: Mauka message to check the message type of.
+    :param payload_type: The type of payload to check against.
+    :return: True if the message and payload type match, false otherwise.
+    """
     if payload_type is None:
         return which_message_oneof(mauka_message) == "payload"
     else:
@@ -129,20 +217,45 @@ def is_payload(mauka_message: mauka_pb2.MaukaMessage, payload_type: mauka_pb2.Pa
 
 
 def is_heartbeat_message(mauka_message: mauka_pb2.MaukaMessage) -> bool:
+    """
+    Determine if message type is a heartbeat
+    :param mauka_message: Mauka message to check the message type of.
+    :return: True if this is a heartbeat type, fasle otherwise
+    """
     return which_message_oneof(mauka_message) == "heartbeat"
 
 
 def is_makai_event_message(mauka_message: mauka_pb2.MaukaMessage) -> bool:
+    """
+    Determine if message type is a makai_event
+    :param mauka_message: Mauka message to check the message type of.
+    :return: True if this is a makai_event type, fasle otherwise
+    """
     return which_message_oneof(mauka_message) == "makai_event"
 
 
 def is_makai_trigger(mauka_message: mauka_pb2.MaukaMessage) -> bool:
+    """
+    Determine if message type is a makai_trigger
+    :param mauka_message: Mauka message to check the message type of.
+    :return: True if this is a makai_trigger type, fasle otherwise
+    """
     return which_message_oneof(mauka_message) == "makai_trigger"
 
 
-def is_measurement(mauka_message: mauka_pb2.Measurement) -> bool:
+def is_measurement(mauka_message: mauka_pb2.MaukaMessage) -> bool:
+    """
+    Determine if message type is a measurement
+    :param mauka_message: Mauka message to check the message type of.
+    :return: True if this is a measurement type, fasle otherwise
+    """
     return which_message_oneof(mauka_message) == "measurement"
 
 
 def repeated_as_ndarray(repeated) -> numpy.ndarray:
+    """
+    Converts a protobuf repeated field to a numpy array.
+    :param repeated: Protobuf repeated field
+    :return: Numpy array
+    """
     return numpy.array(repeated)
