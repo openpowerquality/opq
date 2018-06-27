@@ -78,16 +78,16 @@ no_interruption_region_polygon = [
 """Polygon representing the no interruption region"""
 
 
-def point_in_polygon(x: float, y: float, polygon: typing.List[typing.List[float]]) -> bool:
+def point_in_polygon(x_point: float, y_point: float, polygon: typing.List[typing.List[float]]) -> bool:
     """
     Checks if a point is in a given polygon.
-    :param x: x
-    :param y: y
+    :param x_point: x
+    :param y_point: y
     :param polygon: The polygon to check for inclusion
     :return: Whether or not the given point is in the provided polygon
     """
     path = matplotlib.path.Path(vertices=numpy.array(polygon), closed=True)
-    return path.contains_point([x, y])
+    return path.contains_point([x_point, y_point])
 
 
 def itic_region(rms_voltage: float, duration_ms: float) -> IticRegion:
