@@ -247,7 +247,7 @@ class PluginManager:
         :param plugin_name: Name of the plugin
         """
         if plugin_name not in self.name_to_plugin_class:
-            _logger.error("Plugin {} DNE".format(plugin_name))
+            _logger.error("Plugin %s DNE", plugin_name)
             return
 
         if not self.name_to_enabled[plugin_name]:
@@ -323,7 +323,7 @@ class PluginManager:
             while not self.tcp_server_exit_event.is_set():
                 try:
                     request = zmq_reply_socket.recv_string()
-                    _logger.debug("Recv req {}".format(request))
+                    _logger.debug("Recv req %s", request)
 
                     if request.strip() == "stop-tcp-server":
                         resp = ok("Stopping TCP server")
@@ -623,7 +623,7 @@ def load_config(path: str) -> typing.Dict:
     :param path: Path of configuration file
     :return: Configuration dictionary
     """
-    _logger.info("Loading configuration from {}".format(path))
+    _logger.info("Loading configuration from %s", path)
     try:
         with open(path, "r") as f:
             return json.load(f)
@@ -634,7 +634,7 @@ def load_config(path: str) -> typing.Dict:
 
 
 if __name__ == "__main__":
-    """Entry point to plugin manager repl/cli"""
+    # Entry point to plugin manager repl/cli
     _logger.info("Starting OpqMauka CLI")
     if len(sys.argv) <= 1:
         _logger.error("Configuration file not supplied")

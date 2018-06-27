@@ -187,6 +187,5 @@ class MakaiEventPlugin(plugins.base.MaukaPlugin):
                                     args=[mauka_message.makai_event.event_id])
             timer.start()
         else:
-            self.logger.error("Received incorrect mauka message [{}] for MakaiEventPlugin".format(
-                protobuf.util.which_message_oneof(mauka_message)
-            ))
+            self.logger.error("Received incorrect mauka message [%s] for MakaiEventPlugin",
+                              protobuf.util.which_message_oneof(mauka_message))

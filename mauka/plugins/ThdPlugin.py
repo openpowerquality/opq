@@ -125,6 +125,5 @@ class ThdPlugin(plugins.base.MaukaPlugin):
                                  mauka_message.payload.data
                              ))
         else:
-            self.logger.error("Received incorrect mauka message [{}] at ThdPlugin".format(
-                protobuf.util.which_message_oneof(mauka_message)
-            ))
+            self.logger.error("Received incorrect mauka message [%s] at ThdPlugin",
+                              protobuf.util.which_message_oneof(mauka_message))

@@ -28,7 +28,7 @@ def produce(broker: str, topic: str, message: str = None, message_bytes=None):
     :param message:  The message as a string.
     :param message_bytes: The message as bytes.
     """
-    _logger.info("Producing {}:{} to {}".format(topic, message, broker))
+    _logger.info("Producing %s:%s to %s", topic, message, broker)
     zmq_context = zmq.Context()
     zmq_pub_socket = zmq_context.socket(zmq.PUB)
     zmq_pub_socket.connect(broker)

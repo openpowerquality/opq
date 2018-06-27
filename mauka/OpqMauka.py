@@ -32,7 +32,7 @@ def load_config(path: str) -> typing.Dict:
     :param path: Path of configuration file
     :return: Configuration dictionary
     """
-    _logger.info("Loading configuration from {}".format(path))
+    _logger.info("Loading configuration from %s", path)
     try:
         with open(path, "r") as f:
             return json.load(f)
@@ -71,7 +71,7 @@ if __name__ == "__main__":
         :param signum: Number of the signal.
         :param frame: Frame of signal.
         """
-        _logger.info("Received exit signal")
+        _logger.info("Received exit signal %s %s", str(signum), str(frame))
         plugin_manager.clean_exit()
 
     signal.signal(signal.SIGTERM, sigterm_handler)

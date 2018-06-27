@@ -236,6 +236,5 @@ class IticPlugin(plugins.base.MaukaPlugin):
                  self.logger,
                  self.mongo_client)
         else:
-            self.logger.error("Received incorrect mauka message [{}] at IticPlugin".format(
-                protobuf.util.which_message_oneof(mauka_message)
-            ))
+            self.logger.error("Received incorrect mauka message [%s] at IticPlugin",
+                              protobuf.util.which_message_oneof(mauka_message))

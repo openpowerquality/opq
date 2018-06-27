@@ -30,4 +30,4 @@ class PrintPlugin(plugins.base.MaukaPlugin):
         :param topic: The topic that this message is associated with
         :param message: The message
         """
-        self.logger.info("topic: {} message: {}...".format(topic, mauka_message))
+        self.logger.info("topic: %s message: %s", str(topic), str(mauka_message))

@@ -198,6 +198,7 @@ class MaukaPlugin:
         """
         return bson.objectid.ObjectId(oid)
 
+    # pylint: disable=W0613
     def on_message(self, topic: str, mauka_message: protobuf.mauka_pb2.MaukaMessage):
         """This gets called when a subscriber receives a message from a topic they are subscribed too.
 
@@ -240,11 +241,11 @@ class MaukaPlugin:
         :param msg: Message to print to debug.
         """
         if self.mauka_debug:
-            self.logger.debug("{}\n{}".format(self.name, msg))
+            self.logger.debug("%s\n%s", self.name, msg)
 
     def _run(self):
         """This is the run loop for this plugin process"""
-        _logger.info("Starting Mauka plugin: {}".format(self.name))
+        _logger.info("Starting Mauka plugin: %s", self.name)
         signal.signal(signal.SIGTERM, signal.SIG_IGN)
         signal.signal(signal.SIGINT, signal.SIG_IGN)
 
@@ -257,9 +258,9 @@ class MaukaPlugin:
             data = self.zmq_consumer.recv_multipart()
 
             if len(data) != 2:
-                _logger.error("Malformed data from ZMQ. Data size should = 2, but instead is {}".format(len(data)))
+                _logger.error("Malformed data from ZMQ. Data size should = 2, but instead is %s", str((len(data))))
                 for d in data:
-                    _logger.error("{}".format(d.decode()))
+                    _logger.error("%s", str(d.decode()))
                 break
 
             topic = data[0].decode()
@@ -275,4 +276,4 @@ class MaukaPlugin:
                 mauka_message = protobuf.util.deserialize_mauka_message(message)
                 self.on_message(topic, mauka_message)
 
-        _logger.info("Exiting Mauka plugin: {}".format(self.name))
+        _logger.info("Exiting Mauka plugin: %s", self.name)

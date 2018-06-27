@@ -112,6 +112,5 @@ class StatusPlugin(plugins.base.MaukaPlugin):
             self.debug(str(mauka_message))
             health_state.set_key(mauka_message.source, time.time())
         else:
-            self.logger.error("Incorrect mauka message type [{}] for StatusPlugin".format(
-                protobuf.util.which_message_oneof(mauka_message)
-            ))
+            self.logger.error("Incorrect mauka message type [%s] for StatusPlugin",
+                              protobuf.util.which_message_oneof(mauka_message))
