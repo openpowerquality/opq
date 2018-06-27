@@ -3,7 +3,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { withRouter, Link } from 'react-router-dom';
 import { Bert } from 'meteor/themeteorchef:bert';
-import { Loader, Header, Segment, Container, Button } from 'semantic-ui-react';
+import { Loader, Segment, Container, Button } from 'semantic-ui-react';
 import AutoForm from 'uniforms-semantic/AutoForm';
 import AutoField from 'uniforms-semantic/AutoField';
 import SubmitField from 'uniforms-semantic/SubmitField';
@@ -14,8 +14,13 @@ import { Locations } from '/imports/api/locations/LocationsCollection';
 import { withTracker } from 'meteor/react-meteor-data';
 import SimpleSchema from 'simpl-schema';
 import { defineMethod } from '/imports/api/base/BaseCollection.methods';
+import WidgetPanel from '/imports/ui/layouts/WidgetPanel';
 
 class NewBoxPage extends React.Component {
+
+  helpText = `
+  <p>Add a new OPQ Box.</p>
+  `;
 
   /** TODO: On submit, look up location slug from description, then call generic base.defineMethod. */
   submit(data) {
@@ -54,7 +59,7 @@ class NewBoxPage extends React.Component {
     });
     return (
       <Container>
-          <Header attached="top" as="h2" textAlign="center">New OPQ Box</Header>
+        <WidgetPanel title="Add Box" helpText={this.helpText} noPadding>
           <AutoForm schema={formSchema} onSubmit={this.submit}>
             <Segment>
               <AutoField name='box_id'/>
@@ -71,6 +76,7 @@ class NewBoxPage extends React.Component {
         <Button attached='bottom' size='tiny'>
           <Link to={'/admin/manage/opqbox/'}>Back to Manage OPQBoxes</Link>
         </Button>
+        </WidgetPanel>
       </Container>
     );
   }

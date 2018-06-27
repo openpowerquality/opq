@@ -3,7 +3,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Bert } from 'meteor/themeteorchef:bert';
 import { withRouter, Link } from 'react-router-dom';
-import { Container, Loader, Header, Segment, Button } from 'semantic-ui-react';
+import { Container, Loader, Segment, Button } from 'semantic-ui-react';
 import AutoForm from 'uniforms-semantic/AutoForm';
 import AutoField from 'uniforms-semantic/AutoField';
 import SubmitField from 'uniforms-semantic/SubmitField';
@@ -16,8 +16,14 @@ import { BoxOwners } from '/imports/api/users/BoxOwnersCollection';
 import { withTracker } from 'meteor/react-meteor-data';
 import SimpleSchema from 'simpl-schema';
 import { updateMethod } from '/imports/api/base/BaseCollection.methods';
+import WidgetPanel from '/imports/ui/layouts/WidgetPanel';
 
 class EditBoxPage extends React.Component {
+
+  helpText = `
+  <p>Edit an OPQ Box definition.</p>
+  <p>Click 'Back to Manage OPQ Boxes' to return to the listing page.</p>
+  `;
 
   /** On submit, look up location slug from description, then call generic base.updateMethod. */
   submit(data) {
@@ -57,7 +63,7 @@ class EditBoxPage extends React.Component {
     this.props.doc.owners = BoxOwners.findOwnersWithBoxId(this.props.doc.box_id);
     return (
       <Container>
-          <Header attached="top" as="h3" textAlign="center">Edit OPQ Box</Header>
+        <WidgetPanel title="Edit Box" helpText={this.helpText} noPadding>
           <AutoForm schema={formSchema} onSubmit={this.submit} model={this.props.doc}>
             <Segment>
               <HiddenField name='box_id'/>
@@ -74,6 +80,7 @@ class EditBoxPage extends React.Component {
           <Button attached='bottom' size='tiny'>
             <Link to={'/admin/manage/opqbox/'}>Back to Manage OPQBoxes</Link>
           </Button>
+        </WidgetPanel>
       </Container>
     );
   }
