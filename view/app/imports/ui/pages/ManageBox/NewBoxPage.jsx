@@ -1,26 +1,33 @@
 import { Meteor } from 'meteor/meteor';
 import React from 'react';
 import PropTypes from 'prop-types';
+import { withRouter, Link } from 'react-router-dom';
 import { Bert } from 'meteor/themeteorchef:bert';
-import { Grid, Loader, Header, Segment } from 'semantic-ui-react';
+import { Loader, Segment, Container, Button } from 'semantic-ui-react';
 import AutoForm from 'uniforms-semantic/AutoForm';
 import AutoField from 'uniforms-semantic/AutoField';
 import SubmitField from 'uniforms-semantic/SubmitField';
 import ErrorsField from 'uniforms-semantic/ErrorsField';
 import { OpqBoxes } from '/imports/api/opq-boxes/OpqBoxesCollection';
+import { UserProfiles } from '/imports/api/users/UserProfilesCollection';
 import { Locations } from '/imports/api/locations/LocationsCollection';
 import { withTracker } from 'meteor/react-meteor-data';
 import SimpleSchema from 'simpl-schema';
 import { defineMethod } from '/imports/api/base/BaseCollection.methods';
+import WidgetPanel from '/imports/ui/layouts/WidgetPanel';
 
 class NewBoxPage extends React.Component {
 
+  helpText = `
+  <p>Add a new OPQ Box.</p>
+  `;
+
   /** TODO: On submit, look up location slug from description, then call generic base.defineMethod. */
   submit(data) {
-    const { box_id, name, description, calibration_constant, unplugged, locationDescription } = data;
+    const { box_id, name, description, calibration_constant, unplugged, locationDescription, owners } = data;
     const location = Locations.findSlugFromDescription(locationDescription);
     const collectionName = OpqBoxes.getCollectionName();
-    const definitionData = { box_id, name, description, calibration_constant, unplugged, location };
+    const definitionData = { box_id, name, description, calibration_constant, unplugged, location, owners };
     defineMethod.call({ collectionName, definitionData }, (error) => (error ?
         Bert.alert({ type: 'danger', style: 'growl-bottom-left', message: `Definition failed: ${error.message}` }) :
         Bert.alert({ type: 'success', style: 'growl-bottom-left', message: 'Definition succeeded' })));
@@ -38,19 +45,21 @@ class NewBoxPage extends React.Component {
    */
   renderPage() {
     const locationDescriptions = Locations.getDocs().map(doc => doc.description);
+    const owners = UserProfiles.findUsernames(true);
     locationDescriptions.unshift('Select a location');
     const formSchema = new SimpleSchema({
       box_id: String,
       name: String,
       description: String,
+      owners: { type: Array },
+      'owners.$': { type: String, allowedValues: owners },
       unplugged: { type: Boolean, defaultValue: false },
       calibration_constant: Number,
       locationDescription: { type: String, allowedValues: locationDescriptions, label: 'Location' },
     });
     return (
-      <Grid container centered>
-        <Grid.Column>
-          <Header as="h2" textAlign="center">New OPQ Box</Header>
+      <Container>
+        <WidgetPanel title="Add Box" helpText={this.helpText} noPadding>
           <AutoForm schema={formSchema} onSubmit={this.submit}>
             <Segment>
               <AutoField name='box_id'/>
@@ -59,12 +68,16 @@ class NewBoxPage extends React.Component {
               <AutoField name='unplugged'/>
               <AutoField name='calibration_constant'/>
               <AutoField name='locationDescription' />
+              <AutoField name='owners' />
               <SubmitField value='Submit'/>
               <ErrorsField/>
             </Segment>
           </AutoForm>
-        </Grid.Column>
-      </Grid>
+        <Button attached='bottom' size='tiny'>
+          <Link to={'/admin/manage/opqbox/'}>Back to Manage OPQBoxes</Link>
+        </Button>
+        </WidgetPanel>
+      </Container>
     );
   }
 }
@@ -78,7 +91,9 @@ NewBoxPage.propTypes = {
 export default withTracker(() => {
   const opqBoxesSubscription = Meteor.subscribe(OpqBoxes.getPublicationName());
   const locationsSubscription = Meteor.subscribe(Locations.getPublicationName());
+  const userProfilesSubscription = Meteor.subscribe(UserProfiles.getPublicationName());
   return {
-    ready: opqBoxesSubscription.ready() && locationsSubscription.ready(),
+    ready: opqBoxesSubscription.ready() && locationsSubscription.ready() &&
+    userProfilesSubscription.ready(),
   };
-})(NewBoxPage);
+})(withRouter(NewBoxPage));

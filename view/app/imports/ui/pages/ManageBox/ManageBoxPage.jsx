@@ -1,15 +1,21 @@
 import React from 'react';
 import { Meteor } from 'meteor/meteor';
 import { withRouter, Link } from 'react-router-dom';
-import { Container, Loader, Table, Button } from 'semantic-ui-react';
+import { Loader, Table, Button, Container } from 'semantic-ui-react';
 import { Locations } from '/imports/api/locations/LocationsCollection';
 import { BoxOwners } from '/imports/api/users/BoxOwnersCollection';
 import { OpqBoxes } from '/imports/api/opq-boxes/OpqBoxesCollection';
 import { withTracker } from 'meteor/react-meteor-data';
 import PropTypes from 'prop-types';
+import WidgetPanel from '/imports/ui/layouts/WidgetPanel';
+
 
 /** Renders a table containing all of the OPQBox documents. */
 class ManageBoxPage extends React.Component {
+
+  helpText = `
+  <p>Lists all currently defined OPQ Boxes</p>
+  `;
 
   /** If the subscription(s) have been received, render the page, otherwise show a loading icon. */
   render() {
@@ -22,6 +28,7 @@ class ManageBoxPage extends React.Component {
     const boxes = boxIds.map(id => OpqBoxes.findBox(id));
     return (
         <Container>
+        <WidgetPanel title="Manage OPQ Boxes" helpText={this.helpText} noPadding>
           <Table>
             <Table.Header>
               <Table.Row>
@@ -51,6 +58,7 @@ class ManageBoxPage extends React.Component {
               </Table.Row>
             </Table.Footer>
           </Table>
+        </WidgetPanel>
         </Container>
     );
   }
