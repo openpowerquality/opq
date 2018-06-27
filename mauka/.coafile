@@ -1,0 +1,20 @@
+[mauka]
+ignore = protobuf/mauka_pb2.py, protobuf/opq_pb2.py, tests/**
+files = **.py
+
+[mauka.spacing]
+bears = SpaceConsistencyBear
+use_spaces = True
+
+[mauka.pep8]
+bears = PEP8Bear
+max_line_length = 120
+
+[mauka.pylint]
+bears = PyLintBear
+pylint_disable = C, E, F, I, R, W
+pylint_enable = C0111, C0112
+
+[mauka.pyflakes]
+ignore += plugins/__init__.py, services/__init__.py
+bears = PyFlakesBear

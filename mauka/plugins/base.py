@@ -165,6 +165,9 @@ class MaukaPlugin:
         start_after_seconds = 5.0
 
         def heartbeat():
+            """
+            Recursively produces a heartbeat message on a timer.
+            """
             heartbeat_message = protobuf.util.build_heartbeat(self.name,
                                                               self.last_received,
                                                               self.on_message_cnt,
@@ -232,6 +235,10 @@ class MaukaPlugin:
             self.exit_event.set()
 
     def debug(self, msg: str):
+        """
+        Prints a debug message using this classes logger and formatted the plugin name.
+        :param msg: Message to print to debug.
+        """
         if self.mauka_debug:
             self.logger.debug("{}\n{}".format(self.name, msg))
 

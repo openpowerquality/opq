@@ -10,7 +10,6 @@ import multiprocessing
 import os
 import readline
 import sys
-import threading
 import time
 import typing
 
@@ -53,21 +52,45 @@ def is_error(response: str) -> bool:
 
 
 class ArgumentParseError(Exception):
+    """
+    Creates a runtime exception with a custom name.
+    """
+
     pass
 
 
 class ThrowingArgumentParser(argparse.ArgumentParser):
+    """
+    Makes the parser throw.
+    """
+
     def error(self, message):
+        """
+        Throws an ArgumentParseError on error
+        :param message: Message to include in error message
+        """
         raise ArgumentParseError(message)
 
     def print_usage(self, file=None):
+        """
+        Throws an ArgumentParseError when usage is printed.
+        :param file: None
+        """
         raise ArgumentParseError(self.format_usage())
 
     def print_help(self, file=None):
+        """
+        Throws an ArgumentParseError when help is printed.
+        :param file: None
+        """
         raise ArgumentParseError(self.format_help())
 
 
 class MaukaCli:
+    """
+    Wrapper class that provides functionality for interacting with Mauka over the networked CLI.
+    """
+
     def __init__(self):
         super().__init__()
         self.cli_parser = ThrowingArgumentParser(prog="mauka-cli", add_help=False)
@@ -75,6 +98,14 @@ class MaukaCli:
         self.cmd_names = []
 
     def add_cmd(self, name: str, help_str: str, cmd_fn: typing.Callable, arg: str = None, arg_help: str = None):
+        """
+        Utility method for adding commands to this CLI.
+        :param name: Name of the command.
+        :param help_str: Help message for the command.
+        :param cmd_fn: Function to call when this command is issued.
+        :param arg: Argument name to the command.
+        :param arg_help: Argument help message to the command.
+        """
         self.cmd_names.append(name)
         cmd = self.cli_subparsers.add_parser(name, help=help_str)
         cmd.set_defaults(func=cmd_fn)
@@ -82,12 +113,23 @@ class MaukaCli:
             cmd.add_argument(arg, help=arg_help)
 
     def get_help(self):
+        """
+        :return: Help message.
+        """
         return self.cli_parser.format_help()
 
     def get_usage(self):
+        """
+        :return: Usage of this CLI.
+        """
         return self.cli_parser.format_usage()
 
     def parse(self, args: typing.List[str]) -> str:
+        """
+        Attempts to parse arguments provided on CLI.
+        :param args: The list of args to parse.
+        :return: The response.
+        """
         try:
             args = self.cli_parser.parse_args(args)
             if len(vars(args)) == 1:
@@ -245,11 +287,17 @@ class PluginManager:
             return None
 
     def exit(self):
+        """
+        Exit without clean termination.
+        """
         self.tcp_server_exit_event.set()
         for _, process in self.name_to_process.items():
             process.terminate()
 
     def clean_exit(self):
+        """
+        Attempts to shut down all Mauka plugins and cleanly exit
+        """
         # First, stop all the plugins
         _logger.info("Stopping all plugins...")
         for plugin_name in self.name_to_plugin_class:
@@ -296,9 +344,12 @@ class PluginManager:
             process.start()
             return process
 
-
-
     def handle_tcp_request(self, request: str) -> str:
+        """
+        Receives and handles a TCP request.
+        :param request: The request string (space delimited)
+        :return: Response.
+        """
         return self.cli_parser.parse(request.split(" "))
 
     def cli_completions(self) -> str:
@@ -506,7 +557,18 @@ class PluginManager:
 
 # http://eli.thegreenplace.net/2016/basics-of-using-the-readline-library/
 def make_completer(vocabulary):
+    """
+    Read line completer factory.
+    :param vocabulary: Values to use in completer.
+    :return: Completer.
+    """
     def custom_complete(text, state):
+        """
+        Custom readline completer.
+        :param text: Text.
+        :param state: State.
+        :return: Completer.
+        """
         # None is returned for the end of the completion session.
         results = [x for x in vocabulary if x.startswith(text)] + [None]
         # A space is added to the completion since the Python readline doesn't

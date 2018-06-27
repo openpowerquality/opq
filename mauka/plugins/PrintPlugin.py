@@ -6,7 +6,6 @@ import multiprocessing
 import typing
 
 import plugins.base
-import protobuf.util
 
 
 class PrintPlugin(plugins.base.MaukaPlugin):
