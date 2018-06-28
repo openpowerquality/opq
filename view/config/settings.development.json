@@ -176,6 +176,14 @@
         "lastName": "Farrell",
         "role": "user",
         "boxIds": ["1", "2", "3", "4", "5", "6", "7", "8"]
+      },
+      {
+        "username": "camelial@hawaii.edu",
+        "password": "foo",
+        "firstName": "Camelia",
+        "lastName": "Lai",
+        "role": "admin",
+        "boxIds": ["1", "2", "3", "4", "5", "6", "7", "8"]
       }
     ],
     "locations": [

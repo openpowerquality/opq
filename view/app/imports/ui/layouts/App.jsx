@@ -12,7 +12,7 @@ import Signout from '../../ui/pages/Signout.jsx';
 import Landing from '../../ui/pages/Landing';
 import Profile from '../../ui/pages/Profile';
 import ManageBoxPage from '../../ui/pages/ManageBox/ManageBoxPage';
-import ManageLocationPage from '../../ui/pages/ManageLocationPage';
+import ManageLocationPage from '../pages/ManageLocation/ManageLocationPage';
 import ManageRegionPage from '../../ui/pages/ManageRegionPage';
 import ManageUserPage from '../../ui/pages/ManageUserPage';
 import BoxMapPage from '../../ui/pages/BoxMapPage';
