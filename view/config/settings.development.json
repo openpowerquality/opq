@@ -13,7 +13,7 @@
     "updateIntervalSeconds": 10
   },
   "initialEntities": {
-    "enabled": false,
+    "enabled": true,
     "opqBoxes": [
       {
         "box_id": "1",
