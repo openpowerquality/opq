@@ -170,6 +170,7 @@ class PluginManager:
         """ZeroMQ context"""
 
         # noinspection PyUnresolvedReferences
+        # pylint: disable=E1101
         self.zmq_pub_socket = self.zmq_context.socket(zmq.PUB)
         """ZeroMQ publishing socket (allows publishing messages to plugins)"""
 
@@ -316,6 +317,7 @@ class PluginManager:
         """Starts a TCP server backed by ZMQ. This server is connected to my out cli client"""
 
         # noinspection PyUnresolvedReferences
+        # pylint: disable=E1101
         def _start_tcp_server():
             logger.info("Starting plugin manager TCP server")
             zmq_context = zmq.Context()
@@ -529,7 +531,7 @@ class PluginManager:
         chained_resp = "{} {}".format(stop_resp, start_resp)
 
         if is_error(stop_resp) or is_error(start_resp):
-            return error("{} ".format(plugin_name, chained_resp))
+            return error("{} {}".format(plugin_name, chained_resp))
         else:
             return ok("Restarted {}. {}".format(plugin_name, chained_resp))
 
@@ -589,6 +591,7 @@ def run_cli(config: typing.Dict):
     """
     zmq_context = zmq.Context()
     # noinspection PyUnresolvedReferences
+    # pylint: disable=E1101
     zmq_request_socket = zmq_context.socket(zmq.REQ)
     zmq_request_socket.connect(config["zmq.mauka.plugin.management.req.interface"])
     prompt = "opq-mauka> "

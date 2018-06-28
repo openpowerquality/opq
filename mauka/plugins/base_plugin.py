@@ -45,6 +45,8 @@ class JSONEncoder(json.JSONEncoder):
     This class allows us to serialize items with ObjectIds to JSON
     """
 
+    # https://github.com/PyCQA/pylint/issues/414
+    # pylint: disable=E0202
     def default(self, o):
         """If o is an object id, return the string of it, otherwise use the default encoder for this object
 
@@ -92,10 +94,12 @@ class MaukaPlugin:
         """ZeroMQ context"""
 
         # noinspection PyUnresolvedReferences
+        # pylint: disable=E1101
         self.zmq_consumer = self.zmq_context.socket(zmq.SUB)
         """ZeroMQ consumer"""
 
         # noinspection PyUnresolvedReferences
+        # pylint: disable=E1101
         self.zmq_producer = self.zmq_context.socket(zmq.PUB)
         """ZeroMQ producer"""
 
@@ -251,6 +255,7 @@ class MaukaPlugin:
 
         for subscription in self.subscriptions:
             # noinspection PyUnresolvedReferences
+            # pylint: disable=E1101
             self.zmq_consumer.setsockopt_string(zmq.SUBSCRIBE, subscription)
 
         self.start_heartbeat()

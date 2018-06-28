@@ -36,6 +36,7 @@ class AcquisitionTriggerPlugin(plugins.base_plugin.MaukaPlugin):
         """ZeroMQ context"""
 
         # noinspection PyUnresolvedReferences
+        # pylint: disable=E1101
         self.push_socket = self.zmq_req_ctx.socket(zmq.PUSH)
         """ZeroMQ request socket"""
 
@@ -75,6 +76,7 @@ class AcquisitionTriggerPlugin(plugins.base_plugin.MaukaPlugin):
         msg.end_timestamp_ms_utc = end_ms + self.ms_after
         msg.trigger_type = trigger_type
         msg.percent_magnitude = percent_magnitude
+        # pylint: disable=E1101
         msg.box_ids.extend(box_ids)
         msg.requestee = requestee
         msg.description = description
@@ -118,6 +120,7 @@ class AcquisitionTriggerPlugin(plugins.base_plugin.MaukaPlugin):
 
             start_ts_ms_utc = mauka_message.makai_trigger.event_start_timestamp_ms
             end_ts_ms_utc = mauka_message.makai_trigger.event_end_timestamp_ms
+            # pylint: disable=E1101
             trigger_type = protobuf.opq_pb2.RequestEventMessage.TriggerType.Value(event_type)
             percent_magnitude = mauka_message.makai_trigger.max_value
             device_ids = list(map(int, [mauka_message.makai_trigger.box_id]))

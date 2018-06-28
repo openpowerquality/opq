@@ -30,6 +30,7 @@ def produce(broker: str, topic: str, message: str = None, message_bytes=None):
     logger.info("Producing %s:%s to %s", topic, message, broker)
     zmq_context = zmq.Context()
     # noinspection PyUnresolvedReferences
+    # pylint: disable=E1101
     zmq_pub_socket = zmq_context.socket(zmq.PUB)
     zmq_pub_socket.connect(broker)
     time.sleep(0.1)  # We need to sleep while the handshake takes place

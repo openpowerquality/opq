@@ -64,6 +64,7 @@ def build_mauka_message(source: str,
     return mauka_message
 
 
+# pylint: disable=E1101
 def build_payload(source: str,
                   event_id: int,
                   box_id: str,
@@ -92,6 +93,7 @@ def build_payload(source: str,
     return mauka_message
 
 
+# pylint: disable=E1101
 def build_heartbeat(source: str,
                     last_received_timestamp_ms: int,
                     on_message_count: int,
@@ -112,6 +114,7 @@ def build_heartbeat(source: str,
     return mauka_message
 
 
+# pylint: disable=E1101
 def build_makai_event(source: str, event_id: int) -> mauka_pb2.MaukaMessage:
     """
     Instance of a MakaiEvent that gets injected into the Mauka system by a service broker.
@@ -124,6 +127,7 @@ def build_makai_event(source: str, event_id: int) -> mauka_pb2.MaukaMessage:
     return mauka_message
 
 
+# pylint: disable=E1101
 def build_makai_trigger(source: str,
                         event_start_timestamp_ms: int,
                         event_end_timestamp_ms: int,
@@ -149,6 +153,7 @@ def build_makai_trigger(source: str,
     return mauka_message
 
 
+# pylint: disable=E1101
 def build_measurement(source: str,
                       box_id: str,
                       timestamp_ms: int,

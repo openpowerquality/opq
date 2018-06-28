@@ -54,7 +54,7 @@ class ThresholdPlugin(plugins.base_plugin.MaukaPlugin):
         self.threshold_value_high = None
         """High threshold value (calculated from steady state and percent)"""
 
-        self.box_events_collection = self.mongo_client.db[mongo.Collection.BOX_EVENTS.value]
+        self.box_events_collection = self.mongo_client.database[mongo.Collection.BOX_EVENTS.value]
         """OPQ events collection"""
 
         self.device_id_to_low_events = {}
