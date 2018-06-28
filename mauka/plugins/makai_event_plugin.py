@@ -118,10 +118,7 @@ class MakaiEventPlugin(plugins.base_plugin.MaukaPlugin):
         for box_event in box_events:
             waveform = mongo.get_waveform(self.mongo_client, box_event["data_fs_filename"])
             box_id = box_event["box_id"]
-            calibration_constant = mongo.cached_calibration_constant(box_id)
-            waveform_calibrated = waveform / calibration_constant
-            waveform_vrms = vrms_waveform(waveform_calibrated, int(constants.SAMPLES_PER_CYCLE))
-            waveform_frequency = frequency_waveform(waveform_calibrated, int(constants.SAMPLES_PER_CYCLE))
+            waveform_calibrated = waveform / mongo.cached_calibration_constant(box_id)
 
             start_timestamp = box_event["event_start_timestamp_ms"]
             end_timestamp = box_event["event_end_timestamp_ms"]
@@ -146,7 +143,8 @@ class MakaiEventPlugin(plugins.base_plugin.MaukaPlugin):
                                                                event_id,
                                                                box_id,
                                                                protobuf.mauka_pb2.VOLTAGE_RMS_WINDOWED,
-                                                               waveform_vrms,
+                                                               vrms_waveform(waveform_calibrated,
+                                                                             int(constants.SAMPLES_PER_CYCLE)),
                                                                start_timestamp,
                                                                end_timestamp)
 
@@ -154,7 +152,8 @@ class MakaiEventPlugin(plugins.base_plugin.MaukaPlugin):
                                                              event_id,
                                                              box_id,
                                                              protobuf.mauka_pb2.FREQUENCY_WINDOWED,
-                                                             waveform_frequency,
+                                                             frequency_waveform(waveform_calibrated,
+                                                                                int(constants.SAMPLES_PER_CYCLE)),
                                                              start_timestamp,
                                                              end_timestamp)
 

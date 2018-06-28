@@ -122,13 +122,13 @@ class AcquisitionTriggerPlugin(plugins.base_plugin.MaukaPlugin):
             end_ts_ms_utc = mauka_message.makai_trigger.event_end_timestamp_ms
             # pylint: disable=E1101
             trigger_type = protobuf.opq_pb2.RequestEventMessage.TriggerType.Value(event_type)
-            percent_magnitude = mauka_message.makai_trigger.max_value
             device_ids = list(map(int, [mauka_message.makai_trigger.box_id]))
-            requestee = "AcquisitionTriggerPlugin"
-            description = "{} {}-{}".format(str(trigger_type), start_ts_ms_utc, end_ts_ms_utc)
 
-            event_msg = self.request_event_message(start_ts_ms_utc, end_ts_ms_utc, trigger_type, percent_magnitude,
-                                                   device_ids, requestee, description, request_data)
+            event_msg = self.request_event_message(start_ts_ms_utc, end_ts_ms_utc, trigger_type,
+                                                   mauka_message.makai_trigger.max_value,
+                                                   device_ids, "AcquisitionTriggerPlugin",
+                                                   "{} {}-{}".format(str(trigger_type), start_ts_ms_utc, end_ts_ms_utc),
+                                                   request_data)
             self.event_type_to_last_event[event_type] = str(event_msg)
             try:
                 self.debug("Sending event msg: {}".format(event_msg))
