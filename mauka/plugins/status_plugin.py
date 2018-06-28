@@ -51,9 +51,6 @@ def request_handler_factory():
         Custom HTTP handler for Mauka's health requests.
         """
 
-        def __init__(self, request, client_address, server):
-            super().__init__(request, client_address, server)
-
         def _set_headers(self, resp: int):
             """
             Custom heaser setting method.

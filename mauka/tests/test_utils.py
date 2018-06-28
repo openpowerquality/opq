@@ -18,7 +18,6 @@ class MaukaService:
 
         # start-stop-daemon sends a SIGTERM, we need to handle it to gracefully shutdown mauka
         def sigterm_handler_fn(signum, frame):
-            # _logger.info("Received exit signal")
             self.stop_mauka_service()
 
         self.sigterm_handler = sigterm_handler_fn
