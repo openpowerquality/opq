@@ -1,3 +1,7 @@
+"""
+This module provides a plugin and utilies for interacting and transforming raw data produced from Makai events.
+"""
+
 import math
 import multiprocessing
 import threading
@@ -58,7 +62,14 @@ def frequency(samples: numpy.ndarray) -> float:
     guess_mean = 0.0
     t = numpy.arange(0, len(samples) / constants.SAMPLE_RATE_HZ, 1 / constants.SAMPLE_RATE_HZ)
 
-    optimize_func = lambda x: x[0] * numpy.sin(x[1] * 2 * numpy.pi * t + x[2]) + x[3] - samples
+    def optimize_func(x):
+        """
+        Opimized the function for finding and fitting the frequency.
+        :param x: A list containing in this order: guess_amp, guess_freq, guess_phase, guess_mean.
+        :return: Optimized function.
+        """
+        return x[0] * numpy.sin(x[1] * 2 * numpy.pi * t + x[2]) + x[3] - samples
+
     est_amp, est_freq, est_phase, est_mean = optimize.leastsq(optimize_func,
                                                               numpy.array(
                                                                   [guess_amp, guess_freq, guess_phase, guess_mean])
@@ -90,6 +101,10 @@ def frequency_waveform(waveform: numpy.ndarray, window_size: int = constants.SAM
 
 
 class MakaiEventPlugin(plugins.base.MaukaPlugin):
+    """
+    This plugin retrieves data when Makai triggers events, performs feature extraction, and then publishes relevant
+    features to Mauka downstream plugins.
+    """
     NAME = "MakaiEventPlugin"
 
     def __init__(self, config: typing.Dict, exit_event: multiprocessing.Event):
@@ -97,6 +112,11 @@ class MakaiEventPlugin(plugins.base.MaukaPlugin):
         self.get_data_after_s = float(self.config["plugins.MakaiEventPlugin.getDataAfterS"])
 
     def acquire_data(self, event_id: int):
+        """
+        Given an event_id, acquire the raw data for each box associated with the given event. Perform feature
+        extraction of the raw data and publish those features for downstream plugins.
+        :param event_id: The event id to acquire data for.
+        """
         box_events = self.mongo_client.box_events_collection.find({"event_id": event_id})
         for box_event in box_events:
             waveform = mongo.get_waveform(self.mongo_client, box_event["data_fs_filename"])

@@ -67,6 +67,11 @@ if __name__ == "__main__":
 
     # start-stop-daemon sends a SIGTERM, we need to handle it to gracefully shutdown mauka
     def sigterm_handler(signum, frame):
+        """
+        Custom sigterm handler.
+        :param signum: Number of the signal.
+        :param frame: Frame of signal.
+        """
         _logger.info("Received exit signal")
         plugin_manager.clean_exit()
 
@@ -74,7 +79,6 @@ if __name__ == "__main__":
     signal.signal(signal.SIGINT, sigterm_handler)
 
     try:
-
         plugin_manager.run_all_plugins()
         plugin_manager.start_tcp_server()
         _logger.info("Killing broker process")

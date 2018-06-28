@@ -147,6 +147,16 @@ def itic_region(rms_voltage: float, duration_ms: float) -> IticRegion:
 
 def itic(event_id: int, box_id: str, windowed_rms: numpy.ndarray, segment_threshold: float, logger=None,
          opq_mongo_client: mongo.OpqMongoClient = None) -> IticRegion:
+    """
+    Computes the ITIC region for a given waveform.
+    :param event_id: Event id associate with this waveform.
+    :param box_id: Box id associated with this waveform.
+    :param windowed_rms: A list of windowed (200 sample/1 cycle window) of RMS votlage
+    :param segment_threshold: Threshold for segmentation
+    :param logger: Optional logger to use to print information
+    :param opq_mongo_client:  Optional DB client to re-use (otherwise new one will be created)
+    :return: ITIC region.
+    """
     mongo_client = mongo.get_default_client(opq_mongo_client)
     duration_cycles = len(windowed_rms)
     if duration_cycles < 0.01:

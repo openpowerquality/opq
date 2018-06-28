@@ -128,8 +128,8 @@ class FrequencyVariationPlugin(plugins.base.MaukaPlugin):
         super().__init__(config, ["WindowedFrequency"], FrequencyVariationPlugin.NAME, exit_event)
         self.freq_ref = float(self.config_get("plugins.FrequencyVariationPlugin.frequency.ref"))
         self.freq_var_low = float(self.config_get("plugins.FrequencyVariationPlugin.frequency.variation.threshold.low"))
-        self.freq_var_high = float(self.config_get("plugins.FrequencyVariationPlugin.frequency.variation.threshold.high"
-                                                   ))
+        self.freq_var_high = float(self.config_get(
+            "plugins.FrequencyVariationPlugin.frequency.variation.threshold.high"))
         self.freq_interruption = float(self.config_get("plugins.FrequencyVariationPlugin.frequency.interruption"))
 
     def on_message(self, topic, mauka_message):
