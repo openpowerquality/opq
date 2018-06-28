@@ -16,5 +16,5 @@ pylint_disable = C0301, C1801, R
 
 
 [mauka.pyflakes]
-ignore += plugins/__init__.py, services/__init__.py
+ignore += plugins/__init__.py
 bears = PyFlakesBear

@@ -11,7 +11,8 @@ import typing
 
 import log
 import plugins
-import services
+import services.brokers
+import services.plugin_manager
 
 # pylint: disable=C0103
 logger = log.get_logger(__name__)
@@ -50,7 +51,7 @@ def main():
 
     config = load_config(sys.argv[1])
 
-    plugin_manager = services.PluginManager(config)
+    plugin_manager = services.plugin_manager.PluginManager(config)
     plugin_manager.register_plugin(plugins.FrequencyThresholdPlugin)
     plugin_manager.register_plugin(plugins.VoltageThresholdPlugin)
     plugin_manager.register_plugin(plugins.AcquisitionTriggerPlugin)
@@ -59,9 +60,9 @@ def main():
     plugin_manager.register_plugin(plugins.ThdPlugin)
     plugin_manager.register_plugin(plugins.IticPlugin)
 
-    broker_process = services.start_mauka_pub_sub_broker(config)
-    makai_bridge_process = services.start_makai_bridge(config)
-    makai_bridge_event_process = services.start_makai_event_bridge(config)
+    broker_process = services.brokers.start_mauka_pub_sub_broker(config)
+    makai_bridge_process = services.brokers.start_makai_bridge(config)
+    makai_bridge_event_process = services.brokers.start_makai_event_bridge(config)
 
     # start-stop-daemon sends a SIGTERM, we need to handle it to gracefully shutdown mauka
     def sigterm_handler(signum, frame):

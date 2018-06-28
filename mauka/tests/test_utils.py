@@ -2,14 +2,15 @@ import signal
 import typing
 
 import plugins.base_plugin
-import services
+import services.brokers
+import services.plugin_manager
 
 
 class MaukaService:
     def __init__(self, config: typing.Dict, plugins: typing.List[plugins.base_plugin.MaukaPlugin]):
         self.config = config
         self.plugins = plugins
-        self.plugin_manager = services.PluginManager(config)
+        self.plugin_manager = services.plugin_manager.PluginManager(config)
         self.broker_process = None
         self.makai_bridge_process = None
         self.makai_event_bridge_process = None
@@ -27,9 +28,9 @@ class MaukaService:
     def start_mauka_service(self):
         for plugin in self.plugins:
             self.plugin_manager.register_plugin(plugin)
-        self.broker_process = services.start_mauka_pub_sub_broker(self.config)
-        self.makai_bridge_process = services.start_makai_bridge(self.config)
-        self.makai_event_bridge_process = services.start_makai_event_bridge(self.config)
+        self.broker_process = services.brokers.start_mauka_pub_sub_broker(self.config)
+        self.makai_bridge_process = services.brokers.start_makai_bridge(self.config)
+        self.makai_event_bridge_process = services.brokers.start_makai_event_bridge(self.config)
 
         try:
             self.plugin_manager.run_all_plugins()
