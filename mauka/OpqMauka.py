@@ -59,6 +59,7 @@ if __name__ == "__main__":
     plugin_manager.register_plugin(plugins.StatusPlugin)
     plugin_manager.register_plugin(plugins.ThdPlugin)
     plugin_manager.register_plugin(plugins.IticPlugin)
+    plugin_manager.register_plugin(plugins.FrequencyVariationPlugin)
 
     broker_process = services.start_mauka_pub_sub_broker(config)
     makai_bridge_process = services.start_makai_bridge(config)
