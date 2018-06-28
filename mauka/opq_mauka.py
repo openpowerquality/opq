@@ -10,7 +10,13 @@ import sys
 import typing
 
 import log
-import plugins
+import plugins.acquisition_trigger_plugin
+import plugins.frequency_threshold_plugin
+import plugins.itic_plugin
+import plugins.makai_event_plugin
+import plugins.status_plugin
+import plugins.thd_plugin
+import plugins.voltage_threshold_plugin
 import services.brokers
 import services.plugin_manager
 
@@ -52,13 +58,13 @@ def main():
     config = load_config(sys.argv[1])
 
     plugin_manager = services.plugin_manager.PluginManager(config)
-    plugin_manager.register_plugin(plugins.FrequencyThresholdPlugin)
-    plugin_manager.register_plugin(plugins.VoltageThresholdPlugin)
-    plugin_manager.register_plugin(plugins.AcquisitionTriggerPlugin)
-    plugin_manager.register_plugin(plugins.MakaiEventPlugin)
-    plugin_manager.register_plugin(plugins.StatusPlugin)
-    plugin_manager.register_plugin(plugins.ThdPlugin)
-    plugin_manager.register_plugin(plugins.IticPlugin)
+    plugin_manager.register_plugin(plugins.frequency_threshold_plugin.FrequencyThresholdPlugin)
+    plugin_manager.register_plugin(plugins.voltage_threshold_plugin.VoltageThresholdPlugin)
+    plugin_manager.register_plugin(plugins.acquisition_trigger_plugin.AcquisitionTriggerPlugin)
+    plugin_manager.register_plugin(plugins.makai_event_plugin.MakaiEventPlugin)
+    plugin_manager.register_plugin(plugins.status_plugin.StatusPlugin)
+    plugin_manager.register_plugin(plugins.thd_plugin.ThdPlugin)
+    plugin_manager.register_plugin(plugins.itic_plugin.IticPlugin)
 
     broker_process = services.brokers.start_mauka_pub_sub_broker(config)
     makai_bridge_process = services.brokers.start_makai_bridge(config)
