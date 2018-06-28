@@ -5,10 +5,10 @@ This module contains a plugin that prints every message
 import multiprocessing
 import typing
 
-import plugins.base
+import plugins.base_plugin
 
 
-class PrintPlugin(plugins.base.MaukaPlugin):
+class PrintPlugin(plugins.base_plugin.MaukaPlugin):
     """
     This class contains a plugin that prints every message
     """

@@ -5,25 +5,21 @@ This module is the entry point into the OPQ Mauka system.
 """
 
 import json
-import logging
-import os
 import signal
 import sys
 import typing
 
+import log
 import plugins
 import services
 
-_logger = logging.getLogger("app")
-logging.basicConfig(
-    format="[%(levelname)s][%(asctime)s][{} %(filename)s:%(lineno)s - %(funcName)s() ] %(message)s".format(
-        os.getpid()))
-_logger.setLevel(logging.DEBUG)
+# pylint: disable=C0103
+logger = log.get_logger(__name__)
 
 
 def usage():
     """Displays usage information"""
-    _logger.info("Usage: ./OpqMauka.py [config file]")
+    logger.info("Usage: ./opq_mauka.py [config file]")
 
 
 def load_config(path: str) -> typing.Dict:
@@ -32,20 +28,23 @@ def load_config(path: str) -> typing.Dict:
     :param path: Path of configuration file
     :return: Configuration dictionary
     """
-    _logger.info("Loading configuration from %s", path)
+    logger.info("Loading configuration from %s", path)
     try:
-        with open(path, "r") as f:
-            return json.load(f)
-    except FileNotFoundError as e:
-        _logger.error(e)
+        with open(path, "r") as config_file:
+            return json.load(config_file)
+    except FileNotFoundError as error:
+        logger.error(error)
         usage()
         exit(0)
 
 
-if __name__ == "__main__":
-    _logger.info("Starting OpqMauka")
+def main():
+    """
+    Entry point to OPQ Mauka.
+    """
+    logger.info("Starting OpqMauka")
     if len(sys.argv) <= 1:
-        _logger.error("Configuration file not supplied")
+        logger.error("Configuration file not supplied")
         usage()
         exit(0)
 
@@ -71,7 +70,7 @@ if __name__ == "__main__":
         :param signum: Number of the signal.
         :param frame: Frame of signal.
         """
-        _logger.info("Received exit signal %s %s", str(signum), str(frame))
+        logger.info("Received exit signal %s %s", str(signum), str(frame))
         plugin_manager.clean_exit()
 
     signal.signal(signal.SIGTERM, sigterm_handler)
@@ -80,13 +79,17 @@ if __name__ == "__main__":
     try:
         plugin_manager.run_all_plugins()
         plugin_manager.start_tcp_server()
-        _logger.info("Killing broker process")
+        logger.info("Killing broker process")
         broker_process.terminate()
-        _logger.info("Killing makai bridge process")
+        logger.info("Killing makai bridge process")
         makai_bridge_process.terminate()
-        _logger.info("Killing makai event bridge process")
+        logger.info("Killing makai event bridge process")
         makai_bridge_event_process.terminate()
-        _logger.info("Goodbye")
+        logger.info("Goodbye")
         sys.exit(0)
     except KeyboardInterrupt:
         sigterm_handler(None, None)
+
+
+if __name__ == "__main__":
+    main()

@@ -10,7 +10,7 @@ import matplotlib.path
 
 import analysis
 import mongo
-import plugins.base
+import plugins.base_plugin
 import protobuf.mauka_pb2
 import protobuf.util
 
@@ -28,7 +28,7 @@ class IticRegion(enum.Enum):
 HUNDREDTH_OF_A_CYCLE = analysis.c_to_ms(0.01)
 """Hundredth of a power cycle in milliseconds"""
 
-prohibited_region_polygon = [
+PROHIBITED_REGION_POLYGON = [
     [HUNDREDTH_OF_A_CYCLE, 500],
     [1, 200],
     [3, 140],
@@ -42,7 +42,7 @@ prohibited_region_polygon = [
 ]
 """Polygon representing the prohibited region"""
 
-no_damage_region_polygon = [
+NO_DAMAGE_REGION_POLYGON = [
     [20, 0],
     [20, 40],
     [20, 70],
@@ -55,7 +55,7 @@ no_damage_region_polygon = [
 ]
 """Polygon representing the no damage region"""
 
-no_interruption_region_polygon = [
+NO_INTERRUPTION_REGION_POLYGON = [
     [0, 0],
     [0, 500],
     [HUNDREDTH_OF_A_CYCLE, 500],
@@ -132,13 +132,13 @@ def itic_region(rms_voltage: float, duration_ms: float) -> IticRegion:
             return IticRegion.PROHIBITED
 
     # If the voltage is not an extreme case, we run point in polygon calculations to determine which region its in
-    if point_in_polygon(duration_ms, percent_nominal, no_interruption_region_polygon):
+    if point_in_polygon(duration_ms, percent_nominal, NO_INTERRUPTION_REGION_POLYGON):
         return IticRegion.NO_INTERRUPTION
 
-    if point_in_polygon(duration_ms, percent_nominal, prohibited_region_polygon):
+    if point_in_polygon(duration_ms, percent_nominal, PROHIBITED_REGION_POLYGON):
         return IticRegion.PROHIBITED
 
-    if point_in_polygon(duration_ms, percent_nominal, no_damage_region_polygon):
+    if point_in_polygon(duration_ms, percent_nominal, NO_DAMAGE_REGION_POLYGON):
         return IticRegion.NO_DAMAGE
 
     # If it's directly on the line of one of the polygons, its easiest to just say no_interruption
@@ -206,7 +206,7 @@ def itic(event_id: int, box_id: str, windowed_rms: numpy.ndarray, segment_thresh
                 ))
 
 
-class IticPlugin(plugins.base.MaukaPlugin):
+class IticPlugin(plugins.base_plugin.MaukaPlugin):
     """
     Mauka plugin that calculates ITIC for any event that includes a raw waveform
     """

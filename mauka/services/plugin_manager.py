@@ -5,7 +5,6 @@ import argparse
 import importlib
 import inspect
 import json
-import logging
 import multiprocessing
 import os
 import readline
@@ -15,16 +14,17 @@ import typing
 
 import zmq
 
-_logger = logging.getLogger("app")
-logging.basicConfig(
-    format="[%(levelname)s][%(asctime)s][{} %(filename)s:%(lineno)s - %(funcName)s() ] %(message)s".format(
-        os.getpid()))
-_logger.setLevel(logging.DEBUG)
+import log
+
+# pylint: disable=C0103
+logger = log.get_logger(__name__)
+
 
 OK = "\033[1;32mOK\033[0;0m"
 ERROR = "\033[1;31mERROR\033[0;0m"
 
 
+# pylint: disable=C0103
 def ok(msg: str = "") -> str:
     """An ok response
 
@@ -136,8 +136,8 @@ class MaukaCli:
                 return args.func()
             else:
                 return args.func(args)
-        except ArgumentParseError as e:
-            return str(e)
+        except ArgumentParseError as err:
+            return str(err)
 
 
 class PluginManager:
@@ -247,11 +247,11 @@ class PluginManager:
         :param plugin_name: Name of the plugin
         """
         if plugin_name not in self.name_to_plugin_class:
-            _logger.error("Plugin %s DNE", plugin_name)
+            logger.error("Plugin %s DNE", plugin_name)
             return
 
         if not self.name_to_enabled[plugin_name]:
-            _logger.error("Can not run disabled plugin")
+            logger.error("Can not run disabled plugin")
 
         def _run_plugin(plugin_class, config: typing.Dict, exit_event: multiprocessing.Event):
             """Inner function that acts as target to multiprocess constructor"""
@@ -267,7 +267,7 @@ class PluginManager:
 
     def run_all_plugins(self):
         """Run all loaded and enabled plugins"""
-        _logger.info("Starting all plugins")
+        logger.info("Starting all plugins")
         for name in self.name_to_plugin_class:
             if self.name_to_enabled[name]:
                 self.run_plugin(name)
@@ -299,7 +299,7 @@ class PluginManager:
         Attempts to shut down all Mauka plugins and cleanly exit
         """
         # First, stop all the plugins
-        _logger.info("Stopping all plugins...")
+        logger.info("Stopping all plugins...")
         for plugin_name in self.name_to_plugin_class:
             self.zmq_pub_socket.send_multipart((plugin_name.encode(), "EXIT".encode()))
             if plugin_name in self.name_to_exit_event:
@@ -308,13 +308,13 @@ class PluginManager:
         time.sleep(2.5)
 
         # Next, stop the tcp server
-        _logger.info("Stopping tcp server...")
+        logger.info("Stopping tcp server...")
         self.tcp_server_exit_event.set()
 
     def start_tcp_server(self, blocking: bool = True):
         """Starts a TCP server backed by ZMQ. This server is connected to my out cli client"""
         def _start_tcp_server():
-            _logger.info("Starting plugin manager TCP server")
+            logger.info("Starting plugin manager TCP server")
             zmq_context = zmq.Context()
             zmq_reply_socket = zmq_context.socket(zmq.REP)
             zmq_reply_socket.bind(self.config["zmq.mauka.plugin.management.rep.interface"])
@@ -323,7 +323,7 @@ class PluginManager:
             while not self.tcp_server_exit_event.is_set():
                 try:
                     request = zmq_reply_socket.recv_string()
-                    _logger.debug("Recv req %s", request)
+                    logger.debug("Recv req %s", request)
 
                     if request.strip() == "stop-tcp-server":
                         resp = ok("Stopping TCP server")
@@ -335,7 +335,7 @@ class PluginManager:
                 except zmq.error.Again:
                     continue
 
-            _logger.info("Stopping plugin manager TCP server")
+            logger.info("Stopping plugin manager TCP server")
 
         if blocking:
             _start_tcp_server()
@@ -356,13 +356,13 @@ class PluginManager:
         """
         Returns a list of completable commands.
         """
-        r = []
+        completions = []
         for cmd_name in self.cli_parser.cmd_names:
-            r.append(cmd_name)
+            completions.append(cmd_name)
         for plugin_name in self.name_to_plugin_class:
-            r.append(plugin_name)
+            completions.append(plugin_name)
 
-        return ",".join(r)
+        return ",".join(completions)
 
     def cli_disable_plugin(self, args) -> str:
         """Disables the given plugin
@@ -599,7 +599,7 @@ def run_cli(config: typing.Dict):
             cmd = input(prompt).strip()
 
             if cmd == "exit":
-                _logger.info("Exiting mauka-cli")
+                logger.info("Exiting mauka-cli")
                 sys.exit(0)
 
             if cmd == "completions":
@@ -607,13 +607,13 @@ def run_cli(config: typing.Dict):
                 completions = zmq_request_socket.recv_string()
                 vocabulary = set(completions.split(","))
                 readline.set_completer(make_completer(vocabulary))
-                _logger.debug(ok("Completions updated"))
+                logger.debug(ok("Completions updated"))
                 continue
 
             zmq_request_socket.send_string(cmd.strip())
-            _logger.debug(zmq_request_socket.recv_string())
-    except (EOFError, KeyboardInterrupt) as e:
-        _logger.info("Exiting mauka-cli")
+            logger.debug(zmq_request_socket.recv_string())
+    except (EOFError, KeyboardInterrupt):
+        logger.info("Exiting mauka-cli")
         sys.exit(0)
 
 
@@ -623,22 +623,22 @@ def load_config(path: str) -> typing.Dict:
     :param path: Path of configuration file
     :return: Configuration dictionary
     """
-    _logger.info("Loading configuration from %s", path)
+    logger.info("Loading configuration from %s", path)
     try:
-        with open(path, "r") as f:
-            return json.load(f)
-    except FileNotFoundError as e:
-        _logger.error(e)
-        _logger.error("usage: python3 -m plugins.manager config.json")
+        with open(path, "r") as config_file:
+            return json.load(config_file)
+    except FileNotFoundError as error:
+        logger.error(error)
+        logger.error("usage: python3 -m plugins.manager config.json")
         exit(0)
 
 
 if __name__ == "__main__":
     # Entry point to plugin manager repl/cli
-    _logger.info("Starting OpqMauka CLI")
+    logger.info("Starting OpqMauka CLI")
     if len(sys.argv) <= 1:
-        _logger.error("Configuration file not supplied")
-        _logger.error("usage: python3 -m plugins.manager config.json")
+        logger.error("Configuration file not supplied")
+        logger.error("usage: python3 -m plugins.manager config.json")
         exit(0)
 
     config_path = sys.argv[1]

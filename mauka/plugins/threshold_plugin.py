@@ -7,7 +7,7 @@ import multiprocessing
 import typing
 
 import mongo
-import plugins.base
+import plugins.base_plugin
 import protobuf.util
 
 ThresholdEvent = collections.namedtuple("ThresholdEvent", "start "
@@ -18,7 +18,7 @@ ThresholdEvent = collections.namedtuple("ThresholdEvent", "start "
 """Define a named tuple for organizing threshold event data"""
 
 
-class ThresholdPlugin(plugins.base.MaukaPlugin):
+class ThresholdPlugin(plugins.base_plugin.MaukaPlugin):
     """
     This class contains a base plugin that allows us to check for threshold crossings over time
     """

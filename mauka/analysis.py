@@ -36,34 +36,34 @@ def ms_to_samples(duration_ms: float) -> float:
     return duration_ms * constants.SAMPLES_PER_MILLISECOND
 
 
-def segment(a: numpy.ndarray, delta: float) -> typing.List[numpy.ndarray]:
+def segment(array: numpy.ndarray, delta: float) -> typing.List[numpy.ndarray]:
     """
     Segments an array by splitting the array into stable segments and throwing away "changing" segments.
-    :param a: An array.
+    :param array: An array.
     :param delta: The segmentation threshold.
     :return: A list of segmented arrays where each segment is a stable segment.
     """
-    if a is None or delta is None:
+    if array is None or delta is None:
         return []
 
-    if len(a) == 0:
+    if len(array) == 0:
         return []
 
-    if len(a) == 1:
-        return [a]
+    if len(array) == 1:
+        return [array]
 
-    if len(a) == 2:
-        if numpy.abs(a[0] - a[1]) < delta:
-            return [a]
+    if len(array) == 2:
+        if numpy.abs(array[0] - array[1]) < delta:
+            return [array]
         else:
             return []
 
-    abs_diffs = numpy.abs(numpy.diff(a))
+    abs_diffs = numpy.abs(numpy.diff(array))
     stable = (abs_diffs < delta)
 
     stable_segments = []
-    for i, v in enumerate(stable):
-        if v:
+    for i, is_stable in enumerate(stable):
+        if is_stable:
             if len(stable_segments) == 0:
                 stable_segments.append([i, i + 1])
             else:

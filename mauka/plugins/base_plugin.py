@@ -3,26 +3,22 @@ This module provides classes and base functionality for building OPQMauka plugin
 """
 
 import json
-import logging
 import multiprocessing
 import signal
 import threading
 import typing
-import os
 
 import bson
 import bson.objectid
 import zmq
 
+import log
 import mongo
 import protobuf.mauka_pb2
 import protobuf.util
 
-_logger = logging.getLogger("app")
-logging.basicConfig(
-    format="[%(levelname)s][%(asctime)s][{} %(filename)s:%(lineno)s - %(funcName)s() ] %(message)s".format(
-        os.getpid()))
-_logger.setLevel(logging.DEBUG)
+# pylint: disable=C0103
+logger = log.get_logger(__name__)
 
 
 def run_plugin(plugin_class, config: typing.Dict):
@@ -108,7 +104,7 @@ class MaukaPlugin:
         self.last_received = 0
         """Timestamp since this plugin has last received a message"""
 
-        self.logger = _logger
+        self.logger = logger
         """Provides access to a single configured logger all plugins can use"""
 
         self.producer_lock = multiprocessing.Lock()
@@ -207,7 +203,7 @@ class MaukaPlugin:
         :param topic: The topic this message is associated with
         :param message: The message contents
         """
-        _logger.info("on_message not implemented")
+        logger.info("on_message not implemented")
 
     def produce(self, topic: str, mauka_message: protobuf.mauka_pb2.MaukaMessage):
         """Produces a message with a given topic to the system
@@ -245,7 +241,7 @@ class MaukaPlugin:
 
     def _run(self):
         """This is the run loop for this plugin process"""
-        _logger.info("Starting Mauka plugin: %s", self.name)
+        logger.info("Starting Mauka plugin: %s", self.name)
         signal.signal(signal.SIGTERM, signal.SIG_IGN)
         signal.signal(signal.SIGINT, signal.SIG_IGN)
 
@@ -258,16 +254,16 @@ class MaukaPlugin:
             data = self.zmq_consumer.recv_multipart()
 
             if len(data) != 2:
-                _logger.error("Malformed data from ZMQ. Data size should = 2, but instead is %s", str((len(data))))
-                for d in data:
-                    _logger.error("%s", str(d.decode()))
+                logger.error("Malformed data from ZMQ. Data size should = 2, but instead is %s", str(len(data)))
+                for data_item in data:
+                    logger.error("%s", str(data_item.decode()))
                 break
 
             topic = data[0].decode()
             message = data[1]
 
             if self.is_self_message(topic):
-                _logger.info("Receive self message")
+                logger.info("Receive self message")
                 self.handle_self_message(message.decode())
             else:
                 # Update statistics
@@ -276,4 +272,4 @@ class MaukaPlugin:
                 mauka_message = protobuf.util.deserialize_mauka_message(message)
                 self.on_message(topic, mauka_message)
 
-        _logger.info("Exiting Mauka plugin: %s", self.name)
+        logger.info("Exiting Mauka plugin: %s", self.name)

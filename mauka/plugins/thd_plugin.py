@@ -9,23 +9,23 @@ import scipy.fftpack
 
 import constants
 import mongo
-import plugins.base
+import plugins.base_plugin
 import protobuf.util
 import protobuf.mauka_pb2
 
 
-def rolling_window(a, window):
+def rolling_window(array, window):
     """
     Given an array and window, restructure the data so that it is in a rolling window of size "window" and step = 1.
-    :param a: The array to roll a window over
+    :param array: The array to roll a window over
     :param window: The window size
     :return: A 2D array where each row is a window into the provided data.
     """
-    if len(a) <= window:
-        return numpy.array([a])
-    shape = a.shape[:-1] + (a.shape[-1] - window + 1, window)
-    strides = a.strides + (a.strides[-1],)
-    return numpy.lib.stride_tricks.as_strided(a, shape=shape, strides=strides)
+    if len(array) <= window:
+        return numpy.array([array])
+    shape = array.shape[:-1] + (array.shape[-1] - window + 1, window)
+    strides = array.strides + (array.strides[-1],)
+    return numpy.lib.stride_tricks.as_strided(array, shape=shape, strides=strides)
 
 
 def thd(waveform: numpy.ndarray, fundamental: int) -> float:
@@ -37,14 +37,14 @@ def thd(waveform: numpy.ndarray, fundamental: int) -> float:
     :return: The calculated THD of the provided waveform.
     """
     fundamental = int(fundamental)
-    y = numpy.abs(scipy.fftpack.fft(waveform))
+    abs_dft = numpy.abs(scipy.fftpack.fft(waveform))
 
-    top = numpy.sqrt(numpy.sum(y[i] ** 2 for i in numpy.arange(2 * fundamental, len(y) // 2, fundamental)))
-    bottom = y[fundamental]
+    top = numpy.sqrt(numpy.sum(abs_dft[i] ** 2 for i in numpy.arange(2 * fundamental, len(abs_dft) // 2, fundamental)))
+    bottom = abs_dft[fundamental]
     return (top / bottom) * 100.0
 
 
-class ThdPlugin(plugins.base.MaukaPlugin):
+class ThdPlugin(plugins.base_plugin.MaukaPlugin):
     """
     Mauka plugin that calculates THD over raw waveforms.
     """

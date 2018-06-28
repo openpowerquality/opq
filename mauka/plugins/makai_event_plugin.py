@@ -13,7 +13,7 @@ from scipy import optimize
 
 import constants
 import mongo
-import plugins.base
+import plugins.base_plugin
 import protobuf.mauka_pb2
 import protobuf.util
 
@@ -36,17 +36,17 @@ def vrms_waveform(waveform: numpy.ndarray, window_size: int = constants.SAMPLES_
     :param window_size: The size of the window used to compute Vrms over the waveform.
     :return: An array of vrms values calculated for a given waveform.
     """
-    v = []
+    rms_voltages = []
     window_size = int(window_size)
     while len(waveform) >= window_size:
         samples = waveform[:window_size]
         waveform = waveform[window_size:]
-        v.append(vrms(samples))
+        rms_voltages.append(vrms(samples))
 
     if len(waveform) > 0:
-        v.append(vrms(waveform))
+        rms_voltages.append(vrms(waveform))
 
-    return numpy.array(v)
+    return numpy.array(rms_voltages)
 
 
 def frequency(samples: numpy.ndarray) -> float:
@@ -61,15 +61,15 @@ def frequency(samples: numpy.ndarray) -> float:
     guess_freq = constants.CYCLES_PER_SECOND
     guess_phase = 0.0
     guess_mean = 0.0
-    t = numpy.arange(0, len(samples) / constants.SAMPLE_RATE_HZ, 1 / constants.SAMPLE_RATE_HZ)
+    idx = numpy.arange(0, len(samples) / constants.SAMPLE_RATE_HZ, 1 / constants.SAMPLE_RATE_HZ)
 
-    def optimize_func(x):
+    def optimize_func(args):
         """
         Opimized the function for finding and fitting the frequency.
-        :param x: A list containing in this order: guess_amp, guess_freq, guess_phase, guess_mean.
+        :param args: A list containing in this order: guess_amp, guess_freq, guess_phase, guess_mean.
         :return: Optimized function.
         """
-        return x[0] * numpy.sin(x[1] * 2 * numpy.pi * t + x[2]) + x[3] - samples
+        return args[0] * numpy.sin(args[1] * 2 * numpy.pi * idx + args[2]) + args[3] - samples
 
     est_amp, est_freq, est_phase, est_mean = optimize.leastsq(optimize_func,
                                                               [guess_amp, guess_freq, guess_phase, guess_mean])[0]
@@ -100,20 +100,20 @@ def frequency_waveform(waveform: numpy.ndarray, window_size: int = constants.SAM
     :return: An array of frequency values calculated for a given waveform.
     """
 
-    f = []
+    frequencies = []
     window_size = int(window_size)
     while len(waveform) >= window_size:
         samples = waveform[:window_size]
         waveform = waveform[window_size:]
-        f.append(frequency(samples))
+        frequencies.append(frequency(samples))
 
     if len(waveform) > 0:
-        f.append(frequency(waveform))
+        frequencies.append(frequency(waveform))
 
-    return numpy.array(f)
+    return numpy.array(frequencies)
 
 
-class MakaiEventPlugin(plugins.base.MaukaPlugin):
+class MakaiEventPlugin(plugins.base_plugin.MaukaPlugin):
     """
     This plugin retrieves data when Makai triggers events, performs feature extraction, and then publishes relevant
     features to Mauka downstream plugins.

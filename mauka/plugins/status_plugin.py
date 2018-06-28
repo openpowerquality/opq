@@ -9,7 +9,7 @@ import threading
 import time
 import typing
 
-import plugins.base
+import plugins.base_plugin
 import protobuf.util
 
 
@@ -27,20 +27,20 @@ class HealthState:
         with self.lock:
             return json.dumps(self.state).encode()
 
-    def set_key(self, k, v):
+    def set_key(self, key, value):
         """
         Thread safe message for setting a key-pair value within this class.
-        :param k: The key to set.
-        :param v: The value to set.
+        :param key: The key to set.
+        :param value: The value to set.
         """
         with self.lock:
-            self.state[k] = v
+            self.state[key] = value
 
 
 health_state = HealthState()
 
 
-def mauka_health_request_handler_factory():
+def request_handler_factory():
     """
     Factory method for creating HTTP request handler.
     :return:
@@ -63,6 +63,7 @@ def mauka_health_request_handler_factory():
             self.end_headers()
 
         # noinspection PyPep8Naming
+        # pylint: disable=C0103
         def do_GET(self):
             """
             Returns the health state as JSON to the requestee.
@@ -77,11 +78,11 @@ def mauka_health_request_handler_factory():
 
 def start_health_sate_httpd_server(port: int):
     """Helper function to start HTTP server in separate thread"""
-    httpd = http.server.HTTPServer(("", port), mauka_health_request_handler_factory())
+    httpd = http.server.HTTPServer(("", port), request_handler_factory())
     httpd.serve_forever()
 
 
-class StatusPlugin(plugins.base.MaukaPlugin):
+class StatusPlugin(plugins.base_plugin.MaukaPlugin):
     """
     This module contains a plugin that reports and records the status of other plugins in the system
     """

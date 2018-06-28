@@ -1,12 +1,12 @@
 import signal
 import typing
 
-import plugins.base
+import plugins.base_plugin
 import services
 
 
 class MaukaService:
-    def __init__(self, config: typing.Dict, plugins: typing.List[plugins.base.MaukaPlugin]):
+    def __init__(self, config: typing.Dict, plugins: typing.List[plugins.base_plugin.MaukaPlugin]):
         self.config = config
         self.plugins = plugins
         self.plugin_manager = services.PluginManager(config)
@@ -53,7 +53,7 @@ class MaukaService:
             self.plugin_manager_thread.terminate()
 
 
-def setup_mauka(config: typing.Dict, plugins: typing.List[plugins.base.MaukaPlugin]):
+def setup_mauka(config: typing.Dict, plugins: typing.List[plugins.base_plugin.MaukaPlugin]):
     """Setup a running, testable, mock version of Mauka."""
     mauka_service = MaukaService(config, plugins)
     mauka_service.start_mauka_service()

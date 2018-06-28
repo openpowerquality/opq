@@ -9,12 +9,12 @@ import typing
 
 import zmq
 
-import plugins.base
+import plugins.base_plugin
 import protobuf.opq_pb2
 import protobuf.util
 
 
-class AcquisitionTriggerPlugin(plugins.base.MaukaPlugin):
+class AcquisitionTriggerPlugin(plugins.base_plugin.MaukaPlugin):
     """
     This class provides the acquisition trigger plugin whose job it is to look at interesting events and query for
     raw data when interesting events occur
@@ -47,7 +47,7 @@ class AcquisitionTriggerPlugin(plugins.base.MaukaPlugin):
         self.s_dead_zone = int(self.config_get("plugins.AcquisitionTriggerPlugin.sDeadZoneAfterTrigger"))
         """Number of seconds of deadzone that we should not request raw data after just requesting data"""
 
-        self.event_type_to_last_event_timestamp = {}
+        self.event_type_to_last_timestamp = {}
         """Store event types to the last event timestamp of that type"""
 
         self.event_type_to_last_event = {}
@@ -87,14 +87,14 @@ class AcquisitionTriggerPlugin(plugins.base.MaukaPlugin):
         :param now: The current time
         :return: If we are currently in a deadzone or not
         """
-        if event_type in self.event_type_to_last_event_timestamp:
-            return now - self.event_type_to_last_event_timestamp[event_type] <= self.s_dead_zone
+        if event_type in self.event_type_to_last_timestamp:
+            return now - self.event_type_to_last_timestamp[event_type] <= self.s_dead_zone
         else:
             return False
 
     def get_status(self):
         # return str(self.event_type_to_last_event_timestamp)
-        return "{} {}".format(self.event_type_to_last_event_timestamp, self.event_type_to_last_event)
+        return "{} {}".format(self.event_type_to_last_timestamp, self.event_type_to_last_event)
 
     def on_message(self, topic, mauka_message):
         """Subscribed messages appear here
@@ -113,7 +113,7 @@ class AcquisitionTriggerPlugin(plugins.base.MaukaPlugin):
             else:
                 self.debug("Not in deadzone")
                 request_data = True
-                self.event_type_to_last_event_timestamp[event_type] = now
+                self.event_type_to_last_timestamp[event_type] = now
 
             start_ts_ms_utc = mauka_message.makai_trigger.event_start_timestamp_ms
             end_ts_ms_utc = mauka_message.makai_trigger.event_end_timestamp_ms
@@ -129,9 +129,8 @@ class AcquisitionTriggerPlugin(plugins.base.MaukaPlugin):
             try:
                 self.debug("Sending event msg: {}".format(event_msg))
                 self.push_socket.send(event_msg)
-            except Exception as e:
-                self.logger.error("Error sending req to Makai: {}".format(str(e)))
+            except Exception as err:
+                self.logger.error("Error sending req to Makai: %s", str(err))
         else:
-            self.logger.error("Received incorrect mauka message [{}] in AcquisitionTriggerPlugin".format(
-                protobuf.util.which_message_oneof(mauka_message)
-            ))
+            self.logger.error("Received incorrect mauka message [%s] in AcquisitionTriggerPlugin",
+                              protobuf.util.which_message_oneof(mauka_message))
