@@ -37,6 +37,8 @@ class HealthState:
             self.state[key] = value
 
 
+# TODO: Find a better way to deal with shared health state
+# pylint: disable=C0103
 health_state = HealthState()
 
 
