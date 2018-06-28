@@ -55,8 +55,8 @@ def segment(array: numpy.ndarray, delta: float) -> typing.List[numpy.ndarray]:
     if len(array) == 2:
         if numpy.abs(array[0] - array[1]) < delta:
             return [array]
-        else:
-            return []
+
+        return []
 
     abs_diffs = numpy.abs(numpy.diff(array))
     stable = (abs_diffs < delta)

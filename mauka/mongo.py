@@ -5,6 +5,9 @@ This module contains classes and functions for querying and manipulating data wi
 import enum
 import typing
 
+import bson
+import bson.objectid
+
 import gridfs
 import numpy
 import pymongo
@@ -229,8 +232,8 @@ def get_ieee_duration(duration_ms: float) -> IncidentIeeeDuration:
         return IncidentIeeeDuration.TEMPORARY
     elif duration_ms > ms_1_m:
         return IncidentIeeeDuration.SUSTAINED
-    else:
-        return IncidentIeeeDuration.UNDEFINED
+
+    return IncidentIeeeDuration.UNDEFINED
 
 
 def next_available_incident_id(opq_mongo_client: OpqMongoClient) -> int:
@@ -244,8 +247,8 @@ def next_available_incident_id(opq_mongo_client: OpqMongoClient) -> int:
         last_incident = mongo_client.incidents_collection.find().sort("incident_id", pymongo.DESCENDING).limit(1)[0]
         last_incident_id = last_incident["incident_id"]
         return last_incident_id + 1
-    else:
-        return 1
+
+    return 1
 
 
 def store_incident(event_id: int,
@@ -360,8 +363,8 @@ def get_calibration_constant(box_id: int) -> float:
     calibration_constants = get_box_calibration_constants()
     if box_id in calibration_constants:
         return calibration_constants[box_id]
-    else:
-        return 1.0
+
+    return 1.0
 
 
 def memoize(single_param_fn: typing.Callable) -> typing.Callable:
@@ -380,12 +383,21 @@ def memoize(single_param_fn: typing.Callable) -> typing.Callable:
         """
         if key in cache:
             return cache[key]
-        else:
-            cache[key] = single_param_fn(key)
-            return cache[key]
+
+        cache[key] = single_param_fn(key)
+        return cache[key]
 
     return helper
 
 
 # pylint: disable=C0103
 cached_calibration_constant = memoize(get_calibration_constant)
+
+
+def object_id(oid: str) -> bson.objectid.ObjectId:
+    """Given the string representation of an object an id, return an instance of an ObjectID
+
+    :param oid: The oid to encode
+    :return: ObjectId from string
+    """
+    return bson.objectid.ObjectId(oid)

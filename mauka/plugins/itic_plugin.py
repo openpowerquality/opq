@@ -108,8 +108,8 @@ def itic_region(rms_voltage: float, duration_ms: float) -> IticRegion:
     if rms_voltage <= 0:
         if duration_ms <= 20:
             return IticRegion.NO_INTERRUPTION
-        else:
-            return IticRegion.NO_DAMAGE
+
+        return IticRegion.NO_DAMAGE
 
     # In the x and y directions
     if duration_ms >= 10000 and percent_nominal >= 500:
@@ -121,15 +121,15 @@ def itic_region(rms_voltage: float, duration_ms: float) -> IticRegion:
             return IticRegion.PROHIBITED
         elif percent_nominal <= 90:
             return IticRegion.NO_DAMAGE
-        else:
-            return IticRegion.NO_INTERRUPTION
+
+        return IticRegion.NO_INTERRUPTION
 
     # In the y-direction
     if percent_nominal >= 500:
         if duration_ms <= HUNDREDTH_OF_A_CYCLE:
             return IticRegion.NO_INTERRUPTION
-        else:
-            return IticRegion.PROHIBITED
+
+        return IticRegion.PROHIBITED
 
     # If the voltage is not an extreme case, we run point in polygon calculations to determine which region its in
     if point_in_polygon(duration_ms, percent_nominal, NO_INTERRUPTION_REGION_POLYGON):
@@ -160,7 +160,7 @@ def itic(event_id: int, box_id: str, windowed_rms: numpy.ndarray, segment_thresh
     mongo_client = mongo.get_default_client(opq_mongo_client)
     duration_cycles = len(windowed_rms)
     if duration_cycles < 0.01:
-        return IticRegion.NO_INTERRUPTION
+        return
 
     segments = analysis.segment(windowed_rms, segment_threshold)
 

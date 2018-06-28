@@ -217,8 +217,8 @@ def is_payload(mauka_message: mauka_pb2.MaukaMessage, payload_type: mauka_pb2.Pa
     """
     if payload_type is None:
         return which_message_oneof(mauka_message) == "payload"
-    else:
-        return which_message_oneof(mauka_message) == "payload" and mauka_message.payload.payload_type == payload_type
+
+    return which_message_oneof(mauka_message) == "payload" and mauka_message.payload.payload_type == payload_type
 
 
 def is_heartbeat_message(mauka_message: mauka_pb2.MaukaMessage) -> bool:

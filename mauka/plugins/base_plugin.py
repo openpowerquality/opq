@@ -58,6 +58,24 @@ class JSONEncoder(json.JSONEncoder):
         return json.JSONEncoder.default(self, o)
 
 
+def from_json(json_str: str) -> typing.Dict:
+    """Deserialize json into dictionary
+
+    :param json_str: JSON string to deserialize
+    :return: Dictionary from json
+    """
+    return json.loads(json_str)
+
+
+def to_json(obj: object) -> str:
+    """Serializes the given object to json
+
+    :param obj: The object to serialize
+    :return: JSON representation of object
+    """
+    return json.dumps(obj, cls=JSONEncoder)
+
+
 class MaukaPlugin:
     """
     This is the base MaukaPlugin class that provides easy access to the database and also provides publish/subscribe
@@ -126,27 +144,12 @@ class MaukaPlugin:
 
         self.mauka_debug = self.config["mauka.debug"]
 
+    # pylint: disable=R0201
     def get_status(self) -> str:
         """ Return the status of this plugin
         :return: The status of this plugin
         """
         return "N/A"
-
-    def to_json(self, obj: object) -> str:
-        """Serializes the given object to json
-
-        :param obj: The object to serialize
-        :return: JSON representation of object
-        """
-        return json.dumps(obj, cls=JSONEncoder)
-
-    def from_json(self, json_str: str) -> typing.Dict:
-        """Deserialize json into dictionary
-
-        :param json_str: JSON string to deserialize
-        :return: Dictionary from json
-        """
-        return json.loads(json_str)
 
     def get_mongo_client(self):
         """ Returns an OPQ mongo client
@@ -194,15 +197,8 @@ class MaukaPlugin:
         else:
             return self.config[key]
 
-    def object_id(self, oid: str) -> bson.objectid.ObjectId:
-        """Given the string representation of an object an id, return an instance of an ObjectID
-
-        :param oid: The oid to encode
-        :return: ObjectId from string
-        """
-        return bson.objectid.ObjectId(oid)
-
     # pylint: disable=W0613
+    # pylint: disable=R0201
     def on_message(self, topic: str, mauka_message: protobuf.mauka_pb2.MaukaMessage):
         """This gets called when a subscriber receives a message from a topic they are subscribed too.
 

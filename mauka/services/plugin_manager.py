@@ -134,10 +134,25 @@ class MaukaCli:
             args = self.cli_parser.parse_args(args)
             if len(vars(args)) == 1:
                 return args.func()
-            else:
-                return args.func(args)
+
+            return args.func(args)
         except ArgumentParseError as err:
             return str(err)
+
+
+def get_class(mod, class_name: str):
+    """Given a module, return a class from that module with the given name
+
+    :param mod: The module to search for the class in
+    :param class_name: The class name we are attempting to retrieve
+    :return: The class we are attempting to retrieve or None if the class DNE
+    """
+    for name_val in inspect.getmembers(mod, inspect.isclass):
+        name = name_val[0]
+        val = name_val[1]
+        if name == class_name:
+            return val
+        return None
 
 
 class PluginManager:
@@ -273,20 +288,6 @@ class PluginManager:
         for name in self.name_to_plugin_class:
             if self.name_to_enabled[name]:
                 self.run_plugin(name)
-
-    def get_class(self, mod, class_name: str):
-        """Given a module, return a class from that module with the given name
-
-        :param mod: The module to search for the class in
-        :param class_name: The class name we are attempting to retrieve
-        :return: The class we are attempting to retrieve or None if the class DNE
-        """
-        for name_val in inspect.getmembers(mod, inspect.isclass):
-            name = name_val[0]
-            val = name_val[1]
-            if name == class_name:
-                return val
-            return None
 
     def exit(self):
         """
@@ -452,12 +453,12 @@ class PluginManager:
             self.cli_unload_plugin(plugin_name)
             mod = sys.modules[module_name]
             importlib.reload(mod)
-            self.register_plugin(self.get_class(mod, plugin_name))
+            self.register_plugin(get_class(mod, plugin_name))
             return ok("Plugin {} reloaded".format(plugin_name))
 
         importlib.invalidate_caches()
         mod = importlib.import_module(module_name)
-        self.register_plugin(self.get_class(mod, plugin_name))
+        self.register_plugin(get_class(mod, plugin_name))
         return ok("Plugin {} loaded".format(plugin_name))
 
     def cli_list_plugins(self) -> str:
@@ -534,8 +535,8 @@ class PluginManager:
 
         if is_error(stop_resp) or is_error(start_resp):
             return error("{} {}".format(plugin_name, chained_resp))
-        else:
-            return ok("Restarted {}. {}".format(plugin_name, chained_resp))
+
+        return ok("Restarted {}. {}".format(plugin_name, chained_resp))
 
     def cli_unload_plugin(self, args) -> str:
         """Unload the given plugin

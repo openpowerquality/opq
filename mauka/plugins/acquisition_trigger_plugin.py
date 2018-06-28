@@ -92,8 +92,8 @@ class AcquisitionTriggerPlugin(plugins.base_plugin.MaukaPlugin):
         """
         if event_type in self.event_type_to_last_timestamp:
             return now - self.event_type_to_last_timestamp[event_type] <= self.s_dead_zone
-        else:
-            return False
+
+        return False
 
     def get_status(self):
         # return str(self.event_type_to_last_event_timestamp)
