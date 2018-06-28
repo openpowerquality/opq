@@ -157,7 +157,7 @@ class ThresholdPlugin(plugins.base_plugin.MaukaPlugin):
         Messages cause our FSM to be ran and can create new events, update events, and close out events
 
         :param topic: The topic that this message is associated with
-        :param message: The message
+        :param mauka_message: The message
         """
 
         if not self.subscribed:
@@ -172,7 +172,10 @@ class ThresholdPlugin(plugins.base_plugin.MaukaPlugin):
             is_high = value > self.threshold_value_high
             is_stable = not is_low and not is_high
 
-            prev_low_event = self.device_id_to_low_events[device_id] if device_id in self.device_id_to_low_events else None
+            if device_id in self.device_id_to_low_events:
+                prev_low_event = self.device_id_to_low_events[device_id]
+            else:
+                prev_low_event = None
             prev_high_event = self.device_id_to_high_events[
                 device_id] if device_id in self.device_id_to_high_events else None
 

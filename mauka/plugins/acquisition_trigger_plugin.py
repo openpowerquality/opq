@@ -35,6 +35,7 @@ class AcquisitionTriggerPlugin(plugins.base_plugin.MaukaPlugin):
         self.zmq_req_ctx = zmq.Context()
         """ZeroMQ context"""
 
+        # noinspection PyUnresolvedReferences
         self.push_socket = self.zmq_req_ctx.socket(zmq.PUSH)
         """ZeroMQ request socket"""
 
@@ -100,7 +101,7 @@ class AcquisitionTriggerPlugin(plugins.base_plugin.MaukaPlugin):
         """Subscribed messages appear here
 
         :param topic: The topic that this message is associated with
-        :param message: The message
+        :param mauka_message: The message
         """
         if protobuf.util.is_makai_trigger(mauka_message):
             self.debug("on_message {}".format(mauka_message))

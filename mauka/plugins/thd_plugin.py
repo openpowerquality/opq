@@ -112,7 +112,7 @@ class ThdPlugin(plugins.base_plugin.MaukaPlugin):
         Fired when this plugin receives a message. This will wait a certain amount of time to make sure that data
         is in the database before starting thd calculations.
         :param topic: Topic of the message.
-        :param message: Contents of the message.
+        :param mauka_message: Contents of the message.
         """
         if protobuf.util.is_payload(mauka_message, protobuf.mauka_pb2.ADC_SAMPLES):
             self.debug("on_message {}:{} len:{}".format(mauka_message.payload.event_id,

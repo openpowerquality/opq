@@ -14,7 +14,7 @@ import protobuf.opq_pb2
 def decode_trigger_message(encoded_trigger_message):
     """ Decodes and returns a serialized triggering message
 
-    :param encoded_measurement: The protobuf encoded triggering message
+    :param encoded_trigger_message: The protobuf encoded triggering message
     :return: The decoded TriggerMessage object
     """
     trigger_message = protobuf.opq_pb2.TriggerMessage()

@@ -8,7 +8,9 @@ import signal
 import threading
 import typing
 
+# noinspection PyPackageRequirements
 import bson
+# noinspection PyPackageRequirements
 import bson.objectid
 import zmq
 
@@ -89,9 +91,11 @@ class MaukaPlugin:
         self.zmq_context = zmq.Context()
         """ZeroMQ context"""
 
+        # noinspection PyUnresolvedReferences
         self.zmq_consumer = self.zmq_context.socket(zmq.SUB)
         """ZeroMQ consumer"""
 
+        # noinspection PyUnresolvedReferences
         self.zmq_producer = self.zmq_context.socket(zmq.PUB)
         """ZeroMQ producer"""
 
@@ -201,7 +205,7 @@ class MaukaPlugin:
         This should be implemented in all subclasses.
 
         :param topic: The topic this message is associated with
-        :param message: The message contents
+        :param mauka_message: The message contents
         """
         logger.info("on_message not implemented")
 
@@ -209,7 +213,7 @@ class MaukaPlugin:
         """Produces a message with a given topic to the system
 
         :param topic: The topic to produce this message to
-        :param message: The message to produce
+        :param mauka_message: The message to produce
         """
         serialized_mauka_message = protobuf.util.serialize_mauka_message(mauka_message)
         with self.producer_lock:
@@ -246,6 +250,7 @@ class MaukaPlugin:
         signal.signal(signal.SIGINT, signal.SIG_IGN)
 
         for subscription in self.subscriptions:
+            # noinspection PyUnresolvedReferences
             self.zmq_consumer.setsockopt_string(zmq.SUBSCRIBE, subscription)
 
         self.start_heartbeat()

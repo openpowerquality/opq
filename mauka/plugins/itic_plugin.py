@@ -184,7 +184,10 @@ def itic(event_id: int, box_id: str, windowed_rms: numpy.ndarray, segment_thresh
         else:
             incident_start_timestamp_ms = box_event_start_timetamp_ms + analysis.c_to_ms(start_idx)
             incident_end_timestamp_ms = box_event_start_timetamp_ms + analysis.c_to_ms(end_idx)
-            incident_classification = mongo.IncidentClassification.ITIC_PROHIBITED if itic_enum is IticRegion.PROHIBITED else mongo.IncidentClassification.ITIC_NO_DAMAGE
+            if itic_enum is IticRegion.PROHIBITED:
+                incident_classification = mongo.IncidentClassification.ITIC_PROHIBITED
+            else:
+                incident_classification = mongo.IncidentClassification.ITIC_NO_DAMAGE
 
             mongo.store_incident(
                 event_id,
@@ -225,7 +228,7 @@ class IticPlugin(plugins.base_plugin.MaukaPlugin):
         """
         Called async when a topic this plugin subscribes to produces a message
         :param topic: The topic that is producing the message
-        :param message: The message that was produced
+        :param mauka_message: The message that was produced
         """
         self.debug("on_message")
         if protobuf.util.is_payload(mauka_message, protobuf.mauka_pb2.VOLTAGE_RMS_WINDOWED):

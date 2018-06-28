@@ -28,6 +28,6 @@ class PrintPlugin(plugins.base_plugin.MaukaPlugin):
         Messages are printed to stdout
 
         :param topic: The topic that this message is associated with
-        :param message: The message
+        :param mauka_message: The message
         """
         self.logger.info("topic: %s message: %s", str(topic), str(mauka_message))
