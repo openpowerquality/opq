@@ -60,7 +60,7 @@ class FrequencyThresholdPlugin(plugins.threshold_plugin.ThresholdPlugin):
         elif threshold_type == "HIGH":
             event_type = mongo.BoxEventType.FREQUENCY_SWELL.value
         else:
-            self.logger.error("Unknown threshold type {}".format(threshold_type))
+            self.logger.error("Unknown threshold type %s", threshold_type)
             return
 
         makai_trigger = protobuf.util.build_makai_trigger(

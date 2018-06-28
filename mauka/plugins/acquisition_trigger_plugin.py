@@ -133,7 +133,7 @@ class AcquisitionTriggerPlugin(plugins.base_plugin.MaukaPlugin):
             try:
                 self.debug("Sending event msg: {}".format(event_msg))
                 self.push_socket.send(event_msg)
-            except Exception as err:
+            except zmq.ZMQError as err:
                 self.logger.error("Error sending req to Makai: %s", str(err))
         else:
             self.logger.error("Received incorrect mauka message [%s] in AcquisitionTriggerPlugin",

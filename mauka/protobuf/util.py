@@ -23,20 +23,20 @@ def decode_trigger_message(encoded_trigger_message):
 
 
 def encode_trigger_message(idd,
-                           time,
+                           timestamp,
                            frequency,
                            rms):
     """
     Encodes a Makai trigger message
     :param idd: Id of the box
-    :param time: Timestamp ms
+    :param timestamp: Timestamp ms
     :param frequency: The inst frequency
     :param rms: The inst voltage RMS
     :return: Serialized Makai trigger message
     """
     trigger_message = protobuf.opq_pb2.TriggerMessage()
     trigger_message.id = idd
-    trigger_message.time = time
+    trigger_message.time = timestamp
     trigger_message.frequency = frequency
     trigger_message.rms = rms
     return trigger_message.SerializeToString()

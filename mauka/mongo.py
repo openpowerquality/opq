@@ -147,7 +147,7 @@ def get_waveform(mongo_client: OpqMongoClient, data_fs_filename: str) -> numpy.n
     return waveform
 
 
-def get_box_calibration_constants(mongo_client: OpqMongoClient = None, defaults: typing.Dict[int, float] = {}) -> \
+def get_box_calibration_constants(mongo_client: OpqMongoClient = None, defaults=None) -> \
         typing.Dict[int, float]:
     """
     Loads calibration constants from the mongo database a a dictionary from box id to calibration constant.
@@ -156,10 +156,12 @@ def get_box_calibration_constants(mongo_client: OpqMongoClient = None, defaults:
     :param defaults: Default values supplied as a mapping from box id to calibration constant.
     :return: A dictionary mapping of box_id to calibration constant
     """
-    _mongo_client = mongo_client if mongo_client is not None else OpqMongoClient()
-    opq_boxes = _mongo_client.opq_boxes_collection.find(projection={'_id': False,
-                                                                    "calibration_constant": True,
-                                                                    "box_id": True})
+    if defaults is None:
+        defaults = {}
+    client = mongo_client if mongo_client is not None else OpqMongoClient()
+    opq_boxes = client.opq_boxes_collection.find(projection={'_id': False,
+                                                             "calibration_constant": True,
+                                                             "box_id": True})
     calibration_constants = {}
     for box_id, calibration_constant in defaults.items():
         calibration_constants[box_id] = calibration_constant
@@ -362,10 +364,10 @@ def get_calibration_constant(box_id: int) -> float:
         return 1.0
 
 
-def memoize(callable: typing.Callable) -> typing.Callable:
+def memoize(single_param_fn: typing.Callable) -> typing.Callable:
     """
     Memoizes function returns.
-    :param callable: The function to memoize.
+    :param single_param_fn: The function to memoize.
     :return: A memoized version of callable
     """
     cache = {}
@@ -379,7 +381,7 @@ def memoize(callable: typing.Callable) -> typing.Callable:
         if key in cache:
             return cache[key]
         else:
-            cache[key] = callable(key)
+            cache[key] = single_param_fn(key)
             return cache[key]
 
     return helper

@@ -220,12 +220,11 @@ class ThresholdPlugin(plugins.base_plugin.MaukaPlugin):
                     self.update_event(prev_high_event, value)
 
             else:
-                self.logger.error("Unknown configuration {} {} {} {}".format(is_low, is_high, prev_low_event is None,
-                                                                             prev_high_event is None))
+                self.logger.error("Unknown configuration %s %s %s %s",
+                                  str(is_low), str(is_high), str(prev_low_event is None), str(prev_high_event is None))
         else:
-            self.logger.error("Received incorrect mauka message [{}] at ThresholdPlugin".format(
-                protobuf.util.which_message_oneof(mauka_message)
-            ))
+            self.logger.error("Received incorrect mauka message [%s] at ThresholdPlugin",
+                              protobuf.util.which_message_oneof(mauka_message))
 
     def on_event(self, threshold_event):
         """This should be implemented in all child classes and is called async as events are completed

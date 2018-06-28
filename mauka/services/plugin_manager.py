@@ -145,13 +145,13 @@ class PluginManager:
     This class provides facilities for managing (stopping, starting, loading, reloading) plugin subprocesses.
     """
 
-    def __init__(self, config: typing.Dict):
+    def __init__(self, mauka_config: typing.Dict):
         """Initializes the plugin manager
 
-        :param config: Configuration dictionary
+        :param mauka_config: Configuration dictionary
 
         """
-        self.config = config
+        self.config = mauka_config
         """Configuration dictionary"""
 
         self.name_to_plugin_class = {}
@@ -255,10 +255,10 @@ class PluginManager:
         if not self.name_to_enabled[plugin_name]:
             logger.error("Can not run disabled plugin")
 
-        def _run_plugin(plugin_class, config: typing.Dict, exit_event: multiprocessing.Event):
+        def _run_plugin(plugin_class, plugin_config: typing.Dict, exit_event: multiprocessing.Event):
             """Inner function that acts as target to multiprocess constructor"""
-            plugin_instance = plugin_class(config, exit_event)
-            plugin_instance._run()
+            plugin_instance = plugin_class(plugin_config, exit_event)
+            plugin_instance.run_plugin()
 
         plugin_class = self.name_to_plugin_class[plugin_name]
         exit_event = multiprocessing.Event()
@@ -417,18 +417,20 @@ class PluginManager:
 
         Plugins need to be restarted to take advantage of new values
 
-        :param config_path: Path to configuration file
+        :param args: List of possible args
         :return: Server response
         """
-        config_path = args.config_path
-        if not os.path.isfile(config_path):
-            return error("Path {} DNE".format(config_path))
+        path = args.config_path
+        if not os.path.isfile(path):
+            return error("Path {} DNE".format(path))
 
         try:
-            self.config = load_config(config_path)
-            return ok("Configuration loaded from {}".format(config_path))
-        except Exception as e:
-            return error("Exception occurred while loading config: {}".format(e))
+            self.config = load_config(path)
+            return ok("Configuration loaded from {}".format(path))
+        except FileNotFoundError as err:
+            return error("Could not load file: {}".format(err))
+        except json.JSONDecodeError as json_err:
+            return error("Could not parse json file {}".format(json_err))
 
     def cli_load_plugin(self, args) -> str:
         """Attempts to load the given plugin from the plugins directory.
@@ -584,16 +586,16 @@ def make_completer(vocabulary):
     return custom_complete
 
 
-def run_cli(config: typing.Dict):
+def run_cli(cli_config: typing.Dict):
     """Starts the REPL and sends commands to the plugin manager over TCP using ZMQ
 
-    :param config: Configuration dictionary
+    :param cli_config: Configuration dictionary
     """
     zmq_context = zmq.Context()
     # noinspection PyUnresolvedReferences
     # pylint: disable=E1101
     zmq_request_socket = zmq_context.socket(zmq.REQ)
-    zmq_request_socket.connect(config["zmq.mauka.plugin.management.req.interface"])
+    zmq_request_socket.connect(cli_config["zmq.mauka.plugin.management.req.interface"])
     prompt = "opq-mauka> "
 
     try:
@@ -634,8 +636,8 @@ def load_config(path: str) -> typing.Dict:
     try:
         with open(path, "r") as config_file:
             return json.load(config_file)
-    except FileNotFoundError as error:
-        logger.error(error)
+    except FileNotFoundError as err:
+        logger.error(err)
         logger.error("usage: python3 -m plugins.manager config.json")
         exit(0)
 

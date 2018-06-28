@@ -33,7 +33,7 @@ def run_plugin(plugin_class, config: typing.Dict):
     def _run_plugin():
         """Inner function that acts as target to multiprocess constructor"""
         plugin_instance = plugin_class(config)
-        plugin_instance._run()
+        plugin_instance.run_plugin()
 
     process = multiprocessing.Process(target=_run_plugin)
     process.start()
@@ -247,7 +247,7 @@ class MaukaPlugin:
         if self.mauka_debug:
             self.logger.debug("%s\n%s", self.name, msg)
 
-    def _run(self):
+    def run_plugin(self):
         """This is the run loop for this plugin process"""
         logger.info("Starting Mauka plugin: %s", self.name)
         signal.signal(signal.SIGTERM, signal.SIG_IGN)

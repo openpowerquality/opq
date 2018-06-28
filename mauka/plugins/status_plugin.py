@@ -37,7 +37,6 @@ class HealthState:
             self.state[key] = value
 
 
-# TODO: Find a better way to deal with shared health state
 # pylint: disable=C0103
 health_state = HealthState()
 
@@ -71,6 +70,7 @@ def request_handler_factory():
             Returns the health state as JSON to the requestee.
             :return: The health state as JSON
             """
+            # pylint: disable=W0603
             global health_state
             self._set_headers(200)
             self.wfile.write(health_state.as_json())
@@ -102,6 +102,7 @@ class StatusPlugin(plugins.base_plugin.MaukaPlugin):
         self.httpd_thread.start()
 
     def on_message(self, topic, mauka_message):
+        # pylint: disable=W0603
         global health_state
         """Subscribed messages occur async
 

@@ -56,7 +56,7 @@ def frequency(samples: numpy.ndarray) -> float:
     :return: The frequency value of the provided samples in Hz.
     """
 
-    """Fit sinusoidal curve to data"""
+    # Fit sinusoidal curve to data
     guess_amp = 120.0
     guess_freq = constants.CYCLES_PER_SECOND
     guess_phase = 0.0
@@ -71,24 +71,8 @@ def frequency(samples: numpy.ndarray) -> float:
         """
         return args[0] * numpy.sin(args[1] * 2 * numpy.pi * idx + args[2]) + args[3] - samples
 
-    est_amp, est_freq, est_phase, est_mean = optimize.leastsq(optimize_func,
-                                                              [guess_amp, guess_freq, guess_phase, guess_mean])[0]
+    _, est_freq = optimize.leastsq(optimize_func, [guess_amp, guess_freq, guess_phase, guess_mean])[0]
     return numpy.round(est_freq, decimals=2)
-
-    """Zero Crossing Method:"""
-    # zero_crossing_indices = numpy.diff(samples > 0)
-    # num_zero_crossings = sum(zero_crossing_indices)
-    # zero_crossing_time_intervals = numpy.diff(numpy.array(range(len(zero_crossing_indices)))[zero_crossing_indices])
-    # if num_zero_crossings >= 2:
-    #     return ((num_zero_crossings - 1) * constants.SAMPLE_RATE_HZ) / (2 * sum(zero_crossing_time_intervals))
-    # else:
-    #     return 0.0
-
-    """DFT of Sampled Waveform Using Numpy's FFT Implementation"""
-    # f = interpolate.interp1d(range(len(samples)), samples)
-    # dft = numpy.abs(numpy.fft.rfft(f(numpy.arange(0, 199, 0.001)))) #amplitude spectrum of dft
-    # freq = numpy.fft.rfftfreq((len(dft) - 1) * 2, d = 0.001 / (constants.SAMPLE_RATE_HZ))
-    # return freq[dft.argmax()]
 
 
 def frequency_waveform(waveform: numpy.ndarray, window_size: int = constants.SAMPLES_PER_CYCLE) -> numpy.ndarray:
