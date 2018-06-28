@@ -14,6 +14,9 @@ max_line_length = 120
 bears = PyLintBear
 pylint_disable = C0301, C1801
 
-
 [mauka.pyflakes]
 bears = PyFlakesBear
+
+[mauka.bandit]
+bears = BanditBear
+bandit_skipped_tests = B322
