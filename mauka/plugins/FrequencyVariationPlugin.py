@@ -39,16 +39,17 @@ def frequency_variation(frequency: float, freq_ref: float, freq_var_high: float,
 def frequency_incident_classifier(event_id: int, box_id: str, windowed_frequencies: numpy.ndarray,
                                   box_event_start_ts: int, freq_ref: float, freq_var_high: float, freq_var_low: float,
                                   freq_interruption: float, window_size: float = constants.SAMPLES_PER_CYCLE,
-                                  opq_mongo_client: mongo.OpqMongoClient = None, logger = None):
+                                  opq_mongo_client: mongo.OpqMongoClient=None, logger=None):
     """
     Classifies a frequency incident as a Sag, Swell, or Interruption. Creates a Mongo Incident document
     :param event_id: Makai Event ID
     :param box_id: Box reporting event
     :param windowed_frequencies: High fidelity frequency measurements of windows
+    :param box_event_start_ts: start timestamp of event in milliseconds
     :param freq_ref: the reference frequency
-    :param freq_var_high:
-    :param freq_var_low:
-    :param freq_interruption:
+    :param freq_var_high: the threshold amount of variation to trigger a frequency swell incident
+    :param freq_var_low: the threshold amount of variation to trigger a frequency sag incident
+    :param freq_interruption: the frequency to trigger a frequency interruption incident
     :param window_size: The number of samples per window
     :param opq_mongo_client:
     :param logger:
@@ -67,7 +68,7 @@ def frequency_incident_classifier(event_id: int, box_id: str, windowed_frequenci
     for i in range(len(windowed_frequencies)):
         # check whether there is a frequency variation and if so what type
         curr_incident, curr_variation = frequency_variation(windowed_frequencies[i], freq_ref, freq_var_high,
-                                                                freq_var_low, freq_interruption)
+                                                            freq_var_low, freq_interruption)
         if prev_incident != curr_incident:  # start of new incident and or end of incident
             if prev_incident:  # make and store incident doc if end of incident
                 incident_end_ts = i * window_duration_ms + box_event_start_ts
@@ -111,6 +112,7 @@ def frequency_incident_classifier(event_id: int, box_id: str, windowed_frequenci
                          )
     return incidents
 
+
 class FrequencyVariationPlugin(plugins.base.MaukaPlugin):
     """
     Mauka plugin that classifies and stores frequency variation incidents for any event that includes a raw waveform
@@ -126,7 +128,8 @@ class FrequencyVariationPlugin(plugins.base.MaukaPlugin):
         super().__init__(config, ["WindowedFrequency"], FrequencyVariationPlugin.NAME, exit_event)
         self.freq_ref = float(self.config_get("plugins.FrequencyVariationPlugin.frequency.ref"))
         self.freq_var_low = float(self.config_get("plugins.FrequencyVariationPlugin.frequency.variation.threshold.low"))
-        self.freq_var_high = float(self.config_get("plugins.FrequencyVariationPlugin.frequency.variation.threshold.high"))
+        self.freq_var_high = float(self.config_get("plugins.FrequencyVariationPlugin.frequency.variation.threshold.high"
+                                                   ))
         self.freq_interruption = float(self.config_get("plugins.FrequencyVariationPlugin.frequency.interruption"))
 
     def on_message(self, topic, mauka_message):

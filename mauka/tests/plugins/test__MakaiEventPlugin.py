@@ -1,4 +1,3 @@
-from OpqMauka import load_config
 from plugins.MakaiEventPlugin import frequency_waveform
 from plugins.MakaiEventPlugin import frequency
 
@@ -13,14 +12,13 @@ def simulate_waveform(freq: float=constants.CYCLES_PER_SECOND, vrms: float = 120
                       sample_rate=constants.SAMPLE_RATE_HZ) -> numpy.ndarray:
 
     if not noise:
-        return numpy.sqrt(2) * vrms * numpy.sin([freq * 2 * numpy.pi * x / sample_rate
-                                             for x in range(num_samples)])
+        return numpy.sqrt(2) * vrms * numpy.sin([freq * 2 * numpy.pi * x / sample_rate for x in range(num_samples)])
     else:
         return numpy.sqrt(2) * vrms * numpy.sin([freq * 2 * numpy.pi * x / sample_rate for x in range(num_samples)]
                                                 ) + numpy.sqrt(noise_variance) * numpy.random.randn(num_samples)
 
 
-def read_waveform(filename: str) -> numpy.ndarray:
+def read_waveform(filename: str):
 
     try:
         waveform = []
@@ -34,7 +32,7 @@ def read_waveform(filename: str) -> numpy.ndarray:
         return None
 
 
-class FrequencyVariationTests(unittest.TestCase):
+class MakaiEventPluginTests(unittest.TestCase):
 
     def test_frequency_no_variation(self):
         """
@@ -45,7 +43,6 @@ class FrequencyVariationTests(unittest.TestCase):
         """MakaiEventPlugin frequency Method"""
         waveform_window = simulate_waveform()
         self.assertAlmostEqual(frequency(waveform_window), constants.CYCLES_PER_SECOND, delta=0.2)
-
 
         """MakaiEventPlugin frequency_waveform Method"""
         # 1 cycle no noise
@@ -75,5 +72,3 @@ class FrequencyVariationTests(unittest.TestCase):
         for freq in windowed_frequencies:
             message = "Frequency:{} Hz Expected:{} Hz".format(freq, constants.CYCLES_PER_SECOND)
             self.assertAlmostEqual(freq, constants.CYCLES_PER_SECOND, msg=message, delta=0.2)
-
-
