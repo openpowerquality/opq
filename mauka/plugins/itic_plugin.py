@@ -145,52 +145,46 @@ def itic_region(rms_voltage: float, duration_ms: float) -> IticRegion:
     return IticRegion.NO_INTERRUPTION
 
 
-def itic(event_id: int, box_id: str, windowed_rms: numpy.ndarray, segment_threshold: float, logger=None,
+def itic(mauka_message: protobuf.mauka_pb2.MaukaMessage, segment_threshold: float, logger=None,
          opq_mongo_client: mongo.OpqMongoClient = None):
     """
     Computes the ITIC region for a given waveform.
-    :param event_id: Event id associate with this waveform.
-    :param box_id: Box id associated with this waveform.
-    :param windowed_rms: A list of windowed (200 sample/1 cycle window) of RMS votlage
+    :param mauka_message:
     :param segment_threshold: Threshold for segmentation
     :param logger: Optional logger to use to print information
     :param opq_mongo_client:  Optional DB client to re-use (otherwise new one will be created)
     :return: ITIC region.
     """
     mongo_client = mongo.get_default_client(opq_mongo_client)
-    if len(windowed_rms) < 0.01:
+    if len(mauka_message.payload.data) < 0.01:
         return
 
-    segments = analysis.segment(windowed_rms, segment_threshold)
+    segments = analysis.segment(mauka_message.payload.data, segment_threshold)
 
     if logger is not None:
         logger.debug("Calculating ITIC with {} segments.".format(len(segments)))
 
-    box_event = mongo.get_box_event(event_id, box_id, mongo_client)
-    box_event_start_timetamp_ms = box_event["event_start_timestamp_ms"]
-
     for segment in segments:
         start_idx = segment[0]
         end_idx = segment[1] + 1
-        subarray = windowed_rms[start_idx:end_idx]
+        subarray = mauka_message.payload.data[start_idx:end_idx]
         mean_rms = numpy.mean(subarray)
-        duration_ms = analysis.c_to_ms(len(subarray))
 
-        itic_enum = itic_region(mean_rms, duration_ms)
+        itic_enum = itic_region(mean_rms, analysis.c_to_ms(len(subarray)))
 
         if itic_enum == IticRegion.NO_INTERRUPTION:
             continue
         else:
-            incident_start_timestamp_ms = box_event_start_timetamp_ms + analysis.c_to_ms(start_idx)
-            incident_end_timestamp_ms = box_event_start_timetamp_ms + analysis.c_to_ms(end_idx)
+            incident_start_timestamp_ms = mauka_message.payload.start_timestamp_ms + analysis.c_to_ms(start_idx)
+            incident_end_timestamp_ms = mauka_message.payload.start_timestamp_ms + analysis.c_to_ms(end_idx)
             if itic_enum is IticRegion.PROHIBITED:
                 incident_classification = mongo.IncidentClassification.ITIC_PROHIBITED
             else:
                 incident_classification = mongo.IncidentClassification.ITIC_NO_DAMAGE
 
             mongo.store_incident(
-                event_id,
-                box_id,
+                mauka_message.event_id,
+                mauka_message.box_id,
                 incident_start_timestamp_ms,
                 incident_end_timestamp_ms,
                 mongo.IncidentMeasurementType.VOLTAGE,
@@ -203,8 +197,8 @@ def itic(event_id: int, box_id: str, windowed_rms: numpy.ndarray, segment_thresh
             if logger is not None:
                 logger.debug("Found ITIC incident [{}] from event {} and box {}".format(
                     itic_enum,
-                    event_id,
-                    box_id
+                    mauka_message.event_id,
+                    mauka_message.box_id
                 ))
 
 
@@ -231,9 +225,7 @@ class IticPlugin(plugins.base_plugin.MaukaPlugin):
         """
         self.debug("on_message")
         if protobuf.util.is_payload(mauka_message, protobuf.mauka_pb2.VOLTAGE_RMS_WINDOWED):
-            itic(mauka_message.payload.event_id,
-                 mauka_message.payload.box_id,
-                 protobuf.util.repeated_as_ndarray(mauka_message.payload.data),
+            itic(mauka_message,
                  self.segment_threshold,
                  self.logger,
                  self.mongo_client)
