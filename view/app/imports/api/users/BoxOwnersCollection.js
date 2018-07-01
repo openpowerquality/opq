@@ -85,6 +85,28 @@ class BoxOwnersCollection extends BaseCollection {
   }
 
   /**
+   * Removes all usernames associated with boxId, then adds usernames as owners of boxId.
+   * Does not check validity of boxId or usernames, so be careful.
+   * @param boxId A boxId.
+   * @param usernames An array of usernames.
+   */
+  updateOwnersForBox(boxId, usernames) {
+    this._collection.remove({ boxId });
+    usernames.map(username => this.define({ username, boxId }));
+  }
+
+  /**
+   * Removes all boxes associated with username, then adds username as an owner of the passed boxIDs.
+   * Does not check validity of username or boxIDs, so be careful.
+   * @param username The username.
+   * @param boxIDs The boxIDs that this user now owns.
+   */
+  updateBoxesWithOwner(username, boxIDs) {
+    this._collection.remove({ username });
+    boxIDs.map(boxId => this.define({ username, boxId }));
+  }
+
+  /**
    * Loads all publications related to this collection.
    */
   publish() {

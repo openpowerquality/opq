@@ -21,11 +21,18 @@ def to_s16bit(data: bytes) -> numpy.ndarray:
     """
     return numpy.frombuffer(data, numpy.int16)
 
+class IEEEDuration(enum.Enum):
+    """String enumerations and constants for durations"""
+    INSTANTANEOUS = "INSTANTANEOUS"  # A duration between 0.5 and 30 cycles
+    MOMENTARY = "MOMENTARY"          # A duration between 30 cycles and 3 seconds
+    TEMPORARY = "TEMPORARY"          # A duration between 3 seconds and 1 minute
+    SUSTAINED = "SUSTAINED"          # A duration greater than 1 minute
 
 class BoxEventType(enum.Enum):
     """String enumerations and constants for event types"""
     FREQUENCY_DIP = "FREQUENCY_SAG"
     FREQUENCY_SWELL = "FREQUENCY_SWELL"
+    FREQUENCY_INTERRUPTION = "FREQUENCY_INTERRUPTION"
     VOLTAGE_DIP = "VOLTAGE_SAG"
     VOLTAGE_SWELL = "VOLTAGE_SWELL"
     THD = "THD"
@@ -125,11 +132,23 @@ class OpqMongoClient:
         return self.fs.find_one({"filename": fid}).read()
 
     def write_incident_waveform(self, incident_id: int, gridfs_filename: str, payload: bytes):
+        """
+        Write incident waveform to database.
+        :param incident_id: The id of the incident we are storing a waveform for.
+        :param gridfs_filename: The filename to store the waveform to.
+        :param payload: The bytes of the waveform.
+        """
         self.fs.put(payload, **{"filename": gridfs_filename,
                                 "metadata": {"incident_id": incident_id}})
 
 
 def get_waveform(mongo_client: OpqMongoClient, data_fs_filename: str) -> numpy.ndarray:
+    """
+    Returns the waveform at data_fs_filename.
+    :param mongo_client:
+    :param data_fs_filename:
+    :return: The waveform stored at data_fs_filename as a numpy array.
+    """
     data = mongo_client.read_file(data_fs_filename)
     waveform = to_s16bit(data)
     return waveform
@@ -166,6 +185,7 @@ def get_default_client(mongo_client: OpqMongoClient = None) -> OpqMongoClient:
 
 
 class IncidentMeasurementType(enum.Enum):
+    """Incident Feature Extracted Measurement Types"""
     VOLTAGE = "VOLTAGE"
     FREQUENCY = "FREQUENCY"
     THD = "THD"
@@ -173,6 +193,7 @@ class IncidentMeasurementType(enum.Enum):
 
 
 class IncidentClassification(enum.Enum):
+    """Incident Classification Types"""
     EXCESSIVE_THD = "EXCESSIVE_THD"
     ITIC_PROHIBITED = "ITIC_PROHIBITED"
     ITIC_NO_DAMAGE = "ITIC_NO_DAMAGE"
@@ -186,6 +207,7 @@ class IncidentClassification(enum.Enum):
 
 
 class IncidentIeeeDuration(enum.Enum):
+    """IEEE Duration Classifications"""
     INSTANTANEOUS = "INSTANTANEOUS"
     MOMENTARY = "MOMENTARY"
     TEMPORARY = "TEMPORARY"
@@ -194,6 +216,11 @@ class IncidentIeeeDuration(enum.Enum):
 
 
 def get_ieee_duration(duration_ms: float) -> IncidentIeeeDuration:
+    """
+    Given a duration in milliseconds, return the corresponding IEEE duration classification.
+    :param duration_ms: Duration in milliseconds.
+    :return: IEEE duration classification.
+    """
     ms_half_c = analysis.c_to_ms(0.5)
     ms_30_c = analysis.c_to_ms(30)
     ms_3_s = 3_000
@@ -212,6 +239,11 @@ def get_ieee_duration(duration_ms: float) -> IncidentIeeeDuration:
 
 
 def next_available_incident_id(opq_mongo_client: OpqMongoClient) -> int:
+    """
+    Returns the next available incident id using the database as a source of truth
+    :param opq_mongo_client: An optional mongo client to use for DB access (will be created if not-provided)
+    :return: Next available incident id
+    """
     mongo_client = get_default_client(opq_mongo_client)
     if mongo_client.incidents_collection.count() > 0:
         last_incident = mongo_client.incidents_collection.find().sort("incident_id", pymongo.DESCENDING).limit(1)[0]
@@ -231,6 +263,20 @@ def store_incident(event_id: int,
                    annotations: typing.List = None,
                    metadata: typing.Dict = None,
                    opq_mongo_client: OpqMongoClient = None):
+    """
+    Creates and stores an incident in the database.
+    :param event_id: The event_id that this incident is associated with.
+    :param box_id: The box_id that this incident is associated with.
+    :param start_timestamp_ms: The start timestamp of this incident.
+    :param end_timestamp_ms: The end timestamp of this incident.
+    :param measurement_type:  The feature measurement type this incident was derrived from.
+    :param deviation_from_nominal: The maximum deviation from nominal during this incident.
+    :param classifications: A list of classifications assigned to this incident
+    :param annotations: A list of annotations assigned to this incident
+    :param metadata: An incident specific dictionary of key-pair values providing extra context to this incident
+    :param opq_mongo_client: An optional mongo client to use for DB access (will be created if not-provided)
+    """
+
     mongo_client = get_default_client(opq_mongo_client)
 
     box_event = mongo_client.box_events_collection.find_one({"event_id": event_id,
@@ -278,12 +324,25 @@ def store_incident(event_id: int,
 
 
 def get_box_event(event_id: int, box_id: str, opq_mongo_client: OpqMongoClient = None) -> typing.Dict:
+    """
+    Returns the box_event associated with the provided event_id and box_id.
+    :param event_id: The event_id associated with this box_event.
+    :param box_id: The box_id associated with this box_event.
+    :param opq_mongo_client: An optional mongo client to use for DB access (will be created if not-provided)
+    :return: The box event associated with the provided event and box ids.
+    """
     mongo_client = get_default_client(opq_mongo_client)
     return mongo_client.box_events_collection.find_one({"event_id": event_id,
                                                         "box_id": box_id})
 
 
 def get_location(box_id: str, opq_mongo_client: OpqMongoClient) -> str:
+    """
+    Returns the current location of a box, or "UNKNOWN" if the location DNE.
+    :param box_id: The box to lookup the location for.
+    :param opq_mongo_client: An optional mongo client to use for DB access (will be created if not-provided)
+    :return: The location slug for the provided box
+    """
     UNKNOWN = "UNKNOWN"
     mongo_client = get_default_client(opq_mongo_client)
     box = mongo_client.opq_boxes_collection.find_one({"box_id": box_id})
@@ -311,9 +370,19 @@ def get_calibration_constant(box_id: int) -> float:
 
 
 def memoize(fn: typing.Callable) -> typing.Callable:
+    """
+    Memoizes function returns.
+    :param fn: The function to memoize.
+    :return: A momoized version of fn
+    """
     cache = {}
 
     def helper(v):
+        """
+        Closure that closes over cache. If value is not in cache, callable is ran to produce the value.
+        :param v: Value to check if in cache
+        :return: Value from fn call.
+        """
         if v in cache:
             return cache[v]
         else:

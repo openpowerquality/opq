@@ -34,25 +34,26 @@
     "uniforms-semantic": "^1.24.4"
   },
   "devDependencies": {
-    "hoek": "^4.2.1",
     "babel-eslint": "^8.2.3",
     "chai": "*",
+    "cross-env": "^5.2.0",
     "eslint": "^4.19.1",
     "eslint-config-airbnb": "^16.1.0",
     "eslint-plugin-import": "^2.12.0",
     "eslint-plugin-jsx-a11y": "^6.0.3",
     "eslint-plugin-meteor": "^4.2.2",
     "eslint-plugin-react": "^7.8.2",
+    "hoek": "^4.2.1",
     "nightmare": "^2.10.0"
   },
   "scripts": {
-    "start": "METEOR_NO_RELEASE_CHECK=1 meteor --settings ../config/settings.development.json",
-    "start-production": "METEOR_NO_RELEASE_CHECK=1 meteor --settings ../config/settings.production.json",
+    "start": "cross-env METEOR_NO_RELEASE_CHECK=1 meteor --settings ../config/settings.development.json",
+    "start-production": "cross-env METEOR_NO_RELEASE_CHECK=1 meteor --settings ../config/settings.production.json",
     "build": "meteor build ../deploy --architecture os.linux.x86_64",
-    "lint": "METEOR_NO_RELEASE_CHECK=1 eslint --quiet --ext .jsx --ext .js ./imports",
-    "test": "METEOR_NO_RELEASE_CHECK=1 TEST_BROWSER_DRIVER=nightmare meteor test --once --driver-package meteortesting:mocha --no-release-check --port 3100",
-    "test-app": "METEOR_NO_RELEASE_CHECK=1 TEST_BROWSER_DRIVER=nightmare meteor test --full-app --once --driver-package meteortesting:mocha --port 3100",
-    "test-all": "meteor npm run lint && meteor npm run test && meteor npm run test-app",
+    "lint": "cross-env METEOR_NO_RELEASE_CHECK=1 eslint --quiet --ext .jsx --ext .js ./imports",
+    "test": "cross-env METEOR_NO_RELEASE_CHECK=1 TEST_BROWSER_DRIVER=nightmare meteor test --once --driver-package meteortesting:mocha --no-release-check --port 3100",
+    "test-app": "cross-env METEOR_NO_RELEASE_CHECK=1 TEST_BROWSER_DRIVER=nightmare meteor test --full-app --once --driver-package meteortesting:mocha --port 3100",
+    "test-all": "cross-env meteor npm run lint && meteor npm run test && meteor npm run test-app",
     "jsdoc": "./node_modules/.bin/jsdoc -c ./jsdoc.json -r ."
   }
 }

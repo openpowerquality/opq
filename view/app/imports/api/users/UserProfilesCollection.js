@@ -1,7 +1,7 @@
 import { Meteor } from 'meteor/meteor';
 import { Accounts } from 'meteor/accounts-base';
 import { Roles } from 'meteor/alanning:roles';
-import { _ } from 'lodash';
+import { _ } from 'underscore';
 import SimpleSchema from 'simpl-schema';
 import BaseCollection from '../base/BaseCollection';
 import { BoxOwners } from './BoxOwnersCollection';
@@ -96,6 +96,17 @@ class UserProfilesCollection extends BaseCollection {
       return profile;
     }
     throw new Meteor.Error(`Could not find profile corresponding to ${username}`);
+  }
+
+  /**
+   * Returns a list of all of the currently defined usernames.
+   * @param sort If truthy, then sort the list before returning.
+   * @returns {*} A list of strings, each one corresponding to a username.
+   */
+  findUsernames(sort = false) {
+    const docs = this._collection.find({}).fetch();
+    const usernames = _.pluck(docs, 'username');
+    return (sort) ? _.sortBy(usernames, username => username.toLowerCase()) : usernames;
   }
 
   /**

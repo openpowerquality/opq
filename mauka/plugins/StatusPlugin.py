@@ -15,15 +15,24 @@ import protobuf.util
 
 class HealthState:
     """Thread safe class for passing plugin state to HTTP server"""
+
     def __init__(self):
         self.lock = threading.RLock()
         self.state = {}
 
-    def as_json(self):
+    def as_json(self) -> bytes:
+        """
+        :return: Thread safe method that returns the current state as encoded bytes.
+        """
         with self.lock:
             return json.dumps(self.state).encode()
 
     def set_key(self, k, v):
+        """
+        Thread safe message for setting a key-pair value within this class.
+        :param k: The key to set.
+        :param v: The value to set.
+        """
         with self.lock:
             self.state[k] = v
 
@@ -32,17 +41,33 @@ health_state = HealthState()
 
 
 def mauka_health_request_handler_factory():
+    """
+    Factory method for creating HTTP request handler.
+    :return:
+    """
     class HealthRequestHandler(http.server.BaseHTTPRequestHandler):
+        """
+        Custom HTTP handler for Mauka's health requests.
+        """
+
         def __init__(self, request, client_address, server):
             super().__init__(request, client_address, server)
 
         def _set_headers(self, resp: int):
+            """
+            Custom heaser setting method.
+            :param resp:  The response type.
+            """
             self.send_response(resp)
             self.send_header('Content-type', 'application/json')
             self.end_headers()
 
         # noinspection PyPep8Naming
         def do_GET(self):
+            """
+            Returns the health state as JSON to the requestee.
+            :return: The health state as JSON
+            """
             global health_state
             self._set_headers(200)
             self.wfile.write(health_state.as_json())
