@@ -25,10 +25,19 @@ def to_s16bit(data: bytes) -> numpy.ndarray:
     return numpy.frombuffer(data, numpy.int16)
 
 
+class IEEEDuration(enum.Enum):
+    """String enumerations and constants for durations"""
+    INSTANTANEOUS = "INSTANTANEOUS"  # A duration between 0.5 and 30 cycles
+    MOMENTARY = "MOMENTARY"  # A duration between 30 cycles and 3 seconds
+    TEMPORARY = "TEMPORARY"  # A duration between 3 seconds and 1 minute
+    SUSTAINED = "SUSTAINED"  # A duration greater than 1 minute
+
+
 class BoxEventType(enum.Enum):
     """String enumerations and constants for event types"""
     FREQUENCY_DIP = "FREQUENCY_SAG"
     FREQUENCY_SWELL = "FREQUENCY_SWELL"
+    FREQUENCY_INTERRUPTION = "FREQUENCY_INTERRUPTION"
     VOLTAGE_DIP = "VOLTAGE_SAG"
     VOLTAGE_SWELL = "VOLTAGE_SWELL"
     THD = "THD"

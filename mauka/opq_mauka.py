@@ -12,6 +12,7 @@ import typing
 import log
 import plugins.acquisition_trigger_plugin
 import plugins.frequency_threshold_plugin
+import plugins.frequency_variation_plugin
 import plugins.itic_plugin
 import plugins.makai_event_plugin
 import plugins.status_plugin
@@ -65,6 +66,7 @@ def main():
     plugin_manager.register_plugin(plugins.status_plugin.StatusPlugin)
     plugin_manager.register_plugin(plugins.thd_plugin.ThdPlugin)
     plugin_manager.register_plugin(plugins.itic_plugin.IticPlugin)
+    plugin_manager.register_plugin(plugins.frequency_variation_plugin.FrequencyVariationPlugin)
 
     broker_process = services.brokers.start_mauka_pub_sub_broker(config)
     makai_bridge_process = services.brokers.start_makai_bridge(config)
