@@ -13,6 +13,7 @@ max_line_length = 120
 [mauka.pylint]
 bears = PyLintBear
 pylint_disable = C0301, C1801, R
+
 [mauka.pyflakes]
 bears = PyFlakesBear
 
