@@ -18,7 +18,7 @@ import plugins.makai_event_plugin
 import plugins.status_plugin
 import plugins.thd_plugin
 import plugins.voltage_threshold_plugin
-import plugins.IEEE1159_voltage_plugin
+import plugins.ieee1159_voltage_plugin
 import services.brokers
 import services.plugin_manager
 

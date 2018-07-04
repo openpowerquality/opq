@@ -3,8 +3,9 @@ import numpy as np
 
 import analysis
 import constants
-from plugins.ieee1159_voltage_plugin import IticRegion, itic_region
+from plugins.ieee1159_voltage_plugin import classifyIeee1159
 from plugins.makai_event_plugin import vrms, vrms_waveform
+from mongo import IncidentClassification, IncidentIeeeDuration
 
 """
 The following functions are used just for testing purposes. Do not try to trick them...
