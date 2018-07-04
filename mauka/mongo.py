@@ -33,6 +33,7 @@ class IEEEDuration(enum.Enum):
     SUSTAINED = "SUSTAINED"  # A duration greater than 1 minute
 
 
+
 class BoxEventType(enum.Enum):
     """String enumerations and constants for event types"""
     FREQUENCY_DIP = "FREQUENCY_SAG"
