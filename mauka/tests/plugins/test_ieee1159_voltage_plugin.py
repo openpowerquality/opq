@@ -164,3 +164,11 @@ class Ieee1159VoltagePluginTests(unittest.TestCase):
         results, time_stamps = classifyIeee1159(generate_sample_waveform_rmsfeatures(cycles, a_multipliers))
         self.assertEqual(results, key_classes)
         self.assertEqual(time_stamps, key_timestamps)
+    
+    def test_all_undefined(self):
+        cycles = [10, 400, 4000, 500]
+        a_multipliers = [0.00005, 0.00005, 1.3, 0.00005]
+        key_classes, key_timestamps = generate_keys(cycles, a_multipliers)
+        results, time_stamps = classifyIeee1159(generate_sample_waveform_rmsfeatures(cycles, a_multipliers))
+        self.assertEqual(results, key_classes)
+        self.assertEqual(time_stamps, key_timestamps)
