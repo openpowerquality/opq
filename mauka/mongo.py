@@ -211,7 +211,7 @@ class IncidentClassification(enum.Enum):
     FREQUENCY_SAG = "FREQUENCY_SAG"
     FREQUENCY_INTERRUPTION = "FREQUENCY_INTERRUPTION"
     SEMI_F47_VIOLATION = "SEMI_F47_VIOLATION"
-
+    UNDEFINED = "UNDEFINED"
 
 class IncidentIeeeDuration(enum.Enum):
     """IEEE Duration Classifications"""
