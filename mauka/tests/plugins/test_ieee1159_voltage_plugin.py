@@ -87,8 +87,8 @@ def generate_keys(cycles, a_multipliers):
     returns: list of start and end timestamps in cycles relative to the start of the array. 
     returns: list of DEFINED IncidentClassifications associate with each time/cycle interval.  
     
-    NOTE(!): The length of each parameter list is the number of different regions in the wave. This function assumes
-    no interaction between regions. If you violate this assumption, a test may fail due to the key_class/timestamps 
+    NOTE(!): The length of each parameter list is the number of different regions in the wave. This function that and assumes
+    no interaction between regions. If you violate these assumption, a test may fail due to the key_class/timestamps 
     being incorrect. If this assumption does not work for your test cases, enter keys by manually. 
 
     """
@@ -167,7 +167,7 @@ class Ieee1159VoltagePluginTests(unittest.TestCase):
     
     def test_all_undefined(self):
         cycles = [10, 400, 4000, 500]
-        a_multipliers = [0.00005, 0.00005, 1.3, 0.00005]
+        a_multipliers = [0.00005, 0.00005, 2.0, 0.00005]
         key_classes, key_timestamps = generate_keys(cycles, a_multipliers)
         results, time_stamps = classifyIeee1159(generate_sample_waveform_rmsfeatures(cycles, a_multipliers))
         self.assertEqual(results, key_classes)
