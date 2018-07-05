@@ -1,12 +1,18 @@
 import React from 'react';
 import { Meteor } from 'meteor/meteor';
-import { Container, Loader } from 'semantic-ui-react';
+import { withRouter, Link } from 'react-router-dom';
+import { Loader, Table, Button, Container } from 'semantic-ui-react';
 import { Locations } from '/imports/api/locations/LocationsCollection';
 import { withTracker } from 'meteor/react-meteor-data';
 import PropTypes from 'prop-types';
+import WidgetPanel from '/imports/ui/layouts/WidgetPanel';
 
 /** Renders a table containing all of the Stuff documents. Use <StuffItem> to render each row. */
 class ManageLocationPage extends React.Component {
+
+  helpText = `
+  <p>Lists all current OPQ Locations</p>
+  `;
 
   /** If the subscription(s) have been received, render the page, otherwise show a loading icon. */
   render() {
@@ -15,10 +21,40 @@ class ManageLocationPage extends React.Component {
 
   /** Render the page once subscriptions have been received. */
   renderPage() { // eslint-disable-line class-methods-use-this
+    const locations = Locations.getDocs();
+
     return (
-      <Container >
-        <h3 style={{ textAlign: 'center' }}>Manage Locations: Coming Soon!</h3>
-      </Container>
+        <Container>
+          <WidgetPanel title="Manage OPQ Locations" helpText={this.helpText} noPadding>
+            <Table>
+              <Table.Header>
+                <Table.Row>
+                  <Table.HeaderCell>Slug</Table.HeaderCell>
+                  <Table.HeaderCell>Location</Table.HeaderCell>
+                  <Table.HeaderCell>Coordinates</Table.HeaderCell>
+                  <Table.HeaderCell></Table.HeaderCell>
+                </Table.Row>
+              </Table.Header>
+              <Table.Body>
+                {locations.map((location, index) => <Table.Row key={index}>
+                  <Table.Cell>{location.slug}</Table.Cell>
+                  <Table.Cell>{location.description}</Table.Cell>
+                  <Table.Cell>{location.coordinates[0]}, {location.coordinates[1]}</Table.Cell>
+                  <Table.Cell>
+                    <Button size='tiny'><Link to={`/admin/manage/location/edit/${location.slug}`}>Edit</Link></Button>
+                  </Table.Cell>
+                </Table.Row>)}
+              </Table.Body>
+              <Table.Footer fullWidth>
+                <Table.Row>
+                  <Table.HeaderCell colSpan='5'>
+                    <Button><Link to={'/admin/manage/location/new'}>Add OPQ Box</Link></Button>
+                  </Table.HeaderCell>
+                </Table.Row>
+              </Table.Footer>
+            </Table>
+          </WidgetPanel>
+        </Container>
     );
   }
 }
