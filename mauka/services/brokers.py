@@ -15,6 +15,8 @@ def start_mauka_pub_sub_broker(config: typing.Dict):
     :param config: Configuration dictionary
     """
 
+    # noinspection PyUnresolvedReferences
+    # pylint: disable=E1101
     def _run(config: typing.Dict):
         """
         This is the target function that will run as its own process.
@@ -57,6 +59,8 @@ def start_makai_bridge(config: typing.Dict):
     :param config: Configuration dictionary
     """
 
+    # noinspection PyUnresolvedReferences
+    # pylint: disable=E1101
     def _run(config: typing.Dict):
         import logging
         import signal
@@ -102,6 +106,8 @@ def start_makai_event_bridge(config: typing.Dict):
     :param config: Configuration dictionary
     """
 
+    # noinspection PyUnresolvedReferences
+    # pylint: disable=E1101
     def _run(config: typing.Dict):
         import logging
         import signal

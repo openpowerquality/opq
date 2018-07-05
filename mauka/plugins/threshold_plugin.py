@@ -7,7 +7,7 @@ import multiprocessing
 import typing
 
 import mongo
-import plugins.base
+import plugins.base_plugin
 import protobuf.util
 
 ThresholdEvent = collections.namedtuple("ThresholdEvent", "start "
@@ -18,7 +18,7 @@ ThresholdEvent = collections.namedtuple("ThresholdEvent", "start "
 """Define a named tuple for organizing threshold event data"""
 
 
-class ThresholdPlugin(plugins.base.MaukaPlugin):
+class ThresholdPlugin(plugins.base_plugin.MaukaPlugin):
     """
     This class contains a base plugin that allows us to check for threshold crossings over time
     """
@@ -54,7 +54,7 @@ class ThresholdPlugin(plugins.base.MaukaPlugin):
         self.threshold_value_high = None
         """High threshold value (calculated from steady state and percent)"""
 
-        self.box_events_collection = self.mongo_client.db[mongo.Collection.BOX_EVENTS.value]
+        self.box_events_collection = self.mongo_client.database[mongo.Collection.BOX_EVENTS.value]
         """OPQ events collection"""
 
         self.device_id_to_low_events = {}
@@ -157,7 +157,7 @@ class ThresholdPlugin(plugins.base.MaukaPlugin):
         Messages cause our FSM to be ran and can create new events, update events, and close out events
 
         :param topic: The topic that this message is associated with
-        :param message: The message
+        :param mauka_message: The message
         """
 
         if not self.subscribed:
@@ -172,7 +172,10 @@ class ThresholdPlugin(plugins.base.MaukaPlugin):
             is_high = value > self.threshold_value_high
             is_stable = not is_low and not is_high
 
-            prev_low_event = self.device_id_to_low_events[device_id] if device_id in self.device_id_to_low_events else None
+            if device_id in self.device_id_to_low_events:
+                prev_low_event = self.device_id_to_low_events[device_id]
+            else:
+                prev_low_event = None
             prev_high_event = self.device_id_to_high_events[
                 device_id] if device_id in self.device_id_to_high_events else None
 
@@ -217,12 +220,11 @@ class ThresholdPlugin(plugins.base.MaukaPlugin):
                     self.update_event(prev_high_event, value)
 
             else:
-                self.logger.error("Unknown configuration {} {} {} {}".format(is_low, is_high, prev_low_event is None,
-                                                                             prev_high_event is None))
+                self.logger.error("Unknown configuration %s %s %s %s",
+                                  str(is_low), str(is_high), str(prev_low_event is None), str(prev_high_event is None))
         else:
-            self.logger.error("Received incorrect mauka message [{}] at ThresholdPlugin".format(
-                protobuf.util.which_message_oneof(mauka_message)
-            ))
+            self.logger.error("Received incorrect mauka message [%s] at ThresholdPlugin",
+                              protobuf.util.which_message_oneof(mauka_message))
 
     def on_event(self, threshold_event):
         """This should be implemented in all child classes and is called async as events are completed

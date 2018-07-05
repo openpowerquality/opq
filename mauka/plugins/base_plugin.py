@@ -3,26 +3,24 @@ This module provides classes and base functionality for building OPQMauka plugin
 """
 
 import json
-import logging
 import multiprocessing
 import signal
 import threading
 import typing
-import os
 
+# noinspection PyPackageRequirements
 import bson
+# noinspection PyPackageRequirements
 import bson.objectid
 import zmq
 
+import log
 import mongo
 import protobuf.mauka_pb2
 import protobuf.util
 
-_logger = logging.getLogger("app")
-logging.basicConfig(
-    format="[%(levelname)s][%(asctime)s][{} %(filename)s:%(lineno)s - %(funcName)s() ] %(message)s".format(
-        os.getpid()))
-_logger.setLevel(logging.DEBUG)
+# pylint: disable=C0103
+logger = log.get_logger(__name__)
 
 
 def run_plugin(plugin_class, config: typing.Dict):
@@ -35,7 +33,7 @@ def run_plugin(plugin_class, config: typing.Dict):
     def _run_plugin():
         """Inner function that acts as target to multiprocess constructor"""
         plugin_instance = plugin_class(config)
-        plugin_instance._run()
+        plugin_instance.run_plugin()
 
     process = multiprocessing.Process(target=_run_plugin)
     process.start()
@@ -47,6 +45,8 @@ class JSONEncoder(json.JSONEncoder):
     This class allows us to serialize items with ObjectIds to JSON
     """
 
+    # https://github.com/PyCQA/pylint/issues/414
+    # pylint: disable=E0202
     def default(self, o):
         """If o is an object id, return the string of it, otherwise use the default encoder for this object
 
@@ -56,6 +56,24 @@ class JSONEncoder(json.JSONEncoder):
         if isinstance(o, bson.ObjectId):
             return str(o)
         return json.JSONEncoder.default(self, o)
+
+
+def from_json(json_str: str) -> typing.Dict:
+    """Deserialize json into dictionary
+
+    :param json_str: JSON string to deserialize
+    :return: Dictionary from json
+    """
+    return json.loads(json_str)
+
+
+def to_json(obj: object) -> str:
+    """Serializes the given object to json
+
+    :param obj: The object to serialize
+    :return: JSON representation of object
+    """
+    return json.dumps(obj, cls=JSONEncoder)
 
 
 class MaukaPlugin:
@@ -93,9 +111,13 @@ class MaukaPlugin:
         self.zmq_context = zmq.Context()
         """ZeroMQ context"""
 
+        # noinspection PyUnresolvedReferences
+        # pylint: disable=E1101
         self.zmq_consumer = self.zmq_context.socket(zmq.SUB)
         """ZeroMQ consumer"""
 
+        # noinspection PyUnresolvedReferences
+        # pylint: disable=E1101
         self.zmq_producer = self.zmq_context.socket(zmq.PUB)
         """ZeroMQ producer"""
 
@@ -108,7 +130,7 @@ class MaukaPlugin:
         self.last_received = 0
         """Timestamp since this plugin has last received a message"""
 
-        self.logger = _logger
+        self.logger = logger
         """Provides access to a single configured logger all plugins can use"""
 
         self.producer_lock = multiprocessing.Lock()
@@ -122,27 +144,12 @@ class MaukaPlugin:
 
         self.mauka_debug = self.config["mauka.debug"]
 
+    # pylint: disable=R0201
     def get_status(self) -> str:
         """ Return the status of this plugin
         :return: The status of this plugin
         """
         return "N/A"
-
-    def to_json(self, obj: object) -> str:
-        """Serializes the given object to json
-
-        :param obj: The object to serialize
-        :return: JSON representation of object
-        """
-        return json.dumps(obj, cls=JSONEncoder)
-
-    def from_json(self, json_str: str) -> typing.Dict:
-        """Deserialize json into dictionary
-
-        :param json_str: JSON string to deserialize
-        :return: Dictionary from json
-        """
-        return json.loads(json_str)
 
     def get_mongo_client(self):
         """ Returns an OPQ mongo client
@@ -190,29 +197,23 @@ class MaukaPlugin:
         else:
             return self.config[key]
 
-    def object_id(self, oid: str) -> bson.objectid.ObjectId:
-        """Given the string representation of an object an id, return an instance of an ObjectID
-
-        :param oid: The oid to encode
-        :return: ObjectId from string
-        """
-        return bson.objectid.ObjectId(oid)
-
+    # pylint: disable=W0613
+    # pylint: disable=R0201
     def on_message(self, topic: str, mauka_message: protobuf.mauka_pb2.MaukaMessage):
         """This gets called when a subscriber receives a message from a topic they are subscribed too.
 
         This should be implemented in all subclasses.
 
         :param topic: The topic this message is associated with
-        :param message: The message contents
+        :param mauka_message: The message contents
         """
-        _logger.info("on_message not implemented")
+        logger.info("on_message not implemented")
 
     def produce(self, topic: str, mauka_message: protobuf.mauka_pb2.MaukaMessage):
         """Produces a message with a given topic to the system
 
         :param topic: The topic to produce this message to
-        :param message: The message to produce
+        :param mauka_message: The message to produce
         """
         serialized_mauka_message = protobuf.util.serialize_mauka_message(mauka_message)
         with self.producer_lock:
@@ -231,7 +232,7 @@ class MaukaPlugin:
 
         :param message: The message to handle
         """
-        if "EXIT" == message:
+        if message == "EXIT":
             self.exit_event.set()
 
     def debug(self, msg: str):
@@ -240,15 +241,17 @@ class MaukaPlugin:
         :param msg: Message to print to debug.
         """
         if self.mauka_debug:
-            self.logger.debug("{}\n{}".format(self.name, msg))
+            self.logger.debug("%s\n%s", self.name, msg)
 
-    def _run(self):
+    def run_plugin(self):
         """This is the run loop for this plugin process"""
-        _logger.info("Starting Mauka plugin: {}".format(self.name))
+        logger.info("Starting Mauka plugin: %s", self.name)
         signal.signal(signal.SIGTERM, signal.SIG_IGN)
         signal.signal(signal.SIGINT, signal.SIG_IGN)
 
         for subscription in self.subscriptions:
+            # noinspection PyUnresolvedReferences
+            # pylint: disable=E1101
             self.zmq_consumer.setsockopt_string(zmq.SUBSCRIBE, subscription)
 
         self.start_heartbeat()
@@ -257,16 +260,16 @@ class MaukaPlugin:
             data = self.zmq_consumer.recv_multipart()
 
             if len(data) != 2:
-                _logger.error("Malformed data from ZMQ. Data size should = 2, but instead is {}".format(len(data)))
-                for d in data:
-                    _logger.error("{}".format(d.decode()))
+                logger.error("Malformed data from ZMQ. Data size should = 2, but instead is %s", str(len(data)))
+                for data_item in data:
+                    logger.error("%s", str(data_item.decode()))
                 break
 
             topic = data[0].decode()
             message = data[1]
 
             if self.is_self_message(topic):
-                _logger.info("Receive self message")
+                logger.info("Receive self message")
                 self.handle_self_message(message.decode())
             else:
                 # Update statistics
@@ -275,4 +278,4 @@ class MaukaPlugin:
                 mauka_message = protobuf.util.deserialize_mauka_message(message)
                 self.on_message(topic, mauka_message)
 
-        _logger.info("Exiting Mauka plugin: {}".format(self.name))
+        logger.info("Exiting Mauka plugin: %s", self.name)
