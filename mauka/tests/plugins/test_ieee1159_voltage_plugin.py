@@ -3,9 +3,9 @@ import numpy as np
 
 import analysis
 import constants
-from plugins.ieee1159_voltage_plugin import classifyIeee1159
+from plugins.ieee1159_voltage_plugin import classify_ieee1156_voltage
 from plugins.makai_event_plugin import vrms, vrms_waveform
-from mongo import IncidentClassification, IncidentIeeeDuration
+from mongo import IncidentClassification
 
 """
 The following functions are used just for testing purposes. Do not try to trick them...
@@ -108,67 +108,74 @@ def generate_keys(cycles, a_multipliers):
 class Ieee1159VoltagePluginTests(unittest.TestCase):
 
 
+    def test_many(self):
+        cycles = [200, 5000, 100, 4000, 180, 220, 6000, 10, 10, 10] 
+        a_multipliers = [0.2, 0.88, 2.0, 1.11, 1.0, 1.11, 0.000001, 1.3, 0.5, 10] 
+        key_classes, key_timestamps = generate_keys(cycles, a_multipliers)
+        results, time_stamps = classify_ieee1156_voltage(generate_sample_waveform_rmsfeatures(cycles, a_multipliers))
+        self.assertEqual(set(results), set(key_classes))
+        self.assertEqual(set(time_stamps), set(key_timestamps))
+        
     def test_single(self):
         cycles = [190] 
         a_multipliers = [1.1] 
         key_classes, key_timestamps = generate_keys(cycles, a_multipliers)
-        results, time_stamps = classifyIeee1159(generate_sample_waveform_rmsfeatures(cycles, a_multipliers))
-        self.assertEqual(results, key_classes)
-        self.assertEqual(time_stamps, key_timestamps)
-
+        results, time_stamps = classify_ieee1156_voltage(generate_sample_waveform_rmsfeatures(cycles, a_multipliers))
+        self.assertEqual(set(results), set(key_classes))
+        self.assertEqual(set(time_stamps), set(key_timestamps))
+        
     def test_sag_swell_separated(self):
         cycles = [2, 21, 100, 10] 
         a_multipliers = [1, 1.3, 1.0, 0.2] 
         key_classes, key_timestamps = generate_keys(cycles, a_multipliers)
-        results, time_stamps = classifyIeee1159(generate_sample_waveform_rmsfeatures(cycles, a_multipliers))
-        self.assertEqual(results, key_classes)
-        self.assertEqual(time_stamps, key_timestamps)
-
+        results, time_stamps = classify_ieee1156_voltage(generate_sample_waveform_rmsfeatures(cycles, a_multipliers))
+        self.assertEqual(set(results), set(key_classes))
+        self.assertEqual(set(time_stamps), set(key_timestamps))
 
     def test_odd_undefined_separated(self):
         cycles = [31, 100, 180] 
         a_multipliers = [1.3, 2.0, 0.2] 
         key_classes, key_timestamps = generate_keys(cycles, a_multipliers)
-        results, time_stamps = classifyIeee1159(generate_sample_waveform_rmsfeatures(cycles, a_multipliers))
-        self.assertEqual(results, key_classes)
-        self.assertEqual(time_stamps, key_timestamps)
+        results, time_stamps = classify_ieee1156_voltage(generate_sample_waveform_rmsfeatures(cycles, a_multipliers))
+        self.assertEqual(set(results), set(key_classes))
+        self.assertEqual(set(time_stamps), set(key_timestamps))
         
     def test_no_separation_end(self):
         cycles = [190, 270]
         a_multipliers = [1.1, 0.6]
         key_classes, key_timestamps = generate_keys(cycles, a_multipliers)
-        results, time_stamps = classifyIeee1159(generate_sample_waveform_rmsfeatures(cycles, a_multipliers))
-        self.assertEqual(results, key_classes)
-        self.assertEqual(time_stamps, key_timestamps)
-
+        results, time_stamps = classify_ieee1156_voltage(generate_sample_waveform_rmsfeatures(cycles, a_multipliers))
+        self.assertEqual(set(results), set(key_classes))
+        self.assertEqual(set(time_stamps), set(key_timestamps))
+        
     def test_sustained(self):
         cycles = [4000, 5000, 10, 60000]
         a_multipliers = [0.85, 1.11, 1.0, 0.0005]
         key_classes, key_timestamps = generate_keys(cycles, a_multipliers)
-        results, time_stamps = classifyIeee1159(generate_sample_waveform_rmsfeatures(cycles, a_multipliers))
-        self.assertEqual(results, key_classes)
-        self.assertEqual(time_stamps, key_timestamps)
-
+        results, time_stamps = classify_ieee1156_voltage(generate_sample_waveform_rmsfeatures(cycles, a_multipliers))
+        self.assertEqual(set(results), set(key_classes))
+        self.assertEqual(set(time_stamps), set(key_timestamps))
+        
     def test_no_separation_false_end(self):
         cycles = [10, 30, 100, 100] 
         a_multipliers = [1.0, 0.8, 1.3, 0.00005] 
         key_classes, key_timestamps = generate_keys(cycles, a_multipliers)
-        results, time_stamps = classifyIeee1159(generate_sample_waveform_rmsfeatures(cycles, a_multipliers))
-        self.assertEqual(results, key_classes)
-        self.assertEqual(time_stamps, key_timestamps)
-
+        results, time_stamps = classify_ieee1156_voltage(generate_sample_waveform_rmsfeatures(cycles, a_multipliers))
+        self.assertEqual(set(results), set(key_classes))
+        self.assertEqual(set(time_stamps), set(key_timestamps))
+        
     def test_false_interruption(self):
         cycles = [10, 400, 100, 500]
         a_multipliers = [1.0, 0.00005, 1.3, 0.00005]
         key_classes, key_timestamps = generate_keys(cycles, a_multipliers)
-        results, time_stamps = classifyIeee1159(generate_sample_waveform_rmsfeatures(cycles, a_multipliers))
-        self.assertEqual(results, key_classes)
-        self.assertEqual(time_stamps, key_timestamps)
-    
+        results, time_stamps = classify_ieee1156_voltage(generate_sample_waveform_rmsfeatures(cycles, a_multipliers))
+        self.assertEqual(set(results), set(key_classes))
+        self.assertEqual(set(time_stamps), set(key_timestamps))
+        
     def test_all_undefined(self):
         cycles = [10, 400, 4000, 500]
         a_multipliers = [0.00005, 0.00005, 2.0, 0.00005]
         key_classes, key_timestamps = generate_keys(cycles, a_multipliers)
-        results, time_stamps = classifyIeee1159(generate_sample_waveform_rmsfeatures(cycles, a_multipliers))
-        self.assertEqual(results, key_classes)
-        self.assertEqual(time_stamps, key_timestamps)
+        results, time_stamps = classify_ieee1156_voltage(generate_sample_waveform_rmsfeatures(cycles, a_multipliers))
+        self.assertEqual(set(results), set(key_classes))
+        self.assertEqual(set(time_stamps), set(key_timestamps))

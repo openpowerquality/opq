@@ -15,180 +15,130 @@ import plugins.base_plugin
 import protobuf.mauka_pb2
 import protobuf.util
 
-def greater_equal_than_IeeeDuration(duration_one, duration_two):
+# Pu signifying a current cycle has already been accounted for in an incident
+ALREADY_ACCOUNTED = -1
+
+def valid_bound(start, end, cycle_max):
     """
-    Test if duration_one is greater than or equal to duration_two
-    
-    params: mongo.IncidentIeeeDuration, mongo.IncidentIeeeDuration
-    return: bool (duration_one >= duration_two)
+    This function asserts that where a cycle_max is provided the current set of consecutive indices
+    (cycle streak) does not exceed the value indicated by cycle_max
+    params: start - the starting index of the range being examined
+    params: end - the end index of the range being examined
+    params: cycle_max - the maximum separation (minus one) allowed between the start and end indices 
+    return: bool indicating the range of indices does not exceet cycle streak max provided 
     """
-    if(duration_one == mongo.IncidentIeeeDuration.SUSTAINED):
+    if(cycle_max == None):
         return True
-    elif(duration_two == mongo.IncidentIeeeDuration.SUSTAINED):
-        return False
-    elif(duration_one == mongo.IncidentIeeeDuration.TEMPORARY):
-        return True
-    elif(duration_two == mongo.IncidentIeeeDuration.TEMPORARY):
-        return False
-    elif(duration_one == mongo.IncidentIeeeDuration.MOMENTARY):
-        return True
-    elif(duration_two == mongo.IncidentIeeeDuration.MOMENTARY):
-        return False
-    elif(duration_one == mongo.IncidentIeeeDuration.INSTANTANEOUS):
-        return True
-    elif(duration_two == mongo.IncidentIeeeDuration.INSTANTANEOUS):
-        return False
     else:
-        return True
+        return end - start < cycle_max
 
-def type_and_max_duration(pu): 
-    """ 
-    From a give pu value, this function determings the type (SAG/SWELL/INTERRUP) and the max duration for which the   
-    given pu value is eligible (independent of previous cycles/windows). The pu range for each type  remains the same 
-    or gets more restrictive as the duration increases. For example a pu value of 1.11 falls within the pu range of 
-    all durations so returning SUSTAINED indicates that the value would be eligible if the duration were SUSTAINED or 
-    anything smaller. 
-    Uses ranges as specified by IEEE.  
-    param: pu (actual rms/nominal rms) 
-    return: mongo.IncidentClassification
-    return: mongo.IncidentIeeeDuration
-
+def indices_to_ranges(indices, cycle_min, cycle_max = None):
     """
-
-    if((pu >= 1.1) & (pu <= 1.8)): # SWELL     
-        if(pu <= 1.4):
-            if(pu <= 1.2):
-                return mongo.IncidentClassification.VOLTAGE_SWELL, mongo.IncidentIeeeDuration.SUSTAINED
-            return mongo.IncidentClassification.VOLTAGE_SWELL, mongo.IncidentIeeeDuration.MOMENTARY
-        return mongo.IncidentClassification.VOLTAGE_SWELL, mongo.IncidentIeeeDuration.INSTANTANEOUS
-    elif((pu >= 0.1) & (pu <= 0.9)): # SAG
-        if(pu >= 0.8):
-            return mongo.IncidentClassification.VOLTAGE_SAG, mongo.IncidentIeeeDuration.SUSTAINED
-        return mongo.IncidentClassification.VOLTAGE_SAG, mongo.IncidentIeeeDuration.TEMPORARY
-    elif(pu <= 0.001): # INTERRUPTION
-        return mongo.IncidentClassification.VOLTAGE_INTERRUPTION, mongo.IncidentIeeeDuration.SUSTAINED
-    return mongo.IncidentClassification.UNDEFINED, mongo.IncidentIeeeDuration.UNDEFINED
-
-
-
-def durationAsContinuous(class_type, cycle_streak):
-    
+    This function looks at an array of indices to find ranges of indices that are in accordance with 
+    the min and max cycle streak length provided. In addition to length checking, the removes consecutive 
+    indices
+    params: indices - a numpy array of indices to some other array
+    params: cycle_min, cycle_max - the upper and lower bounds of a valid index range length
     """
-    This function returns the duration according to cycle streak and independent of pu. 
-    In doings so it is the duration assuming that the current cycle is a continuation of the previous incident.
-    param: class_type (mongo.IncidentClassification), only used to handle the special case of VOLTAGE_INTERRUPTIONs
-    param:cycle_streak the number of similar cycles observed prior to the current cycle + 1. Essentially what the
-    duration would be if current cycle was similar to previous
-    """
-    if(class_type == mongo.IncidentClassification.VOLTAGE_INTERRUPTION):
-        if (cycle_streak < 60*constants.CYCLES_PER_SECOND):
-            return mongo.IncidentIeeeDuration.UNDEFINED
-        return mongo.IncidentIeeeDuration.SUSTAINED
-    elif((cycle_streak >= 0.5) & (cycle_streak <= 30)):
-        return mongo.IncidentIeeeDuration.INSTANTANEOUS
-    elif((cycle_streak > 30) & (cycle_streak <= 3*constants.CYCLES_PER_SECOND)):
-        return mongo.IncidentIeeeDuration.MOMENTARY
-    elif((cycle_streak > 3*constants.CYCLES_PER_SECOND) & (cycle_streak <= 60*constants.CYCLES_PER_SECOND)):
-        return mongo.IncidentIeeeDuration.TEMPORARY
-    elif(cycle_streak > 60*constants.CYCLES_PER_SECOND):
-        return mongo.IncidentIeeeDuration.SUSTAINED
-    else:
-        return mongo.IncidentIeeeDuration.UNDEFINED # Should not be reached
-    
-def classifyIeee1159(rms_windowed_features):
-    """
-    This function looks through the rms_windowed_features numpy array to classify Ieee1159 Voltage incidents.
-    It does so by iterating through the rms values in the provided array and looking for streaks of similar
-    incidents. Note each entry of the provided array represents the rms value for a cycle/window (currently
-    a window is a cycle). 
-    
-    Note that as is the actual writing of the incident to the mongo db is not performed within this function.
-    This is done for testing purposes (making it easier to interface with the unittest by providing a simple,
-    exportable function)
-    
-    return: incident_classes. A list of the incidents (mongo.IeeeClassifiaction) found
-    return: incident_timestamps. A list of pairs of values representing the number of cycles from the start of 
-    the array to beginning and the end of the incident. Meant to later be converted to ms timestamps
-    """
-    incident_cycle_offset_start = 0 # Number of cycles from the start of the array to the start of the incident
-    window_streak = 0
+    ranges = []
+    start = indices[0]
+    prev = start - 1
+    end = start
+    for i in range(indices.size):
+        ind = indices[i]
+        if (ind == (prev + 1)) & valid_bound(start, end, cycle_max):
+            end = ind
+        else:
+            if((end + 1 - start) >= cycle_min):
+                ranges.append((start, end + 1)) 
+                # The plus on is such that the offset end is end of the last cycle included
+            start = ind
+            end = ind
+        prev = ind
 
-    curr_type = mongo.IncidentClassification.UNDEFINED 
-    curr_duration = mongo.IncidentIeeeDuration.UNDEFINED
-    prev_type = mongo.IncidentClassification.UNDEFINED 
-    prev_duration = mongo.IncidentIeeeDuration.UNDEFINED
-    incident_classes = []
-    incident_timestamps = []
+    if(end != start):
+        ranges.append((start, end + 1))
+    return ranges
+
+# arrays and lists are passed by refence
+def nullifiy_and_add_incidents(classes, offsets, ranges, class_key, pus):
+    """
+    This function takes an array of valid indices for of indices from an rms_feature array
+    adds the corresponding IncidentClassification and offset indicating where in the rms_feature 
+    array a given incident is located and signals that the incident has already been accounted for.
+    This function especially builds utilizes the fact that python passes objects by reference.
+    params: classes, offsets - lists of the incident classification types and corresponding offsets. Added to
+    params: ranges - list for which each entry has the start and end index of an incident
+    params: class_key - the type/name of the incident in question
+    params: pus - array each entry of which the pu value of a given window (rms/nominal rms). This array
+    is changed to indicate an incident already accounted for (the pu values of an incident are set to -1 so
+    they will not be considered by future searches for incidents)
+    """
+    to_nullify = []
+    for i in range(len(ranges)):
+        start_ind = ranges[i][0] 
+        end_ind = ranges[i][1]
+        pus[start_ind:end_ind] = ALREADY_ACCOUNTED
+        classes.append(class_key) #
+        offsets.append(ranges[i])
+
+def find_incidents(classes, offsets, pus, sag_range, swell_range, cycle_min, cycle_max = None): # All of these passed by reference (objects)
+    """
+    This function adds to the classes and offset lists incident information (type and cycle offsets) by analyzing
+    the pus array for segments of pu values falling according to what range the segments py values fall into (sag, swell
+    interrupt as provided) and if the lengths of the segments are in accordance with the cycle_min and cycle_max
+    params: classes, offsets - lists of the incident classification types and corresponding offsets. Added to
+    params: pus - array each entry of which the pu value of a given window (rms/nominal rms). 
+    params: sag_range, swell_range - range of pu values for which a given cycle should be considered a sag/swell
+    params: cycle_min/max - the cycle streak length range required for a segment of pus to be classified as an incident.
+    max none correponds to no upper limit on the length of the setgments
+    return: no return but does add to or alter pus, classes and offsets
+    """
+    indices_swell = np.where(np.logical_and(pus <= swell_range[1], pus >= swell_range[0]))[0]
+    indices_sag = np.where(np.logical_and(pus <= sag_range[1], pus >= sag_range[0]))[0]
     
-    for rms_voltage in np.nditer(rms_windowed_features):
+    if(indices_sag.size > cycle_min):
+        ranges = indices_to_ranges(indices_sag, cycle_min, cycle_max)
+        nullifiy_and_add_incidents(classes, offsets, ranges, mongo_dummy.IncidentClassification.VOLTAGE_SAG, pus)
+
+    if(indices_swell.size > cycle_min):
+        ranges = indices_to_ranges(indices_swell, cycle_min, cycle_max)
+        nullifiy_and_add_incidents(classes, offsets, ranges, mongo_dummy.IncidentClassification.VOLTAGE_SWELL, pus)
+      
+    if(cycle_min >= 60*constants.CYCLES_PER_SECOND):
+        indices_interrupt = np.where(np.logical_and(pus <= 0.001, pus >= 0))[0]
+        if(indices_swell.size > cycle_min):
+            ranges = indices_to_ranges(indices_interrupt, cycle_min, cycle_max)
+            nullifiy_and_add_incidents(classes, offsets, ranges, mongo_dummy.IncidentClassification.VOLTAGE_INTERRUPTION, pus)
         
-        curr_type, curr_duration = type_and_max_duration(np.abs(rms_voltage/constants.NOMINAL_VRMS))
-        duration_current_included = durationAsContinuous(curr_type, window_streak + 1)
-        
-        if(curr_type == mongo.IncidentClassification.UNDEFINED):
-            if(prev_type == mongo.IncidentClassification.UNDEFINED):
-                incident_cycle_offset_start += 1
-            elif((prev_type == mongo.IncidentClassification.VOLTAGE_INTERRUPTION) & (prev_duration == mongo.IncidentIeeeDuration.UNDEFINED)):
-                incident_cycle_offset_start += window_streak + 1
-                window_streak = 0
-            else:
-                incident_classes.append(prev_type)
-                incident_timestamps.append([incident_cycle_offset_start, incident_cycle_offset_start + window_streak])
-                incident_cycle_offset_start += window_streak + 1
-                window_streak = 0
-        elif(curr_type == prev_type): # Neither are UNDEFINED
-            if(greater_equal_than_IeeeDuration(curr_duration, duration_current_included)): 
-                # Since the current and previous have the same type and the max duration of 
-                # the current works with cycle streak. Change the duration to reflect the actual cycle streak
-                curr_duration = duration_current_included 
-                window_streak += 1                              
-            elif((prev_type == mongo.IncidentClassification.VOLTAGE_INTERRUPTION) & (prev_duration == mongo.IncidentIeeeDuration.UNDEFINED)):
-                incident_cycle_offset_start += window_streak
-                window_streak = 1
-                curr_duration = durationAsContinuous(curr_type, window_streak)                   
-            else:
-                # The current pU value is not eligible for the actual duration if this cycle was included
-                # as such we have a change of incident and add the incident that just finished TO our collection
-                # of incidents. Check to make sure that provided the previous incident was in fact valid (e.g not an interrption range pu
-                # value with insufficient duration)
-                incident_classes.append(prev_type)
-                incident_timestamps.append([incident_cycle_offset_start, incident_cycle_offset_start + window_streak])    
-                incident_cycle_offset_start += window_streak
-                window_streak = 1
-                curr_duration = durationAsContinuous(curr_type, window_streak)                   
-        elif(prev_type == mongo.IncidentClassification.UNDEFINED): 
-            window_streak = 1
-            curr_duration = durationAsContinuous(curr_type, window_streak)    
-        else: # Different types both not UNDEFINED
-            if((prev_type == mongo.IncidentClassification.VOLTAGE_INTERRUPTION) & (prev_duration == mongo.IncidentIeeeDuration.UNDEFINED)):
-                incident_cycle_offset_start += window_streak
-            else:
-                incident_classes.append(prev_type)
-                incident_timestamps.append([incident_cycle_offset_start, incident_cycle_offset_start + window_streak])    
-                incident_cycle_offset_start += window_streak
-            window_streak = 1
-            curr_duration = durationAsContinuous(curr_type, window_streak)            
-            
-        prev_type = curr_type
-        prev_duration = curr_duration
-        
-    if ((window_streak > 0) & (curr_duration != mongo.IncidentIeeeDuration.UNDEFINED)):
-        incident_classes.append(curr_type)
-        incident_timestamps.append([incident_cycle_offset_start, incident_cycle_offset_start + window_streak])
-        
-    return incident_classes, incident_timestamps
+def classify_ieee1156_voltage(rms_features):
+    """
+    This function classifies an ieee1156 voltage incident by analyzing rms_feature array (containing voltage rms values over
+    a window/cycle). 
+    """
+    pus = np.abs(rms_features/constants.NOMINAL_VRMS)
+    classes = []
+    offsets = []
+    
+    # Note the order here matters
+    find_incidents(classes, offsets, pus, [0.8, 0.9], [1.1, 1.2], 60*constants.CYCLES_PER_SECOND)
+    find_incidents(classes, offsets, pus, [0.1, 0.9], [1.1, 1.2], 3*constants.CYCLES_PER_SECOND, 60*constants.CYCLES_PER_SECOND)
+    find_incidents(classes, offsets, pus, [0.1, 0.9], [1.1, 1.4], 30, 3*constants.CYCLES_PER_SECOND)
+    find_incidents(classes, offsets, pus, [0.1, 0.9], [1.1, 1.8], 0.5, 30)
+    
+    return classes, offsets
 
 def ieee1159_voltage(mauka_message: protobuf.mauka_pb2.MaukaMessage, rms_features: np.ndarray, 
                      opq_mongo_client: mongo.OpqMongoClient = None): 
     """
     Calculate the ieee1159 voltage incidents and add them to the mongo database
     """
-    incidents, cycle_offsets = classifyIeee1159(rms_features)
+    incidents, cycle_offsets = classify_ieee1156_voltage(rms_features)
     
     for i in range(len(incidents)):
         start_idx = cycle_offsets[i][0]
         end_idx = cycle_offsets[i][1]
-        max_deviation_from_nominal = np.amax(np.abs(rms_features[start_idx:end_idx])) - constants.NOMINAL_VRMS
+        max_deviation_from_nominal = np.amax(np.abs(rms_features[start_idx:end_idx]) - constants.NOMINAL_VRMS) 
         mongo.store_incident(
             mauka_message.payload.event_id,
             mauka_message.payload.box_id,
