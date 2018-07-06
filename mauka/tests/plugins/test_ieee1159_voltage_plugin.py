@@ -100,7 +100,7 @@ def generate_keys(cycles, a_multipliers):
         Ieee1156Class = determineClass(a_multipliers[i], cycles[i])
         if (Ieee1156Class != IncidentClassification.UNDEFINED):
             key_classes.append(Ieee1156Class)
-            key_timestamps.append([cycle_offset, cycle_offset + cycles[i]])
+            key_timestamps.append((cycle_offset, cycle_offset + cycles[i]))
         cycle_offset += cycles[i]
     return key_classes, key_timestamps
 

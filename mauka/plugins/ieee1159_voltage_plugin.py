@@ -99,17 +99,17 @@ def find_incidents(classes, offsets, pus, sag_range, swell_range, cycle_min, cyc
     
     if(indices_sag.size > cycle_min):
         ranges = indices_to_ranges(indices_sag, cycle_min, cycle_max)
-        nullifiy_and_add_incidents(classes, offsets, ranges, mongo_dummy.IncidentClassification.VOLTAGE_SAG, pus)
+        nullifiy_and_add_incidents(classes, offsets, ranges, mongo.IncidentClassification.VOLTAGE_SAG, pus)
 
     if(indices_swell.size > cycle_min):
         ranges = indices_to_ranges(indices_swell, cycle_min, cycle_max)
-        nullifiy_and_add_incidents(classes, offsets, ranges, mongo_dummy.IncidentClassification.VOLTAGE_SWELL, pus)
+        nullifiy_and_add_incidents(classes, offsets, ranges, mongo.IncidentClassification.VOLTAGE_SWELL, pus)
       
     if(cycle_min >= 60*constants.CYCLES_PER_SECOND):
         indices_interrupt = np.where(np.logical_and(pus <= 0.001, pus >= 0))[0]
         if(indices_swell.size > cycle_min):
             ranges = indices_to_ranges(indices_interrupt, cycle_min, cycle_max)
-            nullifiy_and_add_incidents(classes, offsets, ranges, mongo_dummy.IncidentClassification.VOLTAGE_INTERRUPTION, pus)
+            nullifiy_and_add_incidents(classes, offsets, ranges, mongo.IncidentClassification.VOLTAGE_INTERRUPTION, pus)
         
 def classify_ieee1156_voltage(rms_features):
     """
