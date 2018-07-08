@@ -48,7 +48,7 @@ class ManageLocationPage extends React.Component {
               <Table.Footer fullWidth>
                 <Table.Row>
                   <Table.HeaderCell colSpan='5'>
-                    <Button><Link to={'/admin/manage/location/new'}>Add OPQ Box</Link></Button>
+                    <Button><Link to={'/admin/manage/location/new'}>Add OPQ Location</Link></Button>
                   </Table.HeaderCell>
                 </Table.Row>
               </Table.Footer>
