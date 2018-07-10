@@ -1,15 +1,18 @@
 """
 This module contains classes and functions for querying and manipulating data within a mongo database.
 """
-import analysis
 
 import enum
 import typing
+
+import bson
+import bson.objectid
 
 import gridfs
 import numpy
 import pymongo
 
+import analysis
 import constants
 
 
@@ -21,12 +24,15 @@ def to_s16bit(data: bytes) -> numpy.ndarray:
     """
     return numpy.frombuffer(data, numpy.int16)
 
+
 class IEEEDuration(enum.Enum):
     """String enumerations and constants for durations"""
     INSTANTANEOUS = "INSTANTANEOUS"  # A duration between 0.5 and 30 cycles
-    MOMENTARY = "MOMENTARY"          # A duration between 30 cycles and 3 seconds
-    TEMPORARY = "TEMPORARY"          # A duration between 3 seconds and 1 minute
-    SUSTAINED = "SUSTAINED"          # A duration greater than 1 minute
+    MOMENTARY = "MOMENTARY"  # A duration between 30 cycles and 3 seconds
+    TEMPORARY = "TEMPORARY"  # A duration between 3 seconds and 1 minute
+    SUSTAINED = "SUSTAINED"  # A duration greater than 1 minute
+
+
 
 class BoxEventType(enum.Enum):
     """String enumerations and constants for event types"""
@@ -51,21 +57,21 @@ class Collection(enum.Enum):
 class OpqMongoClient:
     """Convenience mongo client for easily operating on OPQ data"""
 
-    def __init__(self, host: str = "127.0.0.1", port: int = 27017, db: str = "opq"):
+    def __init__(self, host: str = "127.0.0.1", port: int = 27017, database_name: str = "opq"):
         """
         Initializes an OpqMongoClient.
         :param host: Host of mongo database
         :param port: Port of mongo database
-        :param db: The name of the database on mongo
+        :param database_name: The name of the database on mongo
         """
 
         self.client = pymongo.MongoClient(host, port)
         """MongoDB client"""
 
-        self.db = self.client[db]
+        self.database = self.client[database_name]
         """MongoDB"""
 
-        self.fs = gridfs.GridFS(self.db)
+        self.gridfs = gridfs.GridFS(self.database)
         """Access to MongoDB gridfs"""
 
         self.events_collection = self.get_collection(Collection.EVENTS.value)
@@ -96,7 +102,7 @@ class OpqMongoClient:
         A mongo collection
 
         """
-        return self.db[collection]
+        return self.database[collection]
 
     def drop_collection(self, collection: str):
         """Drops a collection by name
@@ -107,7 +113,7 @@ class OpqMongoClient:
             Name of the collection
 
         """
-        self.db[collection].drop()
+        self.database[collection].drop()
 
     def drop_indexes(self, collection: str):
         """Drop all indexes of a particular named collection
@@ -121,7 +127,7 @@ class OpqMongoClient:
         -------
 
         """
-        self.db[collection].drop_indexes()
+        self.database[collection].drop_indexes()
 
     def read_file(self, fid: str) -> bytes:
         """
@@ -129,7 +135,7 @@ class OpqMongoClient:
         :param fid: The file name to open stored in gridfs
         :return: A list of bytes from reading the file
         """
-        return self.fs.find_one({"filename": fid}).read()
+        return self.gridfs.find_one({"filename": fid}).read()
 
     def write_incident_waveform(self, incident_id: int, gridfs_filename: str, payload: bytes):
         """
@@ -138,8 +144,8 @@ class OpqMongoClient:
         :param gridfs_filename: The filename to store the waveform to.
         :param payload: The bytes of the waveform.
         """
-        self.fs.put(payload, **{"filename": gridfs_filename,
-                                "metadata": {"incident_id": incident_id}})
+        self.gridfs.put(payload, **{"filename": gridfs_filename,
+                                    "metadata": {"incident_id": incident_id}})
 
 
 def get_waveform(mongo_client: OpqMongoClient, data_fs_filename: str) -> numpy.ndarray:
@@ -154,7 +160,7 @@ def get_waveform(mongo_client: OpqMongoClient, data_fs_filename: str) -> numpy.n
     return waveform
 
 
-def get_box_calibration_constants(mongo_client: OpqMongoClient = None, defaults: typing.Dict[int, float] = {}) -> \
+def get_box_calibration_constants(mongo_client: OpqMongoClient = None, defaults=None) -> \
         typing.Dict[int, float]:
     """
     Loads calibration constants from the mongo database a a dictionary from box id to calibration constant.
@@ -163,16 +169,18 @@ def get_box_calibration_constants(mongo_client: OpqMongoClient = None, defaults:
     :param defaults: Default values supplied as a mapping from box id to calibration constant.
     :return: A dictionary mapping of box_id to calibration constant
     """
-    _mongo_client = mongo_client if mongo_client is not None else OpqMongoClient()
-    opq_boxes = _mongo_client.opq_boxes_collection.find(projection={'_id': False,
-                                                                    "calibration_constant": True,
-                                                                    "box_id": True})
-    r = {}
-    for k, v in defaults.items():
-        r[k] = v
+    if defaults is None:
+        defaults = {}
+    client = mongo_client if mongo_client is not None else OpqMongoClient()
+    opq_boxes = client.opq_boxes_collection.find(projection={'_id': False,
+                                                             "calibration_constant": True,
+                                                             "box_id": True})
+    calibration_constants = {}
+    for box_id, calibration_constant in defaults.items():
+        calibration_constants[box_id] = calibration_constant
     for opq_box in opq_boxes:
-        r[opq_box["box_id"]] = opq_box["calibration_constant"]
-    return r
+        calibration_constants[opq_box["box_id"]] = opq_box["calibration_constant"]
+    return calibration_constants
 
 
 def get_default_client(mongo_client: OpqMongoClient = None) -> OpqMongoClient:
@@ -234,8 +242,8 @@ def get_ieee_duration(duration_ms: float) -> IncidentIeeeDuration:
         return IncidentIeeeDuration.TEMPORARY
     elif duration_ms > ms_1_m:
         return IncidentIeeeDuration.SUSTAINED
-    else:
-        return IncidentIeeeDuration.UNDEFINED
+
+    return IncidentIeeeDuration.UNDEFINED
 
 
 def next_available_incident_id(opq_mongo_client: OpqMongoClient) -> int:
@@ -249,8 +257,8 @@ def next_available_incident_id(opq_mongo_client: OpqMongoClient) -> int:
         last_incident = mongo_client.incidents_collection.find().sort("incident_id", pymongo.DESCENDING).limit(1)[0]
         last_incident_id = last_incident["incident_id"]
         return last_incident_id + 1
-    else:
-        return 1
+
+    return 1
 
 
 def store_incident(event_id: int,
@@ -343,15 +351,15 @@ def get_location(box_id: str, opq_mongo_client: OpqMongoClient) -> str:
     :param opq_mongo_client: An optional mongo client to use for DB access (will be created if not-provided)
     :return: The location slug for the provided box
     """
-    UNKNOWN = "UNKNOWN"
+    unknown = "UNKNOWN"
     mongo_client = get_default_client(opq_mongo_client)
     box = mongo_client.opq_boxes_collection.find_one({"box_id": box_id})
 
     if box is None:
-        return UNKNOWN
+        return unknown
 
     if "location" not in box:
-        return UNKNOWN
+        return unknown
 
     return box["location"]
 
@@ -365,31 +373,41 @@ def get_calibration_constant(box_id: int) -> float:
     calibration_constants = get_box_calibration_constants()
     if box_id in calibration_constants:
         return calibration_constants[box_id]
-    else:
-        return 1.0
+
+    return 1.0
 
 
-def memoize(fn: typing.Callable) -> typing.Callable:
+def memoize(single_param_fn: typing.Callable) -> typing.Callable:
     """
     Memoizes function returns.
-    :param fn: The function to memoize.
-    :return: A momoized version of fn
+    :param single_param_fn: The function to memoize.
+    :return: A memoized version of callable
     """
     cache = {}
 
-    def helper(v):
+    def helper(key):
         """
         Closure that closes over cache. If value is not in cache, callable is ran to produce the value.
-        :param v: Value to check if in cache
+        :param key: Value to check if in cache
         :return: Value from fn call.
         """
-        if v in cache:
-            return cache[v]
-        else:
-            cache[v] = fn(v)
-            return cache[v]
+        if key in cache:
+            return cache[key]
+
+        cache[key] = single_param_fn(key)
+        return cache[key]
 
     return helper
 
 
+# pylint: disable=C0103
 cached_calibration_constant = memoize(get_calibration_constant)
+
+
+def object_id(oid: str) -> bson.objectid.ObjectId:
+    """Given the string representation of an object an id, return an instance of an ObjectID
+
+    :param oid: The oid to encode
+    :return: ObjectId from string
+    """
+    return bson.objectid.ObjectId(oid)

@@ -14,7 +14,7 @@ import protobuf.opq_pb2
 def decode_trigger_message(encoded_trigger_message):
     """ Decodes and returns a serialized triggering message
 
-    :param encoded_measurement: The protobuf encoded triggering message
+    :param encoded_trigger_message: The protobuf encoded triggering message
     :return: The decoded TriggerMessage object
     """
     trigger_message = protobuf.opq_pb2.TriggerMessage()
@@ -23,20 +23,20 @@ def decode_trigger_message(encoded_trigger_message):
 
 
 def encode_trigger_message(idd,
-                           time,
+                           timestamp,
                            frequency,
                            rms):
     """
     Encodes a Makai trigger message
     :param idd: Id of the box
-    :param time: Timestamp ms
+    :param timestamp: Timestamp ms
     :param frequency: The inst frequency
     :param rms: The inst voltage RMS
     :return: Serialized Makai trigger message
     """
     trigger_message = protobuf.opq_pb2.TriggerMessage()
     trigger_message.id = idd
-    trigger_message.time = time
+    trigger_message.time = timestamp
     trigger_message.frequency = frequency
     trigger_message.rms = rms
     return trigger_message.SerializeToString()
@@ -64,6 +64,7 @@ def build_mauka_message(source: str,
     return mauka_message
 
 
+# pylint: disable=E1101
 def build_payload(source: str,
                   event_id: int,
                   box_id: str,
@@ -92,6 +93,7 @@ def build_payload(source: str,
     return mauka_message
 
 
+# pylint: disable=E1101
 def build_heartbeat(source: str,
                     last_received_timestamp_ms: int,
                     on_message_count: int,
@@ -112,6 +114,7 @@ def build_heartbeat(source: str,
     return mauka_message
 
 
+# pylint: disable=E1101
 def build_makai_event(source: str, event_id: int) -> mauka_pb2.MaukaMessage:
     """
     Instance of a MakaiEvent that gets injected into the Mauka system by a service broker.
@@ -124,6 +127,7 @@ def build_makai_event(source: str, event_id: int) -> mauka_pb2.MaukaMessage:
     return mauka_message
 
 
+# pylint: disable=E1101
 def build_makai_trigger(source: str,
                         event_start_timestamp_ms: int,
                         event_end_timestamp_ms: int,
@@ -149,6 +153,7 @@ def build_makai_trigger(source: str,
     return mauka_message
 
 
+# pylint: disable=E1101
 def build_measurement(source: str,
                       box_id: str,
                       timestamp_ms: int,
@@ -212,8 +217,8 @@ def is_payload(mauka_message: mauka_pb2.MaukaMessage, payload_type: mauka_pb2.Pa
     """
     if payload_type is None:
         return which_message_oneof(mauka_message) == "payload"
-    else:
-        return which_message_oneof(mauka_message) == "payload" and mauka_message.payload.payload_type == payload_type
+
+    return which_message_oneof(mauka_message) == "payload" and mauka_message.payload.payload_type == payload_type
 
 
 def is_heartbeat_message(mauka_message: mauka_pb2.MaukaMessage) -> bool:

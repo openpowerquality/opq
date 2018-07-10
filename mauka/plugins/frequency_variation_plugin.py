@@ -6,7 +6,7 @@ import typing
 import multiprocessing
 import numpy
 import constants
-import plugins.base
+import plugins.base_plugin
 import protobuf.mauka_pb2
 import protobuf.util
 import mongo
@@ -39,7 +39,7 @@ def frequency_variation(frequency: float, freq_ref: float, freq_var_high: float,
 def frequency_incident_classifier(event_id: int, box_id: str, windowed_frequencies: numpy.ndarray,
                                   box_event_start_ts: int, freq_ref: float, freq_var_high: float, freq_var_low: float,
                                   freq_interruption: float, window_size: float = constants.SAMPLES_PER_CYCLE,
-                                  opq_mongo_client: mongo.OpqMongoClient=None, logger=None):
+                                  opq_mongo_client: mongo.OpqMongoClient = None, logger=None):
     """
     Classifies a frequency incident as a Sag, Swell, or Interruption. Creates a Mongo Incident document
     :param event_id: Makai Event ID
@@ -65,13 +65,13 @@ def frequency_incident_classifier(event_id: int, box_id: str, windowed_frequenci
     if logger is not None:
         logger.debug("Calculating frequency with {} segments.".format(len(windowed_frequencies)))
 
-    for i in range(len(windowed_frequencies)):
+    for idx, freq in enumerate(windowed_frequencies):
         # check whether there is a frequency variation and if so what type
-        curr_incident, curr_variation = frequency_variation(windowed_frequencies[i], freq_ref, freq_var_high,
+        curr_incident, curr_variation = frequency_variation(freq, freq_ref, freq_var_high,
                                                             freq_var_low, freq_interruption)
         if prev_incident != curr_incident:  # start of new incident and or end of incident
             if prev_incident:  # make and store incident doc if end of incident
-                incident_end_ts = i * window_duration_ms + box_event_start_ts
+                incident_end_ts = idx * window_duration_ms + box_event_start_ts
                 if logger is not None:
                     logger.debug("Found Frequency incident [{}] from event {} and box {}".format(
                         prev_incident,
@@ -83,11 +83,10 @@ def frequency_incident_classifier(event_id: int, box_id: str, windowed_frequenci
                                   "incident_type": mongo.IncidentMeasurementType.FREQUENCY,
                                   "avg_deviation": numpy.average(incident_variations),
                                   "incident_classifications": [prev_incident], "annotations": [], "metadata": {},
-                                  "mongo_client": mongo_client}
-                                 )
+                                  "mongo_client": mongo_client})
 
             incident_variations = [curr_variation]
-            incident_start_ts = i * window_duration_ms + box_event_start_ts
+            incident_start_ts = idx * window_duration_ms + box_event_start_ts
 
         else:
             incident_variations.append(curr_variation)
@@ -108,12 +107,11 @@ def frequency_incident_classifier(event_id: int, box_id: str, windowed_frequenci
                           "incident_type": mongo.IncidentMeasurementType.FREQUENCY,
                           "avg_deviation": numpy.average(incident_variations),
                           "incident_classifications": [prev_incident], "annotations": [], "metadata": {},
-                          "mongo_client": mongo_client}
-                         )
+                          "mongo_client": mongo_client})
     return incidents
 
 
-class FrequencyVariationPlugin(plugins.base.MaukaPlugin):
+class FrequencyVariationPlugin(plugins.base_plugin.MaukaPlugin):
     """
     Mauka plugin that classifies and stores frequency variation incidents for any event that includes a raw waveform
     """
@@ -138,7 +136,7 @@ class FrequencyVariationPlugin(plugins.base.MaukaPlugin):
         :param topic: The topic that is producing the message
         :param mauka_message: The message that was produced
         """
-        self.debug("on_message")
+        self.debug("{} on_message".format(topic))
         if protobuf.util.is_payload(mauka_message, protobuf.mauka_pb2.FREQUENCY_WINDOWED):
             self.debug("on_message {}:{} len:{}".format(mauka_message.payload.event_id,
                                                         mauka_message.payload.box_id,
@@ -164,6 +162,5 @@ class FrequencyVariationPlugin(plugins.base.MaukaPlugin):
                     incident["mongo_client"]
                 )
         else:
-            self.logger.error("Received incorrect mauka message [{}] at FrequencyVariationPlugin".format(
-                protobuf.util.which_message_oneof(mauka_message)
-            ))
+            self.logger.error("Received incorrect mauka message [%s] at FrequencyVariationPlugin",
+                              protobuf.util.which_message_oneof(mauka_message))

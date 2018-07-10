@@ -5,19 +5,16 @@ This module provides functionality for working with Mauka configuration files.
 import json
 import typing
 
-ConfigValueType = typing.Union[str, int, float, bool]
-ConfigType = typing.Dict[str, ConfigValueType]
-
 
 class MaukaConfig:
     """
     An instance of a Mauka config that will throw when a key doesn't exist (unless a default is provided)
     """
 
-    def __init__(self, config_dict: ConfigType):
+    def __init__(self, config_dict: typing.Dict[str, typing.Union[str, int, float, bool]]):
         self.config_dict = config_dict
 
-    def get(self, key: str, default: ConfigValueType = None) -> ConfigValueType:
+    def get(self, key: str, default: typing.Union[str, int, float, bool] = None) -> typing.Union[str, int, float, bool]:
         """
         Returns the value in the configuration associated with this key.
         :param key: The key to search for.
@@ -46,7 +43,7 @@ def from_file(path: str) -> MaukaConfig:
         raise FileNotFoundError("Error opening config at path {}".format(path))
 
 
-def from_dict(config_dict: ConfigType) -> MaukaConfig:
+def from_dict(config_dict: typing.Dict[str, typing.Union[str, int, float, bool]]) -> MaukaConfig:
     """
     Create an instance of a MaukaConfig from a dictionary.
     :param config_dict: Dictionary of config values.

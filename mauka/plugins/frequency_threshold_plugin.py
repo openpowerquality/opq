@@ -6,7 +6,7 @@ import multiprocessing
 import typing
 
 import mongo
-import plugins.ThresholdPlugin
+import plugins.threshold_plugin
 import protobuf.util
 import protobuf.mauka_pb2
 
@@ -20,7 +20,7 @@ def extract_frequency(measurement: protobuf.mauka_pb2.Measurement) -> float:
     return measurement.frequency
 
 
-class FrequencyThresholdPlugin(plugins.ThresholdPlugin.ThresholdPlugin):
+class FrequencyThresholdPlugin(plugins.threshold_plugin.ThresholdPlugin):
     """
     This class contains the frequency threshold plugin which is responsible for classifying frequency dips and swells
     """
@@ -60,7 +60,7 @@ class FrequencyThresholdPlugin(plugins.ThresholdPlugin.ThresholdPlugin):
         elif threshold_type == "HIGH":
             event_type = mongo.BoxEventType.FREQUENCY_SWELL.value
         else:
-            self.logger.error("Unknown threshold type {}".format(threshold_type))
+            self.logger.error("Unknown threshold type %s", threshold_type)
             return
 
         makai_trigger = protobuf.util.build_makai_trigger(

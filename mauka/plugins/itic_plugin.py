@@ -10,7 +10,7 @@ import matplotlib.path
 
 import analysis
 import mongo
-import plugins.base
+import plugins.base_plugin
 import protobuf.mauka_pb2
 import protobuf.util
 
@@ -28,7 +28,7 @@ class IticRegion(enum.Enum):
 HUNDREDTH_OF_A_CYCLE = analysis.c_to_ms(0.01)
 """Hundredth of a power cycle in milliseconds"""
 
-prohibited_region_polygon = [
+PROHIBITED_REGION_POLYGON = [
     [HUNDREDTH_OF_A_CYCLE, 500],
     [1, 200],
     [3, 140],
@@ -42,7 +42,7 @@ prohibited_region_polygon = [
 ]
 """Polygon representing the prohibited region"""
 
-no_damage_region_polygon = [
+NO_DAMAGE_REGION_POLYGON = [
     [20, 0],
     [20, 40],
     [20, 70],
@@ -55,7 +55,7 @@ no_damage_region_polygon = [
 ]
 """Polygon representing the no damage region"""
 
-no_interruption_region_polygon = [
+NO_INTERRUPTION_REGION_POLYGON = [
     [0, 0],
     [0, 500],
     [HUNDREDTH_OF_A_CYCLE, 500],
@@ -78,16 +78,16 @@ no_interruption_region_polygon = [
 """Polygon representing the no interruption region"""
 
 
-def point_in_polygon(x: float, y: float, polygon: typing.List[typing.List[float]]) -> bool:
+def point_in_polygon(x_point: float, y_point: float, polygon: typing.List[typing.List[float]]) -> bool:
     """
     Checks if a point is in a given polygon.
-    :param x: x
-    :param y: y
+    :param x_point: x
+    :param y_point: y
     :param polygon: The polygon to check for inclusion
     :return: Whether or not the given point is in the provided polygon
     """
     path = matplotlib.path.Path(vertices=numpy.array(polygon), closed=True)
-    return path.contains_point([x, y])
+    return path.contains_point([x_point, y_point])
 
 
 def itic_region(rms_voltage: float, duration_ms: float) -> IticRegion:
@@ -108,8 +108,8 @@ def itic_region(rms_voltage: float, duration_ms: float) -> IticRegion:
     if rms_voltage <= 0:
         if duration_ms <= 20:
             return IticRegion.NO_INTERRUPTION
-        else:
-            return IticRegion.NO_DAMAGE
+
+        return IticRegion.NO_DAMAGE
 
     # In the x and y directions
     if duration_ms >= 10000 and percent_nominal >= 500:
@@ -121,74 +121,70 @@ def itic_region(rms_voltage: float, duration_ms: float) -> IticRegion:
             return IticRegion.PROHIBITED
         elif percent_nominal <= 90:
             return IticRegion.NO_DAMAGE
-        else:
-            return IticRegion.NO_INTERRUPTION
+
+        return IticRegion.NO_INTERRUPTION
 
     # In the y-direction
     if percent_nominal >= 500:
         if duration_ms <= HUNDREDTH_OF_A_CYCLE:
             return IticRegion.NO_INTERRUPTION
-        else:
-            return IticRegion.PROHIBITED
 
-    # If the voltage is not an extreme case, we run point in polygon calculations to determine which region its in
-    if point_in_polygon(duration_ms, percent_nominal, no_interruption_region_polygon):
-        return IticRegion.NO_INTERRUPTION
-
-    if point_in_polygon(duration_ms, percent_nominal, prohibited_region_polygon):
         return IticRegion.PROHIBITED
 
-    if point_in_polygon(duration_ms, percent_nominal, no_damage_region_polygon):
+    # If the voltage is not an extreme case, we run point in polygon calculations to determine which region its in
+    if point_in_polygon(duration_ms, percent_nominal, NO_INTERRUPTION_REGION_POLYGON):
+        return IticRegion.NO_INTERRUPTION
+
+    if point_in_polygon(duration_ms, percent_nominal, PROHIBITED_REGION_POLYGON):
+        return IticRegion.PROHIBITED
+
+    if point_in_polygon(duration_ms, percent_nominal, NO_DAMAGE_REGION_POLYGON):
         return IticRegion.NO_DAMAGE
 
     # If it's directly on the line of one of the polygons, its easiest to just say no_interruption
     return IticRegion.NO_INTERRUPTION
 
 
-def itic(event_id: int, box_id: str, windowed_rms: numpy.ndarray, segment_threshold: float, logger=None,
-         opq_mongo_client: mongo.OpqMongoClient = None) -> IticRegion:
+def itic(mauka_message: protobuf.mauka_pb2.MaukaMessage, segment_threshold: float, logger=None,
+         opq_mongo_client: mongo.OpqMongoClient = None):
     """
     Computes the ITIC region for a given waveform.
-    :param event_id: Event id associate with this waveform.
-    :param box_id: Box id associated with this waveform.
-    :param windowed_rms: A list of windowed (200 sample/1 cycle window) of RMS votlage
+    :param mauka_message:
     :param segment_threshold: Threshold for segmentation
     :param logger: Optional logger to use to print information
     :param opq_mongo_client:  Optional DB client to re-use (otherwise new one will be created)
     :return: ITIC region.
     """
     mongo_client = mongo.get_default_client(opq_mongo_client)
-    duration_cycles = len(windowed_rms)
-    if duration_cycles < 0.01:
-        return IticRegion.NO_INTERRUPTION
+    if len(mauka_message.payload.data) < 0.01:
+        return
 
-    segments = analysis.segment(windowed_rms, segment_threshold)
+    segments = analysis.segment(mauka_message.payload.data, segment_threshold)
 
     if logger is not None:
         logger.debug("Calculating ITIC with {} segments.".format(len(segments)))
 
-    box_event = mongo.get_box_event(event_id, box_id, mongo_client)
-    box_event_start_timetamp_ms = box_event["event_start_timestamp_ms"]
-
     for segment in segments:
         start_idx = segment[0]
         end_idx = segment[1] + 1
-        subarray = windowed_rms[start_idx:end_idx]
+        subarray = mauka_message.payload.data[start_idx:end_idx]
         mean_rms = numpy.mean(subarray)
-        duration_ms = analysis.c_to_ms(len(subarray))
 
-        itic_enum = itic_region(mean_rms, duration_ms)
+        itic_enum = itic_region(mean_rms, analysis.c_to_ms(len(subarray)))
 
         if itic_enum == IticRegion.NO_INTERRUPTION:
             continue
         else:
-            incident_start_timestamp_ms = box_event_start_timetamp_ms + analysis.c_to_ms(start_idx)
-            incident_end_timestamp_ms = box_event_start_timetamp_ms + analysis.c_to_ms(end_idx)
-            incident_classification = mongo.IncidentClassification.ITIC_PROHIBITED if itic_enum is IticRegion.PROHIBITED else mongo.IncidentClassification.ITIC_NO_DAMAGE
+            incident_start_timestamp_ms = mauka_message.payload.start_timestamp_ms + analysis.c_to_ms(start_idx)
+            incident_end_timestamp_ms = mauka_message.payload.start_timestamp_ms + analysis.c_to_ms(end_idx)
+            if itic_enum is IticRegion.PROHIBITED:
+                incident_classification = mongo.IncidentClassification.ITIC_PROHIBITED
+            else:
+                incident_classification = mongo.IncidentClassification.ITIC_NO_DAMAGE
 
             mongo.store_incident(
-                event_id,
-                box_id,
+                mauka_message.event_id,
+                mauka_message.box_id,
                 incident_start_timestamp_ms,
                 incident_end_timestamp_ms,
                 mongo.IncidentMeasurementType.VOLTAGE,
@@ -201,12 +197,12 @@ def itic(event_id: int, box_id: str, windowed_rms: numpy.ndarray, segment_thresh
             if logger is not None:
                 logger.debug("Found ITIC incident [{}] from event {} and box {}".format(
                     itic_enum,
-                    event_id,
-                    box_id
+                    mauka_message.event_id,
+                    mauka_message.box_id
                 ))
 
 
-class IticPlugin(plugins.base.MaukaPlugin):
+class IticPlugin(plugins.base_plugin.MaukaPlugin):
     """
     Mauka plugin that calculates ITIC for any event that includes a raw waveform
     """
@@ -225,17 +221,14 @@ class IticPlugin(plugins.base.MaukaPlugin):
         """
         Called async when a topic this plugin subscribes to produces a message
         :param topic: The topic that is producing the message
-        :param message: The message that was produced
+        :param mauka_message: The message that was produced
         """
         self.debug("on_message")
         if protobuf.util.is_payload(mauka_message, protobuf.mauka_pb2.VOLTAGE_RMS_WINDOWED):
-            itic(mauka_message.payload.event_id,
-                 mauka_message.payload.box_id,
-                 protobuf.util.repeated_as_ndarray(mauka_message.payload.data),
+            itic(mauka_message,
                  self.segment_threshold,
                  self.logger,
                  self.mongo_client)
         else:
-            self.logger.error("Received incorrect mauka message [{}] at IticPlugin".format(
-                protobuf.util.which_message_oneof(mauka_message)
-            ))
+            self.logger.error("Received incorrect mauka message [%s] at IticPlugin",
+                              protobuf.util.which_message_oneof(mauka_message))
