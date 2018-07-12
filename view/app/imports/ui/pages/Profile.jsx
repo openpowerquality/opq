@@ -1,14 +1,15 @@
 import React from 'react';
+import { withTracker } from 'meteor/react-meteor-data';
+import PropTypes from 'prop-types';
+import AboutMe from '/imports/ui/components/AboutMe';
+import Boxes from '/imports/ui/components/Boxes';
+import NotificationManager from '/imports/ui/components/NotificationManager';
+import { _ } from 'lodash';
 import { Meteor } from 'meteor/meteor';
 import { Container, Loader } from 'semantic-ui-react';
 import { UserProfiles } from '/imports/api/users/UserProfilesCollection';
 import { BoxOwners } from '/imports/api/users/BoxOwnersCollection';
 import { OpqBoxes } from '/imports/api/opq-boxes/OpqBoxesCollection';
-import { withTracker } from 'meteor/react-meteor-data';
-import PropTypes from 'prop-types';
-import AboutMe from '/imports/ui/components/AboutMe';
-import Boxes from '/imports/ui/components/Boxes';
-import { _ } from 'lodash';
 
 /** Renders a table containing all of the Stuff documents. Use <StuffItem> to render each row. */
 class Profile extends React.Component {
@@ -21,14 +22,15 @@ class Profile extends React.Component {
   /** Render the page once subscriptions have been received. */
   renderPage() { // eslint-disable-line class-methods-use-this
     const username = Meteor.user().username;
-    const { firstName, lastName, role } = UserProfiles.findByUsername(username);
+    const { firstName, lastName, role, phone } = UserProfiles.findByUsername(username);
     const boxIds = BoxOwners.findBoxIdsWithOwner(username);
     const boxes = _.sortBy(boxIds.map(id => OpqBoxes.findBox(id)), doc => doc.box_id);
     return (
-      <Container >
-        <AboutMe firstName={firstName} lastName={lastName} username={username} role={role}/>
-        <Boxes title="My Boxes" boxes={boxes} />
-      </Container>
+        <Container>
+          <AboutMe firstName={firstName} lastName={lastName} username={username} role={role} phone={phone}/>
+          <NotificationManager/>
+          <Boxes title="My Boxes" boxes={boxes}/>
+        </Container>
     );
   }
 }

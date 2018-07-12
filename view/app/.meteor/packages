@@ -52,3 +52,5 @@ percolate:synced-cron
 
 # Testing
 meteortesting:mocha
+email
+meteorhacks:ssr

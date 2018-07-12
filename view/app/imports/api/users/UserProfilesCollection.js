@@ -21,6 +21,13 @@ class UserProfilesCollection extends BaseCollection {
       firstName: String,
       lastName: String,
       role: String,
+      phone: { type: String, optional: true },
+      notifications: { type: Array, optional: true },
+      'notifications.$': { type: String, blackbox: true },
+      notification_pref: { type: Object, optional: true },
+      'notification_pref.text': { type: Boolean, optional: true },
+      'notification_pref.email': { type: Boolean, optional: true },
+      'notification_pref.max_sent_per_day': { type: String, optional: true },
     }));
   }
 
@@ -33,9 +40,13 @@ class UserProfilesCollection extends BaseCollection {
    * @param {String} lastName - The user's last name.
    * @param {String} role - The role of the user: either 'admin' or 'user'.
    * @param {[Number]} boxIds - An array of Strings containing the IDs of the boxes that can be managed by this user.
+   * @param {String} phone - The user's phone number concatenated with user's provider.
+   * @param {Array} notifications - Array made up of booleans for each available notification.
+   * @param {String} notification_pref - The user's preferences on how they are notified.
    */
   // eslint-disable-next-line class-methods-use-this
-  define({ username, password, firstName, lastName, boxIds = [], role = 'user' }) {
+  define({ username, password, firstName, lastName, boxIds = [], role = 'user',
+           phone, notification_pref, notifications }) {
     if (Meteor.isServer) {
 
       OpqBoxes.assertValidBoxIds(boxIds);
@@ -55,7 +66,16 @@ class UserProfilesCollection extends BaseCollection {
       }
 
       // Create or modify the UserProfiles document associated with this username.
-      this._collection.upsert({ username }, { $set: { firstName, lastName, role } });
+      this._collection.upsert({ username }, {
+        $set: {
+          firstName,
+          lastName,
+          role,
+          phone,
+          notification_pref,
+          notifications,
+        },
+      });
       const profileId = this.findOne({ username })._id;
 
       // Set the role using the Roles package. This makes it easier to do Role-based decisions on client.
@@ -130,6 +150,15 @@ class UserProfilesCollection extends BaseCollection {
       if (args.boxIds) {
         this.assertValidBoxIds(args.boxIds);
         this._updateBoxIds(userProfileDoc.username, args.boxIds);
+      }
+      if (args.phone) {
+        updateData.phone = args.phone;
+      }
+      if (args.notification_pref) {
+        updateData.notification_pref = args.notification_pref;
+      }
+      if (args.notifications) {
+        updateData.notifications = args.notifications;
       }
       this._collection.update(docID, { $set: updateData });
       return updateData;

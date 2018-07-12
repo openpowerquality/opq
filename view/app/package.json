@@ -24,6 +24,7 @@
     "react-leaflet-fullscreen": "0.0.6",
     "react-leaflet-markercluster": "^1.1.8",
     "react-meteor-data": "^0.2.11",
+    "react-number-format": "^3.3.4",
     "react-router": "^4.2.0",
     "react-router-dom": "^4.2.2",
     "react-timeseries-charts": "^0.14.0",

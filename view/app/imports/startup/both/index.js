@@ -4,6 +4,7 @@ import '../../api/fs-chunks';
 import '../../api/zipcodes';
 import '../../api/fs-files';
 import '../../api/health';
+import '../../api/notifications';
 import '../../api/measurements';
 import '../../api/opq-boxes';
 import '../../api/system-stats';

@@ -12,6 +12,9 @@
   "systemStats": {
     "updateIntervalSeconds": 10
   },
+  "healthCron": {
+    "enabled": false
+  },
   "initialEntities": {
     "enabled": false,
     "opqBoxes": [
@@ -111,7 +114,10 @@
         "firstName": "Anthony",
         "lastName": "Christe",
         "role": "admin",
-        "boxIds": ["1", "2", "3", "4", "5", "6", "7", "8"]
+        "boxIds": ["1", "2", "3", "4", "5", "6", "7", "8"],
+        "phone": "",
+        "notifications": [],
+        "notification_pref": { "text": false, "email": false, "max_sent_per_day": "never" }
       },
       {
         "username": "sin8@hawaii.edu",
@@ -119,7 +125,10 @@
         "firstName": "Serge",
         "lastName": "Negrashov",
         "role": "admin",
-        "boxIds": ["1", "2", "3", "4", "5", "6", "7", "8"]
+        "boxIds": ["1", "2", "3", "4", "5", "6", "7", "8"],
+        "phone": "",
+        "notifications": [],
+        "notification_pref": { "text": false, "email": false, "max_sent_per_day": "never" }
       },
       {
         "username": "johnson@hawaii.edu",
@@ -127,7 +136,10 @@
         "firstName": "Philip",
         "lastName": "Johnson",
         "role": "admin",
-        "boxIds": ["1", "2", "3", "4", "5", "6", "7", "8"]
+        "boxIds": ["1", "2", "3", "4", "5", "6", "7", "8"],
+        "phone": "",
+        "notifications": [],
+        "notification_pref": { "text": false, "email": false, "max_sent_per_day": "never" }
       },
       {
         "username": "keal@hawaii.edu",
@@ -135,7 +147,10 @@
         "firstName": "Kea",
         "lastName": "Uehara",
         "role": "admin",
-        "boxIds": ["1", "2", "3", "4", "5", "6", "7", "8"]
+        "boxIds": ["1", "2", "3", "4", "5", "6", "7", "8"],
+        "phone": "",
+        "notifications": [],
+        "notification_pref": { "text": false, "email": false, "max_sent_per_day": "never" }
       },
       {
         "username": "foltzk@hawaii.edu",
@@ -143,7 +158,10 @@
         "firstName": "Kaila",
         "lastName": "Foltz",
         "role": "admin",
-        "boxIds": ["1", "2", "3", "4", "5", "6", "7", "8"]
+        "boxIds": ["1", "2", "3", "4", "5", "6", "7", "8"],
+        "phone": "8082569623@tmomail.net",
+        "notifications": ["system service down"],
+        "notification_pref": { "text": true, "email": true, "max_sent_per_day": "never" }
       },
       {
         "username": "aghalarp@hawaii.edu",
@@ -151,7 +169,10 @@
         "firstName": "David",
         "lastName": "Aghalarpour",
         "role": "admin",
-        "boxIds": ["1", "2", "3", "4", "5", "6", "7", "8"]
+        "boxIds": ["1", "2", "3", "4", "5", "6", "7", "8"],
+        "phone": "",
+        "notifications": [],
+        "notification_pref": { "text": false, "email": false, "max_sent_per_day": "never" }
       },
       {
         "username": "mtopping@hawaii.edu",
@@ -159,7 +180,10 @@
         "firstName": "Miles",
         "lastName": "Topping",
         "role": "user",
-        "boxIds": ["1", "2", "3", "4", "5", "6", "7", "8"]
+        "boxIds": ["1", "2", "3", "4", "5", "6", "7", "8"],
+        "phone": "",
+        "notifications": [],
+        "notification_pref": { "text": false, "email": false, "max_sent_per_day": "never" }
       },
       {
         "username": "dport@hawaii.edu",
@@ -167,7 +191,10 @@
         "firstName": "Daniel",
         "lastName": "Port",
         "role": "user",
-        "boxIds": ["6"]
+        "boxIds": ["6"],
+        "phone": "",
+        "notifications": [],
+        "notification_pref": { "text": false, "email": false, "max_sent_per_day": "never" }
       },
       {
         "username": "Michael.Farrell@gtri.gatech.edu",
@@ -175,7 +202,10 @@
         "firstName": "Michael",
         "lastName": "Farrell",
         "role": "user",
-        "boxIds": ["1", "2", "3", "4", "5", "6", "7", "8"]
+        "boxIds": ["1", "2", "3", "4", "5", "6", "7", "8"],
+        "phone": "",
+        "notifications": [],
+        "notification_pref": { "text": false, "email": false, "max_sent_per_day": "never" }
       }
     ],
     "locations": [
