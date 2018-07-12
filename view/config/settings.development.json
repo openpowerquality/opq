@@ -4,7 +4,9 @@
   "integrityCheckCollections": ["fs.files", "fs.chunks", "trends", "measurements", "events", "box_events", "opq_boxes"],
   "dbRestoreFilename": "",
   "systemStatsUpdateIntervalSeconds": 10,
+  "healthCheckIntervalSeconds": 10,
   "initializeEntities": false,
+  "enableHealthCron": false,
   "opqBoxes" : [
     { "box_id": "1", "name": "Kalihi, Residence", "description": "Version 2.5?, 2016", "calibration_constant": 152.1,
       "location": "Kalihi-001", "location_start_time_ms": "2017-05-15 13:00:00" },
@@ -36,24 +38,24 @@
   ],
 
   "userProfiles": [
-    { "username": "achriste@hawaii.edu", "password": "foo", "firstName": "Anthony", "lastName": "Christe", "role": "admin", "boxIds": ["1", "2", "3", "4", "5", "6", "7", "8"]},
+    { "username": "achriste@hawaii.edu", "password": "foo", "firstName": "Anthony", "lastName": "Christe", "role": "admin", "boxIds": ["1", "2", "3", "4", "5", "6", "7", "8"], "phone": "", "notifications": [], "notification_pref": {"text": false, "email": false, "max_sent_per_day": "never"}},
 
-    { "username": "sin8@hawaii.edu", "password": "foo", "firstName": "Serge", "lastName": "Negrashov", "role": "admin", "boxIds": ["1", "2", "3", "4", "5", "6", "7", "8"]},
+    { "username": "sin8@hawaii.edu", "password": "foo", "firstName": "Serge", "lastName": "Negrashov", "role": "admin", "boxIds": ["1", "2", "3", "4", "5", "6", "7", "8"], "phone": "", "notifications": [], "notification_pref": {"text": false, "email": false, "max_sent_per_day": "never"}},
 
-    { "username": "johnson@hawaii.edu", "password": "foo", "firstName": "Philip", "lastName": "Johnson", "role": "admin", "boxIds": ["1", "2", "3", "4", "5", "6", "7", "8"]},
+    { "username": "johnson@hawaii.edu", "password": "foo", "firstName": "Philip", "lastName": "Johnson", "role": "admin", "boxIds": ["1", "2", "3", "4", "5", "6", "7", "8"], "phone": "", "notifications": [], "notification_pref": {"text": false, "email": false, "max_sent_per_day": "never"}},
 
     { "username": "keal@hawaii.edu", "password": "foo", "firstName": "Kea", "lastName": "Uehara", "role": "admin",
-      "boxIds": ["1", "2", "3", "4", "5", "6", "7", "8"]},
+      "boxIds": ["1", "2", "3", "4", "5", "6", "7", "8"], "phone": "", "notifications": [], "notification_pref": {"text": false, "email": false, "max_sent_per_day": "never"}},
 
     { "username": "foltzk@hawaii.edu", "password": "foo", "firstName": "Kaila", "lastName": "Foltz", "role": "admin",
-      "boxIds": ["1", "2", "3", "4", "5", "6", "7", "8"]},
+      "boxIds": ["1", "2", "3", "4", "5", "6", "7", "8"], "phone": "8082569623@tmomail.net", "notifications": ["system service down"], "notification_pref": {"text": true, "email": true, "max_sent_per_day": "once a day"}},
 
     { "username": "mtopping@hawaii.edu", "password": "foo", "firstName": "Miles", "lastName": "Topping", "role": "user",
-      "boxIds": ["1", "2", "3", "4", "5", "6", "7", "8"]},
+      "boxIds": ["1", "2", "3", "4", "5", "6", "7", "8"], "phone": "", "notifications": [], "notification_pref": {"text": false, "email": false, "max_sent_per_day": "never"}},
 
-    { "username": "dport@hawaii.edu", "password": "foo", "firstName": "Daniel", "lastName": "Port", "role": "user", "boxIds": ["6"]},
+    { "username": "dport@hawaii.edu", "password": "foo", "firstName": "Daniel", "lastName": "Port", "role": "user", "boxIds": ["6"], "phone": "", "notifications": [], "notification_pref": {"text": false, "email": false, "max_sent_per_day": "never"}},
 
-    { "username": "Michael.Farrell@gtri.gatech.edu", "password": "foo", "firstName": "Michael", "lastName": "Farrell", "role": "user", "boxIds": ["1", "2", "3", "4", "5", "6", "7", "8"]}
+    { "username": "Michael.Farrell@gtri.gatech.edu", "password": "foo", "firstName": "Michael", "lastName": "Farrell", "role": "user", "boxIds": ["1", "2", "3", "4", "5", "6", "7", "8"], "phone": "", "notifications": [], "notification_pref": {"text": false, "email": false, "max_sent_per_day": "never"}}
   ],
 
   "locations": [

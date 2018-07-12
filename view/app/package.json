@@ -24,6 +24,7 @@
     "react-leaflet-fullscreen": "0.0.6",
     "react-leaflet-markercluster": "^1.1.8",
     "react-meteor-data": "^0.2.11",
+    "react-number-format": "^3.3.4",
     "react-router": "^4.2.0",
     "react-router-dom": "^4.2.2",
     "react-timeseries-charts": "^0.14.0",
@@ -53,6 +54,6 @@
     "test": "METEOR_NO_RELEASE_CHECK=1 TEST_BROWSER_DRIVER=nightmare meteor test --once --driver-package meteortesting:mocha --no-release-check --port 3100",
     "test-app": "METEOR_NO_RELEASE_CHECK=1 TEST_BROWSER_DRIVER=nightmare meteor test --full-app --once --driver-package meteortesting:mocha --port 3100",
     "test-all": "meteor npm run lint && meteor npm run test && meteor npm run test-app",
-    "jsdoc": "./node_modules/.bin/jsdoc -c ./jsdoc.json -r ."
+    "jsdoc": "./node_modules/.bin /jsdoc -c ./jsdoc.json -r ."
   }
 }
