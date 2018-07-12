@@ -23,6 +23,7 @@ class AboutMe extends React.Component {
     this.state = {
       editMode: false,
       phone: this.props.phone,
+      sms: phoneSms,
       number: phoneNumber,
     };
   }
