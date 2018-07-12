@@ -3,6 +3,11 @@ project(TriggeringBroker)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --std=c++14")
 
+find_package(PkgConfig)
+pkg_check_modules(LIBMONGOCXX REQUIRED libmongocxx)
+include_directories(${LIBMONGOCXX_INCLUDE_DIRS})
+link_directories(${LIBMONGOCXX_LIBRARY_DIRS})
+
 set(SOURCE_FILES
         src/broker.cc
         src/config.cc
@@ -11,4 +16,4 @@ set(SOURCE_FILES
 
 add_executable(TriggeringBroker ${SOURCE_FILES})
 
-target_link_libraries(TriggeringBroker zmq zmqpp stdc++fs)
+target_link_libraries(TriggeringBroker zmq zmqpp stdc++fs ${LIBMONGOCXX_LIBRARIES})

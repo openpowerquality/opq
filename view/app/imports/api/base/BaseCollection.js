@@ -2,7 +2,7 @@ import { Meteor } from 'meteor/meteor';
 import { Mongo } from 'meteor/mongo';
 import SimpleSchema from 'simpl-schema';
 import _ from 'lodash';
-import Moment from 'moment';
+import moment from 'moment';
 import { Roles } from 'meteor/alanning:roles';
 import { ROLE } from '../opq/Role';
 
@@ -25,6 +25,16 @@ class BaseCollection {
     this._schema = schema;
     this._collection = new Mongo.Collection(collectionName, { idGeneration: 'MONGO' });
     this._collection.attachSchema(schema);
+    this._earliest_timestamp_ms = moment('2017-01-01').valueOf();
+  }
+
+  /**
+   * Returns true if timestamp_ms is valid (i.e. represents a timestamp after 2016.
+   * @param timestamp_ms A timestamp.
+   * @returns {boolean} True if the timestamp represents a time in 2017 or later.
+   */
+  isValidTimestamp(timestamp_ms) {
+    return (timestamp_ms > this._earliest_timestamp_ms);
   }
 
   /**
@@ -50,7 +60,7 @@ class BaseCollection {
    * @returns The number of documents whose timestamp is from today.
    */
   countToday(timeField) {
-    const startToday = Moment().startOf('day').valueOf();
+    const startToday = moment().startOf('day').valueOf();
     const query = {};
     query[timeField] = { $gte: startToday };
     return this._collection.find(query).count();
@@ -146,15 +156,6 @@ class BaseCollection {
   }
 
   /**
-   * Defines the default integrity checker for the base collection. Derived classes are responsible for implementing
-   * their own integrity checker, if it is needed.
-   * @returns {[String]} - Array containing a string indicating the use of the default integrity checker.
-   */
-  checkIntegrity() { // eslint-disable-line class-methods-use-this
-    return ['There is no integrity checker defined for this collection.'];
-  }
-
-  /**
    * Removes all elements of this collection.
    * This is implemented by mapping through all elements because mini-mongo does not implement the remove operation.
    * So this approach can be used on both client and server side.
@@ -218,6 +219,16 @@ class BaseCollection {
       throw new Meteor.Error(`Undefined ID: ${id}`);
     }
     return doc;
+  }
+
+  /**
+   * The default implementation of checkIntegrity. Returns an array with a string indicating no checker is defined.
+   * @param doc The document.
+   * @param repair Whether to attempt to repair the collection.
+   * @returns {string} An empty array if no problem, otherwise an array of strings indicating all problems found.
+   */
+  checkIntegrity(doc, repair) { // eslint-disable-line
+    return ['No integrity checker defined for this collection'];
   }
 
 }

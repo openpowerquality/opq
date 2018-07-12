@@ -27,6 +27,8 @@ class SystemStatsCollection extends BaseCollection {
       timestamp: Date,
       box_trend_stats: { type: Array },
       'box_trend_stats.$': { type: Object, blackbox: true },
+      latest_box_trends: { type: Array },
+      'latest_box_trends.$': { type: Object, blackbox: true },
     }));
   }
 
@@ -44,13 +46,14 @@ class SystemStatsCollection extends BaseCollection {
    * @param {Number} users_count - The total number of Users.
    * @param {Object} box_trend_stats - Summary stats on trends for each box.
    * @param {Object} health - Health status of all boxes and services.
+   * @param {Object} latest_box_trends - Most recent Trend document for each box.
    * @returns The newly created document ID.
    */
   define({ events_count, events_count_today, box_events_count, box_events_count_today, measurements_count,
            measurements_count_today, opq_boxes_count, trends_count, trends_count_today, users_count,
-           box_trend_stats, health }) {
+           box_trend_stats, health, latest_box_trends }) {
     const docID = this._collection.insert({ events_count, box_events_count, measurements_count, opq_boxes_count,
-      trends_count, users_count, timestamp: new Date(), box_trend_stats, health,
+      trends_count, users_count, timestamp: new Date(), box_trend_stats, health, latest_box_trends,
     events_count_today, box_events_count_today, measurements_count_today, trends_count_today });
     return docID;
   }
@@ -86,6 +89,7 @@ class SystemStatsCollection extends BaseCollection {
     const trends_count_today = Trends.countToday('timestamp_ms');
     const users_count = UserProfiles.count(); // Not a base-collection class.
     const box_trend_stats = OpqBoxes.findBoxIds().map(boxId => this.getBoxTrendStat(boxId));
+    const latest_box_trends = OpqBoxes.findBoxIds().map(boxId => Trends.newestTrend(boxId));
 
     // Ensure there is only one document in the collection. We will only update this one document with current stats.
     const count = this._collection.find().count();
@@ -97,7 +101,7 @@ class SystemStatsCollection extends BaseCollection {
       // Create new doc. Should only theoretically have to be done once, when we first create the collection.
       // eslint-disable-next-line max-len
       return this.define({ events_count, box_events_count, measurements_count, opq_boxes_count, trends_count, users_count, box_trend_stats, events_count_today, box_events_count_today, measurements_count_today,
-      trends_count_today });
+      trends_count_today, latest_box_trends });
     }
 
     // Update the one document with current collection counts.
@@ -105,7 +109,7 @@ class SystemStatsCollection extends BaseCollection {
     return systemStatsDoc && this._collection.update(systemStatsDoc._id, {
       $set: { events_count, box_events_count, measurements_count, opq_boxes_count, trends_count, users_count,
         timestamp: new Date(), box_trend_stats, events_count_today, box_events_count_today,
-        measurements_count_today, trends_count_today },
+        measurements_count_today, trends_count_today, latest_box_trends },
     });
   }
 }
