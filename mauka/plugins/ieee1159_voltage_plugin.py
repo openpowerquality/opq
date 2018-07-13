@@ -110,9 +110,9 @@ def find_incidents(classes, offsets, pus, sag_range, swell_range, cycle_min, cyc
             ranges = indices_to_ranges(indices_interrupt, cycle_min, cycle_max)
             nullifiy_and_add_incidents(classes, offsets, ranges, mongo.IncidentClassification.VOLTAGE_INTERRUPTION, pus)
         
-def classify_ieee1156_voltage(rms_features):
+def classify_ieee1159_voltage(rms_features):
     """
-    This function classifies an ieee1156 voltage incident by analyzing rms_feature array (containing voltage rms values over
+    This function classifies an ieee1159 voltage incident by analyzing rms_feature array (containing voltage rms values over
     a window/cycle). Searches for incidents in decending order of durations. Reminder: arrays and lists are passed by 
     reference in python
     """
@@ -133,7 +133,7 @@ def ieee1159_voltage(mauka_message: protobuf.mauka_pb2.MaukaMessage, rms_feature
     """
     Calculate the ieee1159 voltage incidents and add them to the mongo database
     """
-    incidents, cycle_offsets = classify_ieee1156_voltage(rms_features)
+    incidents, cycle_offsets = classify_ieee1159_voltage(rms_features)
     
     for i in range(len(incidents)):
         start_idx = cycle_offsets[i][0]
