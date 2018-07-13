@@ -30,13 +30,12 @@ def valid_bound(start, end, cycle_max):
     if(cycle_max == None):
         return True
     else:
-        return end - start < cycle_max
+        return (end - start) < cycle_max
 
 def indices_to_ranges(indices, cycle_min, cycle_max = None):
     """
-    This function looks at an array of indices to find ranges of indices that are in accordance with 
-    the min and max cycle streak length provided. In addition to length checking, the removes consecutive 
-    indices
+    This function looks at an array of indices to find ranges (start and end) of indices that are in accordance with 
+    the min and max cycle streak length provided. 
     params: indices - a numpy array of indices to some other array
     params: cycle_min, cycle_max - the upper and lower bounds of a valid index range length
     """
@@ -60,13 +59,11 @@ def indices_to_ranges(indices, cycle_min, cycle_max = None):
         ranges.append((start, end + 1))
     return ranges
 
-# arrays and lists are passed by refence
 def nullifiy_and_add_incidents(classes, offsets, ranges, class_key, pus):
     """
-    This function takes an array of valid indices for of indices from an rms_feature array
+    This function takes an array of indices from an rms_feature array (assumed to be valid incidents)
     adds the corresponding IncidentClassification and offset indicating where in the rms_feature 
     array a given incident is located and signals that the incident has already been accounted for.
-    This function especially builds utilizes the fact that python passes objects by reference.
     params: classes, offsets - lists of the incident classification types and corresponding offsets. Added to
     params: ranges - list for which each entry has the start and end index of an incident
     params: class_key - the type/name of the incident in question
@@ -79,19 +76,21 @@ def nullifiy_and_add_incidents(classes, offsets, ranges, class_key, pus):
         start_ind = ranges[i][0] 
         end_ind = ranges[i][1]
         pus[start_ind:end_ind] = ALREADY_ACCOUNTED
-        classes.append(class_key) #
+        classes.append(class_key) 
         offsets.append(ranges[i])
 
 def find_incidents(classes, offsets, pus, sag_range, swell_range, cycle_min, cycle_max = None): # All of these passed by reference (objects)
     """
     This function adds to the classes and offset lists incident information (type and cycle offsets) by analyzing
-    the pus array for segments of pu values falling according to what range the segments py values fall into (sag, swell
+    the pus array for segments of pu values according to what range the segments pu values fall into (sag, swell
     interrupt as provided) and if the lengths of the segments are in accordance with the cycle_min and cycle_max
+    if incidents are found then the pus array is changed to reflect that the given segment can no longer hold anymore
+    incidents. 
     params: classes, offsets - lists of the incident classification types and corresponding offsets. Added to
     params: pus - array each entry of which the pu value of a given window (rms/nominal rms). 
     params: sag_range, swell_range - range of pu values for which a given cycle should be considered a sag/swell
     params: cycle_min/max - the cycle streak length range required for a segment of pus to be classified as an incident.
-    max none correponds to no upper limit on the length of the setgments
+    max none correponds to no upper limit on the length of the segments
     return: no return but does add to or alter pus, classes and offsets
     """
     indices_swell = np.where(np.logical_and(pus <= swell_range[1], pus >= swell_range[0]))[0]
@@ -114,7 +113,8 @@ def find_incidents(classes, offsets, pus, sag_range, swell_range, cycle_min, cyc
 def classify_ieee1156_voltage(rms_features):
     """
     This function classifies an ieee1156 voltage incident by analyzing rms_feature array (containing voltage rms values over
-    a window/cycle). 
+    a window/cycle). Searches for incidents in decending order of durations. Reminder: arrays and lists are passed by 
+    reference in python
     """
     pus = np.abs(rms_features/constants.NOMINAL_VRMS)
     classes = []
