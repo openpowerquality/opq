@@ -9,7 +9,6 @@ import { withTracker } from 'meteor/react-meteor-data';
 import PropTypes from 'prop-types';
 import WidgetPanel from '/imports/ui/layouts/WidgetPanel';
 
-
 /** Renders a table containing all of the OPQBox documents. */
 class ManageBoxPage extends React.Component {
 
@@ -28,37 +27,37 @@ class ManageBoxPage extends React.Component {
     const boxes = boxIds.map(id => OpqBoxes.findBox(id));
     return (
         <Container>
-        <WidgetPanel title="Manage OPQ Boxes" helpText={this.helpText} noPadding>
-          <Table>
-            <Table.Header>
-              <Table.Row>
-                <Table.HeaderCell>ID</Table.HeaderCell>
-                <Table.HeaderCell>Name</Table.HeaderCell>
-                <Table.HeaderCell>Location</Table.HeaderCell>
-                <Table.HeaderCell>Info</Table.HeaderCell>
-                <Table.HeaderCell></Table.HeaderCell>
-              </Table.Row>
-            </Table.Header>
-            <Table.Body>
-            {boxes.map((box, index) => <Table.Row key={index}>
-              <Table.Cell>{box.box_id}</Table.Cell>
-              <Table.Cell>{box.name}</Table.Cell>
-              <Table.Cell>{Locations.getDoc(box.location).description}</Table.Cell>
-              <Table.Cell>{this.getBoxInfoString(box)}</Table.Cell>
-              <Table.Cell>
-                <Button size='tiny'><Link to={`/admin/manage/opqbox/edit/${box.box_id}`}>Edit</Link></Button>
-              </Table.Cell>
-            </Table.Row>)}
-            </Table.Body>
-            <Table.Footer fullWidth>
-              <Table.Row>
-                <Table.HeaderCell colSpan='5'>
-                  <Button><Link to={'/admin/manage/opqbox/new'}>Add OPQ Box</Link></Button>
-                </Table.HeaderCell>
-              </Table.Row>
-            </Table.Footer>
-          </Table>
-        </WidgetPanel>
+          <WidgetPanel title="Manage OPQ Boxes" helpText={this.helpText} noPadding>
+            <Table>
+              <Table.Header>
+                <Table.Row>
+                  <Table.HeaderCell>ID</Table.HeaderCell>
+                  <Table.HeaderCell>Name</Table.HeaderCell>
+                  <Table.HeaderCell>Location</Table.HeaderCell>
+                  <Table.HeaderCell>Info</Table.HeaderCell>
+                  <Table.HeaderCell></Table.HeaderCell>
+                </Table.Row>
+              </Table.Header>
+              <Table.Body>
+                {boxes.map((box, index) => <Table.Row key={index}>
+                  <Table.Cell>{box.box_id}</Table.Cell>
+                  <Table.Cell>{box.name}</Table.Cell>
+                  <Table.Cell>{Locations.getDoc(box.location).description}</Table.Cell>
+                  <Table.Cell>{this.getBoxInfoString(box)}</Table.Cell>
+                  <Table.Cell>
+                    <Button size='tiny'><Link to={`/admin/manage/opqbox/edit/${box.box_id}`}>Edit</Link></Button>
+                  </Table.Cell>
+                </Table.Row>)}
+              </Table.Body>
+              <Table.Footer fullWidth>
+                <Table.Row>
+                  <Table.HeaderCell colSpan='5'>
+                    <Button><Link to={'/admin/manage/opqbox/new'}>Add OPQ Box</Link></Button>
+                  </Table.HeaderCell>
+                </Table.Row>
+              </Table.Footer>
+            </Table>
+          </WidgetPanel>
         </Container>
     );
   }
