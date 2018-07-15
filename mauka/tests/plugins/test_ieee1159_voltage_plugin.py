@@ -10,8 +10,8 @@ from mongo import IncidentClassification
 
 def determine_class(pu: float, cycle_streak: int) -> IncidentClassification: 
     """ 
-    Determines the voltage incident type based off of the IEEE1159 standards. Note that undervoltages and overvoltages
-    are simply considered sags/swells of longer duration
+    Determines the voltage incident type based off of the IEEE1159 standards. Note that undervoltages 
+    and overvoltages are simply considered sags/swells of longer duration.
     param: pu (actual rms/nominal rms)
     param: cycle_streak streak of cycles for a given incident type
     return: IncidentClassification for the given params
@@ -49,7 +49,7 @@ def determine_class(pu: float, cycle_streak: int) -> IncidentClassification:
 
 def generate_sample_waveform_rmsfeatures(cycles: typing.List[int], a_multipliers: typing.List[float]) -> np.ndarray:
     """ 
-    This function generates a waveform following the template specified in cycles and a_muplipliers
+    This function generates a waveform following the template specified in cycles and a_multipliers
     params: cycles, a_multipliers specify the regions of the waveform (numbers of cycles) and their amplitudes relative 
     to nominal
     returns: rms values for each cycle of the generated waveform
@@ -90,7 +90,6 @@ def generate_keys(cycles: typing.List[int], a_multipliers: typing.List[float]):
     Also, the pu value is not exactly the a_multiplier of the original waveform (although in theory they should be the same).
 
     """
-    # assert(len(cycles) == len(a_multipliers))
     key_classes = []
     key_timestamps = []
     cycle_offset = 0

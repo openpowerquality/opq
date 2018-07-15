@@ -1,12 +1,11 @@
 """
-This plugin calculates the IEEE 1159 voltage events.
+This plugin calculates the IEEE 1159 voltage events
 """
 import enum
 import typing
 import multiprocessing
 
 import numpy as np
-
 import analysis
 import mongo
 import constants
@@ -18,10 +17,10 @@ import protobuf.util
 # Pu signifying a current cycle has already been accounted for in an incident
 ALREADY_ACCOUNTED = -1
 
-def valid_bound(start, end, cycle_max):
+def valid_bound(start: int, end: int, cycle_max: int = None) -> bool:
     """
-    This function asserts that where a cycle_max is provided the current set of consecutive indices
-    (cycle streak) does not exceed the value indicated by cycle_max
+    This function asserts that where a cycle_max, where provided, is not exceeding by the 
+    current reange
     params: start - the starting index of the range being examined
     params: end - the end index of the range being examined
     params: cycle_max - the maximum separation (minus one) allowed between the start and end indices 
@@ -32,7 +31,7 @@ def valid_bound(start, end, cycle_max):
     else:
         return (end - start) < cycle_max
 
-def indices_to_ranges(indices, cycle_min, cycle_max = None):
+def indices_to_ranges(indices: np.ndarray, cycle_min: int, cycle_max: int = None) -> typing.List[tuple]:
     """
     This function looks at an array of indices to find ranges (start and end) of indices that are in accordance with 
     the min and max cycle streak length provided. 
@@ -50,7 +49,6 @@ def indices_to_ranges(indices, cycle_min, cycle_max = None):
         else:
             if((end + 1 - start) >= cycle_min):
                 ranges.append((start, end + 1)) 
-                # The plus on is such that the offset end is end of the last cycle included
             start = ind
             end = ind
         prev = ind
@@ -59,72 +57,67 @@ def indices_to_ranges(indices, cycle_min, cycle_max = None):
         ranges.append((start, end + 1))
     return ranges
 
-def nullifiy_and_add_incidents(classes, offsets, ranges, class_key, pus):
+def nullifiy_and_add_incidents(classes: typing.List[mongo.IncidentClassification], offsets: typing.List[tuple], ranges: typing.List[tuple], class_key: mongo.IncidentClassification, pu_array: np.ndarray):
     """
     This function takes an array of indices from an rms_feature array (assumed to be valid incidents)
-    adds the corresponding IncidentClassification and offset indicating where in the rms_feature 
-    array a given incident is located and signals that the incident has already been accounted for.
-    params: classes, offsets - lists of the incident classification types and corresponding offsets. Added to
-    params: ranges - list for which each entry has the start and end index of an incident
+    adds the corresponding IncidentClassification and cycle offset/index start and ends  and signals 
+    that the range or rms/pu values can no longer be considered for fur incident. 
+    params: classes, offsets  
+    params: ranges - list for which each entry has the start and end index/cycle offset of an incident
     params: class_key - the type/name of the incident in question
-    params: pus - array each entry of which the pu value of a given window (rms/nominal rms). This array
     is changed to indicate an incident already accounted for (the pu values of an incident are set to -1 so
     they will not be considered by future searches for incidents)
     """
-    to_nullify = []
     for i in range(len(ranges)):
         start_ind = ranges[i][0] 
         end_ind = ranges[i][1]
-        pus[start_ind:end_ind] = ALREADY_ACCOUNTED
+        pu_array[start_ind:end_ind] = ALREADY_ACCOUNTED
         classes.append(class_key) 
         offsets.append(ranges[i])
 
-def find_incidents(classes, offsets, pus, sag_range, swell_range, cycle_min, cycle_max = None): # All of these passed by reference (objects)
+def find_incidents(classes: typing.List[mongo.IncidentClassification], offsets: typing.List[tuple], pu_array: np.ndarray, sag_range: typing.List[float], swell_range: typing.List[float], cycle_min: int, cycle_max: int = None): 
     """
     This function adds to the classes and offset lists incident information (type and cycle offsets) by analyzing
-    the pus array for segments of pu values according to what range the segments pu values fall into (sag, swell
-    interrupt as provided) and if the lengths of the segments are in accordance with the cycle_min and cycle_max
-    if incidents are found then the pus array is changed to reflect that the given segment can no longer hold anymore
-    incidents. 
-    params: classes, offsets - lists of the incident classification types and corresponding offsets. Added to
-    params: pus - array each entry of which the pu value of a given window (rms/nominal rms). 
+    the pu_array array for segments of pus matching duration (in cycles) and value range specificatons
+    If incidents are found the pu_array array is changed to avoid counting a segment in multiple incidents.
+    params: classes, offsets - lists of the incident classification types and corresponding offsets.
+    params: pu_array - array each entry of which the pu value of a given window (rms/nominal rms). 
     params: sag_range, swell_range - range of pu values for which a given cycle should be considered a sag/swell
-    params: cycle_min/max - the cycle streak length range required for a segment of pus to be classified as an incident.
+    params: cycle_min/max - the cycle streak length range required for a segment of pu_array to be classified as an incident.
+    params: pu_array - are of pu values for each window in the rms_features
     max none correponds to no upper limit on the length of the segments
-    return: no return but does add to or alter pus, classes and offsets
+    return: no return but does add to or alter pu_array, classes and offsets
     """
-    indices_swell = np.where(np.logical_and(pus <= swell_range[1], pus >= swell_range[0]))[0]
-    indices_sag = np.where(np.logical_and(pus <= sag_range[1], pus >= sag_range[0]))[0]
+    indices_swell = np.where(np.logical_and(pu_array <= swell_range[1], pu_array >= swell_range[0]))[0]
+    indices_sag = np.where(np.logical_and(pu_array <= sag_range[1], pu_array >= sag_range[0]))[0]
     
     if(indices_sag.size > cycle_min):
         ranges = indices_to_ranges(indices_sag, cycle_min, cycle_max)
-        nullifiy_and_add_incidents(classes, offsets, ranges, mongo.IncidentClassification.VOLTAGE_SAG, pus)
+        nullifiy_and_add_incidents(classes, offsets, ranges, mongo.IncidentClassification.VOLTAGE_SAG, pu_array)
 
     if(indices_swell.size > cycle_min):
         ranges = indices_to_ranges(indices_swell, cycle_min, cycle_max)
-        nullifiy_and_add_incidents(classes, offsets, ranges, mongo.IncidentClassification.VOLTAGE_SWELL, pus)
+        nullifiy_and_add_incidents(classes, offsets, ranges, mongo.IncidentClassification.VOLTAGE_SWELL, pu_array)
       
     if(cycle_min >= 60*constants.CYCLES_PER_SECOND):
-        indices_interrupt = np.where(np.logical_and(pus <= 0.001, pus >= 0))[0]
+        indices_interrupt = np.where(np.logical_and(pu_array <= 0.001, pu_array >= 0))[0]
         if(indices_swell.size > cycle_min):
             ranges = indices_to_ranges(indices_interrupt, cycle_min, cycle_max)
-            nullifiy_and_add_incidents(classes, offsets, ranges, mongo.IncidentClassification.VOLTAGE_INTERRUPTION, pus)
+            nullifiy_and_add_incidents(classes, offsets, ranges, mongo.IncidentClassification.VOLTAGE_INTERRUPTION, pu_array)
         
-def classify_ieee1159_voltage(rms_features):
+def classify_ieee1159_voltage(rms_features: np.ndarray):
     """
     This function classifies an ieee1159 voltage incident by analyzing rms_feature array (containing voltage rms values over
-    a window/cycle). Searches for incidents in decending order of durations. Reminder: arrays and lists are passed by 
-    reference in python
+    a window/cycle). Searches for incidents in descending order of duration.
     """
-    pus = np.abs(rms_features/constants.NOMINAL_VRMS)
+    pu_array = np.abs(rms_features/constants.NOMINAL_VRMS)
     classes = []
     offsets = []
     
-    # Note the order here matters
-    find_incidents(classes, offsets, pus, [0.8, 0.9], [1.1, 1.2], 60*constants.CYCLES_PER_SECOND)
-    find_incidents(classes, offsets, pus, [0.1, 0.9], [1.1, 1.2], 3*constants.CYCLES_PER_SECOND, 60*constants.CYCLES_PER_SECOND)
-    find_incidents(classes, offsets, pus, [0.1, 0.9], [1.1, 1.4], 30, 3*constants.CYCLES_PER_SECOND)
-    find_incidents(classes, offsets, pus, [0.1, 0.9], [1.1, 1.8], 0.5, 30)
+    find_incidents(classes, offsets, pu_array, [0.8, 0.9], [1.1, 1.2], 60*constants.CYCLES_PER_SECOND)
+    find_incidents(classes, offsets, pu_array, [0.1, 0.9], [1.1, 1.2], 3*constants.CYCLES_PER_SECOND, 60*constants.CYCLES_PER_SECOND)
+    find_incidents(classes, offsets, pu_array, [0.1, 0.9], [1.1, 1.4], 30, 3*constants.CYCLES_PER_SECOND)
+    find_incidents(classes, offsets, pu_array, [0.1, 0.9], [1.1, 1.8], 0.5, 30)
     
     return classes, offsets
 
@@ -138,14 +131,20 @@ def ieee1159_voltage(mauka_message: protobuf.mauka_pb2.MaukaMessage, rms_feature
     for i in range(len(incidents)):
         start_idx = cycle_offsets[i][0]
         end_idx = cycle_offsets[i][1]
-        max_deviation_from_nominal = np.amax(np.abs(rms_features[start_idx:end_idx]) - constants.NOMINAL_VRMS) 
+        deviations = np.abs(rms_features[start_idx:end_idx]) - constants.NOMINAL_VRMS
+	# The absolute value of the rms_features here and elsewhere is unecessary provided the rms has been applied
+        max_deviation = np.amax(deviations) 
+        max_deviation_neg = np.amax(-deviations)
+        if(max_deviation < max_deviation_neg):
+            max_deviation = -max_deviation_neg
+
         mongo.store_incident(
             mauka_message.payload.event_id,
             mauka_message.payload.box_id,
             mauka_message.payload.start_timestamp_ms + analysis.c_to_ms(start_idx),
             mauka_message.payload.start_timestamp_ms + analysis.c_to_ms(end_idx),
             mongo.IncidentMeasurementType.VOLTAGE,
-            max_deviation_from_nominal,
+            max_deviation,
             [incidents[i]],
             [],
             {},
