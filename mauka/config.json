@@ -32,13 +32,13 @@
   "plugins.TransientPlugin.noise.floor.percent" : 5.0,
   "plugins.TransientPlugin.oscillatory.min.cycles" : 3,
   "plugins.TransientPlugin.oscillatory.low.freq.max.hz" : 5000.0,
-  "plugins.TransientPlugin.oscillatory.medium.freq.max.hz" : 500000.0,
+  "plugins.TransientPlugin.oscillatory.med.freq.max.hz" : 500000.0,
   "plugins.TransientPlugin.oscillatory.high.freq.max.hz" : 5000000.0,
   "plugins.TransientPlugin.arcing.zero.crossing.threshold" : 10,
   "plugins.TransientPlugin.PF.cap.switching.low.ratio" : 1.2,
   "plugins.TransientPlugin.PF.cap.switching.high.ratio" : 1.8,
-  "plugins.TransientPlugin.PF.cap.switching.low.freq.hz" : 400,
-  "plugins.TransientPlugin.PF.cap.switching.high.freq.hz" : 2000,
+  "plugins.TransientPlugin.PF.cap.switching.low.freq.hz" : 400.0,
+  "plugins.TransientPlugin.PF.cap.switching.high.freq.hz" : 2000.0,
 
   "plugins.MakaiEventPlugin.getDataAfterS": 10.0,
 
