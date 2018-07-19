@@ -22,12 +22,12 @@ class UserProfilesCollection extends BaseCollection {
       lastName: String,
       role: String,
       phone: { type: String, optional: true },
-      notifications: { type: Array, optional: true },
-      'notifications.$': { type: String, blackbox: true },
-      notification_pref: { type: Object, optional: true },
-      'notification_pref.text': { type: Boolean, optional: true },
-      'notification_pref.email': { type: Boolean, optional: true },
-      'notification_pref.max_sent_per_day': { type: String, optional: true },
+      notification_preferences: { type: Object, optional: true },
+      'notification_preferences.text': { type: Boolean, optional: true },
+      'notification_preferences.email': { type: Boolean, optional: true },
+      'notification_preferences.max_per_day': { type: String, optional: true },
+      'notification_preferences.notification_types': { type: Array, optional: true },
+        'notification_preferences.notification_types.$': { type: String, blackbox: true },
     }));
   }
 
@@ -41,12 +41,12 @@ class UserProfilesCollection extends BaseCollection {
    * @param {String} role - The role of the user: either 'admin' or 'user'.
    * @param {[Number]} boxIds - An array of Strings containing the IDs of the boxes that can be managed by this user.
    * @param {String} phone - The user's phone number concatenated with user's provider.
-   * @param {Array} notifications - Array made up of booleans for each available notification.
-   * @param {String} notification_pref - The user's preferences on how they are notified.
+   * @param {String} notification_preferences - The user's preferences on how they are notified
+   * and which notification types they want to receive.
    */
   // eslint-disable-next-line class-methods-use-this
   define({ username, password, firstName, lastName, boxIds = [], role = 'user',
-           phone, notification_pref, notifications }) {
+           phone, notification_preferences }) {
     if (Meteor.isServer) {
 
       OpqBoxes.assertValidBoxIds(boxIds);
@@ -72,8 +72,7 @@ class UserProfilesCollection extends BaseCollection {
           lastName,
           role,
           phone,
-          notification_pref,
-          notifications,
+          notification_preferences,
         },
       });
       const profileId = this.findOne({ username })._id;
@@ -154,11 +153,8 @@ class UserProfilesCollection extends BaseCollection {
       if (args.phone) {
         updateData.phone = args.phone;
       }
-      if (args.notification_pref) {
-        updateData.notification_pref = args.notification_pref;
-      }
-      if (args.notifications) {
-        updateData.notifications = args.notifications;
+      if (args.notification_preferences) {
+        updateData.notification_preferences = args.notification_preferences;
       }
       this._collection.update(docID, { $set: updateData });
       return updateData;

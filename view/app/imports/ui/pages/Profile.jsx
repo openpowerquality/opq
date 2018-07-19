@@ -3,7 +3,7 @@ import { withTracker } from 'meteor/react-meteor-data';
 import PropTypes from 'prop-types';
 import AboutMe from '/imports/ui/components/AboutMe';
 import Boxes from '/imports/ui/components/Boxes';
-import NotificationManager from '/imports/ui/components/NotificationManager';
+import NotificationManager from '/imports/ui/components/Notifications/NotificationManager';
 import { _ } from 'lodash';
 import { Meteor } from 'meteor/meteor';
 import { Container, Loader } from 'semantic-ui-react';

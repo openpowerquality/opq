@@ -116,8 +116,7 @@
         "role": "admin",
         "boxIds": ["1", "2", "3", "4", "5", "6", "7", "8"],
         "phone": "",
-        "notifications": [],
-        "notification_pref": { "text": false, "email": false, "max_sent_per_day": "never" }
+        "notification_preferences": { "text": false, "email": false, "max_per_day": "never", "notification_types": [] }
       },
       {
         "username": "sin8@hawaii.edu",
@@ -127,8 +126,7 @@
         "role": "admin",
         "boxIds": ["1", "2", "3", "4", "5", "6", "7", "8"],
         "phone": "",
-        "notifications": [],
-        "notification_pref": { "text": false, "email": false, "max_sent_per_day": "never" }
+        "notification_preferences": { "text": false, "email": false, "max_per_day": "never", "notification_types": [] }
       },
       {
         "username": "johnson@hawaii.edu",
@@ -138,8 +136,7 @@
         "role": "admin",
         "boxIds": ["1", "2", "3", "4", "5", "6", "7", "8"],
         "phone": "",
-        "notifications": [],
-        "notification_pref": { "text": false, "email": false, "max_sent_per_day": "never" }
+        "notification_preferences": { "text": false, "email": false, "max_per_day": "never", "notification_types": [] }
       },
       {
         "username": "keal@hawaii.edu",
@@ -149,8 +146,7 @@
         "role": "admin",
         "boxIds": ["1", "2", "3", "4", "5", "6", "7", "8"],
         "phone": "",
-        "notifications": [],
-        "notification_pref": { "text": false, "email": false, "max_sent_per_day": "never" }
+        "notification_preferences": { "text": false, "email": false, "max_per_day": "never", "notification_types": [] }
       },
       {
         "username": "foltzk@hawaii.edu",
@@ -160,8 +156,7 @@
         "role": "admin",
         "boxIds": ["1", "2", "3", "4", "5", "6", "7", "8"],
         "phone": "8082569623@tmomail.net",
-        "notifications": ["system service down"],
-        "notification_pref": { "text": true, "email": true, "max_sent_per_day": "never" }
+        "notification_preferences": { "text": true, "email": true, "max_per_day": "once a day", "notification_types": ["system service down"] }
       },
       {
         "username": "aghalarp@hawaii.edu",
@@ -171,8 +166,7 @@
         "role": "admin",
         "boxIds": ["1", "2", "3", "4", "5", "6", "7", "8"],
         "phone": "",
-        "notifications": [],
-        "notification_pref": { "text": false, "email": false, "max_sent_per_day": "never" }
+        "notification_preferences": { "text": false, "email": false, "max_per_day": "never", "notification_types": [] }
       },
       {
         "username": "mtopping@hawaii.edu",
@@ -182,8 +176,7 @@
         "role": "user",
         "boxIds": ["1", "2", "3", "4", "5", "6", "7", "8"],
         "phone": "",
-        "notifications": [],
-        "notification_pref": { "text": false, "email": false, "max_sent_per_day": "never" }
+        "notification_preferences": { "text": false, "email": false, "max_per_day": "never", "notification_types": [] }
       },
       {
         "username": "dport@hawaii.edu",
@@ -193,8 +186,7 @@
         "role": "user",
         "boxIds": ["6"],
         "phone": "",
-        "notifications": [],
-        "notification_pref": { "text": false, "email": false, "max_sent_per_day": "never" }
+        "notification_preferences": { "text": false, "email": false, "max_per_day": "never", "notification_types": [] }
       },
       {
         "username": "Michael.Farrell@gtri.gatech.edu",
@@ -204,8 +196,7 @@
         "role": "user",
         "boxIds": ["1", "2", "3", "4", "5", "6", "7", "8"],
         "phone": "",
-        "notifications": [],
-        "notification_pref": { "text": false, "email": false, "max_sent_per_day": "never" }
+        "notification_preferences": { "text": false, "email": false, "max_per_day": "never", "notification_types": [] }
       }
     ],
     "locations": [

@@ -29,10 +29,10 @@ function sendEmail(recipients, notifications, firstName) {
  */
 function getRecipients(user) {
   const recipients = [];
-  if (user.notification_pref.text === true && user.phone !== undefined) {
+  if (user.notification_preferences.text === true && user.phone !== undefined) {
     recipients.push(user.phone);
   }
-  if (user.notification_pref.email === true) {
+  if (user.notification_preferences.email === true) {
     recipients.push(user.username);
   }
   return recipients;
@@ -45,7 +45,7 @@ function getRecipients(user) {
  * @param maxDeliveries
  */
 function findUsersAndSend(maxDeliveries) {
-  const usersInterested = UserProfiles.find({ 'notification_pref.max_sent_per_day': maxDeliveries }).fetch();
+  const usersInterested = UserProfiles.find({ 'notification_preferences.max_per_day': maxDeliveries }).fetch();
   _.forEach(usersInterested, user => {
     const notifications = Notifications.find({ username: user.username, delivered: false }).fetch();
     const name = user.firstName;
@@ -94,6 +94,14 @@ function startupDailyNotifications() {
 }
 
 Meteor.startup(() => {
-  startupHourlyNotifications();
-  startupDailyNotifications();
+  if (Meteor.isProduction) {
+    /**
+     * sets the MAIL_URL environment variable to enable emails
+     * MAIL_URL settings are only found in the settings.production.json file
+     * https://docs.meteor.com/api/email.html
+     */
+    process.env.MAIL_URL = Meteor.settings.env.MAIL_URL;
+    startupHourlyNotifications();
+    startupDailyNotifications();
+  }
 });
