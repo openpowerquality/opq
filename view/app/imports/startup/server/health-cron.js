@@ -30,9 +30,8 @@ function serviceHealthStatus(healths, service, usersInterested) {
     _.forEach(usersInterested, user => {
       const username = user.username;
       const type = 'system service down';
-      const data = `${service} service went down`;
-      const timestamp = healthDoc.timestamp;
-      Notifications.define({ username, type, timestamp, data });
+      const dataSummary = { summary: `${service} service went down` };
+      Notifications.define({ username, type, data: dataSummary });
       serviceTracker[serviceName] = true;
     });
   }
@@ -47,7 +46,8 @@ function healthCron() {
     // Default the update interval to 60 seconds if not supplied in configuration file.
     const updateIntervalSeconds = Meteor.settings.systemStats.updateIntervalSeconds || 60;
     const services = ['MAUKA', 'MAKAI', 'MONGO', 'HEALTH'];
-    const usersInterested = UserProfiles.find({ notifications: 'system service down' }).fetch();
+    // eslint-disable-next-line
+    const usersInterested = UserProfiles.find({ 'notification_preferences.notification_types': 'system service down' }).fetch();
     SyncedCron.add({
       name: 'Check Health collection for services that are down',
       schedule(parser) {

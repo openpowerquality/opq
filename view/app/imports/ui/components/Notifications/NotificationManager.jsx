@@ -3,7 +3,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Bert } from 'meteor/themeteorchef:bert';
 import { withRouter } from 'react-router-dom';
-import { Container, Segment } from 'semantic-ui-react';
+import { Container, Grid, Header } from 'semantic-ui-react';
 import AutoForm from 'uniforms-semantic/AutoForm';
 import AutoField from 'uniforms-semantic/AutoField';
 import SubmitField from 'uniforms-semantic/SubmitField';
@@ -27,21 +27,17 @@ class NotificationManager extends React.Component {
   }
 
   helpText = `
-  <p>Edit an OPQ Box definition.</p>
-  <p>Click 'Back to Manage OPQ Boxes' to return to the listing page.</p>
-  `;
+  <p>Edit your notification settings here.</p>`;
 
   /** On submit, look up location slug from description, then call generic base.updateMethod. */
   submit(data) {
-    const { username, notification_pref, notifications } = data;
-    console.log(notifications);
+    const { username, notification_preferences } = data;
     const collectionName = UserProfiles.getCollectionName();
     const id = UserProfiles.findByUsername(username)._id;
-    const updateData = { id, notification_pref, notifications };
+    const updateData = { id, notification_preferences };
     updateMethod.call({ collectionName, updateData }, (error) => (error ?
         Bert.alert({ type: 'danger', style: 'growl-bottom-left', message: `Update failed: ${error.message}` }) :
         Bert.alert({ type: 'success', style: 'growl-bottom-left', message: 'Update succeeded' })));
-    console.log(UserProfiles.findByUsername(username));
   }
 
   /**
@@ -51,21 +47,23 @@ class NotificationManager extends React.Component {
   render() {
     const sendingFrequency = ['once a day', 'once an hour', 'never'];
     const types = Notifications.notificationTypes;
+    const headerStyle = { paddingBottom: '14px' };
+    const paddedStyle = { paddingRight: '14px', paddingLeft: '14px' };
 
     const formSchema = new SimpleSchema({
       username: String,
-      notifications: { type: Array, required: false },
-      'notifications.$': {
+      notification_preferences: { type: Object },
+      'notification_preferences.text': { type: Boolean, required: false },
+      'notification_preferences.email': { type: Boolean, required: false },
+      'notification_preferences.notification_types': { type: Array, required: false, label: false },
+      'notification_preferences.notification_types.$': {
         type: String,
         allowedValues: types,
       },
-      notification_pref: { type: Object, label: 'Messaging Preferences' },
-      'notification_pref.text': { type: Boolean, required: false },
-      'notification_pref.email': { type: Boolean, required: false },
-      'notification_pref.max_sent_per_day': {
+      'notification_preferences.max_per_day': {
         type: String,
-        label: 'Send me notifications:',
         allowedValues: sendingFrequency,
+        label: false,
       },
     });
     // Update the Uniforms model with current values for locationDescription and Owners.
@@ -73,16 +71,39 @@ class NotificationManager extends React.Component {
         <Container>
           <WidgetPanel title='Manage Notifications' helpText={this.helpText} noPadding>
             <AutoForm schema={formSchema} onSubmit={this.submit} onChange={this.revealSaveButton}
-                      model={this.props.doc}>
-              <Segment>
-                <HiddenField name='username'/>
-                <AutoField name='notifications'/>
-                <AutoField name='notification_pref'/>
+                      model={this.props.doc} style={paddedStyle}>
+              <HiddenField name='username'/>
+              <Grid padded columns={3} divided stackable>
+                <Grid.Column>
+                  <Grid.Row>
+                    <Header style={headerStyle} size='tiny'>My Notifications:</Header>
+                  </Grid.Row>
+                  <Grid.Row>
+                    <AutoField name='notification_preferences.notification_types'/>
+                  </Grid.Row>
+                </Grid.Column>
+                <Grid.Column>
+                  <Grid.Row>
+                    <Header style={headerStyle} size='tiny'>Notify me by:</Header>
+                  </Grid.Row>
+                  <AutoField name='notification_preferences.text'/>
+                  <AutoField name='notification_preferences.email'/>
+                </Grid.Column>
+                <Grid.Column>
+                  <Grid.Row>
+                    <Header style={headerStyle} size='tiny'>Send me notifications:</Header>
+                  </Grid.Row>
+                  <AutoField name='notification_preferences.max_per_day'/>
+                </Grid.Column>
                 {this.state.formChange ? (
-                    <SubmitField value='Save Changes' className='green mini'/>
+                    <Grid.Row>
+                      <Grid.Column>
+                        <SubmitField value='Save Changes' className='green mini'/>
+                      </Grid.Column>
+                    </Grid.Row>
                 ) : ''}
-                <ErrorsField/>
-              </Segment>
+              </Grid>
+              <ErrorsField/>
             </AutoForm>
           </WidgetPanel>
         </Container>

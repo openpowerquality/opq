@@ -13,13 +13,14 @@ class NotificationsCollection extends BaseCollection {
       username: String,
       type: String,
       timestamp: Date,
-      data: String,
+      data: Object,
+      'data.summary': { type: String, optional: true },
       delivered: Boolean,
     }));
     this.notificationTypes = ['system service down'];
   }
 
-  define({ username, type, timestamp, data, delivered = false }) {
+  define({ username, type, timestamp = new Date(), data, delivered = false }) {
     const docID = this._collection.insert({ username, type, data, delivered, timestamp });
     return docID;
   }

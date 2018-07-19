@@ -4,7 +4,7 @@ import { Feed, Icon, Popup, Header, Divider, Label, Container } from 'semantic-u
 import PropTypes from 'prop-types';
 import { withTracker } from 'meteor/react-meteor-data';
 import { Link } from 'react-router-dom';
-import { Notifications } from '../../api/notifications/NotificationsCollection';
+import { Notifications } from '../../../api/notifications/NotificationsCollection';
 
 /* eslint max-len:0 */
 
@@ -38,7 +38,7 @@ class NotificationViewer extends React.Component {
                         key={notification._id}
                         icon='exclamation circle'
                         date={notification.timestamp.toLocaleString()}
-                        summary={notification.data}/>)) : <Feed.Extra content='No notifications yet'/>}
+                        summary={notification.data.summary}/>)) : <Feed.Extra content='No notifications yet'/>}
               </Feed>
             </Container>
             <Divider hidden/>

@@ -5,7 +5,7 @@ import { withTracker } from 'meteor/react-meteor-data';
 import { withRouter, NavLink } from 'react-router-dom';
 import { Menu, Image, Dropdown } from 'semantic-ui-react';
 import { Roles } from 'meteor/alanning:roles';
-import NotificationViewer from './NotificationViewer';
+import NotificationViewer from './Notifications/NotificationViewer';
 import { ROLE } from '../../api/opq/Role';
 
 /* eslint max-len: 0 */
