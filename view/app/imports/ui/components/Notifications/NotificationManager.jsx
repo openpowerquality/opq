@@ -3,18 +3,19 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Bert } from 'meteor/themeteorchef:bert';
 import { withRouter } from 'react-router-dom';
-import { Container, Grid, Header } from 'semantic-ui-react';
+import { Container, Grid, Header, Button, Modal } from 'semantic-ui-react';
 import AutoForm from 'uniforms-semantic/AutoForm';
 import AutoField from 'uniforms-semantic/AutoField';
 import SubmitField from 'uniforms-semantic/SubmitField';
-import HiddenField from 'uniforms-semantic/HiddenField';
 import ErrorsField from 'uniforms-semantic/ErrorsField';
 import { UserProfiles } from '/imports/api/users/UserProfilesCollection';
 import { Notifications } from '/imports/api/notifications/NotificationsCollection';
 import { withTracker } from 'meteor/react-meteor-data';
 import SimpleSchema from 'simpl-schema';
 import { updateMethod } from '/imports/api/base/BaseCollection.methods';
+import { sendTestEmail } from '/imports/api/email/email.methods';
 import WidgetPanel from '/imports/ui/layouts/WidgetPanel';
+import './notificationStyle.css';
 
 class NotificationManager extends React.Component {
 
@@ -23,6 +24,7 @@ class NotificationManager extends React.Component {
 
     this.state = {
       formChange: false,
+      modalOpen: false,
     };
   }
 
@@ -31,13 +33,13 @@ class NotificationManager extends React.Component {
 
   /** On submit, look up location slug from description, then call generic base.updateMethod. */
   submit(data) {
-    const { username, notification_preferences } = data;
+    const { notification_preferences } = data;
     const collectionName = UserProfiles.getCollectionName();
-    const id = UserProfiles.findByUsername(username)._id;
+    const id = data._id;
     const updateData = { id, notification_preferences };
     updateMethod.call({ collectionName, updateData }, (error) => (error ?
         Bert.alert({ type: 'danger', style: 'growl-bottom-left', message: `Update failed: ${error.message}` }) :
-        Bert.alert({ type: 'success', style: 'growl-bottom-left', message: 'Update succeeded' })));
+        Bert.alert({ type: 'success', style: 'growl-bottom-left', message: 'Edits saved' })));
   }
 
   /**
@@ -51,7 +53,6 @@ class NotificationManager extends React.Component {
     const paddedStyle = { paddingRight: '14px', paddingLeft: '14px' };
 
     const formSchema = new SimpleSchema({
-      username: String,
       notification_preferences: { type: Object },
       'notification_preferences.text': { type: Boolean, required: false },
       'notification_preferences.email': { type: Boolean, required: false },
@@ -66,14 +67,14 @@ class NotificationManager extends React.Component {
         label: false,
       },
     });
-    // Update the Uniforms model with current values for locationDescription and Owners.
+
+    // Update the Uniforms model with current values for UserProfile
     return (
         <Container>
           <WidgetPanel title='Manage Notifications' helpText={this.helpText} noPadding>
             <AutoForm schema={formSchema} onSubmit={this.submit} onChange={this.revealSaveButton}
                       model={this.props.doc} style={paddedStyle}>
-              <HiddenField name='username'/>
-              <Grid padded columns={3} divided stackable>
+              <Grid padded columns={3} stackable celled='internally'>
                 <Grid.Column>
                   <Grid.Row>
                     <Header style={headerStyle} size='tiny'>My Notifications:</Header>
@@ -98,33 +99,51 @@ class NotificationManager extends React.Component {
                 {this.state.formChange ? (
                     <Grid.Row>
                       <Grid.Column>
-                        <SubmitField value='Save Changes' className='green mini'/>
+                        <SubmitField value='Save changes' className='green mini'/>
+                        <Button size='mini' content='Save and Test' onClick={this.handleOpen}/>
                       </Grid.Column>
                     </Grid.Row>
                 ) : ''}
               </Grid>
               <ErrorsField/>
             </AutoForm>
+            <Modal size='mini' open={this.state.modalOpen}>
+              <Modal.Header>Are you sure?</Modal.Header>
+              <Modal.Content>
+                <p>Click OK to send a test message, or Cancel to exit.</p>
+                <Button className='green mini' content='OK' onClick={this.messageTest}/>
+                <Button size='mini' content='Cancel' onClick={this.handleClose}/>
+              </Modal.Content>
+            </Modal>
           </WidgetPanel>
         </Container>
     );
   }
 
-  revealSaveButton = () => {
-    this.setState({ formChange: true });
-  };
+  revealSaveButton = () => this.setState({ formChange: true });
+
+  handleOpen = () => this.setState({ modalOpen: true });
+
+  handleClose = () => this.setState({ modalOpen: false });
+
+  messageTest = () => {
+    const recipients = UserProfiles.getRecipients(this.props.doc);
+    sendTestEmail.call({ recipients }, (error) => (error ?
+        Bert.alert({ type: 'danger', style: 'growl-bottom-left', message: `Message send failed: ${error.message}` }) :
+        Bert.alert({ type: 'success', style: 'growl-bottom-left', message: 'Message sent' })));
+    setTimeout(this.handleClose, 4000);
+  }
 }
 
 /** Uniforms adds 'model' to the props, which we use. */
 NotificationManager.propTypes = {
-  doc: PropTypes.object,
+  doc: PropTypes.object.isRequired,
   model: PropTypes.object,
   ready: PropTypes.bool.isRequired,
 };
 
 /** withTracker connects Meteor data to React components. https://guide.meteor.com/react.html#using-withTracker */
 export default withTracker(() => {
-  // Get the documentID from the URL field. See imports/ui/layouts/App.jsx for the route containing :_id.
   const userProfilesSubscription = Meteor.subscribe(UserProfiles.getPublicationName());
   const username = Meteor.user().username;
   return {
@@ -132,3 +151,4 @@ export default withTracker(() => {
     doc: UserProfiles.findByUsername(username),
   };
 })(withRouter(NotificationManager));
+

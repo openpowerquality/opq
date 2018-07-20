@@ -200,6 +200,23 @@ class UserProfilesCollection extends BaseCollection {
     }
     return true;
   }
+
+  /**
+   * Checks user's preferred way of receiving notifications and returns array of email addresses
+   * Notifications can be received through text message and email
+   * @param user {Object}
+   * @returns {Array}
+   */
+  getRecipients(user) {
+    const recipients = [];
+    if (user.notification_preferences.text === true && user.phone !== undefined) {
+      recipients.push(user.phone);
+    }
+    if (user.notification_preferences.email === true) {
+      recipients.push(user.username);
+    }
+    return recipients;
+  }
 }
 
 /**

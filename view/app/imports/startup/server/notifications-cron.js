@@ -22,23 +22,6 @@ function sendEmail(recipients, notifications, firstName) {
 }
 
 /**
- * Checks userProfile for user's preferred way of receiving notifications
- * Notifications can be received through text message and email
- * @param user
- * @returns {Array}
- */
-function getRecipients(user) {
-  const recipients = [];
-  if (user.notification_preferences.text === true && user.phone !== undefined) {
-    recipients.push(user.phone);
-  }
-  if (user.notification_preferences.email === true) {
-    recipients.push(user.username);
-  }
-  return recipients;
-}
-
-/**
  * Checks userProfiles for amount of times a user wants to be notified in a day
  * Sends out the emails
  * Updates the sent notification documents 'delivered' field to true
@@ -50,7 +33,7 @@ function findUsersAndSend(maxDeliveries) {
     const notifications = Notifications.find({ username: user.username, delivered: false }).fetch();
     const name = user.firstName;
     if (notifications.length !== 0) {
-      const recipients = getRecipients(user);
+      const recipients = UserProfiles.getRecipients(user);
       sendEmail(recipients, notifications, name);
       Notifications.updateDeliveredStatus(notifications);
     }

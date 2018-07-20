@@ -17,7 +17,7 @@ class AboutMe extends React.Component {
     // split phone field to separate the phone number from carrier
     if (this.props.phone !== undefined) {
       phoneSms = this.props.phone.substring(this.props.phone.indexOf('@'));
-      phoneNumber = this.props.phone.substring(0, this.props.phone.indexOf('@'));
+      phoneNumber = this.props.phone.substring(1, this.props.phone.indexOf('@'));
     }
 
     this.state = {
@@ -122,7 +122,8 @@ class AboutMe extends React.Component {
    * Updates userProfile with new phone address
    */
   updatePhone = () => {
-    const newPhone = this.state.number.concat(this.state.sms);
+    const usTrunkCode = '1';
+    const newPhone = usTrunkCode.concat(this.state.number, this.state.sms);
     const collectionName = UserProfiles.getCollectionName();
     const id = UserProfiles.findByUsername(this.props.username)._id;
     const updateData = { id, phone: newPhone };
