@@ -10,3 +10,4 @@ import '../../api/opq-boxes';
 import '../../api/system-stats';
 import '../../api/trends';
 import '../../api/users';
+import '../../api/email';
