@@ -9,7 +9,7 @@ import csv
 
 def simulate_waveform(freq: float=constants.CYCLES_PER_SECOND, vrms: float = 120.0, noise: bool = False,
                       noise_variance: float = 1.0, num_samples: int = int(constants.SAMPLES_PER_CYCLE),
-                      sample_rate=constants.SAMPLE_RATE_HZ, rnd_seed = 0) -> numpy.ndarray:
+                      sample_rate=constants.SAMPLE_RATE_HZ, rnd_seed=0) -> numpy.ndarray:
 
     rand = numpy.random.RandomState(seed=rnd_seed)
 
@@ -17,7 +17,7 @@ def simulate_waveform(freq: float=constants.CYCLES_PER_SECOND, vrms: float = 120
         return numpy.sqrt(2) * vrms * numpy.sin([freq * 2 * numpy.pi * x / sample_rate for x in range(num_samples)])
     else:
         return numpy.sqrt(2) * vrms * numpy.sin([freq * 2 * numpy.pi * x / sample_rate for x in range(num_samples)]
-                                                ) + numpy.sqrt(noise_variance) * rand.randn(num_samples)
+                                                ) + numpy.sqrt(noise_variance) * rand.randn(1, num_samples)[0]
 
 
 def read_waveform(filename: str):

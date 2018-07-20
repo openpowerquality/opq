@@ -57,7 +57,7 @@ def frequency(samples: numpy.ndarray) -> float:
     """
 
     # Fit sinusoidal curve to data
-    guess_amp = 120.0 * numpy.sqrt(2)
+    guess_amp = constants.EXPECTED_VRMS * numpy.sqrt(2)
     guess_freq = constants.CYCLES_PER_SECOND
     guess_phase = 0.0
     guess_mean = 0.0
@@ -74,7 +74,7 @@ def frequency(samples: numpy.ndarray) -> float:
     _, est_freq, _, _ = optimize.leastsq(optimize_func,
                                          numpy.array([guess_amp, guess_freq, guess_phase, guess_mean]))[0]
 
-    return round(est_freq, ndigits=2)
+    return round(est_freq, ndigits=3)
 
 
 def frequency_waveform(waveform: numpy.ndarray, window_size: int = constants.SAMPLES_PER_CYCLE) -> numpy.ndarray:

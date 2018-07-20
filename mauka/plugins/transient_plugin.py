@@ -10,6 +10,39 @@ import plugins.base_plugin
 import protobuf.mauka_pb2
 import protobuf.util
 import mongo
+from scipy import optimize
+
+
+def waveform_filter(raw_waveform: numpy.ndarray, fundamental_freq: float = constants.CYCLES_PER_SECOND,
+                    fundamental_vrms: float = constants.EXPECTED_VRMS) -> dict:
+    """
+    Function filter the fundamental waveform to retrieve the potential transient waveform
+    :param raw_waveform: The raw sampled voltages
+    :param fundamental_freq: The expected fundamental frequency of the waveform
+    :param fundamental_vrms: The expected vrms voltage of the waveform
+    :return: The filtered waveform, that is the waveform without the fundamental frequency component
+    """
+
+    # Fit sinusoidal curve to data
+    set_amp = fundamental_vrms * numpy.sqrt(2)
+    set_freq = fundamental_freq
+    guess_phase = 0.0
+    set_mean = 0.0
+    idx = numpy.arange(0, len(raw_waveform) / constants.SAMPLE_RATE_HZ, 1 / constants.SAMPLE_RATE_HZ)
+
+    def optimize_func(args):
+        """
+        Optimized the function for finding and fitting the frequency.
+        :param args: A list containing in this order: guess_amp, guess_freq, guess_phase, guess_mean.
+        :return: Optimized function.
+        """
+        return set_amp * numpy.sin(set_freq * 2 * numpy.pi * idx + args[0]) + set_mean - raw_waveform
+
+    est_phase = optimize.leastsq(optimize_func, numpy.array([guess_phase]))[0]
+    fundamental_waveform = set_amp * numpy.sin(set_freq * 2 * numpy.pi * idx + est_phase) + set_mean
+    filtered_waveform = raw_waveform - fundamental_waveform
+
+    return {"fundamental_waveform": fundamental_waveform, "filtered_waveform": filtered_waveform}
 
 def oscillatory_classifier(filtered_waveform: numpy.ndarray, configs: dict) -> (bool, dict):
     """
@@ -91,7 +124,11 @@ def transient_incident_classifier(event_id: int, box_id: str, raw_waveform: nump
     :param configs:
     :return:
     """
-    # TODO
+
+    filtered_waveform = waveform_filter(raw_waveform, )
+
+    implusive = impulsive_classifier()
+
     return None
 
 class TransientPlugin(plugins.base_plugin.MaukaPlugin):
