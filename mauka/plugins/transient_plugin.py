@@ -11,14 +11,82 @@ import protobuf.mauka_pb2
 import protobuf.util
 import mongo
 
+def oscillatory_classifier(filtered_waveform: numpy.ndarray, configs: dict) -> (bool, dict):
+    """
+    Identifies whether the transient is oscillatory and, if so, further classifies the transient as a medium, low, or
+    high frequency oscillatory transient and calculates additional meta data for the transient such as the magnitude,
+    duration, and spectral content.
+    :param filtered_waveform: The transient waveform, that is the sampled waveform without the fundamental frequency
+    included
+    :param configs: Includes the necessary parameters needed to classify the transient
+    :return: A tuple which has contains a boolean indicator of whether the transient was indeed classified as being
+    oscillatory and then a dictionary of the calculated meta data.
+    """
 
-def transient_incident_classifier(event_id: int, box_id: str, windowed_frequencies: numpy.ndarray,
+def impulsive_classifier(filtered_waveform: numpy.ndarray, configs: dict) -> (bool, dict):
+    """
+    Identifies whether the transient is impulsive and, if so, calculates additional meta data for the transient, such as
+    the magnitude, duration, and rise/fall and fall/rise times.
+    :param filtered_waveform: The transient waveform, that is the sampled waveform without the fundamental frequency
+    included
+    :param configs: Includes the necessary parameters needed to classify the transient
+    :return: A tuple which has contains a boolean indicator of whether the transient was indeed classified as being
+    impulsive and then a dictionary of the calculated meta data.
+    """
+
+def arcing_classifier(filtered_waveform: numpy.ndarray, configs: dict) -> (bool, dict):
+    """
+    Identifies whether the transient is arcing and, if so, calculates additional meta data for the transient, such as
+    the number of zero crossings in the transient waveform
+    :param filtered_waveform: The transient waveform, that is the sampled waveform without the fundamental frequency
+    included
+    :param configs: Includes the necessary parameters needed to classify the transient
+    :return: A tuple which has contains a boolean indicator of whether the transient was indeed classified as being
+    arcing and then a dictionary of the calculated meta data.
+    """
+
+def periodic_notching_classifier(filtered_waveform: numpy.ndarray, configs: dict) -> (bool, dict):
+    """
+    Identifies whether the transient is periodic notching and, if so, calculates additional meta data for the transient,
+    such as the amplitude, width, period, and time
+    :param filtered_waveform: The transient waveform, that is the sampled waveform without the fundamental frequency
+    included
+    :param configs: Includes the necessary parameters needed to classify the transient
+    :return: A tuple which has contains a boolean indicator of whether the transient was indeed classified as being
+    periodic notching and then a dictionary of the calculated meta data.
+    """
+
+def pf_cap_switching_classifier(filtered_waveform: numpy.ndarray, fundamental_waveform: numpy.ndarray,
+                     configs: dict) -> (bool, dict):
+    """
+    Identifies whether the transient is pf_cap_switching and, if so, calculates additional meta data for the transient,
+    such as the frequency, peak amplitude, and oscillatory decay time
+    :param filtered_waveform: The transient waveform, that is the sampled waveform without the fundamental frequency
+    included
+    :param fundamental_waveform: The fundamental waveform, that is the sampled waveform without any interference
+    :param configs: Includes the necessary parameters needed to classify the transient
+    :return: A tuple which has contains a boolean indicator of whether the transient was indeed classified as being
+    pf_cap_switching and then a dictionary of the calculated meta data.
+    """
+
+def multiple_zero_xing_classifier(raw_waveform: numpy.ndarray, configs: dict) -> (bool, dict):
+    """
+    Identifies whether the transient is pf_cap_switching and, if so, calculates additional meta data for the transient,
+    such as the peak, mean, and range of the transient amplitude, and the number of zero crossings caused by the
+    transient
+    :param raw_waveform: The raw sampled waveform
+    :param configs: Includes the necessary parameters needed to classify the transient
+    :return: A tuple which has contains a boolean indicator of whether the transient was indeed classified as being
+    a multiple zero crossing transient, and then a dictionary of the calculated meta data.
+    """
+
+def transient_incident_classifier(event_id: int, box_id: str, raw_waveform: numpy.ndarray,
                                   box_event_start_ts: int, configs: dict):
     """
     Identifies  as a Sag, Swell, or Interruption. Creates a Mongo Incident document
     :param event_id:
     :param box_id:
-    :param windowed_frequencies:
+    :param raw_waveform:
     :param box_event_start_ts:
     :param configs:
     :return:
