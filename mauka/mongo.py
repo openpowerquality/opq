@@ -33,7 +33,6 @@ class IEEEDuration(enum.Enum):
     SUSTAINED = "SUSTAINED"  # A duration greater than 1 minute
 
 
-
 class BoxEventType(enum.Enum):
     """String enumerations and constants for event types"""
     FREQUENCY_DIP = "FREQUENCY_SAG"
@@ -213,6 +212,7 @@ class IncidentClassification(enum.Enum):
     FREQUENCY_INTERRUPTION = "FREQUENCY_INTERRUPTION"
     SEMI_F47_VIOLATION = "SEMI_F47_VIOLATION"
     UNDEFINED = "UNDEFINED"
+
 
 class IncidentIeeeDuration(enum.Enum):
     """IEEE Duration Classifications"""

@@ -1,5 +1,5 @@
 import numpy
-from plugins.SemiF47 import viol_check, PU 
+from plugins.semi_f47_plugin import viol_check, PU
 
 import unittest
 
