@@ -22,13 +22,15 @@ class Profile extends React.Component {
   /** Render the page once subscriptions have been received. */
   renderPage() { // eslint-disable-line class-methods-use-this
     const username = Meteor.user().username;
-    const { firstName, lastName, role, phone } = UserProfiles.findByUsername(username);
+    const user = UserProfiles.findByUsername(username);
+    const userId = user._id;
+    const { firstName, lastName, role, phone } = user;
     const boxIds = BoxOwners.findBoxIdsWithOwner(username);
     const boxes = _.sortBy(boxIds.map(id => OpqBoxes.findBox(id)), doc => doc.box_id);
     return (
         <Container>
-          <AboutMe firstName={firstName} lastName={lastName} username={username} role={role} phone={phone}/>
-          <NotificationManager/>
+          <AboutMe firstName={firstName} lastName={lastName} username={username} role={role} phone={phone} id={userId}/>
+          <NotificationManager doc={user}/>
           <Boxes title="My Boxes" boxes={boxes}/>
         </Container>
     );
