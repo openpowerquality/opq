@@ -7,19 +7,25 @@
 #include <syslog.h>
 #include <mongocxx/client.hpp>
 #include <mongocxx/instance.hpp>
+#include <thread>
 
 using namespace std::string_literals;
 
 /*
+ * App-to-box thread callable.
+ */
+void app_to_box(zmqpp::context& ctx);
+
+/*
  * Loads a certificate from a file as a pair of strings.
  */
-auto load_certificate(string const& path) -> pair<string, string>;
+auto load_certificate(string const& path) -> std::pair<string, string>;
 
 int main (int argc, char **argv) {
 	auto config = argc == 1 ? Config{} : Config{ argv[1] };
 
 	//Load our certificate. Make sure we get both public and private keys.
-	auto server_cert = load_certificate(config.privateCert());
+	auto server_cert = load_certificate(config.private_cert);
 	if(server_cert.first == "" || server_cert.second != ""){
 	    syslog(LOG_ERR, "Could not load Certificates");
 	}
@@ -30,8 +36,8 @@ int main (int argc, char **argv) {
 	zmqpp::auth auth{ctx};
 	auth.configure_domain("*");
 
-	int count = 0;
 	//Load all of the client public keys.
+	int count = 0;
 	mongocxx::instance inst{};
 	mongocxx::client conn{mongocxx::uri{}};
 
@@ -49,6 +55,8 @@ int main (int argc, char **argv) {
 
 	syslog(LOG_NOTICE, "%s", ("Loaded " + std::to_string(count) + " keys").c_str());
 
+	std::thread th(app_to_box, std::ref(ctx));
+	th.join();
 	/*
 	//Unencrypted end.
 	auto front = zmqpp::socket{ ctx, zmqpp::socket_type::xpublish };
@@ -66,7 +74,11 @@ int main (int argc, char **argv) {
 	return 0;
 }
 
-auto load_certificate( string const& path ) -> pair<string, string> {
+void app_to_box(zmqpp::context& ctx) {
+	std::cout << "Hello from app-to-box thread" << std::endl;
+}
+
+auto load_certificate( string const& path ) -> std::pair<string, string> {
 	auto file = std::ifstream{ path };
 	assert(file);
 
@@ -76,11 +88,11 @@ auto load_certificate( string const& path ) -> pair<string, string> {
 
 	auto public_sm = std::smatch{}, private_sm = std::smatch{};
 
-	auto public_re = regex{R"r(public-key\s+=\s+"(.+)")r"};
-	auto private_re = regex{R"r(secret-key\s+=\s+"(.+)")r"};
+	auto public_re = std::regex{R"r(public-key\s+=\s+"(.+)")r"};
+	auto private_re = std::regex{R"r(secret-key\s+=\s+"(.+)")r"};
 
-	auto has_public = regex_search(contents, public_sm, public_re);
-	auto has_private = regex_search(contents, private_sm, private_re);
+	auto has_public = std::regex_search(contents, public_sm, public_re);
+	auto has_private = std::regex_search(contents, private_sm, private_re);
 
 	return {has_public ? public_sm[1] : ""s,
 		has_private ? private_sm[1] : ""s};
