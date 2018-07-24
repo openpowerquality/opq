@@ -18,7 +18,7 @@ include_directories(${LIBMONGOCXX_INCLUDE_DIRS} ${LIBBSONCXX_INCLUDE_DIRS})
 link_directories(${LIBMONGOCXX_LIBRARY_DIRS} ${LIBBSONCXX_LIBRARY_DIRS})
 
 set(SOURCE_FILES
-        src/broker.cc
+        src/new_broker.cpp
         src/config.cc
         lib/config.h
         lib/json.hpp
