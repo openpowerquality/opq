@@ -11,7 +11,8 @@ if (Meteor.isServer) {
     const locationSlug1 = 'kailua-abc';
     const locationSlug2 = 'kailua-xyz';
     const coordinates = [1, 2];
-    const description = 'description';
+    const description1 = 'description abc';
+    const description2 = 'description xyz';
     before(function setup() {
       Regions.removeAll();
       Locations.removeAll();
@@ -24,8 +25,8 @@ if (Meteor.isServer) {
 
     it('#define, #findLocationsForRegion, #findRegionsForLocation', function test() {
       const regionSlug = 'kailua';
-      Locations.define({ slug: locationSlug1, coordinates, description });
-      Locations.define({ slug: locationSlug2, coordinates, description });
+      Locations.define({ slug: locationSlug1, coordinates, description: description1 });
+      Locations.define({ slug: locationSlug2, coordinates, description: description2 });
       Regions.define({ regionSlug, locationSlug: locationSlug1 });
       Regions.define({ regionSlug, locationSlug: locationSlug2 });
       expect(Regions.findLocationsForRegion(regionSlug)).to.have.length(2);

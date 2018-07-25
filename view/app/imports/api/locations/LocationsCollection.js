@@ -17,6 +17,11 @@ class LocationsCollection extends BaseCollection {
       'coordinates.$': Number,
       description: String,
     }));
+    // Guarantee that both slugs and descriptions are unique.
+    // if (Meteor.server) {
+    //   this._collection.rawCollection().createIndex({ slug: 1 }, { background: true, unique: true });
+    //   this._collection.rawCollection().createIndex({ description: 1 }, { background: true, unique: true });
+    // }
   }
 
   /**
@@ -49,7 +54,7 @@ class LocationsCollection extends BaseCollection {
    * @returns {*|Object} Truthy if slug is a location slug.
    */
   isLocation(slug) {
-    return slug && this._collection.findOne({ slug });
+    return _.isString(slug) && this._collection.findOne({ slug });
   }
 
   /**

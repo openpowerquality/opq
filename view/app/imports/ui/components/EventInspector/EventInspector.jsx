@@ -4,11 +4,13 @@ import PropTypes from 'prop-types';
 import { withTracker } from 'meteor/react-meteor-data';
 import { Grid, Input, Button, Dropdown, Loader } from 'semantic-ui-react';
 import Moment from 'moment/moment';
+import Lodash from 'lodash';
 
 import WidgetPanel from '../../layouts/WidgetPanel';
 import EventSummary from './EventSummary';
 import { OpqBoxes } from '../../../api/opq-boxes/OpqBoxesCollection';
-import { getEventsInRange } from '../../../api/events/EventsCollectionMethods';
+import { getEventsInRange } from '../../../api/events/EventsCollection.methods';
+import { withRouterLocationStateAsProps } from '../BoxMap/hocs';
 
 /** Displays event details, including the waveform at the time of the event. */
 class EventInspector extends React.Component {
@@ -39,6 +41,13 @@ class EventInspector extends React.Component {
   <p>For each event listed, the labeled buttons can be clicked to generate a graph with the waveform at the time of the
   event, for that box.</p>
   `;
+
+  componentDidMount() {
+    const { initialBoxIds } = this.props;
+    if (initialBoxIds && initialBoxIds.length) {
+      this.setState({ selectedBoxes: initialBoxIds }, () => this.getEvents());
+    }
+  }
 
   render() {
     return this.props.ready ? (
@@ -109,12 +118,19 @@ class EventInspector extends React.Component {
 EventInspector.propTypes = {
   ready: PropTypes.bool.isRequired,
   boxIDs: PropTypes.array,
+  initialBoxIds: PropTypes.array,
 };
 
-export default withTracker(() => {
+const withTrackerCallback = () => {
   const sub = Meteor.subscribe(OpqBoxes.getPublicationName());
   return {
     ready: sub.ready(),
     boxIDs: OpqBoxes.find().fetch().map(box => box.box_id).sort(),
   };
-})(EventInspector);
+};
+
+// Component/HOC composition
+export default Lodash.flowRight([
+  withTracker(withTrackerCallback),
+  withRouterLocationStateAsProps(['initialBoxIds']),
+])(EventInspector);

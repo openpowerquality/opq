@@ -1,2 +1,2 @@
 import './FSFilesCollection.js';
-import './FSFilesCollectionMethods.js';
+import './FSFilesCollection.methods.js';

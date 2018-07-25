@@ -36,15 +36,17 @@ message SetMeasturementRateCommand {
 
 //Command buffer.
 message Command {
-    //Sequence number of the command and response must match.
-    uint32 seq = 1;
+    //Box Id
+    uint32 box_id = 1;
+    //Identity
+    String identity = 2;
     //Timestamp in milliseconds.
-    uint64 timestamp_ms = 2;
+    uint64 timestamp_ms = 3;
     //Only a single command type is possible per command buffer.
     oneof command {
-        GetInfoCommand info_command = 3;
-        GetDataCommand data_command = 4;
-        SetMeasturementRateCommand sampling_rate_command = 5;
+        GetInfoCommand info_command = 4;
+        GetDataCommand data_command = 5;
+        SetMeasturementRateCommand sampling_rate_command = 6;
     }
 }
 

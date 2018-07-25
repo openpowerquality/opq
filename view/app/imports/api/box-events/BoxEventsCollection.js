@@ -1,9 +1,9 @@
-import { Meteor } from 'meteor/meteor';
-import { Mongo } from 'meteor/mongo';
 import SimpleSchema from 'simpl-schema';
 import BaseCollection from '../base/BaseCollection.js';
 import { Events } from '../events/EventsCollection';
-import { progressBarSetup } from '../../modules/utils';
+import { OpqBoxes } from '../opq-boxes/OpqBoxesCollection';
+import { FSFiles } from '../fs-files/FSFilesCollection';
+import { FSChunks } from '../fs-chunks/FSChunksCollection';
 
 /**
  * BoxEvents provides event meta-data for a given OPQ Box.
@@ -13,7 +13,6 @@ class BoxEventsCollection extends BaseCollection {
 
   constructor() {
     super('box_events', new SimpleSchema({
-      _id: { type: Mongo.ObjectID },
       event_id: Number,
       box_id: String,
       event_start_timestamp_ms: Number,
@@ -30,9 +29,9 @@ class BoxEventsCollection extends BaseCollection {
     this.publicationNames = {
       EVENT_DATA: 'event_data',
     };
-    if (Meteor.server) {
-      this._collection.rawCollection().createIndex({ event_start_timestamp_ms: 1, box_id: 1 }, { background: true });
-    }
+    // if (Meteor.server) {
+    //   this._collection.rawCollection().createIndex({ event_start_timestamp_ms: 1, box_id: 1 }, { background: true });
+    // }
   }
 
   /**
@@ -55,32 +54,65 @@ class BoxEventsCollection extends BaseCollection {
     return docID;
   }
 
-  checkIntegrity() {
+  /**
+   * Checks the integrity of the passed Box_Event document. The checks include:
+   *   * Is the event_id associated with a known Event?
+   *   * Is the box_id associated with a known Box?
+   *   * Are event_start and event_end reasonable unix millisecond timestamps?
+   *   * Does data_fs_filename specify a valid document in the FS.Files collection?
+   * Note we are not checking for a valid Location yet.
+   * @param doc The box_event document.
+   * @param repair If repair is true, and an integrity problem is discovered, then this Box_Event and the
+   * corresponding FSFile and FSChunk are deleted.
+   * @returns {Array} An array of strings describing any problems that were found.
+   */
+  checkIntegrity(doc, repair) {
     const problems = [];
-    const totalCount = this.count();
-    const validationContext = this.getSchema().namedContext('boxEventsIntegrity');
-    const pb = progressBarSetup(totalCount, 2000, `Checking ${this._collectionName} collection: `);
+    if (!Events.isEventId(doc.event_id)) {
+      problems.push(`event_id ${doc.event_id} (invalid)`);
+    }
+    if (!OpqBoxes.isBoxId(doc.box_id)) {
+      problems.push(`box_id ${doc.box_id} (invalid)`);
+    }
+    // Don't check for valid location yet.
+    // if (!Locations.isLocation(doc.location)) {
+    //   problems.push(`location ${doc.location} (invalid)`);
+    // }
+    if (!FSFiles.isFilename(doc.data_fs_filename)) {
+      problems.push(`data_fs_filename ${doc.data_fs_filename} (invalid)`);
+    }
+    if (!this.isValidTimestamp(doc.event_start_timestamp_ms)) {
+      problems.push(`event_start_timestamp_ms ${doc.event_start_timestamp_ms} (invalid)`);
+    }
+    if (!this.isValidTimestamp(doc.event_end_timestamp_ms)) {
+      problems.push(`event_end_timestamp_ms ${doc.event_end_timestamp_ms} (invalid)`);
+    }
+    const result = { docName: `Box_Event ${doc.event_id}, ${doc.box_id}`, problems };
+    if ((problems.length > 0) && repair) {
+      result.repair = this.repair(doc);
+    }
+    return result;
+  }
 
-    this.find().forEach((doc, index) => {
-      pb.updateBar(index); // Update progress bar.
-
-      // Validate each document against the collection schema.
-      validationContext.validate(doc);
-      if (!validationContext.isValid()) {
-        // eslint-disable-next-line max-len
-        problems.push(`BoxEvent document failed schema validation: ${doc._id} (Invalid keys: ${JSON.stringify(validationContext.invalidKeys(), null, 2)})`);
-      }
-      validationContext.resetValidation();
-
-      // Ensure event_id points to an existing Event document.
-      if (Events.find({ event_id: doc.event_id }).count() < 1) {
-        // eslint-disable-next-line max-len
-        problems.push(`BoxEvent's event_id does not exist in Events collection: ${doc._id} (event_id: ${doc.event_id})`);
-      }
-    });
-
-    pb.clearInterval();
-    return problems;
+  /**
+   * Repair (i.e. delete) a Box_Event. Also deletes the associated fs.file, and fs.chunks (if FS filename is valid).
+   * @param doc The box_event document.
+   * @return A string indicating how many fs.files, and fs.chunks were deleted in addition to the box_event.
+   */
+  repair(doc) {
+    let returnString = '';
+    const filename = doc.data_fs_filename;
+    if (FSFiles.isFilename(filename)) {
+      const files_id = FSFiles._collection.findOne({ filename })._id;
+      const fsFileChunkDocs = FSChunks.find({ files_id }).fetch();
+      const fsChunkIDs = _.pluck(fsFileChunkDocs, '_id');
+      returnString += `Deleting FSFile ${files_id}, ${fsChunkIDs.length} FSChunks, and `;
+      FSFiles._collection.remove({ filename });
+      FSChunks._collection.remove({ _id: { $in: fsChunkIDs } });
+    }
+    returnString += `box_event ${doc._id}`;
+    this._collection.remove({ _id: doc._id });
+    return returnString;
   }
 
   /** Publications for this collection are disabled. */
