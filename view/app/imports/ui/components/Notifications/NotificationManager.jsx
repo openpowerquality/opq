@@ -63,6 +63,7 @@ class NotificationManager extends React.Component {
         type: String,
         allowedValues: sendingFrequency,
         label: false,
+        defaultValue: 'never',
       },
     });
 
