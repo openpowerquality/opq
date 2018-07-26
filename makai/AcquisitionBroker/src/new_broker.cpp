@@ -1,4 +1,5 @@
 #include "../lib/config.h"
+#include "../lib/SynchronizedMap.hpp"
 #include <iostream>
 #include <vector>
 #include <zmqpp/zmqpp.hpp>
@@ -8,13 +9,14 @@
 #include <mongocxx/client.hpp>
 #include <mongocxx/instance.hpp>
 #include <thread>
+#include <chrono>
 
 using namespace std::string_literals;
 
 /*
  * App-to-box thread callable.
  */
-void app_to_box(zmqpp::context& ctx);
+void app_to_box(zmqpp::context& ctx, SynchronizedMap<int, string>& map, Config config, string cert);
 
 /*
  * Loads a certificate from a file as a pair of strings.
@@ -55,27 +57,39 @@ int main (int argc, char **argv) {
 
 	syslog(LOG_NOTICE, "%s", ("Loaded " + std::to_string(count) + " keys").c_str());
 
-	std::thread th(app_to_box, std::ref(ctx));
-	th.join();
-	/*
-	//Unencrypted end.
-	auto front = zmqpp::socket{ ctx, zmqpp::socket_type::xpublish };
-	front.bind(config.backendPort());
+	SynchronizedMap<int, string> map;
 
-	//Encrypted end.
-	auto back = zmqpp::socket{ ctx, zmqpp::socket_type::xsubscribe };
-	back.set( zmqpp::socket_option::identity, "TRG_BROKER" );
-	back.set( zmqpp::socket_option::curve_server, true );
-	back.set( zmqpp::socket_option::curve_secret_key, server_cert.second );
-	back.set( zmqpp::socket_option::zap_domain, "global" );
-	back.bind(config.boxPort());
-	*/
+	std::thread th{app_to_box, std::ref(ctx), std::ref(map), config, server_cert.second};
+	th.join();
 
 	return 0;
 }
 
-void app_to_box(zmqpp::context& ctx) {
+void app_to_box(zmqpp::context& ctx, SynchronizedMap<int, string>& map, Config config, string cert) {
 	std::cout << "Hello from app-to-box thread" << std::endl;
+
+	zmqpp::socket pull{ctx, zmqpp::socket_type::pull};
+	//pull.bind(config.backend_interface_pull);
+	pull.bind("tcp://*:4444");
+
+	zmqpp::socket pub{ctx, zmqpp::socket_type::publish};
+	pub.set(zmqpp::socket_option::identity, "ACQ_BROKER");
+	pub.set(zmqpp::socket_option::curve_server, true);
+	pub.set(zmqpp::socket_option::curve_secret_key, cert);
+	pub.set(zmqpp::socket_option::zap_domain, "global");
+	//pub.bind(config.box_interface_pub);
+	pub.bind("tcp://*4445");
+
+	std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
+	while (true) {
+		string msg;
+		pull.receive(msg);
+
+		// Logic hereaaa
+
+		pub.send(msg);
+	}
 }
 
 auto load_certificate( string const& path ) -> std::pair<string, string> {
