@@ -13,10 +13,28 @@ import mongo
 from scipy import optimize
 
 
+def energy(waveform: numpy.ndarray) -> float:
+    """
+    Function to calculate the energy of a waveform
+    :param waveform:
+    :return: the calculated energy
+    """
+    return (waveform ** 2).sum()
+
+
+def find_zero_xings(waveform: numpy.ndarray) -> numpy.ndarray:
+    """
+    Function which returns a boolean array indicating the positions of zero crossings in the the waveform
+    :param waveform:
+    :return: a boolean array indicating the positions of zero crossings in the the waveform
+    """
+    return numpy.diff(numpy.signbit(waveform))
+
+
 def waveform_filter(raw_waveform: numpy.ndarray, fundamental_freq: float = constants.CYCLES_PER_SECOND,
                     fundamental_vrms: float = constants.EXPECTED_VRMS) -> dict:
     """
-    Function filter the fundamental waveform to retrieve the potential transient waveform
+    Function to filter out the fundamental waveform to retrieve the potential transient waveform
     :param raw_waveform: The raw sampled voltages
     :param fundamental_freq: The expected fundamental frequency of the waveform
     :param fundamental_vrms: The expected vrms voltage of the waveform
@@ -42,7 +60,9 @@ def waveform_filter(raw_waveform: numpy.ndarray, fundamental_freq: float = const
     fundamental_waveform = set_amp * numpy.sin(set_freq * 2 * numpy.pi * idx + est_phase) + set_mean
     filtered_waveform = raw_waveform - fundamental_waveform
 
-    return {"fundamental_waveform": fundamental_waveform, "filtered_waveform": filtered_waveform}
+    return {"fundamental_waveform": fundamental_waveform, "filtered_waveform": filtered_waveform,
+            "raw_waveform": raw_waveform}
+
 
 def oscillatory_classifier(filtered_waveform: numpy.ndarray, configs: dict) -> (bool, dict):
     """
@@ -56,6 +76,7 @@ def oscillatory_classifier(filtered_waveform: numpy.ndarray, configs: dict) -> (
     oscillatory and then a dictionary of the calculated meta data.
     """
 
+
 def impulsive_classifier(filtered_waveform: numpy.ndarray, configs: dict) -> (bool, dict):
     """
     Identifies whether the transient is impulsive and, if so, calculates additional meta data for the transient, such as
@@ -66,6 +87,7 @@ def impulsive_classifier(filtered_waveform: numpy.ndarray, configs: dict) -> (bo
     :return: A tuple which has contains a boolean indicator of whether the transient was indeed classified as being
     impulsive and then a dictionary of the calculated meta data.
     """
+
 
 def arcing_classifier(filtered_waveform: numpy.ndarray, configs: dict) -> (bool, dict):
     """
@@ -78,6 +100,7 @@ def arcing_classifier(filtered_waveform: numpy.ndarray, configs: dict) -> (bool,
     arcing and then a dictionary of the calculated meta data.
     """
 
+
 def periodic_notching_classifier(filtered_waveform: numpy.ndarray, configs: dict) -> (bool, dict):
     """
     Identifies whether the transient is periodic notching and, if so, calculates additional meta data for the transient,
@@ -89,8 +112,9 @@ def periodic_notching_classifier(filtered_waveform: numpy.ndarray, configs: dict
     periodic notching and then a dictionary of the calculated meta data.
     """
 
+
 def pf_cap_switching_classifier(filtered_waveform: numpy.ndarray, fundamental_waveform: numpy.ndarray,
-                     configs: dict) -> (bool, dict):
+                                configs: dict) -> (bool, dict):
     """
     Identifies whether the transient is pf_cap_switching and, if so, calculates additional meta data for the transient,
     such as the frequency, peak amplitude, and oscillatory decay time
@@ -102,16 +126,28 @@ def pf_cap_switching_classifier(filtered_waveform: numpy.ndarray, fundamental_wa
     pf_cap_switching and then a dictionary of the calculated meta data.
     """
 
-def multiple_zero_xing_classifier(raw_waveform: numpy.ndarray, configs: dict) -> (bool, dict):
+
+def multiple_zero_xing_classifier(waveforms: dict, configs: dict) -> (bool, dict):
     """
-    Identifies whether the transient is pf_cap_switching and, if so, calculates additional meta data for the transient,
-    such as the peak, mean, and range of the transient amplitude, and the number of zero crossings caused by the
-    transient
-    :param raw_waveform: The raw sampled waveform
+    Identifies whether the transient causes multiple zero crossings and, if so, calculates additional meta data for the
+    transient, such as the additional number of zero crossings caused by the transient
+    :param waveforms: The raw, fundamental, and filtered waveform
     :param configs: Includes the necessary parameters needed to classify the transient
     :return: A tuple which has contains a boolean indicator of whether the transient was indeed classified as being
-    a multiple zero crossing transient, and then a dictionary of the calculated meta data.
+    a multiple zero crossing transient, and then a dictionary of the calculated metadata.
     """
+    raw_zero_xings = find_zero_xings(waveforms['raw_waveform'])
+    fundamental_zero_xings = find_zero_xings(waveforms['fundamental_waveform'])
+
+    if raw_zero_xings.sum() > fundamental_zero_xings.sum():
+        extra_zero_xings = numpy.logical_xor(raw_zero_xings, fundamental_zero_xings)
+        voltages_at_extra_xings = waveforms['filtered_waveform'][numpy.where(extra_zero_xings)[0] + 1]
+        extra_xings_above_noise_floor = numpy.abs(voltages_at_extra_xings) > configs['noise_floor']
+        num_xings = extra_xings_above_noise_floor.sum()
+        return num_xings > 0, {'num_extra_zero_crossings': num_xings}
+    else:
+        return False, None
+
 
 def transient_incident_classifier(event_id: int, box_id: str, raw_waveform: numpy.ndarray,
                                   box_event_start_ts: int, configs: dict):
@@ -125,11 +161,8 @@ def transient_incident_classifier(event_id: int, box_id: str, raw_waveform: nump
     :return:
     """
 
-    filtered_waveform = waveform_filter(raw_waveform, )
+    waveforms = waveform_filter(raw_waveform)
 
-    implusive = impulsive_classifier()
-
-    return None
 
 class TransientPlugin(plugins.base_plugin.MaukaPlugin):
     """
@@ -144,7 +177,7 @@ class TransientPlugin(plugins.base_plugin.MaukaPlugin):
         """
         super().__init__(config, ["RawVoltage"], TransientPlugin.NAME, exit_event)
         self.configs = {
-            "noise_floor_percent": float(self.config_get("plugins.TransientPlugin.noise.floor.percent")),
+            "noise_floor": float(self.config_get("plugins.TransientPlugin.noise.floor")),
             "oscillatory_min_cycles": int(self.config_get("plugins.TransientPlugin.oscillatory.min.cycles")),
             "oscillatory_low_freq_max": float(self.config_get("plugins.TransientPlugin.oscillatory.low.freq.max.hz")),
             "oscillatory_med_freq_max": float(self.config_get("plugins.TransientPlugin.oscillatory.med.freq.max.hz")),
