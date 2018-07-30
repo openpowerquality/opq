@@ -27,6 +27,8 @@ set(SOURCE_FILES
         lib/DataHandler.h
         proto/opq.pb.cc
         proto/opq.pb.h
+	proto/opqbox3.pb.cc
+	proto/opqbox3.pb.h
         lib/util.h
         src/RequestHandler.cc
         lib/RequestHandler.h src/MongoDriver.cc lib/MongoDriver.h

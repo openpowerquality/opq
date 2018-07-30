@@ -1,5 +1,6 @@
 #include "../lib/config.h"
 #include "../lib/SynchronizedMap.hpp"
+#include "../proto/opqbox3.pb.h"
 #include <iostream>
 #include <vector>
 #include <zmqpp/zmqpp.hpp>
@@ -52,43 +53,59 @@ int main (int argc, char **argv) {
 
 	    auth.configure_curve(client_public_cert);
 	    count++;
-	    std::cout << ".";
+	    //std::cout << ".";
 	}
 
 	syslog(LOG_NOTICE, "%s", ("Loaded " + std::to_string(count) + " keys").c_str());
 
 	SynchronizedMap<int, string> map;
 
+	// Starts the thread that pulls from app and publishes to box
 	std::thread th{app_to_box, std::ref(ctx), std::ref(map), config, server_cert.second};
+
+	// For good measure
 	th.join();
 
 	return 0;
 }
 
 void app_to_box(zmqpp::context& ctx, SynchronizedMap<int, string>& map, Config config, string cert) {
-	std::cout << "Hello from app-to-box thread" << std::endl;
+	//std::cout << "Hello from app-to-box thread" << std::endl;
 
+	// Initialize pull socket
 	zmqpp::socket pull{ctx, zmqpp::socket_type::pull};
-	//pull.bind(config.backend_interface_pull);
-	pull.bind("tcp://*:4444");
+	pull.bind(config.backend_interface_pull);
+	//pull.bind("tcp://*:4444");
 
+	// Initialize pub socket and encrypt it
 	zmqpp::socket pub{ctx, zmqpp::socket_type::publish};
 	pub.set(zmqpp::socket_option::identity, "ACQ_BROKER");
 	pub.set(zmqpp::socket_option::curve_server, true);
 	pub.set(zmqpp::socket_option::curve_secret_key, cert);
 	pub.set(zmqpp::socket_option::zap_domain, "global");
-	//pub.bind(config.box_interface_pub);
-	pub.bind("tcp://*4445");
+	pub.bind(config.box_interface_pub);
+	//pub.bind("tcp://*4445");
 
+	// Wait for sockets to bind
 	std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
 	while (true) {
 		string msg;
 		pull.receive(msg);
 
-		// Logic hereaaa
+		// Deserialize the message upon receiving it
+		opq::proto3::Command cmd;
+		cmd.ParseFromString(msg);
 
-		pub.send(msg);
+		// Log the identity of the app
+		map.insert(cmd.box_id(), cmd.identity());
+
+		// Forward it to boxes subscribed to the box_id as topic
+		zmqpp::message fwd;
+		fwd.add(cmd.box_id());
+		fwd.add(cmd.identity());
+
+		pub.send(fwd);
 	}
 }
 
