@@ -11,6 +11,7 @@ import protobuf.mauka_pb2
 import protobuf.util
 import mongo
 from scipy import optimize
+from scipy import stats
 
 
 def energy(waveform: numpy.ndarray) -> float:
@@ -20,6 +21,16 @@ def energy(waveform: numpy.ndarray) -> float:
     :return: the calculated energy
     """
     return (waveform ** 2).sum()
+
+    # cancel voltage below floor
+def noise_canceler(voltage, noise_floor):
+    if abs(voltage) < noise_floor:
+        return 0
+    else:
+        if voltage < 0:
+            return voltage + noise_floor
+        else:
+            return voltage - noise_floor
 
 
 def find_zero_xings(waveform: numpy.ndarray) -> numpy.ndarray:
@@ -76,6 +87,55 @@ def oscillatory_classifier(filtered_waveform: numpy.ndarray, configs: dict) -> (
     oscillatory and then a dictionary of the calculated meta data.
     """
 
+    # Fit damped sine wave to signal
+    guess_amp = constants.EXPECTED_VRMS * numpy.sqrt(2)
+    guess_decay = 200.0
+    guess_freq = 2500.0
+    guess_phase = 0.0
+    guess_mean = 0.0
+    idx = numpy.arange(0, len(filtered_waveform) / constants.SAMPLE_RATE_HZ, 1 / constants.SAMPLE_RATE_HZ)
+    alpha = 0.05
+
+    def optimize_func(args):
+        """
+        Optimized the function for finding and fitting the frequency.
+        :param args: A list containing in this order: guess_amp, guess_freq, guess_phase, guess_mean.
+        :return: Optimized function.
+        """
+        y_hat = args[0] * numpy.exp(-1.0 * args[1] * idx)  * numpy.cos(args[2] * 2 * numpy.pi * idx + args[3]) + args[4]
+        return filtered_waveform - y_hat
+
+    lst_sq_sol = optimize.leastsq(optimize_func,
+                                  numpy.array([guess_amp, guess_decay, guess_freq, guess_phase, guess_mean]))
+
+    RSS1 = numpy.power(optimize_func(lst_sq_sol[0]), 2).sum()
+
+    def optimize_func_null(args):
+        """
+        Optimized the function for finding and fitting the frequency.
+        :param args: A list containing in this order:
+        :return: Optimized function.
+        """
+        y_hat = idx + args[0]
+        return filtered_waveform - y_hat
+
+    lst_sq_sol_null = optimize.leastsq(optimize_func_null, numpy.array([0]))
+
+    RSS0 = numpy.power(optimize_func_null(lst_sq_sol_null[0]), 2).sum()
+
+    Fnum = numpy.divide((RSS0 - RSS1), 4)
+    Fdenom = numpy.divide(RSS1, (len(idx) - 5))
+
+    F = Fnum / Fdenom
+
+    p_value = 1 - stats.f.cdf(F, 4, 195)
+
+    if p_value < alpha:
+        magnitude = filtered_waveform.max()
+        return True, {'Magnitude': magnitude, 'Frequency': lst_sq_sol[0][2]}
+    else:
+        return False, {}
+
 
 def impulsive_classifier(filtered_waveform: numpy.ndarray, configs: dict) -> (bool, dict):
     """
@@ -88,6 +148,32 @@ def impulsive_classifier(filtered_waveform: numpy.ndarray, configs: dict) -> (bo
     impulsive and then a dictionary of the calculated meta data.
     """
 
+    noise_canceled_waveform = numpy.vectorize(noise_canceler)(filtered_waveform, configs['noise_floor'])
+
+    if numpy.vectorize(lambda v: v >= 0)(noise_canceled_waveform).all():
+        polarity = 'Positive'
+        peak_index = noise_canceled_waveform.argmax()
+        peak_voltage = filtered_waveform[peak_index]
+        start_index = (noise_canceled_waveform != 0).argmax()
+        decay_voltages = noise_canceled_waveform[peak_index:]
+        end_index = decay_voltages.argmin() + peak_index
+        rise_time = (peak_index - start_index) / constants.SAMPLE_RATE_HZ
+        decay_time = (end_index - peak_index) / constants.SAMPLE_RATE_HZ
+    elif numpy.vectorize(lambda v: v <= 0)(noise_canceled_waveform).all():
+        polarity = 'Negative'
+        peak_index = noise_canceled_waveform.argmin()
+        peak_voltage = filtered_waveform[peak_index]
+        start_index = (noise_canceled_waveform != 0).argmax()
+        decay_voltages = noise_canceled_waveform[peak_index:]
+        end_index = decay_voltages.argmax() + peak_index
+        rise_time = (peak_index - start_index) / constants.SAMPLE_RATE_HZ
+        decay_time = (end_index - peak_index) / constants.SAMPLE_RATE_HZ
+    else:
+        return False, {}
+
+    return True, {"Polarity": polarity, "Peak_Voltage": peak_voltage, "Rise_Time": rise_time,
+                  "Decay_Time": decay_time, "Start_Index": start_index, "Peak_Index": peak_index,
+                  "End_Index": end_index}
 
 def arcing_classifier(filtered_waveform: numpy.ndarray, configs: dict) -> (bool, dict):
     """
@@ -99,6 +185,16 @@ def arcing_classifier(filtered_waveform: numpy.ndarray, configs: dict) -> (bool,
     :return: A tuple which has contains a boolean indicator of whether the transient was indeed classified as being
     arcing and then a dictionary of the calculated meta data.
     """
+    noise_canceled_waveform = numpy.vectorize(noise_canceler)(filtered_waveform, configs['noise_floor'])
+
+    transient_zero_xings = find_zero_xings(noise_canceled_waveform)
+    num_cycles = transient_zero_xings.sum()
+
+    if num_cycles >= 10:
+         if numpy.unique(numpy.diff(numpy.where(transient_zero_xings)), return_counts=True)[1].max() > 2:
+             return True, {'Num_Cycles': num_cycles}
+
+    return False, {}
 
 
 def periodic_notching_classifier(filtered_waveform: numpy.ndarray, configs: dict) -> (bool, dict):
