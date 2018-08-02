@@ -2,6 +2,11 @@ syntax = "proto3";
 
 package opq.proto3;
 
+import "rustproto.proto";
+
+option (rustproto.expose_oneof_all) = true;
+
+
 //Measurements containing features from the box.
 message Measurement {
     //Device ID.
