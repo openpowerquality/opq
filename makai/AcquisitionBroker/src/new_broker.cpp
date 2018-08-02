@@ -20,6 +20,11 @@ using namespace std::string_literals;
 void app_to_box(zmqpp::context& ctx, SynchronizedMap<int, string>& map, Config config, string cert);
 
 /*
+ * Box-to-app thread callable.
+ */
+void box_to_app(zmqpp::context& ctx, SynchronizedMap<int, string>& map, Config config);
+
+/*
  * Loads a certificate from a file as a pair of strings.
  */
 auto load_certificate(string const& path) -> std::pair<string, string>;
@@ -103,7 +108,45 @@ void app_to_box(zmqpp::context& ctx, SynchronizedMap<int, string>& map, Config c
 		// Forward it to boxes subscribed to the box_id as topic
 		zmqpp::message fwd;
 		fwd.add(cmd.box_id());
-		fwd.add(cmd.identity());
+		fwd.add(msg);
+
+		pub.send(fwd);
+	}
+}
+
+void box_to_app(zmqpp::context& ctx, SynchronizedMap<int, string>& map, Config config) {
+	// Initialize pull socket
+	zmqpp::socket pull{ctx, zmqpp::socket_type::pull};
+	pull.bind(config.box_interface_pull);
+
+	// Initialize pub socket and encrypt it
+	zmqpp::socket pub{ctx, zmqpp::socket_type::publish};
+	pub.bind(config.backend_interface_pub);
+
+	// Wait for sockets to bind
+	std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
+	while (true) {
+		string msg;
+		pull.receive(msg);
+
+		// Deserialize the message upon receiving it
+		opq::proto3::Response res;
+		res.ParseFromString(msg);
+
+		// Find the identity of the app
+		auto iterator = map.find(res.box_id());
+		if (iterator == map.end()) {
+			// Drop the message
+			continue;
+		}
+
+		// Forward it to boxes subscribed to the identity as topic
+		zmqpp::message fwd;
+		fwd.add(iterator->second);
+		fwd.add(msg);
+
+		map.erase(res.box_id());
 
 		pub.send(fwd);
 	}
