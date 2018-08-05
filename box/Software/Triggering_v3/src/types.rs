@@ -1,5 +1,5 @@
+use std::fmt;
 use std::time::SystemTime;
-
 pub const POINTS_PER_PACKET: usize = 200;
 
 #[repr(C, packed)]
@@ -10,6 +10,18 @@ pub struct RawWindow {
     flags: u32,
 }
 
+impl fmt::Debug for RawWindow {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        unsafe {
+            for i in self.datapoints.iter() {
+                write!(f, "{}, ", i).unwrap();
+            }
+        }
+        Ok(())
+    }
+}
+
+#[derive(Debug)]
 pub struct Window {
     raw_window: RawWindow,
     time_stamp_ms: SystemTime,

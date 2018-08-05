@@ -9,5 +9,9 @@
 
   "server_public_key": "umIz8s[!AyQqU$<]9POY4I(YUBxoxv}L#t3>S6K{",
 
-  "box_id" : 0
+  "box_id" : 0,
+
+  "device_path" : "/home/tusk/pipe",
+
+  "plugins" : ["./libprint_plugin.so"]
 }

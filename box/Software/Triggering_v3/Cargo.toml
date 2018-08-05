@@ -1,6 +1,6 @@
 [package]
 name = "triggering_v3"
-version = "0.1.0"
+version = "0.1.5"
 authors = ["sin"]
 
 [build-dependencies]
@@ -15,7 +15,8 @@ serde = "*"
 zmq="*"
 network-manager="*"
 uptime_lib ="*"
-
-
+libloading = "*"
+log = "0.4.0"
+syslog = "4"
 [dependencies.pnet]
 version = "0.21.0"

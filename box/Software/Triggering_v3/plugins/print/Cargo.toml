@@ -1,0 +1,13 @@
+[package]
+name = "print_plugin"
+version = "0.1.0"
+authors = ["Serge <sin8@hawaii.edu>"]
+
+[dependencies]
+triggering_v3 = { path = "../../" }
+
+[lib]
+name = "print_plugin"
+crate-type = [
+    "dylib"
+]

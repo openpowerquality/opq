@@ -1,6 +1,32 @@
-use serde_json::{from_reader, Value};
+use serde_json::from_reader;
 use std::fs::File;
 use std::path::Path;
+use std::collections::HashMap;
+use std::sync::Mutex;
+use std::sync::Arc;
+
+#[derive(Debug)]
+pub struct Config{
+    pub settings : Settings,
+    state : Mutex<HashMap<String, f32>>,
+}
+
+impl Config {
+    pub fn new(file_path:&str) -> Result<Arc<Config>, String>{
+        info!("Loading configuration file {} ", file_path);
+        let settings = match Settings::load_from_file(file_path) {
+            Ok(s) => s,
+            Err(e) => {
+                return Err(format!("Could not load a settings file {}: {}", file_path, e));
+            }
+        };
+        Ok(Arc::new(Config {
+            settings:settings,
+            state : Mutex::new(HashMap::new())
+        }))
+    }
+}
+
 
 ///Representation of the configuration file's required fields.
 #[derive(Debug, Serialize, Deserialize)]
@@ -20,6 +46,11 @@ pub struct Settings {
     pub server_public_key: String,
     //Box_id
     pub box_id: u32,
+
+    //Device path:
+    pub device_path : String,
+    ///Plugin specific settings.
+    pub plugins: Vec<String>,
 }
 
 impl Settings {
