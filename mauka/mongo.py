@@ -155,7 +155,7 @@ def get_waveform(mongo_client: OpqMongoClient, data_fs_filename: str) -> numpy.n
     :return: The waveform stored at data_fs_filename as a numpy array.
     """
     data = mongo_client.read_file(data_fs_filename)
-    waveform = to_s16bit(data)
+    waveform = to_s16bit(data).astype(numpy.int64)
     return waveform
 
 
