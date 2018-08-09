@@ -72,6 +72,21 @@ class LocationsCollection extends BaseCollection {
   }
 
   /**
+   * Returns the location document associated with _id, or throws an error if not found.
+   * @param _id The location _id
+   * @returns {Object} The location document.
+   * @throws { Meteor.Error } If the _id is not defined.
+   */
+  getDocBy_id(_id) {
+    const doc = this._collection.findOne({ _id });
+    if (!doc) {
+      throw new Meteor.Error(`Undefined _id ${_id}.`);
+    }
+    return doc;
+  }
+
+
+  /**
    * Returns an array of all the defined Location documents.
    */
   getDocs() {
@@ -105,6 +120,21 @@ class LocationsCollection extends BaseCollection {
     }
     return locationDoc;
   }
+
+  /**
+   * Returns the Location document associated with _id.
+   * @param _id The location _id.
+   * @throws { Meteor.Error } If _id is not associated with a location.
+   * @returns The Location document.
+   */
+  findLocationBy_id(_id) {
+    const locationDoc = this.findOne({ _id });
+    if (!locationDoc) {
+      throw new Meteor.Error(`Location _id ${_id} is not defined.`);
+    }
+    return locationDoc;
+  }
+
 }
 
 /**

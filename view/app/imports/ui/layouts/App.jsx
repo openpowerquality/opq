@@ -36,9 +36,9 @@ class App extends React.Component {
               <AdminProtectedRoute path="/admin/manage/opqbox/new" component={NewBoxPage}/>
               <AdminProtectedRoute path="/admin/manage/opqbox/edit/:box_id" component={EditBoxPage}/>
               <AdminProtectedRoute path="/admin/manage/opqbox" component={ManageBoxPage}/>
-              <AdminProtectedRoute path="/admin/manage/location" component={ManageLocationPage}/>
-              <AdminProtectedRoute path="/admin/manage/location/edit/:slug" component={EditLocationPage}/>
               <AdminProtectedRoute path="/admin/manage/location/new" component={NewLocationPage}/>
+              <AdminProtectedRoute path="/admin/manage/location/edit/:_id" component={EditLocationPage}/>
+              <AdminProtectedRoute path="/admin/manage/location" component={ManageLocationPage}/>
               <AdminProtectedRoute path="/admin/manage/region" component={ManageRegionPage}/>
               <AdminProtectedRoute path="/admin/manage/user" component={ManageUserPage}/>
               <ProtectedRoute path="/profile" component={Profile}/>

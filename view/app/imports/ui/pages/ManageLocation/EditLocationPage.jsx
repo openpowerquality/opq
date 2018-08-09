@@ -57,7 +57,7 @@ class EditLocationPage extends React.component {
           <WidgetPanel title="Edit Location" helpText={this.helpText} noPadding>
             <AutoForm schema={formSchema} onSubmit={this.submit} model={this.props.doc}>
               <Segment>
-                <HiddenField name='slug'/>
+                <AutoField name='slug'/>
                 <AutoField name='coordinates'/>
                 <AutoField name='description'/>
                 <SubmitField value='Submit'/>
@@ -82,12 +82,12 @@ EditLocationPage.propTypes = {
 
 /** withTracker connects Meteor data to React components. https://guide.meteor.com/react.html#using-withTracker */
 export default withTracker(({ match }) => {
-  // Get the documentID from the URL field. See imports/ui/layouts/App.jsx for the route containing :slug.
-  const slug_param = match.params.slug;
+  // Get the documentID from the URL field. See imports/ui/layouts/App.jsx for the route containing :_id.
+  const location_id = match.params._id;
   const locationsSubscription = Meteor.subscribe(Locations.getPublicationName());
   return {
     ready: locationsSubscription.ready(),
-    doc: Locations.getDoc(slug_param),
+    doc: Locations.findLocationBy_id(location_id),
   };
 })(withRouter(EditLocationPage));
 
