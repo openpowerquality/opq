@@ -314,6 +314,7 @@ def store_incident(event_id: int,
 
     incident = {
         "incident_id": incident_id,
+        "event_id": event_id,
         "box_id": box_id,
         "start_timestamp_ms": start_timestamp_ms,
         "end_timestamp_ms": end_timestamp_ms,
