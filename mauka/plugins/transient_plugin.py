@@ -22,7 +22,7 @@ def energy(waveform: numpy.ndarray) -> float:
     """
     return (waveform ** 2).sum()
 
-    # cancel voltage below floor
+
 def noise_canceler(voltage, noise_floor):
     if abs(voltage) < noise_floor:
         return 0
@@ -248,7 +248,7 @@ def multiple_zero_xing_classifier(waveforms: dict, configs: dict) -> (bool, dict
 def transient_incident_classifier(event_id: int, box_id: str, raw_waveform: numpy.ndarray,
                                   box_event_start_ts: int, configs: dict):
     """
-    Identifies  as a Sag, Swell, or Interruption. Creates a Mongo Incident document
+    Classifies transient waveform. Creates a Mongo Incident document
     :param event_id:
     :param box_id:
     :param raw_waveform:
@@ -257,7 +257,13 @@ def transient_incident_classifier(event_id: int, box_id: str, raw_waveform: nump
     :return:
     """
 
+
+
+    incidents = []
+
     waveforms = waveform_filter(raw_waveform)
+
+
 
 
 class TransientPlugin(plugins.base_plugin.MaukaPlugin):
