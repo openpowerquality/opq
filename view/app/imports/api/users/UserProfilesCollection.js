@@ -117,6 +117,22 @@ class UserProfilesCollection extends BaseCollection {
     throw new Meteor.Error(`Could not find profile corresponding to ${username}`);
   }
 
+
+  /**
+   * Returns the profile document corresponding to id, or throws error if not found.
+   * @param id
+   * @returns {Object} The profile document.
+   * @throws { Meteor.Error } If the profile document does not exist for this id.
+   */
+  findByID(userID) {
+    const id = new Meteor.Collection.ObjectID(userID);
+    const profile = this._collection.findOne({ _id: id }, {});
+    if (profile) {
+      return profile;
+    }
+    throw new Meteor.Error(`Could not find profile corresponding to ${id}`);
+  }
+
   /**
    * Returns a list of all of the currently defined usernames.
    * @param sort If truthy, then sort the list before returning.
@@ -147,7 +163,7 @@ class UserProfilesCollection extends BaseCollection {
         updateData.lastName = args.lastName;
       }
       if (args.boxIds) {
-        this.assertValidBoxIds(args.boxIds);
+        OpqBoxes.assertValidBoxIds(args.boxIds);
         this._updateBoxIds(userProfileDoc.username, args.boxIds);
       }
       if (args.phone) {
