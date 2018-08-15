@@ -1,6 +1,6 @@
 import React from 'react';
 import { Meteor } from 'meteor/meteor';
-import { Feed, Icon, Popup, Label, Loader, Container } from 'semantic-ui-react';
+import { Feed, Icon, Popup, Label, Loader } from 'semantic-ui-react';
 import PropTypes from 'prop-types';
 import { withTracker } from 'meteor/react-meteor-data';
 import { HashLink as Link } from 'react-router-hash-link';
@@ -45,30 +45,28 @@ class NotificationViewer extends React.Component {
   /** Renders a popup that displays all of the user's notifications */
   renderPage() {
     return (
-        <Container>
-          <Popup trigger={this.renderBellIcon()} on='click' basic position='bottom left' id='popupStyle'>
-            <Popup.Header id='popupHeader'>
-              Notifications
-            </Popup.Header>
-            <Feed>
-              {(this.props.userNotifications).length > 0 ? (this.props.userNotifications.map((notification) =>
-                      <Feed.Event key={notification._id}
-                                  icon='exclamation circle'
-                                  meta={notification.timestamp.toLocaleString()}
-                                  summary={notification.data.summary}
-                      />)) :
-                  // if there are no notifications display this message
-                  <Feed.Extra>
-                    <Icon name='bell slash outline' size='big'/>
-                    <p><br/>No new notifications yet</p>
-                  </Feed.Extra>
-              }
-            </Feed>
-            <Label attached='bottom' size='small'>
-              <Link smooth to="/profile#ntf-settings"><Icon name='setting'/>Manage Notifications</Link>
-            </Label>
-          </Popup>
-        </Container>
+        <Popup trigger={this.renderBellIcon()} on='click' basic position='bottom left' id='popupStyle'>
+          <Popup.Header id='popupHeader'>
+            Notifications
+          </Popup.Header>
+          <Feed>
+            {(this.props.userNotifications).length > 0 ? (this.props.userNotifications.map((notification) =>
+                    <Feed.Event key={notification._id}
+                                icon='exclamation circle'
+                                meta={notification.timestamp.toLocaleString()}
+                                summary={notification.data.summary}
+                    />)) :
+                // if there are no notifications display this message
+                <Feed.Extra>
+                  <Icon name='bell slash outline' size='big'/>
+                  <p><br/>No new notifications yet</p>
+                </Feed.Extra>
+            }
+          </Feed>
+          <Label attached='bottom' size='small'>
+            <Link smooth to="/profile#ntf-settings"><Icon name='setting'/>Manage Notifications</Link>
+          </Label>
+        </Popup>
     );
   }
 }
