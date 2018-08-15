@@ -17,7 +17,7 @@ class AboutMe extends React.Component {
     // split phone field to separate the phone number from carrier
     if (this.props.phone !== undefined) {
       carrierString = this.props.phone.substring(this.props.phone.indexOf('@'));
-      numberString = this.props.phone.substring(1, this.props.phone.indexOf('@'));
+      numberString = this.props.phone.substring(0, this.props.phone.indexOf('@'));
     }
 
     this.state = {
@@ -125,8 +125,7 @@ class AboutMe extends React.Component {
    * the new values are displayed when user cancels out of edit mode
    */
   updatePhone = () => {
-    const usTrunkCode = '1';
-    const newPhone = usTrunkCode.concat(this.state.phoneNumber, this.state.carrier);
+    const newPhone = this.state.phoneNumber.concat(this.state.carrier);
     const collectionName = UserProfiles.getCollectionName();
     const id = this.props.id;
     const updateData = { id, phone: newPhone };

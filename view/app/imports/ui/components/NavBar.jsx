@@ -59,7 +59,7 @@ class NavBar extends React.Component {
 
           {this.props.currentUser ? (
               <Menu.Item>
-                <NotificationViewer/>
+                <NotificationViewer divStyle={divStyle}/>
               </Menu.Item>
           ) : ''}
 
