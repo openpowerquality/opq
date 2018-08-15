@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import SimpleSchema from 'simpl-schema';
 import BaseCollection from '../base/BaseCollection.js';
+import { UserProfiles } from '../users/UserProfilesCollection';
 
 /**
  * The OPQHealth service creates documents representing its findings on the current health of the system.
@@ -22,6 +23,9 @@ class NotificationsCollection extends BaseCollection {
 
   define({ username, type, timestamp = new Date(), data, delivered = false }) {
     const docID = this._collection.insert({ username, type, data, delivered, timestamp });
+    const userID = UserProfiles.findByUsername(username)._id;
+    // When a new notification doc is created the user's unseen_notifications field turns true
+    UserProfiles.update(userID, { unseen_notifications: true });
     return docID;
   }
 

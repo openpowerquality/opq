@@ -19,6 +19,7 @@ import BoxMapPage from '../../ui/pages/BoxMapPage';
 import EditBoxPage from '../pages/ManageBox/EditBoxPage';
 import NewBoxPage from '../pages/ManageBox/NewBoxPage';
 import NewUserPage from '../pages/ManageUsers/NewUserPage';
+import EditUserPage from '../pages/ManageUsers/EditUserPage';
 import LiveDataManager from '../../ui/pages/LiveDataManager';
 import Inspector from '../../ui/pages/Inspector';
 
@@ -34,6 +35,7 @@ class App extends React.Component {
               <Route path="/about" component={About} />
               <AdminProtectedRoute path="/admin/manage/opqbox/new" component={NewBoxPage}/>
               <AdminProtectedRoute path="/admin/manage/user/new" component={NewUserPage}/>
+              <AdminProtectedRoute path="/admin/manage/user/edit/:_id" component={EditUserPage}/>
               <AdminProtectedRoute path="/admin/manage/opqbox/edit/:box_id" component={EditBoxPage}/>
               <AdminProtectedRoute path="/admin/manage/opqbox" component={ManageBoxPage}/>
               <AdminProtectedRoute path="/admin/manage/location" component={ManageLocationPage}/>

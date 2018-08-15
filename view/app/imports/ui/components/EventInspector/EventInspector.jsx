@@ -2,7 +2,7 @@ import { Meteor } from 'meteor/meteor';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { withTracker } from 'meteor/react-meteor-data';
-import { Grid, Input, Button, Dropdown, Loader } from 'semantic-ui-react';
+import { Grid, Input, Button, Loader } from 'semantic-ui-react';
 import Moment from 'moment/moment';
 import Lodash from 'lodash';
 
@@ -11,6 +11,7 @@ import EventSummary from './EventSummary';
 import { OpqBoxes } from '../../../api/opq-boxes/OpqBoxesCollection';
 import { getEventsInRange } from '../../../api/events/EventsCollection.methods';
 import { withRouterLocationStateAsProps } from '../BoxMap/hocs';
+import BoxSelector from '../../layouts/BoxSelector';
 
 /** Displays event details, including the waveform at the time of the event. */
 class EventInspector extends React.Component {
@@ -63,11 +64,9 @@ class EventInspector extends React.Component {
                      defaultValue={this.state.end} onChange={this.changeEnd}/>
             </Grid.Column>
             <Grid.Column width={5}>
-              <Dropdown multiple search selection fluid
-                        placeholder='Boxes'
-                        options={this.props.boxIDs.map(boxID => ({ text: `Box ${boxID}`, value: boxID }))}
-                        onChange={this.changeSelectedBoxes}
-                        value={this.state.selectedBoxes}/>
+              <BoxSelector boxIDs={this.props.boxIDs}
+                           onChange={this.changeSelectedBoxes}
+                           value={this.state.selectedBoxes}/>
             </Grid.Column>
             <Grid.Column width={3}>
               <Button content='Submit' fluid onClick={this.getEvents}/>
