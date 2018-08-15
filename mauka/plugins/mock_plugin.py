@@ -27,7 +27,7 @@ def produce(broker: str, topic: str, message: str = None, message_bytes=None):
     :param message:  The message as a string.
     :param message_bytes: The message as bytes.
     """
-    logger.info("Producing %s:%s to %s", topic, message, broker)
+    # logger.info("Producing %s:%s to %s", topic, message, broker)
     zmq_context = zmq.Context()
     # noinspection PyUnresolvedReferences
     # pylint: disable=E1101

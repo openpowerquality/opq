@@ -159,8 +159,35 @@ class FrequencyVariationPlugin(plugins.base_plugin.MaukaPlugin):
                     incident["incident_classifications"],
                     incident["annotations"],
                     incident["metadata"],
-                    incident["mongo_client"]
+                    self.mongo_client
                 )
         else:
             self.logger.error("Received incorrect mauka message [%s] at FrequencyVariationPlugin",
                               protobuf.util.which_message_oneof(mauka_message))
+
+
+def rerun(mongo_client: mongo.OpqMongoClient, logger, mauka_message: protobuf.mauka_pb2.MaukaMessage):
+    if protobuf.util.is_payload(mauka_message, protobuf.mauka_pb2.FREQUENCY_WINDOWED):
+        client = mongo.get_default_client(mongo_client)
+        incidents = frequency_incident_classifier(mauka_message.payload.event_id, mauka_message.payload.box_id,
+                                                  protobuf.util.repeated_as_ndarray(mauka_message.payload.data),
+                                                  mauka_message.payload.start_timestamp_ms,
+                                                  60.0, 0.1, 0.1,
+                                                  58.0, logger=logger)
+
+        for incident in incidents:
+            mongo.store_incident(
+                incident["event_id"],
+                incident["box_id"],
+                incident["incident_start_ts"],
+                incident["incident_end_ts"],
+                incident["incident_type"],
+                incident["avg_deviation"],
+                incident["incident_classifications"],
+                incident["annotations"],
+                incident["metadata"],
+                client
+            )
+    else:
+        logger.error("Received incorrect mauka message [%s] at FrequencyVariationPlugin",
+                          protobuf.util.which_message_oneof(mauka_message))

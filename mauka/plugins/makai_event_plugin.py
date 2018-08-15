@@ -99,6 +99,62 @@ def frequency_waveform(waveform: numpy.ndarray, window_size: int = constants.SAM
     return numpy.array(frequencies)
 
 
+def acquire_data(mongo_client: mongo.OpqMongoClient, event_id: int, name: str) -> typing.Tuple[
+    protobuf.mauka_pb2.MaukaMessage,
+    protobuf.mauka_pb2.MaukaMessage,
+    protobuf.mauka_pb2.MaukaMessage,
+    protobuf.mauka_pb2.MaukaMessage]:
+    """
+    Given an event_id, acquire the raw data for each box associated with the given event. Perform feature
+    extraction of the raw data and publish those features for downstream plugins.
+    :param event_id: The event id to acquire data for.
+    """
+    box_events = mongo_client.box_events_collection.find({"event_id": event_id})
+    for box_event in box_events:
+        waveform = mongo.get_waveform(mongo_client, box_event["data_fs_filename"])
+        box_id = box_event["box_id"]
+        waveform_calibrated = waveform / mongo.cached_calibration_constant(box_id)
+
+        start_timestamp = box_event["event_start_timestamp_ms"]
+        end_timestamp = box_event["event_end_timestamp_ms"]
+
+        adc_samples = protobuf.util.build_payload(name,
+                                                  event_id,
+                                                  box_id,
+                                                  protobuf.mauka_pb2.ADC_SAMPLES,
+                                                  waveform,
+                                                  start_timestamp,
+                                                  end_timestamp)
+        #
+        # raw_voltage = protobuf.util.build_payload(name,
+        #                                           event_id,
+        #                                           box_id,
+        #                                           protobuf.mauka_pb2.VOLTAGE_RAW,
+        #                                           waveform_calibrated,
+        #                                           start_timestamp,
+        #                                           end_timestamp)
+
+        # rms_windowed_voltage = protobuf.util.build_payload(name,
+        #                                                    event_id,
+        #                                                    box_id,
+        #                                                    protobuf.mauka_pb2.VOLTAGE_RMS_WINDOWED,
+        #                                                    vrms_waveform(waveform_calibrated,
+        #                                                                  int(constants.SAMPLES_PER_CYCLE)),
+        #                                                    start_timestamp,
+        #                                                    end_timestamp)
+        rms_windowed_voltage = None
+        # frequency_windowed = protobuf.util.build_payload(name,
+        #                                                  event_id,
+        #                                                  box_id,
+        #                                                  protobuf.mauka_pb2.FREQUENCY_WINDOWED,
+        #                                                  frequency_waveform(waveform_calibrated,
+        #                                                                     int(constants.SAMPLES_PER_CYCLE)),
+        #                                                  start_timestamp,
+        #                                                  end_timestamp)
+        frequency_windowed = None
+        return adc_samples, None, rms_windowed_voltage, frequency_windowed
+
+
 class MakaiEventPlugin(plugins.base_plugin.MaukaPlugin):
     """
     This plugin retrieves data when Makai triggers events, performs feature extraction, and then publishes relevant
@@ -110,67 +166,43 @@ class MakaiEventPlugin(plugins.base_plugin.MaukaPlugin):
         super().__init__(config, ["MakaiEvent"], MakaiEventPlugin.NAME, exit_event)
         self.get_data_after_s = float(self.config["plugins.MakaiEventPlugin.getDataAfterS"])
 
-    def acquire_data(self, event_id: int):
-        """
-        Given an event_id, acquire the raw data for each box associated with the given event. Perform feature
-        extraction of the raw data and publish those features for downstream plugins.
-        :param event_id: The event id to acquire data for.
-        """
-        box_events = self.mongo_client.box_events_collection.find({"event_id": event_id})
-        for box_event in box_events:
-            waveform = mongo.get_waveform(self.mongo_client, box_event["data_fs_filename"])
-            box_id = box_event["box_id"]
-            waveform_calibrated = waveform / mongo.cached_calibration_constant(box_id)
-
-            start_timestamp = box_event["event_start_timestamp_ms"]
-            end_timestamp = box_event["event_end_timestamp_ms"]
-
-            adc_samples = protobuf.util.build_payload(self.name,
-                                                      event_id,
-                                                      box_id,
-                                                      protobuf.mauka_pb2.ADC_SAMPLES,
-                                                      waveform,
-                                                      start_timestamp,
-                                                      end_timestamp)
-
-            raw_voltage = protobuf.util.build_payload(self.name,
-                                                      event_id,
-                                                      box_id,
-                                                      protobuf.mauka_pb2.VOLTAGE_RAW,
-                                                      waveform_calibrated,
-                                                      start_timestamp,
-                                                      end_timestamp)
-
-            rms_windowed_voltage = protobuf.util.build_payload(self.name,
-                                                               event_id,
-                                                               box_id,
-                                                               protobuf.mauka_pb2.VOLTAGE_RMS_WINDOWED,
-                                                               vrms_waveform(waveform_calibrated,
-                                                                             int(constants.SAMPLES_PER_CYCLE)),
-                                                               start_timestamp,
-                                                               end_timestamp)
-
-            frequency_windowed = protobuf.util.build_payload(self.name,
-                                                             event_id,
-                                                             box_id,
-                                                             protobuf.mauka_pb2.FREQUENCY_WINDOWED,
-                                                             frequency_waveform(waveform_calibrated,
-                                                                                int(constants.SAMPLES_PER_CYCLE)),
-                                                             start_timestamp,
-                                                             end_timestamp)
-
-            self.produce("AdcSamples", adc_samples)
-            self.produce("RawVoltage", raw_voltage)
-            self.produce("RmsWindowedVoltage", rms_windowed_voltage)
-            self.produce("WindowedFrequency", frequency_windowed)
+    def acquire_and_produce(self, event_id: int):
+        adc_samples, raw_voltage, rms_windowed_voltage, frequency_windowed = acquire_data(self.mongo_client, event_id,
+                                                                                          self.name)
+        self.produce("AdcSamples", adc_samples)
+        self.produce("RawVoltage", raw_voltage)
+        self.produce("RmsWindowedVoltage", rms_windowed_voltage)
+        self.produce("WindowedFrequency", frequency_windowed)
 
     def on_message(self, topic, mauka_message):
         if protobuf.util.is_makai_event_message(mauka_message):
             self.debug("on_message: {}".format(mauka_message))
             timer = threading.Timer(self.get_data_after_s,
-                                    function=self.acquire_data,
+                                    function=self.acquire_and_produce,
                                     args=[mauka_message.makai_event.event_id])
             timer.start()
         else:
             self.logger.error("Received incorrect mauka message [%s] for MakaiEventPlugin",
                               protobuf.util.which_message_oneof(mauka_message))
+
+
+import plugins.frequency_variation_plugin
+import plugins.ieee1159_voltage_plugin
+import plugins.itic_plugin
+import plugins.semi_f47_plugin
+import plugins.thd_plugin
+
+import logging
+
+client = mongo.get_default_client()
+logger = logging.getLogger()
+def rerun(event_id: int):
+    try:
+        adc_samples, raw_voltage, rms_windowed_voltage, frequency_windowed = acquire_data(client, event_id, "rerun")
+        # plugins.frequency_variation_plugin.rerun(client, logger, frequency_windowed)
+        # plugins.ieee1159_voltage_plugin.rerun(rms_windowed_voltage, logger, client)
+        # plugins.itic_plugin.rerun(rms_windowed_voltage, 0.1, logger, client)
+        # plugins.semi_f47_plugin.rerun(client, rms_windowed_voltage)
+        plugins.thd_plugin.rerun(adc_samples, logger, client)
+    except:
+        pass

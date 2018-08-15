@@ -196,3 +196,19 @@ class Ieee1159VoltagePlugin(plugins.base_plugin.MaukaPlugin):
         else:
             self.logger.error("Received incorrect mauka message [%s] at IticPlugin",
                               protobuf.util.which_message_oneof(mauka_message))
+
+
+def rerun(mauka_message: protobuf.mauka_pb2.MaukaMessage,
+          logger,
+          mongo_client: mongo.OpqMongoClient = None):
+    client = mongo.get_default_client(mongo_client)
+
+    if protobuf.util.is_payload(mauka_message, protobuf.mauka_pb2.VOLTAGE_RMS_WINDOWED):
+        ieee1159_voltage(mauka_message,
+                         protobuf.util.repeated_as_ndarray(
+                             mauka_message.payload.data
+                         ),
+                         client)
+    else:
+        logger.error("Received incorrect mauka message [%s] at VoltagePlugin rerun",
+                     protobuf.util.which_message_oneof(mauka_message))
