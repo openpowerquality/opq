@@ -39,6 +39,7 @@
   "plugins.TransientPlugin.PF.cap.switching.high.ratio" : 1.8,
   "plugins.TransientPlugin.PF.cap.switching.low.freq.hz" : 400.0,
   "plugins.TransientPlugin.PF.cap.switching.high.freq.hz" : 2000.0,
+  "plugins.TransientPlugin.max.lull.ms" : 1.0,
 
   "plugins.MakaiEventPlugin.getDataAfterS": 10.0,
 
