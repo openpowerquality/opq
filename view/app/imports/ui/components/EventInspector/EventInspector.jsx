@@ -2,7 +2,7 @@ import { Meteor } from 'meteor/meteor';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { withTracker } from 'meteor/react-meteor-data';
-import { Grid, Input, Button, Dropdown, Loader } from 'semantic-ui-react';
+import { Grid, Input, Button, Loader } from 'semantic-ui-react';
 import Moment from 'moment/moment';
 import Lodash from 'lodash';
 

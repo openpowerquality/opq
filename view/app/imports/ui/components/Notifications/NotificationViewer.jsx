@@ -1,6 +1,6 @@
 import React from 'react';
 import { Meteor } from 'meteor/meteor';
-import { Feed, Icon, Popup, Label } from 'semantic-ui-react';
+import { Feed, Icon, Popup, Label, Loader, Container } from 'semantic-ui-react';
 import PropTypes from 'prop-types';
 import { withTracker } from 'meteor/react-meteor-data';
 import { HashLink as Link } from 'react-router-hash-link';
@@ -11,12 +11,9 @@ import './notificationStyle.css';
 
 class NotificationViewer extends React.Component {
 
-  constructor(props) {
-    super(props);
-    this.state = {
-      // red label appears on notification icon when newNotifications is true
-      newNotifications: this.props.user.unseen_notifications,
-    };
+  /** If the subscription(s) have been received, render the page, otherwise show a loading icon. */
+  render() {
+    return (this.props.ready) ? this.renderPage() : <Loader active>Getting data</Loader>;
   }
 
   /**
@@ -28,14 +25,17 @@ class NotificationViewer extends React.Component {
     const id = this.props.user._id;
     const updateData = { id, unseen_notifications: 'false' };
     updateMethod.call({ collectionName, updateData });
-    this.setState({ newNotifications: false });
   };
 
   renderBellIcon() {
+    let newNotifications = false;
+    if (this.props.user !== undefined) {
+      newNotifications = this.props.user.unseen_notifications;
+    }
     return (
         <Icon.Group>
           <Icon name='bell' style={this.props.divStyle} onClick={this.notificationSeen}/>
-          {this.state.newNotifications ? (
+          {newNotifications ? (
               <Icon corner name='circle' color='red'/>
           ) : ''}
         </Icon.Group>
@@ -43,30 +43,32 @@ class NotificationViewer extends React.Component {
   }
 
   /** Renders a popup that displays all of the user's notifications */
-  render() {
+  renderPage() {
     return (
-        <Popup trigger={this.renderBellIcon()} on='click' basic position='bottom left' id='popupStyle'>
-          <Popup.Header id='popupHeader'>
-            Notifications
-          </Popup.Header>
-          <Feed>
-            {(this.props.userNotifications).length > 0 ? (this.props.userNotifications.map((notification) =>
-                    <Feed.Event key={notification._id}
-                                icon='exclamation circle'
-                                meta={notification.timestamp.toLocaleString()}
-                                summary={notification.data.summary}
-                    />)) :
-                // if there are no notifications display this message
-                <Feed.Extra>
-                  <Icon name='bell slash outline' size='big'/>
-                  <p><br/>No new notifications yet</p>
-                </Feed.Extra>
-            }
-          </Feed>
-          <Label attached='bottom' size='small'>
-            <Link smooth to="/profile#ntf-settings"><Icon name='setting'/>Manage Notifications</Link>
-          </Label>
-        </Popup>
+        <Container>
+          <Popup trigger={this.renderBellIcon()} on='click' basic position='bottom left' id='popupStyle'>
+            <Popup.Header id='popupHeader'>
+              Notifications
+            </Popup.Header>
+            <Feed>
+              {(this.props.userNotifications).length > 0 ? (this.props.userNotifications.map((notification) =>
+                      <Feed.Event key={notification._id}
+                                  icon='exclamation circle'
+                                  meta={notification.timestamp.toLocaleString()}
+                                  summary={notification.data.summary}
+                      />)) :
+                  // if there are no notifications display this message
+                  <Feed.Extra>
+                    <Icon name='bell slash outline' size='big'/>
+                    <p><br/>No new notifications yet</p>
+                  </Feed.Extra>
+              }
+            </Feed>
+            <Label attached='bottom' size='small'>
+              <Link smooth to="/profile#ntf-settings"><Icon name='setting'/>Manage Notifications</Link>
+            </Label>
+          </Popup>
+        </Container>
     );
   }
 }
@@ -74,17 +76,18 @@ class NotificationViewer extends React.Component {
 NotificationViewer.propTypes = {
   ready: PropTypes.bool.isRequired,
   userNotifications: PropTypes.array,
-  user: PropTypes.object,
   divStyle: PropTypes.object,
+  user: PropTypes.object,
 };
 
 export default withTracker(() => {
   const notificationsSub = Meteor.subscribe(Notifications.getPublicationName());
   const userProfilesSub = Meteor.subscribe(UserProfiles.getPublicationName());
   const username = Meteor.user().username;
+  const user = UserProfiles.findOne({ username });
   return {
     ready: notificationsSub.ready() && userProfilesSub.ready(),
     userNotifications: Notifications.findNotificationsByUser(username),
-    user: UserProfiles.findByUsername(username),
+    user: user,
   };
 })(NotificationViewer);
