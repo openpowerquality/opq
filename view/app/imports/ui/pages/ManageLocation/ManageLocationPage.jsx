@@ -32,6 +32,7 @@ class ManageLocationPage extends React.Component {
                   <Table.HeaderCell>Slug</Table.HeaderCell>
                   <Table.HeaderCell>Location</Table.HeaderCell>
                   <Table.HeaderCell>Coordinates</Table.HeaderCell>
+                  <Table.HeaderCell></Table.HeaderCell>
                 </Table.Row>
               </Table.Header>
               <Table.Body>
@@ -40,14 +41,14 @@ class ManageLocationPage extends React.Component {
                   <Table.Cell>{location.description}</Table.Cell>
                   <Table.Cell>{location.coordinates[0]}, {location.coordinates[1]}</Table.Cell>
                   <Table.Cell>
-                    <Button size='tiny'><Link to={`/admin/manage/location/edit/${location._id}`}>Edit</Link></Button>
+                    <Button size='tiny' as={Link} to={`/admin/manage/location/edit/${location._id}`}>Edit</Button>
                   </Table.Cell>
                 </Table.Row>)}
               </Table.Body>
               <Table.Footer fullWidth>
                 <Table.Row>
                   <Table.HeaderCell colSpan='5'>
-                    <Button><Link to={'/admin/manage/location/new'}>Add OPQ Location</Link></Button>
+                    <Button size='tiny' as={Link} to={'/admin/manage/location/new'}>Add OPQ Location</Button>
                   </Table.HeaderCell>
                 </Table.Row>
               </Table.Footer>

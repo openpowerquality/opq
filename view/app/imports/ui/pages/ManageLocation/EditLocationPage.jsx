@@ -6,23 +6,21 @@ import { withRouter, Link } from 'react-router-dom';
 import { Container, Loader, Segment, Button } from 'semantic-ui-react';
 import AutoForm from 'uniforms-semantic/AutoForm';
 import AutoField from 'uniforms-semantic/AutoField';
-import SubmitField from 'uniforms-semantic/SubmitField';
 import HiddenField from 'uniforms-semantic/HiddenField';
+import SubmitField from 'uniforms-semantic/SubmitField';
 import ErrorsField from 'uniforms-semantic/ErrorsField';
 import { Locations } from '/imports/api/locations/LocationsCollection';
-import { UserProfiles } from '/imports/api/users/UserProfilesCollection';
 import { withTracker } from 'meteor/react-meteor-data';
 import SimpleSchema from 'simpl-schema';
 import { updateMethod } from '/imports/api/base/BaseCollection.methods';
 import WidgetPanel from '/imports/ui/layouts/WidgetPanel';
 
-class EditLocationPage extends React.component {
+class EditLocationPage extends React.Component {
 
   helpText = `
   <p>Edit an OPQ location.</p>
   <p>Click 'Back to Manage Locations' to return to the listing page.</p>
   `;
-
 
   /** If the subscription(s) have been received, render the page, otherwise show a loading icon. */
   render() {
@@ -31,9 +29,10 @@ class EditLocationPage extends React.component {
 
   /** On submit, look up location slug from description, then call generic base.updateMethod. */
   submit(data) {
-    const { slug, coordinates, description } = data;
+    const { id, slug, coordinates, description } = data;
+    const docID = Locations.getDocById(id)._id;
     const collectionName = Locations.getCollectionName();
-    const updateData = { slug: slug, coordinates, description };
+    const updateData = { id: docID, slug, coordinates, description };
     updateMethod.call({ collectionName, updateData }, (error) => (error ?
         Bert.alert({ type: 'danger', style: 'growl-bottom-left', message: `Update failed: ${error.message}` }) :
         Bert.alert({ type: 'success', style: 'growl-bottom-left', message: 'Update succeeded' })));
@@ -45,18 +44,21 @@ class EditLocationPage extends React.component {
    */
   renderPage() {
     const formSchema = new SimpleSchema({
+      id: String,
       slug: String,
       coordinates: { type: Array },
       'coordinates.$': { type: Number },
       description: String,
     });
+    this.props.doc.id = this.props.id;
     // Update the Uniforms model with current values for locationDescription and Owners.
-    this.props.doc.locationDescription = Locations.getDoc(this.props.doc.location).description;
+    // this.props.doc.locationDescription = Locations.getDoc(this.props.doc.location).description;
     return (
         <Container>
           <WidgetPanel title="Edit Location" helpText={this.helpText} noPadding>
             <AutoForm schema={formSchema} onSubmit={this.submit} model={this.props.doc}>
               <Segment>
+                <HiddenField name='id' value={this.props.doc.id}/>
                 <AutoField name='slug'/>
                 <AutoField name='coordinates'/>
                 <AutoField name='description'/>
@@ -64,8 +66,8 @@ class EditLocationPage extends React.component {
                 <ErrorsField/>
               </Segment>
             </AutoForm>
-            <Button attached='bottom' size='tiny'>
-              <Link to={'/admin/manage/location/'}>Back to Manage Locations</Link>
+            <Button attached='bottom' size='tiny' as={Link} to={'/admin/manage/location/'}>
+              Back to Manage Locations
             </Button>
           </WidgetPanel>
         </Container>
@@ -78,6 +80,7 @@ EditLocationPage.propTypes = {
   doc: PropTypes.object,
   model: PropTypes.object,
   ready: PropTypes.bool.isRequired,
+  id: PropTypes.string,
 };
 
 /** withTracker connects Meteor data to React components. https://guide.meteor.com/react.html#using-withTracker */
@@ -87,7 +90,8 @@ export default withTracker(({ match }) => {
   const locationsSubscription = Meteor.subscribe(Locations.getPublicationName());
   return {
     ready: locationsSubscription.ready(),
-    doc: Locations.findLocationBy_id(location_id),
+    doc: Locations.getDocById(location_id),
+    id: location_id,
   };
 })(withRouter(EditLocationPage));
 

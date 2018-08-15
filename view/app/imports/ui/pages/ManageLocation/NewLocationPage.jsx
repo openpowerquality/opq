@@ -59,8 +59,8 @@ class NewLocationPage extends React.Component {
                 <ErrorsField/>
               </Segment>
             </AutoForm>
-            <Button attached='bottom' size='tiny'>
-              <Link to={'/admin/manage/location/'}>Back to Manage OPQBoxes</Link>
+            <Button attached='bottom' size='tiny' as={Link} to={'/admin/manage/location/'}>
+              Back to Manage Locations
             </Button>
           </WidgetPanel>
         </Container>

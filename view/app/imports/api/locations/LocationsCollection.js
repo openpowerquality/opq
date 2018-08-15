@@ -73,18 +73,18 @@ class LocationsCollection extends BaseCollection {
 
   /**
    * Returns the location document associated with _id, or throws an error if not found.
-   * @param _id The location _id
+   * @param id The location _id
    * @returns {Object} The location document.
    * @throws { Meteor.Error } If the _id is not defined.
    */
-  getDocBy_id(_id) {
-    const doc = this._collection.findOne({ _id });
+  getDocById(id) {
+    const docID = new Meteor.Collection.ObjectID(id);
+    const doc = this._collection.findOne({ _id: docID }, {});
     if (!doc) {
-      throw new Meteor.Error(`Undefined _id ${_id}.`);
+      throw new Meteor.Error(`Undefined _id ${docID}.`);
     }
     return doc;
   }
-
 
   /**
    * Returns an array of all the defined Location documents.
@@ -133,6 +133,24 @@ class LocationsCollection extends BaseCollection {
       throw new Meteor.Error(`Location _id ${_id} is not defined.`);
     }
     return locationDoc;
+  }
+
+  update(docID, args) {
+    if (Meteor.isServer) {
+      const updateData = {};
+      if (args.slug) {
+        updateData.slug = args.slug;
+      }
+      if (args.coordinates) {
+        updateData.coordinates = args.coordinates;
+      }
+      if (args.description) {
+        updateData.description = args.description;
+      }
+      this._collection.update(docID, { $set: updateData });
+      return updateData;
+    }
+    return undefined;
   }
 
 }
