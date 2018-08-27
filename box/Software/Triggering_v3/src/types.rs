@@ -1,5 +1,7 @@
+use std::collections::HashMap;
 use std::fmt;
 use std::time::SystemTime;
+
 pub const POINTS_PER_PACKET: usize = 200;
 
 #[repr(C, packed)]
@@ -23,8 +25,9 @@ impl fmt::Debug for RawWindow {
 
 #[derive(Debug)]
 pub struct Window {
-    raw_window: RawWindow,
-    time_stamp_ms: SystemTime,
+    pub raw_window: RawWindow,
+    pub time_stamp_ms: SystemTime,
+    pub results: HashMap<String, f32>,
 }
 
 impl Window {
@@ -32,6 +35,7 @@ impl Window {
         Window {
             raw_window: raw_window,
             time_stamp_ms: SystemTime::now(),
+            results: HashMap::new(),
         }
     }
 }

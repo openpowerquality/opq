@@ -1,14 +1,14 @@
-
+use crossbeam_channel::Sender;
 use network_manager::NetworkManager;
-use opqbox3::{Command, Command_oneof_command, GetInfoResponse};
+use opqbox3::{Command, Command_oneof_command, GetInfoResponse, SendCommandToPlugin};
 use pnet;
 use protobuf::{parse_from_bytes, ProtobufError};
 use std::sync::Arc;
 use std::thread;
 
+use config::Config;
 use uptime_lib;
 use zmq::{Context, Socket, PUSH, SUB};
-use config::Config;
 
 //use pod_types::Window;
 
@@ -20,8 +20,10 @@ fn create_sub_socket(ctx: &Context, config: &Arc<Config>) -> Socket {
     sub.set_curve_serverkey(&config.settings.server_public_key)
         .unwrap();
 
-    sub.set_curve_publickey(&config.settings.box_public_key).unwrap();
-    sub.set_curve_secretkey(&config.settings.box_secret_key).unwrap();
+    sub.set_curve_publickey(&config.settings.box_public_key)
+        .unwrap();
+    sub.set_curve_secretkey(&config.settings.box_secret_key)
+        .unwrap();
     sub.connect(&config.settings.cmd_sub_ep).unwrap();
     sub
 }
@@ -32,8 +34,10 @@ fn create_push_socket(ctx: &Context, config: &Arc<Config>) -> Socket {
     push.set_curve_serverkey(&config.settings.server_public_key)
         .unwrap();
 
-    push.set_curve_publickey(&config.settings.box_public_key).unwrap();
-    push.set_curve_secretkey(&config.settings.box_secret_key).unwrap();
+    push.set_curve_publickey(&config.settings.box_public_key)
+        .unwrap();
+    push.set_curve_secretkey(&config.settings.box_secret_key)
+        .unwrap();
     push.connect(&config.settings.cmd_push_ep).unwrap();
     push
 }
@@ -68,7 +72,10 @@ fn process_info_command(config: &Arc<Config>) -> GetInfoResponse {
     resp
 }
 
-pub fn start_cmd_processor(config: Arc<Config>) -> thread::JoinHandle<()> {
+pub fn start_cmd_processor(
+    tx_cmd_to_processing: Sender<SendCommandToPlugin>,
+    config: Arc<Config>,
+) -> thread::JoinHandle<()> {
     process_info_command(&config);
     thread::spawn(move || {
         let ctx = Context::default();
@@ -91,6 +98,7 @@ pub fn start_cmd_processor(config: Arc<Config>) -> thread::JoinHandle<()> {
                 Command_oneof_command::info_command(info) => {}
                 Command_oneof_command::data_command(data) => {}
                 Command_oneof_command::sampling_rate_command(sr) => {}
+                Command_oneof_command::send_command_to_plugin(pc) => {}
             }
         }
     })

@@ -18,5 +18,5 @@ uptime_lib ="*"
 libloading = "*"
 log = "0.4.0"
 syslog = "4"
-[dependencies.pnet]
-version = "0.21.0"
+crossbeam-channel = "0.2"
+pnet = "0.21.0"

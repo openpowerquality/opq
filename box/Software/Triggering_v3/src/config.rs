@@ -1,32 +1,51 @@
 use serde_json::from_reader;
+use std::collections::HashMap;
 use std::fs::File;
 use std::path::Path;
-use std::collections::HashMap;
-use std::sync::Mutex;
 use std::sync::Arc;
+use std::sync::Mutex;
+
+pub const WINDOWS_PER_MEASUREMENT: &'static str = "windows_per_measurement";
 
 #[derive(Debug)]
-pub struct Config{
-    pub settings : Settings,
-    state : Mutex<HashMap<String, f32>>,
+pub struct Config {
+    pub settings: Settings,
+    state: Mutex<HashMap<String, f32>>,
 }
 
 impl Config {
-    pub fn new(file_path:&str) -> Result<Arc<Config>, String>{
+    pub fn new(file_path: &str) -> Result<Arc<Config>, String> {
         info!("Loading configuration file {} ", file_path);
         let settings = match Settings::load_from_file(file_path) {
             Ok(s) => s,
             Err(e) => {
-                return Err(format!("Could not load a settings file {}: {}", file_path, e));
+                return Err(format!(
+                    "Could not load a settings file {}: {}",
+                    file_path, e
+                ));
             }
         };
-        Ok(Arc::new(Config {
-            settings:settings,
-            state : Mutex::new(HashMap::new())
-        }))
+        let cfg = Arc::new(Config {
+            settings: settings,
+            state: Mutex::new(HashMap::new()),
+        });
+        let wpm = cfg.settings.windows_per_measurements as f32;
+        cfg.set_state(&WINDOWS_PER_MEASUREMENT.to_string(), wpm);
+        Ok(cfg)
+    }
+
+    pub fn get_state(&self, k: &String) -> Option<f32> {
+        let map = self.state.lock().unwrap();
+        match map.get(k) {
+            None => None,
+            Some(val) => Some(*val),
+        }
+    }
+    pub fn set_state(&self, k: &String, val: f32) {
+        let mut map = self.state.lock().unwrap();
+        map.insert(k.clone(), val);
     }
 }
-
 
 ///Representation of the configuration file's required fields.
 #[derive(Debug, Serialize, Deserialize)]
@@ -35,7 +54,6 @@ pub struct Settings {
     pub cmd_sub_ep: String,
     /// zmq endpoint for the cmd tx
     pub cmd_push_ep: String,
-
     //zmq endpoint for triggering stream
     pub trg_push_ep: String,
 
@@ -44,11 +62,17 @@ pub struct Settings {
     pub box_public_key: String,
     ///Server Key
     pub server_public_key: String,
+
     //Box_id
     pub box_id: u32,
-
+    //Calibration constant.
+    pub calibration: f32,
     //Device path:
-    pub device_path : String,
+    pub device_path: String,
+    //Number of windows to aggregate into a single measurement
+    pub windows_per_measurements: usize,
+    //Number of stored windows in the ring buffer
+    pub windows_in_storage_buffer,
     ///Plugin specific settings.
     pub plugins: Vec<String>,
 }

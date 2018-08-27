@@ -1,10 +1,13 @@
+use crossbeam_channel::{Receiver, Sender};
 use libloading::{Library, Symbol};
 use std::boxed::Box;
-use std::sync::mpsc::Receiver;
+use std::collections::HashMap;
 use std::sync::Arc;
 use std::thread;
+use std::time::SystemTime;
 
 use config::Config;
+use opqbox3::SendCommandToPlugin;
 use plugin::TriggeringPlugin;
 use types;
 
@@ -64,7 +67,12 @@ impl PluginManager {
     }
 }
 
-pub fn run_plugins(rx: Receiver<types::Window>, config: Arc<Config>) -> thread::JoinHandle<()> {
+pub fn run_plugins(
+    rx: Receiver<types::Window>,
+    tx: Sender<types::Window>,
+    command_rx: Receiver<SendCommandToPlugin>,
+    config: Arc<Config>,
+) -> thread::JoinHandle<()> {
     thread::spawn(move || {
         let mut plugins = vec![];
         let mut manager = PluginManager::new();
@@ -76,15 +84,41 @@ pub fn run_plugins(rx: Receiver<types::Window>, config: Arc<Config>) -> thread::
                     plg
                 }
                 Err(e) => {
-                    warn!("{}" , e);
+                    warn!("{}", e);
                     continue;
                 }
             });
         }
         loop {
-            let mut window = rx.recv().unwrap();
-            print!(".");
-            let res:Vec<_> = plugins.iter_mut().map(|x| x.process_window(&mut window)).collect();
+            select! {
+                //Here we handle the data stream.
+                recv(rx, window_option) =>
+                {
+                    if let Some(mut window) = window_option {
+                        window.time_stamp_ms = SystemTime::now();
+                        let outputs: Vec < Option < HashMap < String, f32 > > > = plugins.iter_mut()
+                        .map( | x | x.process_window( & mut window))
+                        .collect();
+                        for output in outputs {
+                            if let Some(map) = output {
+                                window.results.extend(map);
+                            }
+                        }
+
+                        tx.send(window);
+                    }
+                },
+                //Here we handle the command stream.
+                recv(command_rx, cmd_option) => {
+                    if let Some(cmd) = cmd_option{
+                        for plugin in &mut plugins{
+                            if plugin.name() == cmd.plugin_name{
+                                plugin.process_command(&cmd.message);
+                            }
+                        }
+                    }
+                }
+            }
         }
     })
 }

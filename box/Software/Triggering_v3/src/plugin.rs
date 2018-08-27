@@ -1,9 +1,11 @@
 use std::any::Any;
+use std::collections::HashMap;
 use types;
 
 pub trait TriggeringPlugin: Any {
     fn name(&self) -> &'static str;
-    fn process_window(&mut self, msg: &mut types::Window);
+    fn process_window(&mut self, msg: &mut types::Window) -> Option<HashMap<String, f32>>;
+    fn process_command(&mut self, cmd: &String);
     fn init(&mut self);
 }
 

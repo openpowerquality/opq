@@ -35,8 +35,12 @@ message GetDataCommand {
 message SetMeasturementRateCommand {
     //How many grid cycles to process per measurements.
     uint32 measurement_window_cycles = 1;
-    //How long shoud the new rate percist in ms. 0 will adapt new rate indefinitely.
-    uint32 duration_ms = 2;
+}
+
+//Send a command to a specific plugin.
+message SendCommandToPlugin{
+    string plugin_name = 1;
+    string message = 2;
 }
 
 //Command buffer.
@@ -50,6 +54,7 @@ message Command {
         GetInfoCommand info_command = 3;
         GetDataCommand data_command = 4;
         SetMeasturementRateCommand sampling_rate_command = 5;
+        SendCommandToPlugin send_command_to_plugin = 7;
     }
 }
 
@@ -78,7 +83,7 @@ message SetMeasurementRateResponse {
 }
 
 //Header for the get data command. 
-message GetDateResponseHeader {
+message GetDataResponseHeader {
     uint64 start_ts = 1;
     uint64 end_ts = 2;
 }
@@ -95,6 +100,6 @@ message Response {
     oneof response {
         GetInfoResponse info_response = 4;
         SetMeasurementRateResponse message_rate_reponse = 5;
-        GetDateResponseHeader get_data_response = 6;
+        GetDataResponseHeader get_data_response = 6;
     }
 }

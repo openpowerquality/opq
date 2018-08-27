@@ -1,16 +1,16 @@
+use crossbeam_channel::Sender;
 use std::error::Error;
 use std::fs::File;
 use std::io::Read;
 use std::mem;
 use std::path::Path;
+use std::process::exit;
 use std::slice;
-use std::sync::mpsc::Sender;
 use std::sync::Arc;
 use std::thread;
 //Local dependencies
-use types;
 use config::Config;
-
+use types;
 
 pub fn start_capture(tx: Sender<types::Window>, config: Arc<Config>) -> thread::JoinHandle<()> {
     thread::spawn(move || {
@@ -37,13 +37,14 @@ pub fn start_capture(tx: Sender<types::Window>, config: Arc<Config>) -> thread::
                 let buffer =
                     slice::from_raw_parts_mut(&mut raw_window as *mut _ as *mut u8, struct_size);
                 if let Err(why) = file.read_exact(buffer) {
-                    panic!(
+                    error!(
                         "couldn't read device driver handle {}: {}",
                         path.display(),
                         why.description()
-                    )
+                    );
+                    exit(-1);
                 }
-                tx.send(types::Window::new(raw_window)).unwrap();
+                tx.send(types::Window::new(raw_window));
             }
         }
     })

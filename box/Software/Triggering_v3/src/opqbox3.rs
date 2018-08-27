@@ -662,7 +662,6 @@ impl ::protobuf::reflect::ProtobufValue for GetDataCommand {
 pub struct SetMeasturementRateCommand {
     // message fields
     pub measurement_window_cycles: u32,
-    pub duration_ms: u32,
     // special fields
     unknown_fields: ::protobuf::UnknownFields,
     cached_size: ::protobuf::CachedSize,
@@ -708,29 +707,6 @@ impl SetMeasturementRateCommand {
     fn mut_measurement_window_cycles_for_reflect(&mut self) -> &mut u32 {
         &mut self.measurement_window_cycles
     }
-
-    // uint32 duration_ms = 2;
-
-    pub fn clear_duration_ms(&mut self) {
-        self.duration_ms = 0;
-    }
-
-    // Param is passed by value, moved
-    pub fn set_duration_ms(&mut self, v: u32) {
-        self.duration_ms = v;
-    }
-
-    pub fn get_duration_ms(&self) -> u32 {
-        self.duration_ms
-    }
-
-    fn get_duration_ms_for_reflect(&self) -> &u32 {
-        &self.duration_ms
-    }
-
-    fn mut_duration_ms_for_reflect(&mut self) -> &mut u32 {
-        &mut self.duration_ms
-    }
 }
 
 impl ::protobuf::Message for SetMeasturementRateCommand {
@@ -749,13 +725,6 @@ impl ::protobuf::Message for SetMeasturementRateCommand {
                     let tmp = is.read_uint32()?;
                     self.measurement_window_cycles = tmp;
                 },
-                2 => {
-                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
-                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
-                    }
-                    let tmp = is.read_uint32()?;
-                    self.duration_ms = tmp;
-                },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
                 },
@@ -771,9 +740,6 @@ impl ::protobuf::Message for SetMeasturementRateCommand {
         if self.measurement_window_cycles != 0 {
             my_size += ::protobuf::rt::value_size(1, self.measurement_window_cycles, ::protobuf::wire_format::WireTypeVarint);
         }
-        if self.duration_ms != 0 {
-            my_size += ::protobuf::rt::value_size(2, self.duration_ms, ::protobuf::wire_format::WireTypeVarint);
-        }
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
         my_size
@@ -782,9 +748,6 @@ impl ::protobuf::Message for SetMeasturementRateCommand {
     fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream) -> ::protobuf::ProtobufResult<()> {
         if self.measurement_window_cycles != 0 {
             os.write_uint32(1, self.measurement_window_cycles)?;
-        }
-        if self.duration_ms != 0 {
-            os.write_uint32(2, self.duration_ms)?;
         }
         os.write_unknown_fields(self.get_unknown_fields())?;
         ::std::result::Result::Ok(())
@@ -835,11 +798,6 @@ impl ::protobuf::MessageStatic for SetMeasturementRateCommand {
                     SetMeasturementRateCommand::get_measurement_window_cycles_for_reflect,
                     SetMeasturementRateCommand::mut_measurement_window_cycles_for_reflect,
                 ));
-                fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeUint32>(
-                    "duration_ms",
-                    SetMeasturementRateCommand::get_duration_ms_for_reflect,
-                    SetMeasturementRateCommand::mut_duration_ms_for_reflect,
-                ));
                 ::protobuf::reflect::MessageDescriptor::new::<SetMeasturementRateCommand>(
                     "SetMeasturementRateCommand",
                     fields,
@@ -853,7 +811,6 @@ impl ::protobuf::MessageStatic for SetMeasturementRateCommand {
 impl ::protobuf::Clear for SetMeasturementRateCommand {
     fn clear(&mut self) {
         self.clear_measurement_window_cycles();
-        self.clear_duration_ms();
         self.unknown_fields.clear();
     }
 }
@@ -865,6 +822,232 @@ impl ::std::fmt::Debug for SetMeasturementRateCommand {
 }
 
 impl ::protobuf::reflect::ProtobufValue for SetMeasturementRateCommand {
+    fn as_ref(&self) -> ::protobuf::reflect::ProtobufValueRef {
+        ::protobuf::reflect::ProtobufValueRef::Message(self)
+    }
+}
+
+#[derive(PartialEq,Clone,Default)]
+pub struct SendCommandToPlugin {
+    // message fields
+    pub plugin_name: ::std::string::String,
+    pub message: ::std::string::String,
+    // special fields
+    unknown_fields: ::protobuf::UnknownFields,
+    cached_size: ::protobuf::CachedSize,
+}
+
+// see codegen.rs for the explanation why impl Sync explicitly
+unsafe impl ::std::marker::Sync for SendCommandToPlugin {}
+
+impl SendCommandToPlugin {
+    pub fn new() -> SendCommandToPlugin {
+        ::std::default::Default::default()
+    }
+
+    pub fn default_instance() -> &'static SendCommandToPlugin {
+        static mut instance: ::protobuf::lazy::Lazy<SendCommandToPlugin> = ::protobuf::lazy::Lazy {
+            lock: ::protobuf::lazy::ONCE_INIT,
+            ptr: 0 as *const SendCommandToPlugin,
+        };
+        unsafe {
+            instance.get(SendCommandToPlugin::new)
+        }
+    }
+
+    // string plugin_name = 1;
+
+    pub fn clear_plugin_name(&mut self) {
+        self.plugin_name.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_plugin_name(&mut self, v: ::std::string::String) {
+        self.plugin_name = v;
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_plugin_name(&mut self) -> &mut ::std::string::String {
+        &mut self.plugin_name
+    }
+
+    // Take field
+    pub fn take_plugin_name(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.plugin_name, ::std::string::String::new())
+    }
+
+    pub fn get_plugin_name(&self) -> &str {
+        &self.plugin_name
+    }
+
+    fn get_plugin_name_for_reflect(&self) -> &::std::string::String {
+        &self.plugin_name
+    }
+
+    fn mut_plugin_name_for_reflect(&mut self) -> &mut ::std::string::String {
+        &mut self.plugin_name
+    }
+
+    // string message = 2;
+
+    pub fn clear_message(&mut self) {
+        self.message.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_message(&mut self, v: ::std::string::String) {
+        self.message = v;
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_message(&mut self) -> &mut ::std::string::String {
+        &mut self.message
+    }
+
+    // Take field
+    pub fn take_message(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.message, ::std::string::String::new())
+    }
+
+    pub fn get_message(&self) -> &str {
+        &self.message
+    }
+
+    fn get_message_for_reflect(&self) -> &::std::string::String {
+        &self.message
+    }
+
+    fn mut_message_for_reflect(&mut self) -> &mut ::std::string::String {
+        &mut self.message
+    }
+}
+
+impl ::protobuf::Message for SendCommandToPlugin {
+    fn is_initialized(&self) -> bool {
+        true
+    }
+
+    fn merge_from(&mut self, is: &mut ::protobuf::CodedInputStream) -> ::protobuf::ProtobufResult<()> {
+        while !is.eof()? {
+            let (field_number, wire_type) = is.read_tag_unpack()?;
+            match field_number {
+                1 => {
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.plugin_name)?;
+                },
+                2 => {
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.message)?;
+                },
+                _ => {
+                    ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
+                },
+            };
+        }
+        ::std::result::Result::Ok(())
+    }
+
+    // Compute sizes of nested messages
+    #[allow(unused_variables)]
+    fn compute_size(&self) -> u32 {
+        let mut my_size = 0;
+        if !self.plugin_name.is_empty() {
+            my_size += ::protobuf::rt::string_size(1, &self.plugin_name);
+        }
+        if !self.message.is_empty() {
+            my_size += ::protobuf::rt::string_size(2, &self.message);
+        }
+        my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
+        self.cached_size.set(my_size);
+        my_size
+    }
+
+    fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream) -> ::protobuf::ProtobufResult<()> {
+        if !self.plugin_name.is_empty() {
+            os.write_string(1, &self.plugin_name)?;
+        }
+        if !self.message.is_empty() {
+            os.write_string(2, &self.message)?;
+        }
+        os.write_unknown_fields(self.get_unknown_fields())?;
+        ::std::result::Result::Ok(())
+    }
+
+    fn get_cached_size(&self) -> u32 {
+        self.cached_size.get()
+    }
+
+    fn get_unknown_fields(&self) -> &::protobuf::UnknownFields {
+        &self.unknown_fields
+    }
+
+    fn mut_unknown_fields(&mut self) -> &mut ::protobuf::UnknownFields {
+        &mut self.unknown_fields
+    }
+
+    fn as_any(&self) -> &::std::any::Any {
+        self as &::std::any::Any
+    }
+    fn as_any_mut(&mut self) -> &mut ::std::any::Any {
+        self as &mut ::std::any::Any
+    }
+    fn into_any(self: Box<Self>) -> ::std::boxed::Box<::std::any::Any> {
+        self
+    }
+
+    fn descriptor(&self) -> &'static ::protobuf::reflect::MessageDescriptor {
+        ::protobuf::MessageStatic::descriptor_static(None::<Self>)
+    }
+}
+
+impl ::protobuf::MessageStatic for SendCommandToPlugin {
+    fn new() -> SendCommandToPlugin {
+        SendCommandToPlugin::new()
+    }
+
+    fn descriptor_static(_: ::std::option::Option<SendCommandToPlugin>) -> &'static ::protobuf::reflect::MessageDescriptor {
+        static mut descriptor: ::protobuf::lazy::Lazy<::protobuf::reflect::MessageDescriptor> = ::protobuf::lazy::Lazy {
+            lock: ::protobuf::lazy::ONCE_INIT,
+            ptr: 0 as *const ::protobuf::reflect::MessageDescriptor,
+        };
+        unsafe {
+            descriptor.get(|| {
+                let mut fields = ::std::vec::Vec::new();
+                fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+                    "plugin_name",
+                    SendCommandToPlugin::get_plugin_name_for_reflect,
+                    SendCommandToPlugin::mut_plugin_name_for_reflect,
+                ));
+                fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+                    "message",
+                    SendCommandToPlugin::get_message_for_reflect,
+                    SendCommandToPlugin::mut_message_for_reflect,
+                ));
+                ::protobuf::reflect::MessageDescriptor::new::<SendCommandToPlugin>(
+                    "SendCommandToPlugin",
+                    fields,
+                    file_descriptor_proto()
+                )
+            })
+        }
+    }
+}
+
+impl ::protobuf::Clear for SendCommandToPlugin {
+    fn clear(&mut self) {
+        self.clear_plugin_name();
+        self.clear_message();
+        self.unknown_fields.clear();
+    }
+}
+
+impl ::std::fmt::Debug for SendCommandToPlugin {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
+        ::protobuf::text_format::fmt(self, f)
+    }
+}
+
+impl ::protobuf::reflect::ProtobufValue for SendCommandToPlugin {
     fn as_ref(&self) -> ::protobuf::reflect::ProtobufValueRef {
         ::protobuf::reflect::ProtobufValueRef::Message(self)
     }
@@ -890,6 +1073,7 @@ pub enum Command_oneof_command {
     info_command(GetInfoCommand),
     data_command(GetDataCommand),
     sampling_rate_command(SetMeasturementRateCommand),
+    send_command_to_plugin(SendCommandToPlugin),
 }
 
 impl Command {
@@ -1099,6 +1283,55 @@ impl Command {
             _ => SetMeasturementRateCommand::default_instance(),
         }
     }
+
+    // .opq.proto3.SendCommandToPlugin send_command_to_plugin = 7;
+
+    pub fn clear_send_command_to_plugin(&mut self) {
+        self.command = ::std::option::Option::None;
+    }
+
+    pub fn has_send_command_to_plugin(&self) -> bool {
+        match self.command {
+            ::std::option::Option::Some(Command_oneof_command::send_command_to_plugin(..)) => true,
+            _ => false,
+        }
+    }
+
+    // Param is passed by value, moved
+    pub fn set_send_command_to_plugin(&mut self, v: SendCommandToPlugin) {
+        self.command = ::std::option::Option::Some(Command_oneof_command::send_command_to_plugin(v))
+    }
+
+    // Mutable pointer to the field.
+    pub fn mut_send_command_to_plugin(&mut self) -> &mut SendCommandToPlugin {
+        if let ::std::option::Option::Some(Command_oneof_command::send_command_to_plugin(_)) = self.command {
+        } else {
+            self.command = ::std::option::Option::Some(Command_oneof_command::send_command_to_plugin(SendCommandToPlugin::new()));
+        }
+        match self.command {
+            ::std::option::Option::Some(Command_oneof_command::send_command_to_plugin(ref mut v)) => v,
+            _ => panic!(),
+        }
+    }
+
+    // Take field
+    pub fn take_send_command_to_plugin(&mut self) -> SendCommandToPlugin {
+        if self.has_send_command_to_plugin() {
+            match self.command.take() {
+                ::std::option::Option::Some(Command_oneof_command::send_command_to_plugin(v)) => v,
+                _ => panic!(),
+            }
+        } else {
+            SendCommandToPlugin::new()
+        }
+    }
+
+    pub fn get_send_command_to_plugin(&self) -> &SendCommandToPlugin {
+        match self.command {
+            ::std::option::Option::Some(Command_oneof_command::send_command_to_plugin(ref v)) => v,
+            _ => SendCommandToPlugin::default_instance(),
+        }
+    }
 }
 
 impl ::protobuf::Message for Command {
@@ -1114,6 +1347,11 @@ impl ::protobuf::Message for Command {
             }
         }
         if let Some(Command_oneof_command::sampling_rate_command(ref v)) = self.command {
+            if !v.is_initialized() {
+                return false;
+            }
+        }
+        if let Some(Command_oneof_command::send_command_to_plugin(ref v)) = self.command {
             if !v.is_initialized() {
                 return false;
             }
@@ -1157,6 +1395,12 @@ impl ::protobuf::Message for Command {
                     }
                     self.command = ::std::option::Option::Some(Command_oneof_command::sampling_rate_command(is.read_message()?));
                 },
+                7 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeLengthDelimited {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    self.command = ::std::option::Option::Some(Command_oneof_command::send_command_to_plugin(is.read_message()?));
+                },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
                 },
@@ -1189,6 +1433,10 @@ impl ::protobuf::Message for Command {
                     let len = v.compute_size();
                     my_size += 1 + ::protobuf::rt::compute_raw_varint32_size(len) + len;
                 },
+                &Command_oneof_command::send_command_to_plugin(ref v) => {
+                    let len = v.compute_size();
+                    my_size += 1 + ::protobuf::rt::compute_raw_varint32_size(len) + len;
+                },
             };
         }
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
@@ -1217,6 +1465,11 @@ impl ::protobuf::Message for Command {
                 },
                 &Command_oneof_command::sampling_rate_command(ref v) => {
                     os.write_tag(5, ::protobuf::wire_format::WireTypeLengthDelimited)?;
+                    os.write_raw_varint32(v.get_cached_size())?;
+                    v.write_to_with_cached_sizes(os)?;
+                },
+                &Command_oneof_command::send_command_to_plugin(ref v) => {
+                    os.write_tag(7, ::protobuf::wire_format::WireTypeLengthDelimited)?;
                     os.write_raw_varint32(v.get_cached_size())?;
                     v.write_to_with_cached_sizes(os)?;
                 },
@@ -1291,6 +1544,11 @@ impl ::protobuf::MessageStatic for Command {
                     Command::has_sampling_rate_command,
                     Command::get_sampling_rate_command,
                 ));
+                fields.push(::protobuf::reflect::accessor::make_singular_message_accessor::<_, SendCommandToPlugin>(
+                    "send_command_to_plugin",
+                    Command::has_send_command_to_plugin,
+                    Command::get_send_command_to_plugin,
+                ));
                 ::protobuf::reflect::MessageDescriptor::new::<Command>(
                     "Command",
                     fields,
@@ -1308,6 +1566,7 @@ impl ::protobuf::Clear for Command {
         self.clear_info_command();
         self.clear_data_command();
         self.clear_sampling_rate_command();
+        self.clear_send_command_to_plugin();
         self.unknown_fields.clear();
     }
 }
@@ -1949,7 +2208,7 @@ impl ::protobuf::reflect::ProtobufValue for SetMeasurementRateResponse {
 }
 
 #[derive(PartialEq,Clone,Default)]
-pub struct GetDateResponseHeader {
+pub struct GetDataResponseHeader {
     // message fields
     pub start_ts: u64,
     pub end_ts: u64,
@@ -1959,20 +2218,20 @@ pub struct GetDateResponseHeader {
 }
 
 // see codegen.rs for the explanation why impl Sync explicitly
-unsafe impl ::std::marker::Sync for GetDateResponseHeader {}
+unsafe impl ::std::marker::Sync for GetDataResponseHeader {}
 
-impl GetDateResponseHeader {
-    pub fn new() -> GetDateResponseHeader {
+impl GetDataResponseHeader {
+    pub fn new() -> GetDataResponseHeader {
         ::std::default::Default::default()
     }
 
-    pub fn default_instance() -> &'static GetDateResponseHeader {
-        static mut instance: ::protobuf::lazy::Lazy<GetDateResponseHeader> = ::protobuf::lazy::Lazy {
+    pub fn default_instance() -> &'static GetDataResponseHeader {
+        static mut instance: ::protobuf::lazy::Lazy<GetDataResponseHeader> = ::protobuf::lazy::Lazy {
             lock: ::protobuf::lazy::ONCE_INIT,
-            ptr: 0 as *const GetDateResponseHeader,
+            ptr: 0 as *const GetDataResponseHeader,
         };
         unsafe {
-            instance.get(GetDateResponseHeader::new)
+            instance.get(GetDataResponseHeader::new)
         }
     }
 
@@ -2023,7 +2282,7 @@ impl GetDateResponseHeader {
     }
 }
 
-impl ::protobuf::Message for GetDateResponseHeader {
+impl ::protobuf::Message for GetDataResponseHeader {
     fn is_initialized(&self) -> bool {
         true
     }
@@ -2107,12 +2366,12 @@ impl ::protobuf::Message for GetDateResponseHeader {
     }
 }
 
-impl ::protobuf::MessageStatic for GetDateResponseHeader {
-    fn new() -> GetDateResponseHeader {
-        GetDateResponseHeader::new()
+impl ::protobuf::MessageStatic for GetDataResponseHeader {
+    fn new() -> GetDataResponseHeader {
+        GetDataResponseHeader::new()
     }
 
-    fn descriptor_static(_: ::std::option::Option<GetDateResponseHeader>) -> &'static ::protobuf::reflect::MessageDescriptor {
+    fn descriptor_static(_: ::std::option::Option<GetDataResponseHeader>) -> &'static ::protobuf::reflect::MessageDescriptor {
         static mut descriptor: ::protobuf::lazy::Lazy<::protobuf::reflect::MessageDescriptor> = ::protobuf::lazy::Lazy {
             lock: ::protobuf::lazy::ONCE_INIT,
             ptr: 0 as *const ::protobuf::reflect::MessageDescriptor,
@@ -2122,16 +2381,16 @@ impl ::protobuf::MessageStatic for GetDateResponseHeader {
                 let mut fields = ::std::vec::Vec::new();
                 fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeUint64>(
                     "start_ts",
-                    GetDateResponseHeader::get_start_ts_for_reflect,
-                    GetDateResponseHeader::mut_start_ts_for_reflect,
+                    GetDataResponseHeader::get_start_ts_for_reflect,
+                    GetDataResponseHeader::mut_start_ts_for_reflect,
                 ));
                 fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeUint64>(
                     "end_ts",
-                    GetDateResponseHeader::get_end_ts_for_reflect,
-                    GetDateResponseHeader::mut_end_ts_for_reflect,
+                    GetDataResponseHeader::get_end_ts_for_reflect,
+                    GetDataResponseHeader::mut_end_ts_for_reflect,
                 ));
-                ::protobuf::reflect::MessageDescriptor::new::<GetDateResponseHeader>(
-                    "GetDateResponseHeader",
+                ::protobuf::reflect::MessageDescriptor::new::<GetDataResponseHeader>(
+                    "GetDataResponseHeader",
                     fields,
                     file_descriptor_proto()
                 )
@@ -2140,7 +2399,7 @@ impl ::protobuf::MessageStatic for GetDateResponseHeader {
     }
 }
 
-impl ::protobuf::Clear for GetDateResponseHeader {
+impl ::protobuf::Clear for GetDataResponseHeader {
     fn clear(&mut self) {
         self.clear_start_ts();
         self.clear_end_ts();
@@ -2148,13 +2407,13 @@ impl ::protobuf::Clear for GetDateResponseHeader {
     }
 }
 
-impl ::std::fmt::Debug for GetDateResponseHeader {
+impl ::std::fmt::Debug for GetDataResponseHeader {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         ::protobuf::text_format::fmt(self, f)
     }
 }
 
-impl ::protobuf::reflect::ProtobufValue for GetDateResponseHeader {
+impl ::protobuf::reflect::ProtobufValue for GetDataResponseHeader {
     fn as_ref(&self) -> ::protobuf::reflect::ProtobufValueRef {
         ::protobuf::reflect::ProtobufValueRef::Message(self)
     }
@@ -2180,7 +2439,7 @@ unsafe impl ::std::marker::Sync for Response {}
 pub enum Response_oneof_response {
     info_response(GetInfoResponse),
     message_rate_reponse(SetMeasurementRateResponse),
-    get_data_response(GetDateResponseHeader),
+    get_data_response(GetDataResponseHeader),
 }
 
 impl Response {
@@ -2365,7 +2624,7 @@ impl Response {
         }
     }
 
-    // .opq.proto3.GetDateResponseHeader get_data_response = 6;
+    // .opq.proto3.GetDataResponseHeader get_data_response = 6;
 
     pub fn clear_get_data_response(&mut self) {
         self.response = ::std::option::Option::None;
@@ -2379,15 +2638,15 @@ impl Response {
     }
 
     // Param is passed by value, moved
-    pub fn set_get_data_response(&mut self, v: GetDateResponseHeader) {
+    pub fn set_get_data_response(&mut self, v: GetDataResponseHeader) {
         self.response = ::std::option::Option::Some(Response_oneof_response::get_data_response(v))
     }
 
     // Mutable pointer to the field.
-    pub fn mut_get_data_response(&mut self) -> &mut GetDateResponseHeader {
+    pub fn mut_get_data_response(&mut self) -> &mut GetDataResponseHeader {
         if let ::std::option::Option::Some(Response_oneof_response::get_data_response(_)) = self.response {
         } else {
-            self.response = ::std::option::Option::Some(Response_oneof_response::get_data_response(GetDateResponseHeader::new()));
+            self.response = ::std::option::Option::Some(Response_oneof_response::get_data_response(GetDataResponseHeader::new()));
         }
         match self.response {
             ::std::option::Option::Some(Response_oneof_response::get_data_response(ref mut v)) => v,
@@ -2396,21 +2655,21 @@ impl Response {
     }
 
     // Take field
-    pub fn take_get_data_response(&mut self) -> GetDateResponseHeader {
+    pub fn take_get_data_response(&mut self) -> GetDataResponseHeader {
         if self.has_get_data_response() {
             match self.response.take() {
                 ::std::option::Option::Some(Response_oneof_response::get_data_response(v)) => v,
                 _ => panic!(),
             }
         } else {
-            GetDateResponseHeader::new()
+            GetDataResponseHeader::new()
         }
     }
 
-    pub fn get_get_data_response(&self) -> &GetDateResponseHeader {
+    pub fn get_get_data_response(&self) -> &GetDataResponseHeader {
         match self.response {
             ::std::option::Option::Some(Response_oneof_response::get_data_response(ref v)) => v,
-            _ => GetDateResponseHeader::default_instance(),
+            _ => GetDataResponseHeader::default_instance(),
         }
     }
 }
@@ -2618,7 +2877,7 @@ impl ::protobuf::MessageStatic for Response {
                     Response::has_message_rate_reponse,
                     Response::get_message_rate_reponse,
                 ));
-                fields.push(::protobuf::reflect::accessor::make_singular_message_accessor::<_, GetDateResponseHeader>(
+                fields.push(::protobuf::reflect::accessor::make_singular_message_accessor::<_, GetDataResponseHeader>(
                     "get_data_response",
                     Response::has_get_data_response,
                     Response::get_get_data_response,
@@ -2666,33 +2925,36 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     \x05value\x18\x02\x20\x01(\x02R\x05value:\x028\x01\"\x10\n\x0eGetInfoCom\
     mand\"V\n\x0eGetDataCommand\x12\x19\n\x08start_ms\x18\x01\x20\x01(\x04R\
     \x07startMs\x12\x15\n\x06end_ms\x18\x02\x20\x01(\x04R\x05endMs\x12\x12\n\
-    \x04wait\x18\x03\x20\x01(\x08R\x04wait\"y\n\x1aSetMeasturementRateComman\
+    \x04wait\x18\x03\x20\x01(\x08R\x04wait\"X\n\x1aSetMeasturementRateComman\
     d\x12:\n\x19measurement_window_cycles\x18\x01\x20\x01(\rR\x17measurement\
-    WindowCycles\x12\x1f\n\x0bduration_ms\x18\x02\x20\x01(\rR\ndurationMs\"\
-    \xa9\x02\n\x07Command\x12\x10\n\x03seq\x18\x01\x20\x01(\rR\x03seq\x12!\n\
-    \x0ctimestamp_ms\x18\x02\x20\x01(\x04R\x0btimestampMs\x12?\n\x0cinfo_com\
-    mand\x18\x03\x20\x01(\x0b2\x1a.opq.proto3.GetInfoCommandH\0R\x0binfoComm\
-    and\x12?\n\x0cdata_command\x18\x04\x20\x01(\x0b2\x1a.opq.proto3.GetDataC\
-    ommandH\0R\x0bdataCommand\x12\\\n\x15sampling_rate_command\x18\x05\x20\
-    \x01(\x0b2&.opq.proto3.SetMeasturementRateCommandH\0R\x13samplingRateCom\
-    mandB\t\n\x07command\"\xee\x01\n\x0fGetInfoResponse\x12\x19\n\x08mac_add\
-    r\x18\x01\x20\x01(\tR\x07macAddr\x12!\n\x0cwifi_network\x18\x02\x20\x01(\
-    \tR\x0bwifiNetwork\x12\x0e\n\x02ip\x18\x03\x20\x01(\tR\x02ip\x12\x16\n\
-    \x06uptime\x18\x04\x20\x01(\x04R\x06uptime\x121\n\x14calibration_constan\
-    t\x18\x05\x20\x01(\x04R\x13calibrationConstant\x12\x17\n\x07pub_key\x18\
-    \x06\x20\x01(\tR\x06pubKey\x12)\n\x10measurement_rate\x18\x07\x20\x01(\r\
-    R\x0fmeasurementRate\"D\n\x1aSetMeasurementRateResponse\x12&\n\x0fold_ra\
-    te_cycles\x18\x01\x20\x01(\rR\roldRateCycles\"I\n\x15GetDateResponseHead\
-    er\x12\x19\n\x08start_ts\x18\x01\x20\x01(\x04R\x07startTs\x12\x15\n\x06e\
-    nd_ts\x18\x02\x20\x01(\x04R\x05endTs\"\xd3\x02\n\x08Response\x12\x15\n\
-    \x06box_id\x18\x01\x20\x01(\x05R\x05boxId\x12\x10\n\x03seq\x18\x02\x20\
-    \x01(\rR\x03seq\x12!\n\x0ctimestamp_ms\x18\x03\x20\x01(\x04R\x0btimestam\
-    pMs\x12B\n\rinfo_response\x18\x04\x20\x01(\x0b2\x1b.opq.proto3.GetInfoRe\
-    sponseH\0R\x0cinfoResponse\x12Z\n\x14message_rate_reponse\x18\x05\x20\
-    \x01(\x0b2&.opq.proto3.SetMeasurementRateResponseH\0R\x12messageRateRepo\
-    nse\x12O\n\x11get_data_response\x18\x06\x20\x01(\x0b2!.opq.proto3.GetDat\
-    eResponseHeaderH\0R\x0fgetDataResponseB\n\n\x08responseB\x04\xc8\xa6\x08\
-    \x01b\x06proto3\
+    WindowCycles\"P\n\x13SendCommandToPlugin\x12\x1f\n\x0bplugin_name\x18\
+    \x01\x20\x01(\tR\npluginName\x12\x18\n\x07message\x18\x02\x20\x01(\tR\
+    \x07message\"\x81\x03\n\x07Command\x12\x10\n\x03seq\x18\x01\x20\x01(\rR\
+    \x03seq\x12!\n\x0ctimestamp_ms\x18\x02\x20\x01(\x04R\x0btimestampMs\x12?\
+    \n\x0cinfo_command\x18\x03\x20\x01(\x0b2\x1a.opq.proto3.GetInfoCommandH\
+    \0R\x0binfoCommand\x12?\n\x0cdata_command\x18\x04\x20\x01(\x0b2\x1a.opq.\
+    proto3.GetDataCommandH\0R\x0bdataCommand\x12\\\n\x15sampling_rate_comman\
+    d\x18\x05\x20\x01(\x0b2&.opq.proto3.SetMeasturementRateCommandH\0R\x13sa\
+    mplingRateCommand\x12V\n\x16send_command_to_plugin\x18\x07\x20\x01(\x0b2\
+    \x1f.opq.proto3.SendCommandToPluginH\0R\x13sendCommandToPluginB\t\n\x07c\
+    ommand\"\xee\x01\n\x0fGetInfoResponse\x12\x19\n\x08mac_addr\x18\x01\x20\
+    \x01(\tR\x07macAddr\x12!\n\x0cwifi_network\x18\x02\x20\x01(\tR\x0bwifiNe\
+    twork\x12\x0e\n\x02ip\x18\x03\x20\x01(\tR\x02ip\x12\x16\n\x06uptime\x18\
+    \x04\x20\x01(\x04R\x06uptime\x121\n\x14calibration_constant\x18\x05\x20\
+    \x01(\x04R\x13calibrationConstant\x12\x17\n\x07pub_key\x18\x06\x20\x01(\
+    \tR\x06pubKey\x12)\n\x10measurement_rate\x18\x07\x20\x01(\rR\x0fmeasurem\
+    entRate\"D\n\x1aSetMeasurementRateResponse\x12&\n\x0fold_rate_cycles\x18\
+    \x01\x20\x01(\rR\roldRateCycles\"I\n\x15GetDataResponseHeader\x12\x19\n\
+    \x08start_ts\x18\x01\x20\x01(\x04R\x07startTs\x12\x15\n\x06end_ts\x18\
+    \x02\x20\x01(\x04R\x05endTs\"\xd3\x02\n\x08Response\x12\x15\n\x06box_id\
+    \x18\x01\x20\x01(\x05R\x05boxId\x12\x10\n\x03seq\x18\x02\x20\x01(\rR\x03\
+    seq\x12!\n\x0ctimestamp_ms\x18\x03\x20\x01(\x04R\x0btimestampMs\x12B\n\r\
+    info_response\x18\x04\x20\x01(\x0b2\x1b.opq.proto3.GetInfoResponseH\0R\
+    \x0cinfoResponse\x12Z\n\x14message_rate_reponse\x18\x05\x20\x01(\x0b2&.o\
+    pq.proto3.SetMeasurementRateResponseH\0R\x12messageRateReponse\x12O\n\
+    \x11get_data_response\x18\x06\x20\x01(\x0b2!.opq.proto3.GetDataResponseH\
+    eaderH\0R\x0fgetDataResponseB\n\n\x08responseB\x04\xc8\xa6\x08\x01b\x06p\
+    roto3\
 ";
 
 static mut file_descriptor_proto_lazy: ::protobuf::lazy::Lazy<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::lazy::Lazy {
