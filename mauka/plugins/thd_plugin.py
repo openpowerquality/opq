@@ -14,18 +14,21 @@ import protobuf.util
 import protobuf.mauka_pb2
 
 
-def rolling_window(array, window):
+def rolling_window(array: numpy.ndarray, window: int) -> typing.List[numpy.ndarray]:
     """
     Given an array and window, restructure the data so that it is in a rolling window of size "window" and step = 1.
+
+    Based on: https://gist.github.com/codehacken/708f19ae746784cef6e68b037af65788
     :param array: The array to roll a window over
     :param window: The window size
     :return: A 2D array where each row is a window into the provided data.
     """
     if len(array) <= window:
-        return numpy.array([array])
-    shape = array.shape[:-1] + (array.shape[-1] - window + 1, window)
-    strides = array.strides + (array.strides[-1],)
-    return numpy.lib.stride_tricks.as_strided(array, shape=shape, strides=strides)
+        return [array]
+    # shape = array.shape[:-1] + (array.shape[-1] - window + 1 - step_size, window)
+    # strides = array.strides + (array.strides[-1] * step_size,)
+    # return numpy.lib.stride_tricks.as_strided(array, shape=shape, strides=strides)
+    return numpy.array_split(array, window)
 
 
 def thd(waveform: numpy.ndarray, fundamental: int) -> float:
@@ -69,9 +72,14 @@ class ThdPlugin(plugins.base_plugin.MaukaPlugin):
         :param box_event_start_timestamp: Start timestamp of the provided waveform
         :param waveform: The waveform to calculate THD over.
         """
-        window_size = int(constants.SAMPLE_RATE_HZ * (self.sliding_window_ms / constants.MILLISECONDS_PER_SECOND))
+        # window_size = int(constants.SAMPLE_RATE_HZ * (self.sliding_window_ms / constants.MILLISECONDS_PER_SECOND))
+        # windows = rolling_window(waveform, window_size)
+        # thds = [thd(window, constants.CYCLES_PER_SECOND) for window in windows]
+
+        window_size = int(constants.SAMPLES_PER_MILLISECOND * self.sliding_window_ms)
         windows = rolling_window(waveform, window_size)
         thds = [thd(window, constants.CYCLES_PER_SECOND) for window in windows]
+
         prev_beyond_threshold = False
         prev_idx = -1
         max_thd = -1
