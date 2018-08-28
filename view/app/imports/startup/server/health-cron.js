@@ -5,10 +5,6 @@ import { Healths } from '../../api/health/HealthsCollection';
 import { Notifications } from '../../api/notifications/NotificationsCollection';
 import { UserProfiles } from '../../api/users/UserProfilesCollection';
 
-SyncedCron.config({
-  log: Meteor.settings.syncedCronLogging,
-});
-
 /**
  * serviceTracker sets a service name to true if the given service is down
  * therefore, multiple notifications docs won't be created if a service remains down

@@ -12,19 +12,20 @@ class AboutMe extends React.Component {
 
   constructor(props) {
     super(props);
-    let phoneSms;
-    let phoneNumber = '';
+    let carrierString;
+    let numberString = '';
     // split phone field to separate the phone number from carrier
     if (this.props.phone !== undefined) {
-      phoneSms = this.props.phone.substring(this.props.phone.indexOf('@'));
-      phoneNumber = this.props.phone.substring(1, this.props.phone.indexOf('@'));
+      carrierString = this.props.phone.substring(this.props.phone.indexOf('@'));
+      numberString = this.props.phone.substring(0, this.props.phone.indexOf('@'));
     }
 
     this.state = {
       editMode: false,
-      phone: this.props.phone,
-      sms: phoneSms,
-      number: phoneNumber,
+      carrier: carrierString,
+      phoneNumber: numberString,
+      oldPhoneNumber: numberString,
+      oldCarrier: carrierString,
     };
   }
 
@@ -35,6 +36,7 @@ class AboutMe extends React.Component {
   /** Here's the system stats page. */
   render() {
     const divStyle = { paddingLeft: '10px' };
+    const textStyle = { color: '#808080', display: 'inline' };
     const topPadding = { paddingTop: '20px' };
     const providers = [
       { text: 'Verizon', value: '@vtext.com' },
@@ -63,7 +65,7 @@ class AboutMe extends React.Component {
                 <Table.Cell>Phone</Table.Cell>
                 {this.state.editMode ? (
                     <Table.Cell>
-                      <NumberFormat value={this.state.number}
+                      <NumberFormat value={this.state.phoneNumber}
                                     placeholder="+1 (___)___-____"
                                     customInput={Input}
                                     format="+1 (###) ###-####"
@@ -71,26 +73,30 @@ class AboutMe extends React.Component {
                                     labelPosition='right'
                                     onValueChange={(values) => {
                                       const { value } = values;
-                                      this.setState({ number: value });
+                                      this.setState({ phoneNumber: value });
                                     }}>
                         <input/>
                         <Label>
                           <Dropdown placeholder='Provider' options={providers}
-                                    value={this.state.sms}
-                                    onChange={this.changeSms}/>
+                                    value={this.state.carrier}
+                                    onChange={this.changeCarrier}
+                          />
                         </Label>
                       </NumberFormat>
                       <br/>
                       <Button.Group style={topPadding} size='mini'>
                         <Button onClick={this.disableEditing}>Cancel</Button>
-                        <Button positive onClick={this.updatePhone}>Save</Button>
+                        <Button positive
+                                disabled={this.state.phoneNumber.length !== 10 || this.state.carrier === undefined}
+                                onClick={this.updatePhone}>Save</Button>
                       </Button.Group>
                     </Table.Cell>
                 ) : (
                     <Table.Cell>
-                      <NumberFormat value={this.state.number} displayType={'text'} format="+1 (###) ###-####"
-                      >
-                      </NumberFormat>
+                      {this.state.phoneNumber === '' ?
+                          (<p style={textStyle}>None</p>) :
+                          (<NumberFormat value={this.state.phoneNumber} displayType={'text'}
+                                         format="+1 (###) ###-####"/>)}
                       <Icon name='pencil' color='grey' onClick={this.enableEditing} style={divStyle}/>
                     </Table.Cell>
                 )}
@@ -101,35 +107,35 @@ class AboutMe extends React.Component {
     );
   }
 
-  enableEditing = () => {
-    this.setState({ editMode: true });
-  };
+  enableEditing = () => this.setState({ editMode: true });
 
-  disableEditing = () => {
-    this.setState({ editMode: false });
-  };
+  disableEditing = () =>
+      this.setState({
+        editMode: false,
+        carrier: this.state.oldCarrier,
+        phoneNumber: this.state.oldPhoneNumber,
+      });
 
-  changePhoneNumber = (event, data) => {
-    this.setState({ number: data.value });
-  };
-
-  changeSms = (event, data) => {
-    this.setState({ sms: data.value });
-  };
+  changeCarrier = (event, data) => this.setState({ carrier: data.value });
 
   /**
-   * Concatenates the inputted phone number and user's carrier
+   * Concatenates the inputted phone number and chosen carrier
    * Updates userProfile with new phone address
+   * If update is successful, states of oldPhoneNumber and oldCarrier are updated as well so that
+   * the new values are displayed when user cancels out of edit mode
    */
   updatePhone = () => {
-    const usTrunkCode = '1';
-    const newPhone = usTrunkCode.concat(this.state.number, this.state.sms);
+    const newPhone = this.state.phoneNumber.concat(this.state.carrier);
     const collectionName = UserProfiles.getCollectionName();
-    const id = UserProfiles.findByUsername(this.props.username)._id;
+    const id = this.props.id;
     const updateData = { id, phone: newPhone };
     updateMethod.call({ collectionName, updateData }, (error) => (error ?
         Bert.alert({ type: 'danger', style: 'growl-bottom-left', message: `Update failed: ${error.message}` }) :
-        Bert.alert({ type: 'success', style: 'growl-bottom-left', message: 'Update succeeded' })));
+        (Bert.alert({ type: 'success', style: 'growl-bottom-left', message: 'Update succeeded' }),
+            this.setState({
+              oldPhoneNumber: this.state.phoneNumber,
+              oldCarrier: this.state.carrier,
+            }))));
   };
 }
 
@@ -140,6 +146,7 @@ AboutMe.propTypes = {
   username: PropTypes.string.isRequired,
   role: PropTypes.string.isRequired,
   phone: PropTypes.string,
+  id: PropTypes.object.isRequired,
 };
 
 export default AboutMe;
