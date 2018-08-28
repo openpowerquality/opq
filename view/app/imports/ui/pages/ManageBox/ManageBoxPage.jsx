@@ -45,14 +45,14 @@ class ManageBoxPage extends React.Component {
                   <Table.Cell>{Locations.getDoc(box.location).description}</Table.Cell>
                   <Table.Cell>{this.getBoxInfoString(box)}</Table.Cell>
                   <Table.Cell>
-                    <Button size='tiny'><Link to={`/admin/manage/opqbox/edit/${box.box_id}`}>Edit</Link></Button>
+                    <Button size='tiny' as={Link} to={`/admin/manage/opqbox/edit/${box.box_id}`}>Edit</Button>
                   </Table.Cell>
                 </Table.Row>)}
               </Table.Body>
               <Table.Footer fullWidth>
                 <Table.Row>
                   <Table.HeaderCell colSpan='5'>
-                    <Button><Link to={'/admin/manage/opqbox/new'}>Add OPQ Box</Link></Button>
+                    <Button size='tiny' as={Link} to={'/admin/manage/opqbox/new'}>Add OPQ Box</Button>
                   </Table.HeaderCell>
                 </Table.Row>
               </Table.Footer>

@@ -8,13 +8,16 @@
 
 <body itemscope itemtype="http://schema.org/EmailMessage">
 <p>Hi {{firstName}},</p>
-<p>Here's what you may have missed:&nbsp;</p>
+<p>Here's what you missed:&nbsp;</p>
 <ul>
   {{#each notifications}}
   <li><b>{{this.data.summary}}</b> at {{this.timestamp}}</li>
   {{/each}}
+  {{#if extraNotifications}}
+  <p>+ {{notificationNum}} more. </p>
+  {{/if}}
 </ul>
-<p>See more details at&nbsp;<a href="http://emilia.ics.hawaii.edu/#/profile">http://emilia.ics.hawaii.edu/#/profile</a>
+<p>See all your notifications at: <a href="http://emilia.ics.hawaii.edu/#/profile">http://emilia.ics.hawaii.edu/#/profile</a>
 </p>
 </body>
 </html>
