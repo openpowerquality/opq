@@ -2,15 +2,11 @@
 This plugin calculates the ITIC region of a voltage, duration pair.
 """
 import enum
+import multiprocessing.queues
 import typing
 
-import multiprocessing
-import multiprocessing.queues
-import threading
-import queue
-
-import numpy
 import matplotlib.path
+import numpy
 
 import analysis
 import mongo
@@ -196,28 +192,14 @@ def itic(mauka_message: protobuf.mauka_pb2.MaukaMessage, segment_threshold: floa
                 [incident_classification],
                 [],
                 {},
-                mongo_client
-            )
+                mongo_client)
+
             if logger is not None:
                 logger.debug("Found ITIC incident [{}] from event {} and box {}".format(
                     itic_enum,
                     mauka_message.event_id,
-                    mauka_message.box_id
-                ))
+                    mauka_message.box_id))
 
-# def worker_process(queue,
-#                    segment_threshold: float,
-#                    logger,
-#                    mongo_client):
-#     while True:
-#         try:
-#             mauka_message = queue.get_nowait()
-#             itic(mauka_message,
-#                  segment_threshold,
-#                  logger,
-#                  mongo_client)
-#         except queue.Empty:
-#             continue
 
 class IticPlugin(plugins.base_plugin.MaukaPlugin):
     """
@@ -255,7 +237,13 @@ def rerun(mauka_message: protobuf.mauka_pb2.MaukaMessage,
           segment_threshold: float,
           logger,
           mongo_client: mongo.OpqMongoClient = None):
-
+    """
+    Rerun ITIC analysis over the given mauka_message.
+    :param mauka_message: The mauka_message containing a box event to re-analyze.
+    :param segment_threshold: The threshold for the segmentation algorithm
+    :param logger: The application logger
+    :param mongo_client: An optional instance of a mongo client
+    """
     client = mongo.get_default_client(mongo_client)
 
     if protobuf.util.is_payload(mauka_message, protobuf.mauka_pb2.VOLTAGE_RMS_WINDOWED):
@@ -265,4 +253,4 @@ def rerun(mauka_message: protobuf.mauka_pb2.MaukaMessage,
              client)
     else:
         logger.error("Received incorrect mauka message [%s] at IticPlugin rerun",
-                          protobuf.util.which_message_oneof(mauka_message))
+                     protobuf.util.which_message_oneof(mauka_message))

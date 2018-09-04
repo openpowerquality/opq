@@ -54,6 +54,11 @@ def viol_check(data, lvl):
 
 
 def semi_violation(mongo_client, mauka_message):
+    """
+    Calculate semi violations.
+    :param mongo_client: Mongo client for DB access.
+    :param mauka_message: Mauka message to calculate violations over.
+    """
     event_id = mauka_message.payload.event_id
     box_id = mauka_message.payload.box_id
     data = protobuf.util.repeated_as_ndarray(mauka_message.payload.data)
@@ -96,6 +101,11 @@ class SemiF47Plugin(plugins.base_plugin.MaukaPlugin):
 
 
 def rerun(mongo_client: mongo.OpqMongoClient, mauka_message):
+    """
+    Rerun this plugin over the provided mauka message.
+    :param mongo_client: Mongo client to perform DB queries.
+    :param mauka_message: Mauka message to rerun this plugin over.
+    """
     if protobuf.util.is_payload(mauka_message, protobuf.mauka_pb2.VOLTAGE_RMS_WINDOWED):
         client = mongo.get_default_client(mongo_client)
         semi_violation(client, mauka_message)
