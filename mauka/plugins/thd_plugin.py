@@ -14,19 +14,17 @@ import protobuf.util
 import protobuf.mauka_pb2
 
 
-def rolling_window(array: numpy.ndarray, window: int) -> typing.List[numpy.ndarray]:
+def rolling_window(array, window):
     """
     Given an array and window, restructure the data so that it is in a rolling window of size "window" and step = 1.
-
-    Based on: https://gist.github.com/codehacken/708f19ae746784cef6e68b037af65788
     :param array: The array to roll a window over
     :param window: The window size
     :return: A 2D array where each row is a window into the provided data.
     """
     if len(array) <= window:
-        return [array]
-    # shape = array.shape[:-1] + (array.shape[-1] - window + 1 - step_size, window)
-    # strides = array.strides + (array.strides[-1] * step_size,)
+        return numpy.array([array])
+    # shape = array.shape[:-1] + (array.shape[-1] - window + 1, window)
+    # strides = array.strides + (array.strides[-1],)
     # return numpy.lib.stride_tricks.as_strided(array, shape=shape, strides=strides)
     return numpy.array_split(array, window)
 
@@ -50,43 +48,22 @@ def thd(waveform: numpy.ndarray, fundamental: int) -> float:
 def sliding_thd(mongo_client, threshold_percent, sliding_window_ms, event_id: int, box_id: str,
                 box_event_start_timestamp: int, waveform: numpy.ndarray):
     """
-    Mauka plugin that calculates THD over raw waveforms.
+    Calculates sliding THD over a waveform.
+    High THD values are then stored as incidents to the database.
+    :param event_id: Event that this waveform came form.
+    :param box_id: Box that this waveform came from.
+    :param box_event_start_timestamp: Start timestamp of the provided waveform
+    :param waveform: The waveform to calculate THD over.
     """
-    NAME = "ThdPlugin"
-
-    def __init__(self, config: typing.Dict, exit_event: multiprocessing.Event):
-        """
-        Initializes this plugin
-        :param config: Mauka configuration
-        :param exit_event: Exit event that can disable this plugin from parent process
-        """
-        super().__init__(config, ["AdcSamples", "ThdRequestEvent"], ThdPlugin.NAME, exit_event)
-        self.threshold_percent = float(self.config_get("plugins.ThdPlugin.threshold.percent"))
-        self.sliding_window_ms = float(self.config_get("plugins.ThdPlugin.window.size.ms"))
-
-    def sliding_thd(self, event_id: int, box_id: str, box_event_start_timestamp: int, waveform: numpy.ndarray):
-        """
-        Calculates sliding THD over a waveform.
-        High THD values are then stored as incidents to the database.
-        :param event_id: Event that this waveform came form.
-        :param box_id: Box that this waveform came from.
-        :param box_event_start_timestamp: Start timestamp of the provided waveform
-        :param waveform: The waveform to calculate THD over.
-        """
-        # window_size = int(constants.SAMPLE_RATE_HZ * (self.sliding_window_ms / constants.MILLISECONDS_PER_SECOND))
-        # windows = rolling_window(waveform, window_size)
-        # thds = [thd(window, constants.CYCLES_PER_SECOND) for window in windows]
-
-        window_size = int(constants.SAMPLES_PER_MILLISECOND * self.sliding_window_ms)
-        windows = rolling_window(waveform, window_size)
-        thds = [thd(window, constants.CYCLES_PER_SECOND) for window in windows]
-
-        prev_beyond_threshold = False
-        prev_idx = -1
-        max_thd = -1
-        for i, thd_i in enumerate(thds):
-            if thd_i > max_thd:
-                max_thd = thd_i
+    window_size = int(constants.SAMPLES_PER_MILLISECOND * sliding_window_ms)
+    windows = rolling_window(waveform, window_size)
+    thds = [thd(window, constants.CYCLES_PER_SECOND) for window in windows]
+    prev_beyond_threshold = False
+    prev_idx = -1
+    max_thd = -1
+    for i, thd_i in enumerate(thds):
+        if thd_i > max_thd:
+            max_thd = thd_i
 
         if thd_i > threshold_percent:
             # We only care if this is the start of a new anomaly
