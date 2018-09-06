@@ -2,6 +2,7 @@
 This module provides a plugin and utilies for interacting and transforming raw data produced from Makai events.
 """
 
+import logging
 import math
 import multiprocessing
 import threading
@@ -14,6 +15,11 @@ from scipy import optimize
 import constants
 import mongo
 import plugins.base_plugin
+import plugins.frequency_variation_plugin
+import plugins.ieee1159_voltage_plugin
+import plugins.itic_plugin
+import plugins.semi_f47_plugin
+import plugins.thd_plugin
 import protobuf.mauka_pb2
 import protobuf.util
 
@@ -99,15 +105,20 @@ def frequency_waveform(waveform: numpy.ndarray, window_size: int = constants.SAM
     return numpy.array(frequencies)
 
 
-def acquire_data(mongo_client: mongo.OpqMongoClient, event_id: int, name: str) -> typing.Tuple[
+ACQUIRE_DATA_TYPE = typing.Tuple[
     protobuf.mauka_pb2.MaukaMessage,
     protobuf.mauka_pb2.MaukaMessage,
     protobuf.mauka_pb2.MaukaMessage,
-    protobuf.mauka_pb2.MaukaMessage]:
+    protobuf.mauka_pb2.MaukaMessage]
+
+
+def acquire_data(mongo_client: mongo.OpqMongoClient, event_id: int, name: str) -> ACQUIRE_DATA_TYPE:
     """
     Given an event_id, acquire the raw data for each box associated with the given event. Perform feature
     extraction of the raw data and publish those features for downstream plugins.
+    :param mongo_client: The mongo client to use to make this request.
     :param event_id: The event id to acquire data for.
+    :param name: The name of the service requesting data.
     """
     box_events = mongo_client.box_events_collection.find({"event_id": event_id})
     for box_event in box_events:
@@ -125,34 +136,34 @@ def acquire_data(mongo_client: mongo.OpqMongoClient, event_id: int, name: str) -
                                                   waveform,
                                                   start_timestamp,
                                                   end_timestamp)
-        #
-        # raw_voltage = protobuf.util.build_payload(name,
-        #                                           event_id,
-        #                                           box_id,
-        #                                           protobuf.mauka_pb2.VOLTAGE_RAW,
-        #                                           waveform_calibrated,
-        #                                           start_timestamp,
-        #                                           end_timestamp)
 
-        # rms_windowed_voltage = protobuf.util.build_payload(name,
-        #                                                    event_id,
-        #                                                    box_id,
-        #                                                    protobuf.mauka_pb2.VOLTAGE_RMS_WINDOWED,
-        #                                                    vrms_waveform(waveform_calibrated,
-        #                                                                  int(constants.SAMPLES_PER_CYCLE)),
-        #                                                    start_timestamp,
-        #                                                    end_timestamp)
-        rms_windowed_voltage = None
-        # frequency_windowed = protobuf.util.build_payload(name,
-        #                                                  event_id,
-        #                                                  box_id,
-        #                                                  protobuf.mauka_pb2.FREQUENCY_WINDOWED,
-        #                                                  frequency_waveform(waveform_calibrated,
-        #                                                                     int(constants.SAMPLES_PER_CYCLE)),
-        #                                                  start_timestamp,
-        #                                                  end_timestamp)
-        frequency_windowed = None
-        return adc_samples, None, rms_windowed_voltage, frequency_windowed
+        raw_voltage = protobuf.util.build_payload(name,
+                                                  event_id,
+                                                  box_id,
+                                                  protobuf.mauka_pb2.VOLTAGE_RAW,
+                                                  waveform_calibrated,
+                                                  start_timestamp,
+                                                  end_timestamp)
+
+        rms_windowed_voltage = protobuf.util.build_payload(name,
+                                                           event_id,
+                                                           box_id,
+                                                           protobuf.mauka_pb2.VOLTAGE_RMS_WINDOWED,
+                                                           vrms_waveform(waveform_calibrated,
+                                                                         int(constants.SAMPLES_PER_CYCLE)),
+                                                           start_timestamp,
+                                                           end_timestamp)
+
+        frequency_windowed = protobuf.util.build_payload(name,
+                                                         event_id,
+                                                         box_id,
+                                                         protobuf.mauka_pb2.FREQUENCY_WINDOWED,
+                                                         frequency_waveform(waveform_calibrated,
+                                                                            int(constants.SAMPLES_PER_CYCLE)),
+                                                         start_timestamp,
+                                                         end_timestamp)
+
+        return adc_samples, raw_voltage, rms_windowed_voltage, frequency_windowed
 
 
 class MakaiEventPlugin(plugins.base_plugin.MaukaPlugin):
@@ -167,6 +178,11 @@ class MakaiEventPlugin(plugins.base_plugin.MaukaPlugin):
         self.get_data_after_s = float(self.config["plugins.MakaiEventPlugin.getDataAfterS"])
 
     def acquire_and_produce(self, event_id: int):
+        """
+        Acquire raw data for a given event_id, perform feature extraction, and produce to the rest of the Mauka
+        processing pipeline.
+        :param event_id: The event id to load raw data for.
+        """
         adc_samples, raw_voltage, rms_windowed_voltage, frequency_windowed = acquire_data(self.mongo_client, event_id,
                                                                                           self.name)
         self.produce("AdcSamples", adc_samples)
@@ -186,23 +202,20 @@ class MakaiEventPlugin(plugins.base_plugin.MaukaPlugin):
                               protobuf.util.which_message_oneof(mauka_message))
 
 
-import plugins.frequency_variation_plugin
-import plugins.ieee1159_voltage_plugin
-import plugins.itic_plugin
-import plugins.semi_f47_plugin
-import plugins.thd_plugin
-
-import logging
-
-client = mongo.get_default_client()
-logger = logging.getLogger()
 def rerun(event_id: int):
+    """
+    Rerun all makai events through the Mauka analysis pipeline.
+    :param event_id: The event id to rerun through the Mauka analysis pipeline.
+    """
+    client = mongo.get_default_client()
+    logger = logging.getLogger()
     try:
-        adc_samples, raw_voltage, rms_windowed_voltage, frequency_windowed = acquire_data(client, event_id, "rerun")
-        # plugins.frequency_variation_plugin.rerun(client, logger, frequency_windowed)
-        # plugins.ieee1159_voltage_plugin.rerun(rms_windowed_voltage, logger, client)
-        # plugins.itic_plugin.rerun(rms_windowed_voltage, 0.1, logger, client)
-        # plugins.semi_f47_plugin.rerun(client, rms_windowed_voltage)
+        adc_samples, _, rms_windowed_voltage, frequency_windowed = acquire_data(client, event_id, "rerun")
+        plugins.frequency_variation_plugin.rerun(client, logger, frequency_windowed)
+        plugins.ieee1159_voltage_plugin.rerun(rms_windowed_voltage, logger, client)
+        plugins.itic_plugin.rerun(rms_windowed_voltage, 0.1, logger, client)
+        plugins.semi_f47_plugin.rerun(client, rms_windowed_voltage)
         plugins.thd_plugin.rerun(adc_samples, logger, client)
-    except:
-        pass
+    # pylint: disable=W0703
+    except Exception as exception:
+        logger.error("Error re-running makai events through the Mauka analysis pipeline %s", str(exception))

@@ -1,5 +1,5 @@
 [mauka]
-ignore = protobuf/mauka_pb2.py, protobuf/opq_pb2.py, tests/**
+ignore = protobuf/mauka_pb2.py, protobuf/opq_pb2.py, tests/**, incident_viewer.py, scrap.py
 files = **.py
 
 [mauka.spacing]

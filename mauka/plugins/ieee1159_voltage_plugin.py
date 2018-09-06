@@ -201,6 +201,12 @@ class Ieee1159VoltagePlugin(plugins.base_plugin.MaukaPlugin):
 def rerun(mauka_message: protobuf.mauka_pb2.MaukaMessage,
           logger,
           mongo_client: mongo.OpqMongoClient = None):
+    """
+    Retruns this plugin over the provided mauka message.
+    :param mauka_message: Mauka message to rerun this plugin over.
+    :param logger: Application logger.
+    :param mongo_client: An optional mongo client to perform DB queries
+    """
     client = mongo.get_default_client(mongo_client)
 
     if protobuf.util.is_payload(mauka_message, protobuf.mauka_pb2.VOLTAGE_RMS_WINDOWED):

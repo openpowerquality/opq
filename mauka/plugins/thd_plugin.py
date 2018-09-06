@@ -10,11 +10,11 @@ import scipy.fftpack
 import constants
 import mongo
 import plugins.base_plugin
-import protobuf.util
 import protobuf.mauka_pb2
+import protobuf.util
 
 
-def rolling_window(array, window):
+def rolling_window(array: numpy.ndarray, window: int) -> typing.List[numpy.ndarray]:
     """
     Given an array and window, restructure the data so that it is in a rolling window of size "window" and step = 1.
     :param array: The array to roll a window over
@@ -22,9 +22,9 @@ def rolling_window(array, window):
     :return: A 2D array where each row is a window into the provided data.
     """
     if len(array) <= window:
-        return numpy.array([array])
-    # shape = array.shape[:-1] + (array.shape[-1] - window + 1, window)
-    # strides = array.strides + (array.strides[-1],)
+        return [array]
+    # shape = array.shape[:-1] + (array.shape[-1] - window + 1 - step_size, window)
+    # strides = array.strides + (array.strides[-1] * step_size,)
     # return numpy.lib.stride_tricks.as_strided(array, shape=shape, strides=strides)
     return numpy.array_split(array, window)
 
@@ -55,9 +55,11 @@ def sliding_thd(mongo_client, threshold_percent, sliding_window_ms, event_id: in
     :param box_event_start_timestamp: Start timestamp of the provided waveform
     :param waveform: The waveform to calculate THD over.
     """
+
     window_size = int(constants.SAMPLES_PER_MILLISECOND * sliding_window_ms)
     windows = rolling_window(waveform, window_size)
     thds = [thd(window, constants.CYCLES_PER_SECOND) for window in windows]
+
     prev_beyond_threshold = False
     prev_idx = -1
     max_thd = -1
@@ -77,21 +79,18 @@ def sliding_thd(mongo_client, threshold_percent, sliding_window_ms, event_id: in
 
                 # Every thd value is a sample over a 200 ms window
                 incident_start_timestamp = int(box_event_start_timestamp + (prev_idx * sliding_window_ms))
-                incident_end_timestamp = int(
-                    box_event_start_timestamp + (i * sliding_window_ms) + sliding_window_ms)
+                incident_end_timestamp = int(box_event_start_timestamp + (i * sliding_window_ms) + sliding_window_ms)
 
-                mongo.store_incident(
-                    event_id,
-                    box_id,
-                    incident_start_timestamp,
-                    incident_end_timestamp,
-                    mongo.IncidentMeasurementType.THD,
-                    max_thd,
-                    [mongo.IncidentClassification.EXCESSIVE_THD],
-                    [],
-                    {},
-                    mongo_client
-                )
+                mongo.store_incident(event_id,
+                                     box_id,
+                                     incident_start_timestamp,
+                                     incident_end_timestamp,
+                                     mongo.IncidentMeasurementType.THD,
+                                     max_thd,
+                                     [mongo.IncidentClassification.EXCESSIVE_THD],
+                                     [],
+                                     {},
+                                     mongo_client)
 
 
 class ThdPlugin(plugins.base_plugin.MaukaPlugin):
@@ -127,9 +126,7 @@ class ThdPlugin(plugins.base_plugin.MaukaPlugin):
                         mauka_message.payload.event_id,
                         mauka_message.payload.box_id,
                         mauka_message.payload.start_timestamp_ms,
-                        protobuf.util.repeated_as_ndarray(
-                            mauka_message.payload.data
-                        ))
+                        protobuf.util.repeated_as_ndarray(mauka_message.payload.data))
         else:
             self.logger.error("Received incorrect mauka message [%s] at ThdPlugin",
                               protobuf.util.which_message_oneof(mauka_message))
@@ -138,6 +135,13 @@ class ThdPlugin(plugins.base_plugin.MaukaPlugin):
 def rerun(mauka_message: protobuf.mauka_pb2.MaukaMessage,
           logger,
           mongo_client: mongo.OpqMongoClient = None):
+    """
+    Rerun the THD plugin over a Makai box event.
+    :param mauka_message: The event message to rerun THD analysis over.
+    :param logger: The application logger
+    :param mongo_client: An optional instance of a mongo client.
+    :return:
+    """
     client = mongo.get_default_client(mongo_client)
 
     if protobuf.util.is_payload(mauka_message, protobuf.mauka_pb2.ADC_SAMPLES):
@@ -147,9 +151,7 @@ def rerun(mauka_message: protobuf.mauka_pb2.MaukaMessage,
                     mauka_message.payload.event_id,
                     mauka_message.payload.box_id,
                     mauka_message.payload.start_timestamp_ms,
-                    protobuf.util.repeated_as_ndarray(
-                        mauka_message.payload.data
-                    ))
+                    protobuf.util.repeated_as_ndarray(mauka_message.payload.data))
     else:
         logger.error("Received incorrect mauka message [%s] at ThdPlugin rerun",
                      protobuf.util.which_message_oneof(mauka_message))
