@@ -9,6 +9,7 @@ import { OpqBoxes } from '../../api/opq-boxes/OpqBoxesCollection';
 import { Regions } from '../../api/regions/RegionsCollection';
 import { Measurements } from '../../api/measurements/MeasurementsCollection';
 import { UserProfiles } from '../../api/users/UserProfilesCollection';
+import { Notifications } from '../../api/notifications/NotificationsCollection';
 
 BoxEvents.publish();
 BoxOwners.publish();
@@ -21,3 +22,4 @@ Regions.publish();
 SystemStats.publish();
 Trends.publish();
 UserProfiles.publish();
+Notifications.publish();

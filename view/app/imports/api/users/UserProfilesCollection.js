@@ -21,6 +21,14 @@ class UserProfilesCollection extends BaseCollection {
       firstName: String,
       lastName: String,
       role: String,
+      phone: { type: String, optional: true },
+      unseen_notifications: { type: Boolean, optional: true },
+      notification_preferences: { type: Object, optional: true },
+      'notification_preferences.text': { type: Boolean, optional: true },
+      'notification_preferences.email': { type: Boolean, optional: true },
+      'notification_preferences.max_per_day': { type: String, optional: true },
+      'notification_preferences.notification_types': { type: Array, optional: true },
+        'notification_preferences.notification_types.$': { type: String, blackbox: true },
     }));
   }
 
@@ -33,9 +41,15 @@ class UserProfilesCollection extends BaseCollection {
    * @param {String} lastName - The user's last name.
    * @param {String} role - The role of the user: either 'admin' or 'user'.
    * @param {[Number]} boxIds - An array of Strings containing the IDs of the boxes that can be managed by this user.
+   * @param {String} phone - The user's phone number concatenated with user's provider.
+   * @param {String} notification_preferences - The user's preferences on how they are notified
+   *    and which notification types they want to receive.
+   * @param {Boolean} unseen_notifications - True if user receives new notifications.
+   *    false once notification viewer component is opened
    */
   // eslint-disable-next-line class-methods-use-this
-  define({ username, password, firstName, lastName, boxIds = [], role = 'user' }) {
+  define({ username, password, firstName, lastName, boxIds = [], role = 'user',
+           phone, notification_preferences, unseen_notifications = false }) {
     if (Meteor.isServer) {
 
       OpqBoxes.assertValidBoxIds(boxIds);
@@ -55,7 +69,16 @@ class UserProfilesCollection extends BaseCollection {
       }
 
       // Create or modify the UserProfiles document associated with this username.
-      this._collection.upsert({ username }, { $set: { firstName, lastName, role } });
+      this._collection.upsert({ username }, {
+        $set: {
+          firstName,
+          lastName,
+          role,
+          phone,
+          notification_preferences,
+          unseen_notifications,
+        },
+      });
       const profileId = this.findOne({ username })._id;
 
       // Set the role using the Roles package. This makes it easier to do Role-based decisions on client.
@@ -98,6 +121,22 @@ class UserProfilesCollection extends BaseCollection {
     throw new Meteor.Error(`Could not find profile corresponding to ${username}`);
   }
 
+
+  /**
+   * Returns the profile document corresponding to id, or throws error if not found.
+   * @param id
+   * @returns {Object} The profile document.
+   * @throws { Meteor.Error } If the profile document does not exist for this id.
+   */
+  findByID(userID) {
+    const id = new Meteor.Collection.ObjectID(userID);
+    const profile = this._collection.findOne({ _id: id }, {});
+    if (profile) {
+      return profile;
+    }
+    throw new Meteor.Error(`Could not find profile corresponding to ${id}`);
+  }
+
   /**
    * Returns a list of all of the currently defined usernames.
    * @param sort If truthy, then sort the list before returning.
@@ -128,8 +167,17 @@ class UserProfilesCollection extends BaseCollection {
         updateData.lastName = args.lastName;
       }
       if (args.boxIds) {
-        this.assertValidBoxIds(args.boxIds);
+        OpqBoxes.assertValidBoxIds(args.boxIds);
         this._updateBoxIds(userProfileDoc.username, args.boxIds);
+      }
+      if (args.phone) {
+        updateData.phone = args.phone;
+      }
+      if (args.notification_preferences) {
+        updateData.notification_preferences = args.notification_preferences;
+      }
+      if (args.unseen_notifications) {
+        updateData.unseen_notifications = args.unseen_notifications;
       }
       this._collection.update(docID, { $set: updateData });
       return updateData;
@@ -174,6 +222,24 @@ class UserProfilesCollection extends BaseCollection {
       _.forEach(userProfiles, (profile) => instance.remove(profile.username));
     }
     return true;
+  }
+
+  /**
+   * Checks user's preferred way of receiving notifications and returns array of email addresses
+   * Notifications can be received through text message and email
+   * @param user {Object}
+   * @returns {Array}
+   */
+  getRecipients(docID) {
+    const user = this._collection.findOne(docID);
+    const recipients = [];
+    if (user.notification_preferences.text === true && user.phone !== undefined) {
+      recipients.push(user.phone);
+    }
+    if (user.notification_preferences.email === true) {
+      recipients.push(user.username);
+    }
+    return recipients;
   }
 }
 
