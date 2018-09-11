@@ -1,6 +1,6 @@
-from plugins.FrequencyVariationPlugin import frequency_variation
-from plugins.FrequencyVariationPlugin import frequency_incident_classifier
-from OpqMauka import load_config
+from plugins.frequency_variation_plugin import frequency_variation
+from plugins.frequency_variation_plugin import frequency_incident_classifier
+from opq_mauka import load_config
 
 import unittest
 import mongo

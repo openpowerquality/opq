@@ -9,12 +9,12 @@ import typing
 
 import zmq
 
-import plugins.base
+import plugins.base_plugin
 import protobuf.opq_pb2
 import protobuf.util
 
 
-class AcquisitionTriggerPlugin(plugins.base.MaukaPlugin):
+class AcquisitionTriggerPlugin(plugins.base_plugin.MaukaPlugin):
     """
     This class provides the acquisition trigger plugin whose job it is to look at interesting events and query for
     raw data when interesting events occur
@@ -35,6 +35,8 @@ class AcquisitionTriggerPlugin(plugins.base.MaukaPlugin):
         self.zmq_req_ctx = zmq.Context()
         """ZeroMQ context"""
 
+        # noinspection PyUnresolvedReferences
+        # pylint: disable=E1101
         self.push_socket = self.zmq_req_ctx.socket(zmq.PUSH)
         """ZeroMQ request socket"""
 
@@ -47,7 +49,7 @@ class AcquisitionTriggerPlugin(plugins.base.MaukaPlugin):
         self.s_dead_zone = int(self.config_get("plugins.AcquisitionTriggerPlugin.sDeadZoneAfterTrigger"))
         """Number of seconds of deadzone that we should not request raw data after just requesting data"""
 
-        self.event_type_to_last_event_timestamp = {}
+        self.event_type_to_last_timestamp = {}
         """Store event types to the last event timestamp of that type"""
 
         self.event_type_to_last_event = {}
@@ -74,6 +76,7 @@ class AcquisitionTriggerPlugin(plugins.base.MaukaPlugin):
         msg.end_timestamp_ms_utc = end_ms + self.ms_after
         msg.trigger_type = trigger_type
         msg.percent_magnitude = percent_magnitude
+        # pylint: disable=E1101
         msg.box_ids.extend(box_ids)
         msg.requestee = requestee
         msg.description = description
@@ -87,20 +90,20 @@ class AcquisitionTriggerPlugin(plugins.base.MaukaPlugin):
         :param now: The current time
         :return: If we are currently in a deadzone or not
         """
-        if event_type in self.event_type_to_last_event_timestamp:
-            return now - self.event_type_to_last_event_timestamp[event_type] <= self.s_dead_zone
-        else:
-            return False
+        if event_type in self.event_type_to_last_timestamp:
+            return now - self.event_type_to_last_timestamp[event_type] <= self.s_dead_zone
+
+        return False
 
     def get_status(self):
         # return str(self.event_type_to_last_event_timestamp)
-        return "{} {}".format(self.event_type_to_last_event_timestamp, self.event_type_to_last_event)
+        return "{} {}".format(self.event_type_to_last_timestamp, self.event_type_to_last_event)
 
     def on_message(self, topic, mauka_message):
         """Subscribed messages appear here
 
         :param topic: The topic that this message is associated with
-        :param message: The message
+        :param mauka_message: The message
         """
         if protobuf.util.is_makai_trigger(mauka_message):
             self.debug("on_message {}".format(mauka_message))
@@ -113,25 +116,25 @@ class AcquisitionTriggerPlugin(plugins.base.MaukaPlugin):
             else:
                 self.debug("Not in deadzone")
                 request_data = True
-                self.event_type_to_last_event_timestamp[event_type] = now
+                self.event_type_to_last_timestamp[event_type] = now
 
             start_ts_ms_utc = mauka_message.makai_trigger.event_start_timestamp_ms
             end_ts_ms_utc = mauka_message.makai_trigger.event_end_timestamp_ms
+            # pylint: disable=E1101
             trigger_type = protobuf.opq_pb2.RequestEventMessage.TriggerType.Value(event_type)
-            percent_magnitude = mauka_message.makai_trigger.max_value
             device_ids = list(map(int, [mauka_message.makai_trigger.box_id]))
-            requestee = "AcquisitionTriggerPlugin"
-            description = "{} {}-{}".format(str(trigger_type), start_ts_ms_utc, end_ts_ms_utc)
 
-            event_msg = self.request_event_message(start_ts_ms_utc, end_ts_ms_utc, trigger_type, percent_magnitude,
-                                                   device_ids, requestee, description, request_data)
+            event_msg = self.request_event_message(start_ts_ms_utc, end_ts_ms_utc, trigger_type,
+                                                   mauka_message.makai_trigger.max_value,
+                                                   device_ids, "AcquisitionTriggerPlugin",
+                                                   "{} {}-{}".format(str(trigger_type), start_ts_ms_utc, end_ts_ms_utc),
+                                                   request_data)
             self.event_type_to_last_event[event_type] = str(event_msg)
             try:
                 self.debug("Sending event msg: {}".format(event_msg))
                 self.push_socket.send(event_msg)
-            except Exception as e:
-                self.logger.error("Error sending req to Makai: {}".format(str(e)))
+            except zmq.ZMQError as err:
+                self.logger.error("Error sending req to Makai: %s", str(err))
         else:
-            self.logger.error("Received incorrect mauka message [{}] in AcquisitionTriggerPlugin".format(
-                protobuf.util.which_message_oneof(mauka_message)
-            ))
+            self.logger.error("Received incorrect mauka message [%s] in AcquisitionTriggerPlugin",
+                              protobuf.util.which_message_oneof(mauka_message))

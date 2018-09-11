@@ -5,10 +5,10 @@ This module contains a plugin that prints every message
 import multiprocessing
 import typing
 
-import plugins.base
+import plugins.base_plugin
 
 
-class PrintPlugin(plugins.base.MaukaPlugin):
+class PrintPlugin(plugins.base_plugin.MaukaPlugin):
     """
     This class contains a plugin that prints every message
     """
@@ -28,6 +28,6 @@ class PrintPlugin(plugins.base.MaukaPlugin):
         Messages are printed to stdout
 
         :param topic: The topic that this message is associated with
-        :param message: The message
+        :param mauka_message: The message
         """
-        self.logger.info("topic: {} message: {}...".format(topic, mauka_message))
+        self.logger.info("topic: %s message: %s", str(topic), str(mauka_message))

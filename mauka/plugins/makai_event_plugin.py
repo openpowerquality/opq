@@ -9,12 +9,13 @@ import typing
 
 import numpy
 
+from scipy import optimize
+
 import constants
 import mongo
-import plugins.base
+import plugins.base_plugin
 import protobuf.mauka_pb2
 import protobuf.util
-from scipy import optimize
 
 
 def vrms(samples: numpy.ndarray) -> float:
@@ -35,17 +36,17 @@ def vrms_waveform(waveform: numpy.ndarray, window_size: int = constants.SAMPLES_
     :param window_size: The size of the window used to compute Vrms over the waveform.
     :return: An array of vrms values calculated for a given waveform.
     """
-    v = []
+    rms_voltages = []
     window_size = int(window_size)
     while len(waveform) >= window_size:
         samples = waveform[:window_size]
         waveform = waveform[window_size:]
-        v.append(vrms(samples))
+        rms_voltages.append(vrms(samples))
 
     if len(waveform) > 0:
-        v.append(vrms(waveform))
+        rms_voltages.append(vrms(waveform))
 
-    return numpy.array(v)
+    return numpy.array(rms_voltages)
 
 
 def frequency(samples: numpy.ndarray) -> float:
@@ -55,25 +56,23 @@ def frequency(samples: numpy.ndarray) -> float:
     :return: The frequency value of the provided samples in Hz.
     """
 
-    """Fit sinusoidal curve to data"""
+    # Fit sinusoidal curve to data
     guess_amp = 120.0 * numpy.sqrt(2)
     guess_freq = constants.CYCLES_PER_SECOND
     guess_phase = 0.0
     guess_mean = 0.0
-    t = numpy.arange(0, len(samples) / constants.SAMPLE_RATE_HZ, 1 / constants.SAMPLE_RATE_HZ)
+    idx = numpy.arange(0, len(samples) / constants.SAMPLE_RATE_HZ, 1 / constants.SAMPLE_RATE_HZ)
 
-    def optimize_func(x):
+    def optimize_func(args):
         """
-        Opimized the function for finding and fitting the frequency.
-        :param x: A list containing in this order: guess_amp, guess_freq, guess_phase, guess_mean.
+        Optimized the function for finding and fitting the frequency.
+        :param args: A list containing in this order: guess_amp, guess_freq, guess_phase, guess_mean.
         :return: Optimized function.
         """
-        return x[0] * numpy.sin(x[1] * 2 * numpy.pi * t + x[2]) + x[3] - samples
+        return args[0] * numpy.sin(args[1] * 2 * numpy.pi * idx + args[2]) + args[3] - samples
 
-    est_amp, est_freq, est_phase, est_mean = optimize.leastsq(optimize_func,
-                                                              numpy.array(
-                                                                  [guess_amp, guess_freq, guess_phase, guess_mean])
-                                                              )[0]
+    _, est_freq, _, _ = optimize.leastsq(optimize_func,
+                                         numpy.array([guess_amp, guess_freq, guess_phase, guess_mean]))[0]
 
     return round(est_freq, ndigits=2)
 
@@ -87,20 +86,20 @@ def frequency_waveform(waveform: numpy.ndarray, window_size: int = constants.SAM
     :return: An array of frequency values calculated for a given waveform.
     """
 
-    f = []
+    frequencies = []
     window_size = int(window_size)
     while len(waveform) >= window_size:
         samples = waveform[:window_size]
         waveform = waveform[window_size:]
-        f.append(frequency(samples))
+        frequencies.append(frequency(samples))
 
     if len(waveform) > 0:
-        f.append(frequency(waveform))
+        frequencies.append(frequency(waveform))
 
-    return numpy.array(f)
+    return numpy.array(frequencies)
 
 
-class MakaiEventPlugin(plugins.base.MaukaPlugin):
+class MakaiEventPlugin(plugins.base_plugin.MaukaPlugin):
     """
     This plugin retrieves data when Makai triggers events, performs feature extraction, and then publishes relevant
     features to Mauka downstream plugins.
@@ -121,10 +120,7 @@ class MakaiEventPlugin(plugins.base.MaukaPlugin):
         for box_event in box_events:
             waveform = mongo.get_waveform(self.mongo_client, box_event["data_fs_filename"])
             box_id = box_event["box_id"]
-            calibration_constant = mongo.cached_calibration_constant(box_id)
-            waveform_calibrated = waveform / calibration_constant
-            waveform_vrms = vrms_waveform(waveform_calibrated, int(constants.SAMPLES_PER_CYCLE))
-            waveform_frequency = frequency_waveform(waveform_calibrated, int(constants.SAMPLES_PER_CYCLE))
+            waveform_calibrated = waveform / mongo.cached_calibration_constant(box_id)
 
             start_timestamp = box_event["event_start_timestamp_ms"]
             end_timestamp = box_event["event_end_timestamp_ms"]
@@ -149,7 +145,8 @@ class MakaiEventPlugin(plugins.base.MaukaPlugin):
                                                                event_id,
                                                                box_id,
                                                                protobuf.mauka_pb2.VOLTAGE_RMS_WINDOWED,
-                                                               waveform_vrms,
+                                                               vrms_waveform(waveform_calibrated,
+                                                                             int(constants.SAMPLES_PER_CYCLE)),
                                                                start_timestamp,
                                                                end_timestamp)
 
@@ -157,7 +154,8 @@ class MakaiEventPlugin(plugins.base.MaukaPlugin):
                                                              event_id,
                                                              box_id,
                                                              protobuf.mauka_pb2.FREQUENCY_WINDOWED,
-                                                             waveform_frequency,
+                                                             frequency_waveform(waveform_calibrated,
+                                                                                int(constants.SAMPLES_PER_CYCLE)),
                                                              start_timestamp,
                                                              end_timestamp)
 
@@ -174,6 +172,5 @@ class MakaiEventPlugin(plugins.base.MaukaPlugin):
                                     args=[mauka_message.makai_event.event_id])
             timer.start()
         else:
-            self.logger.error("Received incorrect mauka message [{}] for MakaiEventPlugin".format(
-                protobuf.util.which_message_oneof(mauka_message)
-            ))
+            self.logger.error("Received incorrect mauka message [%s] for MakaiEventPlugin",
+                              protobuf.util.which_message_oneof(mauka_message))
