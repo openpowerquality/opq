@@ -13,7 +13,11 @@ class LocationsCollection extends BaseCollection {
   constructor() {
     super('locations', new SimpleSchema({
       slug: String,
-      coordinates: Array,
+      coordinates: {
+        type: Array,
+        minCount: 2,
+        maxCount: 2
+      },
       'coordinates.$': Number,
       description: String,
     }));
