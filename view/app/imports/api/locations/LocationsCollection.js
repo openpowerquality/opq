@@ -16,7 +16,7 @@ class LocationsCollection extends BaseCollection {
       coordinates: {
         type: Array,
         minCount: 2,
-        maxCount: 2
+        maxCount: 2,
       },
       'coordinates.$': Number,
       description: String,

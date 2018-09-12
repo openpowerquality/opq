@@ -1,6 +1,6 @@
 import React from 'react';
 import { Meteor } from 'meteor/meteor';
-import { withRouter, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Loader, Table, Button, Container } from 'semantic-ui-react';
 import { Locations } from '/imports/api/locations/LocationsCollection';
 import { withTracker } from 'meteor/react-meteor-data';
