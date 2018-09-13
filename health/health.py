@@ -55,7 +55,7 @@ def write_to_mongo(message):
     client = MongoClient()
     db = client['opq']
     coll = db['health']
-  
+
     message['timestamp'] = datetime.utcnow()
     coll.insert_one(message)
 
@@ -74,7 +74,7 @@ def get_mongo_doc(uri, coll, doc):
     client = MongoClient(uri)
     db = client['opq']
     coll = db[coll]
-    
+
     match = coll.find_one(doc)
 
     client.close()
@@ -150,7 +150,7 @@ def check_boxes(config):
         measurement = socket.recv_multipart()
         trigger_message = protobuf.opq_pb2.TriggerMessage()
         trigger_message.ParseFromString(measurement[1])
-    
+
         lock.acquire()
         if trigger_message.id in boxes:
             boxes[trigger_message.id] = trigger_message.time
@@ -219,13 +219,12 @@ def generate_req_event_message():
     req_message.percent_magnitude = 50
     req_message.requestee = "Evan"
     req_message.request_data = True
-    
+
     return req_message
 
 def find_event(mongo_uri, new_event):
     if not new_event:
         return None
-    # NOTE - Should I sleep for a bit to give event creation slack?
     id = int(new_event[1])
     event = get_mongo_doc(mongo_uri, 'events', {'event_id': id})
 
@@ -266,19 +265,23 @@ def check_makai(config):
             save_message(message)
             sleep(sleep_time)
             continue
-   
+
+        # Give makai more time to insert into mongo
+        sleep(10)
+
         if find_event(mongo_uri, new_event):
             message = get_msg_as_json('MAKAI', '', 'UP', '')
         else:
-            message = get_msg_as_json('MAKAI', '', 'DOWN', '')
+            err_msg = 'MONGO id: ' + str(new_event)
+            message = get_msg_as_json('MAKAI', '', 'DOWN', err_msg)
 
         save_message(message)
-        
-        sleep(sleep_time)
+
+        sleep(sleep_time - 10)
 
     push_socket.close()
-    sub_socket.clse()
-           
+    sub_socket.close()
+
 def main(config_file):
     health_config = file_to_dict(config_file)
 
@@ -325,10 +328,10 @@ def set_g_log_file(file_name):
     global g_log_file_on
 
     g_log_file = file_name
-    
+
     if g_log_file == 'disable':
         g_log_file_on = False
-        
+
 if __name__ == '__main__':
     # Use log_file as global variable
     config_file, log_file = parse_cmd_args()
