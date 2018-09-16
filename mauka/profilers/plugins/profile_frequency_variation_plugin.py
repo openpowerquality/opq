@@ -63,6 +63,7 @@ def profile_frequency_variation_plugin(data_file: str):
     freq_var_low = float(config.get("plugins.FrequencyVariationPlugin.frequency.variation.threshold.low"))
     freq_var_high = float(config.get("plugins.FrequencyVariationPlugin.frequency.variation.threshold.high"))
     freq_interruption = float(config.get("plugins.FrequencyVariationPlugin.frequency.interruption"))
+    max_lull = int(config.get("plugins.FrequencyVariationPlugin.max.lull.windows"))
 
     # create profiler
     pr = cProfile.Profile()
@@ -76,7 +77,7 @@ def profile_frequency_variation_plugin(data_file: str):
     # profile frequency_incident_classifier
     pr.enable()
     incidents = frequency_incident_classifier(0, "", frequencies, 0, freq_ref, freq_var_high, freq_var_low,
-                                              freq_interruption, window_size)
+                                              freq_interruption, window_size, max_lull)
     pr.disable()
 
     # open write profile to output file
@@ -87,10 +88,12 @@ def profile_frequency_variation_plugin(data_file: str):
 
     # add incident count to profile
     out_file.write('Incident count: {} \n \n'.format(len(incidents)))
+    out_file.write('Frequency Min: {} \n \n'.format(frequencies.min()))
+    out_file.write('Frequency Max: {} \n \n'.format(frequencies.max()))
 
     # Simulate an incident
     waveform_1 = simulate_waveform(num_samples=int(100*constants.SAMPLES_PER_CYCLE))
-    waveform_2 = simulate_waveform(freq=60.2, num_samples=int(10*constants.SAMPLES_PER_CYCLE))
+    waveform_2 = simulate_waveform(freq=60.2, num_samples=int(10*constants.SAMPLE_RATE_HZ / 60.2))
     waveform_3 = simulate_waveform(num_samples=int(100*constants.SAMPLES_PER_CYCLE))
     waveform = numpy.concatenate((waveform_1, waveform_2, waveform_3))
 
@@ -100,7 +103,7 @@ def profile_frequency_variation_plugin(data_file: str):
     # profile frequency_incident_classifier on simulated event
     pr.enable()
     incidents = frequency_incident_classifier(0, "", frequencies, 0, freq_ref, freq_var_high, freq_var_low,
-                                              freq_interruption, window_size)
+                                              freq_interruption, window_size, max_lull)
     pr.disable()
 
     # open write profile to output file
@@ -114,5 +117,6 @@ def profile_frequency_variation_plugin(data_file: str):
     start_indices = [i['incident_start_ts'] / window_duration for i in incidents]
     end_indices = [i['incident_end_ts'] / window_duration for i in incidents]
     out_file.write('Incident Start : End indices: {} : {} \n \n'.format(str(start_indices), str(end_indices)))
+    out_file.write("Frequencies: {}".format(str(frequencies)))
 
     out_file.close()
