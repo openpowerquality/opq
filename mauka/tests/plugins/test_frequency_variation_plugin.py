@@ -16,6 +16,7 @@ class FrequencyVariationTests(unittest.TestCase):
         self.freq_var_low = float(self.config["plugins.FrequencyVariationPlugin.frequency.variation.threshold.low"])
         self.freq_var_high = float(self.config["plugins.FrequencyVariationPlugin.frequency.variation.threshold.high"])
         self.freq_interruption = float(self.config["plugins.FrequencyVariationPlugin.frequency.interruption"])
+        self.frequency_window_cycles = int(self.config["plugins.MakaiEventPlugin.frequencyWindowCycles"])
 
     def test_no_variation(self):
         """
@@ -41,13 +42,15 @@ class FrequencyVariationTests(unittest.TestCase):
         """frequency_incident_classifier Method"""
         test_windowed_frequencies = [60.0 for _ in range(1)]  # 1 window of samples,
         incidents = frequency_incident_classifier(0, "", numpy.array(test_windowed_frequencies), 0, self.freq_ref,
-                                                  self.freq_var_high, self.freq_var_low, self.freq_interruption)
+                                                  self.freq_var_high, self.freq_var_low, self.freq_interruption,
+                                                  int(self.frequency_window_cycles * constants.SAMPLES_PER_CYCLE))
         message = "Frequency Window:{} Classified as:{}".format(test_windowed_frequencies, incidents)
         self.assertEqual(len(incidents), 0, msg=message)
 
         test_windowed_frequencies = [60.0 for _ in range(10)]  # 10 windows of samples,
         incidents = frequency_incident_classifier(0, "", numpy.array(test_windowed_frequencies), 0, self.freq_ref,
-                                                  self.freq_var_high, self.freq_var_low, self.freq_interruption)
+                                                  self.freq_var_high, self.freq_var_low, self.freq_interruption,
+                                                  int(self.frequency_window_cycles * constants.SAMPLES_PER_CYCLE))
         message = "Frequency Windows:{} Classified as:{}".format(test_windowed_frequencies, incidents)
         self.assertEqual(len(incidents), 0, msg=message)
 
@@ -73,7 +76,8 @@ class FrequencyVariationTests(unittest.TestCase):
         """frequency_incident_classifier Method"""
         test_windowed_frequencies = [70.0 for _ in range(1)]  # 1 window of samples
         incidents = frequency_incident_classifier(0, "", numpy.array(test_windowed_frequencies), 0, self.freq_ref,
-                                                  self.freq_var_high, self.freq_var_low, self.freq_interruption)
+                                                  self.freq_var_high, self.freq_var_low, self.freq_interruption,
+                                                  int(self.frequency_window_cycles * constants.SAMPLES_PER_CYCLE))
         message = "Frequency Window:{} Classified as:{}".format(test_windowed_frequencies, incidents)
         self.assertEqual(len(incidents), 1, msg=message)
 
@@ -81,7 +85,8 @@ class FrequencyVariationTests(unittest.TestCase):
         test_windowed_frequencies = [70.0 for _ in range(10)]
 
         incidents = frequency_incident_classifier(0, "", numpy.array(test_windowed_frequencies), 0, self.freq_ref,
-                                                  self.freq_var_high, self.freq_var_low, self.freq_interruption)
+                                                  self.freq_var_high, self.freq_var_low, self.freq_interruption,
+                                                  int(self.frequency_window_cycles * constants.SAMPLES_PER_CYCLE))
 
         message = "Frequency Windows:{} Classified as:{}".format(test_windowed_frequencies, incidents)
         self.assertEqual(len(incidents), 1, msg=message)
@@ -96,7 +101,8 @@ class FrequencyVariationTests(unittest.TestCase):
         test_windowed_frequencies = [70.0 for _ in range(10)] + [60.0 for _ in range(10)]
 
         incidents = frequency_incident_classifier(0, "", numpy.array(test_windowed_frequencies), 0, self.freq_ref,
-                                                  self.freq_var_high, self.freq_var_low, self.freq_interruption)
+                                                  self.freq_var_high, self.freq_var_low, self.freq_interruption,
+                                                  int(self.frequency_window_cycles * constants.SAMPLES_PER_CYCLE))
 
         message = "Frequency Windows:{} Classified as:{}".format(test_windowed_frequencies, incidents)
         self.assertEqual(len(incidents), 1, msg=message)
@@ -111,7 +117,8 @@ class FrequencyVariationTests(unittest.TestCase):
         test_windowed_frequencies = [60.0 for _ in range(10)] + [70.0 for _ in range(10)]
 
         incidents = frequency_incident_classifier(0, "", numpy.array(test_windowed_frequencies), 0, self.freq_ref,
-                                                  self.freq_var_high, self.freq_var_low, self.freq_interruption)
+                                                  self.freq_var_high, self.freq_var_low, self.freq_interruption,
+                                                  int(self.frequency_window_cycles * constants.SAMPLES_PER_CYCLE))
 
         message = "Frequency Windows:{} Classified as:{}".format(test_windowed_frequencies, incidents)
         self.assertEqual(len(incidents), 1, msg=message)
@@ -127,7 +134,8 @@ class FrequencyVariationTests(unittest.TestCase):
         test_windowed_frequencies = [60.0 for _ in range(10)] + [70.0 for _ in range(10)] + [60.0 for _ in range(10)]
 
         incidents = frequency_incident_classifier(0, "", numpy.array(test_windowed_frequencies), 0, self.freq_ref,
-                                                  self.freq_var_high, self.freq_var_low, self.freq_interruption)
+                                                  self.freq_var_high, self.freq_var_low, self.freq_interruption,
+                                                  int(self.frequency_window_cycles * constants.SAMPLES_PER_CYCLE))
 
         message = "Frequency Windows:{} Classified as:{}".format(test_windowed_frequencies, incidents)
         self.assertEqual(len(incidents), 1, msg=message)
@@ -144,7 +152,8 @@ class FrequencyVariationTests(unittest.TestCase):
                                     [70.0 for _ in range(5)] + [60.0 for _ in range(5)]
 
         incidents = frequency_incident_classifier(0, "", numpy.array(test_windowed_frequencies), 0, self.freq_ref,
-                                                  self.freq_var_high, self.freq_var_low, self.freq_interruption)
+                                                  self.freq_var_high, self.freq_var_low, self.freq_interruption,
+                                                  int(self.frequency_window_cycles * constants.SAMPLES_PER_CYCLE))
 
         message = "Frequency Windows:{} Classified as:{}".format(test_windowed_frequencies, incidents)
         self.assertEqual(len(incidents), 2, msg=message)
@@ -187,7 +196,8 @@ class FrequencyVariationTests(unittest.TestCase):
         """frequency_incident_classifier Method"""
         test_windowed_frequencies = [59.0 for _ in range(1)]  # 1 window of samples
         incidents = frequency_incident_classifier(0, "", numpy.array(test_windowed_frequencies), 0, self.freq_ref,
-                                                  self.freq_var_high, self.freq_var_low, self.freq_interruption)
+                                                  self.freq_var_high, self.freq_var_low, self.freq_interruption,
+                                                  int(self.frequency_window_cycles * constants.SAMPLES_PER_CYCLE))
         message = "Frequency Window:{} Classified as:{}".format(test_windowed_frequencies, incidents)
         self.assertEqual(len(incidents), 1, msg=message)
 
@@ -195,7 +205,8 @@ class FrequencyVariationTests(unittest.TestCase):
         test_windowed_frequencies = [59.0 for _ in range(10)]
 
         incidents = frequency_incident_classifier(0, "", numpy.array(test_windowed_frequencies), 0, self.freq_ref,
-                                                  self.freq_var_high, self.freq_var_low, self.freq_interruption)
+                                                  self.freq_var_high, self.freq_var_low, self.freq_interruption,
+                                                  int(self.frequency_window_cycles * constants.SAMPLES_PER_CYCLE))
 
         message = "Frequency Windows:{} Classified as:{}".format(test_windowed_frequencies, incidents)
         self.assertEqual(len(incidents), 1, msg=message)
@@ -210,7 +221,8 @@ class FrequencyVariationTests(unittest.TestCase):
         test_windowed_frequencies = [59.0 for _ in range(10)] + [60.0 for _ in range(10)]
 
         incidents = frequency_incident_classifier(0, "", numpy.array(test_windowed_frequencies), 0, self.freq_ref,
-                                                  self.freq_var_high, self.freq_var_low, self.freq_interruption)
+                                                  self.freq_var_high, self.freq_var_low, self.freq_interruption,
+                                                  int(self.frequency_window_cycles * constants.SAMPLES_PER_CYCLE))
 
         message = "Frequency Windows:{} Classified as:{}".format(test_windowed_frequencies, incidents)
         self.assertEqual(len(incidents), 1, msg=message)
@@ -225,7 +237,8 @@ class FrequencyVariationTests(unittest.TestCase):
         test_windowed_frequencies = [60.0 for _ in range(10)] + [59.0 for _ in range(10)]
 
         incidents = frequency_incident_classifier(0, "", numpy.array(test_windowed_frequencies), 0, self.freq_ref,
-                                                  self.freq_var_high, self.freq_var_low, self.freq_interruption)
+                                                  self.freq_var_high, self.freq_var_low, self.freq_interruption,
+                                                  int(self.frequency_window_cycles * constants.SAMPLES_PER_CYCLE))
 
         message = "Frequency Windows:{} Classified as:{}".format(test_windowed_frequencies, incidents)
         self.assertEqual(len(incidents), 1, msg=message)
@@ -241,7 +254,8 @@ class FrequencyVariationTests(unittest.TestCase):
         test_windowed_frequencies = [60.0 for _ in range(10)] + [59.0 for _ in range(10)] + [60.0 for _ in range(10)]
 
         incidents = frequency_incident_classifier(0, "", numpy.array(test_windowed_frequencies), 0, self.freq_ref,
-                                                  self.freq_var_high, self.freq_var_low, self.freq_interruption)
+                                                  self.freq_var_high, self.freq_var_low, self.freq_interruption,
+                                                  int(self.frequency_window_cycles * constants.SAMPLES_PER_CYCLE))
 
         message = "Frequency Windows:{} Classified as:{}".format(test_windowed_frequencies, incidents)
         self.assertEqual(len(incidents), 1, msg=message)
@@ -258,7 +272,8 @@ class FrequencyVariationTests(unittest.TestCase):
                                     [59.0 for _ in range(5)] + [60.0 for _ in range(5)]
 
         incidents = frequency_incident_classifier(0, "", numpy.array(test_windowed_frequencies), 0, self.freq_ref,
-                                                  self.freq_var_high, self.freq_var_low, self.freq_interruption)
+                                                  self.freq_var_high, self.freq_var_low, self.freq_interruption,
+                                                  int(self.frequency_window_cycles * constants.SAMPLES_PER_CYCLE))
 
         message = "Frequency Windows:{} Classified as:{}".format(test_windowed_frequencies, incidents)
         self.assertEqual(len(incidents), 2, msg=message)
@@ -301,7 +316,8 @@ class FrequencyVariationTests(unittest.TestCase):
         """frequency_incident_classifier Method"""
         test_windowed_frequencies = [50.0 for _ in range(1)]  # 1 window of samples
         incidents = frequency_incident_classifier(0, "", numpy.array(test_windowed_frequencies), 0, self.freq_ref,
-                                                  self.freq_var_high, self.freq_var_low, self.freq_interruption)
+                                                  self.freq_var_high, self.freq_var_low, self.freq_interruption,
+                                                  int(self.frequency_window_cycles * constants.SAMPLES_PER_CYCLE))
         message = "Frequency Window:{} Classified as:{}".format(test_windowed_frequencies, incidents)
         self.assertEqual(len(incidents), 1, msg=message)
 
@@ -309,7 +325,8 @@ class FrequencyVariationTests(unittest.TestCase):
         test_windowed_frequencies = [50.0 for _ in range(10)]
 
         incidents = frequency_incident_classifier(0, "", numpy.array(test_windowed_frequencies), 0, self.freq_ref,
-                                                  self.freq_var_high, self.freq_var_low, self.freq_interruption)
+                                                  self.freq_var_high, self.freq_var_low, self.freq_interruption,
+                                                  int(self.frequency_window_cycles * constants.SAMPLES_PER_CYCLE))
 
         message = "Frequency Windows:{} Classified as:{}".format(test_windowed_frequencies, incidents)
         self.assertEqual(len(incidents), 1, msg=message)
@@ -325,7 +342,8 @@ class FrequencyVariationTests(unittest.TestCase):
         test_windowed_frequencies = [50.0 for _ in range(10)] + [60.0 for _ in range(10)]
 
         incidents = frequency_incident_classifier(0, "", numpy.array(test_windowed_frequencies), 0, self.freq_ref,
-                                                  self.freq_var_high, self.freq_var_low, self.freq_interruption)
+                                                  self.freq_var_high, self.freq_var_low, self.freq_interruption,
+                                                  int(self.frequency_window_cycles * constants.SAMPLES_PER_CYCLE))
 
         message = "Frequency Windows:{} Classified as:{}".format(test_windowed_frequencies, incidents)
         self.assertEqual(len(incidents), 1, msg=message)
@@ -341,7 +359,8 @@ class FrequencyVariationTests(unittest.TestCase):
         test_windowed_frequencies = [60.0 for _ in range(10)] + [50.0 for _ in range(10)]
 
         incidents = frequency_incident_classifier(0, "", numpy.array(test_windowed_frequencies), 0, self.freq_ref,
-                                                  self.freq_var_high, self.freq_var_low, self.freq_interruption)
+                                                  self.freq_var_high, self.freq_var_low, self.freq_interruption,
+                                                  int(self.frequency_window_cycles * constants.SAMPLES_PER_CYCLE))
 
         message = "Frequency Windows:{} Classified as:{}".format(test_windowed_frequencies, incidents)
         self.assertEqual(len(incidents), 1, msg=message)
@@ -358,7 +377,8 @@ class FrequencyVariationTests(unittest.TestCase):
         test_windowed_frequencies = [60.0 for _ in range(10)] + [50.0 for _ in range(10)] + [60.0 for _ in range(10)]
 
         incidents = frequency_incident_classifier(0, "", numpy.array(test_windowed_frequencies), 0, self.freq_ref,
-                                                  self.freq_var_high, self.freq_var_low, self.freq_interruption)
+                                                  self.freq_var_high, self.freq_var_low, self.freq_interruption,
+                                                  int(self.frequency_window_cycles * constants.SAMPLES_PER_CYCLE))
 
         message = "Frequency Windows:{} Classified as:{}".format(test_windowed_frequencies, incidents)
         self.assertEqual(len(incidents), 1, msg=message)
@@ -376,7 +396,8 @@ class FrequencyVariationTests(unittest.TestCase):
                                     [50.0 for _ in range(5)] + [60.0 for _ in range(5)]
 
         incidents = frequency_incident_classifier(0, "", numpy.array(test_windowed_frequencies), 0, self.freq_ref,
-                                                  self.freq_var_high, self.freq_var_low, self.freq_interruption)
+                                                  self.freq_var_high, self.freq_var_low, self.freq_interruption,
+                                                  int(self.frequency_window_cycles * constants.SAMPLES_PER_CYCLE))
 
         message = "Frequency Windows:{} Classified as:{}".format(test_windowed_frequencies, incidents)
         self.assertEqual(len(incidents), 2, msg=message)

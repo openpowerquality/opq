@@ -1,5 +1,6 @@
 from plugins.makai_event_plugin import frequency_waveform
 from plugins.makai_event_plugin import frequency
+from opq_mauka import load_config
 
 import unittest
 import numpy
@@ -8,8 +9,8 @@ import csv
 
 
 def simulate_waveform(freq: float=constants.CYCLES_PER_SECOND, vrms: float = 120.0, noise: bool = False,
-                      noise_variance: float = 1.0, num_samples: int = int(constants.SAMPLES_PER_CYCLE),
-                      sample_rate=constants.SAMPLE_RATE_HZ, rnd_seed = 0) -> numpy.ndarray:
+                      noise_variance: float = 1.0, num_samples: int = int(6 * constants.SAMPLES_PER_CYCLE),
+                      sample_rate=constants.SAMPLE_RATE_HZ, rnd_seed=0) -> numpy.ndarray:
 
     rand = numpy.random.RandomState(seed=rnd_seed)
 
@@ -36,6 +37,12 @@ def read_waveform(filename: str):
 
 class MakaiEventPluginTests(unittest.TestCase):
 
+    def setUp(self):
+        self.freq_ref = constants.CYCLES_PER_SECOND
+        self.config = load_config("./config.json")
+        self.window_size = int(self.config["plugins.MakaiEventPlugin.frequencyWindowCycles"]
+                               * constants.SAMPLES_PER_CYCLE)
+
     def test_frequency_no_variation(self):
         """
         Test 60Hz waveform
@@ -48,29 +55,44 @@ class MakaiEventPluginTests(unittest.TestCase):
 
         """MakaiEventPlugin frequency_waveform Method"""
         # 1 cycle no noise
-        waveform = simulate_waveform()
-        windowed_frequencies = frequency_waveform(waveform)
+        waveform = simulate_waveform(num_samples=int(1*constants.SAMPLES_PER_CYCLE))
+        windowed_frequencies = frequency_waveform(waveform, self.window_size)
         for freq in windowed_frequencies:
             message = "Frequency:{} Hz Expected:{} Hz".format(freq, constants.CYCLES_PER_SECOND)
             self.assertAlmostEqual(freq, constants.CYCLES_PER_SECOND, msg=message, delta=0.2)
 
-        # 1 cycles noise, variance = 1.0
+        # 100 cycles no noise
+        waveform = simulate_waveform(num_samples=int(100*constants.SAMPLES_PER_CYCLE))
+        windowed_frequencies = frequency_waveform(waveform, self.window_size)
+        for freq in windowed_frequencies:
+            message = "Frequency:{} Hz Expected:{} Hz".format(freq, constants.CYCLES_PER_SECOND)
+            self.assertAlmostEqual(freq, constants.CYCLES_PER_SECOND, msg=message, delta=0.2)
+
+
+        # # 1 cycles noise, variance = 1.0
         waveform = simulate_waveform(noise=True)
-        windowed_frequencies = frequency_waveform(waveform)
+        windowed_frequencies = frequency_waveform(waveform, self.window_size)
         for freq in windowed_frequencies:
             message = "Frequency:{} Hz Expected:{} Hz".format(freq, constants.CYCLES_PER_SECOND)
             self.assertAlmostEqual(freq, constants.CYCLES_PER_SECOND, msg=message, delta=0.2)
 
         # 1 cycles noise, variance = 10.0
         waveform = simulate_waveform(noise=True, noise_variance=10.0)
-        windowed_frequencies = frequency_waveform(waveform)
+        windowed_frequencies = frequency_waveform(waveform, self.window_size)
         for freq in windowed_frequencies:
             message = "Frequency:{} Hz Expected:{} Hz".format(freq, constants.CYCLES_PER_SECOND)
             self.assertAlmostEqual(freq, constants.CYCLES_PER_SECOND, msg=message, delta=0.2)
 
         # 10 cycles noise, variance = 10.0
         waveform = simulate_waveform(noise=True, noise_variance=10.0, num_samples=int(10*constants.SAMPLES_PER_CYCLE))
-        windowed_frequencies = frequency_waveform(waveform)
+        windowed_frequencies = frequency_waveform(waveform, self.window_size)
         for freq in windowed_frequencies:
             message = "Frequency:{} Hz Expected:{} Hz".format(freq, constants.CYCLES_PER_SECOND)
             self.assertAlmostEqual(freq, constants.CYCLES_PER_SECOND, msg=message, delta=0.2)
+
+        # 100 cycles no noise, frequency = 59.0
+        waveform = simulate_waveform(freq=59.0, noise=False, num_samples=int(100*constants.SAMPLES_PER_CYCLE))
+        windowed_frequencies = frequency_waveform(waveform, self.window_size)
+        for freq in windowed_frequencies:
+            message = "Frequency:{} Hz Expected:{} Hz".format(freq, 59.0)
+            self.assertAlmostEqual(freq, 59.0, msg=message, delta=0.2)

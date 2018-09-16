@@ -38,8 +38,8 @@ def frequency_variation(frequency: float, freq_ref: float, freq_var_high: float,
 
 def frequency_incident_classifier(event_id: int, box_id: str, windowed_frequencies: numpy.ndarray,
                                   box_event_start_ts: int, freq_ref: float, freq_var_high: float, freq_var_low: float,
-                                  freq_interruption: float, window_size: float = constants.SAMPLES_PER_CYCLE,
-                                  opq_mongo_client: mongo.OpqMongoClient = None, logger=None):
+                                  freq_interruption: float, window_size: int, opq_mongo_client: mongo.OpqMongoClient = None,
+                                  logger=None):
     """
     Classifies a frequency incident as a Sag, Swell, or Interruption. Creates a Mongo Incident document
     :param event_id: Makai Event ID
@@ -129,6 +129,7 @@ class FrequencyVariationPlugin(plugins.base_plugin.MaukaPlugin):
         self.freq_var_high = float(self.config_get(
             "plugins.FrequencyVariationPlugin.frequency.variation.threshold.high"))
         self.freq_interruption = float(self.config_get("plugins.FrequencyVariationPlugin.frequency.interruption"))
+        self.frequency_window_cycles = int(self.config_get("plugins.MakaiEventPlugin.frequencyWindowCycles"))
 
     def on_message(self, topic, mauka_message):
         """
@@ -146,7 +147,9 @@ class FrequencyVariationPlugin(plugins.base_plugin.MaukaPlugin):
                                                       protobuf.util.repeated_as_ndarray(mauka_message.payload.data),
                                                       mauka_message.payload.start_timestamp_ms,
                                                       self.freq_ref, self.freq_var_high, self.freq_var_low,
-                                                      self.freq_interruption, logger=self.logger)
+                                                      self.freq_interruption,
+                                                      self.frequency_window_cycles * constants.SAMPLES_PER_CYCLE,
+                                                      logger=self.logger)
 
             for incident in incidents:
                 mongo.store_incident(

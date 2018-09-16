@@ -10,12 +10,32 @@ import typing
 import numpy
 
 from scipy import optimize
+from scipy import signal
 
 import constants
 import mongo
 import plugins.base_plugin
 import protobuf.mauka_pb2
 import protobuf.util
+
+
+def smooth_waveform(sample: numpy.ndarray, filter_order: int = 2, cutoff_frequency: float = 500.0) -> numpy.ndarray:
+    """
+    Method to smooth waveform using a butterworth filter to lower sensitivity of frequency calculation.
+    :param sample:
+    :param filter_order:
+    :param cutoff_frequency:
+    :return:
+    """
+
+    # smooth digital signal w/ butterworth filter
+    # First, design the Butterworth filter
+    # Cutoff frequencies in half-cycles / sample
+    cutoff_frequency_nyquist = cutoff_frequency * 2 / constants.SAMPLE_RATE_HZ
+    b, a = signal.butter(filter_order, cutoff_frequency_nyquist, output='ba')
+
+    # Second, apply the filter
+    return signal.filtfilt(b, a, sample)
 
 
 def vrms(samples: numpy.ndarray) -> float:
@@ -77,24 +97,41 @@ def frequency(samples: numpy.ndarray) -> float:
     return round(est_freq, ndigits=2)
 
 
-def frequency_waveform(waveform: numpy.ndarray, window_size: int = constants.SAMPLES_PER_CYCLE) -> numpy.ndarray:
+def frequency_waveform(waveform: numpy.ndarray, window_size: int,
+                       filter_order: int = 2, cutoff_frequency: float = 500.0) -> numpy.ndarray:
     """
     Calculated frequency of a waveform using a given window size. In most cases, our window size should be the
     number of samples in a cycle.
     :param waveform: The waveform to find frequency values for.
     :param window_size: The size of the window used to compute frequency over the waveform.
+    :param filter_order: order of band pass butterworth filter
+    :param cutoff_frequency: cutoff frequency of low pass butterworth filter to smooth digital signal
     :return: An array of frequency values calculated for a given waveform.
     """
 
+    # smooth digital signal w/ butterworth filter
+    filtered_waveform = smooth_waveform(waveform, filter_order=filter_order, cutoff_frequency=cutoff_frequency)
+
+    # unfiltered frequency calc.
+    # frequencies = []
+    # window_size = int(window_size)
+    # while len(waveform) >= window_size:
+    #     samples = waveform[:window_size]
+    #     waveform = waveform[window_size:]
+    #     frequencies.append(frequency(samples))
+    #
+    # if len(waveform) > 0:
+    #     frequencies.append(frequency(waveform))
+
+    # filtered frequency calc.
     frequencies = []
-    window_size = int(window_size)
-    while len(waveform) >= window_size:
-        samples = waveform[:window_size]
-        waveform = waveform[window_size:]
+    while len(filtered_waveform) >= window_size:
+        samples = filtered_waveform[:window_size]
+        filtered_waveform = filtered_waveform[window_size:]
         frequencies.append(frequency(samples))
 
-    if len(waveform) > 0:
-        frequencies.append(frequency(waveform))
+    if len(filtered_waveform) > 0:
+        frequencies.append(frequency(filtered_waveform))
 
     return numpy.array(frequencies)
 
@@ -109,6 +146,9 @@ class MakaiEventPlugin(plugins.base_plugin.MaukaPlugin):
     def __init__(self, config: typing.Dict, exit_event: multiprocessing.Event):
         super().__init__(config, ["MakaiEvent"], MakaiEventPlugin.NAME, exit_event)
         self.get_data_after_s = float(self.config["plugins.MakaiEventPlugin.getDataAfterS"])
+        self.filter_order = int(self.config_get("plugins.MakaiEventPlugin.filterOrder"))
+        self.cutoff_frequency = float(self.config_get("plugins.MakaiEventPlugin.cutoffFrequency"))
+        self.frequency_window_cycles = int(self.config_get("plugins.MakaiEventPlugin.frequencyWindowCycles"))
 
     def acquire_data(self, event_id: int):
         """
@@ -155,7 +195,10 @@ class MakaiEventPlugin(plugins.base_plugin.MaukaPlugin):
                                                              box_id,
                                                              protobuf.mauka_pb2.FREQUENCY_WINDOWED,
                                                              frequency_waveform(waveform_calibrated,
-                                                                                int(constants.SAMPLES_PER_CYCLE)),
+                                                                                self.frequency_window_cycles *
+                                                                                int(constants.SAMPLES_PER_CYCLE),
+                                                                                filter_order=self.filter_order,
+                                                                                cutoff_frequency=self.cutoff_frequency),
                                                              start_timestamp,
                                                              end_timestamp)
 
