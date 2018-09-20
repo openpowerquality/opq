@@ -1,10 +1,10 @@
 FROM python:3.7-stretch
 
-WORKDIR /mauka
+WORKDIR /opq
 
-ADD . /mauka
+ADD . /opq
 
-RUN pip3 install --trusted-host pypi.python.org -r requirements.txt
+RUN pip3 install --trusted-host pypi.python.org -r mauka/requirements.txt
 
 # Health interface
 EXPOSE 8911
@@ -25,4 +25,4 @@ EXPOSE 9883
 # Makai push interface
 EXPOSE 9884
 
-CMD ["python3", "opq_mauka.py", "config.json"]
+CMD ["python3", "mauka/opq_mauka.py", "mauka/config.json"]
