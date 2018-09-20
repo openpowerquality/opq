@@ -1,4 +1,4 @@
-#coala-bears # static analysis and linting
+coala-bears # static analysis and linting
 lz4         # lz4 compression
 matplotlib  # Plotting and point-in-polygon algorithms
 numpy       # numpy
