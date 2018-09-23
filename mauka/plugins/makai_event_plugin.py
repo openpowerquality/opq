@@ -38,6 +38,15 @@ def smooth_waveform(sample: numpy.ndarray, filter_order: int = 2, cutoff_frequen
     return signal.filtfilt(b, a, sample)
 
 
+def find_zero_xings(waveform: numpy.ndarray) -> numpy.ndarray:
+    """
+    Function which returns a boolean array indicating the positions of zero crossings in the the waveform
+    :param waveform:
+    :return: a boolean array indicating the positions of zero crossings in the the waveform
+    """
+    return numpy.diff(numpy.signbit(waveform))
+
+
 def vrms(samples: numpy.ndarray) -> float:
     """
     Calculates the Voltage root-mean-square of the supplied samples
@@ -77,25 +86,42 @@ def frequency(samples: numpy.ndarray) -> float:
     """
 
     # Fit sinusoidal curve to data
-    # guess_amp = 120.0 * numpy.sqrt(2)
-    # guess_freq = constants.CYCLES_PER_SECOND
-    # guess_phase = 0.0
-    # guess_mean = 0.0
-    # idx = numpy.arange(0, len(samples) / constants.SAMPLE_RATE_HZ, 1 / constants.SAMPLE_RATE_HZ)
-    #
-    # def optimize_func(args):
-    #     """
-    #     Optimized the function for finding and fitting the frequency.
-    #     :param args: A list containing in this order: guess_amp, guess_freq, guess_phase, guess_mean.
-    #     :return: Optimized function.
-    #     """
-    #     return args[0] * numpy.sin(args[1] * 2 * numpy.pi * idx + args[2]) + args[3] - samples
-    #
-    # _, est_freq, _, _ = optimize.leastsq(optimize_func,
-    #                                      numpy.array([guess_amp, guess_freq, guess_phase, guess_mean]),
-    #                                      maxfev=50)[0]
+    guess_amp = 120.0 * numpy.sqrt(2)
+    guess_freq = constants.CYCLES_PER_SECOND
+    guess_phase = 0.0
+    guess_mean = 0.0
+    idx = numpy.arange(0, len(samples) / constants.SAMPLE_RATE_HZ, 1 / constants.SAMPLE_RATE_HZ)
 
+    def optimize_func(args):
+        """
+        Optimized the function for finding and fitting the frequency.
+        :param args: A list containing in this order: guess_amp, guess_freq, guess_phase, guess_mean.
+        :return: Optimized function.
+        """
+        return args[0] * numpy.sin(args[1] * 2 * numpy.pi * idx + args[2]) + args[3] - samples
 
+    _, est_freq, _, _ = optimize.leastsq(optimize_func,
+                                         numpy.array([guess_amp, guess_freq, guess_phase, guess_mean]),
+                                         maxfev=50)[0]
+
+    # interp_samples = numpy.arange(0, len(samples), 0.125)
+    #
+    # interp_samples = numpy.interp(interp_samples, numpy.arange(0, len(samples), 1), samples)
+    #
+    # z_crossings = find_zero_xings(interp_samples)
+    #
+    # num_crossings = sum(z_crossings)
+    #
+    # if num_crossings == 1:
+    #     # try peak to crossing
+    #     t = numpy.abs(numpy.argwhere(z_crossings == True)[0][0] - numpy.argmax(interp_samples))
+    #     est_freq = 1 / (t / (8 * constants.SAMPLE_RATE_HZ / 4))
+    #     return est_freq
+    # elif num_crossings == 0:
+    #     return 0
+    #
+    # est_freq = numpy.average( 1 / (numpy.diff(numpy.arange(len(z_crossings))[z_crossings]) /
+    #                                (8 * constants.SAMPLE_RATE_HZ / 2)))
 
     return round(est_freq, ndigits=2)
 

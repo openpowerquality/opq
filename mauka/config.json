@@ -31,7 +31,7 @@
   "plugins.FrequencyVariationPlugin.max.lull.windows": 1,
 
   "plugins.MakaiEventPlugin.getDataAfterS": 10.0,
-  "plugins.MakaiEventPlugin.filterOrder": 2,
+  "plugins.MakaiEventPlugin.filterOrder":2,
   "plugins.MakaiEventPlugin.cutoffFrequency": 500.0,
   "plugins.MakaiEventPlugin.frequencyWindowCycles": 3,
 

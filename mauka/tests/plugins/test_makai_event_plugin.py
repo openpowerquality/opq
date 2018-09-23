@@ -54,16 +54,22 @@ class MakaiEventPluginTests(unittest.TestCase):
         self.assertAlmostEqual(frequency(waveform_window), constants.CYCLES_PER_SECOND, delta=0.2)
 
         """MakaiEventPlugin frequency_waveform Method"""
-        # 1 cycle no noise
-        waveform = simulate_waveform(num_samples=int(1*constants.SAMPLES_PER_CYCLE))
-        windowed_frequencies = frequency_waveform(waveform, self.window_size)
+        # 1 cycles no noise
+        waveform = simulate_waveform(num_samples=int(2*constants.SAMPLES_PER_CYCLE))
+        windowed_frequencies = frequency_waveform(waveform, self.window_size,
+                                                  filter_order=self.config["plugins.MakaiEventPlugin.filterOrder"],
+                                                  cutoff_frequency=
+                                                  self.config["plugins.MakaiEventPlugin.cutoffFrequency"])
         for freq in windowed_frequencies:
             message = "Frequency:{} Hz Expected:{} Hz".format(freq, constants.CYCLES_PER_SECOND)
             self.assertAlmostEqual(freq, constants.CYCLES_PER_SECOND, msg=message, delta=0.2)
 
         # 100 cycles no noise
         waveform = simulate_waveform(num_samples=int(100*constants.SAMPLES_PER_CYCLE))
-        windowed_frequencies = frequency_waveform(waveform, self.window_size)
+        windowed_frequencies = frequency_waveform(waveform, self.window_size,
+                                                  filter_order=self.config["plugins.MakaiEventPlugin.filterOrder"],
+                                                  cutoff_frequency=
+                                                  self.config["plugins.MakaiEventPlugin.cutoffFrequency"])
         for freq in windowed_frequencies:
             message = "Frequency:{} Hz Expected:{} Hz".format(freq, constants.CYCLES_PER_SECOND)
             self.assertAlmostEqual(freq, constants.CYCLES_PER_SECOND, msg=message, delta=0.2)
@@ -71,28 +77,40 @@ class MakaiEventPluginTests(unittest.TestCase):
 
         # # 1 cycles noise, variance = 1.0
         waveform = simulate_waveform(noise=True)
-        windowed_frequencies = frequency_waveform(waveform, self.window_size)
+        windowed_frequencies = frequency_waveform(waveform, self.window_size,
+                                                  filter_order=self.config["plugins.MakaiEventPlugin.filterOrder"],
+                                                  cutoff_frequency=
+                                                  self.config["plugins.MakaiEventPlugin.cutoffFrequency"])
         for freq in windowed_frequencies:
             message = "Frequency:{} Hz Expected:{} Hz".format(freq, constants.CYCLES_PER_SECOND)
             self.assertAlmostEqual(freq, constants.CYCLES_PER_SECOND, msg=message, delta=0.2)
 
         # 1 cycles noise, variance = 10.0
         waveform = simulate_waveform(noise=True, noise_variance=10.0)
-        windowed_frequencies = frequency_waveform(waveform, self.window_size)
+        windowed_frequencies = frequency_waveform(waveform, self.window_size,
+                                                  filter_order=self.config["plugins.MakaiEventPlugin.filterOrder"],
+                                                  cutoff_frequency=
+                                                  self.config["plugins.MakaiEventPlugin.cutoffFrequency"])
         for freq in windowed_frequencies:
             message = "Frequency:{} Hz Expected:{} Hz".format(freq, constants.CYCLES_PER_SECOND)
             self.assertAlmostEqual(freq, constants.CYCLES_PER_SECOND, msg=message, delta=0.2)
 
         # 10 cycles noise, variance = 10.0
         waveform = simulate_waveform(noise=True, noise_variance=10.0, num_samples=int(10*constants.SAMPLES_PER_CYCLE))
-        windowed_frequencies = frequency_waveform(waveform, self.window_size)
+        windowed_frequencies = frequency_waveform(waveform, self.window_size,
+                                                  filter_order=self.config["plugins.MakaiEventPlugin.filterOrder"],
+                                                  cutoff_frequency=
+                                                  self.config["plugins.MakaiEventPlugin.cutoffFrequency"])
         for freq in windowed_frequencies:
             message = "Frequency:{} Hz Expected:{} Hz".format(freq, constants.CYCLES_PER_SECOND)
             self.assertAlmostEqual(freq, constants.CYCLES_PER_SECOND, msg=message, delta=0.2)
 
         # 100 cycles no noise, frequency = 59.0
         waveform = simulate_waveform(freq=59.0, noise=False, num_samples=int(100*constants.SAMPLES_PER_CYCLE))
-        windowed_frequencies = frequency_waveform(waveform, self.window_size)
+        windowed_frequencies = frequency_waveform(waveform, self.window_size,
+                                                  filter_order=self.config["plugins.MakaiEventPlugin.filterOrder"],
+                                                  cutoff_frequency=
+                                                  self.config["plugins.MakaiEventPlugin.cutoffFrequency"])
         for freq in windowed_frequencies:
             message = "Frequency:{} Hz Expected:{} Hz".format(freq, 59.0)
             self.assertAlmostEqual(freq, 59.0, msg=message, delta=0.2)
