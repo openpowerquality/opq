@@ -33,7 +33,7 @@
   "plugins.MakaiEventPlugin.getDataAfterS": 10.0,
   "plugins.MakaiEventPlugin.filterOrder": 2,
   "plugins.MakaiEventPlugin.cutoffFrequency": 500.0,
-  "plugins.MakaiEventPlugin.frequencyWindowCycles": 6,
+  "plugins.MakaiEventPlugin.frequencyWindowCycles": 3,
 
   "plugins.MeasurementPlugin.sample_every": 3.0,
 

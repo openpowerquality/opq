@@ -77,22 +77,25 @@ def frequency(samples: numpy.ndarray) -> float:
     """
 
     # Fit sinusoidal curve to data
-    guess_amp = 120.0 * numpy.sqrt(2)
-    guess_freq = constants.CYCLES_PER_SECOND
-    guess_phase = 0.0
-    guess_mean = 0.0
-    idx = numpy.arange(0, len(samples) / constants.SAMPLE_RATE_HZ, 1 / constants.SAMPLE_RATE_HZ)
+    # guess_amp = 120.0 * numpy.sqrt(2)
+    # guess_freq = constants.CYCLES_PER_SECOND
+    # guess_phase = 0.0
+    # guess_mean = 0.0
+    # idx = numpy.arange(0, len(samples) / constants.SAMPLE_RATE_HZ, 1 / constants.SAMPLE_RATE_HZ)
+    #
+    # def optimize_func(args):
+    #     """
+    #     Optimized the function for finding and fitting the frequency.
+    #     :param args: A list containing in this order: guess_amp, guess_freq, guess_phase, guess_mean.
+    #     :return: Optimized function.
+    #     """
+    #     return args[0] * numpy.sin(args[1] * 2 * numpy.pi * idx + args[2]) + args[3] - samples
+    #
+    # _, est_freq, _, _ = optimize.leastsq(optimize_func,
+    #                                      numpy.array([guess_amp, guess_freq, guess_phase, guess_mean]),
+    #                                      maxfev=50)[0]
 
-    def optimize_func(args):
-        """
-        Optimized the function for finding and fitting the frequency.
-        :param args: A list containing in this order: guess_amp, guess_freq, guess_phase, guess_mean.
-        :return: Optimized function.
-        """
-        return args[0] * numpy.sin(args[1] * 2 * numpy.pi * idx + args[2]) + args[3] - samples
 
-    _, est_freq, _, _ = optimize.leastsq(optimize_func,
-                                         numpy.array([guess_amp, guess_freq, guess_phase, guess_mean]))[0]
 
     return round(est_freq, ndigits=2)
 
