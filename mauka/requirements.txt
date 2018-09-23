@@ -8,4 +8,7 @@ readline    # GNU readline
 scipy       # Scientific python
 typing      # type hints for python < 3.5
 zmq         # ZeroMQ
+<<<<<<< HEAD
 pandas      # Data Wrangling in profilers
+=======
+>>>>>>> master
