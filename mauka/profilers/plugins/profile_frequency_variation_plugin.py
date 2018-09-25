@@ -64,6 +64,7 @@ def profile_frequency_variation_plugin(data_file: str):
     freq_var_high = float(config.get("plugins.FrequencyVariationPlugin.frequency.variation.threshold.high"))
     freq_interruption = float(config.get("plugins.FrequencyVariationPlugin.frequency.interruption"))
     max_lull = int(config.get("plugins.FrequencyVariationPlugin.max.lull.windows"))
+    downsample_factor = int(config.get("plugins.MakaiEventPlugin.frequencyDownSampleRate"))
 
     # create profiler
     pr = cProfile.Profile()
@@ -72,7 +73,8 @@ def profile_frequency_variation_plugin(data_file: str):
     waveform = df.values.flatten()
 
     # obtain frequencies
-    frequencies = frequency_waveform(waveform, window_size, filter_order, cutoff_frequency)
+    frequencies = frequency_waveform(waveform, window_size, filter_order, cutoff_frequency,
+                                     downsample_factor=downsample_factor)
 
     # profile frequency_incident_classifier
     pr.enable()
@@ -98,7 +100,8 @@ def profile_frequency_variation_plugin(data_file: str):
     waveform = numpy.concatenate((waveform_1, waveform_2, waveform_3))
 
     # obtain frequencies
-    frequencies = frequency_waveform(waveform, window_size, filter_order, cutoff_frequency)
+    frequencies = frequency_waveform(waveform, window_size, filter_order, cutoff_frequency,
+                                     downsample_factor=downsample_factor)
 
     # profile frequency_incident_classifier on simulated event
     pr.enable()

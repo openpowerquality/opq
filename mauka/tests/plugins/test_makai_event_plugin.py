@@ -42,6 +42,7 @@ class MakaiEventPluginTests(unittest.TestCase):
         self.config = load_config("./config.json")
         self.window_size = int(self.config["plugins.MakaiEventPlugin.frequencyWindowCycles"]
                                * constants.SAMPLES_PER_CYCLE)
+        self.downsample_factor = int(self.config["plugins.MakaiEventPlugin.frequencyDownSampleRate"])
 
     def test_frequency_no_variation(self):
         """
@@ -51,7 +52,8 @@ class MakaiEventPluginTests(unittest.TestCase):
 
         """MakaiEventPlugin frequency Method"""
         waveform_window = simulate_waveform()
-        self.assertAlmostEqual(frequency(waveform_window), constants.CYCLES_PER_SECOND, delta=0.2)
+        self.assertAlmostEqual(frequency(waveform_window, downsample_factor=1),
+                               constants.CYCLES_PER_SECOND, delta=0.2)
 
         """MakaiEventPlugin frequency_waveform Method"""
         # 1 cycles no noise
@@ -59,7 +61,8 @@ class MakaiEventPluginTests(unittest.TestCase):
         windowed_frequencies = frequency_waveform(waveform, self.window_size,
                                                   filter_order=self.config["plugins.MakaiEventPlugin.filterOrder"],
                                                   cutoff_frequency=
-                                                  self.config["plugins.MakaiEventPlugin.cutoffFrequency"])
+                                                  self.config["plugins.MakaiEventPlugin.cutoffFrequency"],
+                                                  downsample_factor=self.downsample_factor)
         for freq in windowed_frequencies:
             message = "Frequency:{} Hz Expected:{} Hz".format(freq, constants.CYCLES_PER_SECOND)
             self.assertAlmostEqual(freq, constants.CYCLES_PER_SECOND, msg=message, delta=0.2)
@@ -69,7 +72,8 @@ class MakaiEventPluginTests(unittest.TestCase):
         windowed_frequencies = frequency_waveform(waveform, self.window_size,
                                                   filter_order=self.config["plugins.MakaiEventPlugin.filterOrder"],
                                                   cutoff_frequency=
-                                                  self.config["plugins.MakaiEventPlugin.cutoffFrequency"])
+                                                  self.config["plugins.MakaiEventPlugin.cutoffFrequency"],
+                                                  downsample_factor=self.downsample_factor)
         for freq in windowed_frequencies:
             message = "Frequency:{} Hz Expected:{} Hz".format(freq, constants.CYCLES_PER_SECOND)
             self.assertAlmostEqual(freq, constants.CYCLES_PER_SECOND, msg=message, delta=0.2)
@@ -80,7 +84,8 @@ class MakaiEventPluginTests(unittest.TestCase):
         windowed_frequencies = frequency_waveform(waveform, self.window_size,
                                                   filter_order=self.config["plugins.MakaiEventPlugin.filterOrder"],
                                                   cutoff_frequency=
-                                                  self.config["plugins.MakaiEventPlugin.cutoffFrequency"])
+                                                  self.config["plugins.MakaiEventPlugin.cutoffFrequency"],
+                                                  downsample_factor=self.downsample_factor)
         for freq in windowed_frequencies:
             message = "Frequency:{} Hz Expected:{} Hz".format(freq, constants.CYCLES_PER_SECOND)
             self.assertAlmostEqual(freq, constants.CYCLES_PER_SECOND, msg=message, delta=0.2)
@@ -90,7 +95,8 @@ class MakaiEventPluginTests(unittest.TestCase):
         windowed_frequencies = frequency_waveform(waveform, self.window_size,
                                                   filter_order=self.config["plugins.MakaiEventPlugin.filterOrder"],
                                                   cutoff_frequency=
-                                                  self.config["plugins.MakaiEventPlugin.cutoffFrequency"])
+                                                  self.config["plugins.MakaiEventPlugin.cutoffFrequency"],
+                                                  downsample_factor=self.downsample_factor)
         for freq in windowed_frequencies:
             message = "Frequency:{} Hz Expected:{} Hz".format(freq, constants.CYCLES_PER_SECOND)
             self.assertAlmostEqual(freq, constants.CYCLES_PER_SECOND, msg=message, delta=0.2)
@@ -100,7 +106,8 @@ class MakaiEventPluginTests(unittest.TestCase):
         windowed_frequencies = frequency_waveform(waveform, self.window_size,
                                                   filter_order=self.config["plugins.MakaiEventPlugin.filterOrder"],
                                                   cutoff_frequency=
-                                                  self.config["plugins.MakaiEventPlugin.cutoffFrequency"])
+                                                  self.config["plugins.MakaiEventPlugin.cutoffFrequency"],
+                                                  downsample_factor=self.downsample_factor)
         for freq in windowed_frequencies:
             message = "Frequency:{} Hz Expected:{} Hz".format(freq, constants.CYCLES_PER_SECOND)
             self.assertAlmostEqual(freq, constants.CYCLES_PER_SECOND, msg=message, delta=0.2)
@@ -110,7 +117,8 @@ class MakaiEventPluginTests(unittest.TestCase):
         windowed_frequencies = frequency_waveform(waveform, self.window_size,
                                                   filter_order=self.config["plugins.MakaiEventPlugin.filterOrder"],
                                                   cutoff_frequency=
-                                                  self.config["plugins.MakaiEventPlugin.cutoffFrequency"])
+                                                  self.config["plugins.MakaiEventPlugin.cutoffFrequency"],
+                                                  downsample_factor=self.downsample_factor)
         for freq in windowed_frequencies:
             message = "Frequency:{} Hz Expected:{} Hz".format(freq, 59.0)
             self.assertAlmostEqual(freq, 59.0, msg=message, delta=0.2)

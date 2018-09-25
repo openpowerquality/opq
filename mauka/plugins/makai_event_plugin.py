@@ -19,12 +19,14 @@ import protobuf.mauka_pb2
 import protobuf.util
 
 
-def smooth_waveform(sample: numpy.ndarray, filter_order: int = 2, cutoff_frequency: float = 500.0) -> numpy.ndarray:
+def smooth_waveform(sample: numpy.ndarray, filter_order: int = 2, cutoff_frequency: float = 500.0,
+                    downsample_factor: int = 4) -> numpy.ndarray:
     """
     Method to smooth waveform using a butterworth filter to lower sensitivity of frequency calculation.
     :param sample:
     :param filter_order:
     :param cutoff_frequency:
+    :param downsample_factor: downsample factor for decimate function
     :return:
     """
 
@@ -35,7 +37,11 @@ def smooth_waveform(sample: numpy.ndarray, filter_order: int = 2, cutoff_frequen
     b, a = signal.butter(filter_order, cutoff_frequency_nyquist, output='ba')
 
     # Second, apply the filter
-    return signal.filtfilt(b, a, sample)
+    #return signal.filtfilt(b, a, sample)
+
+    dtltis = signal.dlti(b, a)
+    #decimate signal to improve runtime
+    return signal.decimate(sample, downsample_factor, ftype=dtltis)
 
 
 def find_zero_xings(waveform: numpy.ndarray) -> numpy.ndarray:
@@ -78,10 +84,11 @@ def vrms_waveform(waveform: numpy.ndarray, window_size: int = constants.SAMPLES_
     return numpy.array(rms_voltages)
 
 
-def frequency(samples: numpy.ndarray) -> float:
+def frequency(samples: numpy.ndarray, downsample_factor: int) -> float:
     """
     Calculates the frequency of the supplied samples
     :param samples: Samples to calculate frequency over.
+    :param downsample_factor: the downsampling factor from the filtering, used to modify the sampling rate
     :return: The frequency value of the provided samples in Hz.
     """
 
@@ -90,8 +97,10 @@ def frequency(samples: numpy.ndarray) -> float:
     guess_freq = constants.CYCLES_PER_SECOND
     guess_phase = 0.0
     guess_mean = 0.0
-    idx = numpy.arange(0, len(samples) / constants.SAMPLE_RATE_HZ, 1 / constants.SAMPLE_RATE_HZ)
-
+    idx = numpy.arange(0,
+                       len(samples) / (constants.SAMPLE_RATE_HZ / downsample_factor),
+                       1 / (constants.SAMPLE_RATE_HZ / downsample_factor))
+    idx = idx[:len(samples)]
     def optimize_func(args):
         """
         Optimized the function for finding and fitting the frequency.
@@ -101,8 +110,7 @@ def frequency(samples: numpy.ndarray) -> float:
         return args[0] * numpy.sin(args[1] * 2 * numpy.pi * idx + args[2]) + args[3] - samples
 
     _, est_freq, _, _ = optimize.leastsq(optimize_func,
-                                         numpy.array([guess_amp, guess_freq, guess_phase, guess_mean]),
-                                         maxfev=50)[0]
+                                         numpy.array([guess_amp, guess_freq, guess_phase, guess_mean]))[0]
 
     # interp_samples = numpy.arange(0, len(samples), 0.125)
     #
@@ -127,7 +135,7 @@ def frequency(samples: numpy.ndarray) -> float:
 
 
 def frequency_waveform(waveform: numpy.ndarray, window_size: int,
-                       filter_order: int = 2, cutoff_frequency: float = 500.0) -> numpy.ndarray:
+                       filter_order: int = 2, cutoff_frequency: float = 500.0, downsample_factor: int = 4) -> numpy.ndarray:
     """
     Calculated frequency of a waveform using a given window size. In most cases, our window size should be the
     number of samples in a cycle.
@@ -139,28 +147,18 @@ def frequency_waveform(waveform: numpy.ndarray, window_size: int,
     """
 
     # smooth digital signal w/ butterworth filter
-    filtered_waveform = smooth_waveform(waveform, filter_order=filter_order, cutoff_frequency=cutoff_frequency)
-
-    # unfiltered frequency calc.
-    # frequencies = []
-    # window_size = int(window_size)
-    # while len(waveform) >= window_size:
-    #     samples = waveform[:window_size]
-    #     waveform = waveform[window_size:]
-    #     frequencies.append(frequency(samples))
-    #
-    # if len(waveform) > 0:
-    #     frequencies.append(frequency(waveform))
+    filtered_waveform = smooth_waveform(waveform, filter_order=filter_order, cutoff_frequency=cutoff_frequency,
+                                        downsample_factor=downsample_factor)
 
     # filtered frequency calc.
     frequencies = []
     while len(filtered_waveform) >= window_size:
         samples = filtered_waveform[:window_size]
         filtered_waveform = filtered_waveform[window_size:]
-        frequencies.append(frequency(samples))
+        frequencies.append(frequency(samples, downsample_factor))
 
     if len(filtered_waveform) > 0:
-        frequencies.append(frequency(filtered_waveform))
+        frequencies.append(frequency(filtered_waveform, downsample_factor))
 
     return numpy.array(frequencies)
 
@@ -178,6 +176,7 @@ class MakaiEventPlugin(plugins.base_plugin.MaukaPlugin):
         self.filter_order = int(self.config_get("plugins.MakaiEventPlugin.filterOrder"))
         self.cutoff_frequency = float(self.config_get("plugins.MakaiEventPlugin.cutoffFrequency"))
         self.frequency_window_cycles = int(self.config_get("plugins.MakaiEventPlugin.frequencyWindowCycles"))
+        self.frequency_downsample_factor = int(self.config_get("plugins.MakaiEventPlugin.frequencyDownSampleRate"))
 
     def acquire_data(self, event_id: int):
         """
@@ -225,9 +224,12 @@ class MakaiEventPlugin(plugins.base_plugin.MaukaPlugin):
                                                              protobuf.mauka_pb2.FREQUENCY_WINDOWED,
                                                              frequency_waveform(waveform_calibrated,
                                                                                 self.frequency_window_cycles *
-                                                                                int(constants.SAMPLES_PER_CYCLE),
+                                                                                int(constants.SAMPLES_PER_CYCLE /
+                                                                                    self.frequency_downsample_factor),
                                                                                 filter_order=self.filter_order,
-                                                                                cutoff_frequency=self.cutoff_frequency),
+                                                                                cutoff_frequency=self.cutoff_frequency,
+                                                                                downsample_factor=
+                                                                                self.frequency_downsample_factor),
                                                              start_timestamp,
                                                              end_timestamp)
 

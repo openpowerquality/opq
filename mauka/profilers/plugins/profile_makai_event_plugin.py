@@ -57,9 +57,11 @@ def profile_makai_event_plugin(data_file: str):
     # profile single frequency calculation for a window
     # first obtain frequency window
     window_size = int(config.get("plugins.MakaiEventPlugin.frequencyWindowCycles") * constants.SAMPLES_PER_CYCLE)
+    downsample_factor = int(config.get("plugins.MakaiEventPlugin.frequencyDownSampleRate"))
     waveform_window = smoothed_waveform[:window_size]
+    # frequency on a single window
     pr.enable()
-    frequency(waveform_window)
+    frequency(waveform_window, downsample_factor)
     pr.disable()
 
     # write profile to output file
@@ -70,7 +72,8 @@ def profile_makai_event_plugin(data_file: str):
     filter_order = int(config.get("plugins.MakaiEventPlugin.filterOrder"))
     cutoff_frequency = float(config.get("plugins.MakaiEventPlugin.cutoffFrequency"))
     pr.enable()
-    frequencies = frequency_waveform(waveform, window_size, filter_order, cutoff_frequency)
+    frequencies = frequency_waveform(waveform, window_size, filter_order, cutoff_frequency,
+                                     downsample_factor=downsample_factor)
     pr.disable()
 
     # write profile to output file
