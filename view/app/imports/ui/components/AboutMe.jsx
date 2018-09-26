@@ -101,6 +101,10 @@ class AboutMe extends React.Component {
                     </Table.Cell>
                 )}
               </Table.Row>
+              <Table.Row>
+                <Table.Cell>Password</Table.Cell>
+                <Table.Cell><a href="#">Change Password</a></Table.Cell>
+              </Table.Row>
             </Table.Body>
           </Table>
         </WidgetPanel>
