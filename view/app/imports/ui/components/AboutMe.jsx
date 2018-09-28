@@ -182,10 +182,14 @@ class AboutMe extends React.Component {
     const currentUser = this.props.username;
     const currentPassword = UserProfiles.findByUsername(currentUser).password;
     return password === currentPassword;
+    // If current password does not match, other 2 fields should not be enabled
+    // Throw error if the password doesn't match
   }
 
   checkConfrimPassword = (password, confirmPassword) => {
     return password === confirmPassword;
+    // Compare the new password fields
+    // If they do not match, throw error
   }
 
 }
