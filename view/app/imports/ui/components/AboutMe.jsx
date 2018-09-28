@@ -186,7 +186,7 @@ class AboutMe extends React.Component {
     // Throw error if the password doesn't match
   }
 
-  checkConfrimPassword = (password, confirmPassword) => {
+  checkConfirmPassword = (password, confirmPassword) => {
     return password === confirmPassword;
     // Compare the new password fields
     // If they do not match, throw error
