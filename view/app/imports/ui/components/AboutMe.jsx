@@ -1,5 +1,5 @@
 import React from 'react';
-import { Table, Input, Label, Dropdown, Icon, Button } from 'semantic-ui-react';
+import { Table, Input, Label, Dropdown, Icon, Button, Modal } from 'semantic-ui-react';
 import PropTypes from 'prop-types';
 import NumberFormat from 'react-number-format';
 import { updateMethod } from '/imports/api/base/BaseCollection.methods';
@@ -26,6 +26,7 @@ class AboutMe extends React.Component {
       phoneNumber: numberString,
       oldPhoneNumber: numberString,
       oldCarrier: carrierString,
+      modalOpen: false,
     };
   }
 
@@ -35,6 +36,7 @@ class AboutMe extends React.Component {
 
   /** Here's the system stats page. */
   render() {
+    const modalOpen = this.state.modalOpen;
     const divStyle = { paddingLeft: '10px' };
     const textStyle = { color: '#808080', display: 'inline' };
     const topPadding = { paddingTop: '20px' };
@@ -103,13 +105,25 @@ class AboutMe extends React.Component {
               </Table.Row>
               <Table.Row>
                 <Table.Cell>Password</Table.Cell>
-                <Table.Cell><a href="#">Change Password</a></Table.Cell>
+                <Table.Cell><button className="ui mini basic blue button" onClick={this.showModal}>Change Password</button></Table.Cell>
               </Table.Row>
             </Table.Body>
           </Table>
+
+          <Modal size='tiny' open={modalOpen} closeIcon onClose={this.hideModal}>
+            <Modal.Header>Change Password</Modal.Header>
+            <Modal.Content>
+              <p>Stuff to change your password</p>
+            </Modal.Content>
+          </Modal>
+
         </WidgetPanel>
     );
   }
+
+  showModal = () => this.setState({modalOpen: true});
+
+  hideModal = () => this.setState({modalOpen: false});
 
   enableEditing = () => this.setState({ editMode: true });
 
@@ -141,6 +155,7 @@ class AboutMe extends React.Component {
               oldCarrier: this.state.carrier,
             }))));
   };
+
 }
 
 /** Require an array of Stuff documents in the props. */
