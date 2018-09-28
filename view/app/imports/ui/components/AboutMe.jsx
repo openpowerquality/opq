@@ -178,6 +178,16 @@ class AboutMe extends React.Component {
             }))));
   };
 
+  checkPassword = (password) => {
+    const currentUser = this.props.username;
+    const currentPassword = UserProfiles.findByUsername(currentUser).password;
+    return password === currentPassword;
+  }
+
+  checkConfrimPassword = (password, confirmPassword) => {
+    return password === confirmPassword;
+  }
+
 }
 
 /** Require an array of Stuff documents in the props. */
