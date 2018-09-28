@@ -1,5 +1,5 @@
 import React from 'react';
-import { Table, Input, Label, Dropdown, Icon, Button, Modal } from 'semantic-ui-react';
+import { Table, Input, Label, Dropdown, Icon, Button, Modal, Form } from 'semantic-ui-react';
 import PropTypes from 'prop-types';
 import NumberFormat from 'react-number-format';
 import { updateMethod } from '/imports/api/base/BaseCollection.methods';
@@ -113,7 +113,29 @@ class AboutMe extends React.Component {
           <Modal size='tiny' open={modalOpen} closeIcon onClose={this.hideModal}>
             <Modal.Header>Change Password</Modal.Header>
             <Modal.Content>
-              <p>Stuff to change your password</p>
+              <Form>
+                  <Form.Input
+                      label="Current Password"
+                      icon="lock"
+                      iconPosition="left"
+                      name="currentPassword"
+                      type="password"
+                      placeholder="Enter current password to proceed"
+                  />
+                  <Form.Input
+                      label="New Password"
+                      name="newPassword"
+                      placeholder="Your new password"
+                      type="password"
+                  />
+                  <Form.Input
+                      label="Confirm New Password"
+                      name="confirmPassword"
+                      placeholder="Retype new password"
+                      type="password"
+                  />
+                  <Form.Button content="Submit" />
+              </Form>
             </Modal.Content>
           </Modal>
 
