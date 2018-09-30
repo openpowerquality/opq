@@ -6,6 +6,11 @@ import "rustproto.proto";
 
 option (rustproto.expose_oneof_all) = true;
 
+message Metric{
+    float min = 1;
+    float max = 2;
+    float average = 3;
+}
 
 //Measurements containing features from the box.
 message Measurement {
@@ -14,8 +19,10 @@ message Measurement {
     //Timestamp in ms of when the raw data was READ OUT.
     uint64 timestamp_ms = 2;
     //A map of metrics.
-    map<string, float> metrics = 3;
+    map<string, Metric> metrics = 3;
 }
+
+
 
 //Get the info from the box
 message GetInfoCommand {
@@ -88,6 +95,11 @@ message GetDataResponseHeader {
     uint64 end_ts = 2;
 }
 
+//Response to the set measurement rate command.
+message SendCommandToPluginResponse {
+    bool ok = 1;
+}
+
 //Response buffer.
 message Response {
     //ID of the box generating the response.
@@ -101,5 +113,6 @@ message Response {
         GetInfoResponse info_response = 4;
         SetMeasurementRateResponse message_rate_reponse = 5;
         GetDataResponseHeader get_data_response = 6;
+        SendCommandToPluginResponse command_to_plugin_response = 7;
     }
 }

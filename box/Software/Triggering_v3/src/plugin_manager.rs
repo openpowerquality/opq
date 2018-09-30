@@ -6,7 +6,7 @@ use std::sync::Arc;
 use std::thread;
 use std::time::SystemTime;
 
-use config::Config;
+use config::State;
 use opqbox3::SendCommandToPlugin;
 use plugin::TriggeringPlugin;
 use types;
@@ -71,7 +71,7 @@ pub fn run_plugins(
     rx: Receiver<types::Window>,
     tx: Sender<types::Window>,
     command_rx: Receiver<SendCommandToPlugin>,
-    config: Arc<Config>,
+    config: Arc<State>,
 ) -> thread::JoinHandle<()> {
     thread::spawn(move || {
         let mut plugins = vec![];

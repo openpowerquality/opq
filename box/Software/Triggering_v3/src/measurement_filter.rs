@@ -1,6 +1,6 @@
-use config::{Config, WINDOWS_PER_MEASUREMENT};
+use config::{State, WINDOWS_PER_MEASUREMENT};
 use crossbeam_channel::Receiver;
-use opqbox3::Measurement;
+use opqbox3::{Measurement, Metric};
 use protobuf::Message;
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -8,6 +8,7 @@ use std::thread;
 use std::time::UNIX_EPOCH;
 use types::Window;
 use zmq::{Context, Socket, PUB, SNDMORE};
+use window_db::WindowDB;
 
 struct MeasurementStat {
     pub min: f32,
@@ -39,6 +40,14 @@ impl MeasurementStat {
 
     pub fn get_average(&self) -> f32 {
         self.ave_acc / (self.count as f32)
+    }
+
+    pub fn get_metric(&self) -> Metric {
+        let mut metric = Metric::new();
+        metric.set_min(self.min);
+        metric.set_max(self.max);
+        metric.set_average(self.get_average());
+        metric
     }
 }
 
@@ -74,20 +83,15 @@ impl MeasurementDB {
 
     pub fn generate_window(&self, measurement: &mut Measurement) {
         for (name, stat) in self.measurements.iter() {
+
             measurement
                 .metrics
-                .insert(name.to_string(), stat.get_average());
-            measurement
-                .metrics
-                .insert(format!("{}_min", name), stat.min);
-            measurement
-                .metrics
-                .insert(format!("{}_max", name), stat.max);
+                .insert(name.to_string(), stat.get_metric());
         }
     }
 }
 
-fn create_pub_socket(ctx: &Context, config: &Arc<Config>) -> Socket {
+fn create_pub_socket(ctx: &Context, config: &Arc<State>) -> Socket {
     let sub = ctx.socket(PUB).unwrap();
 
     sub.set_curve_serverkey(&config.settings.server_public_key)
@@ -101,31 +105,33 @@ fn create_pub_socket(ctx: &Context, config: &Arc<Config>) -> Socket {
     sub
 }
 
-pub fn run_filter(rx: Receiver<Window>, config: Arc<Config>) -> thread::JoinHandle<()> {
+pub fn run_filter(rx: Receiver<Window>, state: Arc<State>, window_db: Arc<WindowDB>) -> thread::JoinHandle<()> {
     thread::spawn(move || {
-        let mut db = MeasurementDB::new();
+        let mut measurement_db = MeasurementDB::new();
+
         let ctx = Context::default();
-        let tx = create_pub_socket(&ctx, &config);
+        let tx = create_pub_socket(&ctx, &state);
         loop {
-            let windows_per_measurement = config
+            let windows_per_measurement = state
                 .get_state(&WINDOWS_PER_MEASUREMENT.to_string())
                 .unwrap() as usize;
             let window = rx.recv().unwrap();
-            db.process_window(&window);
-            if db.window_count >= windows_per_measurement {
+            measurement_db.process_window(&window);
+            if measurement_db.window_count >= windows_per_measurement {
                 let mut measurement = Measurement::new();
-                db.generate_window(&mut measurement);
-                measurement.box_id = config.settings.box_id;
+                measurement_db.generate_window(&mut measurement);
+                measurement.box_id = state.settings.box_id;
                 let since_the_epoch = window.time_stamp_ms.duration_since(UNIX_EPOCH).unwrap();
                 measurement.timestamp_ms = since_the_epoch.as_secs() * 1000
                     + since_the_epoch.subsec_nanos() as u64 / 1_000_000;
-                db.reset();
+                measurement_db.reset();
                 tx.send(
-                    format!("{:004}", config.settings.box_id).as_bytes(),
+                    format!("{:004}", state.settings.box_id).as_bytes(),
                     SNDMORE,
                 ).unwrap();
                 tx.send(&measurement.write_to_bytes().unwrap(), 0).unwrap();
             }
+            window_db.add_window(window);
         }
     })
 }

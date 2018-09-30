@@ -9,12 +9,12 @@ use std::slice;
 use std::sync::Arc;
 use std::thread;
 //Local dependencies
-use config::Config;
+use config::State;
 use types;
 
-pub fn start_capture(tx: Sender<types::Window>, config: Arc<Config>) -> thread::JoinHandle<()> {
+pub fn start_capture(tx: Sender<types::Window>, state: Arc<State>) -> thread::JoinHandle<()> {
     thread::spawn(move || {
-        let path_to_device = &config.settings.device_path;
+        let path_to_device = &state.settings.device_path;
         let path = Path::new(&path_to_device);
 
         let mut file: File = match File::open(&path) {

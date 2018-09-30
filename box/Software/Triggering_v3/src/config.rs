@@ -8,13 +8,13 @@ use std::sync::Mutex;
 pub const WINDOWS_PER_MEASUREMENT: &'static str = "windows_per_measurement";
 
 #[derive(Debug)]
-pub struct Config {
+pub struct State {
     pub settings: Settings,
     state: Mutex<HashMap<String, f32>>,
 }
 
-impl Config {
-    pub fn new(file_path: &str) -> Result<Arc<Config>, String> {
+impl State {
+    pub fn new(file_path: &str) -> Result<Arc<State>, String> {
         info!("Loading configuration file {} ", file_path);
         let settings = match Settings::load_from_file(file_path) {
             Ok(s) => s,
@@ -25,7 +25,7 @@ impl Config {
                 ));
             }
         };
-        let cfg = Arc::new(Config {
+        let cfg = Arc::new(State {
             settings: settings,
             state: Mutex::new(HashMap::new()),
         });
@@ -72,7 +72,7 @@ pub struct Settings {
     //Number of windows to aggregate into a single measurement
     pub windows_per_measurements: usize,
     //Number of stored windows in the ring buffer
-    pub windows_in_storage_buffer,
+    pub windows_in_storage_buffer: usize,
     ///Plugin specific settings.
     pub plugins: Vec<String>,
 }

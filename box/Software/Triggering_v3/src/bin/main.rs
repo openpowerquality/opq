@@ -15,9 +15,11 @@ use std::env;
 use std::sync::Arc;
 use triggering_v3::capture::start_capture;
 use triggering_v3::cmd_processor::start_cmd_processor;
-use triggering_v3::config::Config;
+use triggering_v3::config::State;
 use triggering_v3::measurement_filter::run_filter;
 use triggering_v3::plugin_manager::run_plugins;
+use triggering_v3::window_db::WindowDB;
+
 fn main() {
     syslog::init(
         syslog::Facility::LOG_USER,
@@ -30,7 +32,7 @@ fn main() {
         0...1 => "triggering.json",
         _ => &args[1],
     };
-    let config = match Config::new(config_path) {
+    let config = match State::new(config_path) {
         Ok(c) => c,
         Err(e) => {
             error!("{}", e);
@@ -41,6 +43,8 @@ fn main() {
         "Box ID is {}, public key: {}",
         config.settings.box_id, config.settings.box_public_key
     );
+
+    let window_db = WindowDB::new(Arc::clone(&config));
 
     let (sender_capture_to_processing, receiver_capture_to_processing) = channel::bounded(100);
     let (sender_processing_to_filtering, receiver_processing_to_filtering) = channel::bounded(100);
@@ -57,7 +61,7 @@ fn main() {
         Arc::clone(&config),
     );
 
-    let filter = run_filter(receiver_processing_to_filtering, Arc::clone(&config));
+    let filter = run_filter(receiver_processing_to_filtering, Arc::clone(&config), Arc::clone(&window_db));
 
     cmd_processor.join().unwrap();
     capture.join().unwrap();

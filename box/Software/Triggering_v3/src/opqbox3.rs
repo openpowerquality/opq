@@ -22,11 +22,266 @@ use protobuf::Message as Message_imported_for_functions;
 use protobuf::ProtobufEnum as ProtobufEnum_imported_for_functions;
 
 #[derive(PartialEq,Clone,Default)]
+pub struct Metric {
+    // message fields
+    pub min: f32,
+    pub max: f32,
+    pub average: f32,
+    // special fields
+    unknown_fields: ::protobuf::UnknownFields,
+    cached_size: ::protobuf::CachedSize,
+}
+
+// see codegen.rs for the explanation why impl Sync explicitly
+unsafe impl ::std::marker::Sync for Metric {}
+
+impl Metric {
+    pub fn new() -> Metric {
+        ::std::default::Default::default()
+    }
+
+    pub fn default_instance() -> &'static Metric {
+        static mut instance: ::protobuf::lazy::Lazy<Metric> = ::protobuf::lazy::Lazy {
+            lock: ::protobuf::lazy::ONCE_INIT,
+            ptr: 0 as *const Metric,
+        };
+        unsafe {
+            instance.get(Metric::new)
+        }
+    }
+
+    // float min = 1;
+
+    pub fn clear_min(&mut self) {
+        self.min = 0.;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_min(&mut self, v: f32) {
+        self.min = v;
+    }
+
+    pub fn get_min(&self) -> f32 {
+        self.min
+    }
+
+    fn get_min_for_reflect(&self) -> &f32 {
+        &self.min
+    }
+
+    fn mut_min_for_reflect(&mut self) -> &mut f32 {
+        &mut self.min
+    }
+
+    // float max = 2;
+
+    pub fn clear_max(&mut self) {
+        self.max = 0.;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_max(&mut self, v: f32) {
+        self.max = v;
+    }
+
+    pub fn get_max(&self) -> f32 {
+        self.max
+    }
+
+    fn get_max_for_reflect(&self) -> &f32 {
+        &self.max
+    }
+
+    fn mut_max_for_reflect(&mut self) -> &mut f32 {
+        &mut self.max
+    }
+
+    // float average = 3;
+
+    pub fn clear_average(&mut self) {
+        self.average = 0.;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_average(&mut self, v: f32) {
+        self.average = v;
+    }
+
+    pub fn get_average(&self) -> f32 {
+        self.average
+    }
+
+    fn get_average_for_reflect(&self) -> &f32 {
+        &self.average
+    }
+
+    fn mut_average_for_reflect(&mut self) -> &mut f32 {
+        &mut self.average
+    }
+}
+
+impl ::protobuf::Message for Metric {
+    fn is_initialized(&self) -> bool {
+        true
+    }
+
+    fn merge_from(&mut self, is: &mut ::protobuf::CodedInputStream) -> ::protobuf::ProtobufResult<()> {
+        while !is.eof()? {
+            let (field_number, wire_type) = is.read_tag_unpack()?;
+            match field_number {
+                1 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeFixed32 {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_float()?;
+                    self.min = tmp;
+                },
+                2 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeFixed32 {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_float()?;
+                    self.max = tmp;
+                },
+                3 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeFixed32 {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_float()?;
+                    self.average = tmp;
+                },
+                _ => {
+                    ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
+                },
+            };
+        }
+        ::std::result::Result::Ok(())
+    }
+
+    // Compute sizes of nested messages
+    #[allow(unused_variables)]
+    fn compute_size(&self) -> u32 {
+        let mut my_size = 0;
+        if self.min != 0. {
+            my_size += 5;
+        }
+        if self.max != 0. {
+            my_size += 5;
+        }
+        if self.average != 0. {
+            my_size += 5;
+        }
+        my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
+        self.cached_size.set(my_size);
+        my_size
+    }
+
+    fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream) -> ::protobuf::ProtobufResult<()> {
+        if self.min != 0. {
+            os.write_float(1, self.min)?;
+        }
+        if self.max != 0. {
+            os.write_float(2, self.max)?;
+        }
+        if self.average != 0. {
+            os.write_float(3, self.average)?;
+        }
+        os.write_unknown_fields(self.get_unknown_fields())?;
+        ::std::result::Result::Ok(())
+    }
+
+    fn get_cached_size(&self) -> u32 {
+        self.cached_size.get()
+    }
+
+    fn get_unknown_fields(&self) -> &::protobuf::UnknownFields {
+        &self.unknown_fields
+    }
+
+    fn mut_unknown_fields(&mut self) -> &mut ::protobuf::UnknownFields {
+        &mut self.unknown_fields
+    }
+
+    fn as_any(&self) -> &::std::any::Any {
+        self as &::std::any::Any
+    }
+    fn as_any_mut(&mut self) -> &mut ::std::any::Any {
+        self as &mut ::std::any::Any
+    }
+    fn into_any(self: Box<Self>) -> ::std::boxed::Box<::std::any::Any> {
+        self
+    }
+
+    fn descriptor(&self) -> &'static ::protobuf::reflect::MessageDescriptor {
+        ::protobuf::MessageStatic::descriptor_static(None::<Self>)
+    }
+}
+
+impl ::protobuf::MessageStatic for Metric {
+    fn new() -> Metric {
+        Metric::new()
+    }
+
+    fn descriptor_static(_: ::std::option::Option<Metric>) -> &'static ::protobuf::reflect::MessageDescriptor {
+        static mut descriptor: ::protobuf::lazy::Lazy<::protobuf::reflect::MessageDescriptor> = ::protobuf::lazy::Lazy {
+            lock: ::protobuf::lazy::ONCE_INIT,
+            ptr: 0 as *const ::protobuf::reflect::MessageDescriptor,
+        };
+        unsafe {
+            descriptor.get(|| {
+                let mut fields = ::std::vec::Vec::new();
+                fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeFloat>(
+                    "min",
+                    Metric::get_min_for_reflect,
+                    Metric::mut_min_for_reflect,
+                ));
+                fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeFloat>(
+                    "max",
+                    Metric::get_max_for_reflect,
+                    Metric::mut_max_for_reflect,
+                ));
+                fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeFloat>(
+                    "average",
+                    Metric::get_average_for_reflect,
+                    Metric::mut_average_for_reflect,
+                ));
+                ::protobuf::reflect::MessageDescriptor::new::<Metric>(
+                    "Metric",
+                    fields,
+                    file_descriptor_proto()
+                )
+            })
+        }
+    }
+}
+
+impl ::protobuf::Clear for Metric {
+    fn clear(&mut self) {
+        self.clear_min();
+        self.clear_max();
+        self.clear_average();
+        self.unknown_fields.clear();
+    }
+}
+
+impl ::std::fmt::Debug for Metric {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
+        ::protobuf::text_format::fmt(self, f)
+    }
+}
+
+impl ::protobuf::reflect::ProtobufValue for Metric {
+    fn as_ref(&self) -> ::protobuf::reflect::ProtobufValueRef {
+        ::protobuf::reflect::ProtobufValueRef::Message(self)
+    }
+}
+
+#[derive(PartialEq,Clone,Default)]
 pub struct Measurement {
     // message fields
     pub box_id: u32,
     pub timestamp_ms: u64,
-    pub metrics: ::std::collections::HashMap<::std::string::String, f32>,
+    pub metrics: ::std::collections::HashMap<::std::string::String, Metric>,
     // special fields
     unknown_fields: ::protobuf::UnknownFields,
     cached_size: ::protobuf::CachedSize,
@@ -103,29 +358,29 @@ impl Measurement {
     }
 
     // Param is passed by value, moved
-    pub fn set_metrics(&mut self, v: ::std::collections::HashMap<::std::string::String, f32>) {
+    pub fn set_metrics(&mut self, v: ::std::collections::HashMap<::std::string::String, Metric>) {
         self.metrics = v;
     }
 
     // Mutable pointer to the field.
-    pub fn mut_metrics(&mut self) -> &mut ::std::collections::HashMap<::std::string::String, f32> {
+    pub fn mut_metrics(&mut self) -> &mut ::std::collections::HashMap<::std::string::String, Metric> {
         &mut self.metrics
     }
 
     // Take field
-    pub fn take_metrics(&mut self) -> ::std::collections::HashMap<::std::string::String, f32> {
+    pub fn take_metrics(&mut self) -> ::std::collections::HashMap<::std::string::String, Metric> {
         ::std::mem::replace(&mut self.metrics, ::std::collections::HashMap::new())
     }
 
-    pub fn get_metrics(&self) -> &::std::collections::HashMap<::std::string::String, f32> {
+    pub fn get_metrics(&self) -> &::std::collections::HashMap<::std::string::String, Metric> {
         &self.metrics
     }
 
-    fn get_metrics_for_reflect(&self) -> &::std::collections::HashMap<::std::string::String, f32> {
+    fn get_metrics_for_reflect(&self) -> &::std::collections::HashMap<::std::string::String, Metric> {
         &self.metrics
     }
 
-    fn mut_metrics_for_reflect(&mut self) -> &mut ::std::collections::HashMap<::std::string::String, f32> {
+    fn mut_metrics_for_reflect(&mut self) -> &mut ::std::collections::HashMap<::std::string::String, Metric> {
         &mut self.metrics
     }
 }
@@ -154,7 +409,7 @@ impl ::protobuf::Message for Measurement {
                     self.timestamp_ms = tmp;
                 },
                 3 => {
-                    ::protobuf::rt::read_map_into::<::protobuf::types::ProtobufTypeString, ::protobuf::types::ProtobufTypeFloat>(wire_type, is, &mut self.metrics)?;
+                    ::protobuf::rt::read_map_into::<::protobuf::types::ProtobufTypeString, ::protobuf::types::ProtobufTypeMessage<Metric>>(wire_type, is, &mut self.metrics)?;
                 },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
@@ -174,7 +429,7 @@ impl ::protobuf::Message for Measurement {
         if self.timestamp_ms != 0 {
             my_size += ::protobuf::rt::value_size(2, self.timestamp_ms, ::protobuf::wire_format::WireTypeVarint);
         }
-        my_size += ::protobuf::rt::compute_map_size::<::protobuf::types::ProtobufTypeString, ::protobuf::types::ProtobufTypeFloat>(3, &self.metrics);
+        my_size += ::protobuf::rt::compute_map_size::<::protobuf::types::ProtobufTypeString, ::protobuf::types::ProtobufTypeMessage<Metric>>(3, &self.metrics);
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
         my_size
@@ -187,7 +442,7 @@ impl ::protobuf::Message for Measurement {
         if self.timestamp_ms != 0 {
             os.write_uint64(2, self.timestamp_ms)?;
         }
-        ::protobuf::rt::write_map_with_cached_sizes::<::protobuf::types::ProtobufTypeString, ::protobuf::types::ProtobufTypeFloat>(3, &self.metrics, os)?;
+        ::protobuf::rt::write_map_with_cached_sizes::<::protobuf::types::ProtobufTypeString, ::protobuf::types::ProtobufTypeMessage<Metric>>(3, &self.metrics, os)?;
         os.write_unknown_fields(self.get_unknown_fields())?;
         ::std::result::Result::Ok(())
     }
@@ -242,7 +497,7 @@ impl ::protobuf::MessageStatic for Measurement {
                     Measurement::get_timestamp_ms_for_reflect,
                     Measurement::mut_timestamp_ms_for_reflect,
                 ));
-                fields.push(::protobuf::reflect::accessor::make_map_accessor::<_, ::protobuf::types::ProtobufTypeString, ::protobuf::types::ProtobufTypeFloat>(
+                fields.push(::protobuf::reflect::accessor::make_map_accessor::<_, ::protobuf::types::ProtobufTypeString, ::protobuf::types::ProtobufTypeMessage<Metric>>(
                     "metrics",
                     Measurement::get_metrics_for_reflect,
                     Measurement::mut_metrics_for_reflect,
@@ -2420,6 +2675,175 @@ impl ::protobuf::reflect::ProtobufValue for GetDataResponseHeader {
 }
 
 #[derive(PartialEq,Clone,Default)]
+pub struct SendCommandToPluginResponse {
+    // message fields
+    pub ok: bool,
+    // special fields
+    unknown_fields: ::protobuf::UnknownFields,
+    cached_size: ::protobuf::CachedSize,
+}
+
+// see codegen.rs for the explanation why impl Sync explicitly
+unsafe impl ::std::marker::Sync for SendCommandToPluginResponse {}
+
+impl SendCommandToPluginResponse {
+    pub fn new() -> SendCommandToPluginResponse {
+        ::std::default::Default::default()
+    }
+
+    pub fn default_instance() -> &'static SendCommandToPluginResponse {
+        static mut instance: ::protobuf::lazy::Lazy<SendCommandToPluginResponse> = ::protobuf::lazy::Lazy {
+            lock: ::protobuf::lazy::ONCE_INIT,
+            ptr: 0 as *const SendCommandToPluginResponse,
+        };
+        unsafe {
+            instance.get(SendCommandToPluginResponse::new)
+        }
+    }
+
+    // bool ok = 1;
+
+    pub fn clear_ok(&mut self) {
+        self.ok = false;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_ok(&mut self, v: bool) {
+        self.ok = v;
+    }
+
+    pub fn get_ok(&self) -> bool {
+        self.ok
+    }
+
+    fn get_ok_for_reflect(&self) -> &bool {
+        &self.ok
+    }
+
+    fn mut_ok_for_reflect(&mut self) -> &mut bool {
+        &mut self.ok
+    }
+}
+
+impl ::protobuf::Message for SendCommandToPluginResponse {
+    fn is_initialized(&self) -> bool {
+        true
+    }
+
+    fn merge_from(&mut self, is: &mut ::protobuf::CodedInputStream) -> ::protobuf::ProtobufResult<()> {
+        while !is.eof()? {
+            let (field_number, wire_type) = is.read_tag_unpack()?;
+            match field_number {
+                1 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_bool()?;
+                    self.ok = tmp;
+                },
+                _ => {
+                    ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
+                },
+            };
+        }
+        ::std::result::Result::Ok(())
+    }
+
+    // Compute sizes of nested messages
+    #[allow(unused_variables)]
+    fn compute_size(&self) -> u32 {
+        let mut my_size = 0;
+        if self.ok != false {
+            my_size += 2;
+        }
+        my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
+        self.cached_size.set(my_size);
+        my_size
+    }
+
+    fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream) -> ::protobuf::ProtobufResult<()> {
+        if self.ok != false {
+            os.write_bool(1, self.ok)?;
+        }
+        os.write_unknown_fields(self.get_unknown_fields())?;
+        ::std::result::Result::Ok(())
+    }
+
+    fn get_cached_size(&self) -> u32 {
+        self.cached_size.get()
+    }
+
+    fn get_unknown_fields(&self) -> &::protobuf::UnknownFields {
+        &self.unknown_fields
+    }
+
+    fn mut_unknown_fields(&mut self) -> &mut ::protobuf::UnknownFields {
+        &mut self.unknown_fields
+    }
+
+    fn as_any(&self) -> &::std::any::Any {
+        self as &::std::any::Any
+    }
+    fn as_any_mut(&mut self) -> &mut ::std::any::Any {
+        self as &mut ::std::any::Any
+    }
+    fn into_any(self: Box<Self>) -> ::std::boxed::Box<::std::any::Any> {
+        self
+    }
+
+    fn descriptor(&self) -> &'static ::protobuf::reflect::MessageDescriptor {
+        ::protobuf::MessageStatic::descriptor_static(None::<Self>)
+    }
+}
+
+impl ::protobuf::MessageStatic for SendCommandToPluginResponse {
+    fn new() -> SendCommandToPluginResponse {
+        SendCommandToPluginResponse::new()
+    }
+
+    fn descriptor_static(_: ::std::option::Option<SendCommandToPluginResponse>) -> &'static ::protobuf::reflect::MessageDescriptor {
+        static mut descriptor: ::protobuf::lazy::Lazy<::protobuf::reflect::MessageDescriptor> = ::protobuf::lazy::Lazy {
+            lock: ::protobuf::lazy::ONCE_INIT,
+            ptr: 0 as *const ::protobuf::reflect::MessageDescriptor,
+        };
+        unsafe {
+            descriptor.get(|| {
+                let mut fields = ::std::vec::Vec::new();
+                fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeBool>(
+                    "ok",
+                    SendCommandToPluginResponse::get_ok_for_reflect,
+                    SendCommandToPluginResponse::mut_ok_for_reflect,
+                ));
+                ::protobuf::reflect::MessageDescriptor::new::<SendCommandToPluginResponse>(
+                    "SendCommandToPluginResponse",
+                    fields,
+                    file_descriptor_proto()
+                )
+            })
+        }
+    }
+}
+
+impl ::protobuf::Clear for SendCommandToPluginResponse {
+    fn clear(&mut self) {
+        self.clear_ok();
+        self.unknown_fields.clear();
+    }
+}
+
+impl ::std::fmt::Debug for SendCommandToPluginResponse {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
+        ::protobuf::text_format::fmt(self, f)
+    }
+}
+
+impl ::protobuf::reflect::ProtobufValue for SendCommandToPluginResponse {
+    fn as_ref(&self) -> ::protobuf::reflect::ProtobufValueRef {
+        ::protobuf::reflect::ProtobufValueRef::Message(self)
+    }
+}
+
+#[derive(PartialEq,Clone,Default)]
 pub struct Response {
     // message fields
     pub box_id: i32,
@@ -2440,6 +2864,7 @@ pub enum Response_oneof_response {
     info_response(GetInfoResponse),
     message_rate_reponse(SetMeasurementRateResponse),
     get_data_response(GetDataResponseHeader),
+    command_to_plugin_response(SendCommandToPluginResponse),
 }
 
 impl Response {
@@ -2672,6 +3097,55 @@ impl Response {
             _ => GetDataResponseHeader::default_instance(),
         }
     }
+
+    // .opq.proto3.SendCommandToPluginResponse command_to_plugin_response = 7;
+
+    pub fn clear_command_to_plugin_response(&mut self) {
+        self.response = ::std::option::Option::None;
+    }
+
+    pub fn has_command_to_plugin_response(&self) -> bool {
+        match self.response {
+            ::std::option::Option::Some(Response_oneof_response::command_to_plugin_response(..)) => true,
+            _ => false,
+        }
+    }
+
+    // Param is passed by value, moved
+    pub fn set_command_to_plugin_response(&mut self, v: SendCommandToPluginResponse) {
+        self.response = ::std::option::Option::Some(Response_oneof_response::command_to_plugin_response(v))
+    }
+
+    // Mutable pointer to the field.
+    pub fn mut_command_to_plugin_response(&mut self) -> &mut SendCommandToPluginResponse {
+        if let ::std::option::Option::Some(Response_oneof_response::command_to_plugin_response(_)) = self.response {
+        } else {
+            self.response = ::std::option::Option::Some(Response_oneof_response::command_to_plugin_response(SendCommandToPluginResponse::new()));
+        }
+        match self.response {
+            ::std::option::Option::Some(Response_oneof_response::command_to_plugin_response(ref mut v)) => v,
+            _ => panic!(),
+        }
+    }
+
+    // Take field
+    pub fn take_command_to_plugin_response(&mut self) -> SendCommandToPluginResponse {
+        if self.has_command_to_plugin_response() {
+            match self.response.take() {
+                ::std::option::Option::Some(Response_oneof_response::command_to_plugin_response(v)) => v,
+                _ => panic!(),
+            }
+        } else {
+            SendCommandToPluginResponse::new()
+        }
+    }
+
+    pub fn get_command_to_plugin_response(&self) -> &SendCommandToPluginResponse {
+        match self.response {
+            ::std::option::Option::Some(Response_oneof_response::command_to_plugin_response(ref v)) => v,
+            _ => SendCommandToPluginResponse::default_instance(),
+        }
+    }
 }
 
 impl ::protobuf::Message for Response {
@@ -2687,6 +3161,11 @@ impl ::protobuf::Message for Response {
             }
         }
         if let Some(Response_oneof_response::get_data_response(ref v)) = self.response {
+            if !v.is_initialized() {
+                return false;
+            }
+        }
+        if let Some(Response_oneof_response::command_to_plugin_response(ref v)) = self.response {
             if !v.is_initialized() {
                 return false;
             }
@@ -2737,6 +3216,12 @@ impl ::protobuf::Message for Response {
                     }
                     self.response = ::std::option::Option::Some(Response_oneof_response::get_data_response(is.read_message()?));
                 },
+                7 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeLengthDelimited {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    self.response = ::std::option::Option::Some(Response_oneof_response::command_to_plugin_response(is.read_message()?));
+                },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
                 },
@@ -2772,6 +3257,10 @@ impl ::protobuf::Message for Response {
                     let len = v.compute_size();
                     my_size += 1 + ::protobuf::rt::compute_raw_varint32_size(len) + len;
                 },
+                &Response_oneof_response::command_to_plugin_response(ref v) => {
+                    let len = v.compute_size();
+                    my_size += 1 + ::protobuf::rt::compute_raw_varint32_size(len) + len;
+                },
             };
         }
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
@@ -2803,6 +3292,11 @@ impl ::protobuf::Message for Response {
                 },
                 &Response_oneof_response::get_data_response(ref v) => {
                     os.write_tag(6, ::protobuf::wire_format::WireTypeLengthDelimited)?;
+                    os.write_raw_varint32(v.get_cached_size())?;
+                    v.write_to_with_cached_sizes(os)?;
+                },
+                &Response_oneof_response::command_to_plugin_response(ref v) => {
+                    os.write_tag(7, ::protobuf::wire_format::WireTypeLengthDelimited)?;
                     os.write_raw_varint32(v.get_cached_size())?;
                     v.write_to_with_cached_sizes(os)?;
                 },
@@ -2882,6 +3376,11 @@ impl ::protobuf::MessageStatic for Response {
                     Response::has_get_data_response,
                     Response::get_get_data_response,
                 ));
+                fields.push(::protobuf::reflect::accessor::make_singular_message_accessor::<_, SendCommandToPluginResponse>(
+                    "command_to_plugin_response",
+                    Response::has_command_to_plugin_response,
+                    Response::get_command_to_plugin_response,
+                ));
                 ::protobuf::reflect::MessageDescriptor::new::<Response>(
                     "Response",
                     fields,
@@ -2900,6 +3399,7 @@ impl ::protobuf::Clear for Response {
         self.clear_info_response();
         self.clear_message_rate_reponse();
         self.clear_get_data_response();
+        self.clear_command_to_plugin_response();
         self.unknown_fields.clear();
     }
 }
@@ -2917,44 +3417,49 @@ impl ::protobuf::reflect::ProtobufValue for Response {
 }
 
 static file_descriptor_proto_data: &'static [u8] = b"\
-    \n\ropqbox3.proto\x12\nopq.proto3\x1a\x0frustproto.proto\"\xc3\x01\n\x0b\
-    Measurement\x12\x15\n\x06box_id\x18\x01\x20\x01(\rR\x05boxId\x12!\n\x0ct\
-    imestamp_ms\x18\x02\x20\x01(\x04R\x0btimestampMs\x12>\n\x07metrics\x18\
-    \x03\x20\x03(\x0b2$.opq.proto3.Measurement.MetricsEntryR\x07metrics\x1a:\
-    \n\x0cMetricsEntry\x12\x10\n\x03key\x18\x01\x20\x01(\tR\x03key\x12\x14\n\
-    \x05value\x18\x02\x20\x01(\x02R\x05value:\x028\x01\"\x10\n\x0eGetInfoCom\
-    mand\"V\n\x0eGetDataCommand\x12\x19\n\x08start_ms\x18\x01\x20\x01(\x04R\
-    \x07startMs\x12\x15\n\x06end_ms\x18\x02\x20\x01(\x04R\x05endMs\x12\x12\n\
-    \x04wait\x18\x03\x20\x01(\x08R\x04wait\"X\n\x1aSetMeasturementRateComman\
-    d\x12:\n\x19measurement_window_cycles\x18\x01\x20\x01(\rR\x17measurement\
-    WindowCycles\"P\n\x13SendCommandToPlugin\x12\x1f\n\x0bplugin_name\x18\
-    \x01\x20\x01(\tR\npluginName\x12\x18\n\x07message\x18\x02\x20\x01(\tR\
-    \x07message\"\x81\x03\n\x07Command\x12\x10\n\x03seq\x18\x01\x20\x01(\rR\
-    \x03seq\x12!\n\x0ctimestamp_ms\x18\x02\x20\x01(\x04R\x0btimestampMs\x12?\
-    \n\x0cinfo_command\x18\x03\x20\x01(\x0b2\x1a.opq.proto3.GetInfoCommandH\
-    \0R\x0binfoCommand\x12?\n\x0cdata_command\x18\x04\x20\x01(\x0b2\x1a.opq.\
-    proto3.GetDataCommandH\0R\x0bdataCommand\x12\\\n\x15sampling_rate_comman\
-    d\x18\x05\x20\x01(\x0b2&.opq.proto3.SetMeasturementRateCommandH\0R\x13sa\
-    mplingRateCommand\x12V\n\x16send_command_to_plugin\x18\x07\x20\x01(\x0b2\
-    \x1f.opq.proto3.SendCommandToPluginH\0R\x13sendCommandToPluginB\t\n\x07c\
-    ommand\"\xee\x01\n\x0fGetInfoResponse\x12\x19\n\x08mac_addr\x18\x01\x20\
-    \x01(\tR\x07macAddr\x12!\n\x0cwifi_network\x18\x02\x20\x01(\tR\x0bwifiNe\
-    twork\x12\x0e\n\x02ip\x18\x03\x20\x01(\tR\x02ip\x12\x16\n\x06uptime\x18\
-    \x04\x20\x01(\x04R\x06uptime\x121\n\x14calibration_constant\x18\x05\x20\
-    \x01(\x04R\x13calibrationConstant\x12\x17\n\x07pub_key\x18\x06\x20\x01(\
-    \tR\x06pubKey\x12)\n\x10measurement_rate\x18\x07\x20\x01(\rR\x0fmeasurem\
-    entRate\"D\n\x1aSetMeasurementRateResponse\x12&\n\x0fold_rate_cycles\x18\
-    \x01\x20\x01(\rR\roldRateCycles\"I\n\x15GetDataResponseHeader\x12\x19\n\
-    \x08start_ts\x18\x01\x20\x01(\x04R\x07startTs\x12\x15\n\x06end_ts\x18\
-    \x02\x20\x01(\x04R\x05endTs\"\xd3\x02\n\x08Response\x12\x15\n\x06box_id\
-    \x18\x01\x20\x01(\x05R\x05boxId\x12\x10\n\x03seq\x18\x02\x20\x01(\rR\x03\
-    seq\x12!\n\x0ctimestamp_ms\x18\x03\x20\x01(\x04R\x0btimestampMs\x12B\n\r\
-    info_response\x18\x04\x20\x01(\x0b2\x1b.opq.proto3.GetInfoResponseH\0R\
-    \x0cinfoResponse\x12Z\n\x14message_rate_reponse\x18\x05\x20\x01(\x0b2&.o\
-    pq.proto3.SetMeasurementRateResponseH\0R\x12messageRateReponse\x12O\n\
-    \x11get_data_response\x18\x06\x20\x01(\x0b2!.opq.proto3.GetDataResponseH\
-    eaderH\0R\x0fgetDataResponseB\n\n\x08responseB\x04\xc8\xa6\x08\x01b\x06p\
-    roto3\
+    \n\ropqbox3.proto\x12\nopq.proto3\x1a\x0frustproto.proto\"F\n\x06Metric\
+    \x12\x10\n\x03min\x18\x01\x20\x01(\x02R\x03min\x12\x10\n\x03max\x18\x02\
+    \x20\x01(\x02R\x03max\x12\x18\n\x07average\x18\x03\x20\x01(\x02R\x07aver\
+    age\"\xd7\x01\n\x0bMeasurement\x12\x15\n\x06box_id\x18\x01\x20\x01(\rR\
+    \x05boxId\x12!\n\x0ctimestamp_ms\x18\x02\x20\x01(\x04R\x0btimestampMs\
+    \x12>\n\x07metrics\x18\x03\x20\x03(\x0b2$.opq.proto3.Measurement.Metrics\
+    EntryR\x07metrics\x1aN\n\x0cMetricsEntry\x12\x10\n\x03key\x18\x01\x20\
+    \x01(\tR\x03key\x12(\n\x05value\x18\x02\x20\x01(\x0b2\x12.opq.proto3.Met\
+    ricR\x05value:\x028\x01\"\x10\n\x0eGetInfoCommand\"V\n\x0eGetDataCommand\
+    \x12\x19\n\x08start_ms\x18\x01\x20\x01(\x04R\x07startMs\x12\x15\n\x06end\
+    _ms\x18\x02\x20\x01(\x04R\x05endMs\x12\x12\n\x04wait\x18\x03\x20\x01(\
+    \x08R\x04wait\"X\n\x1aSetMeasturementRateCommand\x12:\n\x19measurement_w\
+    indow_cycles\x18\x01\x20\x01(\rR\x17measurementWindowCycles\"P\n\x13Send\
+    CommandToPlugin\x12\x1f\n\x0bplugin_name\x18\x01\x20\x01(\tR\npluginName\
+    \x12\x18\n\x07message\x18\x02\x20\x01(\tR\x07message\"\x81\x03\n\x07Comm\
+    and\x12\x10\n\x03seq\x18\x01\x20\x01(\rR\x03seq\x12!\n\x0ctimestamp_ms\
+    \x18\x02\x20\x01(\x04R\x0btimestampMs\x12?\n\x0cinfo_command\x18\x03\x20\
+    \x01(\x0b2\x1a.opq.proto3.GetInfoCommandH\0R\x0binfoCommand\x12?\n\x0cda\
+    ta_command\x18\x04\x20\x01(\x0b2\x1a.opq.proto3.GetDataCommandH\0R\x0bda\
+    taCommand\x12\\\n\x15sampling_rate_command\x18\x05\x20\x01(\x0b2&.opq.pr\
+    oto3.SetMeasturementRateCommandH\0R\x13samplingRateCommand\x12V\n\x16sen\
+    d_command_to_plugin\x18\x07\x20\x01(\x0b2\x1f.opq.proto3.SendCommandToPl\
+    uginH\0R\x13sendCommandToPluginB\t\n\x07command\"\xee\x01\n\x0fGetInfoRe\
+    sponse\x12\x19\n\x08mac_addr\x18\x01\x20\x01(\tR\x07macAddr\x12!\n\x0cwi\
+    fi_network\x18\x02\x20\x01(\tR\x0bwifiNetwork\x12\x0e\n\x02ip\x18\x03\
+    \x20\x01(\tR\x02ip\x12\x16\n\x06uptime\x18\x04\x20\x01(\x04R\x06uptime\
+    \x121\n\x14calibration_constant\x18\x05\x20\x01(\x04R\x13calibrationCons\
+    tant\x12\x17\n\x07pub_key\x18\x06\x20\x01(\tR\x06pubKey\x12)\n\x10measur\
+    ement_rate\x18\x07\x20\x01(\rR\x0fmeasurementRate\"D\n\x1aSetMeasurement\
+    RateResponse\x12&\n\x0fold_rate_cycles\x18\x01\x20\x01(\rR\roldRateCycle\
+    s\"I\n\x15GetDataResponseHeader\x12\x19\n\x08start_ts\x18\x01\x20\x01(\
+    \x04R\x07startTs\x12\x15\n\x06end_ts\x18\x02\x20\x01(\x04R\x05endTs\"-\n\
+    \x1bSendCommandToPluginResponse\x12\x0e\n\x02ok\x18\x01\x20\x01(\x08R\
+    \x02ok\"\xbb\x03\n\x08Response\x12\x15\n\x06box_id\x18\x01\x20\x01(\x05R\
+    \x05boxId\x12\x10\n\x03seq\x18\x02\x20\x01(\rR\x03seq\x12!\n\x0ctimestam\
+    p_ms\x18\x03\x20\x01(\x04R\x0btimestampMs\x12B\n\rinfo_response\x18\x04\
+    \x20\x01(\x0b2\x1b.opq.proto3.GetInfoResponseH\0R\x0cinfoResponse\x12Z\n\
+    \x14message_rate_reponse\x18\x05\x20\x01(\x0b2&.opq.proto3.SetMeasuremen\
+    tRateResponseH\0R\x12messageRateReponse\x12O\n\x11get_data_response\x18\
+    \x06\x20\x01(\x0b2!.opq.proto3.GetDataResponseHeaderH\0R\x0fgetDataRespo\
+    nse\x12f\n\x1acommand_to_plugin_response\x18\x07\x20\x01(\x0b2'.opq.prot\
+    o3.SendCommandToPluginResponseH\0R\x17commandToPluginResponseB\n\n\x08re\
+    sponseB\x04\xc8\xa6\x08\x01b\x06proto3\
 ";
 
 static mut file_descriptor_proto_lazy: ::protobuf::lazy::Lazy<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::lazy::Lazy {

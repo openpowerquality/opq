@@ -4,6 +4,7 @@ use std::time::SystemTime;
 
 pub const POINTS_PER_PACKET: usize = 200;
 
+#[derive(Copy, Clone)]
 #[repr(C, packed)]
 pub struct RawWindow {
     datapoints: [i16; POINTS_PER_PACKET],
