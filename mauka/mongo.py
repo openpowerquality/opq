@@ -202,6 +202,7 @@ class IncidentMeasurementType(enum.Enum):
     TRANSIENT = "TRANSIENT"
     HEALTH = "HEALTH"
 
+
 class IncidentClassification(enum.Enum):
     """Incident Classification Types"""
     EXCESSIVE_THD = "EXCESSIVE_THD"
@@ -216,6 +217,7 @@ class IncidentClassification(enum.Enum):
     SEMI_F47_VIOLATION = "SEMI_F47_VIOLATION"
     UNDEFINED = "UNDEFINED"
     OUTAGE = "OUTAGE"
+
 
 class IncidentIeeeDuration(enum.Enum):
     """IEEE Duration Classifications"""
@@ -310,14 +312,12 @@ def store_incident(event_id: int,
         delta_start_ms = start_timestamp_ms - event_start_timestamp_ms
         delta_end_ms = end_timestamp_ms - event_start_timestamp_ms
         # Provide a ms worth of buffer to account for floating point error?
-        incident_start_idx = int(max(0, round(analysis.ms_to_samples(delta_start_ms)) - constants.SAMPLES_PER_MILLISECOND))
+        incident_start_idx = int(max(0,
+                                     round(analysis.ms_to_samples(delta_start_ms)) - constants.SAMPLES_PER_MILLISECOND))
         incident_end_idx = int(min(len(event_adc_samples),
                                    round(analysis.ms_to_samples(delta_end_ms)) + constants.SAMPLES_PER_MILLISECOND))
-        incident_adc_samples_bytes = event_adc_samples[incident_start_idx:incident_end_idx].astype(numpy.int16).tobytes()
-
-
-
-
+        incident_adc_samples_bytes = event_adc_samples[incident_start_idx:incident_end_idx].astype(
+            numpy.int16).tobytes()
 
         gridfs_filename = "incident_{}".format(incident_id)
         mongo_client.write_incident_waveform(incident_id, gridfs_filename, incident_adc_samples_bytes)
@@ -340,6 +340,8 @@ def store_incident(event_id: int,
         "annotations": annotations,
         "metadata": metadata
     }
+
+    mongo_client.incidents_collection.insert_one(incident)
 
     return incident_id
 

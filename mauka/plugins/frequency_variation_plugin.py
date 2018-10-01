@@ -39,7 +39,7 @@ def frequency_variation(frequency: float, freq_ref: float, freq_var_high: float,
 def frequency_incident_classifier(event_id: int, box_id: str, windowed_frequencies: numpy.ndarray,
                                   box_event_start_ts: int, freq_ref: float, freq_var_high: float, freq_var_low: float,
                                   freq_interruption: float, window_size: int, max_lull: int,
-                                  opq_mongo_client: mongo.OpqMongoClient=None, logger=None):
+                                  opq_mongo_client: mongo.OpqMongoClient = None, logger=None):
     """
     Classifies a frequency incident as a Sag, Swell, or Interruption. Creates a Mongo Incident document
     :param event_id: Makai Event ID
@@ -74,7 +74,7 @@ def frequency_incident_classifier(event_id: int, box_id: str, windowed_frequenci
         # check whether there is a frequency variation and if so what type
         curr_incident, curr_variation = frequency_variation(freq, freq_ref, freq_var_high,
                                                             freq_var_low, freq_interruption)
-        if running_incident != curr_incident:  
+        if running_incident != curr_incident:
             if lull_count == max_lull or running_incident is False:  # start of new incident and or end of incident
                 if running_incident:  # make and store incident doc if end of incident
                     incident_end_ts = (idx - max_lull) * window_duration_ms + box_event_start_ts
@@ -90,7 +90,7 @@ def frequency_incident_classifier(event_id: int, box_id: str, windowed_frequenci
                                       "avg_deviation": numpy.average(incident_variations),
                                       "incident_classifications": [running_incident], "annotations": [], "metadata": {},
                                       "mongo_client": mongo_client})
-    
+
                 incident_variations = [curr_variation]
                 incident_start_ts = idx * window_duration_ms + box_event_start_ts
                 running_incident = curr_incident

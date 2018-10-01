@@ -34,12 +34,12 @@ def smooth_waveform(sample: numpy.ndarray, filter_order: int = 2, cutoff_frequen
     # First, design the Butterworth filter
     # Cutoff frequencies in half-cycles / sample
     cutoff_frequency_nyquist = cutoff_frequency * 2 / constants.SAMPLE_RATE_HZ
-    b, a = signal.butter(filter_order, cutoff_frequency_nyquist, output='ba')
+    numerator, denominator = signal.butter(filter_order, cutoff_frequency_nyquist, output='ba')
 
     # Second, apply the filter
     #return signal.filtfilt(b, a, sample)
 
-    dtltis = signal.dlti(b, a)
+    dtltis = signal.dlti(numerator, denominator)
     #decimate signal to improve runtime
     return signal.decimate(sample, downsample_factor, ftype=dtltis)
 

@@ -1,3 +1,5 @@
+"""This module contains classes and functions for classifying power outages."""
+
 import datetime
 import multiprocessing
 import typing
@@ -10,22 +12,35 @@ from plugins.base_plugin import MaukaPlugin
 BOX_STATUS_UP = "UP"
 BOX_STATUS_DOWN = "DOWN"
 
-epoch = datetime.datetime.utcfromtimestamp(0)
+EPOCH = datetime.datetime.utcfromtimestamp(0)
 
 
-def unix_time_millis(dt):
-    return (dt - epoch).total_seconds() * 1000.0
+def unix_time_millis(date_time: datetime) -> float:
+    """
+    Turns a datetime into milliseconds since epoch.
+    The datedate must already be in the timezone UTC.
+    :param date_time: The datetime to convert to epoch.
+    :return: The number of milliseconds since the epoch.
+    """
+    return (date_time - EPOCH).total_seconds() * 1000.0
 
 
 def is_unplugged(mongo_client: mongo.OpqMongoClient, box_id: str) -> bool:
+    """
+    Checks the mongo database to determine if a device is marked as unplugged or not.
+    :param mongo_client: An instance of a opq mongo client.
+    :param box_id: The id of the box to check for.
+    :return: Whether or not the box is unplugged. If a box can't be found or a value is not there then defaults True.
+    """
     opq_box = mongo_client.opq_boxes_collection.find_one({"box_id": box_id}, {"_id": False, "unplugged": True})
     if opq_box is None or len(opq_box) == 0:
-        return False
+        return True
     else:
         return opq_box["unplugged"]
 
 
 class OutagePlugin(MaukaPlugin):
+    """This plugin identifies power outages by keeping track of the health collection for box status."""
     NAME = "OutagePlugin"
 
     def __init__(self, config: typing.Dict,
