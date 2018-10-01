@@ -20,7 +20,7 @@
   "plugins.AcquisitionTriggerPlugin.msAfter": 1000,
   "plugins.AcquisitionTriggerPlugin.sDeadZoneAfterTrigger": 60,
 
-  "plugins.base.heartbeatIntervalS": 60.0,
+  "plugins.base.heartbeatIntervalS": 15.0,
 
   "plugins.IticPlugin.segment.threshold.rms": 0.01,
 
