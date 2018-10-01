@@ -37,10 +37,10 @@ def smooth_waveform(sample: numpy.ndarray, filter_order: int = 2, cutoff_frequen
     numerator, denominator = signal.butter(filter_order, cutoff_frequency_nyquist, output='ba')
 
     # Second, apply the filter
-    #return signal.filtfilt(b, a, sample)
+    # return signal.filtfilt(b, a, sample)
 
     dtltis = signal.dlti(numerator, denominator)
-    #decimate signal to improve runtime
+    # decimate signal to improve runtime
     return signal.decimate(sample, downsample_factor, ftype=dtltis)
 
 
@@ -101,6 +101,7 @@ def frequency(samples: numpy.ndarray, downsample_factor: int) -> float:
                        len(samples) / (constants.SAMPLE_RATE_HZ / downsample_factor),
                        1 / (constants.SAMPLE_RATE_HZ / downsample_factor))
     idx = idx[:len(samples)]
+
     def optimize_func(args):
         """
         Optimized the function for finding and fitting the frequency.
@@ -135,7 +136,8 @@ def frequency(samples: numpy.ndarray, downsample_factor: int) -> float:
 
 
 def frequency_waveform(waveform: numpy.ndarray, window_size: int,
-                       filter_order: int = 2, cutoff_frequency: float = 500.0, downsample_factor: int = 4) -> numpy.ndarray:
+                       filter_order: int = 2, cutoff_frequency: float = 500.0,
+                       downsample_factor: int = 4) -> numpy.ndarray:
     """
     Calculated frequency of a waveform using a given window size. In most cases, our window size should be the
     number of samples in a cycle.
@@ -222,14 +224,14 @@ class MakaiEventPlugin(plugins.base_plugin.MaukaPlugin):
                                                              event_id,
                                                              box_id,
                                                              protobuf.mauka_pb2.FREQUENCY_WINDOWED,
-                                                             frequency_waveform(waveform_calibrated,
-                                                                                self.frequency_window_cycles *
-                                                                                int(constants.SAMPLES_PER_CYCLE /
-                                                                                    self.frequency_downsample_factor),
-                                                                                filter_order=self.filter_order,
-                                                                                cutoff_frequency=self.cutoff_frequency,
-                                                                                downsample_factor=
-                                                                                self.frequency_downsample_factor),
+                                                             frequency_waveform(
+                                                                 waveform_calibrated,
+                                                                 self.frequency_window_cycles *
+                                                                 int(constants.SAMPLES_PER_CYCLE /
+                                                                     self.frequency_downsample_factor),
+                                                                 filter_order=self.filter_order,
+                                                                 cutoff_frequency=self.cutoff_frequency,
+                                                                 downsample_factor=self.frequency_downsample_factor),
                                                              start_timestamp,
                                                              end_timestamp)
 
