@@ -91,7 +91,7 @@ class OutagePlugin(MaukaPlugin):
 
                         # Update previous incident
                         self.mongo_client.incidents_collection.update_one({"incident_id": prev_incident_id},
-                                                                          {"$SET": {"end_timestamp_ms": timestamp}})
+                                                                          {"$set": {"end_timestamp_ms": timestamp}})
 
                         # Outage over
                         if status == BOX_STATUS_UP or (status == BOX_STATUS_DOWN and unplugged):
