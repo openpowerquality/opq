@@ -73,8 +73,8 @@ class EventOverview extends React.Component {
         </p>
         <p style={pStyle}>
           The event was initially detected by <span style={{ backgroundColor: '#c3edbb' }}>
-          Box {event.boxes_triggered[0]} at {location}</span>, with waveform data available for
-          {event.boxes_received.length - 1} other boxes.
+          Box {event.boxes_triggered[0]} at {location}</span>, with waveform data available
+          for {event.boxes_received.length - 1} other boxes.
         </p>
         <p style={pStyle}>
           The event has been classified as a <span style={{ backgroundColor: '#fcf9a9' }}>{event.type}</span>
