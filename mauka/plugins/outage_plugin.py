@@ -75,7 +75,7 @@ class OutagePlugin(MaukaPlugin):
                         if status == BOX_STATUS_DOWN and not unplugged:
                             incident_id = mongo.store_incident(-1,
                                                                box_id,
-                                                               timestamp,
+                                                               int(timestamp),
                                                                -1,
                                                                mongo.IncidentMeasurementType.HEALTH,
                                                                -1.0,
