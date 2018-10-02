@@ -41,12 +41,45 @@ class EventOverview extends React.Component {
         <Grid container stackable>
           <Grid.Column width={16}>
             <WidgetPanel title='Event Overview'>
+              {this.eventSummary()}
               {boxEvents.map(boxEvent => (
                   this.boxEventSegment(boxEvent)
               ))}
             </WidgetPanel>
           </Grid.Column>
         </Grid>
+    ) : '';
+  }
+
+  eventSummary() {
+    const { event, boxEvents } = this.state;
+    const date = event ? Moment(event.target_event_start_timestamp_ms).format('YYYY-MM-DD') : '';
+    const time = event ? Moment(event.target_event_start_timestamp_ms).format('HH:mm:ss') : '';
+    const duration_ms = event ? event.target_event_end_timestamp_ms - event.target_event_start_timestamp_ms : '';
+    let location = '';
+    if (event && boxEvents.length) {
+      const be = boxEvents.filter(boxEvent => boxEvent.box_id === event.boxes_triggered[0]).shift();
+      location = typeof be.location === 'string' ? be.location : be.location[be.location.length - 1].nickname;
+    }
+
+    const pStyle = { fontSize: '16px' };
+
+    return event ? (
+      <div style={{ marginLeft: '15px' }}>
+        <h1>Event Summary</h1>
+        <p style={pStyle}>
+          An event occurred on <span style={{ backgroundColor: '#b1d4ed' }}>{date} at {time}</span>, lasting for a
+          duration of {duration_ms} milliseconds.
+        </p>
+        <p style={pStyle}>
+          The event was initially detected by <span style={{ backgroundColor: '#c3edbb' }}>
+          Box {event.boxes_triggered[0]} at {location}</span>, with waveform data available for
+          {event.boxes_received.length - 1} other boxes.
+        </p>
+        <p style={pStyle}>
+          The event has been classified as a <span style={{ backgroundColor: '#fcf9a9' }}>{event.type}</span>
+        </p>
+      </div>
     ) : '';
   }
 
