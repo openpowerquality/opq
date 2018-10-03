@@ -5,11 +5,10 @@ use protobuf::Message;
 use std::collections::HashMap;
 use std::sync::Arc;
 use std::thread;
-use std::time::UNIX_EPOCH;
 use types::Window;
-use zmq::{Context, Socket, PUB, SNDMORE};
 use window_db::WindowDB;
-
+use zmq::{Context, Socket, PUB, SNDMORE};
+use util::unix_timestamp;
 struct MeasurementStat {
     pub min: f32,
     pub max: f32,
@@ -83,7 +82,6 @@ impl MeasurementDB {
 
     pub fn generate_window(&self, measurement: &mut Measurement) {
         for (name, stat) in self.measurements.iter() {
-
             measurement
                 .metrics
                 .insert(name.to_string(), stat.get_metric());
@@ -105,7 +103,11 @@ fn create_pub_socket(ctx: &Context, config: &Arc<State>) -> Socket {
     sub
 }
 
-pub fn run_filter(rx: Receiver<Window>, state: Arc<State>, window_db: Arc<WindowDB>) -> thread::JoinHandle<()> {
+pub fn run_filter(
+    rx: Receiver<Window>,
+    state: Arc<State>,
+    window_db: Arc<WindowDB>,
+) -> thread::JoinHandle<()> {
     thread::spawn(move || {
         let mut measurement_db = MeasurementDB::new();
 
@@ -121,14 +123,10 @@ pub fn run_filter(rx: Receiver<Window>, state: Arc<State>, window_db: Arc<Window
                 let mut measurement = Measurement::new();
                 measurement_db.generate_window(&mut measurement);
                 measurement.box_id = state.settings.box_id;
-                let since_the_epoch = window.time_stamp_ms.duration_since(UNIX_EPOCH).unwrap();
-                measurement.timestamp_ms = since_the_epoch.as_secs() * 1000
-                    + since_the_epoch.subsec_nanos() as u64 / 1_000_000;
+                measurement.timestamp_ms = unix_timestamp();
                 measurement_db.reset();
-                tx.send(
-                    format!("{:004}", state.settings.box_id).as_bytes(),
-                    SNDMORE,
-                ).unwrap();
+                tx.send(format!("{:004}", state.settings.box_id).as_bytes(), SNDMORE)
+                    .unwrap();
                 tx.send(&measurement.write_to_bytes().unwrap(), 0).unwrap();
             }
             window_db.add_window(window);

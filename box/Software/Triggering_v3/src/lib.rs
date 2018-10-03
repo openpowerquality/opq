@@ -24,4 +24,5 @@ pub mod opqbox3;
 pub mod plugin;
 pub mod plugin_manager;
 pub mod types;
+pub mod util;
 pub mod window_db;

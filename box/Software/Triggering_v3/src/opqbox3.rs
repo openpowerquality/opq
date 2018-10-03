@@ -3416,6 +3416,224 @@ impl ::protobuf::reflect::ProtobufValue for Response {
     }
 }
 
+#[derive(PartialEq,Clone,Default)]
+pub struct Cycle {
+    // message fields
+    pub datapoints: ::std::vec::Vec<i32>,
+    pub timestamp_ms: u64,
+    // special fields
+    unknown_fields: ::protobuf::UnknownFields,
+    cached_size: ::protobuf::CachedSize,
+}
+
+// see codegen.rs for the explanation why impl Sync explicitly
+unsafe impl ::std::marker::Sync for Cycle {}
+
+impl Cycle {
+    pub fn new() -> Cycle {
+        ::std::default::Default::default()
+    }
+
+    pub fn default_instance() -> &'static Cycle {
+        static mut instance: ::protobuf::lazy::Lazy<Cycle> = ::protobuf::lazy::Lazy {
+            lock: ::protobuf::lazy::ONCE_INIT,
+            ptr: 0 as *const Cycle,
+        };
+        unsafe {
+            instance.get(Cycle::new)
+        }
+    }
+
+    // repeated int32 datapoints = 1;
+
+    pub fn clear_datapoints(&mut self) {
+        self.datapoints.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_datapoints(&mut self, v: ::std::vec::Vec<i32>) {
+        self.datapoints = v;
+    }
+
+    // Mutable pointer to the field.
+    pub fn mut_datapoints(&mut self) -> &mut ::std::vec::Vec<i32> {
+        &mut self.datapoints
+    }
+
+    // Take field
+    pub fn take_datapoints(&mut self) -> ::std::vec::Vec<i32> {
+        ::std::mem::replace(&mut self.datapoints, ::std::vec::Vec::new())
+    }
+
+    pub fn get_datapoints(&self) -> &[i32] {
+        &self.datapoints
+    }
+
+    fn get_datapoints_for_reflect(&self) -> &::std::vec::Vec<i32> {
+        &self.datapoints
+    }
+
+    fn mut_datapoints_for_reflect(&mut self) -> &mut ::std::vec::Vec<i32> {
+        &mut self.datapoints
+    }
+
+    // uint64 timestamp_ms = 2;
+
+    pub fn clear_timestamp_ms(&mut self) {
+        self.timestamp_ms = 0;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_timestamp_ms(&mut self, v: u64) {
+        self.timestamp_ms = v;
+    }
+
+    pub fn get_timestamp_ms(&self) -> u64 {
+        self.timestamp_ms
+    }
+
+    fn get_timestamp_ms_for_reflect(&self) -> &u64 {
+        &self.timestamp_ms
+    }
+
+    fn mut_timestamp_ms_for_reflect(&mut self) -> &mut u64 {
+        &mut self.timestamp_ms
+    }
+}
+
+impl ::protobuf::Message for Cycle {
+    fn is_initialized(&self) -> bool {
+        true
+    }
+
+    fn merge_from(&mut self, is: &mut ::protobuf::CodedInputStream) -> ::protobuf::ProtobufResult<()> {
+        while !is.eof()? {
+            let (field_number, wire_type) = is.read_tag_unpack()?;
+            match field_number {
+                1 => {
+                    ::protobuf::rt::read_repeated_int32_into(wire_type, is, &mut self.datapoints)?;
+                },
+                2 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_uint64()?;
+                    self.timestamp_ms = tmp;
+                },
+                _ => {
+                    ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
+                },
+            };
+        }
+        ::std::result::Result::Ok(())
+    }
+
+    // Compute sizes of nested messages
+    #[allow(unused_variables)]
+    fn compute_size(&self) -> u32 {
+        let mut my_size = 0;
+        for value in &self.datapoints {
+            my_size += ::protobuf::rt::value_size(1, *value, ::protobuf::wire_format::WireTypeVarint);
+        };
+        if self.timestamp_ms != 0 {
+            my_size += ::protobuf::rt::value_size(2, self.timestamp_ms, ::protobuf::wire_format::WireTypeVarint);
+        }
+        my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
+        self.cached_size.set(my_size);
+        my_size
+    }
+
+    fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream) -> ::protobuf::ProtobufResult<()> {
+        for v in &self.datapoints {
+            os.write_int32(1, *v)?;
+        };
+        if self.timestamp_ms != 0 {
+            os.write_uint64(2, self.timestamp_ms)?;
+        }
+        os.write_unknown_fields(self.get_unknown_fields())?;
+        ::std::result::Result::Ok(())
+    }
+
+    fn get_cached_size(&self) -> u32 {
+        self.cached_size.get()
+    }
+
+    fn get_unknown_fields(&self) -> &::protobuf::UnknownFields {
+        &self.unknown_fields
+    }
+
+    fn mut_unknown_fields(&mut self) -> &mut ::protobuf::UnknownFields {
+        &mut self.unknown_fields
+    }
+
+    fn as_any(&self) -> &::std::any::Any {
+        self as &::std::any::Any
+    }
+    fn as_any_mut(&mut self) -> &mut ::std::any::Any {
+        self as &mut ::std::any::Any
+    }
+    fn into_any(self: Box<Self>) -> ::std::boxed::Box<::std::any::Any> {
+        self
+    }
+
+    fn descriptor(&self) -> &'static ::protobuf::reflect::MessageDescriptor {
+        ::protobuf::MessageStatic::descriptor_static(None::<Self>)
+    }
+}
+
+impl ::protobuf::MessageStatic for Cycle {
+    fn new() -> Cycle {
+        Cycle::new()
+    }
+
+    fn descriptor_static(_: ::std::option::Option<Cycle>) -> &'static ::protobuf::reflect::MessageDescriptor {
+        static mut descriptor: ::protobuf::lazy::Lazy<::protobuf::reflect::MessageDescriptor> = ::protobuf::lazy::Lazy {
+            lock: ::protobuf::lazy::ONCE_INIT,
+            ptr: 0 as *const ::protobuf::reflect::MessageDescriptor,
+        };
+        unsafe {
+            descriptor.get(|| {
+                let mut fields = ::std::vec::Vec::new();
+                fields.push(::protobuf::reflect::accessor::make_vec_accessor::<_, ::protobuf::types::ProtobufTypeInt32>(
+                    "datapoints",
+                    Cycle::get_datapoints_for_reflect,
+                    Cycle::mut_datapoints_for_reflect,
+                ));
+                fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeUint64>(
+                    "timestamp_ms",
+                    Cycle::get_timestamp_ms_for_reflect,
+                    Cycle::mut_timestamp_ms_for_reflect,
+                ));
+                ::protobuf::reflect::MessageDescriptor::new::<Cycle>(
+                    "Cycle",
+                    fields,
+                    file_descriptor_proto()
+                )
+            })
+        }
+    }
+}
+
+impl ::protobuf::Clear for Cycle {
+    fn clear(&mut self) {
+        self.clear_datapoints();
+        self.clear_timestamp_ms();
+        self.unknown_fields.clear();
+    }
+}
+
+impl ::std::fmt::Debug for Cycle {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
+        ::protobuf::text_format::fmt(self, f)
+    }
+}
+
+impl ::protobuf::reflect::ProtobufValue for Cycle {
+    fn as_ref(&self) -> ::protobuf::reflect::ProtobufValueRef {
+        ::protobuf::reflect::ProtobufValueRef::Message(self)
+    }
+}
+
 static file_descriptor_proto_data: &'static [u8] = b"\
     \n\ropqbox3.proto\x12\nopq.proto3\x1a\x0frustproto.proto\"F\n\x06Metric\
     \x12\x10\n\x03min\x18\x01\x20\x01(\x02R\x03min\x12\x10\n\x03max\x18\x02\
@@ -3459,7 +3677,9 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     \x06\x20\x01(\x0b2!.opq.proto3.GetDataResponseHeaderH\0R\x0fgetDataRespo\
     nse\x12f\n\x1acommand_to_plugin_response\x18\x07\x20\x01(\x0b2'.opq.prot\
     o3.SendCommandToPluginResponseH\0R\x17commandToPluginResponseB\n\n\x08re\
-    sponseB\x04\xc8\xa6\x08\x01b\x06proto3\
+    sponse\"J\n\x05Cycle\x12\x1e\n\ndatapoints\x18\x01\x20\x03(\x05R\ndatapo\
+    ints\x12!\n\x0ctimestamp_ms\x18\x02\x20\x01(\x04R\x0btimestampMsB\x04\
+    \xc8\xa6\x08\x01b\x06proto3\
 ";
 
 static mut file_descriptor_proto_lazy: ::protobuf::lazy::Lazy<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::lazy::Lazy {

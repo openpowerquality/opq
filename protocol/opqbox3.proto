@@ -83,6 +83,8 @@ message GetInfoResponse {
     uint32 measurement_rate = 7;
 }
 
+
+
 //Response to the set measurement rate command.
 message SetMeasurementRateResponse {
     //how many cycles we processed per measurement last time.
@@ -115,4 +117,9 @@ message Response {
         GetDataResponseHeader get_data_response = 6;
         SendCommandToPluginResponse command_to_plugin_response = 7;
     }
+}
+
+message Cycle {
+    repeated int32 datapoints = 1;
+    uint64 timestamp_ms = 2;
 }

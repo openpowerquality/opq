@@ -50,7 +50,8 @@ fn main() {
     let (sender_processing_to_filtering, receiver_processing_to_filtering) = channel::bounded(100);
     let (sender_cmd_to_processing, receiver_cmd_to_processing) = channel::bounded(100);
 
-    let cmd_processor = start_cmd_processor(sender_cmd_to_processing, Arc::clone(&config));
+    let cmd_processor =
+        start_cmd_processor(sender_cmd_to_processing, config.clone(), window_db.clone());
 
     let capture = start_capture(sender_capture_to_processing, Arc::clone(&config));
 
@@ -61,7 +62,11 @@ fn main() {
         Arc::clone(&config),
     );
 
-    let filter = run_filter(receiver_processing_to_filtering, Arc::clone(&config), Arc::clone(&window_db));
+    let filter = run_filter(
+        receiver_processing_to_filtering,
+        Arc::clone(&config),
+        Arc::clone(&window_db),
+    );
 
     cmd_processor.join().unwrap();
     capture.join().unwrap();
