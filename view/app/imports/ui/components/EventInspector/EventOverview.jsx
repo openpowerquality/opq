@@ -2,7 +2,9 @@ import { Meteor } from 'meteor/meteor';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { withTracker } from 'meteor/react-meteor-data';
-import { Button, Grid, Segment, List, Checkbox } from 'semantic-ui-react';
+import { Button, Grid, Segment, List, Checkbox, Popup, Icon } from 'semantic-ui-react';
+import { Map, TileLayer, ZoomControl } from 'react-leaflet';
+import OpqBoxLeafletMarkerManager from '../BoxMap/OpqBoxLeafletMarkerManager';
 import Moment from 'moment/moment';
 import Dygraph from 'dygraphs';
 import WidgetPanel from '../../layouts/WidgetPanel';
@@ -11,6 +13,7 @@ import { getBoxEvents } from '../../../api/box-events/BoxEventsCollection.method
 import { getEventData } from '../../../api/fs-files/FSFilesCollection.methods';
 import { getEventByEventID } from '../../../api/events/EventsCollection.methods';
 import { OpqBoxes } from '../../../api/opq-boxes/OpqBoxesCollection';
+import { Locations } from '../../../api/locations/LocationsCollection';
 
 /** Displays event details, including the waveform at the time of the event. */
 class EventOverview extends React.Component {
@@ -41,13 +44,52 @@ class EventOverview extends React.Component {
         <Grid container stackable>
           <Grid.Column width={16}>
             <WidgetPanel title='Event Overview'>
-              {this.eventSummary()}
+              <Grid container>
+                <Grid.Column width={12}>{this.eventSummary()}</Grid.Column>
+                <Grid.Column width={4}>{this.renderMap()}</Grid.Column>
+              </Grid>
               {boxEvents.map(boxEvent => (
                   this.boxEventSegment(boxEvent)
               ))}
             </WidgetPanel>
           </Grid.Column>
         </Grid>
+    ) : '';
+  }
+
+  renderMap() {
+    const { event, boxEvents } = this.state;
+    const { opqBoxes, locations } = this.props;
+
+    // Only display on map the OpqBoxes that are relevant to the Event.
+    const boxIds = boxEvents.map(be => be.box_id);
+    const boxes = opqBoxes.length ? opqBoxes.filter(box => boxIds.indexOf(box.box_id) > -1) : [];
+
+    // It seems that the dropdown menu from the navigation bar has a z-index of 11, which results in the menu clipping
+    // beneath the Leaflet map. We set the map's z-index to 10 to fix this.
+    const mapStyle = { height: '100%', zIndex: 10 };
+    const mapCenter = this.getBoxLocationCoords(event.boxes_triggered[0], opqBoxes, locations) || [21.44, -158.0];
+
+    return boxEvents.length ? (
+        <div ref={this.setMapDivRef}
+            style={{ height: '300px', width: '100%', boxShadow: '0 1px 2px 0 rgba(34,36,38,.15)',
+                      border: '1px solid rgba(34,36,38,.15)' }}>
+          <Map center={mapCenter}
+               zoom={18}
+               zoomControl={false} // We don't want the default topleft zoomcontrol
+               style={mapStyle}>
+            <TileLayer
+                attribution="&amp;copy <a href=&quot;http://osm.org/copyright&quot;>OpenStreetMap</a> contributors"
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            />
+            <ZoomControl position='topright' />
+            <OpqBoxLeafletMarkerManager
+                opqBoxes={boxes}
+                locations={locations}
+                boxMarkerLabelFunc={this.createBoxMarkerTrendsLabel}
+                ref={this.setOpqBoxLeafletMarkerManagerRef} />
+          </Map>
+        </div>
     ) : '';
   }
 
@@ -65,7 +107,7 @@ class EventOverview extends React.Component {
     const pStyle = { fontSize: '16px' };
 
     return event ? (
-      <div style={{ marginLeft: '15px' }}>
+      <div>
         <h1>Event Summary</h1>
         <p style={pStyle}>
           An event occurred on <span style={{ backgroundColor: '#b1d4ed' }}>{date} at {time}</span>, lasting for a
@@ -134,15 +176,23 @@ class EventOverview extends React.Component {
               </List>
             </Segment>
             <Segment>
-              <List>
+              <List floated='left'>
                 <List.Item>
                   <List.Icon name='marker' color='blue' size='large' verticalAlign='middle' />
                   <List.Content style={{ paddingLeft: '2px' }}>
                     <List.Header>Location</List.Header>
-                    <List.Description><i>{typeof location === 'string' ? location : location[location.length - 1].nickname}</i></List.Description>
+                    <List.Description><i>{this.getBoxLocationDescription(location, box_id)}</i></List.Description>
                   </List.Content>
                 </List.Item>
               </List>
+              <Popup
+                  trigger={
+                    <Button icon size='tiny' floated='right' onClick={this.handleZoomButtonClick(box_id)}>
+                      <Icon size='large' name='crosshairs' />
+                    </Button>
+                  }
+                  content='Zoom to box location'
+              />
             </Segment>
             <Segment>
               <p style={{ marginBottom: '0px' }}><b>Waveform</b></p>
@@ -186,6 +236,11 @@ class EventOverview extends React.Component {
         };
       }, () => this.createDygraph(this.getDygraphRef(box_id), boxEntry.dyPlotPoints, boxEntry.dyOptions));
     }
+  };
+
+  handleZoomButtonClick = box_id => () => {
+    this.mapDivElem.scrollIntoView();
+    this.opqBoxLeafletMarkerManagerRefElem.zoomToMarker(box_id);
   };
 
   /**
@@ -257,11 +312,60 @@ class EventOverview extends React.Component {
     });
   }
 
-  createDygraph = (dyDomElement, dyPlotPoints, dyPlotOptions) => {
+  getBoxLocationDoc(box_id, opqBoxes, locations) {
+    const opqBox = opqBoxes.filter(box => box.box_id === box_id).shift();
+    if (opqBox) {
+      const loc = locations.find(location => location && location.slug === opqBox.location);
+      return loc;
+      // return loc ? loc.coordinates.slice().reverse() : null;
+    }
+    return null;
+  }
+
+  getBoxLocationDescription(locationSlug, box_id) {
+    const { locations, opqBoxes } = this.props;
+
+    // LocationSlug should be a string. However, there is a bug in which BoxEvents.location is sometimes an array of
+    // (incorrect) historic location data. In these cases, we will simply retrieve the box's current location. Once
+    // Makai fixes this bug, we should probably remove this conditional.
+    if (typeof locationSlug !== 'string') {
+      const opqBox = opqBoxes.filter(box => box.box_id === box_id).shift();
+      if (opqBox) {
+        const location = locations.filter(loc => loc.slug === opqBox.location).shift();
+        return location ? location.description : null;
+      }
+    }
+
+    const location = locations.filter(loc => loc.slug === locationSlug).shift();
+    return location ? location.description : null;
+  }
+
+  getBoxLocationCoords(box_id, opqBoxes, locations) {
+    const location = this.getBoxLocationDoc(box_id, opqBoxes, locations);
+    return location ? location.coordinates.slice().reverse() : null;
+
+    // const opqBox = opqBoxes.filter(box => box.box_id === box_id).shift();
+    // if (opqBox) {
+    //   const loc = locations.find(location => location && location.slug === opqBox.location);
+    //   return loc ? loc.coordinates.slice().reverse() : null;
+    // }
+    // return null;
+  }
+
+  createDygraph(dyDomElement, dyPlotPoints, dyPlotOptions) {
     // Note: There's no real need to store the Dygraph instance itself. It's simpler to allow render() to create a new
     // instance each time the graph visibility is set to true.
     return new Dygraph(dyDomElement, dyPlotPoints, dyPlotOptions);
-  };
+  }
+
+  createBoxMarkerTrendsLabel(opqBoxDoc) {
+    return `
+      <div>
+        <b>${opqBoxDoc.name}</b>
+        <b>Box ID ${opqBoxDoc.box_id}</b>
+      </div>
+    `;
+  }
 
   /**
    * Ref methods
@@ -274,21 +378,40 @@ class EventOverview extends React.Component {
   };
 
   getDygraphRef = box_id => this[`dygraph_box_id_${box_id}`];
+
+  setOpqBoxLeafletMarkerManagerRef = elem => {
+    // Need to store the OpqBoxLeafletMarkerManager child component's ref instance so that we can call its
+    // zoomToMarker() method from this component.
+    if (elem) {
+      this.opqBoxLeafletMarkerManagerRefElem = elem;
+      console.log('leafletmarker elem: ', elem);
+      // elem.zoomToMarker('2');
+    }
+  };
+
+  setMapDivRef = elem => {
+    if (elem) this.mapDivElem = elem;
+  };
 }
 
 EventOverview.propTypes = {
   ready: PropTypes.bool.isRequired,
   event_id: PropTypes.number.isRequired,
+  opqBoxes: PropTypes.array.isRequired,
+  locations: PropTypes.array.isRequired,
   calibration_constants: PropTypes.object.isRequired,
 };
 
 export default withTracker((props) => {
-  const OpqBoxesSub = Meteor.subscribe(OpqBoxes.getPublicationName());
+  const locationsSub = Meteor.subscribe(Locations.getCollectionName());
+  const opqBoxesSub = Meteor.subscribe(OpqBoxes.getPublicationName());
   const opqBoxes = OpqBoxes.find().fetch();
 
   return {
-    ready: OpqBoxesSub.ready(),
+    ready: opqBoxesSub.ready() && locationsSub.ready(),
     event_id: Number(props.match.params.event_id),
+    opqBoxes,
+    locations: Locations.find().fetch(),
     calibration_constants: opqBoxes.length ? Object.assign(...OpqBoxes.find().fetch().map(box => (
                             { [box.box_id]: box.calibration_constant }
                         ))) : {},
