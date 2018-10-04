@@ -306,7 +306,7 @@ class EventOverview extends React.Component {
                 return dateString;
               },
               axisLabelFormatter: (timestamp) => Moment(timestamp).format('HH:mm:ss.SSS'),
-              pixelsPerLabel: 80,
+              pixelsPerLabel: 90,
             },
           },
         };
