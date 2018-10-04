@@ -39,7 +39,13 @@ class EventOverview extends React.Component {
    */
 
   render() {
-    const { boxEvents } = this.state;
+    const { event, boxEvents } = this.state;
+
+    // Separate BoxEvents, triggered vs boxes_receveid.
+    const triggeredBoxEvents = boxEvents.filter(be => event.boxes_triggered.indexOf(be.box_id) > -1);
+    const otherBoxEvents = boxEvents.filter(be => event.boxes_triggered.indexOf(be.box_id) === -1);
+
+
     return this.props.ready && !this.state.isLoading ? (
         <Grid container stackable>
           <Grid.Column width={16}>
@@ -47,10 +53,17 @@ class EventOverview extends React.Component {
               <Grid container>
                 <Grid.Column width={12}>{this.eventSummary()}</Grid.Column>
                 <Grid.Column width={4}>{this.renderMap()}</Grid.Column>
+                <Grid.Column width={16}>
+                  <h2>Triggered Boxes</h2>
+                  {triggeredBoxEvents.map(boxEvent => (
+                      this.boxEventSegment(boxEvent)
+                  ))}
+                  <h2>Other Boxes</h2>
+                  {otherBoxEvents.map(boxEvent => (
+                      this.boxEventSegment(boxEvent)
+                  ))}
+                </Grid.Column>
               </Grid>
-              {boxEvents.map(boxEvent => (
-                  this.boxEventSegment(boxEvent)
-              ))}
             </WidgetPanel>
           </Grid.Column>
         </Grid>
@@ -101,7 +114,7 @@ class EventOverview extends React.Component {
     let location = '';
     if (event && boxEvents.length) {
       const be = boxEvents.filter(boxEvent => boxEvent.box_id === event.boxes_triggered[0]).shift();
-      location = typeof be.location === 'string' ? be.location : be.location[be.location.length - 1].nickname;
+      location = this.getBoxLocationDescription(be.location, be.box_id);
     }
 
     const pStyle = { fontSize: '16px' };
@@ -129,7 +142,7 @@ class EventOverview extends React.Component {
     const { boxIdToWaveformDict } = this.state;
     const waveformVisible = boxIdToWaveformDict[box_id] && boxIdToWaveformDict[box_id].isVisible;
     return (
-        <Segment.Group key={box_id} style={{ marginLeft: '15px', marginRight: '15px' }}>
+        <Segment.Group key={box_id}>
           <Segment.Group horizontal>
             <Segment>
               <List>
@@ -384,8 +397,6 @@ class EventOverview extends React.Component {
     // zoomToMarker() method from this component.
     if (elem) {
       this.opqBoxLeafletMarkerManagerRefElem = elem;
-      console.log('leafletmarker elem: ', elem);
-      // elem.zoomToMarker('2');
     }
   };
 
