@@ -121,7 +121,7 @@ class EventOverview extends React.Component {
 
     return event ? (
       <div>
-        <h1>Event Summary</h1>
+        <h1>Event Summary (#{event.event_id})</h1>
         <p style={pStyle}>
           An event occurred on <span style={{ backgroundColor: '#b1d4ed' }}>{date} at {time}</span>, lasting for a
           duration of {duration_ms} milliseconds.
@@ -143,75 +143,84 @@ class EventOverview extends React.Component {
     const waveformVisible = boxIdToWaveformDict[box_id] && boxIdToWaveformDict[box_id].isVisible;
     return (
         <Segment.Group key={box_id}>
-          <Segment.Group horizontal>
-            <Segment>
-              <List>
-                <List.Item>
-                  <List.Icon name='hdd outline' color='blue' size='large' verticalAlign='middle' />
-                  <List.Content style={{ paddingLeft: '2px' }}>
-                    <List.Header>Box ID</List.Header>
-                    <List.Description><i>{box_id}</i></List.Description>
-                  </List.Content>
-                </List.Item>
-              </List>
-            </Segment>
-            <Segment>
-              <List>
-                <List.Item>
-                  <List.Icon name='hourglass start' color='blue' size='large' verticalAlign='middle' />
-                  <List.Content style={{ paddingLeft: '2px' }}>
-                    <List.Header>Start Time</List.Header>
-                    <List.Description><i>{Moment(event_start_timestamp_ms).format('YYYY-MM-DD HH:mm:ss.SSS')}</i></List.Description>
-                  </List.Content>
-                </List.Item>
-              </List>
-            </Segment>
-            <Segment>
-              <List>
-                <List.Item>
-                  <List.Icon name='hourglass end' color='blue' size='large' verticalAlign='middle' />
-                  <List.Content style={{ paddingLeft: '2px' }}>
-                    <List.Header>End Time</List.Header>
-                    <List.Description><i>{Moment(event_end_timestamp_ms).format('YYYY-MM-DD HH:mm:ss.SSS')}</i></List.Description>
-                  </List.Content>
-                </List.Item>
-              </List>
-            </Segment>
-            <Segment>
-              <List>
-                <List.Item>
-                  <List.Icon name='clock' color='blue' size='large' verticalAlign='middle' />
-                  <List.Content style={{ paddingLeft: '2px' }}>
-                    <List.Header>Duration (ms)</List.Header>
-                    <List.Description><i>{event_end_timestamp_ms - event_start_timestamp_ms}</i></List.Description>
-                  </List.Content>
-                </List.Item>
-              </List>
-            </Segment>
-            <Segment>
-              <List floated='left'>
-                <List.Item>
-                  <List.Icon name='marker' color='blue' size='large' verticalAlign='middle' />
-                  <List.Content style={{ paddingLeft: '2px' }}>
-                    <List.Header>Location</List.Header>
-                    <List.Description><i>{this.getBoxLocationDescription(location, box_id)}</i></List.Description>
-                  </List.Content>
-                </List.Item>
-              </List>
-              <Popup
-                  trigger={
-                    <Button icon size='tiny' floated='right' onClick={this.handleZoomButtonClick(box_id)}>
-                      <Icon size='large' name='crosshairs' />
-                    </Button>
-                  }
-                  content='Zoom to box location'
-              />
-            </Segment>
-            <Segment>
-              <p style={{ marginBottom: '0px' }}><b>Waveform</b></p>
-              <Checkbox toggle onClick={this.toggleWaveform(box_id)} />
-            </Segment>
-          </Segment.Group>
+          <Segment style={{ padding: '0px' }}>
+            <Grid celled='internally'>
+              <Grid.Row>
+                <Grid.Column width={2}>
+                  <List>
+                    <List.Item>
+                      <List.Icon name='hdd outline' color='blue' size='large' verticalAlign='middle' />
+                      <List.Content style={{ paddingLeft: '2px' }}>
+                        <List.Header>Box ID</List.Header>
+                        <List.Description><i>{box_id}</i></List.Description>
+                      </List.Content>
+                    </List.Item>
+                  </List>
+                </Grid.Column>
+
+                <Grid.Column width={3}>
+                  <List>
+                    <List.Item>
+                      <List.Icon name='hourglass start' color='blue' size='large' verticalAlign='middle' />
+                      <List.Content style={{ paddingLeft: '2px' }}>
+                        <List.Header>Start Time</List.Header>
+                        <List.Description><i>{Moment(event_start_timestamp_ms).format('YYYY-MM-DD HH:mm:ss.SSS')}</i></List.Description>
+                      </List.Content>
+                    </List.Item>
+                  </List>
+                </Grid.Column>
+
+                <Grid.Column width={3}>
+                  <List>
+                    <List.Item>
+                      <List.Icon name='hourglass end' color='blue' size='large' verticalAlign='middle' />
+                      <List.Content style={{ paddingLeft: '2px' }}>
+                        <List.Header>End Time</List.Header>
+                        <List.Description><i>{Moment(event_end_timestamp_ms).format('YYYY-MM-DD HH:mm:ss.SSS')}</i></List.Description>
+                      </List.Content>
+                    </List.Item>
+                  </List>
+                </Grid.Column>
+
+                <Grid.Column width={3}>
+                  <List>
+                    <List.Item>
+                      <List.Icon name='clock' color='blue' size='large' verticalAlign='middle' />
+                      <List.Content style={{ paddingLeft: '2px' }}>
+                        <List.Header>Duration (ms)</List.Header>
+                        <List.Description><i>{event_end_timestamp_ms - event_start_timestamp_ms}</i></List.Description>
+                      </List.Content>
+                    </List.Item>
+                  </List>
+                </Grid.Column>
+
+                <Grid.Column width={3}>
+                  <List floated='left'>
+                    <List.Item>
+                      <List.Icon name='marker' color='blue' size='large' verticalAlign='middle' />
+                      <List.Content style={{ paddingLeft: '2px' }}>
+                        <List.Header>Location</List.Header>
+                        <List.Description><i>{this.getBoxLocationDescription(location, box_id)}</i></List.Description>
+                      </List.Content>
+                    </List.Item>
+                  </List>
+                  <Popup
+                      trigger={
+                        <Button icon size='tiny' floated='right' onClick={this.handleZoomButtonClick(box_id)}>
+                          <Icon size='large' name='crosshairs' />
+                        </Button>
+                      }
+                      content='Zoom to box location'
+                  />
+                </Grid.Column>
+
+                <Grid.Column width={2}>
+                  <p style={{ marginBottom: '0px' }}><b>Waveform</b></p>
+                  <Checkbox toggle onClick={this.toggleWaveform(box_id)} />
+                </Grid.Column>
+              </Grid.Row>
+            </Grid>
+          </Segment>
           {waveformVisible &&
           <Segment>
             <div ref={this.setDygraphRef(box_id)} style={{ width: '100%', height: '200px' }}></div>
