@@ -209,7 +209,7 @@ def check_mauka(config):
         sleep(sleep_time)
 
 def generate_req_event_message():
-    current_t_ms = time()
+    current_t_ms = int(time() * 1000)
     req_message = protobuf.opq_pb2.RequestEventMessage()
 
     req_message.trigger_type = req_message.OTHER
