@@ -3,10 +3,12 @@ import { Meteor } from 'meteor/meteor';
 import { withTracker } from 'meteor/react-meteor-data';
 import PropTypes from 'prop-types';
 import { Loader, Dropdown, Button, Grid } from 'semantic-ui-react';
+import Lodash from 'lodash';
 
 import { BoxOwners } from '../../../api/users/BoxOwnersCollection';
 import WidgetPanel from '../../layouts/WidgetPanel';
 import LiveMeasurementDataDisplay from './LiveMeasurementDataDisplay';
+import { withRouterLocationStateAsProps } from '../BoxMap/hocs';
 
 class LiveMeasurementDataManager extends React.Component {
   constructor(props) {
@@ -25,6 +27,17 @@ class LiveMeasurementDataManager extends React.Component {
   
   <p>Measurements: Click on voltage and/or frequency</p>
   `;
+
+  componentDidMount() {
+    const { initialBoxIds } = this.props;
+    if (initialBoxIds && initialBoxIds.length) {
+      // This component can only work with one box_id at a time, so we select the first box_id in the array.
+      this.setState({
+        boxID: initialBoxIds[0],
+        measurements: ['frequency', 'voltage'],
+      });
+    }
+  }
 
   /** If the subscription(s) have been received, render the page, otherwise show a loading icon. */
   render() { return (this.props.ready) ? this.renderPage() : <Loader active>Detecting your boxes...</Loader>; }
@@ -77,13 +90,20 @@ class LiveMeasurementDataManager extends React.Component {
 LiveMeasurementDataManager.propTypes = {
   ready: PropTypes.bool.isRequired,
   boxIDs: PropTypes.array,
+  initialBoxIds: PropTypes.array,
 };
 
 /** withTracker connects Meteor data to React components. https://guide.meteor.com/react.html#using-withTracker */
-export default withTracker(() => {
+const withTrackerCallback = () => {
   const sub = Meteor.subscribe(BoxOwners.getPublicationName());
   return {
     ready: sub.ready(),
     boxIDs: Meteor.user() ? BoxOwners.findBoxIdsWithOwner(Meteor.user().username).sort() : undefined,
   };
-})(LiveMeasurementDataManager);
+};
+
+// Component/HOC composition
+export default Lodash.flowRight([
+  withTracker(withTrackerCallback),
+  withRouterLocationStateAsProps(['initialBoxIds']),
+])(LiveMeasurementDataManager);

@@ -1,0 +1,47 @@
+### Module positions - created on Thu Jul  5 02:11:29 2018 ###
+### Printed by Pcbnew version kicad 4.0.7
+## Unit = mm, Angle = deg.
+## Side : top
+# Ref     Val                 Package                                                  PosX       PosY       Rot  Side
+C1        0.1uF               C_0603_HandSoldering                                 168.4000   -84.2000   90.0000  top
+C2        0.1uF               C_0402                                               164.3300   -83.7600  180.0000  top
+C3        10uF                C_1210_HandSoldering                                 152.9540   -81.9440    0.0000  top
+C4        22uF                C_0805_HandSoldering                                 115.7500  -149.0000    0.0000  top
+C5        0.1uF               C_0603_HandSoldering                                 169.0000   -94.6000    0.0000  top
+C6        0.1uF               C_0402                                               149.5800   -96.0100  270.0000  top
+C7        22uF                C_0805_HandSoldering                                 115.7500  -156.2500    0.0000  top
+C8        0.1uF               C_0402                                               164.1000   -97.4000  180.0000  top
+C9        10uF                C_1210_HandSoldering                                 155.3300   -93.5100    0.0000  top
+C10       1uF                 C_0603_HandSoldering                                 138.1700  -121.1400    0.0000  top
+C11       1uF                 C_0603_HandSoldering                                 141.1700  -118.1400  270.0000  top
+C12       1uF                 C_0603_HandSoldering                                 142.6700  -110.8900  270.0000  top
+C13       0.1uF               C_0402                                               145.1700  -110.8900  270.0000  top
+C14       0.1uF               C_0402                                               160.4200  -126.3900    0.0000  top
+C15       0.1uF               C_0402                                               154.1700  -121.8900  180.0000  top
+C16       0.1uF               C_0402                                               152.4200  -109.1400   90.0000  top
+C17       0.1uF               C_0402                                               158.1700  -114.6400    0.0000  top
+C18       0.1uF               C_0402                                               148.6700  -108.8900    0.0000  top
+C19       0.01uF              C_0402                                               148.6700  -110.1400    0.0000  top
+C20       0.1uF               C_0402                                               158.1700  -115.6400    0.0000  top
+D1        LED                 LED_0603_HandSoldering                               143.3000  -152.1000   90.0000  top
+D2        LED                 LED_0603_HandSoldering                               149.3000  -152.0000   90.0000  top
+D3        LED                 LED_0603_HandSoldering                               146.3000  -152.0000   90.0000  top
+F1        62mA                Fuse_SMD1206_HandSoldering                           135.0000   -82.0000  270.0000  top
+L1        1uH                 L_Wuerth_MAPI-2512                                   115.7500  -152.5000  270.0000  top
+PSU2      ADUM5010ARSZ        SSOP-20_5.3x7.2mm_Pitch0.65mm                        147.0800   -90.0100   90.0000  top
+R3        665                 R_0402                                               165.3300   -82.0100   90.0000  top
+R4        665                 R_0402                                               162.0000   -83.7500  180.0000  top
+R5        30.9k               R_0402                                               147.9540   -81.9440  180.0000  top
+R6        10k                 R_0402                                               144.9540   -81.9440  180.0000  top
+R7        10k                 R_0402                                               147.8300   -95.5100  180.0000  top
+R8        665                 R_0402                                               164.7000   -95.8000   90.0000  top
+R9        665                 R_0402                                               163.2000   -95.8000   90.0000  top
+R11       68                  R_0402                                               143.3000  -148.0000   90.0000  top
+R12       68                  R_0402                                               149.3000  -148.0000   90.0000  top
+R13       68                  R_0402                                               146.3000  -148.0000   90.0000  top
+REG1      AP2120N-3.3TRG1     SOT-23                                               138.1700  -118.1400  180.0000  top
+U1        AMC1100DWV          SO-8_5.3x6.2mm_Pitch1.27mm                           163.8300   -90.0100  270.0000  top
+U2        FOX924B             Oscillator_SMD_TXC_7C-4pin_5.0x3.2mm_HandSoldering   160.4200  -122.3900   90.0000  top
+U3        ISL21010CFH333Z-TK  SOT-23                                               144.1700  -107.3900   90.0000  top
+U5        STM32F373CCT6       LQFP-48_7x7mm_Pitch0.5mm                             151.6700  -115.8900  180.0000  top
+## End

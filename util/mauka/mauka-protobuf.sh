@@ -8,8 +8,9 @@ OUTPUT_DIR=${BASE_DIR}/mauka/protobuf
 
 # Compile the latest
 protoc -I=${INPUT_DIR} --python_out=${OUTPUT_DIR} ${INPUT_DIR}/opq.proto
+protoc -I=${INPUT_DIR} --python_out=${OUTPUT_DIR} ${INPUT_DIR}/mauka.proto
 
 # Copy the latest for reference
-cp ${INPUT_DIR}/opq.proto ${OUTPUT_DIR}/.
+cp ${INPUT_DIR}/mauka.proto ${OUTPUT_DIR}/.
 
 set +o xtrace

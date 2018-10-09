@@ -33,9 +33,9 @@ class TrendsCollection extends BaseCollection {
       GET_RECENT_TRENDS: 'get_recent_trends',
       TRENDS_AFTER_TIMESTAMP: 'trends_after_timestamp',
     };
-    if (Meteor.server) {
-      this._collection.rawCollection().createIndex({ timestamp_ms: 1, box_id: 1 }, { background: true });
-    }
+    // if (Meteor.server) {
+    //   this._collection.rawCollection().createIndex({ timestamp_ms: 1, box_id: 1 }, { background: true });
+    // }
   }
 
   /**

@@ -1,7 +1,7 @@
 (export (version D)
   (design
     (source /home/david/src/opq/box/Schematics/v3/opqbox3.sch)
-    (date "Mon 09 Apr 2018 12:31:09 AM HST")
+    (date "Tue 24 Jul 2018 03:42:23 PM HST")
     (tool "Eeschema 4.0.7")
     (sheet (number 1) (name /) (tstamps /)
       (title_block
@@ -91,7 +91,7 @@
       (tstamp 5A829FBA))
     (comp (ref U1)
       (value AMC1100DWV)
-      (footprint SMD_Packages:SOIC-8-N)
+      (footprint opqbox3:AMC1100DWV)
       (libsource (lib opqbox3) (part AMC1100DWV))
       (sheetpath (names /power/) (tstamps /5A829EE9/))
       (tstamp 5A829FC5))
@@ -659,12 +659,12 @@
         (pin (num 1) (name ~) (type passive))
         (pin (num 2) (name ~) (type passive)))))
   (libraries
+    (library (logical device)
+      (uri /usr/share/kicad/library/device.lib))
     (library (logical conn)
       (uri /usr/share/kicad/library/conn.lib))
     (library (logical opqbox3)
-      (uri /home/david/src/opq/box/Schematics/v3/opqbox3.lib))
-    (library (logical device)
-      (uri /usr/share/kicad/library/device.lib)))
+      (uri /home/david/src/opq/box/Schematics/v3/opqbox3.lib)))
   (nets
     (net (code 1) (name /dsp/FLAG1)
       (node (ref J3) (pin 12))

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Card, Label, Loader, Header, List, Icon } from 'semantic-ui-react';
-import { withRouter, Link } from 'react-router-dom';
+import { withRouter } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import Moment from 'moment';
 import { Meteor } from 'meteor/meteor';
@@ -152,13 +152,16 @@ class BoxCard extends React.Component {
         {this.renderArchivedLocations(this.props.box.location_archive)}
         {this.renderBoxTrendStats(this.props.box.box_id, this.props.boxTrendStats)}
         {this.props.admin ? this.renderOwners(this.props.box.box_id) : ''}
-        <Card.Content extra>
-          <Link to={`/edit/${this.props.box.box_id}`}>Edit</Link>
-        </Card.Content>
       </Card>
     );
   }
 }
+
+/*
+  <Card.Content extra>
+     <Link to={`/edit/${this.props.box.box_id}`}>Edit</Link>
+   </Card.Content>
+*/
 
 
 BoxCard.propTypes = {

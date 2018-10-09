@@ -5,7 +5,6 @@ import argparse
 import importlib
 import inspect
 import json
-import logging
 import multiprocessing
 import os
 import readline
@@ -15,16 +14,17 @@ import typing
 
 import zmq
 
-_logger = logging.getLogger("app")
-logging.basicConfig(
-    format="[%(levelname)s][%(asctime)s][{} %(filename)s:%(lineno)s - %(funcName)s() ] %(message)s".format(
-        os.getpid()))
-_logger.setLevel(logging.DEBUG)
+import log
+
+# pylint: disable=C0103
+logger = log.get_logger(__name__)
+
 
 OK = "\033[1;32mOK\033[0;0m"
 ERROR = "\033[1;31mERROR\033[0;0m"
 
 
+# pylint: disable=C0103
 def ok(msg: str = "") -> str:
     """An ok response
 
@@ -52,21 +52,45 @@ def is_error(response: str) -> bool:
 
 
 class ArgumentParseError(Exception):
+    """
+    Creates a runtime exception with a custom name.
+    """
+
     pass
 
 
 class ThrowingArgumentParser(argparse.ArgumentParser):
+    """
+    Makes the parser throw.
+    """
+
     def error(self, message):
+        """
+        Throws an ArgumentParseError on error
+        :param message: Message to include in error message
+        """
         raise ArgumentParseError(message)
 
     def print_usage(self, file=None):
+        """
+        Throws an ArgumentParseError when usage is printed.
+        :param file: None
+        """
         raise ArgumentParseError(self.format_usage())
 
     def print_help(self, file=None):
+        """
+        Throws an ArgumentParseError when help is printed.
+        :param file: None
+        """
         raise ArgumentParseError(self.format_help())
 
 
 class MaukaCli:
+    """
+    Wrapper class that provides functionality for interacting with Mauka over the networked CLI.
+    """
+
     def __init__(self):
         super().__init__()
         self.cli_parser = ThrowingArgumentParser(prog="mauka-cli", add_help=False)
@@ -74,6 +98,14 @@ class MaukaCli:
         self.cmd_names = []
 
     def add_cmd(self, name: str, help_str: str, cmd_fn: typing.Callable, arg: str = None, arg_help: str = None):
+        """
+        Utility method for adding commands to this CLI.
+        :param name: Name of the command.
+        :param help_str: Help message for the command.
+        :param cmd_fn: Function to call when this command is issued.
+        :param arg: Argument name to the command.
+        :param arg_help: Argument help message to the command.
+        """
         self.cmd_names.append(name)
         cmd = self.cli_subparsers.add_parser(name, help=help_str)
         cmd.set_defaults(func=cmd_fn)
@@ -81,20 +113,46 @@ class MaukaCli:
             cmd.add_argument(arg, help=arg_help)
 
     def get_help(self):
+        """
+        :return: Help message.
+        """
         return self.cli_parser.format_help()
 
     def get_usage(self):
+        """
+        :return: Usage of this CLI.
+        """
         return self.cli_parser.format_usage()
 
     def parse(self, args: typing.List[str]) -> str:
+        """
+        Attempts to parse arguments provided on CLI.
+        :param args: The list of args to parse.
+        :return: The response.
+        """
         try:
             args = self.cli_parser.parse_args(args)
             if len(vars(args)) == 1:
                 return args.func()
-            else:
-                return args.func(args)
-        except ArgumentParseError as e:
-            return str(e)
+
+            return args.func(args)
+        except ArgumentParseError as err:
+            return str(err)
+
+
+def get_class(mod, class_name: str):
+    """Given a module, return a class from that module with the given name
+
+    :param mod: The module to search for the class in
+    :param class_name: The class name we are attempting to retrieve
+    :return: The class we are attempting to retrieve or None if the class DNE
+    """
+    for name_val in inspect.getmembers(mod, inspect.isclass):
+        name = name_val[0]
+        val = name_val[1]
+        if name == class_name:
+            return val
+        return None
 
 
 class PluginManager:
@@ -102,13 +160,13 @@ class PluginManager:
     This class provides facilities for managing (stopping, starting, loading, reloading) plugin subprocesses.
     """
 
-    def __init__(self, config: typing.Dict):
+    def __init__(self, mauka_config: typing.Dict):
         """Initializes the plugin manager
 
-        :param config: Configuration dictionary
+        :param mauka_config: Configuration dictionary
 
         """
-        self.config = config
+        self.config = mauka_config
         """Configuration dictionary"""
 
         self.name_to_plugin_class = {}
@@ -126,6 +184,8 @@ class PluginManager:
         self.zmq_context = zmq.Context()
         """ZeroMQ context"""
 
+        # noinspection PyUnresolvedReferences
+        # pylint: disable=E1101
         self.zmq_pub_socket = self.zmq_context.socket(zmq.PUB)
         """ZeroMQ publishing socket (allows publishing messages to plugins)"""
 
@@ -204,16 +264,16 @@ class PluginManager:
         :param plugin_name: Name of the plugin
         """
         if plugin_name not in self.name_to_plugin_class:
-            _logger.error("Plugin {} DNE".format(plugin_name))
+            logger.error("Plugin %s DNE", plugin_name)
             return
 
         if not self.name_to_enabled[plugin_name]:
-            _logger.error("Can not run disabled plugin")
+            logger.error("Can not run disabled plugin")
 
-        def _run_plugin(plugin_class, config: typing.Dict, exit_event: multiprocessing.Event):
+        def _run_plugin(plugin_class, plugin_config: typing.Dict, exit_event: multiprocessing.Event):
             """Inner function that acts as target to multiprocess constructor"""
-            plugin_instance = plugin_class(config, exit_event)
-            plugin_instance._run()
+            plugin_instance = plugin_class(plugin_config, exit_event)
+            plugin_instance.run_plugin()
 
         plugin_class = self.name_to_plugin_class[plugin_name]
         exit_event = multiprocessing.Event()
@@ -224,28 +284,25 @@ class PluginManager:
 
     def run_all_plugins(self):
         """Run all loaded and enabled plugins"""
-        _logger.info("Starting all plugins")
+        logger.info("Starting all plugins")
         for name in self.name_to_plugin_class:
             if self.name_to_enabled[name]:
                 self.run_plugin(name)
 
-    def get_class(self, mod, class_name: str):
-        """Given a module, return a class from that module with the given name
-
-        :param mod: The module to search for the class in
-        :param class_name: The class name we are attempting to retrieve
-        :return: The class we are attempting to retrieve or None if the class DNE
+    def exit(self):
         """
-        for name_val in inspect.getmembers(mod, inspect.isclass):
-            name = name_val[0]
-            val = name_val[1]
-            if name == class_name:
-                return val
-            return None
+        Exit without clean termination.
+        """
+        self.tcp_server_exit_event.set()
+        for _, process in self.name_to_process.items():
+            process.terminate()
 
     def clean_exit(self):
+        """
+        Attempts to shut down all Mauka plugins and cleanly exit
+        """
         # First, stop all the plugins
-        _logger.info("Stopping all plugins...")
+        logger.info("Stopping all plugins...")
         for plugin_name in self.name_to_plugin_class:
             self.zmq_pub_socket.send_multipart((plugin_name.encode(), "EXIT".encode()))
             if plugin_name in self.name_to_exit_event:
@@ -254,53 +311,64 @@ class PluginManager:
         time.sleep(2.5)
 
         # Next, stop the tcp server
-        _logger.info("Stopping tcp server...")
+        logger.info("Stopping tcp server...")
         self.tcp_server_exit_event.set()
 
-    def start_tcp_server(self):
+    def start_tcp_server(self, blocking: bool = True):
         """Starts a TCP server backed by ZMQ. This server is connected to my out cli client"""
-        # def _start_tcp_server():
-        _logger.info("Starting plugin manager TCP server")
-        zmq_context = zmq.Context()
-        zmq_reply_socket = zmq_context.socket(zmq.REP)
-        zmq_reply_socket.bind(self.config["zmq.mauka.plugin.management.rep.interface"])
-        zmq_reply_socket.setsockopt(zmq.RCVTIMEO, 1)
 
-        while not self.tcp_server_exit_event.is_set():
-            try:
-                request = zmq_reply_socket.recv_string()
-                _logger.debug("Recv req {}".format(request))
+        # noinspection PyUnresolvedReferences
+        # pylint: disable=E1101
+        def _start_tcp_server():
+            logger.info("Starting plugin manager TCP server")
+            zmq_context = zmq.Context()
+            zmq_reply_socket = zmq_context.socket(zmq.REP)
+            zmq_reply_socket.bind(self.config["zmq.mauka.plugin.management.rep.interface"])
+            zmq_reply_socket.setsockopt(zmq.RCVTIMEO, 1)
 
-                if request.strip() == "stop-tcp-server":
-                    resp = ok("Stopping TCP server")
-                    zmq_reply_socket.send_string(resp)
-                    self.tcp_server_exit_event.set()
-                    break
+            while not self.tcp_server_exit_event.is_set():
+                try:
+                    request = zmq_reply_socket.recv_string()
+                    logger.debug("Recv req %s", request)
 
-                zmq_reply_socket.send_string(self.handle_tcp_request(request))
-            except zmq.error.Again:
-                continue
+                    if request.strip() == "stop-tcp-server":
+                        resp = ok("Stopping TCP server")
+                        zmq_reply_socket.send_string(resp)
+                        self.tcp_server_exit_event.set()
+                        break
 
-        _logger.info("Stopping plugin manager TCP server")
+                    zmq_reply_socket.send_string(self.handle_tcp_request(request))
+                except zmq.error.Again:
+                    continue
 
-        # process = multiprocessing.Process(target=_start_tcp_server)
-        # process.start()
-        # return process
+            logger.info("Stopping plugin manager TCP server")
+
+        if blocking:
+            _start_tcp_server()
+        else:
+            process = multiprocessing.Process(target=_start_tcp_server)
+            process.start()
+            return process
 
     def handle_tcp_request(self, request: str) -> str:
+        """
+        Receives and handles a TCP request.
+        :param request: The request string (space delimited)
+        :return: Response.
+        """
         return self.cli_parser.parse(request.split(" "))
 
     def cli_completions(self) -> str:
         """
         Returns a list of completable commands.
         """
-        r = []
+        completions = []
         for cmd_name in self.cli_parser.cmd_names:
-            r.append(cmd_name)
+            completions.append(cmd_name)
         for plugin_name in self.name_to_plugin_class:
-            r.append(plugin_name)
+            completions.append(plugin_name)
 
-        return ",".join(r)
+        return ",".join(completions)
 
     def cli_disable_plugin(self, args) -> str:
         """Disables the given plugin
@@ -350,18 +418,20 @@ class PluginManager:
 
         Plugins need to be restarted to take advantage of new values
 
-        :param config_path: Path to configuration file
+        :param args: List of possible args
         :return: Server response
         """
-        config_path = args.config_path
-        if not os.path.isfile(config_path):
-            return error("Path {} DNE".format(config_path))
+        path = args.config_path
+        if not os.path.isfile(path):
+            return error("Path {} DNE".format(path))
 
         try:
-            self.config = load_config(config_path)
-            return ok("Configuration loaded from {}".format(config_path))
-        except Exception as e:
-            return error("Exception occurred while loading config: {}".format(e))
+            self.config = load_config(path)
+            return ok("Configuration loaded from {}".format(path))
+        except FileNotFoundError as err:
+            return error("Could not load file: {}".format(err))
+        except json.JSONDecodeError as json_err:
+            return error("Could not parse json file {}".format(json_err))
 
     def cli_load_plugin(self, args) -> str:
         """Attempts to load the given plugin from the plugins directory.
@@ -383,12 +453,12 @@ class PluginManager:
             self.cli_unload_plugin(plugin_name)
             mod = sys.modules[module_name]
             importlib.reload(mod)
-            self.register_plugin(self.get_class(mod, plugin_name))
+            self.register_plugin(get_class(mod, plugin_name))
             return ok("Plugin {} reloaded".format(plugin_name))
 
         importlib.invalidate_caches()
         mod = importlib.import_module(module_name)
-        self.register_plugin(self.get_class(mod, plugin_name))
+        self.register_plugin(get_class(mod, plugin_name))
         return ok("Plugin {} loaded".format(plugin_name))
 
     def cli_list_plugins(self) -> str:
@@ -464,9 +534,9 @@ class PluginManager:
         chained_resp = "{} {}".format(stop_resp, start_resp)
 
         if is_error(stop_resp) or is_error(start_resp):
-            return error("{} ".format(plugin_name, chained_resp))
-        else:
-            return ok("Restarted {}. {}".format(plugin_name, chained_resp))
+            return error("{} {}".format(plugin_name, chained_resp))
+
+        return ok("Restarted {}. {}".format(plugin_name, chained_resp))
 
     def cli_unload_plugin(self, args) -> str:
         """Unload the given plugin
@@ -495,7 +565,18 @@ class PluginManager:
 
 # http://eli.thegreenplace.net/2016/basics-of-using-the-readline-library/
 def make_completer(vocabulary):
+    """
+    Read line completer factory.
+    :param vocabulary: Values to use in completer.
+    :return: Completer.
+    """
     def custom_complete(text, state):
+        """
+        Custom readline completer.
+        :param text: Text.
+        :param state: State.
+        :return: Completer.
+        """
         # None is returned for the end of the completion session.
         results = [x for x in vocabulary if x.startswith(text)] + [None]
         # A space is added to the completion since the Python readline doesn't
@@ -506,14 +587,16 @@ def make_completer(vocabulary):
     return custom_complete
 
 
-def run_cli(config: typing.Dict):
+def run_cli(cli_config: typing.Dict):
     """Starts the REPL and sends commands to the plugin manager over TCP using ZMQ
 
-    :param config: Configuration dictionary
+    :param cli_config: Configuration dictionary
     """
     zmq_context = zmq.Context()
+    # noinspection PyUnresolvedReferences
+    # pylint: disable=E1101
     zmq_request_socket = zmq_context.socket(zmq.REQ)
-    zmq_request_socket.connect(config["zmq.mauka.plugin.management.req.interface"])
+    zmq_request_socket.connect(cli_config["zmq.mauka.plugin.management.req.interface"])
     prompt = "opq-mauka> "
 
     try:
@@ -526,7 +609,7 @@ def run_cli(config: typing.Dict):
             cmd = input(prompt).strip()
 
             if cmd == "exit":
-                _logger.info("Exiting mauka-cli")
+                logger.info("Exiting mauka-cli")
                 sys.exit(0)
 
             if cmd == "completions":
@@ -534,13 +617,13 @@ def run_cli(config: typing.Dict):
                 completions = zmq_request_socket.recv_string()
                 vocabulary = set(completions.split(","))
                 readline.set_completer(make_completer(vocabulary))
-                _logger.debug(ok("Completions updated"))
+                logger.debug(ok("Completions updated"))
                 continue
 
             zmq_request_socket.send_string(cmd.strip())
-            _logger.debug(zmq_request_socket.recv_string())
-    except (EOFError, KeyboardInterrupt) as e:
-        _logger.info("Exiting mauka-cli")
+            logger.debug(zmq_request_socket.recv_string())
+    except (EOFError, KeyboardInterrupt):
+        logger.info("Exiting mauka-cli")
         sys.exit(0)
 
 
@@ -550,22 +633,22 @@ def load_config(path: str) -> typing.Dict:
     :param path: Path of configuration file
     :return: Configuration dictionary
     """
-    _logger.info("Loading configuration from {}".format(path))
+    logger.info("Loading configuration from %s", path)
     try:
-        with open(path, "r") as f:
-            return json.load(f)
-    except FileNotFoundError as e:
-        _logger.error(e)
-        _logger.error("usage: python3 -m plugins.manager config.json")
+        with open(path, "r") as config_file:
+            return json.load(config_file)
+    except FileNotFoundError as err:
+        logger.error(err)
+        logger.error("usage: python3 -m plugins.manager config.json")
         exit(0)
 
 
 if __name__ == "__main__":
-    """Entry point to plugin manager repl/cli"""
-    _logger.info("Starting OpqMauka CLI")
+    # Entry point to plugin manager repl/cli
+    logger.info("Starting OpqMauka CLI")
     if len(sys.argv) <= 1:
-        _logger.error("Configuration file not supplied")
-        _logger.error("usage: python3 -m plugins.manager config.json")
+        logger.error("Configuration file not supplied")
+        logger.error("usage: python3 -m plugins.manager config.json")
         exit(0)
 
     config_path = sys.argv[1]

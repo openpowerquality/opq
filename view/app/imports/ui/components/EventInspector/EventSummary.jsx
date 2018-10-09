@@ -10,8 +10,8 @@ import {
 import { TimeRange, TimeSeries } from 'pondjs';
 import { CSVLink } from 'react-csv';
 
-import { getBoxEvent } from '../../../api/box-events/BoxEventsCollectionMethods';
-import { getEventData } from '../../../api/fs-files/FSFilesCollectionMethods';
+import { getBoxEvent } from '../../../api/box-events/BoxEventsCollection.methods';
+import { getEventData } from '../../../api/fs-files/FSFilesCollection.methods';
 import { OpqBoxes } from '../../../api/opq-boxes/OpqBoxesCollection';
 
 /** Displays event details, including the waveform at the time of the event. */

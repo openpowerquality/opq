@@ -1,7 +1,7 @@
 import { Meteor } from 'meteor/meteor';
 import { Accounts } from 'meteor/accounts-base';
 import { Roles } from 'meteor/alanning:roles';
-import { _ } from 'lodash';
+import { _ } from 'underscore';
 import SimpleSchema from 'simpl-schema';
 import BaseCollection from '../base/BaseCollection';
 import { BoxOwners } from './BoxOwnersCollection';
@@ -21,6 +21,13 @@ class UserProfilesCollection extends BaseCollection {
       firstName: String,
       lastName: String,
       role: String,
+      phone: { type: String, optional: true },
+      notification_preferences: { type: Object, optional: true },
+      'notification_preferences.text': { type: Boolean, optional: true },
+      'notification_preferences.email': { type: Boolean, optional: true },
+      'notification_preferences.max_per_day': { type: String, optional: true },
+      'notification_preferences.notification_types': { type: Array, optional: true },
+        'notification_preferences.notification_types.$': { type: String, blackbox: true },
     }));
   }
 
@@ -33,9 +40,13 @@ class UserProfilesCollection extends BaseCollection {
    * @param {String} lastName - The user's last name.
    * @param {String} role - The role of the user: either 'admin' or 'user'.
    * @param {[Number]} boxIds - An array of Strings containing the IDs of the boxes that can be managed by this user.
+   * @param {String} phone - The user's phone number concatenated with user's provider.
+   * @param {String} notification_preferences - The user's preferences on how they are notified
+   * and which notification types they want to receive.
    */
   // eslint-disable-next-line class-methods-use-this
-  define({ username, password, firstName, lastName, boxIds = [], role = 'user' }) {
+  define({ username, password, firstName, lastName, boxIds = [], role = 'user',
+           phone, notification_preferences }) {
     if (Meteor.isServer) {
 
       OpqBoxes.assertValidBoxIds(boxIds);
@@ -55,7 +66,15 @@ class UserProfilesCollection extends BaseCollection {
       }
 
       // Create or modify the UserProfiles document associated with this username.
-      this._collection.upsert({ username }, { $set: { firstName, lastName, role } });
+      this._collection.upsert({ username }, {
+        $set: {
+          firstName,
+          lastName,
+          role,
+          phone,
+          notification_preferences,
+        },
+      });
       const profileId = this.findOne({ username })._id;
 
       // Set the role using the Roles package. This makes it easier to do Role-based decisions on client.
@@ -99,6 +118,17 @@ class UserProfilesCollection extends BaseCollection {
   }
 
   /**
+   * Returns a list of all of the currently defined usernames.
+   * @param sort If truthy, then sort the list before returning.
+   * @returns {*} A list of strings, each one corresponding to a username.
+   */
+  findUsernames(sort = false) {
+    const docs = this._collection.find({}).fetch();
+    const usernames = _.pluck(docs, 'username');
+    return (sort) ? _.sortBy(usernames, username => username.toLowerCase()) : usernames;
+  }
+
+  /**
    * Updates the User Profile (firstName, lastName, boxIds).
    * Runs on server side only. Only admins should update the user profile to control box ownership.
    * @param id Must be a valid UserProfile docID.
@@ -119,6 +149,12 @@ class UserProfilesCollection extends BaseCollection {
       if (args.boxIds) {
         this.assertValidBoxIds(args.boxIds);
         this._updateBoxIds(userProfileDoc.username, args.boxIds);
+      }
+      if (args.phone) {
+        updateData.phone = args.phone;
+      }
+      if (args.notification_preferences) {
+        updateData.notification_preferences = args.notification_preferences;
       }
       this._collection.update(docID, { $set: updateData });
       return updateData;
@@ -163,6 +199,23 @@ class UserProfilesCollection extends BaseCollection {
       _.forEach(userProfiles, (profile) => instance.remove(profile.username));
     }
     return true;
+  }
+
+  /**
+   * Checks user's preferred way of receiving notifications and returns array of email addresses
+   * Notifications can be received through text message and email
+   * @param user {Object}
+   * @returns {Array}
+   */
+  getRecipients(user) {
+    const recipients = [];
+    if (user.notification_preferences.text === true && user.phone !== undefined) {
+      recipients.push(user.phone);
+    }
+    if (user.notification_preferences.email === true) {
+      recipients.push(user.username);
+    }
+    return recipients;
   }
 }
 

@@ -4,10 +4,12 @@ import { withTracker } from 'meteor/react-meteor-data';
 import PropTypes from 'prop-types';
 import { Dropdown, Button, Grid } from 'semantic-ui-react';
 import Moment from 'moment';
+import Lodash from 'lodash';
 
 import { BoxOwners } from '../../../api/users/BoxOwnersCollection';
 import WidgetPanel from '../../layouts/WidgetPanel';
 import LiveTrendDataDisplay from './LiveTrendDataDisplay';
+import { withRouterLocationStateAsProps } from '../BoxMap/hocs';
 
 class LiveTrendDataManager extends React.Component {
   constructor(props) {
@@ -31,6 +33,17 @@ class LiveTrendDataManager extends React.Component {
   
   <p>Measurements: select voltage, frequency, and/or THD.</p>
   `;
+
+  componentDidMount() {
+    const { initialBoxIds } = this.props;
+    if (initialBoxIds && initialBoxIds.length) {
+      this.setState({
+        boxIDs: initialBoxIds,
+        length: 'hours',
+        measurements: ['frequency', 'thd', 'voltage'],
+      });
+    }
+  }
 
   /** If the subscription(s) have been received, render the page, otherwise show nothing. */
   render() { return (this.props.ready) ? this.renderPage() : ''; }
@@ -103,13 +116,20 @@ class LiveTrendDataManager extends React.Component {
 LiveTrendDataManager.propTypes = {
   ready: PropTypes.bool.isRequired,
   boxIDs: PropTypes.array,
+  initialBoxIds: PropTypes.array,
 };
 
 /** withTracker connects Meteor data to React components. https://guide.meteor.com/react.html#using-withTracker */
-export default withTracker(() => {
+const withTrackerCallback = () => {
   const sub = Meteor.subscribe(BoxOwners.getPublicationName());
   return {
     ready: sub.ready(),
     boxIDs: Meteor.user() ? BoxOwners.findBoxIdsWithOwner(Meteor.user().username).sort() : undefined,
   };
-})(LiveTrendDataManager);
+};
+
+// Component/HOC composition
+export default Lodash.flowRight([
+  withTracker(withTrackerCallback),
+  withRouterLocationStateAsProps(['initialBoxIds']),
+])(LiveTrendDataManager);

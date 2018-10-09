@@ -1,3 +1,4 @@
 .idea/
 *.iml
 deploy/*.gz
+settings.production.json
