@@ -4,7 +4,7 @@
 #include <zmqpp/zmqpp.hpp>
 
 #include "json.hpp"
-#include "opq.pb.h"
+#include "opqbox3.pb.h"
 
 using namespace std;
 using json = nlohmann::json;
@@ -55,12 +55,17 @@ int main(int argc, char** argv) {
 
     while (true) {
         auto msg = zmqpp::message{};
+	// Block
         sub.receive(msg);
-        opq::proto::TriggerMessage tm;
-        tm.ParseFromString(msg.get(1));
-        cout << msg.get(0) << " " << tm.time() << " " << tm.rms() << " " <<tm.frequency();
-	if(tm.has_thd())
-		cout << " " << tm.thd()*100;
+        opq::proto3::Measurement m;
+        m.ParseFromString(msg.get(1));
+
+	cout << msg.get(0); // Box ID
+        cout << " " << m.timestamp_ms();
+	auto map = m.metrics();
+	for (auto& pair : map) {
+		cout << " " << pair.first << ": " << pair.second;
+	}
 	cout << endl;
     }
 }

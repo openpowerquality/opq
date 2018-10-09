@@ -19,6 +19,7 @@ import plugins.status_plugin
 import plugins.thd_plugin
 import plugins.voltage_threshold_plugin
 import plugins.ieee1159_voltage_plugin
+import plugins.semi_f47_plugin
 import services.brokers
 import services.plugin_manager
 
@@ -69,6 +70,7 @@ def main():
     plugin_manager.register_plugin(plugins.itic_plugin.IticPlugin)
     plugin_manager.register_plugin(plugins.frequency_variation_plugin.FrequencyVariationPlugin)
     plugin_manager.register_plugin(plugins.ieee1159_voltage_plugin.Ieee1159VoltagePlugin)
+    plugin_manager.register_plugin(plugins.semi_f47_plugin.SemiF47Plugin)
 
     broker_process = services.brokers.start_mauka_pub_sub_broker(config)
     makai_bridge_process = services.brokers.start_makai_bridge(config)

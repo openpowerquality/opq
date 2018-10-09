@@ -22,6 +22,7 @@ class UserProfilesCollection extends BaseCollection {
       lastName: String,
       role: String,
       phone: { type: String, optional: true },
+      unseen_notifications: { type: Boolean, optional: true },
       notification_preferences: { type: Object, optional: true },
       'notification_preferences.text': { type: Boolean, optional: true },
       'notification_preferences.email': { type: Boolean, optional: true },
@@ -42,11 +43,13 @@ class UserProfilesCollection extends BaseCollection {
    * @param {[Number]} boxIds - An array of Strings containing the IDs of the boxes that can be managed by this user.
    * @param {String} phone - The user's phone number concatenated with user's provider.
    * @param {String} notification_preferences - The user's preferences on how they are notified
-   * and which notification types they want to receive.
+   *    and which notification types they want to receive.
+   * @param {Boolean} unseen_notifications - True if user receives new notifications.
+   *    false once notification viewer component is opened
    */
   // eslint-disable-next-line class-methods-use-this
   define({ username, password, firstName, lastName, boxIds = [], role = 'user',
-           phone, notification_preferences }) {
+           phone, notification_preferences, unseen_notifications = false }) {
     if (Meteor.isServer) {
 
       OpqBoxes.assertValidBoxIds(boxIds);
@@ -73,6 +76,7 @@ class UserProfilesCollection extends BaseCollection {
           role,
           phone,
           notification_preferences,
+          unseen_notifications,
         },
       });
       const profileId = this.findOne({ username })._id;
@@ -117,6 +121,22 @@ class UserProfilesCollection extends BaseCollection {
     throw new Meteor.Error(`Could not find profile corresponding to ${username}`);
   }
 
+
+  /**
+   * Returns the profile document corresponding to id, or throws error if not found.
+   * @param id
+   * @returns {Object} The profile document.
+   * @throws { Meteor.Error } If the profile document does not exist for this id.
+   */
+  findByID(userID) {
+    const id = new Meteor.Collection.ObjectID(userID);
+    const profile = this._collection.findOne({ _id: id }, {});
+    if (profile) {
+      return profile;
+    }
+    throw new Meteor.Error(`Could not find profile corresponding to ${id}`);
+  }
+
   /**
    * Returns a list of all of the currently defined usernames.
    * @param sort If truthy, then sort the list before returning.
@@ -147,7 +167,7 @@ class UserProfilesCollection extends BaseCollection {
         updateData.lastName = args.lastName;
       }
       if (args.boxIds) {
-        this.assertValidBoxIds(args.boxIds);
+        OpqBoxes.assertValidBoxIds(args.boxIds);
         this._updateBoxIds(userProfileDoc.username, args.boxIds);
       }
       if (args.phone) {
@@ -155,6 +175,9 @@ class UserProfilesCollection extends BaseCollection {
       }
       if (args.notification_preferences) {
         updateData.notification_preferences = args.notification_preferences;
+      }
+      if (args.unseen_notifications) {
+        updateData.unseen_notifications = args.unseen_notifications;
       }
       this._collection.update(docID, { $set: updateData });
       return updateData;
@@ -207,7 +230,8 @@ class UserProfilesCollection extends BaseCollection {
    * @param user {Object}
    * @returns {Array}
    */
-  getRecipients(user) {
+  getRecipients(docID) {
+    const user = this._collection.findOne(docID);
     const recipients = [];
     if (user.notification_preferences.text === true && user.phone !== undefined) {
       recipients.push(user.phone);

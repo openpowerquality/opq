@@ -155,7 +155,7 @@ def get_waveform(mongo_client: OpqMongoClient, data_fs_filename: str) -> numpy.n
     :return: The waveform stored at data_fs_filename as a numpy array.
     """
     data = mongo_client.read_file(data_fs_filename)
-    waveform = to_s16bit(data)
+    waveform = to_s16bit(data).astype(numpy.int64)
     return waveform
 
 
@@ -303,7 +303,7 @@ def store_incident(event_id: int,
     incident_start_idx = int(max(0, round(analysis.ms_to_samples(delta_start_ms)) - constants.SAMPLES_PER_MILLISECOND))
     incident_end_idx = int(min(len(event_adc_samples),
                                round(analysis.ms_to_samples(delta_end_ms)) + constants.SAMPLES_PER_MILLISECOND))
-    incident_adc_samples_bytes = event_adc_samples[incident_start_idx:incident_end_idx].tobytes()
+    incident_adc_samples_bytes = event_adc_samples[incident_start_idx:incident_end_idx].astype(numpy.int16).tobytes()
 
     ieee_duration = get_ieee_duration(end_timestamp_ms - start_timestamp_ms).value
     location = get_location(box_id, mongo_client)

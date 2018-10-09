@@ -72,7 +72,7 @@ class NotificationManager extends React.Component {
         <WidgetPanel title='Manage Notifications' helpText={this.helpText} noPadding>
           <AutoForm schema={formSchema} onChange={this.revealSaveButton} onSubmit={this.submit}
                     model={this.props.doc} style={paddedStyle}>
-            <Grid padded columns={3} stackable celled='internally'>
+            <Grid padded columns={3} stackable celled='internally' id='ntf-settings'>
               <Grid.Column>
                 <Grid.Row>
                   <Header style={headerStyle} size='tiny'>My Notifications:</Header>
@@ -93,12 +93,12 @@ class NotificationManager extends React.Component {
                 </Grid.Row>
                 <AutoField name='notification_preferences.text'/>
                 <AutoField name='notification_preferences.email'/>
+                <Button size='mini' content='Send a test message' onClick={this.handleOpen}/>
               </Grid.Column>
               {this.state.formChange ? (
                   <Grid.Row>
                     <Grid.Column>
                       <SubmitField value='Save changes' className='green mini'/>
-                      <Button size='mini' content='Send a test message' onClick={this.handleOpen}/>
                     </Grid.Column>
                   </Grid.Row>
               ) : ''}
@@ -125,7 +125,7 @@ class NotificationManager extends React.Component {
 
   /** Sends an email to user's updated recipients */
   messageTest = () => {
-    const recipients = UserProfiles.getRecipients(this.props.doc);
+    const recipients = UserProfiles.getRecipients(this.props.doc._id);
     sendTestEmail.call({ recipients }, (error) => (error ?
         Bert.alert({ type: 'danger', style: 'growl-bottom-left', message: `Message send failed: ${error.message}` }) :
         Bert.alert({ type: 'success', style: 'growl-bottom-left', message: 'Message sent' })));
