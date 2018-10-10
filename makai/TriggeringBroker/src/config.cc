@@ -22,6 +22,7 @@ Config::Config(string fname) {
         _private_cert = j["server_cert"].get<string>();
         _box_interface = j["interface"].get<string>();
         _backend_interface = j["backend"].get<string>();
+        _white_list = j["white_list"].get<bool>();
     }
     catch(const std::domain_error& e){
         throw std::runtime_error("Malformed config file");

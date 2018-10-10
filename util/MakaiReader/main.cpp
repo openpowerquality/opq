@@ -9,10 +9,10 @@
 using namespace std;
 using json = nlohmann::json;
 
-int main(int argc, char** argv) {
+int main(int argc, char **argv) {
     //Default config
     string configPath = "/etc/opq/makai_reader.json";
-    if(argc != 1){
+    if (argc != 1) {
         configPath = argv[1];
     }
     //Read in config file
@@ -20,7 +20,7 @@ int main(int argc, char** argv) {
     try {
         in.open(configPath);
     }
-    catch (std::ios_base::failure& e) {
+    catch (std::ios_base::failure &e) {
         cout << "Could not open the config file" << endl;
         return -1;
     }
@@ -30,11 +30,11 @@ int main(int argc, char** argv) {
         in >> j;
         interface = j["interface"];
     }
-    catch(const std::domain_error& e){
+    catch (const std::domain_error &e) {
         cout << "Malformed config file" << endl;
         return -1;
     }
-    catch (const std::invalid_argument& e){
+    catch (const std::invalid_argument &e) {
         cout << "Malformed config file" << endl;
         return -1;
     }
@@ -47,25 +47,29 @@ int main(int argc, char** argv) {
     try {
         sub.connect(interface);
     }
-    catch(const zmqpp::zmq_internal_exception& e){
-        cout << "Could not connect to " << interface<< endl;
+    catch (const zmqpp::zmq_internal_exception &e) {
+        cout << "Could not connect to " << interface << endl;
         return -1;
     }
     sub.subscribe("");
 
     while (true) {
         auto msg = zmqpp::message{};
-	// Block
+        // Block
         sub.receive(msg);
         opq::proto3::Measurement m;
         m.ParseFromString(msg.get(1));
 
-	cout << msg.get(0); // Box ID
+        cout << msg.get(0); // Box ID
         cout << " " << m.timestamp_ms();
-	auto map = m.metrics();
-	for (auto& pair : map) {
-		cout << " " << pair.first << ": " << pair.second;
-	}
-	cout << endl;
+        auto map = m.metrics();
+        for (auto &pair : map) {
+            cout << " " << pair.first <<
+                 ": ["
+                 << pair.second.min() << ","
+                 << pair.second.average() <<
+                 "," << pair.second.max() << "]";
+        }
+        cout << endl;
     }
 }

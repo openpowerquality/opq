@@ -40,18 +40,23 @@ impl fmt::Debug for RawWindow {
     }
 }
 
-#[derive(Debug)]
 pub struct Window {
     pub raw_window: RawWindow,
+    pub samples : [f32 ; POINTS_PER_PACKET],
     pub time_stamp_ms: SystemTime,
     pub results: HashMap<String, f32>,
 }
 
 impl Window {
-    pub fn new(raw_window: RawWindow) -> Window {
+    pub fn new(raw_window: RawWindow, cal_constant: f32) -> Window {
+        let mut samples = [0.0; POINTS_PER_PACKET];
+        for i in 0..POINTS_PER_PACKET{
+            samples[i] = (raw_window.datapoints[i] as f32)/cal_constant;
+        }
         Window {
             raw_window: raw_window,
             time_stamp_ms: SystemTime::now(),
+            samples: samples,
             results: HashMap::new(),
         }
     }

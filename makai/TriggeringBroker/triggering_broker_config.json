@@ -2,5 +2,6 @@
   "client_certs": "/etc/opq/curve/public_keys",
   "server_cert": "/etc/opq/curve/private_keys/opqserver_secret",
   "interface": "tcp://*:9880",
-  "backend" : "tcp://*:9881"
+  "backend" : "tcp://*:9881",
+  "white_list" : false
 }

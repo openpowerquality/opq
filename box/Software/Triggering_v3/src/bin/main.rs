@@ -41,7 +41,7 @@ fn main() {
     };
     info!(
         "Box ID is {}, public key: {}",
-        config.settings.box_id, config.settings.box_public_key
+        config.settings.box_id, &config.settings.box_public_key.clone().unwrap()
     );
 
     let window_db = WindowDB::new(Arc::clone(&config));

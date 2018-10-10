@@ -27,7 +27,7 @@ pub fn start_capture(tx: Sender<types::Window>, state: Arc<State>) -> thread::Jo
             ),
             Ok(file) => file,
         };
-
+        let cal_const = state.settings.calibration;
         let struct_size: usize = ::std::mem::size_of::<types::RawWindow>();
         //Danger! bad things happen if something goes wrong here.
         //We are manipulating raw buffers, leaving things uninitialized
@@ -44,7 +44,7 @@ pub fn start_capture(tx: Sender<types::Window>, state: Arc<State>) -> thread::Jo
                     );
                     exit(-1);
                 }
-                tx.send(types::Window::new(raw_window));
+                tx.send(types::Window::new(raw_window, cal_const));
             }
         }
     })

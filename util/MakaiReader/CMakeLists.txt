@@ -7,12 +7,13 @@ include_directories(${MakaiReader_SOURCE_DIR}/proto)
 
 execute_process(
 	COMMAND mkdir -p proto
-	COMMAND protoc -I=../../protocol/ --cpp_out=proto/ ../../protocol//opqbox3.proto	
+	COMMAND protoc -I=../../protocol/ --cpp_out=proto/ ../../protocol//opqbox3.proto
+	COMMAND protoc -I=../../protocol/ --cpp_out=proto/ ../../protocol//rustproto.proto
 	WORKING_DIRECTORY ${MakaiReader_SOURCE_DIR}
 )
 
 
-set(SOURCE_FILES main.cpp proto/opqbox3.pb.cc)
+set(SOURCE_FILES main.cpp proto/opqbox3.pb.cc proto/rustproto.pb.cc)
 add_executable(MakaiReader ${SOURCE_FILES})
 target_link_libraries (MakaiReader protobuf)
 target_link_libraries (MakaiReader zmqpp)

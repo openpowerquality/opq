@@ -95,11 +95,11 @@ fn create_pub_socket(ctx: &Context, config: &Arc<State>) -> Socket {
     sub.set_curve_serverkey(&config.settings.server_public_key)
         .unwrap();
 
-    sub.set_curve_publickey(&config.settings.box_public_key)
+    sub.set_curve_publickey(&config.settings.box_public_key.clone().unwrap())
         .unwrap();
-    sub.set_curve_secretkey(&config.settings.box_secret_key)
+    sub.set_curve_secretkey(&config.settings.box_secret_key.clone().unwrap())
         .unwrap();
-    sub.connect(&config.settings.cmd_sub_ep).unwrap();
+    sub.connect(&config.settings.trg_push_ep).unwrap();
     sub
 }
 

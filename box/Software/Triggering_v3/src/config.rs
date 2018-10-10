@@ -4,6 +4,7 @@ use std::fs::File;
 use std::path::Path;
 use std::sync::Arc;
 use std::sync::Mutex;
+use zmq::CurveKeyPair;
 
 pub const WINDOWS_PER_MEASUREMENT: &'static str = "windows_per_measurement";
 
@@ -16,7 +17,7 @@ pub struct State {
 impl State {
     pub fn new(file_path: &str) -> Result<Arc<State>, String> {
         info!("Loading configuration file {} ", file_path);
-        let settings = match Settings::load_from_file(file_path) {
+        let mut settings = match Settings::load_from_file(file_path) {
             Ok(s) => s,
             Err(e) => {
                 return Err(format!(
@@ -25,6 +26,13 @@ impl State {
                 ));
             }
         };
+        if settings.box_public_key.is_none() || settings.box_secret_key.is_none() {
+            let key_pair = CurveKeyPair::new().unwrap();
+            settings.box_public_key = Some(key_pair.public_key);
+            settings.box_secret_key = Some(key_pair.secret_key);
+            warn!("No keys in configuration. Generating a key pair.");
+        }
+
         let cfg = Arc::new(State {
             settings: settings,
             state: Mutex::new(HashMap::new()),
@@ -58,8 +66,8 @@ pub struct Settings {
     pub trg_push_ep: String,
 
     ///box keys
-    pub box_secret_key: String,
-    pub box_public_key: String,
+    pub box_secret_key: Option<String>,
+    pub box_public_key: Option<String>,
     ///Server Key
     pub server_public_key: String,
 

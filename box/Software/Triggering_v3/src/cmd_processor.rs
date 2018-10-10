@@ -27,9 +27,9 @@ fn create_sub_socket(ctx: &Context, state: &Arc<State>) -> Socket {
     sub.set_curve_serverkey(&state.settings.server_public_key)
         .unwrap();
 
-    sub.set_curve_publickey(&state.settings.box_public_key)
+    sub.set_curve_publickey(&state.settings.box_public_key.clone().unwrap())
         .unwrap();
-    sub.set_curve_secretkey(&state.settings.box_secret_key)
+    sub.set_curve_secretkey(&state.settings.box_secret_key.clone().unwrap())
         .unwrap();
     sub.connect(&state.settings.cmd_sub_ep).unwrap();
     sub
@@ -41,9 +41,9 @@ fn create_push_socket(ctx: &Context, state: &Arc<State>) -> Socket {
     push.set_curve_serverkey(&state.settings.server_public_key)
         .unwrap();
 
-    push.set_curve_publickey(&state.settings.box_public_key)
+    push.set_curve_publickey(&state.settings.box_public_key.clone().unwrap())
         .unwrap();
-    push.set_curve_secretkey(&state.settings.box_secret_key)
+    push.set_curve_secretkey(&state.settings.box_secret_key.clone().unwrap())
         .unwrap();
     push.connect(&state.settings.cmd_push_ep).unwrap();
     push
@@ -74,7 +74,7 @@ fn process_info_command(state: &Arc<State>) -> Response {
     }
     info.set_wifi_network(ssids);
     info.set_calibration_constant(0);
-    info.set_pub_key(state.settings.box_public_key.clone());
+    info.set_pub_key(state.settings.box_public_key.clone().unwrap());
     info.set_uptime(uptime_lib::get().unwrap().num_seconds() as u64);
 
     let mut resp = Response::new();
@@ -176,7 +176,7 @@ pub fn start_cmd_processor(
                     warn!("Could not repond to command {:?}", e);
                 }
             }
-            
+
         }
     })
 }
