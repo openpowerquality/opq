@@ -218,7 +218,7 @@ def generate_req_event_message():
     req_message.start_timestamp_ms_utc = int(current_t_ms - 20000)
     req_message.percent_magnitude = 50
     req_message.requestee = "Evan"
-    req_message.request_data = True
+    req_message.request_data = False
     
     return req_message
 
@@ -266,8 +266,19 @@ def check_makai(config):
             save_message(message)
             sleep(sleep_time)
             continue
-   
-        if find_event(mongo_uri, new_event):
+
+        event = find_event(mongo_uri, new_event)
+        if event:
+            # Delete event
+            client = MongoClient()
+            db = client["opq"]
+            events_collection = db["events"]
+            box_events_collection = db["box_events"]
+            event_id = event["event_id"]
+
+            events_collection.delete_many({"event_id": event_id})
+            box_events_collection.delete_many({"event_id": event_id})
+
             message = get_msg_as_json('MAKAI', '', 'UP', '')
         else:
             message = get_msg_as_json('MAKAI', '', 'DOWN', '')
