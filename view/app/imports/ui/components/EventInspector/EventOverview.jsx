@@ -2,12 +2,13 @@ import { Meteor } from 'meteor/meteor';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { withTracker } from 'meteor/react-meteor-data';
-import { Button, Grid, Segment, List, Checkbox, Popup, Icon } from 'semantic-ui-react';
+import { Grid } from 'semantic-ui-react';
 import { Map, TileLayer, ZoomControl } from 'react-leaflet';
-import OpqBoxLeafletMarkerManager from '../BoxMap/OpqBoxLeafletMarkerManager';
 import Moment from 'moment/moment';
-import Dygraph from 'dygraphs';
+import OpqBoxLeafletMarkerManager from '../BoxMap/OpqBoxLeafletMarkerManager';
+
 import WidgetPanel from '../../layouts/WidgetPanel';
+import BoxEventSummary from './BoxEventSummary';
 
 import { getBoxEvents } from '../../../api/box-events/BoxEventsCollection.methods';
 import { getEventData } from '../../../api/fs-files/FSFilesCollection.methods';
@@ -40,27 +41,31 @@ class EventOverview extends React.Component {
 
   render() {
     const { event, boxEvents } = this.state;
-
-    // Separate BoxEvents, triggered vs boxes_receveid.
-    const triggeredBoxEvents = boxEvents.filter(be => event.boxes_triggered.indexOf(be.box_id) > -1);
-    const otherBoxEvents = boxEvents.filter(be => event.boxes_triggered.indexOf(be.box_id) === -1);
-
+    const { triggeredBoxEvents, otherBoxEvents } = this.separateBoxEvents(event, boxEvents);
 
     return this.props.ready && !this.state.isLoading ? (
         <Grid container stackable>
           <Grid.Column width={16}>
             <WidgetPanel title='Event Overview'>
               <Grid container>
-                <Grid.Column width={12}>{this.eventSummary()}</Grid.Column>
+                <Grid.Column width={12}>{this.renderEventSummary()}</Grid.Column>
                 <Grid.Column width={4}>{this.renderMap()}</Grid.Column>
                 <Grid.Column width={16}>
                   <h2>Triggered Boxes</h2>
                   {triggeredBoxEvents.map(boxEvent => (
-                      this.boxEventSegment(boxEvent)
+                      <BoxEventSummary key={boxEvent.box_id}
+                                       boxEventDoc={boxEvent}
+                                       locationDoc={this.getBoxEventLocationDoc(boxEvent)}
+                                       calibrationConstant={this.getBoxCalibrationConstant(boxEvent.box_id)}
+                                       mapZoomCallback={this.handleZoomButtonClick} />
                   ))}
                   <h2>Other Boxes</h2>
                   {otherBoxEvents.map(boxEvent => (
-                      this.boxEventSegment(boxEvent)
+                      <BoxEventSummary key={boxEvent.box_id}
+                                       boxEventDoc={boxEvent}
+                                       locationDoc={this.getBoxEventLocationDoc(boxEvent)}
+                                       calibrationConstant={this.getBoxCalibrationConstant(boxEvent.box_id)}
+                                       mapZoomCallback={this.handleZoomButtonClick} />
                   ))}
                 </Grid.Column>
               </Grid>
@@ -77,11 +82,13 @@ class EventOverview extends React.Component {
     // Only display on map the OpqBoxes that are relevant to the Event.
     const boxIds = boxEvents.map(be => be.box_id);
     const boxes = opqBoxes.length ? opqBoxes.filter(box => boxIds.indexOf(box.box_id) > -1) : [];
+    const triggeredBoxEvent = boxEvents.filter(be => be.box_id === event.boxes_triggered[0]).shift();
+    const location = this.getBoxEventLocationDoc(triggeredBoxEvent);
+    const mapCenter = this.getLocationCoords(location);
 
     // It seems that the dropdown menu from the navigation bar has a z-index of 11, which results in the menu clipping
     // beneath the Leaflet map. We set the map's z-index to 10 to fix this.
     const mapStyle = { height: '100%', zIndex: 10 };
-    const mapCenter = this.getBoxLocationCoords(event.boxes_triggered[0], opqBoxes, locations) || [21.44, -158.0];
 
     return boxEvents.length ? (
         <div ref={this.setMapDivRef}
@@ -106,15 +113,18 @@ class EventOverview extends React.Component {
     ) : '';
   }
 
-  eventSummary() {
+  renderEventSummary() {
     const { event, boxEvents } = this.state;
     const date = event ? Moment(event.target_event_start_timestamp_ms).format('YYYY-MM-DD') : '';
     const time = event ? Moment(event.target_event_start_timestamp_ms).format('HH:mm:ss') : '';
     const duration_ms = event ? event.target_event_end_timestamp_ms - event.target_event_start_timestamp_ms : '';
     let location = '';
     if (event && boxEvents.length) {
-      const be = boxEvents.filter(boxEvent => boxEvent.box_id === event.boxes_triggered[0]).shift();
-      location = this.getBoxLocationDescription(be.location, be.box_id);
+      // We only attempt to describe the first box in Event.boxes_triggered (there is usually only one triggering box
+      // anyway!)
+      const boxEvent = boxEvents.filter(be => be.box_id === event.boxes_triggered[0]).shift();
+      const locationDoc = this.getBoxEventLocationDoc(boxEvent);
+      location = locationDoc ? locationDoc.description : 'UNKNOWN';
     }
 
     const pStyle = { fontSize: '16px' };
@@ -138,135 +148,17 @@ class EventOverview extends React.Component {
     ) : '';
   }
 
-  boxEventSegment({ event_id, box_id, event_start_timestamp_ms, event_end_timestamp_ms, location }) {
-    const { boxIdToWaveformDict } = this.state;
-    const waveformVisible = boxIdToWaveformDict[box_id] && boxIdToWaveformDict[box_id].isVisible;
-    return (
-        <Segment.Group key={box_id}>
-          <Segment style={{ padding: '0px' }}>
-            <Grid celled='internally'>
-              <Grid.Row>
-                <Grid.Column width={2}>
-                  <List>
-                    <List.Item>
-                      <List.Icon name='hdd outline' color='blue' size='large' verticalAlign='middle' />
-                      <List.Content style={{ paddingLeft: '2px' }}>
-                        <List.Header>Box ID</List.Header>
-                        <List.Description><i>{box_id}</i></List.Description>
-                      </List.Content>
-                    </List.Item>
-                  </List>
-                </Grid.Column>
-
-                <Grid.Column width={3}>
-                  <List>
-                    <List.Item>
-                      <List.Icon name='hourglass start' color='blue' size='large' verticalAlign='middle' />
-                      <List.Content style={{ paddingLeft: '2px' }}>
-                        <List.Header>Start Time</List.Header>
-                        <List.Description><i>{Moment(event_start_timestamp_ms).format('YYYY-MM-DD HH:mm:ss.SSS')}</i></List.Description>
-                      </List.Content>
-                    </List.Item>
-                  </List>
-                </Grid.Column>
-
-                <Grid.Column width={3}>
-                  <List>
-                    <List.Item>
-                      <List.Icon name='hourglass end' color='blue' size='large' verticalAlign='middle' />
-                      <List.Content style={{ paddingLeft: '2px' }}>
-                        <List.Header>End Time</List.Header>
-                        <List.Description><i>{Moment(event_end_timestamp_ms).format('YYYY-MM-DD HH:mm:ss.SSS')}</i></List.Description>
-                      </List.Content>
-                    </List.Item>
-                  </List>
-                </Grid.Column>
-
-                <Grid.Column width={3}>
-                  <List>
-                    <List.Item>
-                      <List.Icon name='clock' color='blue' size='large' verticalAlign='middle' />
-                      <List.Content style={{ paddingLeft: '2px' }}>
-                        <List.Header>Duration (ms)</List.Header>
-                        <List.Description><i>{event_end_timestamp_ms - event_start_timestamp_ms}</i></List.Description>
-                      </List.Content>
-                    </List.Item>
-                  </List>
-                </Grid.Column>
-
-                <Grid.Column width={3}>
-                  <List floated='left'>
-                    <List.Item>
-                      <List.Icon name='marker' color='blue' size='large' verticalAlign='middle' />
-                      <List.Content style={{ paddingLeft: '2px' }}>
-                        <List.Header>Location</List.Header>
-                        <List.Description><i>{this.getBoxLocationDescription(location, box_id)}</i></List.Description>
-                      </List.Content>
-                    </List.Item>
-                  </List>
-                  <Popup
-                      trigger={
-                        <Button icon size='tiny' floated='right' onClick={this.handleZoomButtonClick(box_id)}>
-                          <Icon size='large' name='crosshairs' />
-                        </Button>
-                      }
-                      content='Zoom to box location'
-                  />
-                </Grid.Column>
-
-                <Grid.Column width={2}>
-                  <p style={{ marginBottom: '0px' }}><b>Waveform</b></p>
-                  <Checkbox toggle onClick={this.toggleWaveform(box_id)} />
-                </Grid.Column>
-              </Grid.Row>
-            </Grid>
-          </Segment>
-          {waveformVisible &&
-          <Segment>
-            <div ref={this.setDygraphRef(box_id)} style={{ width: '100%', height: '200px' }}></div>
-          </Segment>
-          }
-        </Segment.Group>
-    );
-  }
-
   /**
    * Event Handlers
    */
 
-  toggleWaveform = (box_id) => () => {
-    const { boxIdToWaveformDict } = this.state;
-    const boxEntry = boxIdToWaveformDict[box_id];
-
-    // Initial toggle will retrieve waveform data.
-    if (!boxEntry) {
-      // Set visibility to true so that Segment containing dygraph div is rendered. Then retrieve waveform data.
-      this.setState(prevState => {
-        const dictClone = { ...prevState.boxIdToWaveformDict };
-        dictClone[box_id] = { isVisible: true };
-        return {
-          boxIdToWaveformDict: dictClone,
-        };
-      }, () => this.retrieveWaveform(box_id));
-    } else {
-      // Toggle visibility
-      this.setState(prevState => {
-        const dictClone = { ...prevState.boxIdToWaveformDict };
-        dictClone[box_id].isVisible = !dictClone[box_id].isVisible;
-        return {
-          boxIdToWaveformDict: dictClone,
-        };
-      }, () => this.createDygraph(this.getDygraphRef(box_id), boxEntry.dyPlotPoints, boxEntry.dyOptions));
-    }
-  };
-
   handleZoomButtonClick = box_id => () => {
-    this.mapDivElem.scrollIntoView();
-    this.opqBoxLeafletMarkerManagerRefElem.zoomToMarker(box_id);
+    this.getMapDivRef().scrollIntoView();
+    this.opqBoxLeafletMarkerManagerElem.zoomToMarker(box_id);
   };
 
   /**
-   * Misc Methods
+   * Helper/Misc Methods
    */
 
   retrieveInitialData(event_id) {
@@ -287,97 +179,58 @@ class EventOverview extends React.Component {
     });
   }
 
-  retrieveWaveform(box_id) {
-    const { calibration_constants } = this.props;
-    const { boxEvents } = this.state;
-    const boxEvent = boxEvents.filter(be => be.box_id === box_id).shift();
-    if (!boxEvent) return;
 
-    getEventData.call({ filename: boxEvent.data_fs_filename }, (error, waveform) => {
-      if (error) console.log(error);
-      else {
-
-        // const dygraphDomElem = this.getDygraphRef(box_id);
-        const calibConstant = calibration_constants[box_id] || 1;
-
-        const dyPlotPoints = waveform.map((val, index) => {
-          const timestamp = boxEvent.event_start_timestamp_ms + (index * (1.0 / 12.0));
-          return [timestamp, val / calibConstant];
-        });
-        const dyOptions = {
-          labels: ['Timestamp', 'Voltage'],
-          axes: {
-            x: {
-              valueFormatter: (millis, opts, seriesName, dygraph, row, col) => { // eslint-disable-line no-unused-vars
-                // We must separately calculate the microseconds and concatenate it to the date string.
-                const dateString = Moment(millis).format('[[]MM-DD-YYYY[]] HH:mm:ss.SSS').toString()
-                    + ((row * (1.0 / 12.0)) % 1).toFixed(3).substring(2);
-                return dateString;
-              },
-              axisLabelFormatter: (timestamp) => Moment(timestamp).format('HH:mm:ss.SSS'),
-              pixelsPerLabel: 90,
-            },
-          },
-        };
-
-        this.createDygraph(this.getDygraphRef(box_id), dyPlotPoints, dyOptions);
-
-        // Store plot points and options for the given box_id.
-        this.setState(prevState => {
-          const updatedDict = { ...prevState.boxIdToWaveformDict };
-          updatedDict[box_id] = { ...updatedDict[box_id], dyPlotPoints, dyOptions };
-          return {
-            boxIdToWaveformDict: updatedDict,
-          };
-        });
-      }
-    });
-  }
-
-  getBoxLocationDoc(box_id, opqBoxes, locations) {
+  getBoxCalibrationConstant(box_id) {
+    const { opqBoxes } = this.props;
     const opqBox = opqBoxes.filter(box => box.box_id === box_id).shift();
-    if (opqBox) {
-      const loc = locations.find(location => location && location.slug === opqBox.location);
-      return loc;
-      // return loc ? loc.coordinates.slice().reverse() : null;
-    }
-    return null;
+    return opqBox ? opqBox.calibration_constant : 1;
   }
 
-  getBoxLocationDescription(locationSlug, box_id) {
+  getBoxEventLocationDoc(boxEvent) {
     const { locations, opqBoxes } = this.props;
 
-    // LocationSlug should be a string. However, there is a bug in which BoxEvents.location is sometimes an array of
-    // (incorrect) historic location data. In these cases, we will simply retrieve the box's current location. Once
-    // Makai fixes this bug, we should probably remove this conditional.
-    if (typeof locationSlug !== 'string') {
-      const opqBox = opqBoxes.filter(box => box.box_id === box_id).shift();
-      if (opqBox) {
-        const location = locations.filter(loc => loc.slug === opqBox.location).shift();
-        return location ? location.description : null;
-      }
+    if (typeof boxEvent.location !== 'string') {
+      // Get most current Location doc for the box
+      const opqBox = opqBoxes.filter(box => box.box_id === boxEvent.box_id).shift();
+      return opqBox ? locations.filter(loc => loc.slug === opqBox.location).shift() : null;
     }
 
-    const location = locations.filter(loc => loc.slug === locationSlug).shift();
-    return location ? location.description : null;
+    return locations.filter(loc => loc.slug === boxEvent.location).shift();
   }
 
-  getBoxLocationCoords(box_id, opqBoxes, locations) {
-    const location = this.getBoxLocationDoc(box_id, opqBoxes, locations);
+  getLocationCoords(location) {
     return location ? location.coordinates.slice().reverse() : null;
-
-    // const opqBox = opqBoxes.filter(box => box.box_id === box_id).shift();
-    // if (opqBox) {
-    //   const loc = locations.find(location => location && location.slug === opqBox.location);
-    //   return loc ? loc.coordinates.slice().reverse() : null;
-    // }
-    // return null;
   }
 
-  createDygraph(dyDomElement, dyPlotPoints, dyPlotOptions) {
-    // Note: There's no real need to store the Dygraph instance itself. It's simpler to allow render() to create a new
-    // instance each time the graph visibility is set to true.
-    return new Dygraph(dyDomElement, dyPlotPoints, dyPlotOptions);
+  separateBoxEvents(event, boxEvents) {
+    const triggeredBoxEvents = [];
+    const otherBoxEvents = [];
+
+    boxEvents.forEach(be => {
+      const boxEvent = this.ensureBoxEventLocationSlug(be);
+      if (event.boxes_triggered.indexOf(boxEvent.box_id) > -1) {
+        triggeredBoxEvents.push(boxEvent);
+      } else {
+        otherBoxEvents.push(boxEvent);
+      }
+    });
+    return { triggeredBoxEvents, otherBoxEvents };
+  }
+
+  ensureBoxEventLocationSlug(boxEvent) {
+    const fixedLocationSlug = typeof boxEvent.location !== 'string' ? this.getCurrentOpqBoxLocationSlug(boxEvent) : null;
+    if (fixedLocationSlug) {
+      const be = { ...boxEvent };
+      be.location = fixedLocationSlug;
+      return be;
+    }
+    return boxEvent;
+  }
+
+  getCurrentOpqBoxLocationSlug(boxEvent) {
+    const { opqBoxes } = this.props;
+    const opqBox = opqBoxes.filter(box => box.box_id === boxEvent.box_id).shift();
+    return opqBox ? opqBox.location : null;
   }
 
   createBoxMarkerTrendsLabel(opqBoxDoc) {
@@ -391,27 +244,22 @@ class EventOverview extends React.Component {
 
   /**
    * Ref methods
-   * Interacting with non-React third party DOM libraries (such as Dygraph) requires the usage of React Refs.
    * Read more here: https://reactjs.org/docs/refs-and-the-dom.html
    */
-
-  setDygraphRef = box_id => elem => {
-    if (elem) this[`dygraph_box_id_${box_id}`] = elem;
-  };
-
-  getDygraphRef = box_id => this[`dygraph_box_id_${box_id}`];
 
   setOpqBoxLeafletMarkerManagerRef = elem => {
     // Need to store the OpqBoxLeafletMarkerManager child component's ref instance so that we can call its
     // zoomToMarker() method from this component.
     if (elem) {
-      this.opqBoxLeafletMarkerManagerRefElem = elem;
+      this.opqBoxLeafletMarkerManagerElem = elem;
     }
   };
 
   setMapDivRef = elem => {
     if (elem) this.mapDivElem = elem;
   };
+
+  getMapDivRef = () => this.mapDivElem;
 }
 
 EventOverview.propTypes = {
