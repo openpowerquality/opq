@@ -1,3 +1,4 @@
+import { Meteor } from 'meteor/meteor'
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Loader, Button, Grid, Segment, List, Checkbox, Popup, Icon } from 'semantic-ui-react';
@@ -41,17 +42,13 @@ class BoxEventSummary extends React.Component {
    */
 
   render() {
-    return (!this.state.isLoading) ? this.renderPage() : <Loader active content='Loading...'/>;
-  }
-
-  renderPage() {
     const { boxEventDoc, locationDoc } = this.props;
     return this.renderBoxEventSegment(boxEventDoc, locationDoc);
   }
 
   renderBoxEventSegment({ box_id, event_start_timestamp_ms, event_end_timestamp_ms }, { description }) {
     const { mapZoomCallback } = this.props;
-    const { waveformVisible } = this.state;
+    const { waveformVisible, isLoading } = this.state;
 
     return (
         <Segment.Group key={box_id}>
@@ -137,8 +134,16 @@ class BoxEventSummary extends React.Component {
               </Grid.Row>
             </Grid>
           </Segment>
+          {isLoading && !waveformVisible &&
+          <Segment>
+            <Loader active content='Downloading waveform data...'/>
+          </Segment>
+          }
           {waveformVisible &&
           <Segment>
+            {isLoading &&
+            <Loader active content='Loading waveform...'/>
+            }
             <div ref={this.setDygraphRef} style={{ width: '100%', height: '200px' }}></div>
           </Segment>
           }
@@ -169,20 +174,27 @@ class BoxEventSummary extends React.Component {
   retrieveWaveform() {
     const { boxEventDoc } = this.props;
 
-    getEventData.call({ filename: boxEventDoc.data_fs_filename }, (error, waveform) => {
-      if (error) console.log(error);
-      else {
-        this.setState({
-          waveformRaw: waveform,
-          waveformVisible: true,
-        });
-      }
+    this.setState({ isLoading: true }, () => {
+      getEventData.call({ filename: boxEventDoc.data_fs_filename }, (error, waveform) => {
+        if (error) console.log(error);
+        else {
+          this.setState({
+            waveformRaw: waveform,
+            waveformVisible: true,
+            isLoading: false,
+          });
+        }
+      });
     });
   }
 
   createDygraph() {
     const { boxEventDoc, calibrationConstant = 1 } = this.props;
     const { waveformRaw } = this.state;
+
+    // Indicate to the user that their graph is currently being loaded. Dygraphs can take up to a few seconds to load
+    // large datasets.
+    this.setState({ isLoading: true });
 
     const dyPlotPoints = waveformRaw.map((val, index) => {
       const timestamp = boxEventDoc.event_start_timestamp_ms + (index * (1.0 / 12.0));
@@ -206,9 +218,14 @@ class BoxEventSummary extends React.Component {
 
     const dyDomElement = this.getDygraphRef();
 
-    // Note: There's no real need to store the Dygraph instance itself. It's simpler to allow render() to create a new
-    // instance each time the graph visibility is set to true.
-    return new Dygraph(dyDomElement, dyPlotPoints, dyOptions);
+    // Dygraph instantiation is a synchronous operation that can take a few seconds to complete (for large datasets).
+    // We defer this operation so that it doesn't hang the client.
+    Meteor.defer(() => {
+      // Note: There's no real need to store the Dygraph instance itself. It's simpler to allow render() to create a new
+      // instance each time the graph visibility is set to true.
+      const dygraph = new Dygraph(dyDomElement, dyPlotPoints, dyOptions);
+      dygraph.ready(() => this.setState({ isLoading: false }));
+    });
   }
 
   /**
