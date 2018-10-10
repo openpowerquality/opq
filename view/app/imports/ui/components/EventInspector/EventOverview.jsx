@@ -2,7 +2,7 @@ import { Meteor } from 'meteor/meteor';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { withTracker } from 'meteor/react-meteor-data';
-import { Grid } from 'semantic-ui-react';
+import { Grid, Loader } from 'semantic-ui-react';
 import { Map, TileLayer, ZoomControl } from 'react-leaflet';
 import Moment from 'moment/moment';
 import OpqBoxLeafletMarkerManager from '../BoxMap/OpqBoxLeafletMarkerManager';
@@ -40,10 +40,14 @@ class EventOverview extends React.Component {
    */
 
   render() {
+    return (this.props.ready && !this.state.isLoading) ? this.renderPage() : <Loader active content='Loading...'/>;
+  }
+
+  renderPage() {
     const { event, boxEvents } = this.state;
     const { triggeredBoxEvents, otherBoxEvents } = this.separateBoxEvents(event, boxEvents);
 
-    return this.props.ready && !this.state.isLoading ? (
+    return (
         <Grid container stackable>
           <Grid.Column width={16}>
             <WidgetPanel title='Event Overview'>
@@ -72,7 +76,7 @@ class EventOverview extends React.Component {
             </WidgetPanel>
           </Grid.Column>
         </Grid>
-    ) : '';
+    );
   }
 
   renderMap() {
