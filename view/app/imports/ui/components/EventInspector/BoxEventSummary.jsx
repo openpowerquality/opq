@@ -196,12 +196,24 @@ class BoxEventSummary extends React.Component {
     // large datasets.
     this.setState({ isLoading: true });
 
-    const dyPlotPoints = waveformRaw.map((val, index) => {
-      const timestamp = boxEventDoc.event_start_timestamp_ms + (index * (1.0 / 12.0));
-      return [timestamp, val / calibrationConstant];
+    const SAMPLES_PER_CYCLE = 200;
+    const waveformCalibrated = waveformRaw.map(val => val / calibrationConstant);
+    const dyPlotPoints = waveformCalibrated.map((val, idx) => {
+      const timestamp = boxEventDoc.event_start_timestamp_ms + (idx * (1.0 / 12.0));
+
+      // Calculate RMS of last 200 points (1 cycle).
+      let squaredSum = 0;
+      for (let i = 0; i < SAMPLES_PER_CYCLE && idx - i > -1; i++) {
+        squaredSum += waveformCalibrated[idx - i] ** 2;
+      }
+      // For the first 200 values, we must divide by the current index for our RMS calculation.
+      const divisor = (idx < SAMPLES_PER_CYCLE) ? idx + 1 : SAMPLES_PER_CYCLE;
+      const rms = Math.sqrt(squaredSum / divisor);
+      return [timestamp, val, rms];
     });
+
     const dyOptions = {
-      labels: ['Timestamp', 'Voltage'],
+      labels: ['Timestamp', 'Voltage', 'RMS'],
       axes: {
         x: {
           valueFormatter: (millis, opts, seriesName, dygraph, row, col) => { // eslint-disable-line no-unused-vars
@@ -217,7 +229,6 @@ class BoxEventSummary extends React.Component {
     };
 
     const dyDomElement = this.getDygraphRef();
-
     // Dygraph instantiation is a synchronous operation that can take a few seconds to complete (for large datasets).
     // We defer this operation so that it doesn't hang the client.
     Meteor.defer(() => {
