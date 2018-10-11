@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import { Loader, Button, Grid, Segment, List, Checkbox, Popup, Icon } from 'semantic-ui-react';
 import Moment from 'moment/moment';
 import Dygraph from 'dygraphs';
+import { CSVLink } from 'react-csv';
 
 import { getEventData } from '../../../api/fs-files/FSFilesCollection.methods';
 
@@ -46,7 +47,7 @@ class BoxEventSummary extends React.Component {
     return this.renderBoxEventSegment(boxEventDoc, locationDoc);
   }
 
-  renderBoxEventSegment({ box_id, event_start_timestamp_ms, event_end_timestamp_ms }, { description }) {
+  renderBoxEventSegment({ event_id, box_id, event_start_timestamp_ms, event_end_timestamp_ms }, { description }) {
     const { mapZoomCallback } = this.props;
     const { waveformVisible, isLoading } = this.state;
 
@@ -119,7 +120,7 @@ class BoxEventSummary extends React.Component {
                   </List>
                   <Popup
                       trigger={
-                        <Button icon size='tiny' floated='right' onClick={mapZoomCallback(box_id)}>
+                        <Button icon size='small' floated='right' onClick={mapZoomCallback(box_id)}>
                           <Icon size='large' name='crosshairs' />
                         </Button>
                       }
@@ -128,8 +129,22 @@ class BoxEventSummary extends React.Component {
                 </Grid.Column>
 
                 <Grid.Column width={2}>
-                  <p style={{ marginBottom: '0px' }}><b>Waveform</b></p>
-                  <Checkbox toggle onClick={this.toggleWaveform} />
+                  <div style={{ float: 'left' }}>
+                    <p style={{ marginBottom: '0px' }}><b>Waveform</b></p>
+                    <Checkbox toggle onClick={this.toggleWaveform} />
+                  </div>
+                  {waveformVisible &&
+                  <Popup
+                      trigger={
+                        <Button as={CSVLink} icon size='small' floated='right'
+                                filename={`Event_${event_id}_Box_${box_id}.csv`}
+                                data={this.getCalibratedWaveformCSV()}>
+                          <Icon size='large' name='download' />
+                        </Button>
+                      }
+                      content='Download CSV'
+                  />
+                  }
                 </Grid.Column>
               </Grid.Row>
             </Grid>
@@ -187,6 +202,15 @@ class BoxEventSummary extends React.Component {
       });
     });
   }
+
+  getCalibratedWaveformCSV = () => {
+    const { calibrationConstant } = this.props;
+    const { waveformRaw } = this.state;
+    if (waveformRaw.length) {
+      return waveformRaw.map(val => [val / calibrationConstant]);
+    }
+    return null;
+  };
 
   createDygraph() {
     const { boxEventDoc, calibrationConstant = 1 } = this.props;
