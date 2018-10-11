@@ -33,8 +33,13 @@ class NavBar extends React.Component {
           ) : ''}
 
           {this.props.currentUser ? (
-              <Menu.Item as={NavLink} activeClassName="active" exact to="/inspector" key='inspector'>
-                <div style={divStyle}>Inspector</div>
+              <Menu.Item>
+                <Dropdown text="Inspector" pointing="top left" style={divStyle}>
+                  <Dropdown.Menu>
+                    <Dropdown.Item key="EventInspectorPage" text="Events" as={NavLink} exact to="/inspector/event"/>
+                    <Dropdown.Item key="IncidentInspectorPage" text="Incidents" as={NavLink} exact to="/inspector/incident"/>
+                  </Dropdown.Menu>
+                </Dropdown>
               </Menu.Item>
           ) : ''}
 

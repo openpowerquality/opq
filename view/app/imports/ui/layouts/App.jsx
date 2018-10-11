@@ -23,7 +23,7 @@ import NewLocationPage from '../pages/ManageLocation/NewLocationPage';
 import NewUserPage from '../pages/ManageUsers/NewUserPage';
 import EditUserPage from '../pages/ManageUsers/EditUserPage';
 import LiveDataManager from '../../ui/pages/LiveDataManager';
-import Inspector from '../../ui/pages/Inspector';
+import EventInspectorPage from '../pages/EventInspectorPage';
 import EventOverview from '../../ui/components/EventInspector/EventOverview.jsx';
 
 /** Top-level layout component for this application. Called in imports/startup/client/startup.jsx. */
@@ -51,7 +51,7 @@ class App extends React.Component {
               <ProtectedRoute path="/signout" component={Signout} />
               <ProtectedRoute path="/livedata" component={LiveDataManager} />
               <ProtectedRoute path="/inspector/event/:event_id" component={EventOverview}/>
-              <ProtectedRoute path="/inspector" component={Inspector} />
+              <ProtectedRoute path="/inspector/event" component={EventInspectorPage} />
               <Route path="/signin" component={Signin} />
               <Route component={NotFound} />
             </Switch>
