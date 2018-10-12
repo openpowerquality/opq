@@ -14,7 +14,7 @@ import { BoxOwners } from '../../../api/users/BoxOwnersCollection';
 import { Locations } from '../../../api/locations/LocationsCollection';
 import { Regions } from '../../../api/regions/RegionsCollection';
 import { SystemStats } from '../../../api/system-stats/SystemStatsCollection';
-import OpqBoxLeafletMarkerManager from './OpqBoxLeafletMarkerManager';
+import LeafletMarkerManager from './LeafletMarkerManager';
 import ScrollableControl from './ScrollableControl';
 import { withContext } from './hocs';
 import WidgetPanel from '../../layouts/WidgetPanel';
@@ -50,14 +50,15 @@ class BoxMap extends React.Component {
   /**
    * Marker label, marker popup, and cluster label creation callbacks.
    * To customize the marker, cluster, and popup displays, we define and pass callback functions to the
-   * OpqBoxLeafletMarkerManager component as props.
-   * See the OpqBoxLeafletMarkerManager PropTypes declaration for more details.
+   * LeafletMarkerManager component as props.
+   * See the LeafletMarkerManager PropTypes declaration for more details.
    */
 
-  createBoxMarkerTrendsLabel(opqBoxDoc) {
-    const { systemStats } = this.props;
+  createMarkerTrendsLabel(locationDoc) {
+    const { systemStats, opqBoxes } = this.props;
+    const opqBox = opqBoxes.find(box => box.location === locationDoc.slug);
     const latestBoxTrends = systemStats.latest_box_trends;
-    const trend = latestBoxTrends.find(boxTrend => boxTrend && boxTrend.box_id === opqBoxDoc.box_id);
+    const trend = latestBoxTrends.find(boxTrend => boxTrend && boxTrend.box_id === opqBox.box_id);
     const isRecentTrend = (trend && (Date.now() - trend.timestamp_ms) <= 5 * 1000 * 60);
     let trendHtml = '';
     if (trend) {
@@ -70,20 +71,21 @@ class BoxMap extends React.Component {
 
     return `
         <div>
-          <b>${opqBoxDoc.name}</b>
+          <b>${opqBox.name}</b>
           ${isRecentTrend ? trendHtml : '<b>No Recent Data</b>'}
         </div>
     `;
   }
 
-  createBoxMarkerTrendsPopup(opqBoxDoc) {
-    const { systemStats } = this.props;
+  createMarkerTrendsPopup(locationDoc) {
+    const { systemStats, opqBoxes } = this.props;
+    const opqBox = opqBoxes.find(box => box.location === locationDoc.slug);
     const latestBoxTrends = systemStats.latest_box_trends;
-    const trend = latestBoxTrends.find(boxTrend => boxTrend && boxTrend.box_id === opqBoxDoc.box_id);
+    const trend = latestBoxTrends.find(boxTrend => boxTrend && boxTrend.box_id === opqBox.box_id);
     const isRecentTrend = (trend && (Date.now() - trend.timestamp_ms) <= 5 * 1000 * 60);
     return (
         <div>
-          <b>{opqBoxDoc.name}</b><br />
+          <b>{opqBox.name}</b><br />
           {isRecentTrend ? (
               <React.Fragment>
                 <b>{trend.voltage.average.toFixed(2)} V</b><br />
@@ -97,14 +99,14 @@ class BoxMap extends React.Component {
     );
   }
 
-  createClusterBoxCountLabel(clusterBoxIds) {
-    const boxCount = clusterBoxIds.length;
-    return `<div style='font-size: 26px;'><b>${boxCount}</b></div>`;
+  createClusterCountLabel(clusterLocationSlugs) {
+    const locationCount = clusterLocationSlugs.length;
+    return `<div style='font-size: 26px;'><b>${locationCount}</b></div>`;
   }
 
-  createClusterBoxCountSideLabel(clusterBoxIds) {
-    const boxCount = clusterBoxIds.length;
-    return `<div><b>Box Count:</b><br />${boxCount}</div>`;
+  createClusterCountSideLabel(clusterLocationSlugs) {
+    const locationCount = clusterLocationSlugs.length;
+    return `<div><b>Location Count:</b><br />${locationCount}</div>`;
   }
 
   /**
@@ -119,6 +121,8 @@ class BoxMap extends React.Component {
     const { filteredOpqBoxes } = this.state;
     const { opqBoxes, locations } = this.props;
     const boxes = (filteredOpqBoxes.length) ? filteredOpqBoxes : opqBoxes;
+    const boxLocSlugs = boxes.map(box => box.location);
+    const filteredLocations = locations.filter(loc => boxLocSlugs.indexOf(loc.slug) > -1);
     // Initial map center based on arbitrarily chosen OpqBox location. Also note that we store coordinates as
     // [lng, lat], but Leaflet requires [lat, lng] - hence the reverse. If no Locations are available, we set the map
     // center to Oahu coordinates by default.
@@ -146,14 +150,13 @@ class BoxMap extends React.Component {
               <ScrollableControl position='topleft'>
                 {this.renderMapSidePanel(boxes)}
               </ScrollableControl>
-              <OpqBoxLeafletMarkerManager
-                  opqBoxes={boxes}
-                  locations={locations}
-                  boxMarkerLabelFunc={this.createBoxMarkerTrendsLabel.bind(this)}
-                  boxMarkerPopupFunc={this.createBoxMarkerTrendsPopup.bind(this)}
-                  markerClusterLabelFunc={this.createClusterBoxCountLabel.bind(this)}
-                  markerClusterSideLabelFunc={this.createClusterBoxCountSideLabel.bind(this)}
-                  ref={this.setOpqBoxLeafletMarkerManagerRef.bind(this)} />
+              <LeafletMarkerManager
+                  locations={filteredLocations}
+                  markerLabelFunc={this.createMarkerTrendsLabel.bind(this)}
+                  markerPopupFunc={this.createMarkerTrendsPopup.bind(this)}
+                  markerClusterLabelFunc={this.createClusterCountLabel.bind(this)}
+                  markerClusterSideLabelFunc={this.createClusterCountSideLabel.bind(this)}
+                  ref={this.setLeafletMarkerManagerRef.bind(this)} />
             </Map>
           </div>
         </WidgetPanel>
@@ -220,7 +223,7 @@ class BoxMap extends React.Component {
               <Button.Group basic size='tiny'>
                 <Popup
                     trigger={
-                      <Button icon onClick={this.handleZoomButtonClick.bind(this, opqBox.box_id)}>
+                      <Button icon onClick={this.handleZoomButtonClick.bind(this, opqBox.location)}>
                         <Icon size='large' name='crosshairs' />
                       </Button>
                     }
@@ -403,15 +406,15 @@ class BoxMap extends React.Component {
     this.setState({ expandedItemBoxId: opqBox.box_id });
   }
 
-  handleZoomButtonClick(box_id) {
-    // Since we stored a ref to the OpqBoxLeafletMarkerManager child component, we can call its zoomToMarker method.
-    // This is the simplest way to accomplish this task, because the OpqBoxLeafletMarkerManager component maintains
+  handleZoomButtonClick(locationSlug) {
+    // Since we stored a ref to the LeafletMarkerManager child component, we can call its zoomToMarker method.
+    // This is the simplest way to accomplish this task, because the LeafletMarkerManager component maintains
     // the list of Map markers, not this component.
-    this.opqBoxLeafletMarkerManagerRefElem.zoomToMarker(box_id);
+    this.leafletMarkerManagerElem.zoomToMarker(locationSlug);
   }
 
   handleMapOnResize() {
-    const mapHeight = this.mapRef.container.clientHeight;
+    const mapHeight = this.mapElem.container.clientHeight;
     this.setState({ mapSidePanelHeight: `${mapHeight}px` });
   }
 
@@ -435,16 +438,16 @@ class BoxMap extends React.Component {
   setMapRef(elem) {
     // Have to check for elem because this function gets called multiple times during the rendering process,
     // and elem is sometimes undefined.
-    if (!this.mapRef && elem) {
-      this.mapRef = elem; // Store the Map leaflet ref (not needed in state; just store as instance property)
+    if (!this.mapElem && elem) {
+      this.mapElem = elem; // Store the Map leaflet ref (not needed in state; just store as instance property)
     }
   }
 
-  setOpqBoxLeafletMarkerManagerRef(elem) {
-    // Need to store the OpqBoxLeafletMarkerManager child component's ref instance so that we can call its
+  setLeafletMarkerManagerRef(elem) {
+    // Need to store the LeafletMarkerManager child component's ref instance so that we can call its
     // zoomToMarker() method from this component. We just need to set this once.
-    if (!this.opqBoxLeafletMarkerManagerRefElem && elem) {
-      this.opqBoxLeafletMarkerManagerRefElem = elem;
+    if (!this.leafletMarkerManagerElem && elem) {
+      this.leafletMarkerManagerElem = elem;
     }
   }
 }
@@ -494,7 +497,7 @@ const withTrackerCallback = () => {
   let opqBoxes = [];
   if (currentUser) {
     const boxIds = BoxOwners.findBoxIdsWithOwner(currentUser.username);
-    opqBoxes = OpqBoxes.find({ box_id: { $in: boxIds } }).fetch();
+    opqBoxes = OpqBoxes.find({ box_id: { $in: boxIds } }, { sort: { box_id: 1 } }).fetch();
   }
 
   return {

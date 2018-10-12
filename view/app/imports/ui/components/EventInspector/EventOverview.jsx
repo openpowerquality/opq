@@ -5,7 +5,7 @@ import { withTracker } from 'meteor/react-meteor-data';
 import { Grid, Loader } from 'semantic-ui-react';
 import { Map, TileLayer, ZoomControl } from 'react-leaflet';
 import Moment from 'moment/moment';
-import OpqBoxLeafletMarkerManager from '../BoxMap/OpqBoxLeafletMarkerManager';
+import LeafletMarkerManager from '../BoxMap/LeafletMarkerManager';
 
 import WidgetPanel from '../../layouts/WidgetPanel';
 import BoxEventSummary from './BoxEventSummary';
@@ -107,11 +107,11 @@ class EventOverview extends React.Component {
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
             <ZoomControl position='topright' />
-            <OpqBoxLeafletMarkerManager
+            <LeafletMarkerManager
                 opqBoxes={boxes}
                 locations={locations}
                 boxMarkerLabelFunc={this.createBoxMarkerTrendsLabel}
-                ref={this.setOpqBoxLeafletMarkerManagerRef} />
+                ref={this.setLeafletMarkerManagerRef} />
           </Map>
         </div>
     ) : '';
@@ -158,7 +158,7 @@ class EventOverview extends React.Component {
 
   handleZoomButtonClick = box_id => () => {
     this.getMapDivRef().scrollIntoView();
-    this.opqBoxLeafletMarkerManagerElem.zoomToMarker(box_id);
+    this.leafletMarkerManagerElem.zoomToMarker(box_id);
   };
 
   /**
@@ -251,11 +251,11 @@ class EventOverview extends React.Component {
    * Read more here: https://reactjs.org/docs/refs-and-the-dom.html
    */
 
-  setOpqBoxLeafletMarkerManagerRef = elem => {
+  setLeafletMarkerManagerRef = elem => {
     // Need to store the OpqBoxLeafletMarkerManager child component's ref instance so that we can call its
     // zoomToMarker() method from this component.
     if (elem) {
-      this.opqBoxLeafletMarkerManagerElem = elem;
+      this.leafletMarkerManagerElem = elem;
     }
   };
 
