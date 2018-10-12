@@ -35,6 +35,15 @@ class EventOverview extends React.Component {
     this.retrieveInitialData(event_id);
   }
 
+  helpText = `
+  <p>The Event Overview panel displays the details of an event, including waveform data collected from individual
+  boxes during the time of the event.</p>
+  <p>To view a box's waveform, simply click the "Waveform" toggle button. Note that it might take up to a few seconds to
+  download and display the waveform, especially for longer duration events.</p>
+  <p>The map displays the locations of all relevant OPQ Boxes during the time of the event. It is initially zoomed in on
+  the OPQ Box that first detected the event.</p>
+  `;
+
   /**
    * Render Methods
    */
@@ -51,7 +60,7 @@ class EventOverview extends React.Component {
     return (
         <Grid container stackable>
           <Grid.Column width={16}>
-            <WidgetPanel title='Event Overview'>
+            <WidgetPanel title='Event Overview' helpText={this.helpText}>
               <Grid container>
                 <Grid.Column width={12}>{this.renderEventSummary()}</Grid.Column>
                 <Grid.Column width={4}>{this.renderMap()}</Grid.Column>
