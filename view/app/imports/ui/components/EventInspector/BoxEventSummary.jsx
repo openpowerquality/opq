@@ -47,7 +47,7 @@ class BoxEventSummary extends React.Component {
     return this.renderBoxEventSegment(boxEventDoc, locationDoc);
   }
 
-  renderBoxEventSegment({ event_id, box_id, event_start_timestamp_ms, event_end_timestamp_ms }, { description }) {
+  renderBoxEventSegment({ event_id, box_id, event_start_timestamp_ms, event_end_timestamp_ms }, { description, slug }) {
     const { mapZoomCallback } = this.props;
     const { waveformVisible, isLoading } = this.state;
 
@@ -120,7 +120,7 @@ class BoxEventSummary extends React.Component {
                   </List>
                   <Popup
                       trigger={
-                        <Button icon size='small' floated='right' onClick={mapZoomCallback(box_id)}>
+                        <Button icon size='small' floated='right' onClick={mapZoomCallback(slug)}>
                           <Icon size='large' name='crosshairs' />
                         </Button>
                       }

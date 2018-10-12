@@ -11,7 +11,6 @@ import WidgetPanel from '../../layouts/WidgetPanel';
 import BoxEventSummary from './BoxEventSummary';
 
 import { getBoxEvents } from '../../../api/box-events/BoxEventsCollection.methods';
-import { getEventData } from '../../../api/fs-files/FSFilesCollection.methods';
 import { getEventByEventID } from '../../../api/events/EventsCollection.methods';
 import { OpqBoxes } from '../../../api/opq-boxes/OpqBoxesCollection';
 import { Locations } from '../../../api/locations/LocationsCollection';
@@ -81,14 +80,16 @@ class EventOverview extends React.Component {
 
   renderMap() {
     const { event, boxEvents } = this.state;
-    const { opqBoxes, locations } = this.props;
+    const { locations } = this.props;
 
-    // Only display on map the OpqBoxes that are relevant to the Event.
-    const boxIds = boxEvents.map(be => be.box_id);
-    const boxes = opqBoxes.length ? opqBoxes.filter(box => boxIds.indexOf(box.box_id) > -1) : [];
-    const triggeredBoxEvent = boxEvents.filter(be => be.box_id === event.boxes_triggered[0]).shift();
-    const location = this.getBoxEventLocationDoc(triggeredBoxEvent);
-    const mapCenter = this.getLocationCoords(location);
+    // Only display on map the Locations that are relevant to the Event.
+    const boxEventLocationSlugs = boxEvents.map(be => be.location);
+    const filteredLocations = locations.filter(loc => boxEventLocationSlugs.indexOf(loc.slug) > -1);
+
+    // Center the map on the initial triggering box event location.
+    const triggeredBoxEvent = boxEvents.find(be => be.box_id === event.boxes_triggered[0]);
+    const triggeredBoxEventLocation = this.getBoxEventLocationDoc(triggeredBoxEvent);
+    const mapCenter = this.getLocationCoords(triggeredBoxEventLocation);
 
     // It seems that the dropdown menu from the navigation bar has a z-index of 11, which results in the menu clipping
     // beneath the Leaflet map. We set the map's z-index to 10 to fix this.
@@ -108,9 +109,8 @@ class EventOverview extends React.Component {
             />
             <ZoomControl position='topright' />
             <LeafletMarkerManager
-                opqBoxes={boxes}
-                locations={locations}
-                boxMarkerLabelFunc={this.createBoxMarkerTrendsLabel}
+                locations={filteredLocations}
+                markerLabelFunc={this.createMarkerLabel}
                 ref={this.setLeafletMarkerManagerRef} />
           </Map>
         </div>
@@ -122,13 +122,12 @@ class EventOverview extends React.Component {
     const date = event ? Moment(event.target_event_start_timestamp_ms).format('YYYY-MM-DD') : '';
     const time = event ? Moment(event.target_event_start_timestamp_ms).format('HH:mm:ss') : '';
     const duration_ms = event ? event.target_event_end_timestamp_ms - event.target_event_start_timestamp_ms : '';
-    let location = '';
+    let triggeredBoxEventLocation = '';
     if (event && boxEvents.length) {
-      // We only attempt to describe the first box in Event.boxes_triggered (there is usually only one triggering box
-      // anyway!)
-      const boxEvent = boxEvents.filter(be => be.box_id === event.boxes_triggered[0]).shift();
+      // We only describe the first box in Event.boxes_triggered (there is usually only one triggering box anyway!)
+      const boxEvent = boxEvents.find(be => be.box_id === event.boxes_triggered[0]);
       const locationDoc = this.getBoxEventLocationDoc(boxEvent);
-      location = locationDoc ? locationDoc.description : 'UNKNOWN';
+      triggeredBoxEventLocation = locationDoc ? locationDoc.description : 'UNKNOWN';
     }
 
     const pStyle = { fontSize: '16px' };
@@ -142,7 +141,7 @@ class EventOverview extends React.Component {
         </p>
         <p style={pStyle}>
           The event was initially detected by <span style={{ backgroundColor: '#c3edbb' }}>
-          Box {event.boxes_triggered[0]} at {location}</span>, with waveform data available
+          Box {event.boxes_triggered[0]} at {triggeredBoxEventLocation}</span>, with waveform data available
           for {event.boxes_received.length - 1} other boxes.
         </p>
         <p style={pStyle}>
@@ -156,9 +155,20 @@ class EventOverview extends React.Component {
    * Event Handlers
    */
 
-  handleZoomButtonClick = box_id => () => {
+  handleZoomButtonClick = locationSlug => () => {
     this.getMapDivRef().scrollIntoView();
-    this.leafletMarkerManagerElem.zoomToMarker(box_id);
+    this.getLeafletMarkerManagerRef().zoomToMarker(locationSlug);
+  };
+
+  createMarkerLabel = (locationDoc) => {
+    const { opqBoxes } = this.props;
+    const opqBox = opqBoxes.find(box => box.location === locationDoc.slug);
+    return `
+      <div>
+        <b>${locationDoc.description}</b>
+        <b>Box ID ${opqBox.box_id}</b>
+      </div>
+    `;
   };
 
   /**
@@ -175,7 +185,8 @@ class EventOverview extends React.Component {
           getBoxEvents.call({ event_id, box_ids: event.boxes_received }, (err, boxEvents) => {
             if (err) console.log(err);
             else {
-              this.setState({ boxEvents, event, isLoading: false });
+              const fixedBoxEvents = boxEvents.map(be => this.ensureBoxEventLocationSlug(be));
+              this.setState({ boxEvents: fixedBoxEvents, event, isLoading: false });
             }
           });
         }
@@ -191,15 +202,8 @@ class EventOverview extends React.Component {
   }
 
   getBoxEventLocationDoc(boxEvent) {
-    const { locations, opqBoxes } = this.props;
-
-    if (typeof boxEvent.location !== 'string') {
-      // Get most current Location doc for the box
-      const opqBox = opqBoxes.filter(box => box.box_id === boxEvent.box_id).shift();
-      return opqBox ? locations.filter(loc => loc.slug === opqBox.location).shift() : null;
-    }
-
-    return locations.filter(loc => loc.slug === boxEvent.location).shift();
+    const { locations } = this.props;
+    return locations.find(loc => loc.slug === boxEvent.location);
   }
 
   getLocationCoords(location) {
@@ -211,18 +215,22 @@ class EventOverview extends React.Component {
     const otherBoxEvents = [];
 
     boxEvents.forEach(be => {
-      const boxEvent = this.ensureBoxEventLocationSlug(be);
-      if (event.boxes_triggered.indexOf(boxEvent.box_id) > -1) {
-        triggeredBoxEvents.push(boxEvent);
+      // const boxEvent = this.ensureBoxEventLocationSlug(be);
+      if (event.boxes_triggered.indexOf(be.box_id) > -1) {
+        triggeredBoxEvents.push(be);
       } else {
-        otherBoxEvents.push(boxEvent);
+        otherBoxEvents.push(be);
       }
     });
     return { triggeredBoxEvents, otherBoxEvents };
   }
 
   ensureBoxEventLocationSlug(boxEvent) {
-    const fixedLocationSlug = typeof boxEvent.location !== 'string' ? this.getCurrentOpqBoxLocationSlug(boxEvent) : null;
+    // Due to the bug on Makai where certain BoxEvents are not properly storing location strings, we will temporarily
+    // just set the BoxEvent.location field to the current location of the box.
+    const fixedLocationSlug = typeof boxEvent.location !== 'string'
+        ? this.getCurrentOpqBoxLocationSlug(boxEvent)
+        : null;
     if (fixedLocationSlug) {
       const be = { ...boxEvent };
       be.location = fixedLocationSlug;
@@ -235,15 +243,6 @@ class EventOverview extends React.Component {
     const { opqBoxes } = this.props;
     const opqBox = opqBoxes.filter(box => box.box_id === boxEvent.box_id).shift();
     return opqBox ? opqBox.location : null;
-  }
-
-  createBoxMarkerTrendsLabel(opqBoxDoc) {
-    return `
-      <div>
-        <b>${opqBoxDoc.name}</b>
-        <b>Box ID ${opqBoxDoc.box_id}</b>
-      </div>
-    `;
   }
 
   /**
@@ -259,6 +258,8 @@ class EventOverview extends React.Component {
     }
   };
 
+  getLeafletMarkerManagerRef = () => this.leafletMarkerManagerElem;
+
   setMapDivRef = elem => {
     if (elem) this.mapDivElem = elem;
   };
@@ -271,7 +272,6 @@ EventOverview.propTypes = {
   event_id: PropTypes.number.isRequired,
   opqBoxes: PropTypes.array.isRequired,
   locations: PropTypes.array.isRequired,
-  calibration_constants: PropTypes.object.isRequired,
 };
 
 export default withTracker((props) => {
@@ -284,8 +284,5 @@ export default withTracker((props) => {
     event_id: Number(props.match.params.event_id),
     opqBoxes,
     locations: Locations.find().fetch(),
-    calibration_constants: opqBoxes.length ? Object.assign(...OpqBoxes.find().fetch().map(box => (
-                            { [box.box_id]: box.calibration_constant }
-                        ))) : {},
   };
 })(EventOverview);
