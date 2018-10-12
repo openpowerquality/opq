@@ -41,7 +41,9 @@ export const getEventByEventID = new ValidatedMethod({
   }).validator({ clean: true }),
   run({ event_id }) {
     if (Meteor.isServer) {
-      return Events.findOne({ event_id });
+      const event = Events.findOne({ event_id });
+      if (!event) throw new Meteor.Error('invalid-event-id', `The event_id ${event_id} could not be found.`);
+      return event;
     }
     return null;
   },

@@ -2,7 +2,7 @@ import { Meteor } from 'meteor/meteor';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { withTracker } from 'meteor/react-meteor-data';
-import { Grid, Loader } from 'semantic-ui-react';
+import { Grid, Loader, Message, Icon } from 'semantic-ui-react';
 import { Map, TileLayer, ZoomControl } from 'react-leaflet';
 import Moment from 'moment/moment';
 import LeafletMarkerManager from '../BoxMap/LeafletMarkerManager';
@@ -25,6 +25,7 @@ class EventOverview extends React.Component {
       event: null,
       boxEvents: [],
       boxIdToWaveformDict: {},
+      errorReason: null,
     };
   }
 
@@ -39,6 +40,7 @@ class EventOverview extends React.Component {
    */
 
   render() {
+    if (this.state.errorReason) return this.renderError(this.state.errorReason);
     return (this.props.ready && !this.state.isLoading) ? this.renderPage() : <Loader active content='Loading...'/>;
   }
 
@@ -151,6 +153,22 @@ class EventOverview extends React.Component {
     ) : '';
   }
 
+  renderError(errorMessage) {
+    return (
+        <Grid centered container stackable>
+          <Grid.Column width={6}>
+            <Message icon negative>
+              <Icon name='exclamation' />
+              <Message.Content>
+                <Message.Header>Oops! Looks like something went wrong.</Message.Header>
+                <p>{errorMessage}</p>
+              </Message.Content>
+            </Message>
+          </Grid.Column>
+        </Grid>
+    );
+  }
+
   /**
    * Event Handlers
    */
@@ -180,11 +198,19 @@ class EventOverview extends React.Component {
     // is available (as indicated by Event.boxes_received)
     this.setState({ isLoading: true }, () => {
       getEventByEventID.call({ event_id }, (error, event) => {
-        if (error) console.log(error);
-        else {
+        if (error) {
+          console.log(error);
+          if (error.error === 'invalid-event-id') {
+            this.setState({ isLoading: false, errorReason: error.reason });
+          }
+        } else {
           getBoxEvents.call({ event_id, box_ids: event.boxes_received }, (err, boxEvents) => {
-            if (err) console.log(err);
-            else {
+            if (err) {
+              console.log(err);
+              if (err.error === 'no-box-events-found') {
+                this.setState({ isLoading: false, errorReason: err.reason });
+              }
+            } else {
               const fixedBoxEvents = boxEvents.map(be => this.ensureBoxEventLocationSlug(be));
               this.setState({ boxEvents: fixedBoxEvents, event, isLoading: false });
             }

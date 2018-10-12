@@ -40,7 +40,11 @@ export const getBoxEvents = new ValidatedMethod({
     if (Meteor.isServer) {
       const boxEvents = BoxEvents.find({ event_id, box_id: { $in: box_ids } }).fetch();
       if (!boxEvents.length) {
-        throw new Meteor.Error(`No BoxEvent documents found for event_id: ${event_id}, box_ids ${box_ids}`);
+        const boxIdMessage = (box_ids.length) ? `box_ids: ${box_ids}` : 'box_ids: None';
+        throw new Meteor.Error(
+            'no-box-events-found',
+            `No BoxEvent documents found for event_id: ${event_id}, ${boxIdMessage}`,
+        );
       }
       return boxEvents;
     }
