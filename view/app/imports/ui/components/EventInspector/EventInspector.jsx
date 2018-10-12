@@ -37,15 +37,14 @@ class EventInspector extends React.Component {
   }
 
   helpText = `
-  <p>Event Inspector lets you search for an event and look at the details of it, such as the waveform at the time of 
-  the event.</p>
+  <p>The Event Inspector lets you search for past events within specified parameters:</p>
   
   <p>Start and End: Select a starting and ending date/time to search between.</p>
   
   <p>Boxes: select one or more boxes whose events you are interested in.</p>
   
-  <p>For each event listed, the labeled buttons can be clicked to generate a graph with the waveform at the time of the
-  event, for that box.</p>
+  <p>For each event listed, you can view more information about the event, including event waveforms, by clicking the
+  "Details" button</p>
   `;
 
   componentDidMount() {
@@ -55,7 +54,6 @@ class EventInspector extends React.Component {
     // if (initialBoxIds && initialBoxIds.length) {
     //   this.setState({ selectedBoxes: initialBoxIds }, () => this.getEvents());
     // }
-    console.log(this.getUrlQueryObj());
     const urlQueryObj = this.getUrlQueryObj();
     if (urlQueryObj) {
       this.setState({

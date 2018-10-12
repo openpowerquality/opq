@@ -24,7 +24,7 @@ import NewUserPage from '../pages/ManageUsers/NewUserPage';
 import EditUserPage from '../pages/ManageUsers/EditUserPage';
 import LiveDataManager from '../../ui/pages/LiveDataManager';
 import EventInspectorPage from '../pages/EventInspectorPage';
-import EventOverview from '../../ui/components/EventInspector/EventOverview.jsx';
+import EventOverview from '../../ui/components/EventInspector/EventOverview';
 
 /** Top-level layout component for this application. Called in imports/startup/client/startup.jsx. */
 class App extends React.Component {
