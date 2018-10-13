@@ -2,11 +2,11 @@
 This plugin calculates the ITIC region of a voltage, duration pair.
 """
 import enum
+import multiprocessing.queues
 import typing
-import multiprocessing
 
-import numpy
 import matplotlib.path
+import numpy
 
 import analysis
 import mongo
@@ -183,8 +183,8 @@ def itic(mauka_message: protobuf.mauka_pb2.MaukaMessage, segment_threshold: floa
                 incident_classification = mongo.IncidentClassification.ITIC_NO_DAMAGE
 
             mongo.store_incident(
-                mauka_message.event_id,
-                mauka_message.box_id,
+                mauka_message.payload.event_id,
+                mauka_message.payload.box_id,
                 incident_start_timestamp_ms,
                 incident_end_timestamp_ms,
                 mongo.IncidentMeasurementType.VOLTAGE,
@@ -192,14 +192,13 @@ def itic(mauka_message: protobuf.mauka_pb2.MaukaMessage, segment_threshold: floa
                 [incident_classification],
                 [],
                 {},
-                mongo_client
-            )
+                mongo_client)
+
             if logger is not None:
                 logger.debug("Found ITIC incident [{}] from event {} and box {}".format(
                     itic_enum,
                     mauka_message.event_id,
-                    mauka_message.box_id
-                ))
+                    mauka_message.box_id))
 
 
 class IticPlugin(plugins.base_plugin.MaukaPlugin):
@@ -232,3 +231,26 @@ class IticPlugin(plugins.base_plugin.MaukaPlugin):
         else:
             self.logger.error("Received incorrect mauka message [%s] at IticPlugin",
                               protobuf.util.which_message_oneof(mauka_message))
+
+
+def rerun(mauka_message: protobuf.mauka_pb2.MaukaMessage,
+          segment_threshold: float,
+          logger,
+          mongo_client: mongo.OpqMongoClient = None):
+    """
+    Rerun ITIC analysis over the given mauka_message.
+    :param mauka_message: The mauka_message containing a box event to re-analyze.
+    :param segment_threshold: The threshold for the segmentation algorithm
+    :param logger: The application logger
+    :param mongo_client: An optional instance of a mongo client
+    """
+    client = mongo.get_default_client(mongo_client)
+
+    if protobuf.util.is_payload(mauka_message, protobuf.mauka_pb2.VOLTAGE_RMS_WINDOWED):
+        itic(mauka_message,
+             segment_threshold,
+             logger,
+             client)
+    else:
+        logger.error("Received incorrect mauka message [%s] at IticPlugin rerun",
+                     protobuf.util.which_message_oneof(mauka_message))

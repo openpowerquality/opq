@@ -6,6 +6,7 @@ import numpy
 
 import plugins.base_plugin
 import protobuf.util
+import protobuf.mauka_pb2
 import constants
 import mongo
 
@@ -52,6 +53,40 @@ def viol_check(data, lvl):
     return violations
 
 
+def semi_violation(mongo_client, mauka_message):
+    """
+    Calculate semi violations.
+    :param mongo_client: Mongo client for DB access.
+    :param mauka_message: Mauka message to calculate violations over.
+    """
+    event_id = mauka_message.payload.event_id
+    box_id = mauka_message.payload.box_id
+    data = protobuf.util.repeated_as_ndarray(mauka_message.payload.data)
+    start_time_ms = mauka_message.payload.start_timestamp_ms
+
+    # this will check if a violation ocurred or not
+    time_datum = 200.0 * 1.0 / constants.SAMPLES_PER_MILLISECOND
+    lvl = [5, 7, 8]
+    for idx in range(3):
+        possible_violations = viol_check(data, lvl[idx])
+        if len(possible_violations) > 0:
+            # there are violations
+            for _, violation in enumerate(possible_violations):
+                dev = max(abs(120.0 - numpy.max(data[violation[0], violation[1]])),
+                          abs(120.0 - numpy.min(data[violation[0], violation[1]])))
+                mongo.store_incident(
+                    event_id,
+                    box_id,
+                    start_time_ms + violation[0] * time_datum,
+                    start_time_ms + (violation[1] + 1) * time_datum,
+                    mongo.IncidentMeasurementType.VOLTAGE,
+                    dev,
+                    [mongo.IncidentClassification.SEMI_F47_VIOLATION],
+                    [],
+                    {},
+                    mongo_client)
+
+
 class SemiF47Plugin(plugins.base_plugin.MaukaPlugin):
     """
     This plugin subscribes to RMS windowed voltage and classifies Semi F47 violations.
@@ -61,29 +96,16 @@ class SemiF47Plugin(plugins.base_plugin.MaukaPlugin):
         super().__init__(config, ["RmsWindowedVoltage"], "SemiF47Plugin", exit_event)
 
     def on_message(self, topic, mauka_message):
-        event_id = mauka_message.payload.event_id
-        box_id = mauka_message.payload.box_id
-        data = protobuf.util.repeated_as_ndarray(mauka_message.payload.data)
-        start_time_ms = mauka_message.payload.start_timestamp_ms
+        if protobuf.util.is_payload(mauka_message, protobuf.mauka_pb2.VOLTAGE_RMS_WINDOWED):
+            semi_violation(self.mongo_client, mauka_message)
 
-        # this will check if a violation ocurred or not
-        time_datum = 200.0 * 1.0 / constants.SAMPLES_PER_MILLISECOND
-        lvl = [5, 7, 8]
-        for idx in range(3):
-            possible_violations = viol_check(data, lvl[idx])
-            if len(possible_violations) > 0:
-                # there are violations
-                for _, violation in enumerate(possible_violations):
-                    dev = max(abs(120.0 - numpy.max(data[violation[0], violation[1]])),
-                              abs(120.0 - numpy.min(data[violation[0], violation[1]])))
-                    mongo.store_incident(
-                        event_id,
-                        box_id,
-                        start_time_ms + violation[0] * time_datum,
-                        start_time_ms + (violation[1] + 1) * time_datum,
-                        mongo.IncidentMeasurementType.VOLTAGE,
-                        dev,
-                        [mongo.IncidentClassification.SEMI_F47_VIOLATION],
-                        [],
-                        {},
-                        self.mongo_client)
+
+def rerun(mongo_client: mongo.OpqMongoClient, mauka_message):
+    """
+    Rerun this plugin over the provided mauka message.
+    :param mongo_client: Mongo client to perform DB queries.
+    :param mauka_message: Mauka message to rerun this plugin over.
+    """
+    if protobuf.util.is_payload(mauka_message, protobuf.mauka_pb2.VOLTAGE_RMS_WINDOWED):
+        client = mongo.get_default_client(mongo_client)
+        semi_violation(client, mauka_message)

@@ -16,6 +16,8 @@ class FrequencyVariationTests(unittest.TestCase):
         self.freq_var_low = float(self.config["plugins.FrequencyVariationPlugin.frequency.variation.threshold.low"])
         self.freq_var_high = float(self.config["plugins.FrequencyVariationPlugin.frequency.variation.threshold.high"])
         self.freq_interruption = float(self.config["plugins.FrequencyVariationPlugin.frequency.interruption"])
+        self.frequency_window_cycles = int(self.config["plugins.MakaiEventPlugin.frequencyWindowCycles"])
+        self.max_lull = int(self.config["plugins.FrequencyVariationPlugin.max.lull.windows"])
 
     def test_no_variation(self):
         """
@@ -41,13 +43,17 @@ class FrequencyVariationTests(unittest.TestCase):
         """frequency_incident_classifier Method"""
         test_windowed_frequencies = [60.0 for _ in range(1)]  # 1 window of samples,
         incidents = frequency_incident_classifier(0, "", numpy.array(test_windowed_frequencies), 0, self.freq_ref,
-                                                  self.freq_var_high, self.freq_var_low, self.freq_interruption)
+                                                  self.freq_var_high, self.freq_var_low, self.freq_interruption,
+                                                  int(self.frequency_window_cycles * constants.SAMPLES_PER_CYCLE),
+                                                  self.max_lull)
         message = "Frequency Window:{} Classified as:{}".format(test_windowed_frequencies, incidents)
         self.assertEqual(len(incidents), 0, msg=message)
 
         test_windowed_frequencies = [60.0 for _ in range(10)]  # 10 windows of samples,
         incidents = frequency_incident_classifier(0, "", numpy.array(test_windowed_frequencies), 0, self.freq_ref,
-                                                  self.freq_var_high, self.freq_var_low, self.freq_interruption)
+                                                  self.freq_var_high, self.freq_var_low, self.freq_interruption,
+                                                  int(self.frequency_window_cycles * constants.SAMPLES_PER_CYCLE),
+                                                  self.max_lull)
         message = "Frequency Windows:{} Classified as:{}".format(test_windowed_frequencies, incidents)
         self.assertEqual(len(incidents), 0, msg=message)
 
@@ -71,9 +77,12 @@ class FrequencyVariationTests(unittest.TestCase):
             self.assertEqual(variation, freq - self.freq_ref, msg=message)
 
         """frequency_incident_classifier Method"""
-        test_windowed_frequencies = [70.0 for _ in range(1)]  # 1 window of samples
+        # 1 window of samples
+        test_windowed_frequencies = [70.0 for _ in range(1)]
         incidents = frequency_incident_classifier(0, "", numpy.array(test_windowed_frequencies), 0, self.freq_ref,
-                                                  self.freq_var_high, self.freq_var_low, self.freq_interruption)
+                                                  self.freq_var_high, self.freq_var_low, self.freq_interruption,
+                                                  int(self.frequency_window_cycles * constants.SAMPLES_PER_CYCLE),
+                                                  self.max_lull)
         message = "Frequency Window:{} Classified as:{}".format(test_windowed_frequencies, incidents)
         self.assertEqual(len(incidents), 1, msg=message)
 
@@ -81,13 +90,16 @@ class FrequencyVariationTests(unittest.TestCase):
         test_windowed_frequencies = [70.0 for _ in range(10)]
 
         incidents = frequency_incident_classifier(0, "", numpy.array(test_windowed_frequencies), 0, self.freq_ref,
-                                                  self.freq_var_high, self.freq_var_low, self.freq_interruption)
+                                                  self.freq_var_high, self.freq_var_low, self.freq_interruption,
+                                                  int(self.frequency_window_cycles * constants.SAMPLES_PER_CYCLE),
+                                                  self.max_lull)
 
         message = "Frequency Windows:{} Classified as:{}".format(test_windowed_frequencies, incidents)
         self.assertEqual(len(incidents), 1, msg=message)
         self.assertAlmostEqual(incidents[0]["incident_start_ts"], 0, delta=0.1)
         self.assertAlmostEqual(incidents[0]["incident_end_ts"], len(test_windowed_frequencies) *
-                               constants.SAMPLES_PER_CYCLE / constants.SAMPLE_RATE_HZ * 1000, delta=0.1)
+                               constants.SAMPLES_PER_CYCLE / constants.SAMPLE_RATE_HZ * 1000 *
+                               self.frequency_window_cycles, delta=0.1)
         self.assertAlmostEqual(incidents[0]["avg_deviation"], numpy.average(test_windowed_frequencies[0:10]) - 60.0,
                                delta=0.1)
         self.assertEqual(incidents[0]["incident_classifications"], [mongo.IncidentClassification.FREQUENCY_SWELL])
@@ -96,13 +108,15 @@ class FrequencyVariationTests(unittest.TestCase):
         test_windowed_frequencies = [70.0 for _ in range(10)] + [60.0 for _ in range(10)]
 
         incidents = frequency_incident_classifier(0, "", numpy.array(test_windowed_frequencies), 0, self.freq_ref,
-                                                  self.freq_var_high, self.freq_var_low, self.freq_interruption)
+                                                  self.freq_var_high, self.freq_var_low, self.freq_interruption,
+                                                  int(self.frequency_window_cycles * constants.SAMPLES_PER_CYCLE),
+                                                  self.max_lull)
 
         message = "Frequency Windows:{} Classified as:{}".format(test_windowed_frequencies, incidents)
         self.assertEqual(len(incidents), 1, msg=message)
         self.assertAlmostEqual(incidents[0]["incident_start_ts"], 0, delta=0.1)
         self.assertAlmostEqual(incidents[0]["incident_end_ts"], 10 * constants.SAMPLES_PER_CYCLE /
-                               constants.SAMPLE_RATE_HZ * 1000, delta=0.1)
+                               constants.SAMPLE_RATE_HZ * 1000 * self.frequency_window_cycles, delta=0.1)
         self.assertAlmostEqual(incidents[0]["avg_deviation"], numpy.average(test_windowed_frequencies[0:10]) - 60.0,
                                delta=0.1)
         self.assertEqual(incidents[0]["incident_classifications"], [mongo.IncidentClassification.FREQUENCY_SWELL])
@@ -111,14 +125,17 @@ class FrequencyVariationTests(unittest.TestCase):
         test_windowed_frequencies = [60.0 for _ in range(10)] + [70.0 for _ in range(10)]
 
         incidents = frequency_incident_classifier(0, "", numpy.array(test_windowed_frequencies), 0, self.freq_ref,
-                                                  self.freq_var_high, self.freq_var_low, self.freq_interruption)
+                                                  self.freq_var_high, self.freq_var_low, self.freq_interruption,
+                                                  int(self.frequency_window_cycles * constants.SAMPLES_PER_CYCLE),
+                                                  self.max_lull)
 
         message = "Frequency Windows:{} Classified as:{}".format(test_windowed_frequencies, incidents)
         self.assertEqual(len(incidents), 1, msg=message)
         self.assertAlmostEqual(incidents[0]["incident_start_ts"], 10 * constants.SAMPLES_PER_CYCLE /
-                               constants.SAMPLE_RATE_HZ * 1000, delta=0.1)
+                               constants.SAMPLE_RATE_HZ * 1000 * self.frequency_window_cycles, delta=0.1)
         self.assertAlmostEqual(incidents[0]["incident_end_ts"], len(test_windowed_frequencies) *
-                               constants.SAMPLES_PER_CYCLE / constants.SAMPLE_RATE_HZ * 1000, delta=0.1)
+                               constants.SAMPLES_PER_CYCLE / constants.SAMPLE_RATE_HZ * 1000 *
+                               self.frequency_window_cycles, delta=0.1)
         self.assertAlmostEqual(incidents[0]["avg_deviation"], numpy.average(test_windowed_frequencies[10:20]) - 60.0,
                                delta=0.1)
         self.assertEqual(incidents[0]["incident_classifications"], [mongo.IncidentClassification.FREQUENCY_SWELL])
@@ -127,14 +144,16 @@ class FrequencyVariationTests(unittest.TestCase):
         test_windowed_frequencies = [60.0 for _ in range(10)] + [70.0 for _ in range(10)] + [60.0 for _ in range(10)]
 
         incidents = frequency_incident_classifier(0, "", numpy.array(test_windowed_frequencies), 0, self.freq_ref,
-                                                  self.freq_var_high, self.freq_var_low, self.freq_interruption)
+                                                  self.freq_var_high, self.freq_var_low, self.freq_interruption,
+                                                  int(self.frequency_window_cycles * constants.SAMPLES_PER_CYCLE),
+                                                  self.max_lull)
 
         message = "Frequency Windows:{} Classified as:{}".format(test_windowed_frequencies, incidents)
         self.assertEqual(len(incidents), 1, msg=message)
         self.assertAlmostEqual(incidents[0]["incident_start_ts"], 10 * constants.SAMPLES_PER_CYCLE /
-                               constants.SAMPLE_RATE_HZ * 1000, delta=0.01)
+                               constants.SAMPLE_RATE_HZ * 1000 * self.frequency_window_cycles, delta=0.01)
         self.assertAlmostEqual(incidents[0]["incident_end_ts"], 20 * constants.SAMPLES_PER_CYCLE /
-                               constants.SAMPLE_RATE_HZ * 1000, delta=0.01)
+                               constants.SAMPLE_RATE_HZ * 1000 * self.frequency_window_cycles, delta=0.01)
         self.assertAlmostEqual(incidents[0]["avg_deviation"], numpy.average(test_windowed_frequencies[10:20]) - 60.0,
                                delta=0.01)
         self.assertEqual(incidents[0]["incident_classifications"], [mongo.IncidentClassification.FREQUENCY_SWELL])
@@ -144,23 +163,25 @@ class FrequencyVariationTests(unittest.TestCase):
                                     [70.0 for _ in range(5)] + [60.0 for _ in range(5)]
 
         incidents = frequency_incident_classifier(0, "", numpy.array(test_windowed_frequencies), 0, self.freq_ref,
-                                                  self.freq_var_high, self.freq_var_low, self.freq_interruption)
+                                                  self.freq_var_high, self.freq_var_low, self.freq_interruption,
+                                                  int(self.frequency_window_cycles * constants.SAMPLES_PER_CYCLE),
+                                                  self.max_lull)
 
         message = "Frequency Windows:{} Classified as:{}".format(test_windowed_frequencies, incidents)
         self.assertEqual(len(incidents), 2, msg=message)
         self.assertAlmostEqual(incidents[0]["incident_start_ts"], 5 * constants.SAMPLES_PER_CYCLE /
-                               constants.SAMPLE_RATE_HZ * 1000, delta=0.01)
+                               constants.SAMPLE_RATE_HZ * 1000 * self.frequency_window_cycles, delta=0.01)
         self.assertAlmostEqual(incidents[0]["incident_end_ts"], 10 * constants.SAMPLES_PER_CYCLE /
-                               constants.SAMPLE_RATE_HZ * 1000, delta=0.01)
+                               constants.SAMPLE_RATE_HZ * 1000 * self.frequency_window_cycles, delta=0.01)
         self.assertAlmostEqual(incidents[0]["avg_deviation"], numpy.average(test_windowed_frequencies[5:10]) - 60.0,
                                delta=0.01)
         self.assertEqual(incidents[0]["incident_classifications"], [mongo.IncidentClassification.FREQUENCY_SWELL])
 
         self.assertEqual(len(incidents), 2, msg=message)
         self.assertAlmostEqual(incidents[1]["incident_start_ts"], 15 * constants.SAMPLES_PER_CYCLE /
-                               constants.SAMPLE_RATE_HZ * 1000, delta=0.01)
+                               constants.SAMPLE_RATE_HZ * 1000 * self.frequency_window_cycles, delta=0.01)
         self.assertAlmostEqual(incidents[1]["incident_end_ts"], 20 * constants.SAMPLES_PER_CYCLE /
-                               constants.SAMPLE_RATE_HZ * 1000, delta=0.01)
+                               constants.SAMPLE_RATE_HZ * 1000 * self.frequency_window_cycles, delta=0.01)
         self.assertAlmostEqual(incidents[1]["avg_deviation"], numpy.average(test_windowed_frequencies[15:20]) - 60.0,
                                delta=0.01)
         self.assertEqual(incidents[1]["incident_classifications"], [mongo.IncidentClassification.FREQUENCY_SWELL])
@@ -187,7 +208,9 @@ class FrequencyVariationTests(unittest.TestCase):
         """frequency_incident_classifier Method"""
         test_windowed_frequencies = [59.0 for _ in range(1)]  # 1 window of samples
         incidents = frequency_incident_classifier(0, "", numpy.array(test_windowed_frequencies), 0, self.freq_ref,
-                                                  self.freq_var_high, self.freq_var_low, self.freq_interruption)
+                                                  self.freq_var_high, self.freq_var_low, self.freq_interruption,
+                                                  int(self.frequency_window_cycles * constants.SAMPLES_PER_CYCLE),
+                                                  self.max_lull)
         message = "Frequency Window:{} Classified as:{}".format(test_windowed_frequencies, incidents)
         self.assertEqual(len(incidents), 1, msg=message)
 
@@ -195,13 +218,16 @@ class FrequencyVariationTests(unittest.TestCase):
         test_windowed_frequencies = [59.0 for _ in range(10)]
 
         incidents = frequency_incident_classifier(0, "", numpy.array(test_windowed_frequencies), 0, self.freq_ref,
-                                                  self.freq_var_high, self.freq_var_low, self.freq_interruption)
+                                                  self.freq_var_high, self.freq_var_low, self.freq_interruption,
+                                                  int(self.frequency_window_cycles * constants.SAMPLES_PER_CYCLE),
+                                                  self.max_lull)
 
         message = "Frequency Windows:{} Classified as:{}".format(test_windowed_frequencies, incidents)
         self.assertEqual(len(incidents), 1, msg=message)
         self.assertAlmostEqual(incidents[0]["incident_start_ts"], 0, delta=0.1)
         self.assertAlmostEqual(incidents[0]["incident_end_ts"], len(test_windowed_frequencies) *
-                               constants.SAMPLES_PER_CYCLE / constants.SAMPLE_RATE_HZ * 1000, delta=0.1)
+                               constants.SAMPLES_PER_CYCLE / constants.SAMPLE_RATE_HZ * 1000 *
+                               self.frequency_window_cycles, delta=0.1)
         self.assertAlmostEqual(incidents[0]["avg_deviation"], numpy.average(test_windowed_frequencies[0:10]) - 60.0,
                                delta=0.1)
         self.assertEqual(incidents[0]["incident_classifications"], [mongo.IncidentClassification.FREQUENCY_SAG])
@@ -210,13 +236,15 @@ class FrequencyVariationTests(unittest.TestCase):
         test_windowed_frequencies = [59.0 for _ in range(10)] + [60.0 for _ in range(10)]
 
         incidents = frequency_incident_classifier(0, "", numpy.array(test_windowed_frequencies), 0, self.freq_ref,
-                                                  self.freq_var_high, self.freq_var_low, self.freq_interruption)
+                                                  self.freq_var_high, self.freq_var_low, self.freq_interruption,
+                                                  int(self.frequency_window_cycles * constants.SAMPLES_PER_CYCLE),
+                                                  self.max_lull)
 
         message = "Frequency Windows:{} Classified as:{}".format(test_windowed_frequencies, incidents)
         self.assertEqual(len(incidents), 1, msg=message)
         self.assertAlmostEqual(incidents[0]["incident_start_ts"], 0, delta=0.1)
         self.assertAlmostEqual(incidents[0]["incident_end_ts"], 10 * constants.SAMPLES_PER_CYCLE /
-                               constants.SAMPLE_RATE_HZ * 1000, delta=0.1)
+                               constants.SAMPLE_RATE_HZ * 1000 * self.frequency_window_cycles, delta=0.1)
         self.assertAlmostEqual(incidents[0]["avg_deviation"], numpy.average(test_windowed_frequencies[0:10]) - 60.0,
                                delta=0.1)
         self.assertEqual(incidents[0]["incident_classifications"], [mongo.IncidentClassification.FREQUENCY_SAG])
@@ -225,14 +253,17 @@ class FrequencyVariationTests(unittest.TestCase):
         test_windowed_frequencies = [60.0 for _ in range(10)] + [59.0 for _ in range(10)]
 
         incidents = frequency_incident_classifier(0, "", numpy.array(test_windowed_frequencies), 0, self.freq_ref,
-                                                  self.freq_var_high, self.freq_var_low, self.freq_interruption)
+                                                  self.freq_var_high, self.freq_var_low, self.freq_interruption,
+                                                  int(self.frequency_window_cycles * constants.SAMPLES_PER_CYCLE),
+                                                  self.max_lull)
 
         message = "Frequency Windows:{} Classified as:{}".format(test_windowed_frequencies, incidents)
         self.assertEqual(len(incidents), 1, msg=message)
         self.assertAlmostEqual(incidents[0]["incident_start_ts"], 10 * constants.SAMPLES_PER_CYCLE /
-                               constants.SAMPLE_RATE_HZ * 1000, delta=0.1)
+                               constants.SAMPLE_RATE_HZ * 1000 * self.frequency_window_cycles, delta=0.1)
         self.assertAlmostEqual(incidents[0]["incident_end_ts"], len(test_windowed_frequencies) *
-                               constants.SAMPLES_PER_CYCLE / constants.SAMPLE_RATE_HZ * 1000, delta=0.1)
+                               constants.SAMPLES_PER_CYCLE / constants.SAMPLE_RATE_HZ * 1000 *
+                               self.frequency_window_cycles, delta=0.1)
         self.assertAlmostEqual(incidents[0]["avg_deviation"], numpy.average(test_windowed_frequencies[10:20]) - 60.0,
                                delta=0.1)
         self.assertEqual(incidents[0]["incident_classifications"], [mongo.IncidentClassification.FREQUENCY_SAG])
@@ -241,14 +272,16 @@ class FrequencyVariationTests(unittest.TestCase):
         test_windowed_frequencies = [60.0 for _ in range(10)] + [59.0 for _ in range(10)] + [60.0 for _ in range(10)]
 
         incidents = frequency_incident_classifier(0, "", numpy.array(test_windowed_frequencies), 0, self.freq_ref,
-                                                  self.freq_var_high, self.freq_var_low, self.freq_interruption)
+                                                  self.freq_var_high, self.freq_var_low, self.freq_interruption,
+                                                  int(self.frequency_window_cycles * constants.SAMPLES_PER_CYCLE),
+                                                  self.max_lull)
 
         message = "Frequency Windows:{} Classified as:{}".format(test_windowed_frequencies, incidents)
         self.assertEqual(len(incidents), 1, msg=message)
         self.assertAlmostEqual(incidents[0]["incident_start_ts"], 10 * constants.SAMPLES_PER_CYCLE /
-                               constants.SAMPLE_RATE_HZ * 1000, delta=0.01)
+                               constants.SAMPLE_RATE_HZ * 1000 * self.frequency_window_cycles, delta=0.01)
         self.assertAlmostEqual(incidents[0]["incident_end_ts"], 20 * constants.SAMPLES_PER_CYCLE /
-                               constants.SAMPLE_RATE_HZ * 1000, delta=0.01)
+                               constants.SAMPLE_RATE_HZ * 1000 * self.frequency_window_cycles, delta=0.01)
         self.assertAlmostEqual(incidents[0]["avg_deviation"], numpy.average(test_windowed_frequencies[10:20]) - 60.0,
                                delta=0.01)
         self.assertEqual(incidents[0]["incident_classifications"], [mongo.IncidentClassification.FREQUENCY_SAG])
@@ -258,23 +291,25 @@ class FrequencyVariationTests(unittest.TestCase):
                                     [59.0 for _ in range(5)] + [60.0 for _ in range(5)]
 
         incidents = frequency_incident_classifier(0, "", numpy.array(test_windowed_frequencies), 0, self.freq_ref,
-                                                  self.freq_var_high, self.freq_var_low, self.freq_interruption)
+                                                  self.freq_var_high, self.freq_var_low, self.freq_interruption,
+                                                  int(self.frequency_window_cycles * constants.SAMPLES_PER_CYCLE),
+                                                  self.max_lull)
 
         message = "Frequency Windows:{} Classified as:{}".format(test_windowed_frequencies, incidents)
         self.assertEqual(len(incidents), 2, msg=message)
         self.assertAlmostEqual(incidents[0]["incident_start_ts"], 5 * constants.SAMPLES_PER_CYCLE /
-                               constants.SAMPLE_RATE_HZ * 1000, delta=0.01)
+                               constants.SAMPLE_RATE_HZ * 1000 * self.frequency_window_cycles, delta=0.01)
         self.assertAlmostEqual(incidents[0]["incident_end_ts"], 10 * constants.SAMPLES_PER_CYCLE /
-                               constants.SAMPLE_RATE_HZ * 1000, delta=0.01)
+                               constants.SAMPLE_RATE_HZ * 1000 * self.frequency_window_cycles, delta=0.01)
         self.assertAlmostEqual(incidents[0]["avg_deviation"], numpy.average(test_windowed_frequencies[5:10]) - 60.0,
                                delta=0.01)
         self.assertEqual(incidents[0]["incident_classifications"], [mongo.IncidentClassification.FREQUENCY_SAG])
 
         self.assertEqual(len(incidents), 2, msg=message)
         self.assertAlmostEqual(incidents[1]["incident_start_ts"], 15 * constants.SAMPLES_PER_CYCLE /
-                               constants.SAMPLE_RATE_HZ * 1000, delta=0.01)
+                               constants.SAMPLE_RATE_HZ * 1000 * self.frequency_window_cycles, delta=0.01)
         self.assertAlmostEqual(incidents[1]["incident_end_ts"], 20 * constants.SAMPLES_PER_CYCLE /
-                               constants.SAMPLE_RATE_HZ * 1000, delta=0.01)
+                               constants.SAMPLE_RATE_HZ * 1000 * self.frequency_window_cycles, delta=0.01)
         self.assertAlmostEqual(incidents[1]["avg_deviation"], numpy.average(test_windowed_frequencies[15:20]) - 60.0,
                                delta=0.01)
         self.assertEqual(incidents[1]["incident_classifications"], [mongo.IncidentClassification.FREQUENCY_SAG])
@@ -301,7 +336,9 @@ class FrequencyVariationTests(unittest.TestCase):
         """frequency_incident_classifier Method"""
         test_windowed_frequencies = [50.0 for _ in range(1)]  # 1 window of samples
         incidents = frequency_incident_classifier(0, "", numpy.array(test_windowed_frequencies), 0, self.freq_ref,
-                                                  self.freq_var_high, self.freq_var_low, self.freq_interruption)
+                                                  self.freq_var_high, self.freq_var_low, self.freq_interruption,
+                                                  int(self.frequency_window_cycles * constants.SAMPLES_PER_CYCLE),
+                                                  self.max_lull)
         message = "Frequency Window:{} Classified as:{}".format(test_windowed_frequencies, incidents)
         self.assertEqual(len(incidents), 1, msg=message)
 
@@ -309,13 +346,16 @@ class FrequencyVariationTests(unittest.TestCase):
         test_windowed_frequencies = [50.0 for _ in range(10)]
 
         incidents = frequency_incident_classifier(0, "", numpy.array(test_windowed_frequencies), 0, self.freq_ref,
-                                                  self.freq_var_high, self.freq_var_low, self.freq_interruption)
+                                                  self.freq_var_high, self.freq_var_low, self.freq_interruption,
+                                                  int(self.frequency_window_cycles * constants.SAMPLES_PER_CYCLE),
+                                                  self.max_lull)
 
         message = "Frequency Windows:{} Classified as:{}".format(test_windowed_frequencies, incidents)
         self.assertEqual(len(incidents), 1, msg=message)
         self.assertAlmostEqual(incidents[0]["incident_start_ts"], 0, delta=0.1)
         self.assertAlmostEqual(incidents[0]["incident_end_ts"], len(test_windowed_frequencies) *
-                               constants.SAMPLES_PER_CYCLE / constants.SAMPLE_RATE_HZ * 1000, delta=0.1)
+                               constants.SAMPLES_PER_CYCLE / constants.SAMPLE_RATE_HZ * 1000 *
+                               self.frequency_window_cycles, delta=0.1)
         self.assertAlmostEqual(incidents[0]["avg_deviation"], numpy.average(test_windowed_frequencies[0:10]) - 60.0,
                                delta=0.1)
         self.assertEqual(incidents[0]["incident_classifications"],
@@ -325,13 +365,15 @@ class FrequencyVariationTests(unittest.TestCase):
         test_windowed_frequencies = [50.0 for _ in range(10)] + [60.0 for _ in range(10)]
 
         incidents = frequency_incident_classifier(0, "", numpy.array(test_windowed_frequencies), 0, self.freq_ref,
-                                                  self.freq_var_high, self.freq_var_low, self.freq_interruption)
+                                                  self.freq_var_high, self.freq_var_low, self.freq_interruption,
+                                                  int(self.frequency_window_cycles * constants.SAMPLES_PER_CYCLE),
+                                                  self.max_lull)
 
         message = "Frequency Windows:{} Classified as:{}".format(test_windowed_frequencies, incidents)
         self.assertEqual(len(incidents), 1, msg=message)
         self.assertAlmostEqual(incidents[0]["incident_start_ts"], 0, delta=0.1)
         self.assertAlmostEqual(incidents[0]["incident_end_ts"], 10 * constants.SAMPLES_PER_CYCLE /
-                               constants.SAMPLE_RATE_HZ * 1000, delta=0.1)
+                               constants.SAMPLE_RATE_HZ * 1000 * self.frequency_window_cycles, delta=0.1)
         self.assertAlmostEqual(incidents[0]["avg_deviation"], numpy.average(test_windowed_frequencies[0:10]) - 60.0,
                                delta=0.1)
         self.assertEqual(incidents[0]["incident_classifications"],
@@ -341,14 +383,17 @@ class FrequencyVariationTests(unittest.TestCase):
         test_windowed_frequencies = [60.0 for _ in range(10)] + [50.0 for _ in range(10)]
 
         incidents = frequency_incident_classifier(0, "", numpy.array(test_windowed_frequencies), 0, self.freq_ref,
-                                                  self.freq_var_high, self.freq_var_low, self.freq_interruption)
+                                                  self.freq_var_high, self.freq_var_low, self.freq_interruption,
+                                                  int(self.frequency_window_cycles * constants.SAMPLES_PER_CYCLE),
+                                                  self.max_lull)
 
         message = "Frequency Windows:{} Classified as:{}".format(test_windowed_frequencies, incidents)
         self.assertEqual(len(incidents), 1, msg=message)
         self.assertAlmostEqual(incidents[0]["incident_start_ts"], 10 * constants.SAMPLES_PER_CYCLE /
-                               constants.SAMPLE_RATE_HZ * 1000, delta=0.1)
+                               constants.SAMPLE_RATE_HZ * 1000 * self.frequency_window_cycles, delta=0.1)
         self.assertAlmostEqual(incidents[0]["incident_end_ts"], len(test_windowed_frequencies) *
-                               constants.SAMPLES_PER_CYCLE / constants.SAMPLE_RATE_HZ * 1000, delta=0.1)
+                               constants.SAMPLES_PER_CYCLE / constants.SAMPLE_RATE_HZ * 1000 *
+                               self.frequency_window_cycles, delta=0.1)
         self.assertAlmostEqual(incidents[0]["avg_deviation"], numpy.average(test_windowed_frequencies[10:20]) - 60.0,
                                delta=0.1)
         self.assertEqual(incidents[0]["incident_classifications"],
@@ -358,14 +403,16 @@ class FrequencyVariationTests(unittest.TestCase):
         test_windowed_frequencies = [60.0 for _ in range(10)] + [50.0 for _ in range(10)] + [60.0 for _ in range(10)]
 
         incidents = frequency_incident_classifier(0, "", numpy.array(test_windowed_frequencies), 0, self.freq_ref,
-                                                  self.freq_var_high, self.freq_var_low, self.freq_interruption)
+                                                  self.freq_var_high, self.freq_var_low, self.freq_interruption,
+                                                  int(self.frequency_window_cycles * constants.SAMPLES_PER_CYCLE),
+                                                  self.max_lull)
 
         message = "Frequency Windows:{} Classified as:{}".format(test_windowed_frequencies, incidents)
         self.assertEqual(len(incidents), 1, msg=message)
         self.assertAlmostEqual(incidents[0]["incident_start_ts"], 10 * constants.SAMPLES_PER_CYCLE /
-                               constants.SAMPLE_RATE_HZ * 1000, delta=0.01)
+                               constants.SAMPLE_RATE_HZ * 1000 * self.frequency_window_cycles, delta=0.01)
         self.assertAlmostEqual(incidents[0]["incident_end_ts"], 20 * constants.SAMPLES_PER_CYCLE /
-                               constants.SAMPLE_RATE_HZ * 1000, delta=0.01)
+                               constants.SAMPLE_RATE_HZ * 1000 * self.frequency_window_cycles, delta=0.01)
         self.assertAlmostEqual(incidents[0]["avg_deviation"], numpy.average(test_windowed_frequencies[10:20]) - 60.0,
                                delta=0.01)
         self.assertEqual(incidents[0]["incident_classifications"],
@@ -376,14 +423,16 @@ class FrequencyVariationTests(unittest.TestCase):
                                     [50.0 for _ in range(5)] + [60.0 for _ in range(5)]
 
         incidents = frequency_incident_classifier(0, "", numpy.array(test_windowed_frequencies), 0, self.freq_ref,
-                                                  self.freq_var_high, self.freq_var_low, self.freq_interruption)
+                                                  self.freq_var_high, self.freq_var_low, self.freq_interruption,
+                                                  int(self.frequency_window_cycles * constants.SAMPLES_PER_CYCLE),
+                                                  self.max_lull)
 
         message = "Frequency Windows:{} Classified as:{}".format(test_windowed_frequencies, incidents)
         self.assertEqual(len(incidents), 2, msg=message)
         self.assertAlmostEqual(incidents[0]["incident_start_ts"], 5 * constants.SAMPLES_PER_CYCLE /
-                               constants.SAMPLE_RATE_HZ * 1000, delta=0.01)
+                               constants.SAMPLE_RATE_HZ * 1000 * self.frequency_window_cycles, delta=0.01)
         self.assertAlmostEqual(incidents[0]["incident_end_ts"], 10 * constants.SAMPLES_PER_CYCLE /
-                               constants.SAMPLE_RATE_HZ * 1000, delta=0.01)
+                               constants.SAMPLE_RATE_HZ * 1000 * self.frequency_window_cycles, delta=0.01)
         self.assertAlmostEqual(incidents[0]["avg_deviation"], numpy.average(test_windowed_frequencies[5:10]) - 60.0,
                                delta=0.01)
         self.assertEqual(incidents[0]["incident_classifications"],
@@ -391,9 +440,9 @@ class FrequencyVariationTests(unittest.TestCase):
 
         self.assertEqual(len(incidents), 2, msg=message)
         self.assertAlmostEqual(incidents[1]["incident_start_ts"], 15 * constants.SAMPLES_PER_CYCLE /
-                               constants.SAMPLE_RATE_HZ * 1000, delta=0.01)
+                               constants.SAMPLE_RATE_HZ * 1000 * self.frequency_window_cycles, delta=0.01)
         self.assertAlmostEqual(incidents[1]["incident_end_ts"], 20 * constants.SAMPLES_PER_CYCLE /
-                               constants.SAMPLE_RATE_HZ * 1000, delta=0.01)
+                               constants.SAMPLE_RATE_HZ * 1000 * self.frequency_window_cycles, delta=0.01)
         self.assertAlmostEqual(incidents[1]["avg_deviation"], numpy.average(test_windowed_frequencies[15:20]) - 60.0,
                                delta=0.01)
         self.assertEqual(incidents[1]["incident_classifications"],
