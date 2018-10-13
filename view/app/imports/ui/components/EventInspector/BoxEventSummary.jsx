@@ -109,23 +109,29 @@ class BoxEventSummary extends React.Component {
                 </Grid.Column>
 
                 <Grid.Column width={3}>
-                  <List floated='left'>
-                    <List.Item>
-                      <List.Icon name='marker' color='blue' size='large' verticalAlign='middle' />
-                      <List.Content style={{ paddingLeft: '2px' }}>
-                        <List.Header>Location</List.Header>
-                        <List.Description><i>{description}</i></List.Description>
-                      </List.Content>
-                    </List.Item>
-                  </List>
-                  <Popup
-                      trigger={
-                        <Button icon size='small' floated='right' onClick={mapZoomCallback(slug)}>
-                          <Icon size='large' name='crosshairs' />
-                        </Button>
-                      }
-                      content='Zoom to box location'
-                  />
+                  <Grid>
+                    <Grid.Column width={12}>
+                      <List>
+                        <List.Item>
+                          <List.Icon name='marker' color='blue' size='large' verticalAlign='middle' />
+                          <List.Content>
+                            <List.Header>Location</List.Header>
+                            <List.Description><i>{description}</i></List.Description>
+                          </List.Content>
+                        </List.Item>
+                      </List>
+                    </Grid.Column>
+                    <Grid.Column width={4}>
+                      <Popup
+                          trigger={
+                            <Button icon size='small' floated='right' onClick={mapZoomCallback(slug)}>
+                              <Icon size='large' name='crosshairs' />
+                            </Button>
+                          }
+                          content='Zoom to box location'
+                      />
+                    </Grid.Column>
+                  </Grid>
                 </Grid.Column>
 
                 <Grid.Column width={2}>
