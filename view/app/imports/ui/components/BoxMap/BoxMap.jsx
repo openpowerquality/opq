@@ -243,8 +243,8 @@ class BoxMap extends React.Component {
                           icon
                           as={LinkWithContext}
                           to={{
-                            pathname: '/inspector',
-                            state: { initialBoxIds: [opqBox.box_id] },
+                            pathname: '/inspector/event',
+                            search: `?boxes=${opqBox.box_id}`,
                           }}>
                         <Icon size='large' name='lightning' />
                       </Button>
