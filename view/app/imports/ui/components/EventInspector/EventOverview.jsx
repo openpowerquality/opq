@@ -232,7 +232,7 @@ class EventOverview extends React.Component {
 
   getBoxCalibrationConstant(box_id) {
     const { opqBoxes } = this.props;
-    const opqBox = opqBoxes.filter(box => box.box_id === box_id).shift();
+    const opqBox = opqBoxes.find(box => box.box_id === box_id);
     return opqBox ? opqBox.calibration_constant : 1;
   }
 
@@ -276,7 +276,7 @@ class EventOverview extends React.Component {
 
   getCurrentOpqBoxLocationSlug(boxEvent) {
     const { opqBoxes } = this.props;
-    const opqBox = opqBoxes.filter(box => box.box_id === boxEvent.box_id).shift();
+    const opqBox = opqBoxes.find(box => box.box_id === boxEvent.box_id);
     return opqBox ? opqBox.location : null;
   }
 

@@ -1,4 +1,4 @@
-import { Meteor } from 'meteor/meteor'
+import { Meteor } from 'meteor/meteor';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Loader, Button, Grid, Segment, List, Checkbox, Popup, Icon } from 'semantic-ui-react';
