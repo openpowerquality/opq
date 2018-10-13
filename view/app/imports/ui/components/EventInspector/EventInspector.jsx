@@ -13,7 +13,7 @@ import { OpqBoxes } from '../../../api/opq-boxes/OpqBoxesCollection';
 import { getEventsInRange } from '../../../api/events/EventsCollection.methods';
 import BoxSelector from '../../layouts/BoxSelector';
 
-/** Displays event details, including the waveform at the time of the event. */
+/** Allows for the searching of past events, displaying results in a sortable table. */
 class EventInspector extends React.Component {
   constructor(props) {
     super(props);
