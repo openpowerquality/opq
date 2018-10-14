@@ -118,25 +118,6 @@ def frequency(samples: numpy.ndarray, downsample_factor: int) -> float:
     _, est_freq, _, _ = optimize.leastsq(optimize_func,
                                          numpy.array([guess_amp, guess_freq, guess_phase, guess_mean]))[0]
 
-    # interp_samples = numpy.arange(0, len(samples), 0.125)
-    #
-    # interp_samples = numpy.interp(interp_samples, numpy.arange(0, len(samples), 1), samples)
-    #
-    # z_crossings = find_zero_xings(interp_samples)
-    #
-    # num_crossings = sum(z_crossings)
-    #
-    # if num_crossings == 1:
-    #     # try peak to crossing
-    #     t = numpy.abs(numpy.argwhere(z_crossings == True)[0][0] - numpy.argmax(interp_samples))
-    #     est_freq = 1 / (t / (8 * constants.SAMPLE_RATE_HZ / 4))
-    #     return est_freq
-    # elif num_crossings == 0:
-    #     return 0
-    #
-    # est_freq = numpy.average( 1 / (numpy.diff(numpy.arange(len(z_crossings))[z_crossings]) /
-    #                                (8 * constants.SAMPLE_RATE_HZ / 2)))
-
     return round(est_freq, ndigits=2)
 
 
