@@ -78,42 +78,22 @@ def find_zero_xings(waveform: numpy.ndarray) -> numpy.ndarray:
     return numpy.diff(numpy.signbit(waveform))
 
 
-def waveform_filter(raw_waveform: numpy.ndarray, cutoff_frequency: float ,fundamental_freq: float = constants.CYCLES_PER_SECOND,
-                    fundamental_vrms: float = constants.NOMINAL_VRMS) -> dict:
+def waveform_filter(raw_waveform: numpy.ndarray, filter_order: int, cutoff_frequency: float = ) -> dict:
     """
     Function to filter out the fundamental waveform to retrieve the potential transient waveform
     :param raw_waveform: The raw sampled voltages
-    :param fundamental_freq: The expected fundamental frequency of the waveform
-    :param fundamental_vrms: The expected vrms voltage of the waveform
+    :param filter_order: The order of the low pass Butterworth filter
+    :param cutoff_frequency: The cutoff frequency of the low pass Butterworth filter
     :return: The filtered waveform, that is the waveform without the fundamental frequency component
     """
 
-    # smooth digital signal w/ butterworth filter
+    # smooth digital signal w/ Butterworth filter
     # First, design the Butterworth filter
     # Cutoff frequencies in half-cycles / sample
-    cutoff_frequency_nyquist =  cutoff_frequency * 2 / constants.SAMPLE_RATE_HZ
+    cutoff_frequency_nyquist = cutoff_frequency * 2 / constants.SAMPLE_RATE_HZ
     numerator, denominator = signal.butter(filter_order, cutoff_frequency_nyquist, output='ba')
 
-    dtltis = signal.dlti(numerator, denominator)
-    # decimate signal to improve runtime
-
-    # Fit sinusoidal curve to data
-    set_amp = fundamental_vrms * numpy.sqrt(2)
-    set_freq = fundamental_freq
-    guess_phase = 0.0
-    set_mean = 0.0
-    idx = numpy.arange(0, len(raw_waveform) / constants.SAMPLE_RATE_HZ, 1 / constants.SAMPLE_RATE_HZ)
-
-    def optimize_func(args):
-        """
-        Optimized the function for finding and fitting the frequency.
-        :param args: A list containing in this order: guess_amp, guess_freq, guess_phase, guess_mean.
-        :return: Optimized function.
-        """
-        return set_amp * numpy.sin(set_freq * 2 * numpy.pi * idx + args[0]) + set_mean - raw_waveform
-
-    est_phase = optimize.leastsq(optimize_func, numpy.array([guess_phase]))[0]
-    fundamental_waveform = set_amp * numpy.sin(set_freq * 2 * numpy.pi * idx + est_phase) + set_mean
+    fundamental_waveform = signal.filtfilt(numerator, denominator, raw_waveform)
     filtered_waveform = raw_waveform - fundamental_waveform
 
     return {"fundamental_waveform": fundamental_waveform, "filtered_waveform": filtered_waveform,
