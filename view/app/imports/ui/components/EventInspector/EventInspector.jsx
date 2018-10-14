@@ -207,7 +207,11 @@ class EventInspector extends React.Component {
               event.duration = event.target_event_end_timestamp_ms - event.target_event_start_timestamp_ms;
               return event;
             });
-            this.setState({ events: eventsWithDuration, loading: false, loaded: true }, () => this.handleTableSort());
+            this.setState({
+              events: eventsWithDuration,
+              loading: false,
+              loaded: true,
+            }, () => this.handleTableSort('_resetToDefaultState')());
           },
       );
     });
@@ -219,9 +223,8 @@ class EventInspector extends React.Component {
     const DEFAULT_SORT_COLUMN = 'event_id';
 
     // Sort event data and update state, triggering re-render of table.
-    if (!clickedColumn) {
-      // If no column is specified, we sort by the default column specified above. Currently, this is triggered each
-      // time we (re)submit the form.
+    if (clickedColumn === '_resetToDefaultState') {
+      // Reset to default sorting state. Currently, this is triggered each time we (re)submit the form.
       this.setState(state => ({
         column: DEFAULT_SORT_COLUMN,
         direction: 'descending',
