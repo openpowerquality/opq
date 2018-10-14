@@ -78,19 +78,19 @@ def find_zero_xings(waveform: numpy.ndarray) -> numpy.ndarray:
     return numpy.diff(numpy.signbit(waveform))
 
 
-def waveform_filter(raw_waveform: numpy.ndarray, filter_order: int, cutoff_frequency: float = ) -> dict:
+def waveform_filter(raw_waveform: numpy.ndarray, filter_order: int, transient_cutoff_frequency: float) -> dict:
     """
     Function to filter out the fundamental waveform to retrieve the potential transient waveform
     :param raw_waveform: The raw sampled voltages
     :param filter_order: The order of the low pass Butterworth filter
-    :param cutoff_frequency: The cutoff frequency of the low pass Butterworth filter
+    :param transient_cutoff_frequency: The cutoff frequency of the low pass Butterworth filter.
     :return: The filtered waveform, that is the waveform without the fundamental frequency component
     """
 
     # smooth digital signal w/ Butterworth filter
     # First, design the Butterworth filter
     # Cutoff frequencies in half-cycles / sample
-    cutoff_frequency_nyquist = cutoff_frequency * 2 / constants.SAMPLE_RATE_HZ
+    cutoff_frequency_nyquist = transient_cutoff_frequency * 2 / constants.SAMPLE_RATE_HZ
     numerator, denominator = signal.butter(filter_order, cutoff_frequency_nyquist, output='ba')
 
     fundamental_waveform = signal.filtfilt(numerator, denominator, raw_waveform)
