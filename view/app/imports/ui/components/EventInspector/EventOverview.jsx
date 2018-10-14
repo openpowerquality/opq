@@ -97,10 +97,12 @@ class EventOverview extends React.Component {
     const boxEventLocationSlugs = boxEvents.map(be => be.location);
     const filteredLocations = locations.filter(loc => boxEventLocationSlugs.indexOf(loc.slug) > -1);
 
-    // Center the map on the initial triggering box event location.
-    const triggeredBoxEvent = boxEvents.find(be => be.box_id === event.boxes_triggered[0]);
-    const triggeredBoxEventLocation = this.getBoxEventLocationDoc(triggeredBoxEvent);
-    const mapCenter = this.getLocationCoords(triggeredBoxEventLocation);
+    // Center the map on the initial triggering box event location. In the rare case that it is not available, we choose
+    // an arbitrary box event from boxes_received instead.
+    const { triggeredBoxEvents, otherBoxEvents } = this.separateBoxEvents(event, boxEvents);
+    const boxEvent = (triggeredBoxEvents.length) ? triggeredBoxEvents[0] : otherBoxEvents[0];
+    const boxEventLocation = this.getBoxEventLocationDoc(boxEvent);
+    const mapCenter = this.getLocationCoords(boxEventLocation);
 
     // It seems that the dropdown menu from the navigation bar has a z-index of 11, which results in the menu clipping
     // beneath the Leaflet map. We set the map's z-index to 10 to fix this.
@@ -133,13 +135,12 @@ class EventOverview extends React.Component {
     const date = event ? Moment(event.target_event_start_timestamp_ms).format('YYYY-MM-DD') : '';
     const time = event ? Moment(event.target_event_start_timestamp_ms).format('HH:mm:ss') : '';
     const duration_ms = event ? event.target_event_end_timestamp_ms - event.target_event_start_timestamp_ms : '';
-    let triggeredBoxEventLocation = '';
-    if (event && boxEvents.length) {
-      // We only describe the first box in Event.boxes_triggered (there is usually only one triggering box anyway!)
-      const boxEvent = boxEvents.find(be => be.box_id === event.boxes_triggered[0]);
-      const locationDoc = this.getBoxEventLocationDoc(boxEvent);
-      triggeredBoxEventLocation = locationDoc ? locationDoc.description : 'UNKNOWN';
-    }
+
+    // Get the location description of the initial triggered box event.
+    const { triggeredBoxEvents } = this.separateBoxEvents(event, boxEvents);
+    const boxEvent = (triggeredBoxEvents.length) ? triggeredBoxEvents[0] : null;
+    const locationDoc = boxEvent ? this.getBoxEventLocationDoc(boxEvent) : null;
+    const triggeredBoxEventLocation = locationDoc ? locationDoc.description : 'UNAVAILABLE';
 
     const pStyle = { fontSize: '16px' };
 
@@ -153,7 +154,7 @@ class EventOverview extends React.Component {
         <p style={pStyle}>
           The event was initially detected by <span style={{ backgroundColor: '#c3edbb' }}>
           Box {event.boxes_triggered[0]} at {triggeredBoxEventLocation}</span>, with waveform data available
-          for {event.boxes_received.length - 1} other boxes.
+          for {event.boxes_received.filter(box_id => box_id !== event.boxes_triggered[0]).length} other boxes.
         </p>
         <p style={pStyle}>
           The event has been classified as a <span style={{ backgroundColor: '#fcf9a9' }}>{event.type}</span>
@@ -250,7 +251,6 @@ class EventOverview extends React.Component {
     const otherBoxEvents = [];
 
     boxEvents.forEach(be => {
-      // const boxEvent = this.ensureBoxEventLocationSlug(be);
       if (event.boxes_triggered.indexOf(be.box_id) > -1) {
         triggeredBoxEvents.push(be);
       } else {
