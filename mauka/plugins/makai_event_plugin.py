@@ -22,6 +22,7 @@ import plugins.semi_f47_plugin
 import plugins.thd_plugin
 import protobuf.mauka_pb2
 import protobuf.util
+from opq_mauka import load_config
 
 
 def smooth_waveform(sample: numpy.ndarray, filter_order: int = 2, cutoff_frequency: float = 500.0,
@@ -121,9 +122,8 @@ def frequency(samples: numpy.ndarray, downsample_factor: int) -> float:
     return round(est_freq, ndigits=2)
 
 
-def frequency_waveform(waveform: numpy.ndarray, window_size: int,
-                       filter_order: int = 2, cutoff_frequency: float = 500.0,
-                       downsample_factor: int = 4) -> numpy.ndarray:
+def frequency_waveform(waveform: numpy.ndarray, window_size: int, filter_order: int, cutoff_frequency: float,
+                       down_sample_factor) -> numpy.ndarray:
     """
     Calculated frequency of a waveform using a given window size. In most cases, our window size should be the
     number of samples in a cycle.
@@ -131,22 +131,23 @@ def frequency_waveform(waveform: numpy.ndarray, window_size: int,
     :param window_size: The size of the window used to compute frequency over the waveform.
     :param filter_order: order of band pass butterworth filter
     :param cutoff_frequency: cutoff frequency of low pass butterworth filter to smooth digital signal
+    :param down_sample_factor: The down sample factor
     :return: An array of frequency values calculated for a given waveform.
     """
 
     # smooth digital signal w/ butterworth filter
     filtered_waveform = smooth_waveform(waveform, filter_order=filter_order, cutoff_frequency=cutoff_frequency,
-                                        downsample_factor=downsample_factor)
+                                        downsample_factor=down_sample_factor)
 
     # filtered frequency calc.
     frequencies = []
     while len(filtered_waveform) >= window_size:
         samples = filtered_waveform[:window_size]
         filtered_waveform = filtered_waveform[window_size:]
-        frequencies.append(frequency(samples, downsample_factor))
+        frequencies.append(frequency(samples, down_sample_factor))
 
     if len(filtered_waveform) > 0:
-        frequencies.append(frequency(filtered_waveform, downsample_factor))
+        frequencies.append(frequency(filtered_waveform, down_sample_factor))
 
     return numpy.array(frequencies)
 
@@ -158,7 +159,9 @@ ACQUIRE_DATA_TYPE = typing.Tuple[
     protobuf.mauka_pb2.MaukaMessage]
 
 
-def acquire_data(mongo_client: mongo.OpqMongoClient, event_id: int, box_id: str, name: str) -> ACQUIRE_DATA_TYPE:
+def acquire_data(mongo_client: mongo.OpqMongoClient, event_id: int, box_id: str, name: str, filter_order: int,
+                 filter_cutoff_frequency: float, frequency_samples_per_window: int,
+                 filter_down_sample_factor: int) -> ACQUIRE_DATA_TYPE:
     """
     Given an event_id, acquire the raw data for each box associated with the given event. Perform feature
     extraction of the raw data and publish those features for downstream plugins.
@@ -166,6 +169,10 @@ def acquire_data(mongo_client: mongo.OpqMongoClient, event_id: int, box_id: str,
     :param mongo_client: The mongo client to use to make this request.
     :param event_id: The event id to acquire data for.
     :param name: The name of the service requesting data.
+    :param filter_order:
+    :param filter_cutoff_frequency:
+    :param frequency_samples_per_window:
+    :param filter_down_sample_factor:
     """
     box_event = mongo_client.box_events_collection.find_one({"event_id": event_id,
                                                              "box_id": box_id})
@@ -206,7 +213,10 @@ def acquire_data(mongo_client: mongo.OpqMongoClient, event_id: int, box_id: str,
                                                      box_id,
                                                      protobuf.mauka_pb2.FREQUENCY_WINDOWED,
                                                      frequency_waveform(waveform_calibrated,
-                                                                        int(constants.SAMPLES_PER_CYCLE)),
+                                                                        frequency_samples_per_window,
+                                                                        filter_order,
+                                                                        filter_cutoff_frequency,
+                                                                        filter_down_sample_factor),
                                                      start_timestamp,
                                                      end_timestamp)
 
@@ -225,8 +235,9 @@ class MakaiEventPlugin(plugins.base_plugin.MaukaPlugin):
         self.get_data_after_s = float(self.config["plugins.MakaiEventPlugin.getDataAfterS"])
         self.filter_order = int(self.config_get("plugins.MakaiEventPlugin.filterOrder"))
         self.cutoff_frequency = float(self.config_get("plugins.MakaiEventPlugin.cutoffFrequency"))
-        self.frequency_window_cycles = int(self.config_get("plugins.MakaiEventPlugin.frequencyWindowCycles"))
-        self.frequency_downsample_factor = int(self.config_get("plugins.MakaiEventPlugin.frequencyDownSampleRate"))
+        self.samples_per_window = int(constants.SAMPLES_PER_CYCLE) * int(self.config_get(
+            "plugins.MakaiEventPlugin.frequencyWindowCycles"))
+        self.down_sample_factor = int(self.config_get("plugins.MakaiEventPlugin.frequencyDownSampleRate"))
 
     def acquire_and_produce(self, event_id: int):
         """
@@ -240,7 +251,11 @@ class MakaiEventPlugin(plugins.base_plugin.MaukaPlugin):
             adc_samples, raw_voltage, rms_windowed_voltage, frequency_windowed = acquire_data(self.mongo_client,
                                                                                               event_id,
                                                                                               box_id,
-                                                                                              self.name)
+                                                                                              self.name,
+                                                                                              self.filter_order,
+                                                                                              self.cutoff_frequency,
+                                                                                              self.samples_per_window,
+                                                                                              self.down_sample_factor)
             self.produce("AdcSamples", adc_samples)
             self.produce("RawVoltage", raw_voltage)
             self.produce("RmsWindowedVoltage", rms_windowed_voltage)
@@ -265,11 +280,20 @@ def rerun(event_id: int):
     """
     client = mongo.get_default_client()
     logger = logging.getLogger()
+    config = load_config("./config.json")
+    filter_order = int(config["plugins.MakaiEventPlugin.filterOrder"])
+    cutoff_frequency = float(config["plugins.MakaiEventPlugin.cutoffFrequency"])
+    samples_per_window = int(constants.SAMPLES_PER_CYCLE) * int(
+        config["plugins.MakaiEventPlugin.frequencyWindowCycles"])
+    down_sample_factor = int(config["plugins.MakaiEventPlugin.frequencyDownSampleRate"])
     try:
         box_events = client.box_events_collection.find({"event_id": event_id})
         for box_event in box_events:
             box_id = box_event["box_id"]
-            adc_samples, _, rms_windowed_voltage, frequency_windowed = acquire_data(client, event_id, box_id, "rerun")
+            adc_samples, _, rms_windowed_voltage, frequency_windowed = acquire_data(client, event_id, box_id, "rerun",
+                                                                                    filter_order, cutoff_frequency,
+                                                                                    samples_per_window,
+                                                                                    down_sample_factor)
             plugins.frequency_variation_plugin.rerun(client, logger, frequency_windowed)
             plugins.ieee1159_voltage_plugin.rerun(rms_windowed_voltage, logger, client)
             plugins.itic_plugin.rerun(rms_windowed_voltage, 0.1, logger, client)
