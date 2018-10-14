@@ -41,9 +41,7 @@ def smooth_waveform(sample: numpy.ndarray, filter_order: int = 2, cutoff_frequen
     cutoff_frequency_nyquist = cutoff_frequency * 2 / constants.SAMPLE_RATE_HZ
     numerator, denominator = signal.butter(filter_order, cutoff_frequency_nyquist, output='ba')
 
-    # Second, apply the filter
-    # return signal.filtfilt(b, a, sample)
-
+    # Second, create Dicrete-time linear time invariant system instance
     dtltis = signal.dlti(numerator, denominator)
     # decimate signal to improve runtime
     return signal.decimate(sample, downsample_factor, ftype=dtltis)
@@ -89,22 +87,22 @@ def vrms_waveform(waveform: numpy.ndarray, window_size: int = constants.SAMPLES_
     return numpy.array(rms_voltages)
 
 
-def frequency(samples: numpy.ndarray, downsample_factor: int) -> float:
+def frequency(samples: numpy.ndarray, down_sample_factor: int) -> float:
     """
     Calculates the frequency of the supplied samples
     :param samples: Samples to calculate frequency over.
-    :param downsample_factor: the downsampling factor from the filtering, used to modify the sampling rate
+    :param down_sample_factor: the down sampling factor from the filtering, used to modify the sampling rate
     :return: The frequency value of the provided samples in Hz.
     """
 
     # Fit sinusoidal curve to data
-    guess_amp = constants.EXPECTED_VRMS * numpy.sqrt(2)
+    guess_amp = constants.NOMINAL_VRMS * numpy.sqrt(2)
     guess_freq = constants.CYCLES_PER_SECOND
     guess_phase = 0.0
     guess_mean = 0.0
     idx = numpy.arange(0,
-                       len(samples) / (constants.SAMPLE_RATE_HZ / downsample_factor),
-                       1 / (constants.SAMPLE_RATE_HZ / downsample_factor))
+                       len(samples) / (constants.SAMPLE_RATE_HZ / down_sample_factor),
+                       1 / (constants.SAMPLE_RATE_HZ / down_sample_factor))
     idx = idx[:len(samples)]
 
     def optimize_func(args):
@@ -120,9 +118,10 @@ def frequency(samples: numpy.ndarray, downsample_factor: int) -> float:
 
     return round(est_freq, ndigits=2)
 
+
 def frequency_waveform(waveform: numpy.ndarray, window_size: int,
-                       filter_order: int = 2, cutoff_frequency: float = 500.0,
-                       downsample_factor: int = 4) -> numpy.ndarray:
+                       filter_order: int = 4, cutoff_frequency: float = 500.0,
+                       down_sample_factor: int = 2) -> numpy.ndarray:
     """
     Calculated frequency of a waveform using a given window size. In most cases, our window size should be the
     number of samples in a cycle.
@@ -130,22 +129,23 @@ def frequency_waveform(waveform: numpy.ndarray, window_size: int,
     :param window_size: The size of the window used to compute frequency over the waveform.
     :param filter_order: order of band pass butterworth filter
     :param cutoff_frequency: cutoff frequency of low pass butterworth filter to smooth digital signal
+    :param down_sample_factor: the down sample factor
     :return: An array of frequency values calculated for a given waveform.
     """
 
     # smooth digital signal w/ butterworth filter
     filtered_waveform = smooth_waveform(waveform, filter_order=filter_order, cutoff_frequency=cutoff_frequency,
-                                        downsample_factor=downsample_factor)
+                                        downsample_factor=down_sample_factor)
 
     # filtered frequency calc.
     frequencies = []
     while len(filtered_waveform) >= window_size:
         samples = filtered_waveform[:window_size]
         filtered_waveform = filtered_waveform[window_size:]
-        frequencies.append(frequency(samples, downsample_factor))
+        frequencies.append(frequency(samples, down_sample_factor))
 
     if len(filtered_waveform) > 0:
-        frequencies.append(frequency(filtered_waveform, downsample_factor))
+        frequencies.append(frequency(filtered_waveform, down_sample_factor))
 
     return numpy.array(frequencies)
 
@@ -225,7 +225,7 @@ class MakaiEventPlugin(plugins.base_plugin.MaukaPlugin):
         self.filter_order = int(self.config_get("plugins.MakaiEventPlugin.filterOrder"))
         self.cutoff_frequency = float(self.config_get("plugins.MakaiEventPlugin.cutoffFrequency"))
         self.frequency_window_cycles = int(self.config_get("plugins.MakaiEventPlugin.frequencyWindowCycles"))
-        self.frequency_downsample_factor = int(self.config_get("plugins.MakaiEventPlugin.frequencyDownSampleRate"))
+        self.frequency_down_sample_factor = int(self.config_get("plugins.MakaiEventPlugin.frequencyDownSampleRate"))
 
     def acquire_and_produce(self, event_id: int):
         """

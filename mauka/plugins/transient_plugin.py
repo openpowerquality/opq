@@ -12,6 +12,7 @@ import protobuf.util
 import mongo
 from scipy import optimize
 from scipy import stats
+from scipy import signal
 
 
 def transient_sliding_window(filtered_waveform: numpy.ndarray, noise_floor: float, max_lull_ms: float) -> list:
@@ -77,8 +78,8 @@ def find_zero_xings(waveform: numpy.ndarray) -> numpy.ndarray:
     return numpy.diff(numpy.signbit(waveform))
 
 
-def waveform_filter(raw_waveform: numpy.ndarray, fundamental_freq: float = constants.CYCLES_PER_SECOND,
-                    fundamental_vrms: float = constants.EXPECTED_VRMS) -> dict:
+def waveform_filter(raw_waveform: numpy.ndarray, cutoff_frequency: float ,fundamental_freq: float = constants.CYCLES_PER_SECOND,
+                    fundamental_vrms: float = constants.NOMINAL_VRMS) -> dict:
     """
     Function to filter out the fundamental waveform to retrieve the potential transient waveform
     :param raw_waveform: The raw sampled voltages
@@ -86,6 +87,15 @@ def waveform_filter(raw_waveform: numpy.ndarray, fundamental_freq: float = const
     :param fundamental_vrms: The expected vrms voltage of the waveform
     :return: The filtered waveform, that is the waveform without the fundamental frequency component
     """
+
+    # smooth digital signal w/ butterworth filter
+    # First, design the Butterworth filter
+    # Cutoff frequencies in half-cycles / sample
+    cutoff_frequency_nyquist =  cutoff_frequency * 2 / constants.SAMPLE_RATE_HZ
+    numerator, denominator = signal.butter(filter_order, cutoff_frequency_nyquist, output='ba')
+
+    dtltis = signal.dlti(numerator, denominator)
+    # decimate signal to improve runtime
 
     # Fit sinusoidal curve to data
     set_amp = fundamental_vrms * numpy.sqrt(2)
@@ -122,7 +132,7 @@ def oscillatory_classifier(filtered_waveform: numpy.ndarray) -> (bool, dict):
     """
 
     # Fit damped sine wave to signal
-    guess_amp = constants.EXPECTED_VRMS * numpy.sqrt(2)
+    guess_amp = constants.NOMINAL_VRMS * numpy.sqrt(2)
     guess_decay = 200.0
     guess_freq = 2500.0
     guess_phase = 0.0
@@ -371,6 +381,7 @@ class TransientPlugin(plugins.base_plugin.MaukaPlugin):
         super().__init__(config, ["RawVoltage"], TransientPlugin.NAME, exit_event)
         self.configs = {
             "noise_floor": float(self.config_get("plugins.TransientPlugin.noise.floor")),
+            "filter_cutoff_frequency": float(self.config_get("plugins.MakaiEventPlugin.cutoffFrequency")),
             "oscillatory_min_cycles": int(self.config_get("plugins.TransientPlugin.oscillatory.min.cycles")),
             "oscillatory_low_freq_max": float(self.config_get("plugins.TransientPlugin.oscillatory.low.freq.max.hz")),
             "oscillatory_med_freq_max": float(self.config_get("plugins.TransientPlugin.oscillatory.med.freq.max.hz")),
