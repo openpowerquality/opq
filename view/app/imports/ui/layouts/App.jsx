@@ -12,14 +12,19 @@ import Signout from '../../ui/pages/Signout.jsx';
 import Landing from '../../ui/pages/Landing';
 import Profile from '../../ui/pages/Profile';
 import ManageBoxPage from '../../ui/pages/ManageBox/ManageBoxPage';
-import ManageLocationPage from '../../ui/pages/ManageLocationPage';
+import ManageLocationPage from '../pages/ManageLocation/ManageLocationPage';
 import ManageRegionPage from '../../ui/pages/ManageRegionPage';
-import ManageUserPage from '../../ui/pages/ManageUserPage';
+import ManageUserPage from '../pages/ManageUsers/ManageUserPage';
 import BoxMapPage from '../../ui/pages/BoxMapPage';
 import EditBoxPage from '../pages/ManageBox/EditBoxPage';
 import NewBoxPage from '../pages/ManageBox/NewBoxPage';
+import EditLocationPage from '../pages/ManageLocation/EditLocationPage';
+import NewLocationPage from '../pages/ManageLocation/NewLocationPage';
+import NewUserPage from '../pages/ManageUsers/NewUserPage';
+import EditUserPage from '../pages/ManageUsers/EditUserPage';
 import LiveDataManager from '../../ui/pages/LiveDataManager';
-import Inspector from '../../ui/pages/Inspector';
+import EventInspectorPage from '../pages/EventInspectorPage';
+import EventOverview from '../../ui/components/EventInspector/EventOverview';
 
 /** Top-level layout component for this application. Called in imports/startup/client/startup.jsx. */
 class App extends React.Component {
@@ -32,8 +37,12 @@ class App extends React.Component {
               <Route exact path="/" component={Landing} />
               <Route path="/about" component={About} />
               <AdminProtectedRoute path="/admin/manage/opqbox/new" component={NewBoxPage}/>
+              <AdminProtectedRoute path="/admin/manage/user/new" component={NewUserPage}/>
+              <AdminProtectedRoute path="/admin/manage/user/edit/:_id" component={EditUserPage}/>
               <AdminProtectedRoute path="/admin/manage/opqbox/edit/:box_id" component={EditBoxPage}/>
               <AdminProtectedRoute path="/admin/manage/opqbox" component={ManageBoxPage}/>
+              <AdminProtectedRoute path="/admin/manage/location/new" component={NewLocationPage}/>
+              <AdminProtectedRoute path="/admin/manage/location/edit/:_id" component={EditLocationPage}/>
               <AdminProtectedRoute path="/admin/manage/location" component={ManageLocationPage}/>
               <AdminProtectedRoute path="/admin/manage/region" component={ManageRegionPage}/>
               <AdminProtectedRoute path="/admin/manage/user" component={ManageUserPage}/>
@@ -41,7 +50,8 @@ class App extends React.Component {
               <ProtectedRoute path="/boxmap" component={BoxMapPage}/>
               <ProtectedRoute path="/signout" component={Signout} />
               <ProtectedRoute path="/livedata" component={LiveDataManager} />
-              <ProtectedRoute path="/inspector" component={Inspector} />
+              <ProtectedRoute path="/inspector/event/:event_id" component={EventOverview}/>
+              <ProtectedRoute path="/inspector/event" component={EventInspectorPage} />
               <Route path="/signin" component={Signin} />
               <Route component={NotFound} />
             </Switch>

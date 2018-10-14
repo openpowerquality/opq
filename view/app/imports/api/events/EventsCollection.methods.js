@@ -30,5 +30,24 @@ export const getEventsInRange = new ValidatedMethod({
   },
 });
 
+/** Returns the event document of the given event_id.
+ * @param {Number} event_id: The event_id of the event to retrieve
+ */
+export const getEventByEventID = new ValidatedMethod({
+  name: 'Events.getEventByEventID',
+  mixins: [CallPromiseMixin],
+  validate: new SimpleSchema({
+    event_id: { type: Number },
+  }).validator({ clean: true }),
+  run({ event_id }) {
+    if (Meteor.isServer) {
+      const event = Events.findOne({ event_id });
+      if (!event) throw new Meteor.Error('invalid-event-id', `The event_id ${event_id} could not be found.`);
+      return event;
+    }
+    return null;
+  },
+});
+
 // jun12018: 1527890400000
 // jan12017: 1483308000000

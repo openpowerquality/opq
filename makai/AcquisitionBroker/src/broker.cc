@@ -9,6 +9,9 @@
 #include "util.h"
 #include <syslog.h>
 
+#include <mongocxx/client.hpp>
+#include <mongocxx/instance.hpp>
+
 using namespace std;
 
 namespace fs = std::experimental::filesystem;

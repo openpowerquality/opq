@@ -2,6 +2,7 @@ import { Meteor } from 'meteor/meteor';
 import { SyncedCron } from 'meteor/percolate:synced-cron';
 import { SystemStats } from '../../api/system-stats/SystemStatsCollection.js';
 
+// This call to SyncedCron.config should exist in only one place. Here! Don't copy this code to other files.
 SyncedCron.config({
   log: Meteor.settings.syncedCron && Meteor.settings.syncedCron.logging,
 });

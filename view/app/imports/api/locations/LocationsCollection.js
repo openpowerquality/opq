@@ -13,7 +13,11 @@ class LocationsCollection extends BaseCollection {
   constructor() {
     super('locations', new SimpleSchema({
       slug: String,
-      coordinates: Array,
+      coordinates: {
+        type: Array,
+        minCount: 2,
+        maxCount: 2,
+      },
       'coordinates.$': Number,
       description: String,
     }));
@@ -72,6 +76,21 @@ class LocationsCollection extends BaseCollection {
   }
 
   /**
+   * Returns the location document associated with _id, or throws an error if not found.
+   * @param id The location _id
+   * @returns {Object} The location document.
+   * @throws { Meteor.Error } If the _id is not defined.
+   */
+  getDocById(id) {
+    const docID = new Meteor.Collection.ObjectID(id);
+    const doc = this._collection.findOne({ _id: docID }, {});
+    if (!doc) {
+      throw new Meteor.Error(`Undefined _id ${docID}.`);
+    }
+    return doc;
+  }
+
+  /**
    * Returns an array of all the defined Location documents.
    */
   getDocs() {
@@ -105,6 +124,39 @@ class LocationsCollection extends BaseCollection {
     }
     return locationDoc;
   }
+
+  /**
+   * Returns the Location document associated with _id.
+   * @param _id The location _id.
+   * @throws { Meteor.Error } If _id is not associated with a location.
+   * @returns The Location document.
+   */
+  findLocationBy_id(_id) {
+    const locationDoc = this.findOne({ _id });
+    if (!locationDoc) {
+      throw new Meteor.Error(`Location _id ${_id} is not defined.`);
+    }
+    return locationDoc;
+  }
+
+  update(docID, args) {
+    if (Meteor.isServer) {
+      const updateData = {};
+      if (args.slug) {
+        updateData.slug = args.slug;
+      }
+      if (args.coordinates) {
+        updateData.coordinates = args.coordinates;
+      }
+      if (args.description) {
+        updateData.description = args.description;
+      }
+      this._collection.update(docID, { $set: updateData });
+      return updateData;
+    }
+    return undefined;
+  }
+
 }
 
 /**

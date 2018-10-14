@@ -36,6 +36,15 @@ def ms_to_samples(duration_ms: float) -> float:
     return duration_ms * constants.SAMPLES_PER_MILLISECOND
 
 
+def samples_to_ms(samples: float) -> float:
+    """
+    Convert a given number of samples to milliseconds.
+    :param samples: Number of samples.
+    :return: Milliseconds computed from number of samples.
+    """
+    return samples / constants.SAMPLES_PER_MILLISECOND
+
+
 def segment(array: numpy.ndarray, delta: float) -> typing.List[numpy.ndarray]:
     """
     Segments an array by splitting the array into stable segments and throwing away "changing" segments.

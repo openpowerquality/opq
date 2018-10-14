@@ -150,9 +150,6 @@ class EventsCollection extends BaseCollection {
     if (!this.isValidTimestamp(doc.target_event_end_timestamp_ms)) {
       problems.push(`target_event_end_timestamp_ms ${doc.target_event_end_timestamp_ms} (invalid)`);
     }
-    if (doc.description === 'Health check') {
-      problems.push(`description: ${doc.description} (false event)`);
-    }
     const result = { docName: `Event ${doc.event_id}`, problems };
     if ((problems.length > 0) && repair) {
         result.repair = this.repair(doc);

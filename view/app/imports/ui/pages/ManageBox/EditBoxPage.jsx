@@ -77,9 +77,7 @@ class EditBoxPage extends React.Component {
               <ErrorsField/>
             </Segment>
           </AutoForm>
-          <Button attached='bottom' size='tiny'>
-            <Link to={'/admin/manage/opqbox/'}>Back to Manage OPQBoxes</Link>
-          </Button>
+          <Button attached='bottom' size='tiny' as={Link} to={'/admin/manage/opqbox/'}>Back to Manage OPQBoxes</Button>
         </WidgetPanel>
       </Container>
     );

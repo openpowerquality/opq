@@ -20,14 +20,15 @@
   "plugins.AcquisitionTriggerPlugin.msAfter": 1000,
   "plugins.AcquisitionTriggerPlugin.sDeadZoneAfterTrigger": 60,
 
-  "plugins.base.heartbeatIntervalS": 60.0,
+  "plugins.base.heartbeatIntervalS": 15.0,
 
-  "plugins.IticPlugin.segment.threshold.rms": 0.01,
+  "plugins.IticPlugin.segment.threshold.rms": 0.1,
 
   "plugins.FrequencyVariationPlugin.frequency.ref": 60.0,
   "plugins.FrequencyVariationPlugin.frequency.variation.threshold.low": 0.1,
   "plugins.FrequencyVariationPlugin.frequency.variation.threshold.high": 0.1,
   "plugins.FrequencyVariationPlugin.frequency.interruption": 58.0,
+  "plugins.FrequencyVariationPlugin.max.lull.windows": 3,
 
   "plugins.TransientPlugin.noise.floor" : 6.0,
   "plugins.TransientPlugin.oscillatory.min.cycles" : 3,
@@ -42,6 +43,10 @@
   "plugins.TransientPlugin.max.lull.ms" : 1.0,
 
   "plugins.MakaiEventPlugin.getDataAfterS": 10.0,
+  "plugins.MakaiEventPlugin.filterOrder":4,
+  "plugins.MakaiEventPlugin.cutoffFrequency": 500.0,
+  "plugins.MakaiEventPlugin.frequencyWindowCycles": 1,
+  "plugins.MakaiEventPlugin.frequencyDownSampleRate": 2,
 
   "plugins.MeasurementPlugin.sample_every": 3.0,
 

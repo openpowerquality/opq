@@ -3,7 +3,7 @@ import { Grid } from 'semantic-ui-react';
 
 import EventInspector from '../components/EventInspector/EventInspector';
 
-const Inspector = () => (
+const EventInspectorPage = () => (
   <Grid container stackable>
     <Grid.Column width={16}>
       <EventInspector />
@@ -11,4 +11,4 @@ const Inspector = () => (
   </Grid>
 );
 
-export default Inspector;
+export default EventInspectorPage;

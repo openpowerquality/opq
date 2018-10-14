@@ -33,7 +33,6 @@ class IEEEDuration(enum.Enum):
     SUSTAINED = "SUSTAINED"  # A duration greater than 1 minute
 
 
-
 class BoxEventType(enum.Enum):
     """String enumerations and constants for event types"""
     FREQUENCY_DIP = "FREQUENCY_SAG"
@@ -52,6 +51,7 @@ class Collection(enum.Enum):
     BOX_EVENTS = "box_events"
     OPQ_BOXES = "opq_boxes"
     INCIDENTS = "incidents"
+    HEALTH = "health"
 
 
 class OpqMongoClient:
@@ -88,6 +88,8 @@ class OpqMongoClient:
 
         self.incidents_collection = self.get_collection(Collection.INCIDENTS.value)
         "Incidents collection"
+
+        self.health_collection = self.get_collection(Collection.HEALTH.value)
 
     def get_collection(self, collection: str):
         """ Returns a mongo collection by name
@@ -156,7 +158,7 @@ def get_waveform(mongo_client: OpqMongoClient, data_fs_filename: str) -> numpy.n
     :return: The waveform stored at data_fs_filename as a numpy array.
     """
     data = mongo_client.read_file(data_fs_filename)
-    waveform = to_s16bit(data)
+    waveform = to_s16bit(data).astype(numpy.int64)
     return waveform
 
 
@@ -198,6 +200,7 @@ class IncidentMeasurementType(enum.Enum):
     FREQUENCY = "FREQUENCY"
     THD = "THD"
     TRANSIENT = "TRANSIENT"
+    HEALTH = "HEALTH"
 
 
 class IncidentClassification(enum.Enum):
@@ -219,6 +222,8 @@ class IncidentClassification(enum.Enum):
     ARCING_TRANSIENT = "ARCING_TRANSIENT"
     PERIODIC_NOTCHING = "PERIODIC_NOTCHING"
     MULTIPLE_ZERO_CROSSING_TRANSIENT = "MULTIPLE_ZERO_CROSSING_TRANSIENT"
+    UNDEFINED = "UNDEFINED"
+    OUTAGE = "OUTAGE"
 
 
 class IncidentIeeeDuration(enum.Enum):
@@ -277,7 +282,8 @@ def store_incident(event_id: int,
                    classifications: typing.List[IncidentClassification],
                    annotations: typing.List = None,
                    metadata: typing.Dict = None,
-                   opq_mongo_client: OpqMongoClient = None):
+                   opq_mongo_client: OpqMongoClient = None,
+                   copy_data: bool = True) -> int:
     """
     Creates and stores an incident in the database.
     :param event_id: The event_id that this incident is associated with.
@@ -290,37 +296,45 @@ def store_incident(event_id: int,
     :param annotations: A list of annotations assigned to this incident
     :param metadata: An incident specific dictionary of key-pair values providing extra context to this incident
     :param opq_mongo_client: An optional mongo client to use for DB access (will be created if not-provided)
+    :param copy_data: Should data be copied from measurements and waveforms?
     """
 
     mongo_client = get_default_client(opq_mongo_client)
-
-    box_event = mongo_client.box_events_collection.find_one({"event_id": event_id,
-                                                             "box_id": box_id})
-    measurements = list(mongo_client.measurements_collection.find({"box_id": box_id,
-                                                                   "timestamp_ms": {"$gte": start_timestamp_ms,
-                                                                                    "$lte": end_timestamp_ms}},
-                                                                  {"_id": False,
-                                                                   "expireAt": False}))
-
-    event_adc_samples = get_waveform(mongo_client, box_event["data_fs_filename"])
-    event_start_timestamp_ms = box_event["event_start_timestamp_ms"]
-    delta_start_ms = start_timestamp_ms - event_start_timestamp_ms
-    delta_end_ms = end_timestamp_ms - event_start_timestamp_ms
-    # Provide a ms worth of buffer to account for floating point error?
-    incident_start_idx = int(max(0, round(analysis.ms_to_samples(delta_start_ms)) - constants.SAMPLES_PER_MILLISECOND))
-    incident_end_idx = int(min(len(event_adc_samples),
-                               round(analysis.ms_to_samples(delta_end_ms)) + constants.SAMPLES_PER_MILLISECOND))
-    incident_adc_samples_bytes = event_adc_samples[incident_start_idx:incident_end_idx].tobytes()
-
-    ieee_duration = get_ieee_duration(end_timestamp_ms - start_timestamp_ms).value
-    location = get_location(box_id, mongo_client)
-
     incident_id = next_available_incident_id(mongo_client)
-    gridfs_filename = "incident_{}".format(incident_id)
-    mongo_client.write_incident_waveform(incident_id, gridfs_filename, incident_adc_samples_bytes)
+    location = get_location(box_id, mongo_client)
+    ieee_duration = get_ieee_duration(end_timestamp_ms - start_timestamp_ms).value
+
+    if copy_data:
+        box_event = mongo_client.box_events_collection.find_one({"event_id": event_id,
+                                                                 "box_id": box_id})
+
+        measurements = list(mongo_client.measurements_collection.find({"box_id": box_id,
+                                                                       "timestamp_ms": {"$gte": start_timestamp_ms,
+                                                                                        "$lte": end_timestamp_ms}},
+                                                                      {"_id": False,
+                                                                       "expireAt": False}))
+
+        event_adc_samples = get_waveform(mongo_client, box_event["data_fs_filename"])
+        event_start_timestamp_ms = box_event["event_start_timestamp_ms"]
+        delta_start_ms = start_timestamp_ms - event_start_timestamp_ms
+        delta_end_ms = end_timestamp_ms - event_start_timestamp_ms
+        # Provide a ms worth of buffer to account for floating point error?
+        incident_start_idx = int(max(0,
+                                     round(analysis.ms_to_samples(delta_start_ms)) - constants.SAMPLES_PER_MILLISECOND))
+        incident_end_idx = int(min(len(event_adc_samples),
+                                   round(analysis.ms_to_samples(delta_end_ms)) + constants.SAMPLES_PER_MILLISECOND))
+        incident_adc_samples_bytes = event_adc_samples[incident_start_idx:incident_end_idx].astype(
+            numpy.int16).tobytes()
+
+        gridfs_filename = "incident_{}".format(incident_id)
+        mongo_client.write_incident_waveform(incident_id, gridfs_filename, incident_adc_samples_bytes)
+    else:
+        measurements = []
+        gridfs_filename = ""
 
     incident = {
         "incident_id": incident_id,
+        "event_id": event_id,
         "box_id": box_id,
         "start_timestamp_ms": start_timestamp_ms,
         "end_timestamp_ms": end_timestamp_ms,
@@ -336,6 +350,8 @@ def store_incident(event_id: int,
     }
 
     mongo_client.incidents_collection.insert_one(incident)
+
+    return incident_id
 
 
 def get_box_event(event_id: int, box_id: str, opq_mongo_client: OpqMongoClient = None) -> typing.Dict:

@@ -28,3 +28,26 @@ export const getBoxEvent = new ValidatedMethod({
     return null;
   },
 });
+
+export const getBoxEvents = new ValidatedMethod({
+  name: 'BoxEvents.getBoxEvents',
+  validate: new SimpleSchema({
+    event_id: { type: Number },
+    box_ids: { type: Array },
+    'box_ids.$': { type: String },
+  }).validator({ clean: true }),
+  run({ event_id, box_ids }) {
+    if (Meteor.isServer) {
+      const boxEvents = BoxEvents.find({ event_id, box_id: { $in: box_ids } }).fetch();
+      if (!boxEvents.length) {
+        const boxIdMessage = (box_ids.length) ? `box_ids: ${box_ids}` : 'box_ids: None';
+        throw new Meteor.Error(
+            'no-box-events-found',
+            `No BoxEvent documents found for event_id: ${event_id}, ${boxIdMessage}`,
+        );
+      }
+      return boxEvents;
+    }
+    return null;
+  },
+});
