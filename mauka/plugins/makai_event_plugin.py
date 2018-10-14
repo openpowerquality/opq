@@ -22,7 +22,7 @@ import plugins.semi_f47_plugin
 import plugins.thd_plugin
 import protobuf.mauka_pb2
 import protobuf.util
-from opq_mauka import load_config
+import opq_mauka
 
 
 def smooth_waveform(sample: numpy.ndarray, filter_order: int = 2, cutoff_frequency: float = 500.0,
@@ -280,7 +280,7 @@ def rerun(event_id: int):
     """
     client = mongo.get_default_client()
     logger = logging.getLogger()
-    config = load_config("./config.json")
+    config = opq_mauka.load_config("./config.json")
     filter_order = int(config["plugins.MakaiEventPlugin.filterOrder"])
     cutoff_frequency = float(config["plugins.MakaiEventPlugin.cutoffFrequency"])
     samples_per_window = int(constants.SAMPLES_PER_CYCLE) * int(
