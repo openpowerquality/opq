@@ -74,7 +74,7 @@ def profile_frequency_variation_plugin(data_file: str):
 
     # obtain frequencies
     frequencies = frequency_waveform(waveform, window_size, filter_order, cutoff_frequency,
-                                     downsample_factor=downsample_factor)
+                                     down_sample_factor=downsample_factor)
 
     # profile frequency_incident_classifier
     pr.enable()
@@ -101,7 +101,7 @@ def profile_frequency_variation_plugin(data_file: str):
 
     # obtain frequencies
     frequencies = frequency_waveform(waveform, window_size, filter_order, cutoff_frequency,
-                                     downsample_factor=downsample_factor)
+                                     down_sample_factor=downsample_factor)
 
     # profile frequency_incident_classifier on simulated event
     pr.enable()

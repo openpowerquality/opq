@@ -73,7 +73,7 @@ def profile_makai_event_plugin(data_file: str):
     cutoff_frequency = float(config.get("plugins.MakaiEventPlugin.cutoffFrequency"))
     pr.enable()
     frequencies = frequency_waveform(waveform, window_size, filter_order, cutoff_frequency,
-                                     downsample_factor=downsample_factor)
+                                     down_sample_factor=downsample_factor)
     pr.disable()
 
     # write profile to output file
