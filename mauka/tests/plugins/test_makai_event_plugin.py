@@ -62,7 +62,7 @@ class MakaiEventPluginTests(unittest.TestCase):
                                                   filter_order=self.config["plugins.MakaiEventPlugin.filterOrder"],
                                                   cutoff_frequency=
                                                   self.config["plugins.MakaiEventPlugin.cutoffFrequency"],
-                                                  downsample_factor=self.downsample_factor)
+                                                  down_sample_factor=self.downsample_factor)
         for freq in windowed_frequencies:
             message = "Frequency:{} Hz Expected:{} Hz".format(freq, constants.CYCLES_PER_SECOND)
             self.assertAlmostEqual(freq, constants.CYCLES_PER_SECOND, msg=message, delta=0.2)
@@ -73,11 +73,10 @@ class MakaiEventPluginTests(unittest.TestCase):
                                                   filter_order=self.config["plugins.MakaiEventPlugin.filterOrder"],
                                                   cutoff_frequency=
                                                   self.config["plugins.MakaiEventPlugin.cutoffFrequency"],
-                                                  downsample_factor=self.downsample_factor)
+                                                  down_sample_factor=self.downsample_factor)
         for freq in windowed_frequencies:
             message = "Frequency:{} Hz Expected:{} Hz".format(freq, constants.CYCLES_PER_SECOND)
             self.assertAlmostEqual(freq, constants.CYCLES_PER_SECOND, msg=message, delta=0.2)
-
 
         # # 1 cycles noise, variance = 1.0
         waveform = simulate_waveform(noise=True)
@@ -85,7 +84,7 @@ class MakaiEventPluginTests(unittest.TestCase):
                                                   filter_order=self.config["plugins.MakaiEventPlugin.filterOrder"],
                                                   cutoff_frequency=
                                                   self.config["plugins.MakaiEventPlugin.cutoffFrequency"],
-                                                  downsample_factor=self.downsample_factor)
+                                                  down_sample_factor=self.downsample_factor)
         for freq in windowed_frequencies:
             message = "Frequency:{} Hz Expected:{} Hz".format(freq, constants.CYCLES_PER_SECOND)
             self.assertAlmostEqual(freq, constants.CYCLES_PER_SECOND, msg=message, delta=0.2)
@@ -96,7 +95,7 @@ class MakaiEventPluginTests(unittest.TestCase):
                                                   filter_order=self.config["plugins.MakaiEventPlugin.filterOrder"],
                                                   cutoff_frequency=
                                                   self.config["plugins.MakaiEventPlugin.cutoffFrequency"],
-                                                  downsample_factor=self.downsample_factor)
+                                                  down_sample_factor=self.downsample_factor)
         for freq in windowed_frequencies:
             message = "Frequency:{} Hz Expected:{} Hz".format(freq, constants.CYCLES_PER_SECOND)
             self.assertAlmostEqual(freq, constants.CYCLES_PER_SECOND, msg=message, delta=0.2)
@@ -107,7 +106,7 @@ class MakaiEventPluginTests(unittest.TestCase):
                                                   filter_order=self.config["plugins.MakaiEventPlugin.filterOrder"],
                                                   cutoff_frequency=
                                                   self.config["plugins.MakaiEventPlugin.cutoffFrequency"],
-                                                  downsample_factor=self.downsample_factor)
+                                                  down_sample_factor=self.downsample_factor)
         for freq in windowed_frequencies:
             message = "Frequency:{} Hz Expected:{} Hz".format(freq, constants.CYCLES_PER_SECOND)
             self.assertAlmostEqual(freq, constants.CYCLES_PER_SECOND, msg=message, delta=0.2)
@@ -118,7 +117,7 @@ class MakaiEventPluginTests(unittest.TestCase):
                                                   filter_order=self.config["plugins.MakaiEventPlugin.filterOrder"],
                                                   cutoff_frequency=
                                                   self.config["plugins.MakaiEventPlugin.cutoffFrequency"],
-                                                  downsample_factor=self.downsample_factor)
+                                                  down_sample_factor=self.downsample_factor)
         for freq in windowed_frequencies:
             message = "Frequency:{} Hz Expected:{} Hz".format(freq, 59.0)
             self.assertAlmostEqual(freq, 59.0, msg=message, delta=0.2)
