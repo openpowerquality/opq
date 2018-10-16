@@ -227,7 +227,7 @@ def find_event(mongo_uri, new_event):
         return None
     # NOTE - Should I sleep for a bit to give event creation slack?
     id = int(new_event[1])
-    event = get_mongo_doc(mongo_uri, 'events', {'event_id': id})
+    event = get_mongo_doc(mongo_uri, 'events', {'event_id': id, "type": "OTHER"})
 
     return event
 
@@ -268,14 +268,14 @@ def check_makai(config):
             continue
 
         event = find_event(mongo_uri, new_event)
-        if event:
+        if event and event["type"] == "OTHER":
             # Delete event
             db = client["opq"]
             events_collection = db["events"]
             box_events_collection = db["box_events"]
             event_id = event["event_id"]
 
-            events_collection.delete_many({"event_id": event_id})
+            events_collection.delete_many({"event_id": event_id, "type": "OTHER"})
             box_events_collection.delete_many({"event_id": event_id})
 
             message = get_msg_as_json('MAKAI', '', 'UP', '')
