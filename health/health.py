@@ -254,6 +254,7 @@ def check_makai(config):
         save_message(message)
         exit()
 
+    client = MongoClient()
     while True:
         req_message = generate_req_event_message()
         try:
@@ -269,7 +270,6 @@ def check_makai(config):
         event = find_event(mongo_uri, new_event)
         if event:
             # Delete event
-            client = MongoClient()
             db = client["opq"]
             events_collection = db["events"]
             box_events_collection = db["box_events"]
