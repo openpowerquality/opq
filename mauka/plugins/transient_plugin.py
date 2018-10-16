@@ -222,16 +222,29 @@ def arcing_classifier(filtered_waveform: numpy.ndarray, configs: dict) -> (bool,
     return False, {}
 
 
-def periodic_notching_classifier(filtered_waveform: numpy.ndarray, configs: dict) -> (bool, dict):
+def periodic_notching_classifier(filtered_waveform: numpy.ndarray, fundamental_waveform: numpy.ndarray,
+                                 configs: dict) -> (bool, dict):
     """
     Identifies whether the transient is periodic notching and, if so, calculates additional meta data for the transient,
-    such as the amplitude, width, period, and time
+    such as the amplitude, width, period, and time.
     :param filtered_waveform: The transient waveform, that is the sampled waveform without the fundamental frequency
     included
+    :param fundamental_waveform: The fundamental waveform of the signal during the transient window, used to determine
+    whether the notching is negative power or not.
     :param configs: Includes the necessary parameters needed to classify the transient
     :return: A tuple which has contains a boolean indicator of whether the transient was indeed classified as being
     periodic notching and then a dictionary of the calculated meta data.
     """
+
+    # cancel out measurements of filtered_waveform below noise_floor
+    noise_canceled_waveform = numpy.vectorize(noise_canceler)(filtered_waveform, configs['noise_floor'])
+
+    # determine whether the notching is negative power or not
+    if 1 in numpy.sign(noise_canceled_waveform) * numpy.sign(fundamental_waveform):
+        return False, {}
+
+    # determine whether the notching is nearly periodic
+    
 
 
 def pf_cap_switching_classifier(filtered_waveform: numpy.ndarray, fundamental_waveform: numpy.ndarray,
@@ -291,7 +304,7 @@ def transient_incident_classifier(event_id: int, box_id: str, raw_waveform: nump
     incident_classifications = []
     incident_flag = False
 
-    waveforms = waveform_filter(raw_waveform)
+    waveforms = waveform_filter(raw_waveform, configs['filter_order'], configs['filter_cutoff_frequency'])
     candidate_transient_windows = transient_sliding_window(waveforms["filtered_waveform"], configs["noise_floor"],
                                                            configs["max_lull_ms"])
 
@@ -362,6 +375,7 @@ class TransientPlugin(plugins.base_plugin.MaukaPlugin):
         self.configs = {
             "noise_floor": float(self.config_get("plugins.TransientPlugin.noise.floor")),
             "filter_cutoff_frequency": float(self.config_get("plugins.MakaiEventPlugin.cutoffFrequency")),
+            "filter_order": float(self.config_get("plugins.MakaiEventPlugin.filterOrder")),
             "oscillatory_min_cycles": int(self.config_get("plugins.TransientPlugin.oscillatory.min.cycles")),
             "oscillatory_low_freq_max": float(self.config_get("plugins.TransientPlugin.oscillatory.low.freq.max.hz")),
             "oscillatory_med_freq_max": float(self.config_get("plugins.TransientPlugin.oscillatory.med.freq.max.hz")),
