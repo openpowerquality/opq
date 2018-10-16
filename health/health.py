@@ -254,9 +254,8 @@ def check_makai(config):
         save_message(message)
         exit()
 
-    req_message = generate_req_event_message()
-
     while True:
+        req_message = generate_req_event_message()
         try:
             push_socket.send(req_message.SerializeToString())
             # receive any event id
