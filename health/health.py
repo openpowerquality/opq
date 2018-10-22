@@ -227,9 +227,14 @@ def find_event(mongo_uri, new_event):
         return None
     # NOTE - Should I sleep for a bit to give event creation slack?
     id = int(new_event[1])
-    event = get_mongo_doc(mongo_uri, 'events', {'event_id': id, "type": "OTHER"})
+    event = get_mongo_doc(mongo_uri, 'events', {'event_id': id})
 
     return event
+
+def is_health_event(event_doc):
+    if event_doc and event_doc['type'] == 'OTHER' and event_doc['description'] == 'Health check':
+        return True
+    return False
 
 def check_makai(config):
     sleep_time = config['interval']
@@ -259,7 +264,7 @@ def check_makai(config):
         req_message = generate_req_event_message()
         try:
             push_socket.send(req_message.SerializeToString())
-            # receive any event id
+            # Note: This sub receives all new Events. We must subsequently filter for 'Health check' events later
             new_event = sub_socket.recv_multipart()
         except Exception as e:
             message = get_msg_as_json('MAKAI', '', 'DOWN', e)
@@ -268,26 +273,29 @@ def check_makai(config):
             continue
 
         event = find_event(mongo_uri, new_event)
-        if event and event["type"] == "OTHER":
-            # Delete event
-            db = client["opq"]
-            events_collection = db["events"]
-            box_events_collection = db["box_events"]
-            event_id = event["event_id"]
 
-            events_collection.delete_many({"event_id": event_id, "type": "OTHER"})
-            box_events_collection.delete_many({"event_id": event_id})
-
+        # If new Event is found in DB, we know Makai is up and running.
+        if event:
             message = get_msg_as_json('MAKAI', '', 'UP', '')
         else:
             message = get_msg_as_json('MAKAI', '', 'DOWN', '')
+
+        # Delete the new Event if it's a 'Health check' event
+        if is_health_event(event):
+            db = client['opq']
+            events_collection = db['events']
+            box_events_collection = db['box_events']
+            event_id = event['event_id']
+
+            events_collection.delete_many({'event_id': event_id})
+            box_events_collection.delete_many({'event_id': event_id})
 
         save_message(message)
         
         sleep(sleep_time)
 
     push_socket.close()
-    sub_socket.clse()
+    sub_socket.close()
            
 def main(config_file):
     health_config = file_to_dict(config_file)
