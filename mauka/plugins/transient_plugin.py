@@ -251,14 +251,17 @@ def periodic_notching_classifier(filtered_waveform: numpy.ndarray, fundamental_w
     # first calculate the 0 gaps
     gaps = numpy.diff(numpy.nonzero(transient))
     gaps = gaps[gaps != 1]
+    std_gaps = numpy.std(gaps)
 
     # then notch widths
     widths = numpy.diff(numpy.nonzero(transient))
     widths = numpy.diff(numpy.array(list(range(len(widths[0]))))[widths[0] != 1])
+    std_widths = numpy.std(widths)
 
-    if numpy.std(widths) > configs["max_std_periodic_notching"] or numpy.std(gaps) > configs[
-        "max_std_periodic_notching"]:
+    if std_widths > configs["max_std_periodic_notching"] or std_gaps > configs["max_std_periodic_notching"]:
         return False, {}
+
+    #determine whether amplitude is nearly constant
 
     # transient_abs = numpy.abs(transient)
     # transient_abs = transient_abs - numpy.mean(transient_abs)
