@@ -240,11 +240,32 @@ def periodic_notching_classifier(filtered_waveform: numpy.ndarray, fundamental_w
     noise_canceled_waveform = numpy.vectorize(noise_canceler)(filtered_waveform, configs['noise_floor'])
 
     # determine whether the notching is negative power or not
-    if 1 in numpy.sign(noise_canceled_waveform) * numpy.sign(fundamental_waveform):
+    if -1 in numpy.sign(noise_canceled_waveform) * numpy.sign(fundamental_waveform):
         return False, {}
 
     # determine whether the notching is nearly periodic
-    
+    first_non_zero_index = numpy.nonzero(noise_canceled_waveform)[0][0]
+    last_non_zero_index = numpy.nonzero(noise_canceled_waveform)[0][-1]
+    transient = noise_canceled_waveform[first_non_zero_index: last_non_zero_index + 1]
+
+    # first calculate the 0 gaps
+    gaps = numpy.diff(numpy.nonzero(transient))
+    gaps = gaps[gaps != 1]
+
+    # then notch widths
+    widths = numpy.diff(numpy.nonzero(transient))
+    widths = numpy.diff(numpy.array(list(range(len(widths[0]))))[widths[0] != 1])
+
+    if numpy.std(widths) > configs["max_std_periodic_notching"] or numpy.std(gaps) > configs[
+        "max_std_periodic_notching"]:
+        return False, {}
+
+    # transient_abs = numpy.abs(transient)
+    # transient_abs = transient_abs - numpy.mean(transient_abs)
+    #
+    # auto_corr = signal.correlate(transient_abs, transient_abs, mode='same', method='fft')
+
+
 
 
 def pf_cap_switching_classifier(filtered_waveform: numpy.ndarray, fundamental_waveform: numpy.ndarray,
@@ -385,7 +406,8 @@ class TransientPlugin(plugins.base_plugin.MaukaPlugin):
             "pf_cap_switch_high_ratio": float(self.config_get("plugins.TransientPlugin.PF.cap.switching.high.ratio")),
             "pf_cap_switch_low_freq": float(self.config_get("plugins.TransientPlugin.PF.cap.switching.low.freq.hz")),
             "pf_cap_switch_high_freq": float(self.config_get("plugins.TransientPlugin.PF.cap.switching.high.freq.hz")),
-            "max_lull_ms": float(self.config_get("plugins.TransientPlugin.max.lull.ms"))
+            "max_lull_ms": float(self.config_get("plugins.TransientPlugin.max.lull.ms")),
+            "max_std_periodic_notching": float(self.config_get("plugins.TransientPlugin.max.periodic.notching.std.dev")),
             }
 
     def on_message(self, topic, mauka_message):

@@ -41,6 +41,7 @@
   "plugins.TransientPlugin.PF.cap.switching.low.freq.hz" : 400.0,
   "plugins.TransientPlugin.PF.cap.switching.high.freq.hz" : 2000.0,
   "plugins.TransientPlugin.max.lull.ms" : 1.0,
+  "plugins.TransientPlugin.max.periodic.notching.std.dev" : 1.5,
 
   "plugins.MakaiEventPlugin.getDataAfterS": 10.0,
   "plugins.MakaiEventPlugin.filterOrder":4,
