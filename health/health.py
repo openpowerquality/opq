@@ -260,19 +260,41 @@ def check_makai(config):
         exit()
 
     client = MongoClient()
+    skip_next_send = False
     while True:
         req_message = generate_req_event_message()
         try:
-            push_socket.send(req_message.SerializeToString())
+            if not skip_next_send:
+                push_socket.send(req_message.SerializeToString())
+            else:
+                skip_next_send = False
+
             # Note: This sub receives all new Events. We must subsequently filter for 'Health check' events later
             new_event = sub_socket.recv_multipart()
         except Exception as e:
             message = get_msg_as_json('MAKAI', '', 'DOWN', e)
             save_message(message)
+            skip_next_send = False
             sleep(sleep_time)
             continue
 
         event = find_event(mongo_uri, new_event)
+
+        # It turns out that ZeroMQ's subscription will queue messages sent from the publisher (Makai). What this
+        # means is that if any non-health check event (ie. a PQ event) occurs during the 60s sleep window, the
+        # subsequent recv() will end up retrieving the queued PQ event message, rather than the health check event that
+        # we had just requested.
+        # Now imagine if 10 PQ events occur during this 60s sleep window. Since we only recv() a single queued message
+        # per loop (one recv() per 60s), it would take 10 minutes before we can receive the actual health-check event
+        # that we had requested. This delay will continuously get longer and longer as the day goes by and more PQ
+        # events occur.
+        # To combat this issue, we can simply continue the loop until we recv() a health check event, ignoring all
+        # queued non-health check events that may have occurred during the 60s sleep window.
+        if not is_health_event(event):
+            # Trigger next iteration to avoid sending another event request message to Makai. We only want to recv()
+            # until we receive a health-check event.
+            skip_next_send = True
+            continue
 
         # If new Event is found in DB, we know Makai is up and running.
         if event:
@@ -291,7 +313,7 @@ def check_makai(config):
             box_events_collection.delete_many({'event_id': event_id})
 
         save_message(message)
-        
+
         sleep(sleep_time)
 
     push_socket.close()
