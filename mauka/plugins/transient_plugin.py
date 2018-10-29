@@ -248,25 +248,33 @@ def periodic_notching_classifier(filtered_waveform: numpy.ndarray, fundamental_w
     last_non_zero_index = numpy.nonzero(noise_canceled_waveform)[0][-1]
     transient = noise_canceled_waveform[first_non_zero_index: last_non_zero_index + 1]
 
-    # first calculate the 0 gaps
-    gaps = numpy.diff(numpy.nonzero(transient))
-    gaps = gaps[gaps != 1]
-    std_gaps = numpy.std(gaps)
+    # # first calculate the 0 gaps
+    # gaps = numpy.diff(numpy.nonzero(transient))
+    # gaps = gaps[gaps != 1]
+    # std_gaps = numpy.std(gaps)
+    #
+    # # then notch widths
+    # widths = numpy.diff(numpy.nonzero(transient))
+    # widths = numpy.diff(numpy.array(list(range(len(widths[0]))))[widths[0] != 1])
+    # std_widths = numpy.std(widths)
+    #
+    # if std_widths > configs["max_std_periodic_notching"] or std_gaps > configs["max_std_periodic_notching"]:
+    #     return False, {}
+    #
+    # else:
 
-    # then notch widths
-    widths = numpy.diff(numpy.nonzero(transient))
-    widths = numpy.diff(numpy.array(list(range(len(widths[0]))))[widths[0] != 1])
-    std_widths = numpy.std(widths)
-
-    if std_widths > configs["max_std_periodic_notching"] or std_gaps > configs["max_std_periodic_notching"]:
-        return False, {}
 
     #determine whether amplitude is nearly constant
 
-    # transient_abs = numpy.abs(transient)
-    # transient_abs = transient_abs - numpy.mean(transient_abs)
-    #
-    # auto_corr = signal.correlate(transient_abs, transient_abs, mode='same', method='fft')
+    def auto_correlation_function(x):
+        result = numpy.correlate(x, x, mode='full')
+        return result[result.size / 2:]
+
+    transient_abs = numpy.abs(transient)
+    transient_abs = transient_abs - numpy.mean(transient_abs)
+
+    auto_corr = numpy.correlate(transient_abs, transient_abs, mode='full')
+    auto_corr = auto_corr[auto_corr.size / 2:]
 
 
 
