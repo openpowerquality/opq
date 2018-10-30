@@ -5,6 +5,7 @@ Transient are classified using the IEEE 1159 standard
 import typing
 import multiprocessing
 import numpy
+import scipy
 import constants
 import plugins.base_plugin
 import protobuf.mauka_pb2
@@ -61,7 +62,7 @@ def energy(waveform: numpy.ndarray) -> float:
 
 def noise_canceler(voltage, noise_floor):
     if abs(voltage) < noise_floor:
-        return 0
+        return 0.0
     else:
         if voltage < 0:
             return voltage + noise_floor
@@ -264,19 +265,21 @@ def periodic_notching_classifier(filtered_waveform: numpy.ndarray, fundamental_w
     # else:
 
 
-    #determine whether amplitude is nearly constant
-
-    def auto_correlation_function(x):
-        result = numpy.correlate(x, x, mode='full')
-        return result[result.size / 2:]
-
+    #determine whether transient wave is nearly periodic
     transient_abs = numpy.abs(transient)
-    transient_abs = transient_abs - numpy.mean(transient_abs)
 
-    auto_corr = numpy.correlate(transient_abs, transient_abs, mode='full')
-    auto_corr = auto_corr[auto_corr.size / 2:]
-
-
+    auto_corr = numpy.correlate(transient_abs, transient_abs[:int(transient_abs.size / 2)], mode='valid')
+    auto_corr = auto_corr[int(auto_corr.size / 2):]
+    auto_corr = auto_corr / numpy.max(auto_corr)
+    peaks = scipy.signal.find_peaks(auto_corr, height=configs["auto_corr_thresh_periodicity"])
+    periods = numpy.diff(peaks[0])
+    if numpy.std(numpy.abs(numpy.diff(periods))) > configs["max_std_periodic_notching"]:
+        return False, {}
+    else:
+        average_amplitude = numpy.average(
+            transient_abs[scipy.signal.find_peaks(transient_abs)[0]]) + configs['noise_floor']
+        average_period = numpy.average(periods) / constants.SAMPLE_RATE_HZ
+        return True, {'amplitude': average_amplitude, 'period': average_period}
 
 
 def pf_cap_switching_classifier(filtered_waveform: numpy.ndarray, fundamental_waveform: numpy.ndarray,
@@ -419,6 +422,8 @@ class TransientPlugin(plugins.base_plugin.MaukaPlugin):
             "pf_cap_switch_high_freq": float(self.config_get("plugins.TransientPlugin.PF.cap.switching.high.freq.hz")),
             "max_lull_ms": float(self.config_get("plugins.TransientPlugin.max.lull.ms")),
             "max_std_periodic_notching": float(self.config_get("plugins.TransientPlugin.max.periodic.notching.std.dev")),
+            "auto_corr_thresh_periodicity": float(
+                self.config_get("plugins.TransientPlugin.auto.corr.thresh.periodicity"))
             }
 
     def on_message(self, topic, mauka_message):
