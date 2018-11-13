@@ -1,0 +1,2 @@
+all:
+	g++ -pthread -lzmq -lzmqpp -lprotobuf -o health health.cpp mongoose.c opqbox3.pb.cc
