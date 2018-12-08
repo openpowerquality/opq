@@ -1,0 +1,2598 @@
+{
+  "AG_SCIENCE_MCC_MTR": [
+    {
+      "uselookupvalue": "false",
+      "Name": "Frequency",
+      "tagID": "4f9ab351-9ac0-424d-9be5-03463ff881c9",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "kVA",
+      "tagID": "296e4988-f52a-421d-9e3f-043c7434e1c1",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "Amps",
+      "tagID": "d1a37583-08fd-4d7c-afdf-0b4c92ad1002",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "VAN",
+      "tagID": "1767ccdc-81eb-4deb-85be-149b7e649764",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "kWh",
+      "tagID": "a1944ec0-61c3-4d77-b40f-1bd34700c643",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "PHASE_C_TX_THDF",
+      "tagID": "cdccd216-9161-4e79-8cd5-2ecfc892d7c1",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "AmpsA",
+      "tagID": "90cc58a3-828e-4854-b4dc-2f653fa6d057",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "AmpsB",
+      "tagID": "90d01cb9-9293-4224-b6fc-324edb9c8293",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "kW",
+      "tagID": "4873e25d-8c97-4f9b-8313-413a87e76d06",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "PHASE_B_CF",
+      "tagID": "6158870c-e1ba-4bbd-a2e4-5857bbc5285c",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "VAB",
+      "tagID": "8e5b3e8f-7199-4469-a36a-5dea47a2ed3e",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "PHASE_A_TX_THDF",
+      "tagID": "98509e98-9d88-424c-a9dc-62bb4f9d877c",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "kVAh",
+      "tagID": "e67dc085-7b0d-4572-b508-6592afe6a3e8",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "AVG_VOLTAGE_THD",
+      "tagID": "6f0de81e-64f2-402e-94c9-68afc445d7ba",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "COMM_ALARM",
+      "tagID": "9c1d77b7-2af9-418b-b0cc-6aea89d95316",
+      "type": "discrete",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "PowerFactor",
+      "tagID": "45190f90-7a94-425d-bc21-766b20e44b0a",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "PHASE_A_CF",
+      "tagID": "554f657d-2742-4022-9a39-7773c460b2c3",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "kVARS",
+      "tagID": "1f3cb104-9859-4fa8-b1ad-7e4b224e6f86",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "VCA",
+      "tagID": "d7344cd1-0c24-439f-b542-804edcf13b15",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "VCN",
+      "tagID": "3762a04a-8fe9-4413-9624-8349b22bb42a",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "AmpsC",
+      "tagID": "dca5b3af-b4e6-4ff5-a6b1-b89cf8a58fac",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "PHASE_C_CF",
+      "tagID": "87a294fb-1c1b-4465-b818-cafa06aac136",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "kVARh",
+      "tagID": "33393d07-e7ce-4f63-8ac2-cd4828a5acf5",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "VBN",
+      "tagID": "9a6f8fd6-47dd-4eb6-867b-cfa9ac630b81",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "AVG_CURRENT_THD",
+      "tagID": "17d5ec65-f56d-4735-8c2e-d7bd25eb5f01",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "VBC",
+      "tagID": "858ff8d1-b23d-413d-8cf3-e692ecc39441",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "PHASE_B_TX_THDF",
+      "tagID": "b2c79feb-7a03-4bf1-b609-e8670af9dbc3",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    }
+  ],
+  "HAMILTON_LIB_PH_III_CH_1_MTR": [
+    {
+      "uselookupvalue": "false",
+      "Name": "PHASE_C_TX_THDF",
+      "tagID": "b28ee959-bfc5-491e-832d-1b44f7f97f70",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "PHASE_A_TX_THDF",
+      "tagID": "0d28227b-1289-4049-8989-1b70be8d0784",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "VBN",
+      "tagID": "c0ad4eab-76fe-4354-84eb-28a66814f84d",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "PHASE_C_CF",
+      "tagID": "e4b33a3d-73a3-411b-b354-4caa3b3e3101",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "PHASE_A_CF",
+      "tagID": "aff87286-80c8-45b4-8a5c-4f7307cf3eae",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "Amps",
+      "tagID": "4ca3b55f-729c-4232-8bc7-6d407d949d8a",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "VAN",
+      "tagID": "d5253283-3d93-4e57-a4c4-728b28e77536",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "PHASE_B_TX_THDF",
+      "tagID": "5b75e727-0bef-42d1-9d2d-76dd712243c3",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "Frequency",
+      "tagID": "6b8b3e4d-7642-45d1-b44f-797d747b81a2",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "kW",
+      "tagID": "019f53d0-65b6-46e0-9167-831955676263",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "kWh",
+      "tagID": "2c85f393-cb02-4406-8abc-88aa92c3a2df",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "kVARS",
+      "tagID": "a70d0606-65b1-4514-aeab-88c210aa4e8d",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "AmpsA",
+      "tagID": "4b2eaaaa-f0c7-415c-8cae-a01c793f98ee",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "VCN",
+      "tagID": "e3604aa5-9b5e-494f-944f-a0214b907fe9",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "kVA",
+      "tagID": "db3e29c7-35ab-4240-b216-a39941f09b83",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "AmpsC",
+      "tagID": "193aeed3-8c1e-4fe0-acaf-a39a4a9533ca",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "AmpsB",
+      "tagID": "02e08778-77a9-40b4-b95e-ad5a4c644e46",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "PHASE_B_CF",
+      "tagID": "a4f19636-2f90-4408-9abe-b77ae994b662",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "VCA",
+      "tagID": "69eb90fe-9758-4318-a790-b83a64f43ee1",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "VAB",
+      "tagID": "d713cc2c-4db7-4b42-8a67-bb8414f60f23",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "AVG_CURRENT_THD",
+      "tagID": "791c13a3-4dc9-4002-acb7-c19418f4f76e",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "PowerFactor",
+      "tagID": "e8fbe3db-e225-415e-ad68-c7bbdeccbde7",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "VBC",
+      "tagID": "b424c112-fd8c-4dbd-84d5-cfc40d706705",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "kVAh",
+      "tagID": "f6e2396d-d478-42c6-a724-ed2e4b82863d",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "AVG_VOLTAGE_THD",
+      "tagID": "385aa83e-feaa-42b1-8162-f574778e83d7",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "kVARh",
+      "tagID": "334eeec0-70f6-47c1-9768-fb4aaee70cf8",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    }
+  ],
+  "HAMILTON_LIB_PH_III_CH_2_MTR": [
+    {
+      "uselookupvalue": "false",
+      "Name": "kVARS",
+      "tagID": "5eb90213-d387-4a04-ab32-02ebff463806",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "VAN",
+      "tagID": "c630585b-8949-4a61-a2d4-04c40cd56339",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "AmpsA",
+      "tagID": "c45d15b7-af52-4ea1-9ca4-06373e109279",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "VAB",
+      "tagID": "f1f2ff94-2f05-444b-920c-11bdf29ca627",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "kVA",
+      "tagID": "e67101f0-3651-4c02-b8a9-121605f240bc",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "PHASE_B_TX_THDF",
+      "tagID": "a3409300-bb3a-4af4-8bcc-20c0cec14b3f",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "AmpsC",
+      "tagID": "dc32de97-3937-4784-92b6-2188606a6e85",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "VBC",
+      "tagID": "40542299-641d-4a5e-95d9-4ed51a85d8e3",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "PowerFactor",
+      "tagID": "8dc6d16e-b7eb-4445-a2eb-642e094104f7",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "PHASE_B_CF",
+      "tagID": "7ec2e157-d890-46e1-b32d-65b22889f15e",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "kVAh",
+      "tagID": "8c6ca8b3-e00f-43fa-9990-757f3b046e6c",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "PHASE_A_TX_THDF",
+      "tagID": "07985b73-c7ef-4d9e-af0e-780796f2ac92",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "VCA",
+      "tagID": "22cc5540-0af2-42f1-b8ec-803a16ddc4b5",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "kW",
+      "tagID": "b94ca204-7c1f-431e-aa59-8653db9087f4",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "PHASE_C_CF",
+      "tagID": "79678de4-b4b3-4fe2-a046-8a4b1b1135f3",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "AmpsB",
+      "tagID": "571b67aa-2836-41a9-9437-8de2945ab33f",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "kWh",
+      "tagID": "e17f0c13-d0f6-4170-9c82-8de497d6d563",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "AVG_VOLTAGE_THD",
+      "tagID": "25999110-f375-4e9a-aeb7-9306805b0d2e",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "kVARh",
+      "tagID": "544e3830-68d5-42cc-8c9a-950f7d2f4e11",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "Amps",
+      "tagID": "056d0313-b34d-49e2-8322-98cd32eff8f2",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "VCN",
+      "tagID": "6a865c46-1f04-49ad-9574-ad3f961753f8",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "AVG_CURRENT_THD",
+      "tagID": "c4efb4b5-3cd9-4f22-b4e7-b7df78e10ea3",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "VBN",
+      "tagID": "562c4f8f-27cf-47b4-8ac9-c4a9025a6eee",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "PHASE_A_CF",
+      "tagID": "fbf5392f-1e55-4e3e-8b17-d74263b531c3",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "PHASE_C_TX_THDF",
+      "tagID": "58d2fd39-740c-49fc-bea0-da589449afbe",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "Frequency",
+      "tagID": "1603732d-eef4-4e74-8df1-f6b517aa5330",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    }
+  ],
+  "HAMILTON_LIB_PH_III_CH_3_MTR": [
+    {
+      "uselookupvalue": "false",
+      "Name": "AmpsC",
+      "tagID": "1ce74158-49a6-4bda-b50f-0f8668caec53",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "kVAh",
+      "tagID": "561bf04b-564b-4450-ad23-17ff78b083ae",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "PHASE_B_CF",
+      "tagID": "18aa001e-54be-4f99-bad9-1ad8293ee1a3",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "VCN",
+      "tagID": "959fdea1-45cf-4b00-9368-2d3260273ec1",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "PHASE_A_TX_THDF",
+      "tagID": "d22f5a9e-941e-40d4-8cda-2e201652a519",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "VCA",
+      "tagID": "47fe8e59-818a-43be-9c47-3632fb939342",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "AmpsA",
+      "tagID": "09edca1a-94a9-490f-bace-43718f1bca11",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "VAB",
+      "tagID": "d7d32065-c096-412b-8f56-4680307d578b",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "Amps",
+      "tagID": "b6e5ff34-fd60-4ec7-8a0e-4b192691a7ea",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "PHASE_B_TX_THDF",
+      "tagID": "67443f47-96fe-4f76-8414-586c5710119b",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "kVARh",
+      "tagID": "2092b201-ce65-4090-ae70-6249c88b1fd9",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "kVA",
+      "tagID": "0558d341-d3c5-4e2e-af67-671664dff35f",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "VBC",
+      "tagID": "7cf533f1-e763-4604-b503-77341b99210a",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "kWh",
+      "tagID": "a2e43be8-ee4e-42b4-b4c3-7942128439a2",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "AVG_VOLTAGE_THD",
+      "tagID": "d2b71492-7180-4feb-8050-7a20ebbb69e6",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "Frequency",
+      "tagID": "93dc99a5-c51f-4524-bfa6-821efab75abe",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "kW",
+      "tagID": "d4f4d054-fd16-497d-9965-98f5f9979dfc",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "VBN",
+      "tagID": "bb469cd3-c6e2-45de-84c9-babf61e5bd1e",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "PHASE_C_TX_THDF",
+      "tagID": "18584c4c-f843-4e4d-b583-bded2bac46e7",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "PHASE_A_CF",
+      "tagID": "9677800e-d45a-4571-96e4-c01b5a9a73d4",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "PHASE_C_CF",
+      "tagID": "b2f2adef-3390-4288-81f1-c2496f5c768d",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "PowerFactor",
+      "tagID": "fad231da-2f3a-4cb0-9d09-d088336decad",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "AmpsB",
+      "tagID": "dbb09812-8750-4f2f-87b6-ea3199ed2eaa",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "kVARS",
+      "tagID": "dd6c34d4-6727-4456-a410-ef54293c0f9f",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "VAN",
+      "tagID": "63334329-cc80-42f5-aaab-f45c51f94e46",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "AVG_CURRENT_THD",
+      "tagID": "334ffd99-e46a-4b01-87c3-f9cbdc4ef33e",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    }
+  ],
+  "HAMILTON_LIB_PH_III_MAIN_1_MTR": [
+    {
+      "uselookupvalue": "false",
+      "Name": "PHASE_C_CF",
+      "tagID": "7d7a9d3b-138c-49e5-8402-02c883e4505b",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "PHASE_B_CF",
+      "tagID": "bbe0a450-e4b6-4fed-8b96-038abd343f2d",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "AVG_VOLTAGE_THD",
+      "tagID": "e2a2f2af-87f7-4125-8697-048caac5f30b",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "AVG_CURRENT_THD",
+      "tagID": "d9477358-5fff-4267-9c07-27d72f4c0946",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "VAN",
+      "tagID": "5977c7b3-372f-480c-ba1d-323003f8f103",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "PHASE_B_TX_THDF",
+      "tagID": "d5fe84a5-2bfa-404a-ad89-3aa388ccb163",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "kW",
+      "tagID": "8cd62e25-cff0-460d-9c89-3fbff585bcb5",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "kVARS",
+      "tagID": "66951fd5-1a82-48b6-9dfb-45eb604d1953",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "PHASE_A_CF",
+      "tagID": "79a9a61c-ea0f-4b21-90ac-62620b4c6cb4",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "kVARh",
+      "tagID": "0b4fb04f-2bc0-4ca5-bcec-74dbb0cea42e",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "AmpsC",
+      "tagID": "5b119731-b730-4914-b8b4-772c146aece9",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "VCN",
+      "tagID": "68523dfc-f511-46f3-8a1f-7a72656c6a55",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "AmpsA",
+      "tagID": "4d964ae2-286a-4b87-ad13-8a0d54ca7631",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "AmpsB",
+      "tagID": "f897222e-cc3a-45d3-9916-90dd2bfd683a",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "Frequency",
+      "tagID": "3722e476-e7c9-4823-a6a8-9a0627e1f534",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "VBN",
+      "tagID": "3839b5e7-acff-42fb-94cd-a4ed426ff0c4",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "kVAh",
+      "tagID": "12cd6442-f160-4b27-a9cd-b8207a936730",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "kVA",
+      "tagID": "9c6ca862-341f-452e-a2c4-c0c343a309d6",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "VBC",
+      "tagID": "79ce1d64-363a-4efa-97db-d7930456a514",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "PHASE_C_TX_THDF",
+      "tagID": "33a39dea-3249-4a17-ad52-d950e9714d07",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "kWh",
+      "tagID": "f00a9333-1cc5-4093-ba58-de26c6148dc4",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "PowerFactor",
+      "tagID": "8b58a088-ac44-4890-9568-de8dec689624",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "VAB",
+      "tagID": "073aedd9-8300-4707-b88a-e8b6605790a1",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "PHASE_A_TX_THDF",
+      "tagID": "66a57bca-5cec-45e9-af9f-ee13315778ef",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "VCA",
+      "tagID": "3e58cbcc-a27b-4b13-b6fe-f3fd9bbdeb5c",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    }
+  ],
+  "HAMILTON_LIB_PH_III_MAIN_2_MTR": [
+    {
+      "uselookupvalue": "false",
+      "Name": "VBC",
+      "tagID": "459cb60c-4efb-4ce5-a6be-02484593e570",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "kWh",
+      "tagID": "e5ef965c-e45d-4407-8fa7-10ff846caa2b",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "kVA",
+      "tagID": "ba0b62f0-21b7-42c0-b540-1991927293f4",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "PHASE_C_TX_THDF",
+      "tagID": "bb786e09-83fb-43fa-a3cd-23b1771adf2a",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "kVARh",
+      "tagID": "b7742876-d4b9-4f24-9cb2-2c0215932ea6",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "PHASE_B_CF",
+      "tagID": "05afa6dc-00f8-4b7d-a82f-2c60659d9fc1",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "kVAh",
+      "tagID": "b2f4c933-cb1b-4553-b3f2-3744cf1f9e56",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "Frequency",
+      "tagID": "678edd5a-459a-41e5-a2eb-4577b9e702b3",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "PHASE_A_CF",
+      "tagID": "e126250c-8ee5-4df1-86ac-4f1885d7dfb1",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "AmpsB",
+      "tagID": "29b522bf-373c-48de-9cca-5330cac0a5c6",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "kVARS",
+      "tagID": "14118f14-c3fc-4847-aae4-53cb4ed1f28d",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "PowerFactor",
+      "tagID": "5cbe1e59-2fc3-4b12-9a64-541cbe73fb40",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "AmpsC",
+      "tagID": "acd8c160-5376-49e5-960a-6cfe50d14e61",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "VCN",
+      "tagID": "f01c10ec-09ce-4c4f-a2a4-7d2e947b1af9",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "VCA",
+      "tagID": "27c1bff5-ab58-433b-9f01-863fa484171f",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "AmpsA",
+      "tagID": "67f15e34-a5e3-416c-accf-8fdb51e64aa2",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "Amps",
+      "tagID": "74fd31a2-b4c0-44cc-bede-94a5ffc2394e",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "AVG_CURRENT_THD",
+      "tagID": "0d6b37d2-179e-4169-ab82-9ae413bd0e95",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "AVG_VOLTAGE_THD",
+      "tagID": "afedbb45-7eb2-4e6c-9a78-a09c1da0090c",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "PHASE_A_TX_THDF",
+      "tagID": "49839958-34cf-40d1-af67-a9b0f4197090",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "kW",
+      "tagID": "4bccf824-f44a-4a7e-bedc-b6a532760b05",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "PHASE_C_CF",
+      "tagID": "918679c0-4fc4-4abf-a62d-e5d5f9f26c21",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "VBN",
+      "tagID": "17ecde2e-c247-497d-b582-ea74d8693771",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "VAB",
+      "tagID": "10f961a4-3cad-4e64-bc68-f3b35cb16de6",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "VAN",
+      "tagID": "2c6f50f1-574c-4cb3-bd14-f4c7fba82796",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "PHASE_B_TX_THDF",
+      "tagID": "087878cf-a06d-4051-bf44-f7962e078e71",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    }
+  ],
+  "HAMILTON_LIB_PH_III_MCC_AC1_MTR": [
+    {
+      "uselookupvalue": "false",
+      "Name": "VBC",
+      "tagID": "91b20548-1e38-4e26-8a40-08405b7c93e8",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "AmpsC",
+      "tagID": "dcd848bc-97b8-4041-b697-0f78cfc7662d",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "PHASE_C_TX_THDF",
+      "tagID": "6a4dcdcb-cebf-4953-bd1d-1086a5b470a4",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "PHASE_B_TX_THDF",
+      "tagID": "84fd0ca3-0d57-47a4-bbbe-1b6add08b176",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "VBN",
+      "tagID": "d65a9c21-bc69-4acb-b3a2-1caf7768b838",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "kVARh",
+      "tagID": "f502e4d7-e591-4d97-a407-1d91345b006e",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "PHASE_C_CF",
+      "tagID": "a38e1796-b079-4c5e-b890-20f3a7d8c259",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "PHASE_B_CF",
+      "tagID": "9c6cf80f-b112-4e12-b5ce-33b36765f3da",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "AmpsA",
+      "tagID": "13b24ac9-0657-468c-9ece-3996670bb5e6",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "PHASE_A_TX_THDF",
+      "tagID": "92e2926c-4f4e-4cd1-bb0e-4936d8ed7efc",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "VCA",
+      "tagID": "3b67d1aa-ac39-4f4c-b2b3-58b9c39af7e2",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "kVAh",
+      "tagID": "1a26b879-13e6-49dc-99ce-5af5c4452e72",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "Amps",
+      "tagID": "074a6da0-269f-421c-a5a5-5c3f7d1134d5",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "AmpsB",
+      "tagID": "1c098824-89b3-4cae-b054-5fe399c5a2c2",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "AVG_CURRENT_THD",
+      "tagID": "1f59abbf-7846-474b-995c-8cd44359fde9",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "PHASE_A_CF",
+      "tagID": "d129790b-5d3e-4adb-944e-8d2711d5a940",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "AVG_VOLTAGE_THD",
+      "tagID": "5f42de81-0d29-4933-bdfd-960f156c82df",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "kWh",
+      "tagID": "2d272f87-ba57-4223-b5a0-9a2aed43092c",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "kVARS",
+      "tagID": "4a79740d-8aca-47ea-bfd5-a29e39e8f0d1",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "Frequency",
+      "tagID": "9da9fafb-f154-4938-9fef-a660e393daac",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "VAB",
+      "tagID": "09b6d4d5-ea73-4e75-bf2d-ab611128edb9",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "PowerFactor",
+      "tagID": "78835146-83d7-46f3-963b-adcfd1ae0a69",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "VAN",
+      "tagID": "ab8c097f-0a81-46b0-9afa-ae6ebceb1823",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "VCN",
+      "tagID": "8cf1922b-4685-44f6-8620-b2752d67b5b5",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "kW",
+      "tagID": "64899d5a-43dd-48b9-a571-bae25295d480",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "kVA",
+      "tagID": "cb035088-35a8-49f6-9071-da451f6fa6c9",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    }
+  ],
+  "HAMILTON_LIB_PH_III_MCC_AC2_MTR": [
+    {
+      "uselookupvalue": "false",
+      "Name": "AmpsC",
+      "tagID": "2505ef9d-0ae1-4080-a788-0df59d855175",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "VCN",
+      "tagID": "6c654086-18b3-45d4-93be-0e506c99abe0",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "PowerFactor",
+      "tagID": "ed7a3538-2fbb-44aa-9898-0fa415645515",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "VCA",
+      "tagID": "1e708841-1458-4a96-a805-17ae2b8b8f67",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "Frequency",
+      "tagID": "0e160dab-e2ff-4237-874b-1b3695b4d5ac",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "VAN",
+      "tagID": "1d2a093f-44cc-4319-8ffd-1d09252c185f",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "AmpsA",
+      "tagID": "fc1ca85a-96b8-4b7b-b3cb-1f335aac0d93",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "Amps",
+      "tagID": "42a41bec-4107-415c-8355-2628ec00e963",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "PHASE_C_TX_THDF",
+      "tagID": "6eed3a16-7e33-41bf-9659-4383401e036c",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "VAB",
+      "tagID": "d8e01d9c-7193-4164-ba74-49311f59a332",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "PHASE_A_CF",
+      "tagID": "7739a5a2-f796-4e88-97d3-5507ee27149b",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "PHASE_A_TX_THDF",
+      "tagID": "966270ef-b740-4bd9-87c8-60b92c6a0e28",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "PHASE_B_TX_THDF",
+      "tagID": "deb2d314-9a16-480b-bafd-787154823716",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "kVAh",
+      "tagID": "8355be8a-0d2e-4bc4-9658-7f636c3ea645",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "kVA",
+      "tagID": "9747dbba-4536-486e-8152-9c9455d43808",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "kVARh",
+      "tagID": "7d1913a1-6a07-4c28-adb3-9edf882f9f3e",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "AVG_VOLTAGE_THD",
+      "tagID": "5f0d5211-09af-40ba-bbeb-b465c01fe3eb",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "VBC",
+      "tagID": "00bd4b05-528b-4e9c-88a3-c2ccdde25e8f",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "kWh",
+      "tagID": "f773e8a1-c9ee-4ca8-89af-c775562f5495",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "PHASE_B_CF",
+      "tagID": "0e25e1de-aa39-4e5c-8aac-cdac8e29e16b",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "kVARS",
+      "tagID": "cda61e42-b6e8-4568-8cfd-cedefd815886",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "kW",
+      "tagID": "96fef9ff-c67c-478a-a7af-d1615bfa3350",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "VBN",
+      "tagID": "7bcfb350-dbeb-43d8-b50b-d39bf961f8cb",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "PHASE_C_CF",
+      "tagID": "bb233650-04cd-421f-9082-d80136fee9d4",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "AmpsB",
+      "tagID": "e57af214-720f-46d1-8150-fd19a7005ba2",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "AVG_CURRENT_THD",
+      "tagID": "0b1149d2-8294-47ae-ba65-ff06fdadc945",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    }
+  ],
+  "POST_CHILLER_PLANT_MAIN": [
+    {
+      "uselookupvalue": "false",
+      "Name": "AmpsB",
+      "tagID": "2360be6e-08cc-424d-9b50-0662e7f6455e",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "AVG_CURRENT_THD",
+      "tagID": "7f7c02d9-4eec-4c56-88d8-27001f508069",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "PHASE_C_TX_THDF",
+      "tagID": "a9afa53f-d887-4958-9556-2da42dee94e6",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "AmpsA",
+      "tagID": "1115ef4f-7fb3-4ff4-b876-2f6e6fa5adee",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "PHASE_B_CF",
+      "tagID": "920744a1-4bd9-4042-a0fe-30b00dc048db",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "PHASE_B_TX_THDF",
+      "tagID": "423ceb00-a40b-4c01-925c-3408fa6f67a5",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "PHASE_C_CF",
+      "tagID": "29b08854-7377-4cda-8a6c-3617f112d939",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "Amps",
+      "tagID": "e8d5a070-c77f-4ccc-a333-65723f6acc60",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "VBN",
+      "tagID": "b1840abf-ab98-49ff-a6bf-795888a7f203",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "kVARh",
+      "tagID": "3376e3a8-be13-4c0a-a0e6-7b5758d6d775",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "VAB",
+      "tagID": "17fc9188-1d5e-4793-9deb-7bce622d6cf1",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "PowerFactor",
+      "tagID": "53dc3ac0-aa3b-4136-80fd-8642cf2e800c",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "PHASE_A_CF",
+      "tagID": "2111a674-6916-4be0-9c36-89cf970e64d7",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "Frequency",
+      "tagID": "7eb83b96-e978-433f-8a72-b000574f8629",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "kVAh",
+      "tagID": "3319c35d-6af8-4145-9bbd-b2b5b83bbda5",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "VCA",
+      "tagID": "f6f886e4-2165-45f2-979c-b3e86f6654b5",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "kVARS",
+      "tagID": "d207bfd1-59bf-4607-82ff-b683f83f351b",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "VAN",
+      "tagID": "388b1e06-dfc7-4fee-89fd-c06dd3778ee8",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "kVA",
+      "tagID": "3f08e365-245b-4c93-9623-d2ad1f83b0ea",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "kWh",
+      "tagID": "9ad0feb9-e93c-4b14-9117-d6dfb89d4626",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "VBC",
+      "tagID": "68afc1d5-cb77-4d3b-baf9-d81d0bc7047e",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "AmpsC",
+      "tagID": "4e35a4f2-04e8-4e71-bdb7-ed390a1116c0",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "AVG_VOLTAGE_THD",
+      "tagID": "c7eea308-cdb2-4585-8633-ee636a182b77",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "kW",
+      "tagID": "7b9d13de-2948-413c-ba83-f4a5205268a3",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "VCN",
+      "tagID": "7efc726e-ad1a-47ff-ba0d-f869fa2ea5a2",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "PHASE_A_TX_THDF",
+      "tagID": "45b23570-b627-45f0-8ee2-ff1aaeec10ec",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    }
+  ],
+  "POST_MAIN_1": [
+    {
+      "uselookupvalue": "false",
+      "Name": "VAN",
+      "tagID": "e15bc6e5-d4c5-435a-952e-00c5a745620b",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "kW",
+      "tagID": "d207d9de-a743-4d6d-ae07-28a82cbec6e6",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "PHASE_A_TX_THDF",
+      "tagID": "872a5c07-8878-430b-9e45-294935c13597",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "PHASE_C_CF",
+      "tagID": "7d5f9cc2-cb5e-41a5-8a6f-3cdc36f70869",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "AVG_CURRENT_THD",
+      "tagID": "ebfdab0d-9f3b-4a25-845d-3d5b7b21cf3b",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "PHASE_B_TX_THDF",
+      "tagID": "9ee4037a-a11c-4b20-9593-438468a659dc",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "AmpsC",
+      "tagID": "0faafa61-08aa-42a3-8eb8-4efd1702ccc4",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "kVA",
+      "tagID": "c90f0fe5-ce18-4a4a-8d99-6c9c280362d0",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "AmpsA",
+      "tagID": "0b13e20b-1bf7-4806-99ef-6e6a12fb0a9d",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "Amps",
+      "tagID": "be90d221-dc62-4551-be59-7198f3074f6d",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "Frequency",
+      "tagID": "991e3024-aeb8-4ee5-ab86-8178a1a79df0",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "PowerFactor",
+      "tagID": "ede4a5fc-dd1e-4f1b-be99-82470885a527",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "VBC",
+      "tagID": "4531941f-b745-4b2c-ab07-8d43dde607e5",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "PHASE_A_CF",
+      "tagID": "ba0ff4ba-2467-4be9-afa1-9630ba3f6a74",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "kVARS",
+      "tagID": "42525fe0-24aa-4daf-b6e7-a18554cbe945",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "AmpsB",
+      "tagID": "6d891b5e-e5b5-4441-8c98-a7536ba86c43",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "VCA",
+      "tagID": "b4301e2c-2764-4fd0-bd15-ada092f4357a",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "kVARh",
+      "tagID": "56daa38c-3131-4197-b6df-aff7491caad9",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "PHASE_C_TX_THDF",
+      "tagID": "98434ce1-c3d5-4587-9f97-c9b6fd84e03f",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "VAB",
+      "tagID": "36b3687e-c6d8-4cd2-a2b0-d369d8e15fee",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "AVG_VOLTAGE_THD",
+      "tagID": "25ffd564-9a50-447a-bacd-d49dd3c30fd0",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "kVAh",
+      "tagID": "248c557d-7595-4d38-ab19-d546e1fab05f",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "VBN",
+      "tagID": "5cb34d00-e524-429d-b2d8-d9638728a063",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "VCN",
+      "tagID": "624cb3ad-176e-4ed7-a2ee-dcd97fdb8925",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "PHASE_B_CF",
+      "tagID": "60122767-90b8-4dfd-bc71-dfbdffb1c4f4",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "kWh",
+      "tagID": "f2ce49e5-e151-4827-9fa0-e6b77383fcdd",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    }
+  ],
+  "POST_MAIN_2": [
+    {
+      "uselookupvalue": "false",
+      "Name": "kVARS",
+      "tagID": "afa0675b-f251-42d5-9bce-0cde20aca8fb",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "PHASE_B_CF",
+      "tagID": "801a4db5-8eb1-431d-8ec2-13f4673dc118",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "kWh",
+      "tagID": "b083a80f-a8b1-43b9-89f7-1698176ac1cd",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "VBC",
+      "tagID": "fc628d08-4444-4805-b9ce-17d5adbbb432",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "VCA",
+      "tagID": "6c375cb8-7c7b-47d5-84f5-18b9bf47dd29",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "AVG_CURRENT_THD",
+      "tagID": "3e23de09-a9fc-449c-be18-18d35b587f5a",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "kVA",
+      "tagID": "29bf4009-a21d-4b4e-a324-247cc8a22fe8",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "VBN",
+      "tagID": "099e65c0-f852-434e-a398-382365fba2e7",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "AmpsB",
+      "tagID": "bb78979d-64fa-4b7c-85cb-432141bb781b",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "PHASE_C_CF",
+      "tagID": "9d914ac3-38f1-43bd-91d2-514d00f77a29",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "VCN",
+      "tagID": "4a2b896a-da2b-4b16-b736-5372113bc0e4",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "kVAh",
+      "tagID": "9d8a2a66-ca00-4992-8a59-6a483ac5918c",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "PHASE_B_TX_THDF",
+      "tagID": "7db237c3-7481-485d-a91b-767934451e87",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "kVARh",
+      "tagID": "9455ca8e-dafb-4a6e-a0fc-797ec47cea13",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "kW",
+      "tagID": "162dd4db-cf40-4b5a-98fc-828b97d3a598",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "Frequency",
+      "tagID": "0cb7eb39-9b59-43bb-aebe-86f538a8ccfe",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "PowerFactor",
+      "tagID": "1813a42c-a572-4f2e-b16c-8e90a36d9102",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "VAB",
+      "tagID": "551593a8-b118-427d-aa59-916b9a1842b6",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "PHASE_A_CF",
+      "tagID": "a92da01b-e2a9-48a1-a7bb-9c786a959c30",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "AmpsC",
+      "tagID": "8edff8da-2300-4764-9ee4-ba3b799970c1",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "AmpsA",
+      "tagID": "59aeb8f3-044e-4f5b-8e9c-bd043b2e33db",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "Amps",
+      "tagID": "89592425-6c86-4bd6-b708-d38aeee02396",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "PHASE_C_TX_THDF",
+      "tagID": "2f9027f7-10d6-4668-9ca0-d458eecf0cd8",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "AVG_VOLTAGE_THD",
+      "tagID": "6688a997-92da-4786-81f4-d6d98017fc79",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "PHASE_A_TX_THDF",
+      "tagID": "1a1edf22-4dfa-4839-9894-d7ca5f8bf94b",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    },
+    {
+      "uselookupvalue": "false",
+      "Name": "VAN",
+      "tagID": "ab34a23d-7bcc-4e26-a29a-d9d436df9a8c",
+      "type": "analog",
+      "writable": false,
+      "lo": "0",
+      "hi": "1"
+    }
+  ]
+}
