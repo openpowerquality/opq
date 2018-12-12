@@ -20,3 +20,6 @@
   (let [data (load-resource-ids)
         building-data (get data meter-name)]
     (map #(get % "Name") building-data)))
+
+(defn find-duplicate-tag-ids []
+  )
