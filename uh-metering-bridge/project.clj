@@ -9,7 +9,8 @@
                  [org.jsoup/jsoup "1.11.3"]
                  [org.clojure/data.json "0.2.6"]
                  [http-kit "2.3.0"]
-                 [compojure "1.6.1"]]
+                 [compojure "1.6.1"]
+                 [cheshire "5.8.1"]]
   :main ^:skip-aot uh-metering-bridge.core
   :target-path "target/%s"
   :profiles {:uberjar {:aot :all}})

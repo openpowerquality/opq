@@ -4,16 +4,31 @@
   (:import (java.time Instant ZonedDateTime ZoneId LocalDateTime)
            (org.jsoup Jsoup)))
 
+(def uh-manoa-site-id "17abfe2a-3ae5-471b-965c-3e88e42f28d8")
+
 (defn extract-connection-id [html]
   (let [lines (map clojure.string/trim (clojure.string/split-lines html))
         conn-id-line (first (filter #(clojure.string/starts-with? % "Avise.Config.UrlManager.url") lines))]
     (second (re-find #"'([^' ]+)'" conn-id-line))))
 
+(defn extract-client-id [html]
+  (let [lines (map clojure.string/trim (clojure.string/split-lines html))
+        client-id-line (first (filter #(clojure.string/starts-with? % "Avise.Config.UrlManager.SingleClientId") lines))]
+    (second (re-find #"'([^' ]+)'" client-id-line))))
+
+(defn extract-server-id [html]
+  (let [lines (map clojure.string/trim (clojure.string/split-lines html))
+        client-id-line (first (filter #(clojure.string/starts-with? % "Avise.Config.UrlManager.SingleServerId") lines))]
+    (second (re-find #"'([^' ]+)'" client-id-line))))
+
 (defn extract-credentials [html]
   (let [document (Jsoup/parse html)
         req-token-element (.selectFirst document "[name=__RequestVerificationToken]")]
     {:request-verification-token (.val req-token-element)
-     :connection-id (extract-connection-id html)}))
+     :connection-id              (extract-connection-id html)
+     :client-id                  (extract-client-id html)
+     :server-id                  (extract-server-id html)
+     :site-id                    uh-manoa-site-id}))
 
 (defn timestamp-ms []
   (.toEpochMilli (Instant/now)))
@@ -47,32 +62,34 @@
     (.getEpochSecond instant)))
 
 (defn transform-data-point [data-sample-map]
-  {:meter-name (get data-sample-map "EntityName")
+  {:meter-name  (get data-sample-map "EntityName")
    :sample-type (get data-sample-map "TagName")
-   :ts-s (to-ts (get data-sample-map "FullDateTimeUTC"))
-   :actual (get data-sample-map "Actual")
-   :min (get data-sample-map "Min")
-   :max (get data-sample-map "Max")
-   :avg (get data-sample-map "Mean")
-   :stddev (get data-sample-map "StDev")})
+   :ts-s        (to-ts (get data-sample-map "FullDateTimeUTC"))
+   :actual      (get data-sample-map "Actual")
+   :min         (get data-sample-map "Min")
+   :max         (get data-sample-map "Max")
+   :avg         (get data-sample-map "Mean")
+   :stddev      (get data-sample-map "StDev")})
 
 (defn parse-scraped-data [scraped-data]
   (let [data (json/read-str (:body scraped-data))]
     (map transform-data-point (get data "Graph"))))
 
 (defn scrape-data [resource-id start-ts-s end-ts-s]
-  (let [credentials (extract-credentials (post-login "achriste" "Password1"))
-        connection-id (:connection-id credentials)]
-    (parse-scraped-data (client/get "https://energydata.hawaii.edu/api/reports/GetAnalyticsGraphAndGridData/GetAnalyticsGraphAndGridData"
-                                    {:query-params               {"connectionId"   connection-id
-                                                                  "storedProcName" "GetLogMinuteDataForTagIds"
-                                                                  "rollupName"     "Mean"
-                                                                  "tableIndex"     "1"
-                                                                  "parameter1"     (format-datetime (to-zdt start-ts-s))
-                                                                  "parameter2"     (format-datetime (to-zdt end-ts-s))
-                                                                  "parameter3"     "|-600"
-                                                                  "parameter4"     "|client"
-                                                                  "parameter5"     resource-id
-                                                                  "_"              (str timestamp-ms)}
-                                     :__RequestVerificationToken (:request-verification-token credentials)
-                                     :content-type               :json}))))
+  (binding [clj-http.core/*cookie-store* (clj-http.cookies/cookie-store)]
+    (let [credentials (extract-credentials (post-login "achriste" "Password1"))
+          connection-id (:connection-id credentials)]
+      (parse-scraped-data (client/get "https://energydata.hawaii.edu/api/reports/GetAnalyticsGraphAndGridData/GetAnalyticsGraphAndGridData"
+                                      {:query-params               {:connectionId   connection-id
+                                                                    :storedProcName "GetLogMinuteDataForTagIds"
+                                                                    :rollupName     "Mean"
+                                                                    :tableIndex     "1"
+                                                                    :parameter1     (format-datetime (to-zdt start-ts-s))
+                                                                    :parameter2     (format-datetime (to-zdt end-ts-s))
+                                                                    :parameter3     "|-600"
+                                                                    :parameter4     "|client"
+                                                                    :parameter5     resource-id
+                                                                    :_              (str timestamp-ms)}
+                                       :__RequestVerificationToken (:request-verification-token credentials)
+                                       :content-type               :json})))))
+
