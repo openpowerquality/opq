@@ -11,5 +11,5 @@
   "calibration" : 152.5,
   "windows_per_measurements" : 10,
   "windows_in_storage_buffer" : 3000,
-  "plugins" : ["./libvrms_plugin.so"]
+  "plugins" : ["./libfrequency_plugin.so"]
 }
