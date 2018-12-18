@@ -52,7 +52,7 @@ class MakaiEventPluginTests(unittest.TestCase):
 
         """MakaiEventPlugin frequency Method"""
         waveform_window = simulate_waveform()
-        self.assertAlmostEqual(frequency(waveform_window, downsample_factor=1),
+        self.assertAlmostEqual(frequency(waveform_window, down_sample_factor=1),
                                constants.CYCLES_PER_SECOND, delta=0.2)
 
         """MakaiEventPlugin frequency_waveform Method"""

@@ -241,7 +241,7 @@ def periodic_notching_classifier(filtered_waveform: numpy.ndarray, fundamental_w
     noise_canceled_waveform = numpy.vectorize(noise_canceler)(filtered_waveform, configs['noise_floor'])
 
     # determine whether the notching is negative power or not
-    if -1 in numpy.sign(noise_canceled_waveform) * numpy.sign(fundamental_waveform):
+    if 1 in numpy.sign(noise_canceled_waveform) * numpy.sign(fundamental_waveform):
         return False, {}
 
     # determine whether the notching is nearly periodic
@@ -294,6 +294,7 @@ def pf_cap_switching_classifier(filtered_waveform: numpy.ndarray, fundamental_wa
     :return: A tuple which has contains a boolean indicator of whether the transient was indeed classified as being
     pf_cap_switching and then a dictionary of the calculated meta data.
     """
+    # TODO
 
 
 def multiple_zero_xing_classifier(waveforms: dict, configs: dict) -> (bool, dict):

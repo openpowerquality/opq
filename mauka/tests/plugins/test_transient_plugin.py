@@ -70,7 +70,7 @@ class TransientPluginTests(unittest.TestCase):
         :return: None
         """
 
-        # 6 cycles notching amp = 3 * (noise floor) with frequency 1440Hz i.e.e 24 notches per cycle for 1 cycle
+        # 6 cycles notching amp = 3 * (noise floor) with frequency 1440Hz i.e. 24 notches per cycle for 1 cycle
         fundamental_waveform = simulate_waveform()
         t = numpy.linspace(0, 1 / 10, int(6 * constants.SAMPLES_PER_CYCLE))
         transient_waveform = 8 / 2 * self.noise_floor * signal.sawtooth(
@@ -80,8 +80,7 @@ class TransientPluginTests(unittest.TestCase):
         transient_waveform = - transient_waveform * numpy.sign(fundamental_waveform)
 
         # ensure gaps in notching
-        transient_waveform = numpy.vectorize(periodic_notching_transient_wave_filter)(transient_waveform,
-                                                                                      32)
+        transient_waveform = numpy.vectorize(periodic_notching_transient_wave_filter)(transient_waveform, 32)
 
         raw_waveform_transient_window = fundamental_waveform[600:800] + transient_waveform[600:800]
 
@@ -90,7 +89,7 @@ class TransientPluginTests(unittest.TestCase):
 
         # first ensure that if transient and fundamental wave were recovered perfectly
         # then we could classify periodic notching
-        periodic_notching = periodic_notching_classifier(fundamental_waveform - raw_waveform,
+        periodic_notching = periodic_notching_classifier(raw_waveform - fundamental_waveform,
                                                          fundamental_waveform, self.configs)
 
         self.assertTrue(periodic_notching[0])
@@ -101,5 +100,3 @@ class TransientPluginTests(unittest.TestCase):
                                                          waveforms["fundamental_waveform"], self.configs)
 
         self.assertTrue(periodic_notching[0])
-
-
