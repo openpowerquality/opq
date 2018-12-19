@@ -72,14 +72,14 @@ class TransientPluginTests(unittest.TestCase):
 
         # 6 cycles notching amp = 3 * (noise floor) with frequency 1440Hz i.e. 24 notches per cycle for 1 cycle
         fundamental_waveform = simulate_waveform()
-        t = numpy.linspace(0, 1 / 10, int(6 * constants.SAMPLES_PER_CYCLE))
+        t = numpy.linspace(0, 6 / constants.CYCLES_PER_SECOND, int(6 * constants.SAMPLES_PER_CYCLE))
         transient_waveform = 8 / 2 * self.noise_floor * signal.sawtooth(
             2 * numpy.pi * 1440 * t) + 8 / 2 * self.noise_floor
 
         # ensure that notching is negative power
         transient_waveform = - transient_waveform * numpy.sign(fundamental_waveform)
 
-        # ensure gaps in notching
+        # ensure gaps in notching. Also note that this decreases amplitude of sawtooth to that it is 3 * noise floor
         transient_waveform = numpy.vectorize(periodic_notching_transient_wave_filter)(transient_waveform, 32)
 
         raw_waveform_transient_window = fundamental_waveform[600:800] + transient_waveform[600:800]
@@ -100,3 +100,36 @@ class TransientPluginTests(unittest.TestCase):
                                                          waveforms["fundamental_waveform"], self.configs)
 
         self.assertTrue(periodic_notching[0])
+
+    def test_multiple_zero_xing_transient(self):
+        """
+        test transient plugin functions on waveform with multiple zero crossing transient
+        :return:
+        """
+        # 6 cycles 60Hz 120 VRMS.
+        fundamental_waveform = simulate_waveform()
+
+        # multiple zero crossing transient simulated from superimposition with single sawtooth period.
+        # sawtooth amp = 3 * (noise floor) with frequency 1440Hz
+        t = numpy.linspace(0, 10, 11)
+        transient_waveform = 3 / 2 * self.noise_floor * signal.sawtooth(
+            2 * numpy.pi * 1 / 10 * t) + 3 / 2 * self.noise_floor
+
+        # find zero crossings of fundamental waveform and superimpose signals
+        zero_crossings = find_zero_xings(fundamental_waveform)
+        zero_crossing_indices = numpy.where(zero_crossings)[0]
+
+        mid = numpy.floor(len(zero_crossing_indices) / 2)
+        for i in numpy.arange(mid, mid + 3):
+            if fundamental_waveform[zero_crossing_indices[i] + 1] < 0:
+                fundamental_waveform[zero_crossing_indices[i] + 1: zero_crossing_indices[i] + 12] = (
+                    fundamental_waveform[zero_crossing_indices[i] + 1: zero_crossing_indices[i] + 12] +
+                    transient_waveform
+                )
+            else:
+                fundamental_waveform[zero_crossing_indices[i] + 1: zero_crossing_indices[i] + 12] = (
+                        fundamental_waveform[zero_crossing_indices[i] + 1: zero_crossing_indices[i] + 12] -
+                        transient_waveform
+                )
+
+
