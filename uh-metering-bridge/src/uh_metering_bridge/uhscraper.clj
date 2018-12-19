@@ -1,6 +1,7 @@
 (ns uh-metering-bridge.uhscraper
   (:require [clj-http.client :as client]
-            [clojure.data.json :as json])
+            [clojure.data.json :as json]
+            [uh-metering-bridge.config :as config])
   (:import (java.time Instant ZonedDateTime ZoneId LocalDateTime)
            (org.jsoup Jsoup)))
 
@@ -77,7 +78,10 @@
 
 (defn scrape-data [resource-id start-ts-s end-ts-s]
   (binding [clj-http.core/*cookie-store* (clj-http.cookies/cookie-store)]
-    (let [credentials (extract-credentials (post-login "achriste" "Password1"))
+    (let [conf (config/config)
+          username (config/username conf)
+          password (config/password conf)
+          credentials (extract-credentials (post-login username password))
           connection-id (:connection-id credentials)]
       (parse-scraped-data (client/get "https://energydata.hawaii.edu/api/reports/GetAnalyticsGraphAndGridData/GetAnalyticsGraphAndGridData"
                                       {:query-params               {:connectionId   connection-id

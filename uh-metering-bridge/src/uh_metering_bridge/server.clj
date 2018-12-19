@@ -2,6 +2,7 @@
   (:require [org.httpkit.server :as server]
             [compojure.core :refer :all]
             [compojure.route :as route]
+            [uh-metering-bridge.config :as config]
             [uh-metering-bridge.resources :as resources]
             [uh-metering-bridge.uhscraper :as scraper]
             [clojure.data.json :as json]))
@@ -54,7 +55,8 @@
     (reset! server-inst nil)))
 
 (defn start-server []
-  (reset! server-inst (server/run-server #'all-routes {:port 13000})))
+  (let [port (config/port (config/config))]
+    (reset! server-inst (server/run-server #'all-routes {:port port}))))
 
 (defn restart-server []
   (do
