@@ -12,19 +12,41 @@
   [req]
   {:status 200})
 
-(defn meter-names-handler
+(defn all-available-meters-handler
   "This function returns a JSON list of meter names."
   [req]
   {:status  200
    :headers {"Content-Type" "application/json"}
-   :body    (json/write-str (resources/building-resource-names))})
+   :body    (json/write-str (resources/all-available-meters))})
 
-(defn feature-names-handler [req]
+(defn features-for-meter-handler [req]
   "This function returns a JSON list of feature names for a given meter."
   (let [meter-name (-> req :params :meter-name)]
-    {:status 200
+    {:status  200
      :headers {"Content-Type" "application/json"}
-     :body (json/write-str (resources/feature-names meter-name))}))
+     :body    (json/write-str (resources/available-features meter-name))}))
+
+(defn all-available-features-handler [req]
+  {:status  200
+   :headers {"Content-Type" "application/json"}
+   :body    (json/write-str (resources/all-available-features))})
+
+(defn meters-for-feature-handler [req]
+  "This function returns a JSON list of feature names for a given meter."
+  (let [feature-name (-> req :params :feature-name)]
+    {:status  200
+     :headers {"Content-Type" "application/json"}
+     :body    (json/write-str (resources/available-meters feature-name))}))
+
+(defn meters-to-features-handler [req]
+  {:status  200
+   :headers {"Content-Type" "application/json"}
+   :body    (json/write-str (resources/features-per-meter))})
+
+(defn features-to-meters-handler [req]
+  {:status  200
+   :headers {"Content-Type" "application/json"}
+   :body    (json/write-str (resources/meters-per-feature))})
 
 (defn to-long [s]
   "Converts a string into a long."
@@ -42,8 +64,12 @@
 
 (defroutes all-routes
            (GET "/" [] health-check-handler)
-           (GET "/meters" [] meter-names-handler)
-           (GET "/meters/:meter-name" [] feature-names-handler)
+           (GET "/meters" [] all-available-meters-handler)
+           (GET "/features" [] all-available-features-handler)
+           (GET "/features/:meter-name" [] features-for-meter-handler)
+           (GET "/meters/:feature-name" [] meters-for-feature-handler)
+           (GET "/meters_to_features" [] meters-to-features-handler)
+           (GET "/features_to_meters" [] features-to-meters-handler)
            (GET "/data/:meter-name/:feature-name/:start-ts/:end-ts" [] data-handler)
            (route/not-found "Content not found"))
 
