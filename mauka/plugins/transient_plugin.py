@@ -311,7 +311,7 @@ def multiple_zero_xing_classifier(waveforms: dict, configs: dict) -> (bool, dict
 
     if raw_zero_xings.sum() > fundamental_zero_xings.sum():
         extra_zero_xings = numpy.logical_xor(raw_zero_xings, fundamental_zero_xings)
-        voltages_at_extra_xings = waveforms['filtered_waveform'][numpy.where(extra_zero_xings)[0] + 1]
+        voltages_at_extra_xings = waveforms['filtered_waveform'][numpy.where(extra_zero_xings)[0]]
         extra_xings_above_noise_floor = numpy.abs(voltages_at_extra_xings) > configs['noise_floor']
         num_xings = extra_xings_above_noise_floor.sum()
         return num_xings > 0, {'num_extra_zero_crossings': num_xings}

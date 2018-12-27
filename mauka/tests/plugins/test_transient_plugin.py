@@ -10,6 +10,7 @@ from plugins.transient_plugin import periodic_notching_classifier
 from plugins.transient_plugin import waveform_filter
 from opq_mauka import load_config
 
+import copy
 import unittest
 import numpy
 import constants
@@ -94,6 +95,7 @@ class TransientPluginTests(unittest.TestCase):
 
         self.assertTrue(periodic_notching[0])
 
+        # now ensure that application of butterworth filter does not filter out transient
         waveforms = waveform_filter(raw_waveform, self.filter_order, self.cutoff_frequency)
 
         periodic_notching = periodic_notching_classifier(waveforms["filtered_waveform"],
@@ -108,28 +110,52 @@ class TransientPluginTests(unittest.TestCase):
         """
         # 6 cycles 60Hz 120 VRMS.
         fundamental_waveform = simulate_waveform()
+        raw_waveform = copy.deepcopy(fundamental_waveform)
 
-        # multiple zero crossing transient simulated from superimposition with single sawtooth period.
-        # sawtooth amp = 3 * (noise floor) with frequency 1440Hz
+        # multiple zero crossing transient simulated from superposition with single sawtooth period.
+        # sawtooth amp = 12 * (noise floor) and 10 sample period
         t = numpy.linspace(0, 10, 11)
-        transient_waveform = 3 / 2 * self.noise_floor * signal.sawtooth(
-            2 * numpy.pi * 1 / 10 * t) + 3 / 2 * self.noise_floor
+        transient_waveform = 12 / 2 * self.noise_floor * signal.sawtooth(
+            2 * numpy.pi * 1 / 10 * t) + 12 / 2 * self.noise_floor
 
         # find zero crossings of fundamental waveform and superimpose signals
         zero_crossings = find_zero_xings(fundamental_waveform)
         zero_crossing_indices = numpy.where(zero_crossings)[0]
 
-        mid = numpy.floor(len(zero_crossing_indices) / 2)
+        mid = int(numpy.floor(len(zero_crossing_indices) / 2))
         for i in numpy.arange(mid, mid + 3):
             if fundamental_waveform[zero_crossing_indices[i] + 1] < 0:
-                fundamental_waveform[zero_crossing_indices[i] + 1: zero_crossing_indices[i] + 12] = (
+                raw_waveform[zero_crossing_indices[i] + 1: zero_crossing_indices[i] + 12] = (
                     fundamental_waveform[zero_crossing_indices[i] + 1: zero_crossing_indices[i] + 12] +
                     transient_waveform
                 )
             else:
-                fundamental_waveform[zero_crossing_indices[i] + 1: zero_crossing_indices[i] + 12] = (
+                raw_waveform[zero_crossing_indices[i] + 1: zero_crossing_indices[i] + 12] = (
                         fundamental_waveform[zero_crossing_indices[i] + 1: zero_crossing_indices[i] + 12] -
                         transient_waveform
                 )
 
+        # first ensure that if transient and fundamental wave were recovered perfectly
+        # then we could classify multiple zero xing
+        waveforms = {"fundamental_waveform": fundamental_waveform,
+                     "filtered_waveform": raw_waveform - fundamental_waveform,
+                     "raw_waveform": raw_waveform}
+        mult_zero_xing = multiple_zero_xing_classifier(waveforms, self.configs)
 
+        # Assert event was multiple zero crossing transient
+        self.assertTrue(mult_zero_xing[0])
+
+        # Assert additional number of zero crossings is 6
+        self.assertEqual(mult_zero_xing[1]['num_extra_zero_crossings'], 6)
+
+        # Ensure butterworth filter does not filter out transient with current configuration
+        waveforms = waveform_filter(raw_waveform, self.configs['filter_order'], self.configs['filter_cutoff_frequency'])
+
+        mult_zero_xing = multiple_zero_xing_classifier(waveforms, self.configs)
+
+        # Assert event was multiple zero crossing transient
+        self.assertTrue(mult_zero_xing[0])
+
+        # Assert additional number of zero crossings is 6
+        self.assertEqual(mult_zero_xing[1]['num_extra_zero_crossings'], 6)
+        
