@@ -77,23 +77,22 @@
     (map transform-data-point (get data "Graph"))))
 
 (defn scrape-data [resource-id start-ts-s end-ts-s]
-  (binding [clj-http.core/*cookie-store* (clj-http.cookies/cookie-store)]
-    (let [conf (config/config)
-          username (config/username conf)
-          password (config/password conf)
-          credentials (extract-credentials (post-login username password))
-          connection-id (:connection-id credentials)]
-      (parse-scraped-data (client/get "https://energydata.hawaii.edu/api/reports/GetAnalyticsGraphAndGridData/GetAnalyticsGraphAndGridData"
-                                      {:query-params               {:connectionId   connection-id
-                                                                    :storedProcName "GetLogMinuteDataForTagIds"
-                                                                    :rollupName     "Mean"
-                                                                    :tableIndex     "1"
-                                                                    :parameter1     (format-datetime (to-zdt start-ts-s))
-                                                                    :parameter2     (format-datetime (to-zdt end-ts-s))
-                                                                    :parameter3     "|-600"
-                                                                    :parameter4     "|client"
-                                                                    :parameter5     resource-id
-                                                                    :_              (str timestamp-ms)}
-                                       :__RequestVerificationToken (:request-verification-token credentials)
-                                       :content-type               :json})))))
+  (let [conf (config/config)
+        username (config/username conf)
+        password (config/password conf)
+        credentials (extract-credentials (post-login username password))
+        connection-id (:connection-id credentials)]
+    (parse-scraped-data (client/get "https://energydata.hawaii.edu/api/reports/GetAnalyticsGraphAndGridData/GetAnalyticsGraphAndGridData"
+                                    {:query-params               {:connectionId   connection-id
+                                                                  :storedProcName "GetLogMinuteDataForTagIds"
+                                                                  :rollupName     "Mean"
+                                                                  :tableIndex     "1"
+                                                                  :parameter1     (format-datetime (to-zdt start-ts-s))
+                                                                  :parameter2     (format-datetime (to-zdt end-ts-s))
+                                                                  :parameter3     "|-600"
+                                                                  :parameter4     "|client"
+                                                                  :parameter5     resource-id
+                                                                  :_              (str timestamp-ms)}
+                                     :__RequestVerificationToken (:request-verification-token credentials)
+                                     :content-type               :json}))))
 
