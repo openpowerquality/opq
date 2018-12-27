@@ -158,4 +158,25 @@ class TransientPluginTests(unittest.TestCase):
 
         # Assert additional number of zero crossings is 6
         self.assertEqual(mult_zero_xing[1]['num_extra_zero_crossings'], 6)
-        
+
+    def test_oscillatory_transient(self):
+        """
+        test transient plugin functions on waveform with oscillatory transient
+        :return: None
+        """
+
+        # 6 cycles 60Hz 120 VRMS.
+        fundamental_waveform = simulate_waveform()
+        raw_waveform = copy.deepcopy(fundamental_waveform)
+
+        # raw waveform created by superposition of fundamental waveform and sinusoidal wave with 960Hz
+        # frequency and amplitude an exponentially decaying function of time starting at 12 times the noise floor
+        transient_waveform = simulate_waveform(freq=16 * constants.CYCLES_PER_SECOND,
+                                               vrms=12 * self.noise_floor / numpy.sqrt(2),
+                                               num_samples=int(constants.SAMPLES_PER_CYCLE / 4))
+        amp = numpy.exp(numpy.linspace(0, -numpy.log(self.noise_floor), int(constants.SAMPLES_PER_CYCLE / 4)))
+        transient_waveform = numpy.multiply(amp, transient_waveform)
+
+        mid = int(numpy.floor(len(raw_waveform) / 2))
+
+        raw_waveform[mid:] = transient_waveform + fundamental_waveform[]
