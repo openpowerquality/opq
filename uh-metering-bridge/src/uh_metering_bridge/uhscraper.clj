@@ -1,7 +1,8 @@
 (ns uh-metering-bridge.uhscraper
   (:require [clj-http.client :as client]
             [clojure.data.json :as json]
-            [uh-metering-bridge.config :as config])
+            [uh-metering-bridge.config :as config]
+            [uh-metering-bridge.resources :as resources])
   (:import (java.time Instant ZonedDateTime ZoneId LocalDateTime)
            (org.jsoup Jsoup)))
 
@@ -22,7 +23,7 @@
         client-id-line (first (filter #(clojure.string/starts-with? % "Avise.Config.UrlManager.SingleServerId") lines))]
     (second (re-find #"'([^' ]+)'" client-id-line))))
 
-(defn extract-credentials [html]
+(defn extract-credentials- [html]
   (let [document (Jsoup/parse html)
         req-token-element (.selectFirst document "[name=__RequestVerificationToken]")]
     {:request-verification-token (.val req-token-element)
@@ -30,6 +31,10 @@
      :client-id                  (extract-client-id html)
      :server-id                  (extract-server-id html)
      :site-id                    uh-manoa-site-id}))
+
+
+
+(def extract-credentials (memoize extract-credentials-))
 
 (defn timestamp-ms []
   (.toEpochMilli (Instant/now)))
@@ -73,7 +78,8 @@
    :stddev      (get data-sample-map "StDev")})
 
 (defn parse-scraped-data [scraped-data]
-  (let [data (json/read-str (:body scraped-data))]
+  (let [data (json/read-str (:body scraped-data))
+        _ (println scraped-data)]
     (map transform-data-point (get data "Graph"))))
 
 (defn scrape-data [resource-id start-ts-s end-ts-s]
@@ -94,5 +100,76 @@
                                                                   :parameter5     resource-id
                                                                   :_              (str timestamp-ms)}
                                      :__RequestVerificationToken (:request-verification-token credentials)
-                                     :content-type               :json}))))
+                                     :content-type               :json
+                                     :socket-timeout 10000
+                                     :conn-timeout 10000}))))
 
+(defn scrape-data-for-meter [meter-name start-ts-s end-ts-s]
+  (let [conf (config/config)
+        username (config/username conf)
+        password (config/password conf)
+        credentials (extract-credentials (post-login username password))
+        connection-id (:connection-id credentials)
+        features (resources/available-features meter-name)
+        resource-ids (apply str (interpose "," (map (partial resources/load-resource-id meter-name) features)))]
+    (parse-scraped-data (client/get "https://energydata.hawaii.edu/api/reports/GetAnalyticsGraphAndGridData/GetAnalyticsGraphAndGridData"
+                                    {:query-params               {:connectionId   connection-id
+                                                                  :storedProcName "GetLogMinuteDataForTagIds"
+                                                                  :rollupName     "Mean"
+                                                                  :tableIndex     "1"
+                                                                  :parameter1     (format-datetime (to-zdt start-ts-s))
+                                                                  :parameter2     (format-datetime (to-zdt end-ts-s))
+                                                                  :parameter3     "|-600"
+                                                                  :parameter4     "|client"
+                                                                  :parameter5     resource-ids
+                                                                  :_              (str timestamp-ms)}
+                                     :__RequestVerificationToken (:request-verification-token credentials)
+                                     :content-type               :json
+                                     :socket-timeout 20000
+                                     :conn-timeout 20000}))))
+
+(defn scrape-data-for-meter-past [meter-name past-seconds]
+  (let [end (.getEpochSecond (Instant/now))
+        start (- end past-seconds)]
+    (scrape-data-for-meter meter-name start end)))
+
+;(defn scrape-all-data [start-ts-s end-ts-s]
+;  (let [meters (resources/all-available-meters)]
+;    (map #(scrape-data-for-meter % start-ts-s end-ts-s) meters)))
+;
+;(defn scrape-all-data-past [past-seconds]
+;  (let [end (.getEpochSecond (Instant/now))
+;        start (- end past-seconds)]
+;    (scrape-all-data start end)))
+
+(defn scrape-data-with-resource-ids [resource-ids start-ts-s end-ts-s]
+  (let [conf (config/config)
+        username (config/username conf)
+        password (config/password conf)
+        credentials (extract-credentials (post-login username password))
+        connection-id (:connection-id credentials)]
+    (parse-scraped-data (client/get "https://energydata.hawaii.edu/api/reports/GetAnalyticsGraphAndGridData/GetAnalyticsGraphAndGridData"
+                                    {:query-params               {:connectionId   connection-id
+                                                                  :storedProcName "GetLogMinuteDataForTagIds"
+                                                                  :rollupName     "Mean"
+                                                                  :tableIndex     "1"
+                                                                  :parameter1     (format-datetime (to-zdt start-ts-s))
+                                                                  :parameter2     (format-datetime (to-zdt end-ts-s))
+                                                                  :parameter3     "|-600"
+                                                                  :parameter4     "|client"
+                                                                  :parameter5     resource-ids
+                                                                  :_              (str timestamp-ms)}
+                                     :__RequestVerificationToken (:request-verification-token credentials)
+                                     :content-type               :json
+                                     :socket-timeout 20000
+                                     :conn-timeout 20000}))))
+
+(defn scrape-all-data [start-ts end-ts]
+  (scrape-data-with-resource-ids (resources/all-available-resource-ids) start-ts end-ts))
+
+(defn scrape-all-data-past [past-seconds]
+  (let [end-ts (.getEpochSecond (Instant/now))
+        start-ts (- end-ts past-seconds)]
+    (scrape-all-data start-ts end-ts)))
+
+(scrape-all-data-past (* 60 10))

@@ -62,6 +62,15 @@
      :headers {"Conetent-Type" "application/json"}
      :body (json/write-str (scraper/scrape-data (resources/load-resource-id meter-name feature-name) start-ts end-ts))}))
 
+(defn meter-data-handler [req]
+  "This handler returns data points as a JSON list given a meter name, feature name, and start and end timestamps."
+  (let [meter-name (-> req :params :meter-name)
+        start-ts (to-long (-> req :params :start-ts))
+        end-ts (to-long (-> req :params :end-ts))]
+    {:status 200
+     :headers {"Conetent-Type" "application/json"}
+     :body (json/write-str (scraper/scrape-data-for-meter meter-name start-ts end-ts))}))
+
 (defroutes all-routes
            (GET "/" [] health-check-handler)
            (GET "/meters" [] all-available-meters-handler)
@@ -70,7 +79,8 @@
            (GET "/meters/:feature-name" [] meters-for-feature-handler)
            (GET "/meters_to_features" [] meters-to-features-handler)
            (GET "/features_to_meters" [] features-to-meters-handler)
-           (GET "/data/:meter-name/:feature-name/:start-ts/:end-ts" [] data-handler)
+           (GET "/data/:meter-name/:start-ts/:end-ts" [] )
+           (GET "/data/:meter-name/:feature-name/:start-ts/:end-ts" [] meter-data-handler)
            (route/not-found "Content not found"))
 
 (defonce server-inst (atom nil))

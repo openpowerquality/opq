@@ -38,6 +38,11 @@
         feature-names (into #{} (map #(get % "Name") features))]
     (sort-by clojure.string/lower-case feature-names)))
 
+(defn all-available-resource-ids []
+  (let [data (load-resource-ids)
+        all-features (flatten (map second data))]
+    (map #(str "BLUEPILLAR|" (get % "tagID")) all-features)))
+
 (defn features-per-meter []
   (let [data (load-resource-ids)]
     (reduce (fn [m [k v]]
@@ -50,3 +55,4 @@
     (into {} (map (fn [feature]
                     [feature (available-meters feature)]) features))))
 
+(count (all-available-resource-ids))
