@@ -43,7 +43,7 @@ impl Frequency {
     fn new() -> Frequency {
         Frequency {
             state: (PluginState::Initializing(0)),
-            downsampling: FIR::new(&DOWNSAMPLING_FILTER_TAPS.to_vec(), DECIMATION_FACTOR, 1),
+            downsampling: FIR::new(&DOWNSAMPLING_FILTER_TAPS.to_vec(), DECIMATION_FACTOR , 1),
             lowpass: FIR::new(&LOW_PASS_FILTER_TAPS.to_vec(), 1, 1),
             samples_per_measurement: 6,
         }
@@ -98,7 +98,7 @@ fn calculate_frequency(data : & Vec<f32>) -> f32{
         let last = data[i-1];
         let next = data[i];
         if (last <= 0.0 && next > 0.0) || (last >=0.0 && next < 0.0){
-            zero_crossings.push((i as f32) - (next) / (next - last))
+            zero_crossings.push(((i)  as f32) - (next) / (next - last))
         }
     }
     let mut accumulator: f32 = 0.0;
@@ -113,3 +113,36 @@ fn calculate_frequency(data : & Vec<f32>) -> f32{
 }
 
 declare_plugin!(Frequency, Frequency::new);
+
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use triggering_v3::types::RawWindow;
+    use triggering_v3::types::Window;
+    use triggering_v3::plugin::TriggeringPlugin;
+    use std::f64;
+    #[test]
+    fn test_freq() {
+        let mut f = Frequency::new();
+        for i in 0..1000 {
+            let mut rw = RawWindow {
+                datapoints: [0; 200],
+                last_gps_counter: 0,
+                current_counter: 0,
+                flags: 0,
+            };
+            for j in 0..200 {
+                rw.datapoints[j] = (30000.0 * (2.0 * 3.1415 * (j as f64) / 200.0).sin()) as i16;
+            }
+            let mut w = Window::new(rw, 100.0);
+            let mut wp = &mut w;
+            let ret =  f.process_window(wp);
+            match ret{
+                None => {},
+                Some(map) => {assert!((map["f"] - 60.0 ).abs() < 0.00001)},
+            }
+        }
+
+    }
+}
