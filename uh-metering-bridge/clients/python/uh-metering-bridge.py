@@ -47,7 +47,8 @@ def scrape_data(meter: str, feature: str, start_ts: int, end_ts: int) -> typing.
     return make_req("/data/%s/%s/%d/%d" % (meter, feature, start_ts, end_ts))
 
 
-def download_data_with_features(features: typing.List[str], start_ts: int, end_ts: int, sleep: float = 2.0) -> typing.List[typing.List[typing.Dict]]:
+def download_data_with_features(features: typing.List[str], start_ts: int, end_ts: int, sleep: float = 2.0) -> \
+typing.List[typing.List[typing.Dict]]:
     empty = 0
     non_empty = 0
     data = []
@@ -83,10 +84,17 @@ def download_data_with_features_past_hour(features: typing.List[str]) -> typing.
     return download_data_with_features_past(features, 3600)
 
 
+def download_data_with_features_new(features: typing.List[str], past_seconds: int):
+    return make_req("/past/features/%d/%s" % (past_seconds, ",".join(features)))
 
 
 if __name__ == "__main__":
+    # with open("data.json", "w") as fout:
+    #     data = download_data_with_features_new(["Frequency"], 60 * 15)
+    #     print(data)
+    #     json.dump(data, fout)
     with open("data.json", "w") as fout:
-        data = download_data_with_features_past(["Frequency"], 60 * 15)
+        data = download_data_with_features_new(["Frequency"], 60 * 15)
         print(data)
         json.dump(data, fout)
+

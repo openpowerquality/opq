@@ -39,6 +39,14 @@
 (defn timestamp-ms []
   (.toEpochMilli (Instant/now)))
 
+(defn timestamp-s []
+  (.getEpochSecond (Instant/now)))
+
+(defn timestamps-from-past [past-seconds]
+  (let [end-ts (timestamp-s)
+        start-ts (- end-ts past-seconds)]
+    [start-ts end-ts]))
+
 (defn format-datetime [zdt]
   (let [full-hour (.getHour zdt)
         corrected-hour (if (> full-hour 12)
@@ -129,36 +137,28 @@
                                      :conn-timeout 20000}))))
 
 (defn scrape-data-for-meter-past [meter-name past-seconds]
-  (let [end (.getEpochSecond (Instant/now))
-        start (- end past-seconds)]
+  (let [[start end] (timestamps-from-past past-seconds)]
     (scrape-data-for-meter meter-name start end)))
-
-;(defn scrape-all-data [start-ts-s end-ts-s]
-;  (let [meters (resources/all-available-meters)]
-;    (map #(scrape-data-for-meter % start-ts-s end-ts-s) meters)))
-;
-;(defn scrape-all-data-past [past-seconds]
-;  (let [end (.getEpochSecond (Instant/now))
-;        start (- end past-seconds)]
-;    (scrape-all-data start end)))
 
 (defn scrape-data-with-resource-ids [resource-ids start-ts-s end-ts-s]
   (let [conf (config/config)
         username (config/username conf)
         password (config/password conf)
         credentials (extract-credentials (post-login username password))
-        connection-id (:connection-id credentials)]
+        connection-id (:connection-id credentials)
+        query-params {:connectionId   connection-id
+                      :storedProcName "GetLogMinuteDataForTagIds"
+                      :rollupName     "Mean"
+                      :tableIndex     "1"
+                      :parameter1     (format-datetime (to-zdt start-ts-s))
+                      :parameter2     (format-datetime (to-zdt end-ts-s))
+                      :parameter3     "|-600"
+                      :parameter4     "|client"
+                      :parameter5     (clojure.string/join "," resource-ids)
+                      :_              (str timestamp-ms)}
+        _ (println query-params)]
     (parse-scraped-data (client/get "https://energydata.hawaii.edu/api/reports/GetAnalyticsGraphAndGridData/GetAnalyticsGraphAndGridData"
-                                    {:query-params               {:connectionId   connection-id
-                                                                  :storedProcName "GetLogMinuteDataForTagIds"
-                                                                  :rollupName     "Mean"
-                                                                  :tableIndex     "1"
-                                                                  :parameter1     (format-datetime (to-zdt start-ts-s))
-                                                                  :parameter2     (format-datetime (to-zdt end-ts-s))
-                                                                  :parameter3     "|-600"
-                                                                  :parameter4     "|client"
-                                                                  :parameter5     resource-ids
-                                                                  :_              (str timestamp-ms)}
+                                    {:query-params query-params
                                      :__RequestVerificationToken (:request-verification-token credentials)
                                      :content-type               :json
                                      :socket-timeout 20000
@@ -168,8 +168,12 @@
   (scrape-data-with-resource-ids (resources/all-available-resource-ids) start-ts end-ts))
 
 (defn scrape-all-data-past [past-seconds]
-  (let [end-ts (.getEpochSecond (Instant/now))
-        start-ts (- end-ts past-seconds)]
+  (let [[start-ts end-ts] (timestamps-from-past past-seconds)]
     (scrape-all-data start-ts end-ts)))
 
-(scrape-all-data-past (* 60 10))
+(defn scrape-data-with-features [features start-ts end-ts]
+  (scrape-data-with-resource-ids (resources/resource-ids-for-features features) start-ts end-ts))
+
+(defn scrape-data-with-features-past [features past-seconds]
+  (let [[start-ts end-ts] (timestamps-from-past past-seconds)]
+    (scrape-data-with-features features start-ts end-ts)))

@@ -39,7 +39,6 @@ def load_config(path: str) -> typing.Dict:
     :param path: Path of configuration file
     :return: Configuration dictionary
     """
-    logger.info("Loading configuration from %s", path)
     try:
         with open(path, "r") as config_file:
             return json.load(config_file)
