@@ -23,7 +23,7 @@
         client-id-line (first (filter #(clojure.string/starts-with? % "Avise.Config.UrlManager.SingleServerId") lines))]
     (second (re-find #"'([^' ]+)'" client-id-line))))
 
-(defn extract-credentials- [html]
+(defn extract-credentials [html]
   (let [document (Jsoup/parse html)
         req-token-element (.selectFirst document "[name=__RequestVerificationToken]")]
     {:request-verification-token (.val req-token-element)
@@ -34,7 +34,7 @@
 
 
 
-(def extract-credentials (memoize extract-credentials-))
+;(def extract-credentials (memoize extract-credentials-))
 
 (defn timestamp-ms []
   (.toEpochMilli (Instant/now)))
@@ -86,8 +86,7 @@
    :stddev      (get data-sample-map "StDev")})
 
 (defn parse-scraped-data [scraped-data]
-  (let [data (json/read-str (:body scraped-data))
-        _ (println scraped-data)]
+  (let [data (json/read-str (:body scraped-data))]
     (map transform-data-point (get data "Graph"))))
 
 (defn scrape-data [resource-id start-ts-s end-ts-s]
@@ -155,14 +154,13 @@
                       :parameter3     "|-600"
                       :parameter4     "|client"
                       :parameter5     (clojure.string/join "," resource-ids)
-                      :_              (str timestamp-ms)}
-        _ (println query-params)]
+                      :_              (str timestamp-ms)}]
     (parse-scraped-data (client/get "https://energydata.hawaii.edu/api/reports/GetAnalyticsGraphAndGridData/GetAnalyticsGraphAndGridData"
                                     {:query-params query-params
                                      :__RequestVerificationToken (:request-verification-token credentials)
                                      :content-type               :json
-                                     :socket-timeout 20000
-                                     :conn-timeout 20000}))))
+                                     :socket-timeout 30000
+                                     :conn-timeout 30000}))))
 
 (defn scrape-all-data [start-ts end-ts]
   (scrape-data-with-resource-ids (resources/all-available-resource-ids) start-ts end-ts))
@@ -177,3 +175,42 @@
 (defn scrape-data-with-features-past [features past-seconds]
   (let [[start-ts end-ts] (timestamps-from-past past-seconds)]
     (scrape-data-with-features features start-ts end-ts)))
+
+(defn scrape-default []
+  (scrape-data-with-features-past #{
+                                    ;"AVG_CURRENT_THD"
+                                    "AVG_VOLTAGE_THD"
+                                    ;"BAROMETRIC_PRESSURE"
+                                    "CURRENT_A_THD"
+                                    "CURRENT_B_THD"
+                                    "CURRENT_C_THD"
+                                    "Frequency"
+                                    ;"HUMIDITY"
+                                    ;"PHASE_A_CF"
+                                    ;"PHASE_A_TX_THDF"
+                                    ;"PHASE_B_CF"
+                                    ;"PHASE_B_TX_THDF"
+                                    ;"PHASE_C_CF"
+                                    ;"PHASE_C_TX_THDF"
+                                    ;"PowerFactor"
+                                    ;"SOLAR_RADIATION"
+                                    ;"VAB"
+                                    ;"VAN"
+                                    ;"VBC"
+                                    ;"VBN"
+                                    ;"VCA"
+                                    ;"VCN"
+                                    ;"VOLAGE_CN_THD"
+                                    ;"VOLTAGE_AN_THD"
+                                    ;"VOLTAGE_BN_THD"
+                                    ;"VOLTAGE_CN_THD"
+                                    ;"WALL_TEMP_1"
+                                    ;"WALL_TEMP_2"
+                                    ;"WALL_TEMP_3"
+                                    ;"WIND_DIRECTION"
+                                    ;"WIND_SPEED"
+                                    ;"ZONE_1_HUMIDITY"
+                                    ;"ZONE_1_TEMP"
+                                    ;"ZONE_2_HUMIDITY"
+                                    ;"ZONE_2_TEMP"
+                                    } (* 60 15)))

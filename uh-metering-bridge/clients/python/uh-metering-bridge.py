@@ -48,7 +48,7 @@ def scrape_data(meter: str, feature: str, start_ts: int, end_ts: int) -> typing.
 
 
 def download_data_with_features(features: typing.List[str], start_ts: int, end_ts: int, sleep: float = 2.0) -> \
-typing.List[typing.List[typing.Dict]]:
+        typing.List[typing.List[typing.Dict]]:
     empty = 0
     non_empty = 0
     data = []
@@ -85,16 +85,74 @@ def download_data_with_features_past_hour(features: typing.List[str]) -> typing.
 
 
 def download_data_with_features_new(features: typing.List[str], past_seconds: int):
-    return make_req("/past/features/%d/%s" % (past_seconds, ",".join(features)))
+    return make_req("/past/features/%d/%s" % (past_seconds, ";".join(features)))
 
+
+def download_all_data_past(past_seconds: int):
+    return make_req("/past/all/%d" % past_seconds)
+
+
+def download_data_default():
+    return make_req("/default")
+
+
+def try_get_data(times, sleep, fn, *args):
+    d = fn(*args)
+    if d is None or len(d) == 0:
+        print("- %d %s" % (times, args))
+        if times == 0:
+            return []
+        else:
+            time.sleep(sleep)
+            return try_get_data(times - 1, sleep * 1.5, fn, *args)
+    else:
+        print("+ %d %s" % (times, args))
+        return d
 
 if __name__ == "__main__":
     # with open("data.json", "w") as fout:
-    #     data = download_data_with_features_new(["Frequency"], 60 * 15)
-    #     print(data)
+    #     data = download_all_data_past(600)
     #     json.dump(data, fout)
-    with open("data.json", "w") as fout:
-        data = download_data_with_features_new(["Frequency"], 60 * 15)
-        print(data)
-        json.dump(data, fout)
 
+    features = [
+        "AVG_CURRENT_THD",
+        "AVG_VOLTAGE_THD",
+        # "BAROMETRIC_PRESSURE",
+        "CURRENT_A_THD",
+        "CURRENT_B_THD",
+        "CURRENT_C_THD",
+        "Frequency",
+        # "HUMIDITY",
+        # "PHASE_A_CF",
+        # "PHASE_A_TX_THDF",
+        # "PHASE_B_CF",
+        # "PHASE_B_TX_THDF",
+        # "PHASE_C_CF",
+        # "PHASE_C_TX_THDF",
+        # "PowerFactor",
+        # "SOLAR_RADIATION",
+        "VAB",
+        "VAN",
+        "VBC",
+        "VBN",
+        "VCA",
+        "VCN",
+        "VOLAGE_CN_THD",
+        "VOLTAGE_AN_THD",
+        "VOLTAGE_BN_THD",
+        "VOLTAGE_CN_THD",
+        # "WALL_TEMP_1",
+        # "WALL_TEMP_2",
+        # "WALL_TEMP_3",
+        # "WIND_DIRECTION",
+        # "WIND_SPEED",
+        # "ZONE_1_HUMIDITY",
+        # "ZONE_1_TEMP",
+        # "ZONE_2_HUMIDITY",
+        # "ZONE_2_TEMP"
+    ]
+    for feature in features:
+        with open("data_%s.json" % feature, "w") as fout:
+            data = try_get_data(10, 1, download_data_with_features_new, [feature], 60 * 60 * 4)
+            json.dump(data, fout)
+            time.sleep(2.5)

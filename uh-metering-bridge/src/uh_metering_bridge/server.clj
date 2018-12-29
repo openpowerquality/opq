@@ -74,10 +74,23 @@
 (defn features-data-handler [req]
   "This handler returns data points as a JSON list given a meter name, feature name, and start and end timestamps."
   (let [past-seconds (to-long (-> req :params :past-seconds))
-        features (into #{} (clojure.string/split (-> req :params :features) #","))]
+        features (into #{} (clojure.string/split (-> req :params :features) #";"))]
     {:status 200
      :headers {"Content-Type" "application/json"}
      :body (json/write-str (scraper/scrape-data-with-features-past features past-seconds))}))
+
+(defn all-data-handler [req]
+  "This handler returns data points as a JSON list given a meter name, feature name, and start and end timestamps."
+  (let [past-seconds (to-long (-> req :params :past-seconds))]
+    {:status 200
+     :headers {"Content-Type" "application/json"}
+     :body (json/write-str (scraper/scrape-all-data-past past-seconds))}))
+
+(defn default-data-handler [req]
+  "This handler returns data points as a JSON list given a meter name, feature name, and start and end timestamps."
+  {:status 200
+   :headers {"Content-Type" "application/json"}
+   :body (json/write-str (scraper/scrape-default))})
 
 
 (defroutes all-routes
@@ -91,6 +104,8 @@
            (GET "/data/:meter-name/:start-ts/:end-ts" [] )
            (GET "/data/:meter-name/:feature-name/:start-ts/:end-ts" [] meter-data-handler)
            (GET "/past/features/:past-seconds/:features" [] features-data-handler)
+           (GET "/past/all/:past-seconds" [] all-data-handler)
+           (GET "/default" [] default-data-handler)
            (route/not-found "Content not found"))
 
 (defonce server-inst (atom nil))
