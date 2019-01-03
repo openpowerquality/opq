@@ -7,6 +7,13 @@
             [uh-metering-bridge.uhscraper :as scraper]
             [clojure.data.json :as json]))
 
+(defonce server-inst (atom nil))
+
+(defn stop-server []
+  (when-not (nil? server-inst)
+    (@server-inst :timeout 100)
+    (reset! server-inst nil)))
+
 (defn health-check-handler
   "Handler that always returns 200 OK. Used for health checks."
   [req]
@@ -92,6 +99,9 @@
    :headers {"Content-Type" "application/json"}
    :body (json/write-str (scraper/scrape-default))})
 
+(defn stop-handler [req]
+  (stop-server)
+  {:status 200})
 
 (defroutes all-routes
            (GET "/" [] health-check-handler)
@@ -106,14 +116,8 @@
            (GET "/past/features/:past-seconds/:features" [] features-data-handler)
            (GET "/past/all/:past-seconds" [] all-data-handler)
            (GET "/default" [] default-data-handler)
+           (GET "/stop" [] stop-handler)
            (route/not-found "Content not found"))
-
-(defonce server-inst (atom nil))
-
-(defn stop-server []
-  (when-not (nil? server-inst)
-    (@server-inst :timeout 100)
-    (reset! server-inst nil)))
 
 (defn start-server []
   (let [port (config/port (config/config))]
@@ -123,4 +127,3 @@
   (do
     (stop-server)
     (start-server)))
-

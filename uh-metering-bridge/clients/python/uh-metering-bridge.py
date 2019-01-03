@@ -1,18 +1,26 @@
+import pymongo
+
+import http.client
 import json
 import time
 import typing
 import urllib.request
 
 
-def make_req(end_point: str, as_json: bool = True) -> typing.Union[bytes,
-                                                                   typing.List,
-                                                                   typing.Dict]:
-    with urllib.request.urlopen("http://localhost:13000%s" % end_point) as response:
-        data = response.read()
-        if as_json:
-            return json.loads(data)
+def make_req(end_point: str, as_json: bool = True, expect_resp: bool = True) -> typing.Union[bytes,
+                                                                                             typing.List,
+                                                                                             typing.Dict]:
+    try:
+        with urllib.request.urlopen("http://localhost:13000%s" % end_point) as response:
+            data = response.read()
+            if as_json:
+                return json.loads(data)
 
-        return data
+            return data
+    except http.client.RemoteDisconnected as e:
+        if expect_resp:
+            raise e
+
 
 
 def health_check() -> bytes:
@@ -109,50 +117,19 @@ def try_get_data(times, sleep, fn, *args):
         print("+ %d %s" % (times, args))
         return d
 
-if __name__ == "__main__":
-    # with open("data.json", "w") as fout:
-    #     data = download_all_data_past(600)
-    #     json.dump(data, fout)
 
-    features = [
-        "AVG_CURRENT_THD",
-        "AVG_VOLTAGE_THD",
-        # "BAROMETRIC_PRESSURE",
-        "CURRENT_A_THD",
-        "CURRENT_B_THD",
-        "CURRENT_C_THD",
-        "Frequency",
-        # "HUMIDITY",
-        # "PHASE_A_CF",
-        # "PHASE_A_TX_THDF",
-        # "PHASE_B_CF",
-        # "PHASE_B_TX_THDF",
-        # "PHASE_C_CF",
-        # "PHASE_C_TX_THDF",
-        # "PowerFactor",
-        # "SOLAR_RADIATION",
-        "VAB",
-        "VAN",
-        "VBC",
-        "VBN",
-        "VCA",
-        "VCN",
-        "VOLAGE_CN_THD",
-        "VOLTAGE_AN_THD",
-        "VOLTAGE_BN_THD",
-        "VOLTAGE_CN_THD",
-        # "WALL_TEMP_1",
-        # "WALL_TEMP_2",
-        # "WALL_TEMP_3",
-        # "WIND_DIRECTION",
-        # "WIND_SPEED",
-        # "ZONE_1_HUMIDITY",
-        # "ZONE_1_TEMP",
-        # "ZONE_2_HUMIDITY",
-        # "ZONE_2_TEMP"
-    ]
-    for feature in features:
-        with open("data_%s.json" % feature, "w") as fout:
-            data = try_get_data(10, 1, download_data_with_features_new, [feature], 60 * 60 * 4)
-            json.dump(data, fout)
-            time.sleep(2.5)
+def stop_server():
+    return make_req("/stop", False, False)
+
+
+if __name__ == "__main__":
+    import sys
+
+    feature = sys.argv[1]
+    seconds_past = int(sys.argv[2])
+    data = try_get_data(10, 1, download_data_with_features_new, [feature], seconds_past)
+    client = pymongo.MongoClient()
+    db = client["opq"]
+    coll = db["ground_truth"]
+    stop_server()
+    time.sleep(2)

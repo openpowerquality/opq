@@ -1,4 +1,4 @@
-(defproject uh-metering-bridge "0.2.3"
+(defproject uh-metering-bridge "0.2.4"
   :description "Provides OPQ access to UH metering data"
   :url "https://github.com/openpowerquality/opq"
   :license {:name "Eclipse Public License"
