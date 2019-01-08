@@ -9,11 +9,6 @@ def get_db_client(client: pymongo.MongoClient = None) -> pymongo.MongoClient:
     else:
         return client
 
-
-def sample_system_metrics():
-    pass
-
-
 def active_device_count(client: pymongo.MongoClient = None) -> int:
     db_client = get_db_client(client)
     opq_db = db_client["opq"]
@@ -43,10 +38,10 @@ def aggregate_measurement_metrics(client: pymongo.MongoClient = None) -> int:
     return opq_db.command("collstats", "measurements")["size"]
 
 
-
 def aggregate_trend_metrics(client: pymongo.MongoClient = None):
     db_client = get_db_client(client)
-    pass
+    opq_db = db_client["opq"]
+    return opq_db.command("collstats", "trends")["size"]
 
 
 def detection_metrics(client: pymongo.MongoClient = None):
@@ -64,5 +59,15 @@ def phenomena_metrics(client: pymongo.MongoClient = None):
     pass
 
 
+def sample_system_metrics():
+    db_client = get_db_client()
+    return {
+        "instantaneous_measurements_level": instantaneous_measurement_metrics(db_client),
+        "aggregate_measurements_level": {
+            "measurements": aggregate_measurement_metrics(db_client),
+            "trends": aggregate_trend_metrics(db_client)
+        }
+    }
+
 if __name__ == "__main__":
-    print(aggregate_measurement_metrics())
+    print(sample_system_metrics())
