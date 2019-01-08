@@ -3,12 +3,19 @@ import pymongo
 import time
 
 
+def get_db_client(client: pymongo.MongoClient = None) -> pymongo.MongoClient:
+    if client is None:
+        return pymongo.MongoClient()
+    else:
+        return client
+
+
 def sample_system_metrics():
     pass
 
 
-def active_device_count() -> int:
-    db_client = pymongo.MongoClient()
+def active_device_count(client: pymongo.MongoClient = None) -> int:
+    db_client = get_db_client(client)
     opq_db = db_client["opq"]
     opq_boxes_collection = opq_db["opq_boxes"]
     box_ids = list(map(lambda obj: obj["box_id"], opq_boxes_collection.find({}, ["box_id"])))
@@ -23,32 +30,39 @@ def active_device_count() -> int:
     return len(set(map(lambda obj: obj["box_id"], measurements)))
 
 
-def instantaneous_measurement_metrics() -> int:
-    total_active_devices = active_device_count()
+def instantaneous_measurement_metrics(client: pymongo.MongoClient = None) -> int:
+    total_active_devices = active_device_count(client)
     window_size_bytes = 10
     buffer_windows = 3000
     return buffer_windows * window_size_bytes * total_active_devices
 
 
-def aggregate_measurement_metrics():
+def aggregate_measurement_metrics(client: pymongo.MongoClient = None) -> int:
+    db_client = get_db_client(client)
+    opq_db = db_client["opq"]
+    return opq_db.command("collstats", "measurements")["size"]
+
+
+
+def aggregate_trend_metrics(client: pymongo.MongoClient = None):
+    db_client = get_db_client(client)
     pass
 
 
-def aggregate_trend_metrics():
+def detection_metrics(client: pymongo.MongoClient = None):
+    db_client = get_db_client(client)
     pass
 
 
-def detection_metrics():
+def incident_metrics(client: pymongo.MongoClient = None):
+    db_client = get_db_client(client)
     pass
 
 
-def incident_metrics():
-    pass
-
-
-def phenomena_metrics():
+def phenomena_metrics(client: pymongo.MongoClient = None):
+    db_client = get_db_client(client)
     pass
 
 
 if __name__ == "__main__":
-    print(instantaneous_measurement_metrics())
+    print(aggregate_measurement_metrics())
