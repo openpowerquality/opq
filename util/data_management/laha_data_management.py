@@ -2,6 +2,7 @@ import pymongo
 
 import functools
 import time
+import typing
 
 
 def get_db_client(client: pymongo.MongoClient = None) -> pymongo.MongoClient:
@@ -60,7 +61,7 @@ def detection_metrics(client: pymongo.MongoClient = None) -> int:
     return events_metadata_size + functools.reduce(reduce_fn, event_files, 0)
 
 
-def incident_metrics(client: pymongo.MongoClient = None):
+def incident_metrics(client: pymongo.MongoClient = None) -> int:
     db_client = get_db_client(client)
     opq_db = db_client["opq"]
     incidents_metadata_size = opq_db.command("collstats", "incidents")["size"]
@@ -70,13 +71,13 @@ def incident_metrics(client: pymongo.MongoClient = None):
     return incidents_metadata_size + functools.reduce(lambda acc, v: acc + v["chunkSize"], incident_files, 0)
 
 
-def phenomena_metrics(client: pymongo.MongoClient = None):
+def phenomena_metrics(client: pymongo.MongoClient = None) -> int:
     db_client = get_db_client(client)
     opq_db = db_client["opq"]
     return 0
 
 
-def sample_system_metrics():
+def sample_system_metrics() -> typing.Dict:
     db_client = get_db_client()
     return {
         "instantaneous_measurements_level": instantaneous_measurement_metrics(db_client),
