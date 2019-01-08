@@ -1,5 +1,6 @@
 import pymongo
 
+import functools
 import time
 
 
@@ -8,6 +9,7 @@ def get_db_client(client: pymongo.MongoClient = None) -> pymongo.MongoClient:
         return pymongo.MongoClient()
     else:
         return client
+
 
 def active_device_count(client: pymongo.MongoClient = None) -> int:
     db_client = get_db_client(client)
@@ -38,25 +40,40 @@ def aggregate_measurement_metrics(client: pymongo.MongoClient = None) -> int:
     return opq_db.command("collstats", "measurements")["size"]
 
 
-def aggregate_trend_metrics(client: pymongo.MongoClient = None):
+def aggregate_trend_metrics(client: pymongo.MongoClient = None) -> int:
     db_client = get_db_client(client)
     opq_db = db_client["opq"]
     return opq_db.command("collstats", "trends")["size"]
 
 
-def detection_metrics(client: pymongo.MongoClient = None):
+def detection_metrics(client: pymongo.MongoClient = None) -> int:
     db_client = get_db_client(client)
-    pass
+    opq_db = db_client["opq"]
+    events_metadata_size = opq_db.command("collstats", "events")["size"]
+    fs_files_collection = opq_db["fs.files"]
+    event_files = fs_files_collection.find({"filename": {"$regex": "^event"}},
+                                           ["filename", "chunkSize"])
+
+    def reduce_fn(acc, v):
+        return acc + v["chunkSize"]
+
+    return events_metadata_size + functools.reduce(reduce_fn, event_files, 0)
 
 
 def incident_metrics(client: pymongo.MongoClient = None):
     db_client = get_db_client(client)
-    pass
+    opq_db = db_client["opq"]
+    incidents_metadata_size = opq_db.command("collstats", "incidents")["size"]
+    fs_files_collection = opq_db["incidents"]
+    incident_files = fs_files_collection.find({"filename": {"$regex": "^incident"}},
+                                              ["filename", "chunkSize"])
+    return incidents_metadata_size + functools.reduce(lambda acc, v: acc + v["chunkSize"], incident_files, 0)
 
 
 def phenomena_metrics(client: pymongo.MongoClient = None):
     db_client = get_db_client(client)
-    pass
+    opq_db = db_client["opq"]
+    return 0
 
 
 def sample_system_metrics():
@@ -66,8 +83,12 @@ def sample_system_metrics():
         "aggregate_measurements_level": {
             "measurements": aggregate_measurement_metrics(db_client),
             "trends": aggregate_trend_metrics(db_client)
-        }
+        },
+        "detections_level": detection_metrics(db_client),
+        "incidents_level": incident_metrics(db_client),
+        "phenomena_level": phenomena_metrics(db_client)
     }
+
 
 if __name__ == "__main__":
     print(sample_system_metrics())
