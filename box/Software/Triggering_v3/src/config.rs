@@ -28,8 +28,8 @@ impl State {
         };
         if settings.box_public_key.is_none() || settings.box_secret_key.is_none() {
             let key_pair = CurveKeyPair::new().unwrap();
-            settings.box_public_key = Some(key_pair.public_key);
-            settings.box_secret_key = Some(key_pair.secret_key);
+            settings.box_public_key = Some(key_pair.public_key.to_string());
+            settings.box_secret_key = Some(key_pair.secret_key.to_string());
             warn!("No keys in configuration. Generating a key pair.");
         }
 

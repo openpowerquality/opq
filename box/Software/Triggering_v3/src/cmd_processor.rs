@@ -24,7 +24,7 @@ fn create_sub_socket(ctx: &Context, state: &Arc<State>) -> Socket {
     sub.set_subscribe(state.settings.box_id.to_string().as_bytes())
         .unwrap();
 
-    sub.set_curve_serverkey(&state.settings.server_public_key)
+    sub.set_curve_serverkey(&state.settings.server_public_key.to_string())
         .unwrap();
 
     sub.set_curve_publickey(&state.settings.box_public_key.clone().unwrap())
