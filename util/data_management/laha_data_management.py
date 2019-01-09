@@ -6,6 +6,11 @@ import time
 import typing
 
 
+def make_result(num_items: int, num_bytes: int) -> typing.Dict[str, int]:
+    return {"items": num_items,
+            "bytes": num_bytes}
+
+
 def get_db_client(client: pymongo.MongoClient = None) -> typing.Tuple[pymongo.MongoClient, pymongo.database.Database]:
     """Returns an instance of an OPQ mongo client and OPQ db object if one is not supplied."""
     if client is None:
@@ -17,6 +22,10 @@ def get_db_client(client: pymongo.MongoClient = None) -> typing.Tuple[pymongo.Mo
 def collection_size(opq_db: pymongo.database.Database, collection: str) -> int:
     """Returns the size in bytes of a mongodb collection."""
     return opq_db.command("collstats", collection)["size"]
+
+
+def collection_count(opq_db: pymongo.database.Database, collection: str) -> int:
+    return opq_db[collection].count()
 
 
 def active_device_count(client: pymongo.MongoClient = None) -> int:
@@ -37,27 +46,29 @@ def active_device_count(client: pymongo.MongoClient = None) -> int:
     return len(set(map(lambda obj: obj["box_id"], measurements)))
 
 
-def instantaneous_measurement_metrics(client: pymongo.MongoClient = None) -> int:
+def instantaneous_measurement_metrics(client: pymongo.MongoClient = None) -> typing.Dict[str, int]:
     """Return the size in bytes of the instantaneous measurements level."""
     total_active_devices = active_device_count(client)
     window_size_bytes = 10
     buffer_windows = 3000
-    return buffer_windows * window_size_bytes * total_active_devices
+    return make_result(total_active_devices * buffer_windows, total_active_devices * buffer_windows * window_size_bytes)
 
 
-def aggregate_measurement_metrics(client: pymongo.MongoClient = None) -> int:
+def aggregate_measurement_metrics(client: pymongo.MongoClient = None) -> typing.Dict[str, int]:
     """Return the size in bytes of the aggregate measurements level for measurements."""
     db_client, opq_db = get_db_client(client)
-    return collection_size(opq_db, "measurements")
+    return make_result(collection_count(opq_db, "measurements"),
+                       collection_size(opq_db, "measurements"))
 
 
-def aggregate_trend_metrics(client: pymongo.MongoClient = None) -> int:
+def aggregate_trend_metrics(client: pymongo.MongoClient = None) -> typing.Dict[str, int]:
     """Return the size in bytes of the aggregate measurements level for trends."""
     db_client, opq_db = get_db_client(client)
-    return collection_size(opq_db, "trends")
+    return make_result(collection_count(opq_db, "trends"),
+                       collection_size(opq_db, "trends"))
 
 
-def detection_metrics(client: pymongo.MongoClient = None) -> int:
+def detection_metrics(client: pymongo.MongoClient = None) -> typing.Dict[str, int]:
     """Return the size in bytes of the aggregate detections level."""
     db_client, opq_db = get_db_client(client)
     events_metadata_size = collection_size(opq_db, "events")
@@ -65,34 +76,36 @@ def detection_metrics(client: pymongo.MongoClient = None) -> int:
     event_files = fs_files_collection.find({"filename": {"$regex": "^event"}},
                                            ["filename", "chunkSize"])
 
-    return events_metadata_size + functools.reduce(lambda acc, v: acc + v["chunkSize"], event_files, 0)
+    return make_result(
+            collection_count(opq_db, "events"),
+            events_metadata_size + functools.reduce(lambda acc, v: acc + v["chunkSize"], event_files, 0))
 
 
-def incident_metrics(client: pymongo.MongoClient = None) -> int:
+def incident_metrics(client: pymongo.MongoClient = None) -> typing.Dict[str, int]:
     """Return the size in bytes of the incidents level."""
     db_client, opq_db = get_db_client(client)
     incidents_metadata_size = collection_size(opq_db, "incidents")
     fs_files_collection = opq_db["incidents"]
     incident_files = fs_files_collection.find({"filename": {"$regex": "^incident"}},
                                               ["filename", "chunkSize"])
-    return incidents_metadata_size + functools.reduce(lambda acc, v: acc + v["chunkSize"], incident_files, 0)
+    return make_result(collection_count(opq_db, "incidents"),
+                       incidents_metadata_size + functools.reduce(lambda acc, v: acc + v["chunkSize"], incident_files,
+                                                                  0))
 
 
-def phenomena_metrics(client: pymongo.MongoClient = None) -> int:
+def phenomena_metrics(client: pymongo.MongoClient = None) -> typing.Dict[str, int]:
     """Return the size in bytes of the phenomena level."""
     db_client, opq_db = get_db_client(client)
-    return 0
+    return make_result(0, 0)
 
 
-def sample_system_metrics() -> typing.Dict:
+def sample_system_metrics() -> typing.Dict[str, typing.Dict[str, int]]:
     """Return metrics for each level of the Laha hierarchy."""
     db_client, _ = get_db_client()
     return {
         "instantaneous_measurements_level": instantaneous_measurement_metrics(db_client),
-        "aggregate_measurements_level": {
-            "measurements": aggregate_measurement_metrics(db_client),
-            "trends": aggregate_trend_metrics(db_client)
-        },
+        "aggregate_measurements": aggregate_measurement_metrics(db_client),
+        "aggregate_trends": aggregate_trend_metrics(db_client),
         "detections_level": detection_metrics(db_client),
         "incidents_level": incident_metrics(db_client),
         "phenomena_level": phenomena_metrics(db_client)
