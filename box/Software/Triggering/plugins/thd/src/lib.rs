@@ -65,7 +65,7 @@ impl triggering_v3::plugin::TriggeringPlugin for THD {
             self.fft.process(&mut self.samples, &mut spectrum);
 
             let fft_resolution = 1.0 * (SAMPLING_RATE as f32) / (spectrum.len() as f32);
-            let sixty_hz_bin = (60.0 / fft_resolution) as usize;
+            let sixty_hz_bin = (CYCLES_PER_SEC as f32 / fft_resolution) as usize;
 
             let sixty_hz_power = spectrum[sixty_hz_bin].norm_sqr().sqrt();
             //spectrum[sixty_hz_bin] = Complex32::new(0.0,0.0);
