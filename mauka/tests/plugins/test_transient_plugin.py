@@ -171,12 +171,75 @@ class TransientPluginTests(unittest.TestCase):
 
         # raw waveform created by superposition of fundamental waveform and sinusoidal wave with 960Hz
         # frequency and amplitude an exponentially decaying function of time starting at 12 times the noise floor
-        transient_waveform = simulate_waveform(freq=16 * constants.CYCLES_PER_SECOND,
+        freq = 16 * constants.CYCLES_PER_SECOND
+
+        transient_waveform = simulate_waveform(freq=freq,
                                                vrms=12 * self.noise_floor / numpy.sqrt(2),
                                                num_samples=int(constants.SAMPLES_PER_CYCLE / 4))
         amp = numpy.exp(numpy.linspace(0, -numpy.log(self.noise_floor), int(constants.SAMPLES_PER_CYCLE / 4)))
         transient_waveform = numpy.multiply(amp, transient_waveform)
 
+        max_amplitude = transient_waveform.max()
+
         mid = int(numpy.floor(len(raw_waveform) / 2))
 
-        raw_waveform[mid:] = transient_waveform + fundamental_waveform[]
+        raw_waveform[mid: mid + transient_waveform.size] = (transient_waveform
+                                                            + fundamental_waveform[mid: mid + transient_waveform.size])
+
+        # first ensure that if transient and fundamental waveforms were recovered perfectly then we could classify the
+        # oscillatory transient and reasonably recover amplitude and frequency
+        oscillatory = oscillatory_classifier(transient_waveform)
+
+        self.assertTrue(oscillatory[0])
+        self.assertAlmostEqual(oscillatory[1]['Frequency'], freq, places=1)
+
+        # Ensure butterworth filter and transient sliding window sensitivity can reasonably discern
+        # fundamental and transient waveforms
+        waveforms = waveform_filter(raw_waveform, self.configs['filter_order'], self.configs['filter_cutoff_frequency'])
+        candidate_transient_windows = transient_sliding_window(waveforms["filtered_waveform"],
+                                                               self.configs["noise_floor"],
+                                                               self.configs["max_lull_ms"])
+        # only 1 potential transient is in waveform
+        self.assertEqual(len(candidate_transient_windows), 1)
+
+        window = candidate_transient_windows[0]
+
+        windowed_waveforms = {"fundamental_waveform": waveforms["fundamental_waveform"][window[0]: window[1] + 1],
+                              "filtered_waveform": waveforms["filtered_waveform"][window[0]: window[1] + 1],
+                              "raw_waveform": waveforms["raw_waveform"][window[0]: window[1] + 1]}
+
+        oscillatory = oscillatory_classifier(windowed_waveforms['filtered_waveform'])
+
+        self.assertTrue(oscillatory[0])
+        self.assertAlmostEqual(oscillatory[1]['Frequency'], freq, delta=freq * 0.1)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

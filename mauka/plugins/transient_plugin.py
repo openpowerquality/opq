@@ -26,7 +26,8 @@ def transient_sliding_window(filtered_waveform: numpy.ndarray, noise_floor: floa
     """
     voltage_above_noise_floor = filtered_waveform >= noise_floor
     transient_windows = []
-    max_samples = int(max_lull_ms / constants.SAMPLES_PER_MILLISECOND)
+    max_samples = int(constants.SAMPLES_PER_MILLISECOND * max_lull_ms)
+    print(max_samples)
     lull_counter = 0
     new_pass = True
     start = 0
@@ -156,8 +157,7 @@ def oscillatory_classifier(filtered_waveform: numpy.ndarray) -> (bool, dict):
     p_value = 1 - stats.f.cdf(f, 4, 195)
 
     if p_value < alpha:
-        magnitude = filtered_waveform.max()
-        return True, {'Magnitude': magnitude, 'Frequency': lst_sq_sol[0][2], 'p_value': p_value}
+        return True, {'Frequency': lst_sq_sol[0][2], 'p_value': p_value}
     else:
         return False, {}
 
