@@ -27,7 +27,6 @@ def transient_sliding_window(filtered_waveform: numpy.ndarray, noise_floor: floa
     voltage_above_noise_floor = filtered_waveform >= noise_floor
     transient_windows = []
     max_samples = int(constants.SAMPLES_PER_MILLISECOND * max_lull_ms)
-    print(max_samples)
     lull_counter = 0
     new_pass = True
     start = 0
@@ -50,15 +49,6 @@ def transient_sliding_window(filtered_waveform: numpy.ndarray, noise_floor: floa
         transient_windows.append((start, len(filtered_waveform)))
 
     return transient_windows
-
-
-def energy(waveform: numpy.ndarray) -> float:
-    """
-    Function to calculate the energy of a waveform
-    :param waveform:
-    :return: the calculated energy
-    """
-    return (waveform ** 2).sum()
 
 
 def noise_canceler(voltage, noise_floor):

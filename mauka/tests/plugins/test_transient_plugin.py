@@ -179,8 +179,6 @@ class TransientPluginTests(unittest.TestCase):
         amp = numpy.exp(numpy.linspace(0, -numpy.log(self.noise_floor), int(constants.SAMPLES_PER_CYCLE / 4)))
         transient_waveform = numpy.multiply(amp, transient_waveform)
 
-        max_amplitude = transient_waveform.max()
-
         mid = int(numpy.floor(len(raw_waveform) / 2))
 
         raw_waveform[mid: mid + transient_waveform.size] = (transient_waveform
@@ -213,14 +211,29 @@ class TransientPluginTests(unittest.TestCase):
         self.assertTrue(oscillatory[0])
         self.assertAlmostEqual(oscillatory[1]['Frequency'], freq, delta=freq * 0.1)
 
+    def test_impulsive_classifier(self):
+        """
+        test transient plugin functions on waveform with impulsive transient
+        :return: None
+        """
 
+        # 6 cycles 60Hz 120 VRMS.
+        fundamental_waveform = simulate_waveform()
+        raw_waveform = copy.deepcopy(fundamental_waveform)
 
+        # raw waveform created by superposition of fundamental waveform and an exponentially decaying excitation with
+        # peak amplitude of 12 times the noise floor and decay time of 1 / 32 cycles
+        transient_waveform = 12 * self.noise_floor * numpy.ones(int(constants.SAMPLES_PER_CYCLE / 32))
+        amp = numpy.exp(numpy.linspace(0, -numpy.log(self.noise_floor), int(constants.SAMPLES_PER_CYCLE / 32)))
+        transient_waveform = numpy.multiply(amp, transient_waveform)
 
+        mid = int(numpy.floor(len(raw_waveform) / 2))
 
+        raw_waveform[mid: mid + transient_waveform.size] = (transient_waveform
+                                                            + fundamental_waveform[mid: mid + transient_waveform.size])
 
-
-
-
+        # first ensure that if transient and fundamental waveforms were recovered perfectly then we could classify the
+        # impulsive transient and reasonably recover
 
 
 
