@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>OPQ Box Configuration Daemon</title>
+    <link rel="stylesheet" href="bulma.min.css">
+</head>
+<body>
+
+<section class="section">
+    <div class="container">
+        <p class="title has-text-centered">
+            OPQ Box Configuration Daemon
+        </p>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        <div class="card">
+            <header class="card-header has-background-light">
+                <p class="card-header-title">
+                    WiFi Configuration
+                </p>
+            </header>
+            <div class="card-content">
+                <div class="content">
+                    <p>Currently Connected Network: UHM (10.0.1.13)</p>
+
+                    <!-- WiFi networks -->
+                    <nav class="panel">
+                        <p class="panel-heading">Available Wireless Networks</p>
+
+                        <a class="panel-block is-active">
+                            UHM
+                        </a>
+
+                        <a class="panel-block">
+                            CSDL
+                        </a>
+                    </nav>
+                    <!-- /WiFi networks -->
+
+                    <form>
+                        <div class="field">
+                            <label class="label">SSID</label>
+                            <div class="control">
+                                <input class="input" type="text">
+                            </div>
+                        </div>
+
+                        <div class="field">
+                            <label class="label">Password</label>
+                            <div class="control">
+                                <input class="input" type="password">
+                            </div>
+                        </div>
+
+                        <div class="field">
+                            <div class="control">
+                                <button class="button is-info">Refresh Network List</button>
+                            </div>
+                        </div>
+
+                        <div class="field">
+                            <div class="control">
+                                <button class="button is-primary">Update</button>
+                            </div>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+            <footer class="card-footer has-text-white" id="wifi-footer"></footer>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        <div class="card">
+            <header class="card-header has-background-light">
+                <p class="card-header-title">
+                    Box ID
+                </p>
+            </header>
+            <div class="card-content">
+                <div class="content">
+                    <form>
+                        <div class="field">
+                            <label class="label">Box ID</label>
+                            <div class="control">
+                                <input class="input" type="text" placeholder="localhost:8080"  id="box-id-input">
+                            </div>
+                        </div>
+                        <div class="field">
+                            <div class="control">
+                                <a class="button is-primary" id="update-box-id-button">Update</a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <footer class="card-footer has-text-white" id="box-id-footer"></footer>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        <div class="card">
+            <header class="card-header has-background-light">
+                <p class="card-header-title">
+                    Acquisition Endpoint
+                </p>
+            </header>
+            <div class="card-content">
+                <div class="content">
+                    <form>
+                        <div class="field">
+                            <label class="label">Acquisition Endpoint (url:port)</label>
+                            <div class="control">
+                                <input class="input" type="text" placeholder="localhost:8080" id="acquisition-endpoint-input">
+                            </div>
+                        </div>
+                        <div class="field">
+                            <div class="control">
+                                <a class="button is-primary" id="update-acquisition-endpoint-button">Update</a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <footer class="card-footer has-text-white" id="acquisition-endpoint-footer"></footer>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        <div class="card">
+            <header class="card-header has-background-light">
+                <p class="card-header-title">
+                    Triggering Endpoint
+                </p>
+            </header>
+            <div class="card-content">
+                <div class="content">
+                    <form>
+                        <div class="field">
+                            <label class="label">Triggering Endpoint (url:port)</label>
+                            <div class="control">
+                                <input class="input" type="text" placeholder="localhost:8080" id="triggering-endpoint-input">
+                            </div>
+                        </div>
+                        <div class="field">
+                            <div class="control">
+                                <a class="button is-primary" id="update-triggering-endpoint-button">Update</a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <footer class="card-footer has-text-white" id="triggering-endpoint-footer"></footer>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        <div class="card">
+            <header class="card-header has-background-light">
+                <p class="card-header-title">
+                    Updates Endpoint
+                </p>
+            </header>
+            <div class="card-content">
+                <div class="content">
+                    <form>
+                        <div class="field">
+                            <label class="label">Updates Endpoint (url:port)</label>
+                            <div class="control">
+                                <input class="input" type="text" placeholder="localhost:8080" id="updates-endpoint-input">
+                            </div>
+                        </div>
+                        <div class="field">
+                            <div class="control">
+                                <a class="button is-primary" id="update-updates-endpoint-button">Update</a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <footer class="card-footer has-text-white" id="updates-endpoint-footer"></footer>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        <div class="card">
+            <header class="card-header has-background-light">
+                <p class="card-header-title">
+                    Public Key
+                </p>
+            </header>
+            <div class="card-content">
+                <div class="content">
+                    <form>
+                        <div class="file">
+                            <label class="file-label">
+                                <input class="file-input" type="file" name="uploadPublicKey">
+                                <span class="file-cta">
+                                <span class="file-label">
+                                    Upload Public Key
+                                </span>
+                                </span>
+                            </label>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <footer class="card-footer has-text-white" id="public-key-footer"></footer>
+        </div>
+    </div>
+</section>
+
+<script type="text/javascript">
+    function getResource(resource, updateField, footer) {
+        var req = new XMLHttpRequest();
+        req.onreadystatechange = function() {
+            if(req.readyState === XMLHttpRequest.DONE) {
+                var foot = document.getElementById(footer);
+                if(req.status === 200) {
+                    var resp = JSON.parse(req.responseText);
+                    document.getElementById(updateField).value = resp[resource];
+                    foot.innerText = "";
+                }
+                else {
+                    foot.classList.remove("has-background-success");
+                    foot.classList.add("has-background-danger");
+                    foot.innerText = req.responseText;
+                }
+            }
+        };
+        req.open("GET", resource, true);
+        req.send();
+    }
+
+    function postResource(resource, msg, footer) {
+        var req = new XMLHttpRequest();
+        req.onreadystatechange = function() {
+            if(req.readyState === XMLHttpRequest.DONE) {
+                var foot = document.getElementById(footer);
+                if(req.status === 200) {
+                    foot.classList.remove("has-background-danger");
+                    foot.classList.add("has-background-success");
+                }
+                else {
+                    foot.classList.remove("has-background-success");
+                    foot.classList.add("has-background-danger");
+                }
+                foot.innerText = req.responseText;
+            }
+        };
+        req.open("POST", resource);
+        req.setRequestHeader("Content-Type", "application/json");
+        req.send(JSON.stringify(msg));
+    }
+
+    document.addEventListener("DOMContentLoaded", function(event) {
+        getResource("box_id", "box-id-input", "box-id-footer");
+        getResource("acquisition_endpoint", "acquisition-endpoint-input", "acquisition-endpoint-footer");
+        getResource("triggering_endpoint", "triggering-endpoint-input", "triggering-endpoint-footer");
+        getResource("updates_endpoint", "updates-endpoint-input", "updates-endpoint-footer");
+
+        document.getElementById("update-box-id-button").addEventListener("click", function() {
+            postResource("box_id", {"box_id": document.getElementById("box-id-input").value}, "box-id-footer");
+        });
+
+        document.getElementById("update-acquisition-endpoint-button").addEventListener("click", function() {
+            postResource("acquisition_endpoint", {"acquisition_endpoint": document.getElementById("acquisition-endpoint-input").value}, "acquisition-endpoint-footer");
+        });
+
+        document.getElementById("update-triggering-endpoint-button").addEventListener("click", function() {
+            postResource("triggering_endpoint", {"triggering_endpoint": document.getElementById("triggering-endpoint-input").value}, "triggering-endpoint-footer");
+        });
+
+        document.getElementById("update-updates-endpoint-button").addEventListener("click", function() {
+            postResource("updates_endpoint", {"updates_endpoint": document.getElementById("updates-endpoint-input").value}, "updates-endpoint-footer");
+        });
+    });
+</script>
+
+</body>
+</html>
