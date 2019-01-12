@@ -41,34 +41,34 @@ int main (int argc, char **argv) {
 
     auto ctx = zmqpp::context{};
     zmqpp::auth auth{ctx};
+    auth.set_verbose(true);
     auth.configure_domain("*");
+
     int count = 0;
     //Load all of the client public keys.
     mongocxx::instance inst{};
     mongocxx::client conn{mongocxx::uri{}};
 
-    auto opq_boxes = conn["opq"]["opq_boxes"];
-    auto cursor = opq_boxes.find({});
 
-    for (auto&& doc : cursor) {
-	    auto public_key = doc["public_key"];
-	    auto client_public_cert = public_key? public_key.get_utf8().value.to_string() : ""s;
+    if(config.whiteList()) {
+        auto opq_boxes = conn["opq"]["opq_boxes"];
+        auto cursor = opq_boxes.find({});
+        if (config.whiteList()) {
+            for (auto &&doc : cursor) {
+                auto public_key = doc["public_key"];
+                auto client_public_cert = public_key ? public_key.get_utf8().value.to_string() : ""s;
 
-	    auth.configure_curve(client_public_cert);
-	    count++;
-	    cout << ".";
+                auth.configure_curve(client_public_cert);
+                count++;
+                cout << ".";
+            }
+        }
+        syslog(LOG_NOTICE, "%s", ("Loaded " + std::to_string(count) + " keys").c_str());
     }
-
-    /*
-    for(auto& cert_enrty: fs::recursive_directory_iterator(config.publicCerts())){
-        auto client_public_cert = load_certificate(cert_enrty.path().string()).first;
-        auth.configure_curve(client_public_cert);
-        count++;
-        cout << ".";
+    else{
+        syslog(LOG_NOTICE, "Whitelisting Disabled");
+        auth.configure_curve ("CURVE_ALLOW_ANY");
     }
-    */
-    syslog(LOG_NOTICE, "%s", ("Loaded " + std::to_string(count) + " keys").c_str());
-
     //Unencrypted end.
     auto front = zmqpp::socket{ ctx, zmqpp::socket_type::xpublish };
     front.bind(config.backendPort());
