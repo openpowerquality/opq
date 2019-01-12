@@ -137,26 +137,26 @@ class PifyFsmThread(threading.Thread):
         return self.nm
 
 
-if __name__ == "__main__":
-    logging.info("Starting pify")
-
-    # Check if config file is being passed at startup
-    if len(sys.argv) == 2:
-        path = sys.argv[1]
-        logging.info("Loading configuration from {}".format(path))
-        config = conf.PifyConfiguration(path)
-    else:
-        logging.info("Loading default configuration")
-        config = conf.PifyConfiguration()
-
-    logging.debug("Configuration is:\n{}".format(str(config)))
-
-    # Grab an instance of the network manager, it is thread safe
-    nm = nmoperations.NM(config)
-
-    logging.info("Starting pify FSM")
-    fsm_thread = PifyFsmThread(nm)
-    fsm_thread.start()
-
-    logging.info("Starting bottle server")
-    web.server.run(config, nm)
+# if __name__ == "__main__":
+#     logging.info("Starting pify")
+#
+#     # Check if config file is being passed at startup
+#     if len(sys.argv) == 2:
+#         path = sys.argv[1]
+#         logging.info("Loading configuration from {}".format(path))
+#         config = conf.PifyConfiguration(path)
+#     else:
+#         logging.info("Loading default configuration")
+#         config = conf.PifyConfiguration()
+#
+#     logging.debug("Configuration is:\n{}".format(str(config)))
+#
+#     # Grab an instance of the network manager, it is thread safe
+#     nm = nmoperations.NM(config)
+#
+#     logging.info("Starting pify FSM")
+#     fsm_thread = PifyFsmThread(nm)
+#     fsm_thread.start()
+#
+#     logging.info("Starting bottle server")
+#     web.server.run(config, nm)

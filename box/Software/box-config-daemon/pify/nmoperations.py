@@ -13,11 +13,10 @@ class NM:
     NM_DEVICE_STATE_ACTIVATED = 100
     NM_CONNECTIVITY_FULL = 4
 
-    def __init__(self, pify_config: conf.PifyConfiguration = None):
+    def __init__(self):
         dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
         self.cached_ssids = []
-        self.pify_config = pify_config if pify_config is not None else conf.PifyConfiguration()
-        self.pify_ap_ssid = self.pify_config.pify_ap_ssid()
+        self.pify_ap_ssid = "OPQ"
 
     def is_wifi_connected(self):
         for conn in nm.NetworkManager.ActiveConnections:
