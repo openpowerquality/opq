@@ -26,17 +26,16 @@
             </header>
             <div class="card-content">
                 <div class="content">
-                    <p>Currently Connected Network: UHM (10.0.1.13)</p>
 
                     <!-- WiFi networks -->
                     <nav class="panel">
                         <p class="panel-heading">Available Wireless Networks</p>
 
-                        <a class="panel-block is-active">
+                        <a class="panel-block ssid" id="UHM">
                             UHM
                         </a>
 
-                        <a class="panel-block">
+                        <a class="panel-block ssid" id="CSDL">
                             CSDL
                         </a>
                     </nav>
@@ -46,7 +45,7 @@
                         <div class="field">
                             <label class="label">SSID</label>
                             <div class="control">
-                                <input class="input" type="text">
+                                <input class="input" type="text" id="ssid-input">
                             </div>
                         </div>
 
@@ -269,12 +268,22 @@
         req.send(JSON.stringify(msg));
     }
 
-    document.addEventListener("DOMContentLoaded", function(event) {
+    document.addEventListener("DOMContentLoaded", function() {
+        // Init available SSIDs
+        var ssids = document.getElementsByClassName("ssid");
+        for(var i = 0; i < ssids.length; i++) {
+            ssids[i].addEventListener("click", function(e) {
+                document.getElementById("ssid-input").value = e.target.id;
+            });
+        }
+
+        // Init configuration fields
         getResource("box_id", "box-id-input", "box-id-footer");
         getResource("acquisition_endpoint", "acquisition-endpoint-input", "acquisition-endpoint-footer");
         getResource("triggering_endpoint", "triggering-endpoint-input", "triggering-endpoint-footer");
         getResource("updates_endpoint", "updates-endpoint-input", "updates-endpoint-footer");
 
+        // Setup button press listeners
         document.getElementById("update-box-id-button").addEventListener("click", function() {
             postResource("box_id", {"box_id": document.getElementById("box-id-input").value}, "box-id-footer");
         });
