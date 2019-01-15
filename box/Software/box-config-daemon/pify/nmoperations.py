@@ -4,7 +4,7 @@ import pify.scan_networks as ssids
 import NetworkManager as nm
 import dbus.mainloop.glib
 
-# import time
+import time
 import uuid
 
 
