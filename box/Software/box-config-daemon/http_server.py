@@ -20,15 +20,21 @@ def opq_request_handler_factory(config_path):
             self.write_config(config)
             return prev_value
 
-        def respond(self, msg, code=200, content_type="text/plain", transform=None):
+        def respond(self, msg, code=200, content_type="text/plain", transform=None, utf8_encode=True):
             self.send_response(code)
             self.send_header("Content-Type", content_type)
             self.end_headers()
 
             if transform is not None:
-                self.wfile.write(transform(msg).encode("utf-8"))
+                if utf8_encode:
+                    self.wfile.write(transform(msg).encode("utf-8"))
+                else:
+                    self.wfile.write(transform(msg))
             else:
-                self.wfile.write(msg.encode("utf-8"))
+                if utf8_encode:
+                    self.wfile.write(msg.encode("utf-8"))
+                else:
+                    self.wfile.write(msg)
 
         def css(self, msg):
             self.respond(msg, content_type="text/css")
@@ -38,6 +44,9 @@ def opq_request_handler_factory(config_path):
 
         def json(self, msg):
             self.respond(msg, content_type="application/json", transform=json.dumps)
+
+        def ico(self, msg):
+            self.respond(msg, content_type="image/vnd.microsoft.icon", utf8_encode=False)
 
         def error(self, msg, code=500):
             self.respond({"error": msg}, code=code, content_type="application/json", transform=json.dumps)
@@ -70,14 +79,14 @@ def opq_request_handler_factory(config_path):
                     self.json({"updates_endpoint": self.read_config()["updates_endpoint"]})
                 except:
                     self.error("Unable to read updates_endpoint")
+            elif path == "/opq.ico":
+                try:
+                    with(open("opq.ico", "rb")) as fin:
+                        self.ico(fin.read())
+                except:
+                    self.error("Unable to read icon file")
             elif path == "/public_key":
                 pass
-            elif path == ("/bulma.min.css"):
-                try:
-                    with open("bulma.min.css", "r") as fin:
-                        self.css(fin.read())
-                except:
-                    self.error("Unable to read bulma.min.css")
             else:
                 # Return 404
                 self.not_found("GET %s" % path)
