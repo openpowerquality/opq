@@ -1,14 +1,14 @@
 import logging
 import sched
 import subprocess
-import sys
+# import sys
 import time
 import threading
 import typing
 
-import conf
-import nmoperations
-import web.server
+# import conf
+import pify.nmoperations as nmoperations
+# import web.server
 
 logging.basicConfig(level=logging.DEBUG)
 

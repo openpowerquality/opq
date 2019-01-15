@@ -2,7 +2,7 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 import json
 
 
-def opq_request_handler_factory(config_path):
+def opq_request_handler_factory(config_path, nm):
     class OpqRequestHandler(BaseHTTPRequestHandler):
 
         def read_config(self):
@@ -135,9 +135,9 @@ def opq_request_handler_factory(config_path):
     return OpqRequestHandler
 
 
-def run_server(port, config_file):
+def run_server(port, config_file, nm):
     print("Starting box-config-daemon server on port %d with config %s" % (port, config_file))
-    httpd = HTTPServer(("", port), opq_request_handler_factory(config_file))
+    httpd = HTTPServer(("", port), opq_request_handler_factory(config_file, nm))
 
     try:
         httpd.serve_forever()
