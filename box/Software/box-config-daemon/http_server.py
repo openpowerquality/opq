@@ -85,6 +85,11 @@ def opq_request_handler_factory(config_path, nm):
                         self.ico(fin.read())
                 except:
                     self.error("Unable to read icon file")
+            elif path == "/ssids":
+                try:
+                    print(nm.get_ssids())
+                except:
+                    self.error("Unable to retreive SSID list")
             elif path == "/public_key":
                 pass
             else:
