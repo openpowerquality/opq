@@ -350,36 +350,36 @@ def main(config_file):
 
     set_mongo_url(health_config[4]['url'])
 
-    # health_health_config = health_config[5]
-    # health_thread = Thread(target=check_health, args=(health_health_config, ))
-    # health_thread.start()
-    #
-    # view_config = health_config[3]
-    # view_thread = Thread(target=check_view, args=(view_config, ))
-    # view_thread.start()
-    #
+    health_health_config = health_config[5]
+    health_thread = Thread(target=check_health, args=(health_health_config, ))
+    health_thread.start()
+
+    view_config = health_config[3]
+    view_thread = Thread(target=check_view, args=(view_config, ))
+    view_thread.start()
+
     box_config = health_config[0]
     box_thread = Thread(target=check_boxes, args=(box_config, ))
     box_thread.start()
 
-    # mongo_config = health_config[4]
-    # mongo_thread = Thread(target=check_mongo, args=(mongo_config, ))
-    # mongo_thread.start()
+    mongo_config = health_config[4]
+    mongo_thread = Thread(target=check_mongo, args=(mongo_config, ))
+    mongo_thread.start()
 
-    # mauka_config = health_config[1]
-    # mauka_thread = Thread(target=check_mauka, args=(mauka_config, ))
-    # mauka_thread.start()
-    #
-    # makai_config = health_config[2]
-    # makai_thread = Thread(target=check_makai, args=(makai_config, ))
-    # makai_thread.start()
+    mauka_config = health_config[1]
+    mauka_thread = Thread(target=check_mauka, args=(mauka_config, ))
+    mauka_thread.start()
 
-    # health_thread.join()
-    # view_thread.join()
-    # box_thread.join()
-    # mongo_thread.join()
-    # mauka_thread.join()
-    # makai_thread.join()
+    makai_config = health_config[2]
+    makai_thread = Thread(target=check_makai, args=(makai_config, ))
+    makai_thread.start()
+
+    health_thread.join()
+    view_thread.join()
+    box_thread.join()
+    mongo_thread.join()
+    mauka_thread.join()
+    makai_thread.join()
 
 def parse_cmd_args():
     parser = argparse.ArgumentParser(description='Get config and log file names')
