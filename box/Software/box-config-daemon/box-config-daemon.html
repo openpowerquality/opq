@@ -31,16 +31,7 @@
                 <div class="content">
 
                     <!-- WiFi networks -->
-                    <nav class="panel">
-                        <p class="panel-heading">Available Wireless Networks</p>
-
-                        <a class="panel-block ssid" id="UHM">
-                            UHM
-                        </a>
-
-                        <a class="panel-block ssid" id="CSDL">
-                            CSDL
-                        </a>
+                    <nav class="panel" id="wifi-panel">
                     </nav>
                     <!-- /WiFi networks -->
 
@@ -55,19 +46,19 @@
                         <div class="field">
                             <label class="label">Password</label>
                             <div class="control">
-                                <input class="input" type="password">
+                                <input class="input" type="password" id="password-input">
                             </div>
                         </div>
 
                         <div class="field">
                             <div class="control">
-                                <button class="button is-info">Refresh Network List</button>
+                                <a class="button is-info" id="refresh-network-list-button">Refresh Network List</a>
                             </div>
                         </div>
 
                         <div class="field">
                             <div class="control">
-                                <button class="button is-primary">Update</button>
+                                <a class="button is-primary" id="update-ssid-button">Update</a>
                             </div>
                         </div>
                     </form>
@@ -271,19 +262,66 @@
         req.send(JSON.stringify(msg));
     }
 
+    function getSsids() {
+        var req = new XMLHttpRequest();
+        req.onreadystatechange = function() {
+            if(req.readyState === XMLHttpRequest.DONE) {
+                var foot = document.getElementById("wifi-footer");
+                if(req.status === 200) {
+                    var wifiPanel = document.getElementById("wifi-panel");
+
+                    var resp = JSON.parse(req.responseText);
+                    var ssids = resp["ssids"];
+
+                    while(wifiPanel.firstChild) {
+                        wifiPanel.removeChild(wifiPanel.firstChild);
+                    }
+                    var p = document.createElement("p");
+                    p.classList.add("panel-heading");
+                    p.innerHTML = "Available WiFi Networks";
+                    wifiPanel.appendChild(p);
+                    for(var i = 0; i < ssids.length; i++) {
+                        var anchor = document.createElement("a");
+                        anchor.classList.add("panel-block");
+                        anchor.classList.add("ssid");
+                        anchor.id = ssids[i][0];
+                        anchor.innerText = ssids[i][0];
+                        anchor.addEventListener("click", function(e) {
+                            document.getElementById("ssid-input").value = e.target.id;
+                        });
+                        wifiPanel.appendChild(anchor);
+                    }
+
+                    foot.innerText = "";
+                }
+                else {
+                    foot.classList.remove("has-background-success");
+                    foot.classList.add("has-background-danger");
+                    foot.innerText = req.responseText;
+                }
+            }
+        };
+        req.open("GET", "/ssids", true);
+        req.send();
+    }
+
     document.addEventListener("DOMContentLoaded", function() {
-        var ssids = document.getElementsByClassName("ssid");
-        for(var i = 0; i < ssids.length; i++) {
-            ssids[i].addEventListener("click", function(e) {
-                document.getElementById("ssid-input").value = e.target.id;
-            });
-        }
+        getSsids();
+
         getResource("box_id", "box-id-input", "box-id-footer");
         getResource("acquisition_endpoint", "acquisition-endpoint-input", "acquisition-endpoint-footer");
         getResource("triggering_endpoint", "triggering-endpoint-input", "triggering-endpoint-footer");
         getResource("updates_endpoint", "updates-endpoint-input", "updates-endpoint-footer");
 
         // Setup button press listeners
+        document.getElementById("refresh-network-list-button").addEventListener("click", function() {
+            getSsids();
+        });
+
+        document.getElementById("update-ssid-button").addEventListener("click", function() {
+            postResource("/connect", {"ssid": document.getElementById("ssid-input").value, "password": document.getElementById("password-input").value}, "wifi-footer");
+        });
+
         document.getElementById("update-box-id-button").addEventListener("click", function() {
             postResource("box_id", {"box_id": document.getElementById("box-id-input").value}, "box-id-footer");
         });
