@@ -101,6 +101,17 @@
 </section>
 
 <script type="text/javascript">
+    function setError(div, msg) {
+        var errorDiv = document.getElementById(div);
+        errorDiv.classList.remove("has-background-success");
+        errorDiv.classList.add("has-background-danger");
+        errorDiv.innerText = msg;
+    }
+
+    function clearError(div) {
+
+    }
+
     function getResource(resource, updateField, footer) {
         var req = new XMLHttpRequest();
         req.onreadystatechange = function() {
@@ -186,6 +197,15 @@
         req.send();
     }
 
+    function isValidJson(str) {
+        try {
+            JSON.parse(str);
+        } catch(e) {
+            return {"isValid": false, "error": e};
+        }
+        return {"isValid": true, "error": null};
+    }
+
     document.addEventListener("DOMContentLoaded", function() {
         getSsids();
         getResource("box_config", "box-config-input", "box-config-footer")
@@ -200,7 +220,16 @@
         });
 
         document.getElementById("update-box-config-button").addEventListener("click", function() {
-            postResource("box_config", {"box_config": document.getElementById("box-config-input").value}, "box-config-footer");
+            // Make sure we have valid JSON
+            var jsonInput = document.getElementById("box-config-input").value;
+            var valid = isValidJson(jsonInput);
+            if(valid.isValid) {
+                postResource("box_config", {"box_config": document.getElementById("box-config-input").value}, "box-config-footer");
+            }
+            else {
+                setError("box-config-footer", "JSON does not parse.\n" + valid.error);
+            }
+
         });
     });
 </script>
