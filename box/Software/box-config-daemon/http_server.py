@@ -14,7 +14,7 @@ def opq_request_handler_factory(config_path, nm):
 
         def write_config(self, config):
             with open(config_path, "w") as fout:
-                json.dump(config, fout)
+                json.dump(config, fout, indent=2)
 
         def update_config(self, key, value):
             config = self.read_config()
@@ -64,43 +64,11 @@ def opq_request_handler_factory(config_path, nm):
             if path == "/":
                 with open("box-config-daemon.html") as fin:
                     self.html(fin.read())
-            elif path == "/box_id":
+            elif path == "/box_config":
                 try:
-                    self.json({"box_id": self.read_config()["box_id"]})
+                    self.json({"box_config": self.read_config()})
                 except Exception as e:
-                    self.error("Unable to read box_id", ex=e)
-            elif path == "/calibration":
-                try:
-                    self.json({"calibration": self.read_config()["calibration"]})
-                except Exception as e:
-                    self.error("Unable to read calibration", ex=e)
-            elif path == "/triggering_endpoint":
-                try:
-                    self.json({"triggering_endpoint": self.read_config()["trg_push_ep"]})
-                except Exception as e:
-                    self.error("Unable to read triggering_endpoint", ex=e)
-            elif path == "/command_sub_endpoint":
-                try:
-                    self.json({"command_sub_endpoint": self.read_config()["cmd_sub_ep"]})
-                except Exception as e:
-                    self.error("Unable to read cmd_sub_ep", ex=e)
-
-            elif path == "/command_push_endpoint":
-                try:
-                    self.json({"command_push_endpoint": self.read_config()["cmd_push_ep"]})
-                except Exception as e:
-                    self.error("Unable to read cmd_push_ep", ex=e)
-            elif path == "/updates_endpoint":
-                try:
-                    self.json({"updates_endpoint": self.read_config()["updates_ep"]})
-                except Exception as e:
-                    self.error("Unable to read updates_endpoint", ex=e)
-            elif path == "/opq.ico":
-                try:
-                    with(open("opq.ico", "rb")) as fin:
-                        self.ico(fin.read())
-                except Exception as e:
-                    self.error("Unable to read icon file", ex=e)
+                    self.error("Unable to read box config", ex=e)
             elif path == "/ssids":
                 try:
                     ssids = nm.get_ssids()
@@ -109,11 +77,12 @@ def opq_request_handler_factory(config_path, nm):
                     self.json({"ssids": ssids})
                 except Exception as e:
                     self.error("Unable to retrieve SSID list", ex=e)
-            elif path == "/public_key":
+            elif path == "/opq.ico":
                 try:
-                    self.json({"public_key": self.read_config()["server_public_key"]})
+                    with(open("opq.ico", "rb")) as fin:
+                        self.ico(fin.read())
                 except Exception as e:
-                    self.error("Unable to read server_public_key", ex=e)
+                    self.error("Unable to read icon file", ex=e)
             else:
                 # Return 404
                 self.not_found("GET %s" % path)
@@ -123,49 +92,7 @@ def opq_request_handler_factory(config_path, nm):
             post_data = json.loads(self.rfile.read(content_length).decode())
 
             path = self.path
-            if path == "/box_id":
-                try:
-                    new_val = post_data["box_id"]
-                    prev_val = self.update_config("box_id", int(new_val))
-                    self.json({"status": "OPQ Box ID updated from %s to %s" % (prev_val, new_val)})
-                except Exception as e:
-                    self.error("Could not update box_id", ex=e)
-            if path == "/calibration":
-                try:
-                    new_val = post_data["calibration"]
-                    prev_val = self.update_config("calibration", float(new_val))
-                    self.json({"status": "OPQ calibration updated from %s to %s" % (prev_val, new_val)})
-                except Exception as e:
-                    self.error("Could not update box_id", ex=e)
-            elif path == "/command_sub_endpoint":
-                try:
-                    new_val = post_data["command_sub_endpoint"]
-                    prev_val = self.update_config("cmd_sub_ep", new_val)
-                    self.json({"status": "OPQ Box Command Sub Endpoint updated from %s to %s" % (prev_val, new_val)})
-                except Exception as e:
-                    self.error("Could not update command_sub_endpoint", ex=e)
-            elif path == "/command_push_endpoint":
-                try:
-                    new_val = post_data["command_push_endpoint"]
-                    prev_val = self.update_config("cmd_push_ep", new_val)
-                    self.json({"status": "OPQ Box Command Push Endpoint updated from %s to %s" % (prev_val, new_val)})
-                except Exception as e:
-                    self.error("Could not update command_push_endpoint", ex=e)
-            elif path == "/triggering_endpoint":
-                try:
-                    new_val = post_data["triggering_endpoint"]
-                    prev_val = self.update_config("trg_push_ep", new_val)
-                    self.json({"status": "OPQ Box Triggering Endpoint updated from %s to %s" % (prev_val, new_val)})
-                except Exception as e:
-                    self.error("Could not update triggering_endpoint", ex=e)
-            elif path == "/updates_endpoint":
-                try:
-                    new_val = post_data["updates_endpoint"]
-                    prev_val = self.update_config("updates_ep", new_val)
-                    self.json({"status": "OPQ Box Updates Endpoint updated from %s to %s" % (prev_val, new_val)})
-                except Exception as e:
-                    self.error("Could not update updates_endpoint", ex=e)
-            elif path == "/connect":
+            if path == "/connect":
                 try:
                     ssid = post_data["ssid"]
                     password = post_data["password"]
@@ -179,11 +106,11 @@ def opq_request_handler_factory(config_path, nm):
                         self.json({"status": "Attempting to connect to %s" % ssid})
                 except Exception as e:
                     self.error("Could not connect to WiFi access point", ex=e)
-            elif path == "/public_key":
+            elif path == "/box_config":
                 try:
-                    new_val = post_data["public_key"]
-                    prev_val = self.update_config("server_public_key", new_val)
-                    self.json({"status": "OPQ Box Public Key updated from %s to %s" % (prev_val, new_val)})
+                    new_val = post_data["box_config"]
+                    self.write_config(json.loads(new_val))
+                    self.json({"status": "OPQ Box configuration updated."})
                 except Exception as e:
                     self.error("Could not update server_public_key", ex=e)
             else:

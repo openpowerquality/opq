@@ -75,208 +75,27 @@
         <div class="card">
             <header class="card-header has-background-light">
                 <p class="card-header-title">
-                    Box ID
+                    OPQ Box Configuration
                 </p>
             </header>
             <div class="card-content">
                 <div class="content">
                     <form>
                         <div class="field">
-                            <label class="label">Box ID</label>
+                            <label class="label">OPQ Box Configuration</label>
                             <div class="control">
-                                <input class="input" type="text" placeholder="localhost:8080"  id="box-id-input">
+                                <textarea class="textarea" rows="15" id="box-config-input"></textarea>
                             </div>
                         </div>
                         <div class="field">
                             <div class="control">
-                                <a class="button is-primary" id="update-box-id-button">Update</a>
+                                <a class="button is-primary" id="update-box-config-button">Update</a>
                             </div>
                         </div>
                     </form>
                 </div>
             </div>
-            <footer class="card-footer has-text-white" id="box-id-footer"></footer>
-        </div>
-    </div>
-</section>
-
-<section class="section">
-    <div class="container">
-        <div class="card">
-            <header class="card-header has-background-light">
-                <p class="card-header-title">
-                    Calibration Constant
-                </p>
-            </header>
-            <div class="card-content">
-                <div class="content">
-                    <form>
-                        <div class="field">
-                            <label class="label">Calibration Constant</label>
-                            <div class="control">
-                                <input class="input" type="text"  id="calibration-input">
-                            </div>
-                        </div>
-                        <div class="field">
-                            <div class="control">
-                                <a class="button is-primary" id="update-calibration-button">Update</a>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
-            <footer class="card-footer has-text-white" id="calibration-footer"></footer>
-        </div>
-    </div>
-</section>
-
-<section class="section">
-    <div class="container">
-        <div class="card">
-            <header class="card-header has-background-light">
-                <p class="card-header-title">
-                    Command Sub Endpoint
-                </p>
-            </header>
-            <div class="card-content">
-                <div class="content">
-                    <form>
-                        <div class="field">
-                            <label class="label">Command Sub Endpoint (tcp://url:port)</label>
-                            <div class="control">
-                                <input class="input" type="text" placeholder="localhost:8080" id="command-sub-endpoint-input">
-                            </div>
-                        </div>
-                        <div class="field">
-                            <div class="control">
-                                <a class="button is-primary" id="update-command-sub-endpoint-button">Update</a>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
-            <footer class="card-footer has-text-white" id="command-sub-endpoint-footer"></footer>
-        </div>
-    </div>
-</section>
-
-<section class="section">
-    <div class="container">
-        <div class="card">
-            <header class="card-header has-background-light">
-                <p class="card-header-title">
-                    Command Push Endpoint
-                </p>
-            </header>
-            <div class="card-content">
-                <div class="content">
-                    <form>
-                        <div class="field">
-                            <label class="label">Command Push Endpoint (tcp://url:port)</label>
-                            <div class="control">
-                                <input class="input" type="text" placeholder="localhost:8080" id="command-push-endpoint-input">
-                            </div>
-                        </div>
-                        <div class="field">
-                            <div class="control">
-                                <a class="button is-primary" id="update-command-push-endpoint-button">Update</a>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
-            <footer class="card-footer has-text-white" id="command-push-endpoint-footer"></footer>
-        </div>
-    </div>
-</section>
-
-<section class="section">
-    <div class="container">
-        <div class="card">
-            <header class="card-header has-background-light">
-                <p class="card-header-title">
-                    Triggering Push Endpoint
-                </p>
-            </header>
-            <div class="card-content">
-                <div class="content">
-                    <form>
-                        <div class="field">
-                            <label class="label">Triggering Push Endpoint (tcp://url:port)</label>
-                            <div class="control">
-                                <input class="input" type="text" placeholder="localhost:8080" id="triggering-endpoint-input">
-                            </div>
-                        </div>
-                        <div class="field">
-                            <div class="control">
-                                <a class="button is-primary" id="update-triggering-endpoint-button">Update</a>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
-            <footer class="card-footer has-text-white" id="triggering-endpoint-footer"></footer>
-        </div>
-    </div>
-</section>
-
-<section class="section">
-    <div class="container">
-        <div class="card">
-            <header class="card-header has-background-light">
-                <p class="card-header-title">
-                    Updates Endpoint
-                </p>
-            </header>
-            <div class="card-content">
-                <div class="content">
-                    <form>
-                        <div class="field">
-                            <label class="label">Updates Endpoint (url:port)</label>
-                            <div class="control">
-                                <input class="input" type="text" placeholder="localhost:8080" id="updates-endpoint-input">
-                            </div>
-                        </div>
-                        <div class="field">
-                            <div class="control">
-                                <a class="button is-primary" id="update-updates-endpoint-button">Update</a>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
-            <footer class="card-footer has-text-white" id="updates-endpoint-footer"></footer>
-        </div>
-    </div>
-</section>
-
-
-<section class="section">
-    <div class="container">
-        <div class="card">
-            <header class="card-header has-background-light">
-                <p class="card-header-title">
-                    Public Key
-                </p>
-            </header>
-            <div class="card-content">
-                <div class="content">
-                    <form>
-                        <div class="field">
-                            <label class="label">Public Key</label>
-                            <div class="control">
-                                <input class="input" type="text" id="public-key-input">
-                            </div>
-                        </div>
-                        <div class="field">
-                            <div class="control">
-                                <a class="button is-primary" id="update-public-key-button">Update</a>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
-            <footer class="card-footer has-text-white" id="public-key-footer"></footer>
+            <footer class="card-footer has-text-white" id="box-config-footer"></footer>
         </div>
     </div>
 </section>
@@ -289,7 +108,7 @@
                 var foot = document.getElementById(footer);
                 if(req.status === 200) {
                     var resp = JSON.parse(req.responseText);
-                    document.getElementById(updateField).value = resp[resource];
+                    document.getElementById(updateField).value = JSON.stringify(resp[resource], null, 2);
                     foot.innerText = "";
                 }
                 else {
@@ -369,14 +188,7 @@
 
     document.addEventListener("DOMContentLoaded", function() {
         getSsids();
-
-        getResource("box_id", "box-id-input", "box-id-footer");
-        getResource("calibration", "calibration-input", "calibration-footer");
-        getResource("command_sub_endpoint", "command-sub-endpoint-input", "command-sub-endpoint-footer");
-        getResource("command_push_endpoint", "command-push-endpoint-input", "command-push-endpoint-footer");
-        getResource("triggering_endpoint", "triggering-endpoint-input", "triggering-endpoint-footer");
-        getResource("updates_endpoint", "updates-endpoint-input", "updates-endpoint-footer");
-        getResource("public_key", "public-key-input", "public-key-footer");
+        getResource("box_config", "box-config-input", "box-config-footer")
 
         // Setup button press listeners
         document.getElementById("refresh-network-list-button").addEventListener("click", function() {
@@ -387,32 +199,8 @@
             postResource("/connect", {"ssid": document.getElementById("ssid-input").value, "password": document.getElementById("password-input").value}, "wifi-footer");
         });
 
-        document.getElementById("update-box-id-button").addEventListener("click", function() {
-            postResource("box_id", {"box_id": document.getElementById("box-id-input").value}, "box-id-footer");
-        });
-
-        document.getElementById("update-calibration-button").addEventListener("click", function() {
-            postResource("calibration", {"calibration": document.getElementById("calibration-input").value}, "calibration-footer");
-        });
-
-        document.getElementById("update-command-sub-endpoint-button").addEventListener("click", function() {
-            postResource("command_sub_endpoint", {"command_sub_endpoint": document.getElementById("command-sub-endpoint-input").value}, "command-sub-endpoint-footer");
-        });
-
-        document.getElementById("update-command-push-endpoint-button").addEventListener("click", function() {
-            postResource("command_push_endpoint", {"command_push_endpoint": document.getElementById("command-push-endpoint-input").value}, "command-push-endpoint-footer");
-        });
-
-        document.getElementById("update-triggering-endpoint-button").addEventListener("click", function() {
-            postResource("triggering_endpoint", {"triggering_endpoint": document.getElementById("triggering-endpoint-input").value}, "triggering-endpoint-footer");
-        });
-
-        document.getElementById("update-updates-endpoint-button").addEventListener("click", function() {
-            postResource("updates_endpoint", {"updates_endpoint": document.getElementById("updates-endpoint-input").value}, "updates-endpoint-footer");
-        });
-
-        document.getElementById("update-public-key-button").addEventListener("click", function() {
-            postResource("public_key", {"public_key": document.getElementById("public-key-input").value}, "public-key-footer");
+        document.getElementById("update-box-config-button").addEventListener("click", function() {
+            postResource("box_config", {"box_config": document.getElementById("box-config-input").value}, "box-config-footer");
         });
     });
 </script>
