@@ -31,6 +31,7 @@ def viol_check(data, lvl):
     lvl_tym = 200 if lvl == 5 else 500 if lvl == 7 else 1000  # is in msec
     lvl = 0.5 if lvl == 5 else 0.7 if lvl == 7 else 0.8
 
+    # pylint: disable=E1111
     data_bool = numpy.logical_and(data >= (lvl - 0.05) * PU, data <= (lvl + 0.05) * PU)
 
     prev = 0
