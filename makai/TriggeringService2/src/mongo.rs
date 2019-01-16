@@ -14,10 +14,10 @@ use bson::Document;
 use chrono::prelude::*;
 use time::Duration;
 
-use constants::*;
-use opqapi::protocol::TriggerMessage;
-use config::Settings;
-use mongodb::coll::options::WriteModel;
+use crate::constants::*;
+use crate::opqapi::protocol::TriggerMessage;
+use crate::config::Settings;
+use crate::mongodb::coll::options::WriteModel;
 
 /// A Buffer for keeping track of the slow measurements.
 struct MeasurementStatistics {

@@ -3,15 +3,15 @@ use pub_sub::PubSub;
 //use protobuf;
 use std::sync::Arc;
 use protobuf::{parse_from_bytes,ProtobufError};
-use opqapi::protocol::TriggerMessage;
-use config::Settings;
+use crate::proto::opqbox3::Measurement;
+use crate::config::Settings;
 
 /// This object is responsible for receiving triggering messages from the makai triggering broker.
 pub struct TriggerReceiver {
     ///ZMQ socket.
     trg_broker: zmq::Socket,
     ///Pub-Sub object for distributing triggering messages internally.
-    pub_chan: PubSub<Arc<TriggerMessage>>,
+    pub_chan: PubSub<Arc<Measurement>>,
 }
 
 impl TriggerReceiver {
@@ -20,7 +20,7 @@ impl TriggerReceiver {
     /// * `pub_chan` - an internal publish channel for the triggering messages.
     /// * `ctx` - shared ZMQ context.
     pub fn new(
-        pub_chan: PubSub<Arc<TriggerMessage>>,
+        pub_chan: PubSub<Arc<Measurement>>,
         ctx: &zmq::Context,
         config: &Settings,
     ) -> TriggerReceiver {
@@ -44,7 +44,7 @@ impl TriggerReceiver {
                 println!("Message contains {} parts!", msg.len());
                 continue;
             }
-            let msg: Result<TriggerMessage, ProtobufError> = parse_from_bytes(&msg[1]);
+            let msg: Result<Measurement, ProtobufError> = parse_from_bytes(&msg[1]);
 
             match msg {
                 Ok(msg) => {

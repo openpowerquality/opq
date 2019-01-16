@@ -8,16 +8,16 @@ use libloading::{Library, Symbol};
 use zmq;
 use serde_json;
 
-use event_requester::{EventRequester, SyncEventRequester};
-use opqapi::MakaiPlugin;
-use opqapi::protocol::TriggerMessage;
-use config::Settings;
+use crate::event_requester::{EventRequester, SyncEventRequester};
+use crate::makai_plugin::MakaiPlugin;
+use crate::proto::opqbox3::Measurement;
+use crate::config::Settings;
 
 ///A structure used to keep track of dynamically loaded plugins.
 pub struct PluginManager {
     ///A vector of running threads. These are persistent and will stick around until the app exits.
     plugin_threads: Vec<thread::JoinHandle<()>>,
-    ///The connection to the acquisition broker.
+    //The connection to the acquisition broker.
     trigger: SyncEventRequester,
 }
 
@@ -45,7 +45,7 @@ impl PluginManager {
     pub unsafe fn load_plugin(
         &mut self,
         document: serde_json::Value,
-        subscription: Subscription<Arc<TriggerMessage>>,
+        subscription: Subscription<Arc<Measurement>>,
 
     ) -> Result<(), String> {
         let filename = document.get("path").unwrap().as_str().unwrap().to_string();

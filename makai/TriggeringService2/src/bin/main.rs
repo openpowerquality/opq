@@ -15,27 +15,19 @@ extern crate serde;
 extern crate serde_derive;
 extern crate serde_json;
 extern crate time;
-
-extern crate opqapi;
-use opqapi::protocol::TriggerMessage;
-
 use mongodb::{Client, ThreadedClient};
 use std::thread;
 use std::sync::Arc;
 use std::env;
-mod constants;
 
-mod trigger_receiver;
-use trigger_receiver::TriggerReceiver;
-mod mongo;
-use mongo::MongoMeasurements;
-mod config;
-use config::Settings;
+use triggering_service::config::Settings;
+use triggering_service::trigger_receiver::TriggerReceiver;
+use triggering_service::plugin_manager::PluginManager;
+use triggering_service::proto::opqbox3::Measurement;
+//use triggering_service::mongo::MongoMeasurements;
 
-mod event_requester;
-mod overlapping_interval;
-mod plugin_manager;
-use plugin_manager::PluginManager;
+//mod config;
+
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -49,35 +41,37 @@ fn main() {
         Err(e) => {println!("Could not load a settings file {}: {}", config_path, e); return},
     };
 
+    /*
     //DB
     let client = match Client::connect(&settings.mongo_host, settings.mongo_port) {
         Ok(t) => t,
         Err(e) => {println!("Could not initialize mongo: {}", e); return}
     };
-
+    */
 
     let ctx = zmq::Context::new();
 
-    let channel: pub_sub::PubSub<Arc<TriggerMessage>> = pub_sub::PubSub::new();
+    let channel: pub_sub::PubSub<Arc<Measurement>> = pub_sub::PubSub::new();
     let zmq_reader = TriggerReceiver::new(channel.clone(), &ctx, &settings);
-    let mongo = MongoMeasurements::new(&client, channel.subscribe(), &settings);
+
+    //let mongo = MongoMeasurements::new(&client, channel.subscribe(), &settings);
 
     let mut handles = vec![];
     handles.push(thread::spawn(move || {
         zmq_reader.run_loop();
     }));
 
-    handles.push(thread::spawn(move || {
-        mongo.run_loop();
-    }));
+    //handles.push(thread::spawn(move || {
+    //    mongo.run_loop();
+    //}));
     let mut plugin_manager = PluginManager::new(&ctx, &settings);
-        for document in settings.plugins {
-            let filename = match document.get("path"){
-                None => {println!("One of the plugins is missing a path field. How do I load it?"); continue},
-                Some(s) => {s.as_str().unwrap().to_string()},
-            };
-            unsafe {
-                let res = plugin_manager.load_plugin(document, channel.subscribe());
+    for document in settings.plugins {
+        let filename = match document.get("path"){
+            None => {println!("One of the plugins is missing a path field. How do I load it?"); continue},
+            Some(s) => {s.as_str().unwrap().to_string()},
+        };
+        unsafe {
+            let res = plugin_manager.load_plugin(document, channel.subscribe());
 
             match res {
                 Ok(_) => println!("Loaded {}", filename),

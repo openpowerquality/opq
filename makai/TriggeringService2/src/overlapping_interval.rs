@@ -68,16 +68,19 @@ impl<T: Ord + Clone> OverlappingIntervals<T> {
     }
 }
 
-#[test]
-fn overlap_test() {
-    let mut i = OverlappingIntervals::new();
-    let now = Utc::now();
 
-    assert_eq!(i.insert_and_check(1, 2), true);
-    assert_eq!(i.insert_and_check(3, 5), true);
-    assert_eq!(i.insert_and_check(0, 10), true);
-    assert_eq!(i.insert_and_check(-2, 9), true);
-    assert_eq!(i.insert_and_check(11, 21), true);
-    assert_eq!(i.insert_and_check(0, 2), false);
-    assert_eq!(i.insert_and_check(20, 31), true);
+mod tests {
+    use super::*;
+    #[test]
+    fn overlap_test() {
+        let mut i = OverlappingIntervals::new();
+
+        assert_eq!(i.insert_and_check(1, 2), true);
+        assert_eq!(i.insert_and_check(3, 5), true);
+        assert_eq!(i.insert_and_check(0, 10), true);
+        assert_eq!(i.insert_and_check(-2, 9), true);
+        assert_eq!(i.insert_and_check(11, 21), true);
+        assert_eq!(i.insert_and_check(0, 2), false);
+        assert_eq!(i.insert_and_check(20, 31), true);
+    }
 }

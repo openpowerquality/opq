@@ -1,9 +1,0 @@
-(use random (random))
-(struct Foo ((a integer) (b string)))
-
-(define (process_measurement m)
-  (if (> (random) 0.5)
-    (println  (format "~5,2f" (. m :rms) ))
-    (new Foo :a 123 :b "foo")
-  )
-)

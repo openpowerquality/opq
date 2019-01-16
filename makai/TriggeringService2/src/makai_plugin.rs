@@ -1,11 +1,12 @@
 
-use super::protocol::opq;
+use crate::proto::opqbox3::Measurement;
+use crate::proto::makai::RequestEventMessage;
 use std::sync::Arc;
 use std::any::Any;
 
 pub trait MakaiPlugin: Any{
     fn name(&self) -> &'static str;
-    fn process_measurement(&mut self, msg : Arc<opq::TriggerMessage>) -> Option<opq::RequestEventMessage>;
+    fn process_measurement(&mut self, msg : Arc<Measurement>) -> Option<RequestEventMessage>;
     fn on_plugin_load(&mut self, json : String);
     fn on_plugin_unload(&mut self);
 }
@@ -21,12 +22,12 @@ pub trait MakaiPlugin: Any{
 macro_rules! declare_plugin {
     ($plugin_type:ty, $constructor:path) => {
         #[no_mangle]
-        pub extern "C" fn _plugin_create() -> *mut $crate::MakaiPlugin {
+        pub extern "C" fn _plugin_create() -> *mut crate::MakaiPlugin {
             // make sure the constructor is the correct type.
             let constructor: fn() -> $plugin_type = $constructor;
 
             let object = constructor();
-            let boxed: Box<$crate::MakaiPlugin> = Box::new(object);
+            let boxed: Box<crate::MakaiPlugin> = Box::new(object);
             Box::into_raw(boxed)
         }
     };

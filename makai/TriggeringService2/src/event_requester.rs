@@ -1,9 +1,9 @@
 use protobuf::Message;
-use opqapi::protocol::RequestEventMessage;
+use crate::proto::makai::RequestEventMessage;
 use zmq;
-use overlapping_interval::OverlappingIntervals;
+use crate::overlapping_interval::OverlappingIntervals;
 use std::sync::{Arc, Mutex};
-use config::Settings;
+use crate::config::Settings;
 
 ///A wrapped `EventRequester` type used for passing around threads.
 pub type SyncEventRequester = Arc<Mutex<EventRequester>>;
