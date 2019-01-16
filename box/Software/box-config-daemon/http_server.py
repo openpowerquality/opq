@@ -1,7 +1,7 @@
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import json
 
-# import pify.pify
+import pify.pify
 import threading
 
 
@@ -129,6 +129,3 @@ def run_server(port, config_file, nm):
         pass
     httpd.server_close()
     print("Exiting box-config-daemon server")
-
-if __name__ == "__main__":
-    run_server(8888, "opqbox_config.json", None)
