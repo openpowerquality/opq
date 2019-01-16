@@ -2,12 +2,12 @@
     {
         "service": "box",
         "interval": 20,
-        "box_port": "tcp://127.0.0.1:9881"
+        "box_port": "tcp://emilia.ics.hawaii.edu:9881"
     },
     {
         "service": "mauka",
         "interval": 60,
-        "url": "http://localhost:8911",
+        "url": "http://emilia.ics.hawaii.edu:8911",
         "plugins": [
             "StatusPlugin",
             "IticPlugin",
@@ -20,9 +20,9 @@
     {
         "service": "makai",
         "interval": 60,
-        "mongo": "mongodb://localhost:27017/",
-        "push_port": "tcp://localhost:9884",
-        "sub_port": "tcp://localhost:9899"
+        "mongo": "mongodb://emilia.ics.hawaii.edu:27017/",
+        "push_port": "tcp://emilia.ics.hawaii.edu:9884",
+        "sub_port": "tcp://emilia.ics.hawaii.edu:9899"
     },
     {
         "service": "view",
@@ -32,7 +32,7 @@
     {
         "service": "mongodb",
         "interval": 60,
-        "url": "mongodb://localhost:27017/"
+        "url": "mongodb://emilia.ics.hawaii.edu:27017/"
     },
     {
         "service": "health",
