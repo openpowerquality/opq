@@ -2,6 +2,7 @@
   "cmd_sub_ep": "tcp://127.0.0.1:9000",
   "cmd_push_ep": "tcp://127.0.0.1:9001",
   "trg_push_ep": "tcp://127.0.0.1:9880",
+  "updates_ep": "http://localhost:9999",
 
   "server_public_key": "umIz8s[!AyQqU$<]9POY4I(YUBxoxv}L#t3>S6K{",
 
