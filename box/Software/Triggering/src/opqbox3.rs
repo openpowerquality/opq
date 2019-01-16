@@ -351,7 +351,7 @@ impl Measurement {
         &mut self.timestamp_ms
     }
 
-    // repeated .opq.proto3.Measurement.MetricsEntry metrics = 3;
+    // repeated .opq.opqbox3.Measurement.MetricsEntry metrics = 3;
 
     pub fn clear_metrics(&mut self) {
         self.metrics.clear();
@@ -1392,7 +1392,7 @@ impl Command {
         &mut self.timestamp_ms
     }
 
-    // .opq.proto3.GetInfoCommand info_command = 3;
+    // .opq.opqbox3.GetInfoCommand info_command = 3;
 
     pub fn clear_info_command(&mut self) {
         self.command = ::std::option::Option::None;
@@ -1441,7 +1441,7 @@ impl Command {
         }
     }
 
-    // .opq.proto3.GetDataCommand data_command = 4;
+    // .opq.opqbox3.GetDataCommand data_command = 4;
 
     pub fn clear_data_command(&mut self) {
         self.command = ::std::option::Option::None;
@@ -1490,7 +1490,7 @@ impl Command {
         }
     }
 
-    // .opq.proto3.SetMeasturementRateCommand sampling_rate_command = 5;
+    // .opq.opqbox3.SetMeasturementRateCommand sampling_rate_command = 5;
 
     pub fn clear_sampling_rate_command(&mut self) {
         self.command = ::std::option::Option::None;
@@ -1539,7 +1539,7 @@ impl Command {
         }
     }
 
-    // .opq.proto3.SendCommandToPlugin send_command_to_plugin = 7;
+    // .opq.opqbox3.SendCommandToPlugin send_command_to_plugin = 7;
 
     pub fn clear_send_command_to_plugin(&mut self) {
         self.command = ::std::option::Option::None;
@@ -2951,7 +2951,7 @@ impl Response {
         &mut self.timestamp_ms
     }
 
-    // .opq.proto3.GetInfoResponse info_response = 4;
+    // .opq.opqbox3.GetInfoResponse info_response = 4;
 
     pub fn clear_info_response(&mut self) {
         self.response = ::std::option::Option::None;
@@ -3000,7 +3000,7 @@ impl Response {
         }
     }
 
-    // .opq.proto3.SetMeasurementRateResponse message_rate_reponse = 5;
+    // .opq.opqbox3.SetMeasurementRateResponse message_rate_reponse = 5;
 
     pub fn clear_message_rate_reponse(&mut self) {
         self.response = ::std::option::Option::None;
@@ -3049,7 +3049,7 @@ impl Response {
         }
     }
 
-    // .opq.proto3.GetDataResponseHeader get_data_response = 6;
+    // .opq.opqbox3.GetDataResponseHeader get_data_response = 6;
 
     pub fn clear_get_data_response(&mut self) {
         self.response = ::std::option::Option::None;
@@ -3098,7 +3098,7 @@ impl Response {
         }
     }
 
-    // .opq.proto3.SendCommandToPluginResponse command_to_plugin_response = 7;
+    // .opq.opqbox3.SendCommandToPluginResponse command_to_plugin_response = 7;
 
     pub fn clear_command_to_plugin_response(&mut self) {
         self.response = ::std::option::Option::None;
@@ -3635,51 +3635,51 @@ impl ::protobuf::reflect::ProtobufValue for Cycle {
 }
 
 static file_descriptor_proto_data: &'static [u8] = b"\
-    \n\ropqbox3.proto\x12\nopq.proto3\x1a\x0frustproto.proto\"F\n\x06Metric\
-    \x12\x10\n\x03min\x18\x01\x20\x01(\x02R\x03min\x12\x10\n\x03max\x18\x02\
-    \x20\x01(\x02R\x03max\x12\x18\n\x07average\x18\x03\x20\x01(\x02R\x07aver\
-    age\"\xd7\x01\n\x0bMeasurement\x12\x15\n\x06box_id\x18\x01\x20\x01(\rR\
-    \x05boxId\x12!\n\x0ctimestamp_ms\x18\x02\x20\x01(\x04R\x0btimestampMs\
-    \x12>\n\x07metrics\x18\x03\x20\x03(\x0b2$.opq.proto3.Measurement.Metrics\
-    EntryR\x07metrics\x1aN\n\x0cMetricsEntry\x12\x10\n\x03key\x18\x01\x20\
-    \x01(\tR\x03key\x12(\n\x05value\x18\x02\x20\x01(\x0b2\x12.opq.proto3.Met\
-    ricR\x05value:\x028\x01\"\x10\n\x0eGetInfoCommand\"V\n\x0eGetDataCommand\
-    \x12\x19\n\x08start_ms\x18\x01\x20\x01(\x04R\x07startMs\x12\x15\n\x06end\
-    _ms\x18\x02\x20\x01(\x04R\x05endMs\x12\x12\n\x04wait\x18\x03\x20\x01(\
+    \n\ropqbox3.proto\x12\x0bopq.opqbox3\x1a\x0frustproto.proto\"F\n\x06Metr\
+    ic\x12\x10\n\x03min\x18\x01\x20\x01(\x02R\x03min\x12\x10\n\x03max\x18\
+    \x02\x20\x01(\x02R\x03max\x12\x18\n\x07average\x18\x03\x20\x01(\x02R\x07\
+    average\"\xd9\x01\n\x0bMeasurement\x12\x15\n\x06box_id\x18\x01\x20\x01(\
+    \rR\x05boxId\x12!\n\x0ctimestamp_ms\x18\x02\x20\x01(\x04R\x0btimestampMs\
+    \x12?\n\x07metrics\x18\x03\x20\x03(\x0b2%.opq.opqbox3.Measurement.Metric\
+    sEntryR\x07metrics\x1aO\n\x0cMetricsEntry\x12\x10\n\x03key\x18\x01\x20\
+    \x01(\tR\x03key\x12)\n\x05value\x18\x02\x20\x01(\x0b2\x13.opq.opqbox3.Me\
+    tricR\x05value:\x028\x01\"\x10\n\x0eGetInfoCommand\"V\n\x0eGetDataComman\
+    d\x12\x19\n\x08start_ms\x18\x01\x20\x01(\x04R\x07startMs\x12\x15\n\x06en\
+    d_ms\x18\x02\x20\x01(\x04R\x05endMs\x12\x12\n\x04wait\x18\x03\x20\x01(\
     \x08R\x04wait\"X\n\x1aSetMeasturementRateCommand\x12:\n\x19measurement_w\
     indow_cycles\x18\x01\x20\x01(\rR\x17measurementWindowCycles\"P\n\x13Send\
     CommandToPlugin\x12\x1f\n\x0bplugin_name\x18\x01\x20\x01(\tR\npluginName\
-    \x12\x18\n\x07message\x18\x02\x20\x01(\tR\x07message\"\x81\x03\n\x07Comm\
+    \x12\x18\n\x07message\x18\x02\x20\x01(\tR\x07message\"\x85\x03\n\x07Comm\
     and\x12\x10\n\x03seq\x18\x01\x20\x01(\rR\x03seq\x12!\n\x0ctimestamp_ms\
-    \x18\x02\x20\x01(\x04R\x0btimestampMs\x12?\n\x0cinfo_command\x18\x03\x20\
-    \x01(\x0b2\x1a.opq.proto3.GetInfoCommandH\0R\x0binfoCommand\x12?\n\x0cda\
-    ta_command\x18\x04\x20\x01(\x0b2\x1a.opq.proto3.GetDataCommandH\0R\x0bda\
-    taCommand\x12\\\n\x15sampling_rate_command\x18\x05\x20\x01(\x0b2&.opq.pr\
-    oto3.SetMeasturementRateCommandH\0R\x13samplingRateCommand\x12V\n\x16sen\
-    d_command_to_plugin\x18\x07\x20\x01(\x0b2\x1f.opq.proto3.SendCommandToPl\
-    uginH\0R\x13sendCommandToPluginB\t\n\x07command\"\xee\x01\n\x0fGetInfoRe\
-    sponse\x12\x19\n\x08mac_addr\x18\x01\x20\x01(\tR\x07macAddr\x12!\n\x0cwi\
-    fi_network\x18\x02\x20\x01(\tR\x0bwifiNetwork\x12\x0e\n\x02ip\x18\x03\
-    \x20\x01(\tR\x02ip\x12\x16\n\x06uptime\x18\x04\x20\x01(\x04R\x06uptime\
-    \x121\n\x14calibration_constant\x18\x05\x20\x01(\x04R\x13calibrationCons\
-    tant\x12\x17\n\x07pub_key\x18\x06\x20\x01(\tR\x06pubKey\x12)\n\x10measur\
-    ement_rate\x18\x07\x20\x01(\rR\x0fmeasurementRate\"D\n\x1aSetMeasurement\
-    RateResponse\x12&\n\x0fold_rate_cycles\x18\x01\x20\x01(\rR\roldRateCycle\
-    s\"I\n\x15GetDataResponseHeader\x12\x19\n\x08start_ts\x18\x01\x20\x01(\
+    \x18\x02\x20\x01(\x04R\x0btimestampMs\x12@\n\x0cinfo_command\x18\x03\x20\
+    \x01(\x0b2\x1b.opq.opqbox3.GetInfoCommandH\0R\x0binfoCommand\x12@\n\x0cd\
+    ata_command\x18\x04\x20\x01(\x0b2\x1b.opq.opqbox3.GetDataCommandH\0R\x0b\
+    dataCommand\x12]\n\x15sampling_rate_command\x18\x05\x20\x01(\x0b2'.opq.o\
+    pqbox3.SetMeasturementRateCommandH\0R\x13samplingRateCommand\x12W\n\x16s\
+    end_command_to_plugin\x18\x07\x20\x01(\x0b2\x20.opq.opqbox3.SendCommandT\
+    oPluginH\0R\x13sendCommandToPluginB\t\n\x07command\"\xee\x01\n\x0fGetInf\
+    oResponse\x12\x19\n\x08mac_addr\x18\x01\x20\x01(\tR\x07macAddr\x12!\n\
+    \x0cwifi_network\x18\x02\x20\x01(\tR\x0bwifiNetwork\x12\x0e\n\x02ip\x18\
+    \x03\x20\x01(\tR\x02ip\x12\x16\n\x06uptime\x18\x04\x20\x01(\x04R\x06upti\
+    me\x121\n\x14calibration_constant\x18\x05\x20\x01(\x04R\x13calibrationCo\
+    nstant\x12\x17\n\x07pub_key\x18\x06\x20\x01(\tR\x06pubKey\x12)\n\x10meas\
+    urement_rate\x18\x07\x20\x01(\rR\x0fmeasurementRate\"D\n\x1aSetMeasureme\
+    ntRateResponse\x12&\n\x0fold_rate_cycles\x18\x01\x20\x01(\rR\roldRateCyc\
+    les\"I\n\x15GetDataResponseHeader\x12\x19\n\x08start_ts\x18\x01\x20\x01(\
     \x04R\x07startTs\x12\x15\n\x06end_ts\x18\x02\x20\x01(\x04R\x05endTs\"-\n\
     \x1bSendCommandToPluginResponse\x12\x0e\n\x02ok\x18\x01\x20\x01(\x08R\
-    \x02ok\"\xbb\x03\n\x08Response\x12\x15\n\x06box_id\x18\x01\x20\x01(\x05R\
+    \x02ok\"\xbf\x03\n\x08Response\x12\x15\n\x06box_id\x18\x01\x20\x01(\x05R\
     \x05boxId\x12\x10\n\x03seq\x18\x02\x20\x01(\rR\x03seq\x12!\n\x0ctimestam\
-    p_ms\x18\x03\x20\x01(\x04R\x0btimestampMs\x12B\n\rinfo_response\x18\x04\
-    \x20\x01(\x0b2\x1b.opq.proto3.GetInfoResponseH\0R\x0cinfoResponse\x12Z\n\
-    \x14message_rate_reponse\x18\x05\x20\x01(\x0b2&.opq.proto3.SetMeasuremen\
-    tRateResponseH\0R\x12messageRateReponse\x12O\n\x11get_data_response\x18\
-    \x06\x20\x01(\x0b2!.opq.proto3.GetDataResponseHeaderH\0R\x0fgetDataRespo\
-    nse\x12f\n\x1acommand_to_plugin_response\x18\x07\x20\x01(\x0b2'.opq.prot\
-    o3.SendCommandToPluginResponseH\0R\x17commandToPluginResponseB\n\n\x08re\
-    sponse\"J\n\x05Cycle\x12\x1e\n\ndatapoints\x18\x01\x20\x03(\x05R\ndatapo\
-    ints\x12!\n\x0ctimestamp_ms\x18\x02\x20\x01(\x04R\x0btimestampMsB\x04\
-    \xc8\xa6\x08\x01b\x06proto3\
+    p_ms\x18\x03\x20\x01(\x04R\x0btimestampMs\x12C\n\rinfo_response\x18\x04\
+    \x20\x01(\x0b2\x1c.opq.opqbox3.GetInfoResponseH\0R\x0cinfoResponse\x12[\
+    \n\x14message_rate_reponse\x18\x05\x20\x01(\x0b2'.opq.opqbox3.SetMeasure\
+    mentRateResponseH\0R\x12messageRateReponse\x12P\n\x11get_data_response\
+    \x18\x06\x20\x01(\x0b2\".opq.opqbox3.GetDataResponseHeaderH\0R\x0fgetDat\
+    aResponse\x12g\n\x1acommand_to_plugin_response\x18\x07\x20\x01(\x0b2(.op\
+    q.opqbox3.SendCommandToPluginResponseH\0R\x17commandToPluginResponseB\n\
+    \n\x08response\"J\n\x05Cycle\x12\x1e\n\ndatapoints\x18\x01\x20\x03(\x05R\
+    \ndatapoints\x12!\n\x0ctimestamp_ms\x18\x02\x20\x01(\x04R\x0btimestampMs\
+    B\x04\xc8\xa6\x08\x01b\x06proto3\
 ";
 
 static mut file_descriptor_proto_lazy: ::protobuf::lazy::Lazy<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::lazy::Lazy {
