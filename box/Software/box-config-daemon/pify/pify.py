@@ -13,12 +13,14 @@ import pify.nmoperations as nmoperations
 logging.basicConfig(level=logging.DEBUG)
 
 def open_port_80_wlan0():
-    logging.info("Opening port 80 on wlan0")
-    subprocess.run(["/sbin/iptables", "-D", "INPUT", "-p", "tcp", "-i", "wlan0", "--dport", "80", "-j",  "REJECT"])
+    pass
+    # logging.info("Opening port 80 on wlan0")
+    # subprocess.run(["/sbin/iptables", "-D", "INPUT", "-p", "tcp", "-i", "wlan0", "--dport", "80", "-j",  "REJECT"])
 
 def close_port_80_wlan0():
-    logging.info("Closing port 80 on wlan0")
-    subprocess.run(["/sbin/iptables", "-A", "INPUT", "-p", "tcp", "-i", "wlan0", "--dport", "80", "-j",  "REJECT"])
+    pass
+    # logging.info("Closing port 80 on wlan0")
+    # subprocess.run(["/sbin/iptables", "-A", "INPUT", "-p", "tcp", "-i", "wlan0", "--dport", "80", "-j",  "REJECT"])
 
 def fsm_start(nm: nmoperations.NM):
     disable_ap(nm)
