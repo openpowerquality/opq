@@ -13,7 +13,8 @@ from datetime import datetime
 
 # Global valiables
 g_log_file = None
-g_log_file_on = True
+is_logging = True
+mongo_addr = 'emilia.ics.hawaii.edu'
 lock = Lock()
 boxes = {}
 
@@ -38,8 +39,8 @@ def get_log_msg(message):
     return ' '.join([ctime(), serv, id, stat, info])
 
 def write_to_log(log_msg):
-    global g_log_file_on
-    if not g_log_file_on:
+    global is_logging
+    if not is_logging:
         return
 
     try:
@@ -49,17 +50,19 @@ def write_to_log(log_msg):
         print('Unable to write to ' + g_log_file)
         exit()
 
-# NOTE - What if mongo is down?
-# WIP - Add mongo uri?
 def write_to_mongo(message):
-    client = MongoClient()
-    db = client['opq']
-    coll = db['health']
-  
-    message['timestamp'] = datetime.utcnow()
-    coll.insert_one(message)
+    try:
+        client = MongoClient(mongo_addr, serverSelectionTimeoutMS=3000)
+        db = client['opq']
+        coll = db['health']
 
-    client.close()
+        message['timestamp'] = datetime.utcnow()
+        coll.insert_one(message)
+
+        client.close()
+    except Exception as e:
+        message = get_msg_as_json('MONGO', 'write_to_mongo()', 'DOWN', str(e))
+        write_to_log(get_log_msg(message))
 
 def file_to_dict(file_name):
     try:
@@ -70,14 +73,18 @@ def file_to_dict(file_name):
         print('Unable to open ' + file_name)
         exit()
 
+# If mongo times out, return None and log a message
 def get_mongo_doc(uri, coll, doc):
-    client = MongoClient(uri)
-    db = client['opq']
-    coll = db[coll]
-    
-    match = coll.find_one(doc)
-
-    client.close()
+    match = None
+    try:
+        client = MongoClient(uri, serverSelectionTimeoutMS=3000)
+        db = client['opq']
+        coll = db[coll]
+        match = coll.find_one(doc)
+        client.close()
+    except Exception as e:
+        message = get_msg_as_json('MONGO', 'get_mongo_doc()', 'DOWN', str(e))
+        save_message(message)
 
     return match
 
@@ -104,6 +111,7 @@ def check_view(config):
         save_message(message)
         sleep(sleep_time)
 
+# TODO if nothing in boxes, no message will get logged
 def log_boxes(sleep_time):
     while True:
         sleep(sleep_time)
@@ -118,14 +126,16 @@ def log_boxes(sleep_time):
         lock.release()
 
 def get_box_ids():
-    # Pass mongo uri eventually
-    client = MongoClient()
-    db = client['opq']
-    coll = db['opq_boxes']
-
-    boxes = coll.find({}, {'_id': 0, 'box_id': 1})
-
-    ids = [int(box['box_id']) for box in boxes]
+    ids = []
+    try:
+        client = MongoClient(mongo_addr, serverSelectionTimeoutMS=3000)
+        db = client['opq']
+        coll = db['opq_boxes']
+        boxes = coll.find({}, {'_id': 0, 'box_id': 1})
+        ids = [int(box['box_id']) for box in boxes]
+    except Exception as e:
+        message = get_msg_as_json('MONGO', 'get_mongo_doc()', 'DOWN', str(e))
+        save_message(message)
 
     return ids
 
@@ -136,6 +146,8 @@ def check_boxes(config):
     context = zmq.Context()
     socket = context.socket(zmq.SUB)
     socket.setsockopt(zmq.SUBSCRIBE, b"")
+    # Timeout is 3 seconds for response
+    socket.rcvtimeo = 3000
     socket.connect(port)
 
     for id in get_box_ids():
@@ -146,13 +158,18 @@ def check_boxes(config):
     box_log_thread.start()
 
     while True:
-        # WIP - Add try/catch on recv?
-        measurement = socket.recv_multipart()
-        trigger_message = protobuf.opq_pb2.TriggerMessage()
-        trigger_message.ParseFromString(measurement[1])
-    
+        trigger_message = None
+        try:
+            measurement = socket.recv_multipart()
+            trigger_message = protobuf.opq_pb2.TriggerMessage()
+            trigger_message.ParseFromString(measurement[1])
+        except Exception as e:
+            message = get_msg_as_json('BOX', 'ZMQ', 'DOWN', str(e))
+            save_message(message)
+            sleep(10)
+
         lock.acquire()
-        if trigger_message.id in boxes:
+        if trigger_message and trigger_message.id in boxes:
             boxes[trigger_message.id] = trigger_message.time
         lock.release()
 
@@ -163,7 +180,6 @@ def check_mongo(config):
     mongo_uri = config['url']
 
     while True:
-        # Use health collection to check if up
         doc = get_mongo_doc(mongo_uri, 'health', {})
         if doc:
             message = get_msg_as_json('MONGO', '', 'UP', '')
@@ -204,7 +220,7 @@ def check_mauka(config):
                 message = get_msg_as_json('MAUKA', '', 'DOWN', status)
                 save_message(message)
         except Exception as e:
-            message = get_msg_as_json('MAUKA', '', 'DOWN', e)
+            message = get_msg_as_json('MAUKA', '', 'DOWN', str(e))
             save_message(message)
         sleep(sleep_time)
 
@@ -219,7 +235,7 @@ def generate_req_event_message():
     req_message.percent_magnitude = 50
     req_message.requestee = "Evan"
     req_message.request_data = False
-    
+
     return req_message
 
 def find_event(mongo_uri, new_event):
@@ -251,15 +267,16 @@ def check_makai(config):
     # Timeout is 3 seconds for response
     sub_socket.rcvtimeo = 3000
 
-    try:
-        push_socket.connect(push_port)
-        sub_socket.connect(sub_port)
-    except Exception as e:
-        message = get_msg_as_json('MAKAI', '', 'DOWN', e)
-        save_message(message)
-        exit()
+    while True:
+        try:
+            push_socket.connect(push_port)
+            sub_socket.connect(sub_port)
+        except Exception as e:
+            message = get_msg_as_json('MAKAI', '', 'DOWN', str(e))
+            save_message(message)
+            continue
+        break
 
-    client = MongoClient()
     skip_next_send = False
     while True:
         req_message = generate_req_event_message()
@@ -272,7 +289,7 @@ def check_makai(config):
             # Note: This sub receives all new Events. We must subsequently filter for 'Health check' events later
             new_event = sub_socket.recv_multipart()
         except Exception as e:
-            message = get_msg_as_json('MAKAI', '', 'DOWN', e)
+            message = get_msg_as_json('MAKAI', '', 'DOWN', str(e))
             save_message(message)
             skip_next_send = False
             sleep(sleep_time)
@@ -304,13 +321,18 @@ def check_makai(config):
 
         # Delete the new Event if it's a 'Health check' event
         if is_health_event(event):
-            db = client['opq']
-            events_collection = db['events']
-            box_events_collection = db['box_events']
-            event_id = event['event_id']
+            try:
+                client = MongoClient(mongo_addr, serverSelectionTimeoutMS=3000)
+                db = client['opq']
+                events_collection = db['events']
+                box_events_collection = db['box_events']
+                event_id = event['event_id']
 
-            events_collection.delete_many({'event_id': event_id})
-            box_events_collection.delete_many({'event_id': event_id})
+                events_collection.delete_many({'event_id': event_id})
+                box_events_collection.delete_many({'event_id': event_id})
+            except Exception as e:
+                ex_message = get_msg_as_json('MONGO', 'check_makai()', 'DOWN', str(e))
+                save_message(ex_message)
 
         save_message(message)
 
@@ -318,40 +340,46 @@ def check_makai(config):
 
     push_socket.close()
     sub_socket.close()
-           
+
+def set_mongo_url(url):
+    global mongo_addr
+    mongo_addr = url
+
 def main(config_file):
     health_config = file_to_dict(config_file)
 
-    health_health_config = health_config[5]
-    health_thread = Thread(target=check_health, args=(health_health_config, ))
-    health_thread.start()
+    set_mongo_url(health_config[4]['url'])
 
-    view_config = health_config[3]
-    view_thread = Thread(target=check_view, args=(view_config, ))
-    view_thread.start()
-
+    # health_health_config = health_config[5]
+    # health_thread = Thread(target=check_health, args=(health_health_config, ))
+    # health_thread.start()
+    #
+    # view_config = health_config[3]
+    # view_thread = Thread(target=check_view, args=(view_config, ))
+    # view_thread.start()
+    #
     box_config = health_config[0]
     box_thread = Thread(target=check_boxes, args=(box_config, ))
     box_thread.start()
 
-    mongo_config = health_config[4]
-    mongo_thread = Thread(target=check_mongo, args=(mongo_config, ))
-    mongo_thread.start()
+    # mongo_config = health_config[4]
+    # mongo_thread = Thread(target=check_mongo, args=(mongo_config, ))
+    # mongo_thread.start()
 
-    mauka_config = health_config[1]
-    mauka_thread = Thread(target=check_mauka, args=(mauka_config, ))
-    mauka_thread.start()
+    # mauka_config = health_config[1]
+    # mauka_thread = Thread(target=check_mauka, args=(mauka_config, ))
+    # mauka_thread.start()
+    #
+    # makai_config = health_config[2]
+    # makai_thread = Thread(target=check_makai, args=(makai_config, ))
+    # makai_thread.start()
 
-    makai_config = health_config[2]
-    makai_thread = Thread(target=check_makai, args=(makai_config, ))
-    makai_thread.start()
-
-    health_thread.join()
-    view_thread.join()
-    box_thread.join()
-    mongo_thread.join()
-    mauka_thread.join()
-    makai_thread.join()
+    # health_thread.join()
+    # view_thread.join()
+    # box_thread.join()
+    # mongo_thread.join()
+    # mauka_thread.join()
+    # makai_thread.join()
 
 def parse_cmd_args():
     parser = argparse.ArgumentParser(description='Get config and log file names')
@@ -362,13 +390,13 @@ def parse_cmd_args():
 
 def set_g_log_file(file_name):
     global g_log_file
-    global g_log_file_on
+    global is_logging
 
     g_log_file = file_name
-    
+
     if g_log_file == 'disable':
-        g_log_file_on = False
-        
+        is_logging = False
+
 if __name__ == '__main__':
     # Use log_file as global variable
     config_file, log_file = parse_cmd_args()
