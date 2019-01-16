@@ -105,27 +105,27 @@
         <div class="card">
             <header class="card-header has-background-light">
                 <p class="card-header-title">
-                    Acquisition Endpoint
+                    Calibration Constant
                 </p>
             </header>
             <div class="card-content">
                 <div class="content">
                     <form>
                         <div class="field">
-                            <label class="label">Acquisition Endpoint (url:port)</label>
+                            <label class="label">Calibration Constant</label>
                             <div class="control">
-                                <input class="input" type="text" placeholder="localhost:8080" id="acquisition-endpoint-input">
+                                <input class="input" type="text"  id="calibration-input">
                             </div>
                         </div>
                         <div class="field">
                             <div class="control">
-                                <a class="button is-primary" id="update-acquisition-endpoint-button">Update</a>
+                                <a class="button is-primary" id="update-calibration-button">Update</a>
                             </div>
                         </div>
                     </form>
                 </div>
             </div>
-            <footer class="card-footer has-text-white" id="acquisition-endpoint-footer"></footer>
+            <footer class="card-footer has-text-white" id="calibration-footer"></footer>
         </div>
     </div>
 </section>
@@ -135,14 +135,74 @@
         <div class="card">
             <header class="card-header has-background-light">
                 <p class="card-header-title">
-                    Triggering Endpoint
+                    Command Sub Endpoint
                 </p>
             </header>
             <div class="card-content">
                 <div class="content">
                     <form>
                         <div class="field">
-                            <label class="label">Triggering Endpoint (url:port)</label>
+                            <label class="label">Command Sub Endpoint (tcp://url:port)</label>
+                            <div class="control">
+                                <input class="input" type="text" placeholder="localhost:8080" id="command-sub-endpoint-input">
+                            </div>
+                        </div>
+                        <div class="field">
+                            <div class="control">
+                                <a class="button is-primary" id="update-command-sub-endpoint-button">Update</a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <footer class="card-footer has-text-white" id="command-sub-endpoint-footer"></footer>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        <div class="card">
+            <header class="card-header has-background-light">
+                <p class="card-header-title">
+                    Command Push Endpoint
+                </p>
+            </header>
+            <div class="card-content">
+                <div class="content">
+                    <form>
+                        <div class="field">
+                            <label class="label">Command Push Endpoint (tcp://url:port)</label>
+                            <div class="control">
+                                <input class="input" type="text" placeholder="localhost:8080" id="command-push-endpoint-input">
+                            </div>
+                        </div>
+                        <div class="field">
+                            <div class="control">
+                                <a class="button is-primary" id="update-command-push-endpoint-button">Update</a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <footer class="card-footer has-text-white" id="command-push-endpoint-footer"></footer>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        <div class="card">
+            <header class="card-header has-background-light">
+                <p class="card-header-title">
+                    Triggering Push Endpoint
+                </p>
+            </header>
+            <div class="card-content">
+                <div class="content">
+                    <form>
+                        <div class="field">
+                            <label class="label">Triggering Push Endpoint (tcp://url:port)</label>
                             <div class="control">
                                 <input class="input" type="text" placeholder="localhost:8080" id="triggering-endpoint-input">
                             </div>
@@ -190,6 +250,7 @@
     </div>
 </section>
 
+
 <section class="section">
     <div class="container">
         <div class="card">
@@ -201,15 +262,16 @@
             <div class="card-content">
                 <div class="content">
                     <form>
-                        <div class="file">
-                            <label class="file-label">
-                                <input class="file-input" type="file" name="uploadPublicKey">
-                                <span class="file-cta">
-                                <span class="file-label">
-                                    Upload Public Key
-                                </span>
-                                </span>
-                            </label>
+                        <div class="field">
+                            <label class="label">Public Key</label>
+                            <div class="control">
+                                <input class="input" type="text" id="public-key-input">
+                            </div>
+                        </div>
+                        <div class="field">
+                            <div class="control">
+                                <a class="button is-primary" id="update-public-key-button">Update</a>
+                            </div>
                         </div>
                     </form>
                 </div>
@@ -309,9 +371,12 @@
         getSsids();
 
         getResource("box_id", "box-id-input", "box-id-footer");
-        getResource("acquisition_endpoint", "acquisition-endpoint-input", "acquisition-endpoint-footer");
+        getResource("calibration", "calibration-input", "calibration-footer");
+        getResource("command_sub_endpoint", "command-sub-endpoint-input", "command-sub-endpoint-footer");
+        getResource("command_push_endpoint", "command-push-endpoint-input", "command-push-endpoint-footer");
         getResource("triggering_endpoint", "triggering-endpoint-input", "triggering-endpoint-footer");
         getResource("updates_endpoint", "updates-endpoint-input", "updates-endpoint-footer");
+        getResource("public_key", "public-key-input", "public-key-footer");
 
         // Setup button press listeners
         document.getElementById("refresh-network-list-button").addEventListener("click", function() {
@@ -326,8 +391,16 @@
             postResource("box_id", {"box_id": document.getElementById("box-id-input").value}, "box-id-footer");
         });
 
-        document.getElementById("update-acquisition-endpoint-button").addEventListener("click", function() {
-            postResource("acquisition_endpoint", {"acquisition_endpoint": document.getElementById("acquisition-endpoint-input").value}, "acquisition-endpoint-footer");
+        document.getElementById("update-calibration-button").addEventListener("click", function() {
+            postResource("calibration", {"calibration": document.getElementById("calibration-input").value}, "calibration-footer");
+        });
+
+        document.getElementById("update-command-sub-endpoint-button").addEventListener("click", function() {
+            postResource("command_sub_endpoint", {"command_sub_endpoint": document.getElementById("command-sub-endpoint-input").value}, "command-sub-endpoint-footer");
+        });
+
+        document.getElementById("update-command-push-endpoint-button").addEventListener("click", function() {
+            postResource("command_push_endpoint", {"command_push_endpoint": document.getElementById("command-push-endpoint-input").value}, "command-push-endpoint-footer");
         });
 
         document.getElementById("update-triggering-endpoint-button").addEventListener("click", function() {
@@ -336,6 +409,10 @@
 
         document.getElementById("update-updates-endpoint-button").addEventListener("click", function() {
             postResource("updates_endpoint", {"updates_endpoint": document.getElementById("updates-endpoint-input").value}, "updates-endpoint-footer");
+        });
+
+        document.getElementById("update-public-key-button").addEventListener("click", function() {
+            postResource("public_key", {"public_key": document.getElementById("public-key-input").value}, "public-key-footer");
         });
     });
 </script>
