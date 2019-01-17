@@ -21,7 +21,7 @@ cd $timestamp
 
 echo "=> Building Docker image..."
 
-docker build -t openpowerquality/$IMAGE_NAME:latest .
+docker build --tag=${IMAGE_NAME} .
 
 echo "=> Deleting all temporary files..."
 
