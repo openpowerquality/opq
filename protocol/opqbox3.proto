@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package opq.proto3;
+package opq.opqbox3;
 
 import "rustproto.proto";
 
