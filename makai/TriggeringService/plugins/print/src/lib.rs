@@ -1,9 +1,9 @@
 #[macro_use]
-extern crate opqapi;
-
+extern crate triggering_service;
 use std::str;
-use opqapi::MakaiPlugin;
-use opqapi::protocol::opq::{RequestEventMessage, TriggerMessage};
+use triggering_service::makai_plugin::MakaiPlugin;
+use triggering_service::proto::opqbox3::Measurement;
+use triggering_service::proto::makai::RequestEventMessage;
 use std::sync::Arc;
 
 #[macro_use] extern crate serde_derive;
@@ -34,6 +34,13 @@ impl MakaiPlugin for PrintPlugin {
         "Print Plugin"
     }
 
+    fn process_measurement(&mut self, msg: Arc<Measurement>) -> Option<RequestEventMessage> {
+        if self.settings.print{
+            println!("{:?}", msg);
+        }
+        None
+    }
+
     fn on_plugin_load(&mut self, args : String) {
         let set = serde_json::from_str(&args);
         self.settings = match set{
@@ -44,13 +51,6 @@ impl MakaiPlugin for PrintPlugin {
 
     fn on_plugin_unload(&mut self) {
         println!("Print plugin unloaded.")
-    }
-
-    fn process_measurement(&mut self, msg: Arc<TriggerMessage>) -> Option<RequestEventMessage> {
-        if self.settings.print{
-            println!("{:?}", msg);
-        }
-        None
     }
 }
 
