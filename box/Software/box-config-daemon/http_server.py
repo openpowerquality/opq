@@ -113,10 +113,16 @@ def opq_request_handler_factory(config_path, nm):
                     self.error("Unable to read box config", ex=e)
             elif path == "/ssids":
                 try:
+                    ssid_name_set = set()
+                    ssid_results = []
                     ssids = nm.get_ssids()
                     for ssid in ssids:
                         ssid[0] = ssid[0].decode("utf-8")
-                    self.json({"ssids": ssids})
+                        if ssid[0] not in ssid_name_set:
+                            ssid_name_set.add(ssid[0])
+                            ssid_results.append(ssid)
+
+                    self.json({"ssids": ssid_results})
                 except Exception as e:
                     self.error("Unable to retrieve SSID list", ex=e)
             elif path == "/opq.ico":
