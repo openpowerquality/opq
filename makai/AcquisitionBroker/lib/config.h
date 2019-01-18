@@ -36,6 +36,9 @@ struct Config {
 
     //mongo URI
     string mongo_uri;
+
+    // Whitelisting option
+    bool white_list;
 };
 
 #endif
