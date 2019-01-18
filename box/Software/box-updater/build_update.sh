@@ -21,4 +21,4 @@ echo ${VERSION} > ${DIST}/version
 tar cjf ${DIST}.tar.bz2 ${DIST}
 
 # Cleanup
-rm -rf ${DIST}
+#rm -rf ${DIST}
