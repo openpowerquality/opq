@@ -13,10 +13,6 @@ cp -R box-config-daemon /usr/local/box-config-daemon/.
 
 # Update triggering
 
-# Update box-updater
-rm -rf /usr/local/box-updater/*
-mkdir -p /usr/local/box-updater
-
 # Update kernel
 
 # Update firmware

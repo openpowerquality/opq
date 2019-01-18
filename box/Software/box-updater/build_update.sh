@@ -8,9 +8,6 @@ mkdir -p ${DIST}
 # box-config-daemon
 cp -R ../box-config-daemon ${DIST}/.
 
-# box-updater
-
-
 # Install script
 cp install_update.sh ${DIST}/.
 
@@ -21,4 +18,4 @@ echo ${VERSION} > ${DIST}/version
 tar cjf ${DIST}.tar.bz2 ${DIST}
 
 # Cleanup
-#rm -rf ${DIST}
+rm -rf ${DIST}

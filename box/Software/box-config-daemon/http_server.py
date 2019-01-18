@@ -6,8 +6,10 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 import json
 import logging
 
-# import pify.pify
+import pify.pify
 import threading
+
+import updater.updater as updater
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -164,6 +166,14 @@ def opq_request_handler_factory(config_path, nm):
                     self.json({"status": "OPQ Box configuration updated."})
                 except Exception as e:
                     self.error("Could not update server_public_key", ex=e)
+            elif path == "/box_update":
+                try:
+                    updater.install_latest(read_config()["updates_ep"])
+                    self.json({"status": "Attempting to update this box. If this box is connected to the internet"
+                                         "and the update secedes, the box will reboot. This process can take up to"
+                                         "5 minutes to complete."})
+                except Exception as e:
+                    self.error("Could not run box updater", ex=e)
             else:
                 self.not_found("POST [%s]" % path)
 

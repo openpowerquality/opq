@@ -102,6 +102,25 @@
     </div>
 </section>
 
+<!-- Box configuration -->
+<section class="section">
+    <div class="container">
+        <div class="card">
+            <header class="card-header has-background-light">
+                <p class="card-header-title">
+                    OPQ Box Updater
+                </p>
+            </header>
+            <div class="card-content">
+                <div class="content">
+                    <a class="button is-danger" id="update-box-button">Update Box</a>
+                </div>
+            </div>
+            <footer class="card-footer has-text-white" id="update-box-footer"></footer>
+        </div>
+    </div>
+</section>
+
 <script type="text/javascript">
     // Set an error message on a div
     function setError(div, msg) {
@@ -245,6 +264,11 @@
             } else {
                 setError("box-config-footer", "JSON can not be parsed.\n" + valid.error);
             }
+        });
+
+        // Update box button
+        document.getElementById("update-box-button").addEventListener("click", function () {
+            postResource("/update", {}, "box-update-footer");
         });
     });
 </script>
