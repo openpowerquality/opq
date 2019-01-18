@@ -49,19 +49,25 @@ int main (int argc, char **argv) {
 	mongocxx::instance inst{};
 	mongocxx::client conn{mongocxx::uri{}};
 
-	auto opq_boxes = conn["opq"]["opq_boxes"];
-	auto cursor = opq_boxes.find({});
+	if (config.white_list) {
 
-	for (auto&& doc : cursor) {
-	    auto public_key = doc["public_key"];
-	    auto client_public_cert = public_key? public_key.get_utf8().value.to_string() : ""s;
+		auto opq_boxes = conn["opq"]["opq_boxes"];
+		auto cursor = opq_boxes.find({});
 
-	    auth.configure_curve(client_public_cert);
-	    count++;
-	    //std::cout << ".";
+		for (auto&& doc : cursor) {
+			auto public_key = doc["public_key"];
+	 		auto client_public_cert = public_key? public_key.get_utf8().value.to_string() : ""s;
+
+	    		auth.configure_curve(client_public_cert);
+	    		count++;
+			//std::cout << ".";
+		}
+
+		syslog(LOG_NOTICE, "%s", ("Loaded " + std::to_string(count) + " keys").c_str());
+	} else {
+		syslog(LOG_NOTICE, "Whitelisting Disabled");
+		auth.configure_curve("CURVE_ALLOW_ANY");
 	}
-
-	syslog(LOG_NOTICE, "%s", ("Loaded " + std::to_string(count) + " keys").c_str());
 
 	SynchronizedMap<int, string> map;
 
@@ -99,7 +105,7 @@ void app_to_box(zmqpp::context& ctx, SynchronizedMap<int, string>& map, Config c
 		pull.receive(msg);
 
 		// Deserialize the message upon receiving it
-		opq::proto3::Command cmd;
+		opq::opqbox3::Command cmd;
 		cmd.ParseFromString(msg);
 
 		// Log the identity of the app
@@ -131,7 +137,7 @@ void box_to_app(zmqpp::context& ctx, SynchronizedMap<int, string>& map, Config c
 		pull.receive(msg);
 
 		// Deserialize the message upon receiving it
-		opq::proto3::Response res;
+		opq::opqbox3::Response res;
 		res.ParseFromString(msg);
 
 		// Find the identity of the app
