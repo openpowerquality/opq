@@ -7,7 +7,7 @@ include_directories(${AcquisitionBroker_SOURCE_DIR}/lib)
 
 execute_process(
         COMMAND mkdir -p proto
-	COMMAND	protoc -I=../../protocol/ --cpp_out=proto/ ../../protocol//opq.proto
+	COMMAND	protoc -I=../../protocol/ --cpp_out=proto/ ../../protocol//rustproto.proto
 	COMMAND	protoc -I=../../protocol/ --cpp_out=proto/ ../../protocol//opqbox3.proto
         WORKING_DIRECTORY ${AcquisitionBroker_SOURCE_DIR}
 )

@@ -18,10 +18,13 @@
 // @@protoc_insertion_point(includes)
 
 namespace opq {
-namespace proto3 {
+namespace opqbox3 {
 
 namespace {
 
+const ::google::protobuf::Descriptor* Metric_descriptor_ = NULL;
+const ::google::protobuf::internal::GeneratedMessageReflection*
+  Metric_reflection_ = NULL;
 const ::google::protobuf::Descriptor* Measurement_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   Measurement_reflection_ = NULL;
@@ -35,13 +38,17 @@ const ::google::protobuf::internal::GeneratedMessageReflection*
 const ::google::protobuf::Descriptor* SetMeasturementRateCommand_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   SetMeasturementRateCommand_reflection_ = NULL;
+const ::google::protobuf::Descriptor* SendCommandToPlugin_descriptor_ = NULL;
+const ::google::protobuf::internal::GeneratedMessageReflection*
+  SendCommandToPlugin_reflection_ = NULL;
 const ::google::protobuf::Descriptor* Command_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   Command_reflection_ = NULL;
 struct CommandOneofInstance {
-  const ::opq::proto3::GetInfoCommand* info_command_;
-  const ::opq::proto3::GetDataCommand* data_command_;
-  const ::opq::proto3::SetMeasturementRateCommand* sampling_rate_command_;
+  const ::opq::opqbox3::GetInfoCommand* info_command_;
+  const ::opq::opqbox3::GetDataCommand* data_command_;
+  const ::opq::opqbox3::SetMeasturementRateCommand* sampling_rate_command_;
+  const ::opq::opqbox3::SendCommandToPlugin* send_command_to_plugin_;
 }* Command_default_oneof_instance_ = NULL;
 const ::google::protobuf::Descriptor* GetInfoResponse_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
@@ -49,17 +56,24 @@ const ::google::protobuf::internal::GeneratedMessageReflection*
 const ::google::protobuf::Descriptor* SetMeasurementRateResponse_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   SetMeasurementRateResponse_reflection_ = NULL;
-const ::google::protobuf::Descriptor* GetDateResponseHeader_descriptor_ = NULL;
+const ::google::protobuf::Descriptor* GetDataResponseHeader_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
-  GetDateResponseHeader_reflection_ = NULL;
+  GetDataResponseHeader_reflection_ = NULL;
+const ::google::protobuf::Descriptor* SendCommandToPluginResponse_descriptor_ = NULL;
+const ::google::protobuf::internal::GeneratedMessageReflection*
+  SendCommandToPluginResponse_reflection_ = NULL;
 const ::google::protobuf::Descriptor* Response_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   Response_reflection_ = NULL;
 struct ResponseOneofInstance {
-  const ::opq::proto3::GetInfoResponse* info_response_;
-  const ::opq::proto3::SetMeasurementRateResponse* message_rate_reponse_;
-  const ::opq::proto3::GetDateResponseHeader* get_data_response_;
+  const ::opq::opqbox3::GetInfoResponse* info_response_;
+  const ::opq::opqbox3::SetMeasurementRateResponse* message_rate_reponse_;
+  const ::opq::opqbox3::GetDataResponseHeader* get_data_response_;
+  const ::opq::opqbox3::SendCommandToPluginResponse* command_to_plugin_response_;
 }* Response_default_oneof_instance_ = NULL;
+const ::google::protobuf::Descriptor* Cycle_descriptor_ = NULL;
+const ::google::protobuf::internal::GeneratedMessageReflection*
+  Cycle_reflection_ = NULL;
 
 }  // namespace
 
@@ -71,7 +85,24 @@ void protobuf_AssignDesc_opqbox3_2eproto() {
     ::google::protobuf::DescriptorPool::generated_pool()->FindFileByName(
       "opqbox3.proto");
   GOOGLE_CHECK(file != NULL);
-  Measurement_descriptor_ = file->message_type(0);
+  Metric_descriptor_ = file->message_type(0);
+  static const int Metric_offsets_[3] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Metric, min_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Metric, max_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Metric, average_),
+  };
+  Metric_reflection_ =
+    ::google::protobuf::internal::GeneratedMessageReflection::NewGeneratedMessageReflection(
+      Metric_descriptor_,
+      Metric::default_instance_,
+      Metric_offsets_,
+      -1,
+      -1,
+      -1,
+      sizeof(Metric),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Metric, _internal_metadata_),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Metric, _is_default_instance_));
+  Measurement_descriptor_ = file->message_type(1);
   static const int Measurement_offsets_[3] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Measurement, box_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Measurement, timestamp_ms_),
@@ -89,7 +120,7 @@ void protobuf_AssignDesc_opqbox3_2eproto() {
       GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Measurement, _internal_metadata_),
       GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Measurement, _is_default_instance_));
   Measurement_MetricsEntry_descriptor_ = Measurement_descriptor_->nested_type(0);
-  GetInfoCommand_descriptor_ = file->message_type(1);
+  GetInfoCommand_descriptor_ = file->message_type(2);
   static const int GetInfoCommand_offsets_[1] = {
   };
   GetInfoCommand_reflection_ =
@@ -103,7 +134,7 @@ void protobuf_AssignDesc_opqbox3_2eproto() {
       sizeof(GetInfoCommand),
       GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetInfoCommand, _internal_metadata_),
       GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetInfoCommand, _is_default_instance_));
-  GetDataCommand_descriptor_ = file->message_type(2);
+  GetDataCommand_descriptor_ = file->message_type(3);
   static const int GetDataCommand_offsets_[3] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetDataCommand, start_ms_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetDataCommand, end_ms_),
@@ -120,10 +151,9 @@ void protobuf_AssignDesc_opqbox3_2eproto() {
       sizeof(GetDataCommand),
       GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetDataCommand, _internal_metadata_),
       GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetDataCommand, _is_default_instance_));
-  SetMeasturementRateCommand_descriptor_ = file->message_type(3);
-  static const int SetMeasturementRateCommand_offsets_[2] = {
+  SetMeasturementRateCommand_descriptor_ = file->message_type(4);
+  static const int SetMeasturementRateCommand_offsets_[1] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SetMeasturementRateCommand, measurement_window_cycles_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SetMeasturementRateCommand, duration_ms_),
   };
   SetMeasturementRateCommand_reflection_ =
     ::google::protobuf::internal::GeneratedMessageReflection::NewGeneratedMessageReflection(
@@ -136,14 +166,30 @@ void protobuf_AssignDesc_opqbox3_2eproto() {
       sizeof(SetMeasturementRateCommand),
       GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SetMeasturementRateCommand, _internal_metadata_),
       GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SetMeasturementRateCommand, _is_default_instance_));
-  Command_descriptor_ = file->message_type(4);
+  SendCommandToPlugin_descriptor_ = file->message_type(5);
+  static const int SendCommandToPlugin_offsets_[2] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SendCommandToPlugin, plugin_name_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SendCommandToPlugin, message_),
+  };
+  SendCommandToPlugin_reflection_ =
+    ::google::protobuf::internal::GeneratedMessageReflection::NewGeneratedMessageReflection(
+      SendCommandToPlugin_descriptor_,
+      SendCommandToPlugin::default_instance_,
+      SendCommandToPlugin_offsets_,
+      -1,
+      -1,
+      -1,
+      sizeof(SendCommandToPlugin),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SendCommandToPlugin, _internal_metadata_),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SendCommandToPlugin, _is_default_instance_));
+  Command_descriptor_ = file->message_type(6);
   static const int Command_offsets_[7] = {
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Command, box_id_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Command, identity_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Command, seq_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Command, timestamp_ms_),
     PROTO2_GENERATED_DEFAULT_ONEOF_FIELD_OFFSET(Command_default_oneof_instance_, info_command_),
     PROTO2_GENERATED_DEFAULT_ONEOF_FIELD_OFFSET(Command_default_oneof_instance_, data_command_),
     PROTO2_GENERATED_DEFAULT_ONEOF_FIELD_OFFSET(Command_default_oneof_instance_, sampling_rate_command_),
+    PROTO2_GENERATED_DEFAULT_ONEOF_FIELD_OFFSET(Command_default_oneof_instance_, send_command_to_plugin_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Command, command_),
   };
   Command_reflection_ =
@@ -159,7 +205,7 @@ void protobuf_AssignDesc_opqbox3_2eproto() {
       sizeof(Command),
       GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Command, _internal_metadata_),
       GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Command, _is_default_instance_));
-  GetInfoResponse_descriptor_ = file->message_type(5);
+  GetInfoResponse_descriptor_ = file->message_type(7);
   static const int GetInfoResponse_offsets_[7] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetInfoResponse, mac_addr_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetInfoResponse, wifi_network_),
@@ -180,7 +226,7 @@ void protobuf_AssignDesc_opqbox3_2eproto() {
       sizeof(GetInfoResponse),
       GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetInfoResponse, _internal_metadata_),
       GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetInfoResponse, _is_default_instance_));
-  SetMeasurementRateResponse_descriptor_ = file->message_type(6);
+  SetMeasurementRateResponse_descriptor_ = file->message_type(8);
   static const int SetMeasurementRateResponse_offsets_[1] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SetMeasurementRateResponse, old_rate_cycles_),
   };
@@ -195,30 +241,46 @@ void protobuf_AssignDesc_opqbox3_2eproto() {
       sizeof(SetMeasurementRateResponse),
       GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SetMeasurementRateResponse, _internal_metadata_),
       GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SetMeasurementRateResponse, _is_default_instance_));
-  GetDateResponseHeader_descriptor_ = file->message_type(7);
-  static const int GetDateResponseHeader_offsets_[2] = {
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetDateResponseHeader, start_ts_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetDateResponseHeader, end_ts_),
+  GetDataResponseHeader_descriptor_ = file->message_type(9);
+  static const int GetDataResponseHeader_offsets_[2] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetDataResponseHeader, start_ts_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetDataResponseHeader, end_ts_),
   };
-  GetDateResponseHeader_reflection_ =
+  GetDataResponseHeader_reflection_ =
     ::google::protobuf::internal::GeneratedMessageReflection::NewGeneratedMessageReflection(
-      GetDateResponseHeader_descriptor_,
-      GetDateResponseHeader::default_instance_,
-      GetDateResponseHeader_offsets_,
+      GetDataResponseHeader_descriptor_,
+      GetDataResponseHeader::default_instance_,
+      GetDataResponseHeader_offsets_,
       -1,
       -1,
       -1,
-      sizeof(GetDateResponseHeader),
-      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetDateResponseHeader, _internal_metadata_),
-      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetDateResponseHeader, _is_default_instance_));
-  Response_descriptor_ = file->message_type(8);
-  static const int Response_offsets_[7] = {
+      sizeof(GetDataResponseHeader),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetDataResponseHeader, _internal_metadata_),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetDataResponseHeader, _is_default_instance_));
+  SendCommandToPluginResponse_descriptor_ = file->message_type(10);
+  static const int SendCommandToPluginResponse_offsets_[1] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SendCommandToPluginResponse, ok_),
+  };
+  SendCommandToPluginResponse_reflection_ =
+    ::google::protobuf::internal::GeneratedMessageReflection::NewGeneratedMessageReflection(
+      SendCommandToPluginResponse_descriptor_,
+      SendCommandToPluginResponse::default_instance_,
+      SendCommandToPluginResponse_offsets_,
+      -1,
+      -1,
+      -1,
+      sizeof(SendCommandToPluginResponse),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SendCommandToPluginResponse, _internal_metadata_),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SendCommandToPluginResponse, _is_default_instance_));
+  Response_descriptor_ = file->message_type(11);
+  static const int Response_offsets_[8] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Response, box_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Response, seq_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Response, timestamp_ms_),
     PROTO2_GENERATED_DEFAULT_ONEOF_FIELD_OFFSET(Response_default_oneof_instance_, info_response_),
     PROTO2_GENERATED_DEFAULT_ONEOF_FIELD_OFFSET(Response_default_oneof_instance_, message_rate_reponse_),
     PROTO2_GENERATED_DEFAULT_ONEOF_FIELD_OFFSET(Response_default_oneof_instance_, get_data_response_),
+    PROTO2_GENERATED_DEFAULT_ONEOF_FIELD_OFFSET(Response_default_oneof_instance_, command_to_plugin_response_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Response, response_),
   };
   Response_reflection_ =
@@ -234,6 +296,22 @@ void protobuf_AssignDesc_opqbox3_2eproto() {
       sizeof(Response),
       GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Response, _internal_metadata_),
       GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Response, _is_default_instance_));
+  Cycle_descriptor_ = file->message_type(12);
+  static const int Cycle_offsets_[2] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Cycle, datapoints_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Cycle, timestamp_ms_),
+  };
+  Cycle_reflection_ =
+    ::google::protobuf::internal::GeneratedMessageReflection::NewGeneratedMessageReflection(
+      Cycle_descriptor_,
+      Cycle::default_instance_,
+      Cycle_offsets_,
+      -1,
+      -1,
+      -1,
+      sizeof(Cycle),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Cycle, _internal_metadata_),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Cycle, _is_default_instance_));
 }
 
 namespace {
@@ -248,14 +326,16 @@ void protobuf_RegisterTypes(const ::std::string&) GOOGLE_ATTRIBUTE_COLD;
 void protobuf_RegisterTypes(const ::std::string&) {
   protobuf_AssignDescriptorsOnce();
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
+      Metric_descriptor_, &Metric::default_instance());
+  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
       Measurement_descriptor_, &Measurement::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
         Measurement_MetricsEntry_descriptor_,
         ::google::protobuf::internal::MapEntry<
             ::std::string,
-            float,
+            ::opq::opqbox3::Metric,
             ::google::protobuf::internal::WireFormatLite::TYPE_STRING,
-            ::google::protobuf::internal::WireFormatLite::TYPE_FLOAT,
+            ::google::protobuf::internal::WireFormatLite::TYPE_MESSAGE,
             0>::CreateDefaultInstance(
                 Measurement_MetricsEntry_descriptor_));
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
@@ -265,20 +345,28 @@ void protobuf_RegisterTypes(const ::std::string&) {
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
       SetMeasturementRateCommand_descriptor_, &SetMeasturementRateCommand::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
+      SendCommandToPlugin_descriptor_, &SendCommandToPlugin::default_instance());
+  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
       Command_descriptor_, &Command::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
       GetInfoResponse_descriptor_, &GetInfoResponse::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
       SetMeasurementRateResponse_descriptor_, &SetMeasurementRateResponse::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
-      GetDateResponseHeader_descriptor_, &GetDateResponseHeader::default_instance());
+      GetDataResponseHeader_descriptor_, &GetDataResponseHeader::default_instance());
+  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
+      SendCommandToPluginResponse_descriptor_, &SendCommandToPluginResponse::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
       Response_descriptor_, &Response::default_instance());
+  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
+      Cycle_descriptor_, &Cycle::default_instance());
 }
 
 }  // namespace
 
 void protobuf_ShutdownFile_opqbox3_2eproto() {
+  delete Metric::default_instance_;
+  delete Metric_reflection_;
   delete Measurement::default_instance_;
   delete Measurement_reflection_;
   delete GetInfoCommand::default_instance_;
@@ -287,6 +375,8 @@ void protobuf_ShutdownFile_opqbox3_2eproto() {
   delete GetDataCommand_reflection_;
   delete SetMeasturementRateCommand::default_instance_;
   delete SetMeasturementRateCommand_reflection_;
+  delete SendCommandToPlugin::default_instance_;
+  delete SendCommandToPlugin_reflection_;
   delete Command::default_instance_;
   delete Command_default_oneof_instance_;
   delete Command_reflection_;
@@ -294,11 +384,15 @@ void protobuf_ShutdownFile_opqbox3_2eproto() {
   delete GetInfoResponse_reflection_;
   delete SetMeasurementRateResponse::default_instance_;
   delete SetMeasurementRateResponse_reflection_;
-  delete GetDateResponseHeader::default_instance_;
-  delete GetDateResponseHeader_reflection_;
+  delete GetDataResponseHeader::default_instance_;
+  delete GetDataResponseHeader_reflection_;
+  delete SendCommandToPluginResponse::default_instance_;
+  delete SendCommandToPluginResponse_reflection_;
   delete Response::default_instance_;
   delete Response_default_oneof_instance_;
   delete Response_reflection_;
+  delete Cycle::default_instance_;
+  delete Cycle_reflection_;
 }
 
 void protobuf_AddDesc_opqbox3_2eproto() GOOGLE_ATTRIBUTE_COLD;
@@ -308,58 +402,77 @@ void protobuf_AddDesc_opqbox3_2eproto() {
   already_here = true;
   GOOGLE_PROTOBUF_VERIFY_VERSION;
 
+  ::rustproto::protobuf_AddDesc_rustproto_2eproto();
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
-    "\n\ropqbox3.proto\022\nopq.proto3\"\232\001\n\013Measurem"
-    "ent\022\016\n\006box_id\030\001 \001(\r\022\024\n\014timestamp_ms\030\002 \001("
-    "\004\0225\n\007metrics\030\003 \003(\0132$.opq.proto3.Measurem"
-    "ent.MetricsEntry\032.\n\014MetricsEntry\022\013\n\003key\030"
-    "\001 \001(\t\022\r\n\005value\030\002 \001(\002:\0028\001\"\020\n\016GetInfoComma"
-    "nd\"@\n\016GetDataCommand\022\020\n\010start_ms\030\001 \001(\004\022\016"
-    "\n\006end_ms\030\002 \001(\004\022\014\n\004wait\030\003 \001(\010\"T\n\032SetMeast"
-    "urementRateCommand\022!\n\031measurement_window"
-    "_cycles\030\001 \001(\r\022\023\n\013duration_ms\030\002 \001(\r\"\375\001\n\007C"
-    "ommand\022\016\n\006box_id\030\001 \001(\r\022\020\n\010identity\030\002 \001(\t"
-    "\022\024\n\014timestamp_ms\030\003 \001(\004\0222\n\014info_command\030\004"
-    " \001(\0132\032.opq.proto3.GetInfoCommandH\000\0222\n\014da"
-    "ta_command\030\005 \001(\0132\032.opq.proto3.GetDataCom"
-    "mandH\000\022G\n\025sampling_rate_command\030\006 \001(\0132&."
-    "opq.proto3.SetMeasturementRateCommandH\000B"
-    "\t\n\007command\"\236\001\n\017GetInfoResponse\022\020\n\010mac_ad"
-    "dr\030\001 \001(\t\022\024\n\014wifi_network\030\002 \001(\t\022\n\n\002ip\030\003 \001"
-    "(\t\022\016\n\006uptime\030\004 \001(\004\022\034\n\024calibration_consta"
-    "nt\030\005 \001(\004\022\017\n\007pub_key\030\006 \001(\t\022\030\n\020measurement"
-    "_rate\030\007 \001(\r\"5\n\032SetMeasurementRateRespons"
-    "e\022\027\n\017old_rate_cycles\030\001 \001(\r\"9\n\025GetDateRes"
-    "ponseHeader\022\020\n\010start_ts\030\001 \001(\004\022\016\n\006end_ts\030"
-    "\002 \001(\004\"\207\002\n\010Response\022\016\n\006box_id\030\001 \001(\005\022\013\n\003se"
-    "q\030\002 \001(\r\022\024\n\014timestamp_ms\030\003 \001(\004\0224\n\rinfo_re"
-    "sponse\030\004 \001(\0132\033.opq.proto3.GetInfoRespons"
-    "eH\000\022F\n\024message_rate_reponse\030\005 \001(\0132&.opq."
-    "proto3.SetMeasurementRateResponseH\000\022>\n\021g"
-    "et_data_response\030\006 \001(\0132!.opq.proto3.GetD"
-    "ateResponseHeaderH\000B\n\n\010responseb\006proto3", 1159);
+    "\n\ropqbox3.proto\022\013opq.opqbox3\032\017rustproto."
+    "proto\"3\n\006Metric\022\013\n\003min\030\001 \001(\002\022\013\n\003max\030\002 \001("
+    "\002\022\017\n\007average\030\003 \001(\002\"\260\001\n\013Measurement\022\016\n\006bo"
+    "x_id\030\001 \001(\r\022\024\n\014timestamp_ms\030\002 \001(\004\0226\n\007metr"
+    "ics\030\003 \003(\0132%.opq.opqbox3.Measurement.Metr"
+    "icsEntry\032C\n\014MetricsEntry\022\013\n\003key\030\001 \001(\t\022\"\n"
+    "\005value\030\002 \001(\0132\023.opq.opqbox3.Metric:\0028\001\"\020\n"
+    "\016GetInfoCommand\"@\n\016GetDataCommand\022\020\n\010sta"
+    "rt_ms\030\001 \001(\004\022\016\n\006end_ms\030\002 \001(\004\022\014\n\004wait\030\003 \001("
+    "\010\"\?\n\032SetMeasturementRateCommand\022!\n\031measu"
+    "rement_window_cycles\030\001 \001(\r\";\n\023SendComman"
+    "dToPlugin\022\023\n\013plugin_name\030\001 \001(\t\022\017\n\007messag"
+    "e\030\002 \001(\t\"\257\002\n\007Command\022\013\n\003seq\030\001 \001(\r\022\024\n\014time"
+    "stamp_ms\030\002 \001(\004\0223\n\014info_command\030\003 \001(\0132\033.o"
+    "pq.opqbox3.GetInfoCommandH\000\0223\n\014data_comm"
+    "and\030\004 \001(\0132\033.opq.opqbox3.GetDataCommandH\000"
+    "\022H\n\025sampling_rate_command\030\005 \001(\0132\'.opq.op"
+    "qbox3.SetMeasturementRateCommandH\000\022B\n\026se"
+    "nd_command_to_plugin\030\007 \001(\0132 .opq.opqbox3"
+    ".SendCommandToPluginH\000B\t\n\007command\"\236\001\n\017Ge"
+    "tInfoResponse\022\020\n\010mac_addr\030\001 \001(\t\022\024\n\014wifi_"
+    "network\030\002 \001(\t\022\n\n\002ip\030\003 \001(\t\022\016\n\006uptime\030\004 \001("
+    "\004\022\034\n\024calibration_constant\030\005 \001(\004\022\017\n\007pub_k"
+    "ey\030\006 \001(\t\022\030\n\020measurement_rate\030\007 \001(\r\"5\n\032Se"
+    "tMeasurementRateResponse\022\027\n\017old_rate_cyc"
+    "les\030\001 \001(\r\"9\n\025GetDataResponseHeader\022\020\n\010st"
+    "art_ts\030\001 \001(\004\022\016\n\006end_ts\030\002 \001(\004\")\n\033SendComm"
+    "andToPluginResponse\022\n\n\002ok\030\001 \001(\010\"\332\002\n\010Resp"
+    "onse\022\016\n\006box_id\030\001 \001(\005\022\013\n\003seq\030\002 \001(\r\022\024\n\014tim"
+    "estamp_ms\030\003 \001(\004\0225\n\rinfo_response\030\004 \001(\0132\034"
+    ".opq.opqbox3.GetInfoResponseH\000\022G\n\024messag"
+    "e_rate_reponse\030\005 \001(\0132\'.opq.opqbox3.SetMe"
+    "asurementRateResponseH\000\022\?\n\021get_data_resp"
+    "onse\030\006 \001(\0132\".opq.opqbox3.GetDataResponse"
+    "HeaderH\000\022N\n\032command_to_plugin_response\030\007"
+    " \001(\0132(.opq.opqbox3.SendCommandToPluginRe"
+    "sponseH\000B\n\n\010response\"1\n\005Cycle\022\022\n\ndatapoi"
+    "nts\030\001 \003(\005\022\024\n\014timestamp_ms\030\002 \001(\004B\004\310\246\010\001b\006p"
+    "roto3", 1525);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "opqbox3.proto", &protobuf_RegisterTypes);
+  Metric::default_instance_ = new Metric();
   Measurement::default_instance_ = new Measurement();
   GetInfoCommand::default_instance_ = new GetInfoCommand();
   GetDataCommand::default_instance_ = new GetDataCommand();
   SetMeasturementRateCommand::default_instance_ = new SetMeasturementRateCommand();
+  SendCommandToPlugin::default_instance_ = new SendCommandToPlugin();
   Command::default_instance_ = new Command();
   Command_default_oneof_instance_ = new CommandOneofInstance();
   GetInfoResponse::default_instance_ = new GetInfoResponse();
   SetMeasurementRateResponse::default_instance_ = new SetMeasurementRateResponse();
-  GetDateResponseHeader::default_instance_ = new GetDateResponseHeader();
+  GetDataResponseHeader::default_instance_ = new GetDataResponseHeader();
+  SendCommandToPluginResponse::default_instance_ = new SendCommandToPluginResponse();
   Response::default_instance_ = new Response();
   Response_default_oneof_instance_ = new ResponseOneofInstance();
+  Cycle::default_instance_ = new Cycle();
+  Metric::default_instance_->InitAsDefaultInstance();
   Measurement::default_instance_->InitAsDefaultInstance();
   GetInfoCommand::default_instance_->InitAsDefaultInstance();
   GetDataCommand::default_instance_->InitAsDefaultInstance();
   SetMeasturementRateCommand::default_instance_->InitAsDefaultInstance();
+  SendCommandToPlugin::default_instance_->InitAsDefaultInstance();
   Command::default_instance_->InitAsDefaultInstance();
   GetInfoResponse::default_instance_->InitAsDefaultInstance();
   SetMeasurementRateResponse::default_instance_->InitAsDefaultInstance();
-  GetDateResponseHeader::default_instance_->InitAsDefaultInstance();
+  GetDataResponseHeader::default_instance_->InitAsDefaultInstance();
+  SendCommandToPluginResponse::default_instance_->InitAsDefaultInstance();
   Response::default_instance_->InitAsDefaultInstance();
+  Cycle::default_instance_->InitAsDefaultInstance();
   ::google::protobuf::internal::OnShutdown(&protobuf_ShutdownFile_opqbox3_2eproto);
 }
 
@@ -373,6 +486,362 @@ struct StaticDescriptorInitializer_opqbox3_2eproto {
 // ===================================================================
 
 #if !defined(_MSC_VER) || _MSC_VER >= 1900
+const int Metric::kMinFieldNumber;
+const int Metric::kMaxFieldNumber;
+const int Metric::kAverageFieldNumber;
+#endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
+
+Metric::Metric()
+  : ::google::protobuf::Message(), _internal_metadata_(NULL) {
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:opq.opqbox3.Metric)
+}
+
+void Metric::InitAsDefaultInstance() {
+  _is_default_instance_ = true;
+}
+
+Metric::Metric(const Metric& from)
+  : ::google::protobuf::Message(),
+    _internal_metadata_(NULL) {
+  SharedCtor();
+  MergeFrom(from);
+  // @@protoc_insertion_point(copy_constructor:opq.opqbox3.Metric)
+}
+
+void Metric::SharedCtor() {
+    _is_default_instance_ = false;
+  _cached_size_ = 0;
+  min_ = 0;
+  max_ = 0;
+  average_ = 0;
+}
+
+Metric::~Metric() {
+  // @@protoc_insertion_point(destructor:opq.opqbox3.Metric)
+  SharedDtor();
+}
+
+void Metric::SharedDtor() {
+  if (this != default_instance_) {
+  }
+}
+
+void Metric::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* Metric::descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return Metric_descriptor_;
+}
+
+const Metric& Metric::default_instance() {
+  if (default_instance_ == NULL) protobuf_AddDesc_opqbox3_2eproto();
+  return *default_instance_;
+}
+
+Metric* Metric::default_instance_ = NULL;
+
+Metric* Metric::New(::google::protobuf::Arena* arena) const {
+  Metric* n = new Metric;
+  if (arena != NULL) {
+    arena->Own(n);
+  }
+  return n;
+}
+
+void Metric::Clear() {
+// @@protoc_insertion_point(message_clear_start:opq.opqbox3.Metric)
+#if defined(__clang__)
+#define ZR_HELPER_(f) \
+  _Pragma("clang diagnostic push") \
+  _Pragma("clang diagnostic ignored \"-Winvalid-offsetof\"") \
+  __builtin_offsetof(Metric, f) \
+  _Pragma("clang diagnostic pop")
+#else
+#define ZR_HELPER_(f) reinterpret_cast<char*>(\
+  &reinterpret_cast<Metric*>(16)->f)
+#endif
+
+#define ZR_(first, last) do {\
+  ::memset(&first, 0,\
+           ZR_HELPER_(last) - ZR_HELPER_(first) + sizeof(last));\
+} while (0)
+
+  ZR_(min_, average_);
+
+#undef ZR_HELPER_
+#undef ZR_
+
+}
+
+bool Metric::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!GOOGLE_PREDICT_TRUE(EXPRESSION)) goto failure
+  ::google::protobuf::uint32 tag;
+  // @@protoc_insertion_point(parse_start:opq.opqbox3.Metric)
+  for (;;) {
+    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
+    tag = p.first;
+    if (!p.second) goto handle_unusual;
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // optional float min = 1;
+      case 1: {
+        if (tag == 13) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   float, ::google::protobuf::internal::WireFormatLite::TYPE_FLOAT>(
+                 input, &min_)));
+
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(21)) goto parse_max;
+        break;
+      }
+
+      // optional float max = 2;
+      case 2: {
+        if (tag == 21) {
+         parse_max:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   float, ::google::protobuf::internal::WireFormatLite::TYPE_FLOAT>(
+                 input, &max_)));
+
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(29)) goto parse_average;
+        break;
+      }
+
+      // optional float average = 3;
+      case 3: {
+        if (tag == 29) {
+         parse_average:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   float, ::google::protobuf::internal::WireFormatLite::TYPE_FLOAT>(
+                 input, &average_)));
+
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectAtEnd()) goto success;
+        break;
+      }
+
+      default: {
+      handle_unusual:
+        if (tag == 0 ||
+            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          goto success;
+        }
+        DO_(::google::protobuf::internal::WireFormatLite::SkipField(input, tag));
+        break;
+      }
+    }
+  }
+success:
+  // @@protoc_insertion_point(parse_success:opq.opqbox3.Metric)
+  return true;
+failure:
+  // @@protoc_insertion_point(parse_failure:opq.opqbox3.Metric)
+  return false;
+#undef DO_
+}
+
+void Metric::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // @@protoc_insertion_point(serialize_start:opq.opqbox3.Metric)
+  // optional float min = 1;
+  if (this->min() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteFloat(1, this->min(), output);
+  }
+
+  // optional float max = 2;
+  if (this->max() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteFloat(2, this->max(), output);
+  }
+
+  // optional float average = 3;
+  if (this->average() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteFloat(3, this->average(), output);
+  }
+
+  // @@protoc_insertion_point(serialize_end:opq.opqbox3.Metric)
+}
+
+::google::protobuf::uint8* Metric::InternalSerializeWithCachedSizesToArray(
+    bool deterministic, ::google::protobuf::uint8* target) const {
+  // @@protoc_insertion_point(serialize_to_array_start:opq.opqbox3.Metric)
+  // optional float min = 1;
+  if (this->min() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteFloatToArray(1, this->min(), target);
+  }
+
+  // optional float max = 2;
+  if (this->max() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteFloatToArray(2, this->max(), target);
+  }
+
+  // optional float average = 3;
+  if (this->average() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteFloatToArray(3, this->average(), target);
+  }
+
+  // @@protoc_insertion_point(serialize_to_array_end:opq.opqbox3.Metric)
+  return target;
+}
+
+int Metric::ByteSize() const {
+// @@protoc_insertion_point(message_byte_size_start:opq.opqbox3.Metric)
+  int total_size = 0;
+
+  // optional float min = 1;
+  if (this->min() != 0) {
+    total_size += 1 + 4;
+  }
+
+  // optional float max = 2;
+  if (this->max() != 0) {
+    total_size += 1 + 4;
+  }
+
+  // optional float average = 3;
+  if (this->average() != 0) {
+    total_size += 1 + 4;
+  }
+
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = total_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  return total_size;
+}
+
+void Metric::MergeFrom(const ::google::protobuf::Message& from) {
+// @@protoc_insertion_point(generalized_merge_from_start:opq.opqbox3.Metric)
+  if (GOOGLE_PREDICT_FALSE(&from == this)) {
+    ::google::protobuf::internal::MergeFromFail(__FILE__, __LINE__);
+  }
+  const Metric* source = 
+      ::google::protobuf::internal::DynamicCastToGenerated<const Metric>(
+          &from);
+  if (source == NULL) {
+  // @@protoc_insertion_point(generalized_merge_from_cast_fail:opq.opqbox3.Metric)
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+  // @@protoc_insertion_point(generalized_merge_from_cast_success:opq.opqbox3.Metric)
+    MergeFrom(*source);
+  }
+}
+
+void Metric::MergeFrom(const Metric& from) {
+// @@protoc_insertion_point(class_specific_merge_from_start:opq.opqbox3.Metric)
+  if (GOOGLE_PREDICT_FALSE(&from == this)) {
+    ::google::protobuf::internal::MergeFromFail(__FILE__, __LINE__);
+  }
+  if (from.min() != 0) {
+    set_min(from.min());
+  }
+  if (from.max() != 0) {
+    set_max(from.max());
+  }
+  if (from.average() != 0) {
+    set_average(from.average());
+  }
+}
+
+void Metric::CopyFrom(const ::google::protobuf::Message& from) {
+// @@protoc_insertion_point(generalized_copy_from_start:opq.opqbox3.Metric)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void Metric::CopyFrom(const Metric& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:opq.opqbox3.Metric)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool Metric::IsInitialized() const {
+
+  return true;
+}
+
+void Metric::Swap(Metric* other) {
+  if (other == this) return;
+  InternalSwap(other);
+}
+void Metric::InternalSwap(Metric* other) {
+  std::swap(min_, other->min_);
+  std::swap(max_, other->max_);
+  std::swap(average_, other->average_);
+  _internal_metadata_.Swap(&other->_internal_metadata_);
+  std::swap(_cached_size_, other->_cached_size_);
+}
+
+::google::protobuf::Metadata Metric::GetMetadata() const {
+  protobuf_AssignDescriptorsOnce();
+  ::google::protobuf::Metadata metadata;
+  metadata.descriptor = Metric_descriptor_;
+  metadata.reflection = Metric_reflection_;
+  return metadata;
+}
+
+#if PROTOBUF_INLINE_NOT_IN_HEADERS
+// Metric
+
+// optional float min = 1;
+void Metric::clear_min() {
+  min_ = 0;
+}
+ float Metric::min() const {
+  // @@protoc_insertion_point(field_get:opq.opqbox3.Metric.min)
+  return min_;
+}
+ void Metric::set_min(float value) {
+  
+  min_ = value;
+  // @@protoc_insertion_point(field_set:opq.opqbox3.Metric.min)
+}
+
+// optional float max = 2;
+void Metric::clear_max() {
+  max_ = 0;
+}
+ float Metric::max() const {
+  // @@protoc_insertion_point(field_get:opq.opqbox3.Metric.max)
+  return max_;
+}
+ void Metric::set_max(float value) {
+  
+  max_ = value;
+  // @@protoc_insertion_point(field_set:opq.opqbox3.Metric.max)
+}
+
+// optional float average = 3;
+void Metric::clear_average() {
+  average_ = 0;
+}
+ float Metric::average() const {
+  // @@protoc_insertion_point(field_get:opq.opqbox3.Metric.average)
+  return average_;
+}
+ void Metric::set_average(float value) {
+  
+  average_ = value;
+  // @@protoc_insertion_point(field_set:opq.opqbox3.Metric.average)
+}
+
+#endif  // PROTOBUF_INLINE_NOT_IN_HEADERS
+
+// ===================================================================
+
+#if !defined(_MSC_VER) || _MSC_VER >= 1900
 const int Measurement::kBoxIdFieldNumber;
 const int Measurement::kTimestampMsFieldNumber;
 const int Measurement::kMetricsFieldNumber;
@@ -381,7 +850,7 @@ const int Measurement::kMetricsFieldNumber;
 Measurement::Measurement()
   : ::google::protobuf::Message(), _internal_metadata_(NULL) {
   SharedCtor();
-  // @@protoc_insertion_point(constructor:opq.proto3.Measurement)
+  // @@protoc_insertion_point(constructor:opq.opqbox3.Measurement)
 }
 
 void Measurement::InitAsDefaultInstance() {
@@ -393,7 +862,7 @@ Measurement::Measurement(const Measurement& from)
     _internal_metadata_(NULL) {
   SharedCtor();
   MergeFrom(from);
-  // @@protoc_insertion_point(copy_constructor:opq.proto3.Measurement)
+  // @@protoc_insertion_point(copy_constructor:opq.opqbox3.Measurement)
 }
 
 void Measurement::SharedCtor() {
@@ -405,11 +874,11 @@ void Measurement::SharedCtor() {
   metrics_.SetAssignDescriptorCallback(
       protobuf_AssignDescriptorsOnce);
   metrics_.SetEntryDescriptor(
-      &::opq::proto3::Measurement_MetricsEntry_descriptor_);
+      &::opq::opqbox3::Measurement_MetricsEntry_descriptor_);
 }
 
 Measurement::~Measurement() {
-  // @@protoc_insertion_point(destructor:opq.proto3.Measurement)
+  // @@protoc_insertion_point(destructor:opq.opqbox3.Measurement)
   SharedDtor();
 }
 
@@ -444,7 +913,7 @@ Measurement* Measurement::New(::google::protobuf::Arena* arena) const {
 }
 
 void Measurement::Clear() {
-// @@protoc_insertion_point(message_clear_start:opq.proto3.Measurement)
+// @@protoc_insertion_point(message_clear_start:opq.opqbox3.Measurement)
   box_id_ = 0u;
   timestamp_ms_ = GOOGLE_ULONGLONG(0);
   metrics_.Clear();
@@ -454,7 +923,7 @@ bool Measurement::MergePartialFromCodedStream(
     ::google::protobuf::io::CodedInputStream* input) {
 #define DO_(EXPRESSION) if (!GOOGLE_PREDICT_TRUE(EXPRESSION)) goto failure
   ::google::protobuf::uint32 tag;
-  // @@protoc_insertion_point(parse_start:opq.proto3.Measurement)
+  // @@protoc_insertion_point(parse_start:opq.opqbox3.Measurement)
   for (;;) {
     ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
     tag = p.first;
@@ -489,24 +958,24 @@ bool Measurement::MergePartialFromCodedStream(
         break;
       }
 
-      // map<string, float> metrics = 3;
+      // map<string, .opq.opqbox3.Metric> metrics = 3;
       case 3: {
         if (tag == 26) {
          parse_metrics:
           DO_(input->IncrementRecursionDepth());
          parse_loop_metrics:
           Measurement_MetricsEntry::Parser< ::google::protobuf::internal::MapField<
-              ::std::string, float,
+              ::std::string, ::opq::opqbox3::Metric,
               ::google::protobuf::internal::WireFormatLite::TYPE_STRING,
-              ::google::protobuf::internal::WireFormatLite::TYPE_FLOAT,
+              ::google::protobuf::internal::WireFormatLite::TYPE_MESSAGE,
               0 >,
-            ::google::protobuf::Map< ::std::string, float > > parser(&metrics_);
+            ::google::protobuf::Map< ::std::string, ::opq::opqbox3::Metric > > parser(&metrics_);
           DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
               input, &parser));
           DO_(::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
             parser.key().data(), parser.key().length(),
             ::google::protobuf::internal::WireFormatLite::PARSE,
-            "opq.proto3.Measurement.MetricsEntry.key"));
+            "opq.opqbox3.Measurement.MetricsEntry.key"));
         } else {
           goto handle_unusual;
         }
@@ -529,17 +998,17 @@ bool Measurement::MergePartialFromCodedStream(
     }
   }
 success:
-  // @@protoc_insertion_point(parse_success:opq.proto3.Measurement)
+  // @@protoc_insertion_point(parse_success:opq.opqbox3.Measurement)
   return true;
 failure:
-  // @@protoc_insertion_point(parse_failure:opq.proto3.Measurement)
+  // @@protoc_insertion_point(parse_failure:opq.opqbox3.Measurement)
   return false;
 #undef DO_
 }
 
 void Measurement::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
-  // @@protoc_insertion_point(serialize_start:opq.proto3.Measurement)
+  // @@protoc_insertion_point(serialize_start:opq.opqbox3.Measurement)
   // optional uint32 box_id = 1;
   if (this->box_id() != 0) {
     ::google::protobuf::internal::WireFormatLite::WriteUInt32(1, this->box_id(), output);
@@ -550,9 +1019,9 @@ void Measurement::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormatLite::WriteUInt64(2, this->timestamp_ms(), output);
   }
 
-  // map<string, float> metrics = 3;
+  // map<string, .opq.opqbox3.Metric> metrics = 3;
   if (!this->metrics().empty()) {
-    typedef ::google::protobuf::Map< ::std::string, float >::const_pointer
+    typedef ::google::protobuf::Map< ::std::string, ::opq::opqbox3::Metric >::const_pointer
         ConstPtr;
     typedef ConstPtr SortItem;
     typedef ::google::protobuf::internal::CompareByDerefFirst<SortItem> Less;
@@ -561,7 +1030,7 @@ void Measurement::SerializeWithCachedSizes(
         ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
           p->first.data(), p->first.length(),
           ::google::protobuf::internal::WireFormatLite::SERIALIZE,
-          "opq.proto3.Measurement.MetricsEntry.key");
+          "opq.opqbox3.Measurement.MetricsEntry.key");
       }
     };
 
@@ -569,9 +1038,9 @@ void Measurement::SerializeWithCachedSizes(
         this->metrics().size() > 1) {
       ::google::protobuf::scoped_array<SortItem> items(
           new SortItem[this->metrics().size()]);
-      typedef ::google::protobuf::Map< ::std::string, float >::size_type size_type;
+      typedef ::google::protobuf::Map< ::std::string, ::opq::opqbox3::Metric >::size_type size_type;
       size_type n = 0;
-      for (::google::protobuf::Map< ::std::string, float >::const_iterator
+      for (::google::protobuf::Map< ::std::string, ::opq::opqbox3::Metric >::const_iterator
           it = this->metrics().begin();
           it != this->metrics().end(); ++it, ++n) {
         items[n] = SortItem(&*it);
@@ -587,7 +1056,7 @@ void Measurement::SerializeWithCachedSizes(
       }
     } else {
       ::google::protobuf::scoped_ptr<Measurement_MetricsEntry> entry;
-      for (::google::protobuf::Map< ::std::string, float >::const_iterator
+      for (::google::protobuf::Map< ::std::string, ::opq::opqbox3::Metric >::const_iterator
           it = this->metrics().begin();
           it != this->metrics().end(); ++it) {
         entry.reset(metrics_.NewEntryWrapper(
@@ -599,12 +1068,12 @@ void Measurement::SerializeWithCachedSizes(
     }
   }
 
-  // @@protoc_insertion_point(serialize_end:opq.proto3.Measurement)
+  // @@protoc_insertion_point(serialize_end:opq.opqbox3.Measurement)
 }
 
 ::google::protobuf::uint8* Measurement::InternalSerializeWithCachedSizesToArray(
     bool deterministic, ::google::protobuf::uint8* target) const {
-  // @@protoc_insertion_point(serialize_to_array_start:opq.proto3.Measurement)
+  // @@protoc_insertion_point(serialize_to_array_start:opq.opqbox3.Measurement)
   // optional uint32 box_id = 1;
   if (this->box_id() != 0) {
     target = ::google::protobuf::internal::WireFormatLite::WriteUInt32ToArray(1, this->box_id(), target);
@@ -615,9 +1084,9 @@ void Measurement::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(2, this->timestamp_ms(), target);
   }
 
-  // map<string, float> metrics = 3;
+  // map<string, .opq.opqbox3.Metric> metrics = 3;
   if (!this->metrics().empty()) {
-    typedef ::google::protobuf::Map< ::std::string, float >::const_pointer
+    typedef ::google::protobuf::Map< ::std::string, ::opq::opqbox3::Metric >::const_pointer
         ConstPtr;
     typedef ConstPtr SortItem;
     typedef ::google::protobuf::internal::CompareByDerefFirst<SortItem> Less;
@@ -626,7 +1095,7 @@ void Measurement::SerializeWithCachedSizes(
         ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
           p->first.data(), p->first.length(),
           ::google::protobuf::internal::WireFormatLite::SERIALIZE,
-          "opq.proto3.Measurement.MetricsEntry.key");
+          "opq.opqbox3.Measurement.MetricsEntry.key");
       }
     };
 
@@ -634,9 +1103,9 @@ void Measurement::SerializeWithCachedSizes(
         this->metrics().size() > 1) {
       ::google::protobuf::scoped_array<SortItem> items(
           new SortItem[this->metrics().size()]);
-      typedef ::google::protobuf::Map< ::std::string, float >::size_type size_type;
+      typedef ::google::protobuf::Map< ::std::string, ::opq::opqbox3::Metric >::size_type size_type;
       size_type n = 0;
-      for (::google::protobuf::Map< ::std::string, float >::const_iterator
+      for (::google::protobuf::Map< ::std::string, ::opq::opqbox3::Metric >::const_iterator
           it = this->metrics().begin();
           it != this->metrics().end(); ++it, ++n) {
         items[n] = SortItem(&*it);
@@ -654,7 +1123,7 @@ void Measurement::SerializeWithCachedSizes(
       }
     } else {
       ::google::protobuf::scoped_ptr<Measurement_MetricsEntry> entry;
-      for (::google::protobuf::Map< ::std::string, float >::const_iterator
+      for (::google::protobuf::Map< ::std::string, ::opq::opqbox3::Metric >::const_iterator
           it = this->metrics().begin();
           it != this->metrics().end(); ++it) {
         entry.reset(metrics_.NewEntryWrapper(
@@ -668,12 +1137,12 @@ void Measurement::SerializeWithCachedSizes(
     }
   }
 
-  // @@protoc_insertion_point(serialize_to_array_end:opq.proto3.Measurement)
+  // @@protoc_insertion_point(serialize_to_array_end:opq.opqbox3.Measurement)
   return target;
 }
 
 int Measurement::ByteSize() const {
-// @@protoc_insertion_point(message_byte_size_start:opq.proto3.Measurement)
+// @@protoc_insertion_point(message_byte_size_start:opq.opqbox3.Measurement)
   int total_size = 0;
 
   // optional uint32 box_id = 1;
@@ -690,11 +1159,11 @@ int Measurement::ByteSize() const {
         this->timestamp_ms());
   }
 
-  // map<string, float> metrics = 3;
+  // map<string, .opq.opqbox3.Metric> metrics = 3;
   total_size += 1 * this->metrics_size();
   {
     ::google::protobuf::scoped_ptr<Measurement_MetricsEntry> entry;
-    for (::google::protobuf::Map< ::std::string, float >::const_iterator
+    for (::google::protobuf::Map< ::std::string, ::opq::opqbox3::Metric >::const_iterator
         it = this->metrics().begin();
         it != this->metrics().end(); ++it) {
       entry.reset(metrics_.NewEntryWrapper(it->first, it->second));
@@ -710,7 +1179,7 @@ int Measurement::ByteSize() const {
 }
 
 void Measurement::MergeFrom(const ::google::protobuf::Message& from) {
-// @@protoc_insertion_point(generalized_merge_from_start:opq.proto3.Measurement)
+// @@protoc_insertion_point(generalized_merge_from_start:opq.opqbox3.Measurement)
   if (GOOGLE_PREDICT_FALSE(&from == this)) {
     ::google::protobuf::internal::MergeFromFail(__FILE__, __LINE__);
   }
@@ -718,16 +1187,16 @@ void Measurement::MergeFrom(const ::google::protobuf::Message& from) {
       ::google::protobuf::internal::DynamicCastToGenerated<const Measurement>(
           &from);
   if (source == NULL) {
-  // @@protoc_insertion_point(generalized_merge_from_cast_fail:opq.proto3.Measurement)
+  // @@protoc_insertion_point(generalized_merge_from_cast_fail:opq.opqbox3.Measurement)
     ::google::protobuf::internal::ReflectionOps::Merge(from, this);
   } else {
-  // @@protoc_insertion_point(generalized_merge_from_cast_success:opq.proto3.Measurement)
+  // @@protoc_insertion_point(generalized_merge_from_cast_success:opq.opqbox3.Measurement)
     MergeFrom(*source);
   }
 }
 
 void Measurement::MergeFrom(const Measurement& from) {
-// @@protoc_insertion_point(class_specific_merge_from_start:opq.proto3.Measurement)
+// @@protoc_insertion_point(class_specific_merge_from_start:opq.opqbox3.Measurement)
   if (GOOGLE_PREDICT_FALSE(&from == this)) {
     ::google::protobuf::internal::MergeFromFail(__FILE__, __LINE__);
   }
@@ -741,14 +1210,14 @@ void Measurement::MergeFrom(const Measurement& from) {
 }
 
 void Measurement::CopyFrom(const ::google::protobuf::Message& from) {
-// @@protoc_insertion_point(generalized_copy_from_start:opq.proto3.Measurement)
+// @@protoc_insertion_point(generalized_copy_from_start:opq.opqbox3.Measurement)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
 }
 
 void Measurement::CopyFrom(const Measurement& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:opq.proto3.Measurement)
+// @@protoc_insertion_point(class_specific_copy_from_start:opq.opqbox3.Measurement)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
@@ -787,13 +1256,13 @@ void Measurement::clear_box_id() {
   box_id_ = 0u;
 }
  ::google::protobuf::uint32 Measurement::box_id() const {
-  // @@protoc_insertion_point(field_get:opq.proto3.Measurement.box_id)
+  // @@protoc_insertion_point(field_get:opq.opqbox3.Measurement.box_id)
   return box_id_;
 }
  void Measurement::set_box_id(::google::protobuf::uint32 value) {
   
   box_id_ = value;
-  // @@protoc_insertion_point(field_set:opq.proto3.Measurement.box_id)
+  // @@protoc_insertion_point(field_set:opq.opqbox3.Measurement.box_id)
 }
 
 // optional uint64 timestamp_ms = 2;
@@ -801,30 +1270,30 @@ void Measurement::clear_timestamp_ms() {
   timestamp_ms_ = GOOGLE_ULONGLONG(0);
 }
  ::google::protobuf::uint64 Measurement::timestamp_ms() const {
-  // @@protoc_insertion_point(field_get:opq.proto3.Measurement.timestamp_ms)
+  // @@protoc_insertion_point(field_get:opq.opqbox3.Measurement.timestamp_ms)
   return timestamp_ms_;
 }
  void Measurement::set_timestamp_ms(::google::protobuf::uint64 value) {
   
   timestamp_ms_ = value;
-  // @@protoc_insertion_point(field_set:opq.proto3.Measurement.timestamp_ms)
+  // @@protoc_insertion_point(field_set:opq.opqbox3.Measurement.timestamp_ms)
 }
 
-// map<string, float> metrics = 3;
+// map<string, .opq.opqbox3.Metric> metrics = 3;
 int Measurement::metrics_size() const {
   return metrics_.size();
 }
 void Measurement::clear_metrics() {
   metrics_.Clear();
 }
- const ::google::protobuf::Map< ::std::string, float >&
+ const ::google::protobuf::Map< ::std::string, ::opq::opqbox3::Metric >&
 Measurement::metrics() const {
-  // @@protoc_insertion_point(field_map:opq.proto3.Measurement.metrics)
+  // @@protoc_insertion_point(field_map:opq.opqbox3.Measurement.metrics)
   return metrics_.GetMap();
 }
- ::google::protobuf::Map< ::std::string, float >*
+ ::google::protobuf::Map< ::std::string, ::opq::opqbox3::Metric >*
 Measurement::mutable_metrics() {
-  // @@protoc_insertion_point(field_mutable_map:opq.proto3.Measurement.metrics)
+  // @@protoc_insertion_point(field_mutable_map:opq.opqbox3.Measurement.metrics)
   return metrics_.MutableMap();
 }
 
@@ -838,7 +1307,7 @@ Measurement::mutable_metrics() {
 GetInfoCommand::GetInfoCommand()
   : ::google::protobuf::Message(), _internal_metadata_(NULL) {
   SharedCtor();
-  // @@protoc_insertion_point(constructor:opq.proto3.GetInfoCommand)
+  // @@protoc_insertion_point(constructor:opq.opqbox3.GetInfoCommand)
 }
 
 void GetInfoCommand::InitAsDefaultInstance() {
@@ -850,7 +1319,7 @@ GetInfoCommand::GetInfoCommand(const GetInfoCommand& from)
     _internal_metadata_(NULL) {
   SharedCtor();
   MergeFrom(from);
-  // @@protoc_insertion_point(copy_constructor:opq.proto3.GetInfoCommand)
+  // @@protoc_insertion_point(copy_constructor:opq.opqbox3.GetInfoCommand)
 }
 
 void GetInfoCommand::SharedCtor() {
@@ -859,7 +1328,7 @@ void GetInfoCommand::SharedCtor() {
 }
 
 GetInfoCommand::~GetInfoCommand() {
-  // @@protoc_insertion_point(destructor:opq.proto3.GetInfoCommand)
+  // @@protoc_insertion_point(destructor:opq.opqbox3.GetInfoCommand)
   SharedDtor();
 }
 
@@ -894,14 +1363,14 @@ GetInfoCommand* GetInfoCommand::New(::google::protobuf::Arena* arena) const {
 }
 
 void GetInfoCommand::Clear() {
-// @@protoc_insertion_point(message_clear_start:opq.proto3.GetInfoCommand)
+// @@protoc_insertion_point(message_clear_start:opq.opqbox3.GetInfoCommand)
 }
 
 bool GetInfoCommand::MergePartialFromCodedStream(
     ::google::protobuf::io::CodedInputStream* input) {
 #define DO_(EXPRESSION) if (!GOOGLE_PREDICT_TRUE(EXPRESSION)) goto failure
   ::google::protobuf::uint32 tag;
-  // @@protoc_insertion_point(parse_start:opq.proto3.GetInfoCommand)
+  // @@protoc_insertion_point(parse_start:opq.opqbox3.GetInfoCommand)
   for (;;) {
     ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
     tag = p.first;
@@ -915,29 +1384,29 @@ bool GetInfoCommand::MergePartialFromCodedStream(
     DO_(::google::protobuf::internal::WireFormatLite::SkipField(input, tag));
   }
 success:
-  // @@protoc_insertion_point(parse_success:opq.proto3.GetInfoCommand)
+  // @@protoc_insertion_point(parse_success:opq.opqbox3.GetInfoCommand)
   return true;
 failure:
-  // @@protoc_insertion_point(parse_failure:opq.proto3.GetInfoCommand)
+  // @@protoc_insertion_point(parse_failure:opq.opqbox3.GetInfoCommand)
   return false;
 #undef DO_
 }
 
 void GetInfoCommand::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
-  // @@protoc_insertion_point(serialize_start:opq.proto3.GetInfoCommand)
-  // @@protoc_insertion_point(serialize_end:opq.proto3.GetInfoCommand)
+  // @@protoc_insertion_point(serialize_start:opq.opqbox3.GetInfoCommand)
+  // @@protoc_insertion_point(serialize_end:opq.opqbox3.GetInfoCommand)
 }
 
 ::google::protobuf::uint8* GetInfoCommand::InternalSerializeWithCachedSizesToArray(
     bool deterministic, ::google::protobuf::uint8* target) const {
-  // @@protoc_insertion_point(serialize_to_array_start:opq.proto3.GetInfoCommand)
-  // @@protoc_insertion_point(serialize_to_array_end:opq.proto3.GetInfoCommand)
+  // @@protoc_insertion_point(serialize_to_array_start:opq.opqbox3.GetInfoCommand)
+  // @@protoc_insertion_point(serialize_to_array_end:opq.opqbox3.GetInfoCommand)
   return target;
 }
 
 int GetInfoCommand::ByteSize() const {
-// @@protoc_insertion_point(message_byte_size_start:opq.proto3.GetInfoCommand)
+// @@protoc_insertion_point(message_byte_size_start:opq.opqbox3.GetInfoCommand)
   int total_size = 0;
 
   GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
@@ -947,7 +1416,7 @@ int GetInfoCommand::ByteSize() const {
 }
 
 void GetInfoCommand::MergeFrom(const ::google::protobuf::Message& from) {
-// @@protoc_insertion_point(generalized_merge_from_start:opq.proto3.GetInfoCommand)
+// @@protoc_insertion_point(generalized_merge_from_start:opq.opqbox3.GetInfoCommand)
   if (GOOGLE_PREDICT_FALSE(&from == this)) {
     ::google::protobuf::internal::MergeFromFail(__FILE__, __LINE__);
   }
@@ -955,30 +1424,30 @@ void GetInfoCommand::MergeFrom(const ::google::protobuf::Message& from) {
       ::google::protobuf::internal::DynamicCastToGenerated<const GetInfoCommand>(
           &from);
   if (source == NULL) {
-  // @@protoc_insertion_point(generalized_merge_from_cast_fail:opq.proto3.GetInfoCommand)
+  // @@protoc_insertion_point(generalized_merge_from_cast_fail:opq.opqbox3.GetInfoCommand)
     ::google::protobuf::internal::ReflectionOps::Merge(from, this);
   } else {
-  // @@protoc_insertion_point(generalized_merge_from_cast_success:opq.proto3.GetInfoCommand)
+  // @@protoc_insertion_point(generalized_merge_from_cast_success:opq.opqbox3.GetInfoCommand)
     MergeFrom(*source);
   }
 }
 
 void GetInfoCommand::MergeFrom(const GetInfoCommand& from) {
-// @@protoc_insertion_point(class_specific_merge_from_start:opq.proto3.GetInfoCommand)
+// @@protoc_insertion_point(class_specific_merge_from_start:opq.opqbox3.GetInfoCommand)
   if (GOOGLE_PREDICT_FALSE(&from == this)) {
     ::google::protobuf::internal::MergeFromFail(__FILE__, __LINE__);
   }
 }
 
 void GetInfoCommand::CopyFrom(const ::google::protobuf::Message& from) {
-// @@protoc_insertion_point(generalized_copy_from_start:opq.proto3.GetInfoCommand)
+// @@protoc_insertion_point(generalized_copy_from_start:opq.opqbox3.GetInfoCommand)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
 }
 
 void GetInfoCommand::CopyFrom(const GetInfoCommand& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:opq.proto3.GetInfoCommand)
+// @@protoc_insertion_point(class_specific_copy_from_start:opq.opqbox3.GetInfoCommand)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
@@ -1022,7 +1491,7 @@ const int GetDataCommand::kWaitFieldNumber;
 GetDataCommand::GetDataCommand()
   : ::google::protobuf::Message(), _internal_metadata_(NULL) {
   SharedCtor();
-  // @@protoc_insertion_point(constructor:opq.proto3.GetDataCommand)
+  // @@protoc_insertion_point(constructor:opq.opqbox3.GetDataCommand)
 }
 
 void GetDataCommand::InitAsDefaultInstance() {
@@ -1034,7 +1503,7 @@ GetDataCommand::GetDataCommand(const GetDataCommand& from)
     _internal_metadata_(NULL) {
   SharedCtor();
   MergeFrom(from);
-  // @@protoc_insertion_point(copy_constructor:opq.proto3.GetDataCommand)
+  // @@protoc_insertion_point(copy_constructor:opq.opqbox3.GetDataCommand)
 }
 
 void GetDataCommand::SharedCtor() {
@@ -1046,7 +1515,7 @@ void GetDataCommand::SharedCtor() {
 }
 
 GetDataCommand::~GetDataCommand() {
-  // @@protoc_insertion_point(destructor:opq.proto3.GetDataCommand)
+  // @@protoc_insertion_point(destructor:opq.opqbox3.GetDataCommand)
   SharedDtor();
 }
 
@@ -1081,7 +1550,7 @@ GetDataCommand* GetDataCommand::New(::google::protobuf::Arena* arena) const {
 }
 
 void GetDataCommand::Clear() {
-// @@protoc_insertion_point(message_clear_start:opq.proto3.GetDataCommand)
+// @@protoc_insertion_point(message_clear_start:opq.opqbox3.GetDataCommand)
 #if defined(__clang__)
 #define ZR_HELPER_(f) \
   _Pragma("clang diagnostic push") \
@@ -1109,7 +1578,7 @@ bool GetDataCommand::MergePartialFromCodedStream(
     ::google::protobuf::io::CodedInputStream* input) {
 #define DO_(EXPRESSION) if (!GOOGLE_PREDICT_TRUE(EXPRESSION)) goto failure
   ::google::protobuf::uint32 tag;
-  // @@protoc_insertion_point(parse_start:opq.proto3.GetDataCommand)
+  // @@protoc_insertion_point(parse_start:opq.opqbox3.GetDataCommand)
   for (;;) {
     ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
     tag = p.first;
@@ -1172,17 +1641,17 @@ bool GetDataCommand::MergePartialFromCodedStream(
     }
   }
 success:
-  // @@protoc_insertion_point(parse_success:opq.proto3.GetDataCommand)
+  // @@protoc_insertion_point(parse_success:opq.opqbox3.GetDataCommand)
   return true;
 failure:
-  // @@protoc_insertion_point(parse_failure:opq.proto3.GetDataCommand)
+  // @@protoc_insertion_point(parse_failure:opq.opqbox3.GetDataCommand)
   return false;
 #undef DO_
 }
 
 void GetDataCommand::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
-  // @@protoc_insertion_point(serialize_start:opq.proto3.GetDataCommand)
+  // @@protoc_insertion_point(serialize_start:opq.opqbox3.GetDataCommand)
   // optional uint64 start_ms = 1;
   if (this->start_ms() != 0) {
     ::google::protobuf::internal::WireFormatLite::WriteUInt64(1, this->start_ms(), output);
@@ -1198,12 +1667,12 @@ void GetDataCommand::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormatLite::WriteBool(3, this->wait(), output);
   }
 
-  // @@protoc_insertion_point(serialize_end:opq.proto3.GetDataCommand)
+  // @@protoc_insertion_point(serialize_end:opq.opqbox3.GetDataCommand)
 }
 
 ::google::protobuf::uint8* GetDataCommand::InternalSerializeWithCachedSizesToArray(
     bool deterministic, ::google::protobuf::uint8* target) const {
-  // @@protoc_insertion_point(serialize_to_array_start:opq.proto3.GetDataCommand)
+  // @@protoc_insertion_point(serialize_to_array_start:opq.opqbox3.GetDataCommand)
   // optional uint64 start_ms = 1;
   if (this->start_ms() != 0) {
     target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(1, this->start_ms(), target);
@@ -1219,12 +1688,12 @@ void GetDataCommand::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::WriteBoolToArray(3, this->wait(), target);
   }
 
-  // @@protoc_insertion_point(serialize_to_array_end:opq.proto3.GetDataCommand)
+  // @@protoc_insertion_point(serialize_to_array_end:opq.opqbox3.GetDataCommand)
   return target;
 }
 
 int GetDataCommand::ByteSize() const {
-// @@protoc_insertion_point(message_byte_size_start:opq.proto3.GetDataCommand)
+// @@protoc_insertion_point(message_byte_size_start:opq.opqbox3.GetDataCommand)
   int total_size = 0;
 
   // optional uint64 start_ms = 1;
@@ -1253,7 +1722,7 @@ int GetDataCommand::ByteSize() const {
 }
 
 void GetDataCommand::MergeFrom(const ::google::protobuf::Message& from) {
-// @@protoc_insertion_point(generalized_merge_from_start:opq.proto3.GetDataCommand)
+// @@protoc_insertion_point(generalized_merge_from_start:opq.opqbox3.GetDataCommand)
   if (GOOGLE_PREDICT_FALSE(&from == this)) {
     ::google::protobuf::internal::MergeFromFail(__FILE__, __LINE__);
   }
@@ -1261,16 +1730,16 @@ void GetDataCommand::MergeFrom(const ::google::protobuf::Message& from) {
       ::google::protobuf::internal::DynamicCastToGenerated<const GetDataCommand>(
           &from);
   if (source == NULL) {
-  // @@protoc_insertion_point(generalized_merge_from_cast_fail:opq.proto3.GetDataCommand)
+  // @@protoc_insertion_point(generalized_merge_from_cast_fail:opq.opqbox3.GetDataCommand)
     ::google::protobuf::internal::ReflectionOps::Merge(from, this);
   } else {
-  // @@protoc_insertion_point(generalized_merge_from_cast_success:opq.proto3.GetDataCommand)
+  // @@protoc_insertion_point(generalized_merge_from_cast_success:opq.opqbox3.GetDataCommand)
     MergeFrom(*source);
   }
 }
 
 void GetDataCommand::MergeFrom(const GetDataCommand& from) {
-// @@protoc_insertion_point(class_specific_merge_from_start:opq.proto3.GetDataCommand)
+// @@protoc_insertion_point(class_specific_merge_from_start:opq.opqbox3.GetDataCommand)
   if (GOOGLE_PREDICT_FALSE(&from == this)) {
     ::google::protobuf::internal::MergeFromFail(__FILE__, __LINE__);
   }
@@ -1286,14 +1755,14 @@ void GetDataCommand::MergeFrom(const GetDataCommand& from) {
 }
 
 void GetDataCommand::CopyFrom(const ::google::protobuf::Message& from) {
-// @@protoc_insertion_point(generalized_copy_from_start:opq.proto3.GetDataCommand)
+// @@protoc_insertion_point(generalized_copy_from_start:opq.opqbox3.GetDataCommand)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
 }
 
 void GetDataCommand::CopyFrom(const GetDataCommand& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:opq.proto3.GetDataCommand)
+// @@protoc_insertion_point(class_specific_copy_from_start:opq.opqbox3.GetDataCommand)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
@@ -1332,13 +1801,13 @@ void GetDataCommand::clear_start_ms() {
   start_ms_ = GOOGLE_ULONGLONG(0);
 }
  ::google::protobuf::uint64 GetDataCommand::start_ms() const {
-  // @@protoc_insertion_point(field_get:opq.proto3.GetDataCommand.start_ms)
+  // @@protoc_insertion_point(field_get:opq.opqbox3.GetDataCommand.start_ms)
   return start_ms_;
 }
  void GetDataCommand::set_start_ms(::google::protobuf::uint64 value) {
   
   start_ms_ = value;
-  // @@protoc_insertion_point(field_set:opq.proto3.GetDataCommand.start_ms)
+  // @@protoc_insertion_point(field_set:opq.opqbox3.GetDataCommand.start_ms)
 }
 
 // optional uint64 end_ms = 2;
@@ -1346,13 +1815,13 @@ void GetDataCommand::clear_end_ms() {
   end_ms_ = GOOGLE_ULONGLONG(0);
 }
  ::google::protobuf::uint64 GetDataCommand::end_ms() const {
-  // @@protoc_insertion_point(field_get:opq.proto3.GetDataCommand.end_ms)
+  // @@protoc_insertion_point(field_get:opq.opqbox3.GetDataCommand.end_ms)
   return end_ms_;
 }
  void GetDataCommand::set_end_ms(::google::protobuf::uint64 value) {
   
   end_ms_ = value;
-  // @@protoc_insertion_point(field_set:opq.proto3.GetDataCommand.end_ms)
+  // @@protoc_insertion_point(field_set:opq.opqbox3.GetDataCommand.end_ms)
 }
 
 // optional bool wait = 3;
@@ -1360,13 +1829,13 @@ void GetDataCommand::clear_wait() {
   wait_ = false;
 }
  bool GetDataCommand::wait() const {
-  // @@protoc_insertion_point(field_get:opq.proto3.GetDataCommand.wait)
+  // @@protoc_insertion_point(field_get:opq.opqbox3.GetDataCommand.wait)
   return wait_;
 }
  void GetDataCommand::set_wait(bool value) {
   
   wait_ = value;
-  // @@protoc_insertion_point(field_set:opq.proto3.GetDataCommand.wait)
+  // @@protoc_insertion_point(field_set:opq.opqbox3.GetDataCommand.wait)
 }
 
 #endif  // PROTOBUF_INLINE_NOT_IN_HEADERS
@@ -1375,13 +1844,12 @@ void GetDataCommand::clear_wait() {
 
 #if !defined(_MSC_VER) || _MSC_VER >= 1900
 const int SetMeasturementRateCommand::kMeasurementWindowCyclesFieldNumber;
-const int SetMeasturementRateCommand::kDurationMsFieldNumber;
 #endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
 
 SetMeasturementRateCommand::SetMeasturementRateCommand()
   : ::google::protobuf::Message(), _internal_metadata_(NULL) {
   SharedCtor();
-  // @@protoc_insertion_point(constructor:opq.proto3.SetMeasturementRateCommand)
+  // @@protoc_insertion_point(constructor:opq.opqbox3.SetMeasturementRateCommand)
 }
 
 void SetMeasturementRateCommand::InitAsDefaultInstance() {
@@ -1393,18 +1861,17 @@ SetMeasturementRateCommand::SetMeasturementRateCommand(const SetMeasturementRate
     _internal_metadata_(NULL) {
   SharedCtor();
   MergeFrom(from);
-  // @@protoc_insertion_point(copy_constructor:opq.proto3.SetMeasturementRateCommand)
+  // @@protoc_insertion_point(copy_constructor:opq.opqbox3.SetMeasturementRateCommand)
 }
 
 void SetMeasturementRateCommand::SharedCtor() {
     _is_default_instance_ = false;
   _cached_size_ = 0;
   measurement_window_cycles_ = 0u;
-  duration_ms_ = 0u;
 }
 
 SetMeasturementRateCommand::~SetMeasturementRateCommand() {
-  // @@protoc_insertion_point(destructor:opq.proto3.SetMeasturementRateCommand)
+  // @@protoc_insertion_point(destructor:opq.opqbox3.SetMeasturementRateCommand)
   SharedDtor();
 }
 
@@ -1439,35 +1906,15 @@ SetMeasturementRateCommand* SetMeasturementRateCommand::New(::google::protobuf::
 }
 
 void SetMeasturementRateCommand::Clear() {
-// @@protoc_insertion_point(message_clear_start:opq.proto3.SetMeasturementRateCommand)
-#if defined(__clang__)
-#define ZR_HELPER_(f) \
-  _Pragma("clang diagnostic push") \
-  _Pragma("clang diagnostic ignored \"-Winvalid-offsetof\"") \
-  __builtin_offsetof(SetMeasturementRateCommand, f) \
-  _Pragma("clang diagnostic pop")
-#else
-#define ZR_HELPER_(f) reinterpret_cast<char*>(\
-  &reinterpret_cast<SetMeasturementRateCommand*>(16)->f)
-#endif
-
-#define ZR_(first, last) do {\
-  ::memset(&first, 0,\
-           ZR_HELPER_(last) - ZR_HELPER_(first) + sizeof(last));\
-} while (0)
-
-  ZR_(measurement_window_cycles_, duration_ms_);
-
-#undef ZR_HELPER_
-#undef ZR_
-
+// @@protoc_insertion_point(message_clear_start:opq.opqbox3.SetMeasturementRateCommand)
+  measurement_window_cycles_ = 0u;
 }
 
 bool SetMeasturementRateCommand::MergePartialFromCodedStream(
     ::google::protobuf::io::CodedInputStream* input) {
 #define DO_(EXPRESSION) if (!GOOGLE_PREDICT_TRUE(EXPRESSION)) goto failure
   ::google::protobuf::uint32 tag;
-  // @@protoc_insertion_point(parse_start:opq.proto3.SetMeasturementRateCommand)
+  // @@protoc_insertion_point(parse_start:opq.opqbox3.SetMeasturementRateCommand)
   for (;;) {
     ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
     tag = p.first;
@@ -1479,21 +1926,6 @@ bool SetMeasturementRateCommand::MergePartialFromCodedStream(
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
                    ::google::protobuf::uint32, ::google::protobuf::internal::WireFormatLite::TYPE_UINT32>(
                  input, &measurement_window_cycles_)));
-
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(16)) goto parse_duration_ms;
-        break;
-      }
-
-      // optional uint32 duration_ms = 2;
-      case 2: {
-        if (tag == 16) {
-         parse_duration_ms:
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   ::google::protobuf::uint32, ::google::protobuf::internal::WireFormatLite::TYPE_UINT32>(
-                 input, &duration_ms_)));
 
         } else {
           goto handle_unusual;
@@ -1515,49 +1947,39 @@ bool SetMeasturementRateCommand::MergePartialFromCodedStream(
     }
   }
 success:
-  // @@protoc_insertion_point(parse_success:opq.proto3.SetMeasturementRateCommand)
+  // @@protoc_insertion_point(parse_success:opq.opqbox3.SetMeasturementRateCommand)
   return true;
 failure:
-  // @@protoc_insertion_point(parse_failure:opq.proto3.SetMeasturementRateCommand)
+  // @@protoc_insertion_point(parse_failure:opq.opqbox3.SetMeasturementRateCommand)
   return false;
 #undef DO_
 }
 
 void SetMeasturementRateCommand::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
-  // @@protoc_insertion_point(serialize_start:opq.proto3.SetMeasturementRateCommand)
+  // @@protoc_insertion_point(serialize_start:opq.opqbox3.SetMeasturementRateCommand)
   // optional uint32 measurement_window_cycles = 1;
   if (this->measurement_window_cycles() != 0) {
     ::google::protobuf::internal::WireFormatLite::WriteUInt32(1, this->measurement_window_cycles(), output);
   }
 
-  // optional uint32 duration_ms = 2;
-  if (this->duration_ms() != 0) {
-    ::google::protobuf::internal::WireFormatLite::WriteUInt32(2, this->duration_ms(), output);
-  }
-
-  // @@protoc_insertion_point(serialize_end:opq.proto3.SetMeasturementRateCommand)
+  // @@protoc_insertion_point(serialize_end:opq.opqbox3.SetMeasturementRateCommand)
 }
 
 ::google::protobuf::uint8* SetMeasturementRateCommand::InternalSerializeWithCachedSizesToArray(
     bool deterministic, ::google::protobuf::uint8* target) const {
-  // @@protoc_insertion_point(serialize_to_array_start:opq.proto3.SetMeasturementRateCommand)
+  // @@protoc_insertion_point(serialize_to_array_start:opq.opqbox3.SetMeasturementRateCommand)
   // optional uint32 measurement_window_cycles = 1;
   if (this->measurement_window_cycles() != 0) {
     target = ::google::protobuf::internal::WireFormatLite::WriteUInt32ToArray(1, this->measurement_window_cycles(), target);
   }
 
-  // optional uint32 duration_ms = 2;
-  if (this->duration_ms() != 0) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteUInt32ToArray(2, this->duration_ms(), target);
-  }
-
-  // @@protoc_insertion_point(serialize_to_array_end:opq.proto3.SetMeasturementRateCommand)
+  // @@protoc_insertion_point(serialize_to_array_end:opq.opqbox3.SetMeasturementRateCommand)
   return target;
 }
 
 int SetMeasturementRateCommand::ByteSize() const {
-// @@protoc_insertion_point(message_byte_size_start:opq.proto3.SetMeasturementRateCommand)
+// @@protoc_insertion_point(message_byte_size_start:opq.opqbox3.SetMeasturementRateCommand)
   int total_size = 0;
 
   // optional uint32 measurement_window_cycles = 1;
@@ -1567,13 +1989,6 @@ int SetMeasturementRateCommand::ByteSize() const {
         this->measurement_window_cycles());
   }
 
-  // optional uint32 duration_ms = 2;
-  if (this->duration_ms() != 0) {
-    total_size += 1 +
-      ::google::protobuf::internal::WireFormatLite::UInt32Size(
-        this->duration_ms());
-  }
-
   GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
   _cached_size_ = total_size;
   GOOGLE_SAFE_CONCURRENT_WRITES_END();
@@ -1581,7 +1996,7 @@ int SetMeasturementRateCommand::ByteSize() const {
 }
 
 void SetMeasturementRateCommand::MergeFrom(const ::google::protobuf::Message& from) {
-// @@protoc_insertion_point(generalized_merge_from_start:opq.proto3.SetMeasturementRateCommand)
+// @@protoc_insertion_point(generalized_merge_from_start:opq.opqbox3.SetMeasturementRateCommand)
   if (GOOGLE_PREDICT_FALSE(&from == this)) {
     ::google::protobuf::internal::MergeFromFail(__FILE__, __LINE__);
   }
@@ -1589,36 +2004,33 @@ void SetMeasturementRateCommand::MergeFrom(const ::google::protobuf::Message& fr
       ::google::protobuf::internal::DynamicCastToGenerated<const SetMeasturementRateCommand>(
           &from);
   if (source == NULL) {
-  // @@protoc_insertion_point(generalized_merge_from_cast_fail:opq.proto3.SetMeasturementRateCommand)
+  // @@protoc_insertion_point(generalized_merge_from_cast_fail:opq.opqbox3.SetMeasturementRateCommand)
     ::google::protobuf::internal::ReflectionOps::Merge(from, this);
   } else {
-  // @@protoc_insertion_point(generalized_merge_from_cast_success:opq.proto3.SetMeasturementRateCommand)
+  // @@protoc_insertion_point(generalized_merge_from_cast_success:opq.opqbox3.SetMeasturementRateCommand)
     MergeFrom(*source);
   }
 }
 
 void SetMeasturementRateCommand::MergeFrom(const SetMeasturementRateCommand& from) {
-// @@protoc_insertion_point(class_specific_merge_from_start:opq.proto3.SetMeasturementRateCommand)
+// @@protoc_insertion_point(class_specific_merge_from_start:opq.opqbox3.SetMeasturementRateCommand)
   if (GOOGLE_PREDICT_FALSE(&from == this)) {
     ::google::protobuf::internal::MergeFromFail(__FILE__, __LINE__);
   }
   if (from.measurement_window_cycles() != 0) {
     set_measurement_window_cycles(from.measurement_window_cycles());
   }
-  if (from.duration_ms() != 0) {
-    set_duration_ms(from.duration_ms());
-  }
 }
 
 void SetMeasturementRateCommand::CopyFrom(const ::google::protobuf::Message& from) {
-// @@protoc_insertion_point(generalized_copy_from_start:opq.proto3.SetMeasturementRateCommand)
+// @@protoc_insertion_point(generalized_copy_from_start:opq.opqbox3.SetMeasturementRateCommand)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
 }
 
 void SetMeasturementRateCommand::CopyFrom(const SetMeasturementRateCommand& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:opq.proto3.SetMeasturementRateCommand)
+// @@protoc_insertion_point(class_specific_copy_from_start:opq.opqbox3.SetMeasturementRateCommand)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
@@ -1635,7 +2047,6 @@ void SetMeasturementRateCommand::Swap(SetMeasturementRateCommand* other) {
 }
 void SetMeasturementRateCommand::InternalSwap(SetMeasturementRateCommand* other) {
   std::swap(measurement_window_cycles_, other->measurement_window_cycles_);
-  std::swap(duration_ms_, other->duration_ms_);
   _internal_metadata_.Swap(&other->_internal_metadata_);
   std::swap(_cached_size_, other->_cached_size_);
 }
@@ -1656,27 +2067,13 @@ void SetMeasturementRateCommand::clear_measurement_window_cycles() {
   measurement_window_cycles_ = 0u;
 }
  ::google::protobuf::uint32 SetMeasturementRateCommand::measurement_window_cycles() const {
-  // @@protoc_insertion_point(field_get:opq.proto3.SetMeasturementRateCommand.measurement_window_cycles)
+  // @@protoc_insertion_point(field_get:opq.opqbox3.SetMeasturementRateCommand.measurement_window_cycles)
   return measurement_window_cycles_;
 }
  void SetMeasturementRateCommand::set_measurement_window_cycles(::google::protobuf::uint32 value) {
   
   measurement_window_cycles_ = value;
-  // @@protoc_insertion_point(field_set:opq.proto3.SetMeasturementRateCommand.measurement_window_cycles)
-}
-
-// optional uint32 duration_ms = 2;
-void SetMeasturementRateCommand::clear_duration_ms() {
-  duration_ms_ = 0u;
-}
- ::google::protobuf::uint32 SetMeasturementRateCommand::duration_ms() const {
-  // @@protoc_insertion_point(field_get:opq.proto3.SetMeasturementRateCommand.duration_ms)
-  return duration_ms_;
-}
- void SetMeasturementRateCommand::set_duration_ms(::google::protobuf::uint32 value) {
-  
-  duration_ms_ = value;
-  // @@protoc_insertion_point(field_set:opq.proto3.SetMeasturementRateCommand.duration_ms)
+  // @@protoc_insertion_point(field_set:opq.opqbox3.SetMeasturementRateCommand.measurement_window_cycles)
 }
 
 #endif  // PROTOBUF_INLINE_NOT_IN_HEADERS
@@ -1684,25 +2081,408 @@ void SetMeasturementRateCommand::clear_duration_ms() {
 // ===================================================================
 
 #if !defined(_MSC_VER) || _MSC_VER >= 1900
-const int Command::kBoxIdFieldNumber;
-const int Command::kIdentityFieldNumber;
+const int SendCommandToPlugin::kPluginNameFieldNumber;
+const int SendCommandToPlugin::kMessageFieldNumber;
+#endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
+
+SendCommandToPlugin::SendCommandToPlugin()
+  : ::google::protobuf::Message(), _internal_metadata_(NULL) {
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:opq.opqbox3.SendCommandToPlugin)
+}
+
+void SendCommandToPlugin::InitAsDefaultInstance() {
+  _is_default_instance_ = true;
+}
+
+SendCommandToPlugin::SendCommandToPlugin(const SendCommandToPlugin& from)
+  : ::google::protobuf::Message(),
+    _internal_metadata_(NULL) {
+  SharedCtor();
+  MergeFrom(from);
+  // @@protoc_insertion_point(copy_constructor:opq.opqbox3.SendCommandToPlugin)
+}
+
+void SendCommandToPlugin::SharedCtor() {
+    _is_default_instance_ = false;
+  ::google::protobuf::internal::GetEmptyString();
+  _cached_size_ = 0;
+  plugin_name_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  message_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+
+SendCommandToPlugin::~SendCommandToPlugin() {
+  // @@protoc_insertion_point(destructor:opq.opqbox3.SendCommandToPlugin)
+  SharedDtor();
+}
+
+void SendCommandToPlugin::SharedDtor() {
+  plugin_name_.DestroyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  message_.DestroyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  if (this != default_instance_) {
+  }
+}
+
+void SendCommandToPlugin::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* SendCommandToPlugin::descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return SendCommandToPlugin_descriptor_;
+}
+
+const SendCommandToPlugin& SendCommandToPlugin::default_instance() {
+  if (default_instance_ == NULL) protobuf_AddDesc_opqbox3_2eproto();
+  return *default_instance_;
+}
+
+SendCommandToPlugin* SendCommandToPlugin::default_instance_ = NULL;
+
+SendCommandToPlugin* SendCommandToPlugin::New(::google::protobuf::Arena* arena) const {
+  SendCommandToPlugin* n = new SendCommandToPlugin;
+  if (arena != NULL) {
+    arena->Own(n);
+  }
+  return n;
+}
+
+void SendCommandToPlugin::Clear() {
+// @@protoc_insertion_point(message_clear_start:opq.opqbox3.SendCommandToPlugin)
+  plugin_name_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  message_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+
+bool SendCommandToPlugin::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!GOOGLE_PREDICT_TRUE(EXPRESSION)) goto failure
+  ::google::protobuf::uint32 tag;
+  // @@protoc_insertion_point(parse_start:opq.opqbox3.SendCommandToPlugin)
+  for (;;) {
+    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
+    tag = p.first;
+    if (!p.second) goto handle_unusual;
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // optional string plugin_name = 1;
+      case 1: {
+        if (tag == 10) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->mutable_plugin_name()));
+          DO_(::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+            this->plugin_name().data(), this->plugin_name().length(),
+            ::google::protobuf::internal::WireFormatLite::PARSE,
+            "opq.opqbox3.SendCommandToPlugin.plugin_name"));
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(18)) goto parse_message;
+        break;
+      }
+
+      // optional string message = 2;
+      case 2: {
+        if (tag == 18) {
+         parse_message:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->mutable_message()));
+          DO_(::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+            this->message().data(), this->message().length(),
+            ::google::protobuf::internal::WireFormatLite::PARSE,
+            "opq.opqbox3.SendCommandToPlugin.message"));
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectAtEnd()) goto success;
+        break;
+      }
+
+      default: {
+      handle_unusual:
+        if (tag == 0 ||
+            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          goto success;
+        }
+        DO_(::google::protobuf::internal::WireFormatLite::SkipField(input, tag));
+        break;
+      }
+    }
+  }
+success:
+  // @@protoc_insertion_point(parse_success:opq.opqbox3.SendCommandToPlugin)
+  return true;
+failure:
+  // @@protoc_insertion_point(parse_failure:opq.opqbox3.SendCommandToPlugin)
+  return false;
+#undef DO_
+}
+
+void SendCommandToPlugin::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // @@protoc_insertion_point(serialize_start:opq.opqbox3.SendCommandToPlugin)
+  // optional string plugin_name = 1;
+  if (this->plugin_name().size() > 0) {
+    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+      this->plugin_name().data(), this->plugin_name().length(),
+      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+      "opq.opqbox3.SendCommandToPlugin.plugin_name");
+    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
+      1, this->plugin_name(), output);
+  }
+
+  // optional string message = 2;
+  if (this->message().size() > 0) {
+    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+      this->message().data(), this->message().length(),
+      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+      "opq.opqbox3.SendCommandToPlugin.message");
+    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
+      2, this->message(), output);
+  }
+
+  // @@protoc_insertion_point(serialize_end:opq.opqbox3.SendCommandToPlugin)
+}
+
+::google::protobuf::uint8* SendCommandToPlugin::InternalSerializeWithCachedSizesToArray(
+    bool deterministic, ::google::protobuf::uint8* target) const {
+  // @@protoc_insertion_point(serialize_to_array_start:opq.opqbox3.SendCommandToPlugin)
+  // optional string plugin_name = 1;
+  if (this->plugin_name().size() > 0) {
+    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+      this->plugin_name().data(), this->plugin_name().length(),
+      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+      "opq.opqbox3.SendCommandToPlugin.plugin_name");
+    target =
+      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+        1, this->plugin_name(), target);
+  }
+
+  // optional string message = 2;
+  if (this->message().size() > 0) {
+    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+      this->message().data(), this->message().length(),
+      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+      "opq.opqbox3.SendCommandToPlugin.message");
+    target =
+      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+        2, this->message(), target);
+  }
+
+  // @@protoc_insertion_point(serialize_to_array_end:opq.opqbox3.SendCommandToPlugin)
+  return target;
+}
+
+int SendCommandToPlugin::ByteSize() const {
+// @@protoc_insertion_point(message_byte_size_start:opq.opqbox3.SendCommandToPlugin)
+  int total_size = 0;
+
+  // optional string plugin_name = 1;
+  if (this->plugin_name().size() > 0) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::StringSize(
+        this->plugin_name());
+  }
+
+  // optional string message = 2;
+  if (this->message().size() > 0) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::StringSize(
+        this->message());
+  }
+
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = total_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  return total_size;
+}
+
+void SendCommandToPlugin::MergeFrom(const ::google::protobuf::Message& from) {
+// @@protoc_insertion_point(generalized_merge_from_start:opq.opqbox3.SendCommandToPlugin)
+  if (GOOGLE_PREDICT_FALSE(&from == this)) {
+    ::google::protobuf::internal::MergeFromFail(__FILE__, __LINE__);
+  }
+  const SendCommandToPlugin* source = 
+      ::google::protobuf::internal::DynamicCastToGenerated<const SendCommandToPlugin>(
+          &from);
+  if (source == NULL) {
+  // @@protoc_insertion_point(generalized_merge_from_cast_fail:opq.opqbox3.SendCommandToPlugin)
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+  // @@protoc_insertion_point(generalized_merge_from_cast_success:opq.opqbox3.SendCommandToPlugin)
+    MergeFrom(*source);
+  }
+}
+
+void SendCommandToPlugin::MergeFrom(const SendCommandToPlugin& from) {
+// @@protoc_insertion_point(class_specific_merge_from_start:opq.opqbox3.SendCommandToPlugin)
+  if (GOOGLE_PREDICT_FALSE(&from == this)) {
+    ::google::protobuf::internal::MergeFromFail(__FILE__, __LINE__);
+  }
+  if (from.plugin_name().size() > 0) {
+
+    plugin_name_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.plugin_name_);
+  }
+  if (from.message().size() > 0) {
+
+    message_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.message_);
+  }
+}
+
+void SendCommandToPlugin::CopyFrom(const ::google::protobuf::Message& from) {
+// @@protoc_insertion_point(generalized_copy_from_start:opq.opqbox3.SendCommandToPlugin)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void SendCommandToPlugin::CopyFrom(const SendCommandToPlugin& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:opq.opqbox3.SendCommandToPlugin)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool SendCommandToPlugin::IsInitialized() const {
+
+  return true;
+}
+
+void SendCommandToPlugin::Swap(SendCommandToPlugin* other) {
+  if (other == this) return;
+  InternalSwap(other);
+}
+void SendCommandToPlugin::InternalSwap(SendCommandToPlugin* other) {
+  plugin_name_.Swap(&other->plugin_name_);
+  message_.Swap(&other->message_);
+  _internal_metadata_.Swap(&other->_internal_metadata_);
+  std::swap(_cached_size_, other->_cached_size_);
+}
+
+::google::protobuf::Metadata SendCommandToPlugin::GetMetadata() const {
+  protobuf_AssignDescriptorsOnce();
+  ::google::protobuf::Metadata metadata;
+  metadata.descriptor = SendCommandToPlugin_descriptor_;
+  metadata.reflection = SendCommandToPlugin_reflection_;
+  return metadata;
+}
+
+#if PROTOBUF_INLINE_NOT_IN_HEADERS
+// SendCommandToPlugin
+
+// optional string plugin_name = 1;
+void SendCommandToPlugin::clear_plugin_name() {
+  plugin_name_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+ const ::std::string& SendCommandToPlugin::plugin_name() const {
+  // @@protoc_insertion_point(field_get:opq.opqbox3.SendCommandToPlugin.plugin_name)
+  return plugin_name_.GetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+ void SendCommandToPlugin::set_plugin_name(const ::std::string& value) {
+  
+  plugin_name_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
+  // @@protoc_insertion_point(field_set:opq.opqbox3.SendCommandToPlugin.plugin_name)
+}
+ void SendCommandToPlugin::set_plugin_name(const char* value) {
+  
+  plugin_name_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:opq.opqbox3.SendCommandToPlugin.plugin_name)
+}
+ void SendCommandToPlugin::set_plugin_name(const char* value, size_t size) {
+  
+  plugin_name_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
+      ::std::string(reinterpret_cast<const char*>(value), size));
+  // @@protoc_insertion_point(field_set_pointer:opq.opqbox3.SendCommandToPlugin.plugin_name)
+}
+ ::std::string* SendCommandToPlugin::mutable_plugin_name() {
+  
+  // @@protoc_insertion_point(field_mutable:opq.opqbox3.SendCommandToPlugin.plugin_name)
+  return plugin_name_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+ ::std::string* SendCommandToPlugin::release_plugin_name() {
+  // @@protoc_insertion_point(field_release:opq.opqbox3.SendCommandToPlugin.plugin_name)
+  
+  return plugin_name_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+ void SendCommandToPlugin::set_allocated_plugin_name(::std::string* plugin_name) {
+  if (plugin_name != NULL) {
+    
+  } else {
+    
+  }
+  plugin_name_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), plugin_name);
+  // @@protoc_insertion_point(field_set_allocated:opq.opqbox3.SendCommandToPlugin.plugin_name)
+}
+
+// optional string message = 2;
+void SendCommandToPlugin::clear_message() {
+  message_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+ const ::std::string& SendCommandToPlugin::message() const {
+  // @@protoc_insertion_point(field_get:opq.opqbox3.SendCommandToPlugin.message)
+  return message_.GetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+ void SendCommandToPlugin::set_message(const ::std::string& value) {
+  
+  message_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
+  // @@protoc_insertion_point(field_set:opq.opqbox3.SendCommandToPlugin.message)
+}
+ void SendCommandToPlugin::set_message(const char* value) {
+  
+  message_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:opq.opqbox3.SendCommandToPlugin.message)
+}
+ void SendCommandToPlugin::set_message(const char* value, size_t size) {
+  
+  message_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
+      ::std::string(reinterpret_cast<const char*>(value), size));
+  // @@protoc_insertion_point(field_set_pointer:opq.opqbox3.SendCommandToPlugin.message)
+}
+ ::std::string* SendCommandToPlugin::mutable_message() {
+  
+  // @@protoc_insertion_point(field_mutable:opq.opqbox3.SendCommandToPlugin.message)
+  return message_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+ ::std::string* SendCommandToPlugin::release_message() {
+  // @@protoc_insertion_point(field_release:opq.opqbox3.SendCommandToPlugin.message)
+  
+  return message_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+ void SendCommandToPlugin::set_allocated_message(::std::string* message) {
+  if (message != NULL) {
+    
+  } else {
+    
+  }
+  message_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), message);
+  // @@protoc_insertion_point(field_set_allocated:opq.opqbox3.SendCommandToPlugin.message)
+}
+
+#endif  // PROTOBUF_INLINE_NOT_IN_HEADERS
+
+// ===================================================================
+
+#if !defined(_MSC_VER) || _MSC_VER >= 1900
+const int Command::kSeqFieldNumber;
 const int Command::kTimestampMsFieldNumber;
 const int Command::kInfoCommandFieldNumber;
 const int Command::kDataCommandFieldNumber;
 const int Command::kSamplingRateCommandFieldNumber;
+const int Command::kSendCommandToPluginFieldNumber;
 #endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
 
 Command::Command()
   : ::google::protobuf::Message(), _internal_metadata_(NULL) {
   SharedCtor();
-  // @@protoc_insertion_point(constructor:opq.proto3.Command)
+  // @@protoc_insertion_point(constructor:opq.opqbox3.Command)
 }
 
 void Command::InitAsDefaultInstance() {
   _is_default_instance_ = true;
-  Command_default_oneof_instance_->info_command_ = const_cast< ::opq::proto3::GetInfoCommand*>(&::opq::proto3::GetInfoCommand::default_instance());
-  Command_default_oneof_instance_->data_command_ = const_cast< ::opq::proto3::GetDataCommand*>(&::opq::proto3::GetDataCommand::default_instance());
-  Command_default_oneof_instance_->sampling_rate_command_ = const_cast< ::opq::proto3::SetMeasturementRateCommand*>(&::opq::proto3::SetMeasturementRateCommand::default_instance());
+  Command_default_oneof_instance_->info_command_ = const_cast< ::opq::opqbox3::GetInfoCommand*>(&::opq::opqbox3::GetInfoCommand::default_instance());
+  Command_default_oneof_instance_->data_command_ = const_cast< ::opq::opqbox3::GetDataCommand*>(&::opq::opqbox3::GetDataCommand::default_instance());
+  Command_default_oneof_instance_->sampling_rate_command_ = const_cast< ::opq::opqbox3::SetMeasturementRateCommand*>(&::opq::opqbox3::SetMeasturementRateCommand::default_instance());
+  Command_default_oneof_instance_->send_command_to_plugin_ = const_cast< ::opq::opqbox3::SendCommandToPlugin*>(&::opq::opqbox3::SendCommandToPlugin::default_instance());
 }
 
 Command::Command(const Command& from)
@@ -1710,26 +2490,23 @@ Command::Command(const Command& from)
     _internal_metadata_(NULL) {
   SharedCtor();
   MergeFrom(from);
-  // @@protoc_insertion_point(copy_constructor:opq.proto3.Command)
+  // @@protoc_insertion_point(copy_constructor:opq.opqbox3.Command)
 }
 
 void Command::SharedCtor() {
     _is_default_instance_ = false;
-  ::google::protobuf::internal::GetEmptyString();
   _cached_size_ = 0;
-  box_id_ = 0u;
-  identity_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  seq_ = 0u;
   timestamp_ms_ = GOOGLE_ULONGLONG(0);
   clear_has_command();
 }
 
 Command::~Command() {
-  // @@protoc_insertion_point(destructor:opq.proto3.Command)
+  // @@protoc_insertion_point(destructor:opq.opqbox3.Command)
   SharedDtor();
 }
 
 void Command::SharedDtor() {
-  identity_.DestroyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   if (has_command()) {
     clear_command();
   }
@@ -1763,7 +2540,7 @@ Command* Command::New(::google::protobuf::Arena* arena) const {
 }
 
 void Command::clear_command() {
-// @@protoc_insertion_point(one_of_clear_start:opq.proto3.Command)
+// @@protoc_insertion_point(one_of_clear_start:opq.opqbox3.Command)
   switch(command_case()) {
     case kInfoCommand: {
       delete command_.info_command_;
@@ -1777,6 +2554,10 @@ void Command::clear_command() {
       delete command_.sampling_rate_command_;
       break;
     }
+    case kSendCommandToPlugin: {
+      delete command_.send_command_to_plugin_;
+      break;
+    }
     case COMMAND_NOT_SET: {
       break;
     }
@@ -1786,7 +2567,7 @@ void Command::clear_command() {
 
 
 void Command::Clear() {
-// @@protoc_insertion_point(message_clear_start:opq.proto3.Command)
+// @@protoc_insertion_point(message_clear_start:opq.opqbox3.Command)
 #if defined(__clang__)
 #define ZR_HELPER_(f) \
   _Pragma("clang diagnostic push") \
@@ -1803,8 +2584,7 @@ void Command::Clear() {
            ZR_HELPER_(last) - ZR_HELPER_(first) + sizeof(last));\
 } while (0)
 
-  ZR_(timestamp_ms_, box_id_);
-  identity_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  ZR_(timestamp_ms_, seq_);
 
 #undef ZR_HELPER_
 #undef ZR_
@@ -1816,46 +2596,29 @@ bool Command::MergePartialFromCodedStream(
     ::google::protobuf::io::CodedInputStream* input) {
 #define DO_(EXPRESSION) if (!GOOGLE_PREDICT_TRUE(EXPRESSION)) goto failure
   ::google::protobuf::uint32 tag;
-  // @@protoc_insertion_point(parse_start:opq.proto3.Command)
+  // @@protoc_insertion_point(parse_start:opq.opqbox3.Command)
   for (;;) {
     ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
     tag = p.first;
     if (!p.second) goto handle_unusual;
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // optional uint32 box_id = 1;
+      // optional uint32 seq = 1;
       case 1: {
         if (tag == 8) {
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
                    ::google::protobuf::uint32, ::google::protobuf::internal::WireFormatLite::TYPE_UINT32>(
-                 input, &box_id_)));
+                 input, &seq_)));
 
         } else {
           goto handle_unusual;
         }
-        if (input->ExpectTag(18)) goto parse_identity;
+        if (input->ExpectTag(16)) goto parse_timestamp_ms;
         break;
       }
 
-      // optional string identity = 2;
+      // optional uint64 timestamp_ms = 2;
       case 2: {
-        if (tag == 18) {
-         parse_identity:
-          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
-                input, this->mutable_identity()));
-          DO_(::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
-            this->identity().data(), this->identity().length(),
-            ::google::protobuf::internal::WireFormatLite::PARSE,
-            "opq.proto3.Command.identity"));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(24)) goto parse_timestamp_ms;
-        break;
-      }
-
-      // optional uint64 timestamp_ms = 3;
-      case 3: {
-        if (tag == 24) {
+        if (tag == 16) {
          parse_timestamp_ms:
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
                    ::google::protobuf::uint64, ::google::protobuf::internal::WireFormatLite::TYPE_UINT64>(
@@ -1864,42 +2627,55 @@ bool Command::MergePartialFromCodedStream(
         } else {
           goto handle_unusual;
         }
-        if (input->ExpectTag(34)) goto parse_info_command;
+        if (input->ExpectTag(26)) goto parse_info_command;
         break;
       }
 
-      // optional .opq.proto3.GetInfoCommand info_command = 4;
-      case 4: {
-        if (tag == 34) {
+      // optional .opq.opqbox3.GetInfoCommand info_command = 3;
+      case 3: {
+        if (tag == 26) {
          parse_info_command:
           DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
                input, mutable_info_command()));
         } else {
           goto handle_unusual;
         }
-        if (input->ExpectTag(42)) goto parse_data_command;
+        if (input->ExpectTag(34)) goto parse_data_command;
         break;
       }
 
-      // optional .opq.proto3.GetDataCommand data_command = 5;
-      case 5: {
-        if (tag == 42) {
+      // optional .opq.opqbox3.GetDataCommand data_command = 4;
+      case 4: {
+        if (tag == 34) {
          parse_data_command:
           DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
                input, mutable_data_command()));
         } else {
           goto handle_unusual;
         }
-        if (input->ExpectTag(50)) goto parse_sampling_rate_command;
+        if (input->ExpectTag(42)) goto parse_sampling_rate_command;
         break;
       }
 
-      // optional .opq.proto3.SetMeasturementRateCommand sampling_rate_command = 6;
-      case 6: {
-        if (tag == 50) {
+      // optional .opq.opqbox3.SetMeasturementRateCommand sampling_rate_command = 5;
+      case 5: {
+        if (tag == 42) {
          parse_sampling_rate_command:
           DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
                input, mutable_sampling_rate_command()));
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(58)) goto parse_send_command_to_plugin;
+        break;
+      }
+
+      // optional .opq.opqbox3.SendCommandToPlugin send_command_to_plugin = 7;
+      case 7: {
+        if (tag == 58) {
+         parse_send_command_to_plugin:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_send_command_to_plugin()));
         } else {
           goto handle_unusual;
         }
@@ -1920,126 +2696,111 @@ bool Command::MergePartialFromCodedStream(
     }
   }
 success:
-  // @@protoc_insertion_point(parse_success:opq.proto3.Command)
+  // @@protoc_insertion_point(parse_success:opq.opqbox3.Command)
   return true;
 failure:
-  // @@protoc_insertion_point(parse_failure:opq.proto3.Command)
+  // @@protoc_insertion_point(parse_failure:opq.opqbox3.Command)
   return false;
 #undef DO_
 }
 
 void Command::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
-  // @@protoc_insertion_point(serialize_start:opq.proto3.Command)
-  // optional uint32 box_id = 1;
-  if (this->box_id() != 0) {
-    ::google::protobuf::internal::WireFormatLite::WriteUInt32(1, this->box_id(), output);
+  // @@protoc_insertion_point(serialize_start:opq.opqbox3.Command)
+  // optional uint32 seq = 1;
+  if (this->seq() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteUInt32(1, this->seq(), output);
   }
 
-  // optional string identity = 2;
-  if (this->identity().size() > 0) {
-    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
-      this->identity().data(), this->identity().length(),
-      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
-      "opq.proto3.Command.identity");
-    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
-      2, this->identity(), output);
-  }
-
-  // optional uint64 timestamp_ms = 3;
+  // optional uint64 timestamp_ms = 2;
   if (this->timestamp_ms() != 0) {
-    ::google::protobuf::internal::WireFormatLite::WriteUInt64(3, this->timestamp_ms(), output);
+    ::google::protobuf::internal::WireFormatLite::WriteUInt64(2, this->timestamp_ms(), output);
   }
 
-  // optional .opq.proto3.GetInfoCommand info_command = 4;
+  // optional .opq.opqbox3.GetInfoCommand info_command = 3;
   if (has_info_command()) {
     ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      4, *command_.info_command_, output);
+      3, *command_.info_command_, output);
   }
 
-  // optional .opq.proto3.GetDataCommand data_command = 5;
+  // optional .opq.opqbox3.GetDataCommand data_command = 4;
   if (has_data_command()) {
     ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      5, *command_.data_command_, output);
+      4, *command_.data_command_, output);
   }
 
-  // optional .opq.proto3.SetMeasturementRateCommand sampling_rate_command = 6;
+  // optional .opq.opqbox3.SetMeasturementRateCommand sampling_rate_command = 5;
   if (has_sampling_rate_command()) {
     ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      6, *command_.sampling_rate_command_, output);
+      5, *command_.sampling_rate_command_, output);
   }
 
-  // @@protoc_insertion_point(serialize_end:opq.proto3.Command)
+  // optional .opq.opqbox3.SendCommandToPlugin send_command_to_plugin = 7;
+  if (has_send_command_to_plugin()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      7, *command_.send_command_to_plugin_, output);
+  }
+
+  // @@protoc_insertion_point(serialize_end:opq.opqbox3.Command)
 }
 
 ::google::protobuf::uint8* Command::InternalSerializeWithCachedSizesToArray(
     bool deterministic, ::google::protobuf::uint8* target) const {
-  // @@protoc_insertion_point(serialize_to_array_start:opq.proto3.Command)
-  // optional uint32 box_id = 1;
-  if (this->box_id() != 0) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteUInt32ToArray(1, this->box_id(), target);
+  // @@protoc_insertion_point(serialize_to_array_start:opq.opqbox3.Command)
+  // optional uint32 seq = 1;
+  if (this->seq() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteUInt32ToArray(1, this->seq(), target);
   }
 
-  // optional string identity = 2;
-  if (this->identity().size() > 0) {
-    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
-      this->identity().data(), this->identity().length(),
-      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
-      "opq.proto3.Command.identity");
-    target =
-      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
-        2, this->identity(), target);
-  }
-
-  // optional uint64 timestamp_ms = 3;
+  // optional uint64 timestamp_ms = 2;
   if (this->timestamp_ms() != 0) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(3, this->timestamp_ms(), target);
+    target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(2, this->timestamp_ms(), target);
   }
 
-  // optional .opq.proto3.GetInfoCommand info_command = 4;
+  // optional .opq.opqbox3.GetInfoCommand info_command = 3;
   if (has_info_command()) {
     target = ::google::protobuf::internal::WireFormatLite::
       InternalWriteMessageNoVirtualToArray(
-        4, *command_.info_command_, false, target);
+        3, *command_.info_command_, false, target);
   }
 
-  // optional .opq.proto3.GetDataCommand data_command = 5;
+  // optional .opq.opqbox3.GetDataCommand data_command = 4;
   if (has_data_command()) {
     target = ::google::protobuf::internal::WireFormatLite::
       InternalWriteMessageNoVirtualToArray(
-        5, *command_.data_command_, false, target);
+        4, *command_.data_command_, false, target);
   }
 
-  // optional .opq.proto3.SetMeasturementRateCommand sampling_rate_command = 6;
+  // optional .opq.opqbox3.SetMeasturementRateCommand sampling_rate_command = 5;
   if (has_sampling_rate_command()) {
     target = ::google::protobuf::internal::WireFormatLite::
       InternalWriteMessageNoVirtualToArray(
-        6, *command_.sampling_rate_command_, false, target);
+        5, *command_.sampling_rate_command_, false, target);
   }
 
-  // @@protoc_insertion_point(serialize_to_array_end:opq.proto3.Command)
+  // optional .opq.opqbox3.SendCommandToPlugin send_command_to_plugin = 7;
+  if (has_send_command_to_plugin()) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      InternalWriteMessageNoVirtualToArray(
+        7, *command_.send_command_to_plugin_, false, target);
+  }
+
+  // @@protoc_insertion_point(serialize_to_array_end:opq.opqbox3.Command)
   return target;
 }
 
 int Command::ByteSize() const {
-// @@protoc_insertion_point(message_byte_size_start:opq.proto3.Command)
+// @@protoc_insertion_point(message_byte_size_start:opq.opqbox3.Command)
   int total_size = 0;
 
-  // optional uint32 box_id = 1;
-  if (this->box_id() != 0) {
+  // optional uint32 seq = 1;
+  if (this->seq() != 0) {
     total_size += 1 +
       ::google::protobuf::internal::WireFormatLite::UInt32Size(
-        this->box_id());
+        this->seq());
   }
 
-  // optional string identity = 2;
-  if (this->identity().size() > 0) {
-    total_size += 1 +
-      ::google::protobuf::internal::WireFormatLite::StringSize(
-        this->identity());
-  }
-
-  // optional uint64 timestamp_ms = 3;
+  // optional uint64 timestamp_ms = 2;
   if (this->timestamp_ms() != 0) {
     total_size += 1 +
       ::google::protobuf::internal::WireFormatLite::UInt64Size(
@@ -2047,25 +2808,32 @@ int Command::ByteSize() const {
   }
 
   switch (command_case()) {
-    // optional .opq.proto3.GetInfoCommand info_command = 4;
+    // optional .opq.opqbox3.GetInfoCommand info_command = 3;
     case kInfoCommand: {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
           *command_.info_command_);
       break;
     }
-    // optional .opq.proto3.GetDataCommand data_command = 5;
+    // optional .opq.opqbox3.GetDataCommand data_command = 4;
     case kDataCommand: {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
           *command_.data_command_);
       break;
     }
-    // optional .opq.proto3.SetMeasturementRateCommand sampling_rate_command = 6;
+    // optional .opq.opqbox3.SetMeasturementRateCommand sampling_rate_command = 5;
     case kSamplingRateCommand: {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
           *command_.sampling_rate_command_);
+      break;
+    }
+    // optional .opq.opqbox3.SendCommandToPlugin send_command_to_plugin = 7;
+    case kSendCommandToPlugin: {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+          *command_.send_command_to_plugin_);
       break;
     }
     case COMMAND_NOT_SET: {
@@ -2079,7 +2847,7 @@ int Command::ByteSize() const {
 }
 
 void Command::MergeFrom(const ::google::protobuf::Message& from) {
-// @@protoc_insertion_point(generalized_merge_from_start:opq.proto3.Command)
+// @@protoc_insertion_point(generalized_merge_from_start:opq.opqbox3.Command)
   if (GOOGLE_PREDICT_FALSE(&from == this)) {
     ::google::protobuf::internal::MergeFromFail(__FILE__, __LINE__);
   }
@@ -2087,42 +2855,42 @@ void Command::MergeFrom(const ::google::protobuf::Message& from) {
       ::google::protobuf::internal::DynamicCastToGenerated<const Command>(
           &from);
   if (source == NULL) {
-  // @@protoc_insertion_point(generalized_merge_from_cast_fail:opq.proto3.Command)
+  // @@protoc_insertion_point(generalized_merge_from_cast_fail:opq.opqbox3.Command)
     ::google::protobuf::internal::ReflectionOps::Merge(from, this);
   } else {
-  // @@protoc_insertion_point(generalized_merge_from_cast_success:opq.proto3.Command)
+  // @@protoc_insertion_point(generalized_merge_from_cast_success:opq.opqbox3.Command)
     MergeFrom(*source);
   }
 }
 
 void Command::MergeFrom(const Command& from) {
-// @@protoc_insertion_point(class_specific_merge_from_start:opq.proto3.Command)
+// @@protoc_insertion_point(class_specific_merge_from_start:opq.opqbox3.Command)
   if (GOOGLE_PREDICT_FALSE(&from == this)) {
     ::google::protobuf::internal::MergeFromFail(__FILE__, __LINE__);
   }
   switch (from.command_case()) {
     case kInfoCommand: {
-      mutable_info_command()->::opq::proto3::GetInfoCommand::MergeFrom(from.info_command());
+      mutable_info_command()->::opq::opqbox3::GetInfoCommand::MergeFrom(from.info_command());
       break;
     }
     case kDataCommand: {
-      mutable_data_command()->::opq::proto3::GetDataCommand::MergeFrom(from.data_command());
+      mutable_data_command()->::opq::opqbox3::GetDataCommand::MergeFrom(from.data_command());
       break;
     }
     case kSamplingRateCommand: {
-      mutable_sampling_rate_command()->::opq::proto3::SetMeasturementRateCommand::MergeFrom(from.sampling_rate_command());
+      mutable_sampling_rate_command()->::opq::opqbox3::SetMeasturementRateCommand::MergeFrom(from.sampling_rate_command());
+      break;
+    }
+    case kSendCommandToPlugin: {
+      mutable_send_command_to_plugin()->::opq::opqbox3::SendCommandToPlugin::MergeFrom(from.send_command_to_plugin());
       break;
     }
     case COMMAND_NOT_SET: {
       break;
     }
   }
-  if (from.box_id() != 0) {
-    set_box_id(from.box_id());
-  }
-  if (from.identity().size() > 0) {
-
-    identity_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.identity_);
+  if (from.seq() != 0) {
+    set_seq(from.seq());
   }
   if (from.timestamp_ms() != 0) {
     set_timestamp_ms(from.timestamp_ms());
@@ -2130,14 +2898,14 @@ void Command::MergeFrom(const Command& from) {
 }
 
 void Command::CopyFrom(const ::google::protobuf::Message& from) {
-// @@protoc_insertion_point(generalized_copy_from_start:opq.proto3.Command)
+// @@protoc_insertion_point(generalized_copy_from_start:opq.opqbox3.Command)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
 }
 
 void Command::CopyFrom(const Command& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:opq.proto3.Command)
+// @@protoc_insertion_point(class_specific_copy_from_start:opq.opqbox3.Command)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
@@ -2153,8 +2921,7 @@ void Command::Swap(Command* other) {
   InternalSwap(other);
 }
 void Command::InternalSwap(Command* other) {
-  std::swap(box_id_, other->box_id_);
-  identity_.Swap(&other->identity_);
+  std::swap(seq_, other->seq_);
   std::swap(timestamp_ms_, other->timestamp_ms_);
   std::swap(command_, other->command_);
   std::swap(_oneof_case_[0], other->_oneof_case_[0]);
@@ -2173,79 +2940,35 @@ void Command::InternalSwap(Command* other) {
 #if PROTOBUF_INLINE_NOT_IN_HEADERS
 // Command
 
-// optional uint32 box_id = 1;
-void Command::clear_box_id() {
-  box_id_ = 0u;
+// optional uint32 seq = 1;
+void Command::clear_seq() {
+  seq_ = 0u;
 }
- ::google::protobuf::uint32 Command::box_id() const {
-  // @@protoc_insertion_point(field_get:opq.proto3.Command.box_id)
-  return box_id_;
+ ::google::protobuf::uint32 Command::seq() const {
+  // @@protoc_insertion_point(field_get:opq.opqbox3.Command.seq)
+  return seq_;
 }
- void Command::set_box_id(::google::protobuf::uint32 value) {
+ void Command::set_seq(::google::protobuf::uint32 value) {
   
-  box_id_ = value;
-  // @@protoc_insertion_point(field_set:opq.proto3.Command.box_id)
+  seq_ = value;
+  // @@protoc_insertion_point(field_set:opq.opqbox3.Command.seq)
 }
 
-// optional string identity = 2;
-void Command::clear_identity() {
-  identity_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-}
- const ::std::string& Command::identity() const {
-  // @@protoc_insertion_point(field_get:opq.proto3.Command.identity)
-  return identity_.GetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-}
- void Command::set_identity(const ::std::string& value) {
-  
-  identity_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
-  // @@protoc_insertion_point(field_set:opq.proto3.Command.identity)
-}
- void Command::set_identity(const char* value) {
-  
-  identity_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
-  // @@protoc_insertion_point(field_set_char:opq.proto3.Command.identity)
-}
- void Command::set_identity(const char* value, size_t size) {
-  
-  identity_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
-      ::std::string(reinterpret_cast<const char*>(value), size));
-  // @@protoc_insertion_point(field_set_pointer:opq.proto3.Command.identity)
-}
- ::std::string* Command::mutable_identity() {
-  
-  // @@protoc_insertion_point(field_mutable:opq.proto3.Command.identity)
-  return identity_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-}
- ::std::string* Command::release_identity() {
-  // @@protoc_insertion_point(field_release:opq.proto3.Command.identity)
-  
-  return identity_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-}
- void Command::set_allocated_identity(::std::string* identity) {
-  if (identity != NULL) {
-    
-  } else {
-    
-  }
-  identity_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), identity);
-  // @@protoc_insertion_point(field_set_allocated:opq.proto3.Command.identity)
-}
-
-// optional uint64 timestamp_ms = 3;
+// optional uint64 timestamp_ms = 2;
 void Command::clear_timestamp_ms() {
   timestamp_ms_ = GOOGLE_ULONGLONG(0);
 }
  ::google::protobuf::uint64 Command::timestamp_ms() const {
-  // @@protoc_insertion_point(field_get:opq.proto3.Command.timestamp_ms)
+  // @@protoc_insertion_point(field_get:opq.opqbox3.Command.timestamp_ms)
   return timestamp_ms_;
 }
  void Command::set_timestamp_ms(::google::protobuf::uint64 value) {
   
   timestamp_ms_ = value;
-  // @@protoc_insertion_point(field_set:opq.proto3.Command.timestamp_ms)
+  // @@protoc_insertion_point(field_set:opq.opqbox3.Command.timestamp_ms)
 }
 
-// optional .opq.proto3.GetInfoCommand info_command = 4;
+// optional .opq.opqbox3.GetInfoCommand info_command = 3;
 bool Command::has_info_command() const {
   return command_case() == kInfoCommand;
 }
@@ -2258,42 +2981,42 @@ void Command::clear_info_command() {
     clear_has_command();
   }
 }
- const ::opq::proto3::GetInfoCommand& Command::info_command() const {
-  // @@protoc_insertion_point(field_get:opq.proto3.Command.info_command)
+ const ::opq::opqbox3::GetInfoCommand& Command::info_command() const {
+  // @@protoc_insertion_point(field_get:opq.opqbox3.Command.info_command)
   return has_info_command()
       ? *command_.info_command_
-      : ::opq::proto3::GetInfoCommand::default_instance();
+      : ::opq::opqbox3::GetInfoCommand::default_instance();
 }
-::opq::proto3::GetInfoCommand* Command::mutable_info_command() {
+::opq::opqbox3::GetInfoCommand* Command::mutable_info_command() {
   if (!has_info_command()) {
     clear_command();
     set_has_info_command();
-    command_.info_command_ = new ::opq::proto3::GetInfoCommand;
+    command_.info_command_ = new ::opq::opqbox3::GetInfoCommand;
   }
-  // @@protoc_insertion_point(field_mutable:opq.proto3.Command.info_command)
+  // @@protoc_insertion_point(field_mutable:opq.opqbox3.Command.info_command)
   return command_.info_command_;
 }
-::opq::proto3::GetInfoCommand* Command::release_info_command() {
-  // @@protoc_insertion_point(field_release:opq.proto3.Command.info_command)
+::opq::opqbox3::GetInfoCommand* Command::release_info_command() {
+  // @@protoc_insertion_point(field_release:opq.opqbox3.Command.info_command)
   if (has_info_command()) {
     clear_has_command();
-    ::opq::proto3::GetInfoCommand* temp = command_.info_command_;
+    ::opq::opqbox3::GetInfoCommand* temp = command_.info_command_;
     command_.info_command_ = NULL;
     return temp;
   } else {
     return NULL;
   }
 }
-void Command::set_allocated_info_command(::opq::proto3::GetInfoCommand* info_command) {
+void Command::set_allocated_info_command(::opq::opqbox3::GetInfoCommand* info_command) {
   clear_command();
   if (info_command) {
     set_has_info_command();
     command_.info_command_ = info_command;
   }
-  // @@protoc_insertion_point(field_set_allocated:opq.proto3.Command.info_command)
+  // @@protoc_insertion_point(field_set_allocated:opq.opqbox3.Command.info_command)
 }
 
-// optional .opq.proto3.GetDataCommand data_command = 5;
+// optional .opq.opqbox3.GetDataCommand data_command = 4;
 bool Command::has_data_command() const {
   return command_case() == kDataCommand;
 }
@@ -2306,42 +3029,42 @@ void Command::clear_data_command() {
     clear_has_command();
   }
 }
- const ::opq::proto3::GetDataCommand& Command::data_command() const {
-  // @@protoc_insertion_point(field_get:opq.proto3.Command.data_command)
+ const ::opq::opqbox3::GetDataCommand& Command::data_command() const {
+  // @@protoc_insertion_point(field_get:opq.opqbox3.Command.data_command)
   return has_data_command()
       ? *command_.data_command_
-      : ::opq::proto3::GetDataCommand::default_instance();
+      : ::opq::opqbox3::GetDataCommand::default_instance();
 }
-::opq::proto3::GetDataCommand* Command::mutable_data_command() {
+::opq::opqbox3::GetDataCommand* Command::mutable_data_command() {
   if (!has_data_command()) {
     clear_command();
     set_has_data_command();
-    command_.data_command_ = new ::opq::proto3::GetDataCommand;
+    command_.data_command_ = new ::opq::opqbox3::GetDataCommand;
   }
-  // @@protoc_insertion_point(field_mutable:opq.proto3.Command.data_command)
+  // @@protoc_insertion_point(field_mutable:opq.opqbox3.Command.data_command)
   return command_.data_command_;
 }
-::opq::proto3::GetDataCommand* Command::release_data_command() {
-  // @@protoc_insertion_point(field_release:opq.proto3.Command.data_command)
+::opq::opqbox3::GetDataCommand* Command::release_data_command() {
+  // @@protoc_insertion_point(field_release:opq.opqbox3.Command.data_command)
   if (has_data_command()) {
     clear_has_command();
-    ::opq::proto3::GetDataCommand* temp = command_.data_command_;
+    ::opq::opqbox3::GetDataCommand* temp = command_.data_command_;
     command_.data_command_ = NULL;
     return temp;
   } else {
     return NULL;
   }
 }
-void Command::set_allocated_data_command(::opq::proto3::GetDataCommand* data_command) {
+void Command::set_allocated_data_command(::opq::opqbox3::GetDataCommand* data_command) {
   clear_command();
   if (data_command) {
     set_has_data_command();
     command_.data_command_ = data_command;
   }
-  // @@protoc_insertion_point(field_set_allocated:opq.proto3.Command.data_command)
+  // @@protoc_insertion_point(field_set_allocated:opq.opqbox3.Command.data_command)
 }
 
-// optional .opq.proto3.SetMeasturementRateCommand sampling_rate_command = 6;
+// optional .opq.opqbox3.SetMeasturementRateCommand sampling_rate_command = 5;
 bool Command::has_sampling_rate_command() const {
   return command_case() == kSamplingRateCommand;
 }
@@ -2354,39 +3077,87 @@ void Command::clear_sampling_rate_command() {
     clear_has_command();
   }
 }
- const ::opq::proto3::SetMeasturementRateCommand& Command::sampling_rate_command() const {
-  // @@protoc_insertion_point(field_get:opq.proto3.Command.sampling_rate_command)
+ const ::opq::opqbox3::SetMeasturementRateCommand& Command::sampling_rate_command() const {
+  // @@protoc_insertion_point(field_get:opq.opqbox3.Command.sampling_rate_command)
   return has_sampling_rate_command()
       ? *command_.sampling_rate_command_
-      : ::opq::proto3::SetMeasturementRateCommand::default_instance();
+      : ::opq::opqbox3::SetMeasturementRateCommand::default_instance();
 }
-::opq::proto3::SetMeasturementRateCommand* Command::mutable_sampling_rate_command() {
+::opq::opqbox3::SetMeasturementRateCommand* Command::mutable_sampling_rate_command() {
   if (!has_sampling_rate_command()) {
     clear_command();
     set_has_sampling_rate_command();
-    command_.sampling_rate_command_ = new ::opq::proto3::SetMeasturementRateCommand;
+    command_.sampling_rate_command_ = new ::opq::opqbox3::SetMeasturementRateCommand;
   }
-  // @@protoc_insertion_point(field_mutable:opq.proto3.Command.sampling_rate_command)
+  // @@protoc_insertion_point(field_mutable:opq.opqbox3.Command.sampling_rate_command)
   return command_.sampling_rate_command_;
 }
-::opq::proto3::SetMeasturementRateCommand* Command::release_sampling_rate_command() {
-  // @@protoc_insertion_point(field_release:opq.proto3.Command.sampling_rate_command)
+::opq::opqbox3::SetMeasturementRateCommand* Command::release_sampling_rate_command() {
+  // @@protoc_insertion_point(field_release:opq.opqbox3.Command.sampling_rate_command)
   if (has_sampling_rate_command()) {
     clear_has_command();
-    ::opq::proto3::SetMeasturementRateCommand* temp = command_.sampling_rate_command_;
+    ::opq::opqbox3::SetMeasturementRateCommand* temp = command_.sampling_rate_command_;
     command_.sampling_rate_command_ = NULL;
     return temp;
   } else {
     return NULL;
   }
 }
-void Command::set_allocated_sampling_rate_command(::opq::proto3::SetMeasturementRateCommand* sampling_rate_command) {
+void Command::set_allocated_sampling_rate_command(::opq::opqbox3::SetMeasturementRateCommand* sampling_rate_command) {
   clear_command();
   if (sampling_rate_command) {
     set_has_sampling_rate_command();
     command_.sampling_rate_command_ = sampling_rate_command;
   }
-  // @@protoc_insertion_point(field_set_allocated:opq.proto3.Command.sampling_rate_command)
+  // @@protoc_insertion_point(field_set_allocated:opq.opqbox3.Command.sampling_rate_command)
+}
+
+// optional .opq.opqbox3.SendCommandToPlugin send_command_to_plugin = 7;
+bool Command::has_send_command_to_plugin() const {
+  return command_case() == kSendCommandToPlugin;
+}
+void Command::set_has_send_command_to_plugin() {
+  _oneof_case_[0] = kSendCommandToPlugin;
+}
+void Command::clear_send_command_to_plugin() {
+  if (has_send_command_to_plugin()) {
+    delete command_.send_command_to_plugin_;
+    clear_has_command();
+  }
+}
+ const ::opq::opqbox3::SendCommandToPlugin& Command::send_command_to_plugin() const {
+  // @@protoc_insertion_point(field_get:opq.opqbox3.Command.send_command_to_plugin)
+  return has_send_command_to_plugin()
+      ? *command_.send_command_to_plugin_
+      : ::opq::opqbox3::SendCommandToPlugin::default_instance();
+}
+::opq::opqbox3::SendCommandToPlugin* Command::mutable_send_command_to_plugin() {
+  if (!has_send_command_to_plugin()) {
+    clear_command();
+    set_has_send_command_to_plugin();
+    command_.send_command_to_plugin_ = new ::opq::opqbox3::SendCommandToPlugin;
+  }
+  // @@protoc_insertion_point(field_mutable:opq.opqbox3.Command.send_command_to_plugin)
+  return command_.send_command_to_plugin_;
+}
+::opq::opqbox3::SendCommandToPlugin* Command::release_send_command_to_plugin() {
+  // @@protoc_insertion_point(field_release:opq.opqbox3.Command.send_command_to_plugin)
+  if (has_send_command_to_plugin()) {
+    clear_has_command();
+    ::opq::opqbox3::SendCommandToPlugin* temp = command_.send_command_to_plugin_;
+    command_.send_command_to_plugin_ = NULL;
+    return temp;
+  } else {
+    return NULL;
+  }
+}
+void Command::set_allocated_send_command_to_plugin(::opq::opqbox3::SendCommandToPlugin* send_command_to_plugin) {
+  clear_command();
+  if (send_command_to_plugin) {
+    set_has_send_command_to_plugin();
+    command_.send_command_to_plugin_ = send_command_to_plugin;
+  }
+  // @@protoc_insertion_point(field_set_allocated:opq.opqbox3.Command.send_command_to_plugin)
 }
 
 bool Command::has_command() const {
@@ -2415,7 +3186,7 @@ const int GetInfoResponse::kMeasurementRateFieldNumber;
 GetInfoResponse::GetInfoResponse()
   : ::google::protobuf::Message(), _internal_metadata_(NULL) {
   SharedCtor();
-  // @@protoc_insertion_point(constructor:opq.proto3.GetInfoResponse)
+  // @@protoc_insertion_point(constructor:opq.opqbox3.GetInfoResponse)
 }
 
 void GetInfoResponse::InitAsDefaultInstance() {
@@ -2427,7 +3198,7 @@ GetInfoResponse::GetInfoResponse(const GetInfoResponse& from)
     _internal_metadata_(NULL) {
   SharedCtor();
   MergeFrom(from);
-  // @@protoc_insertion_point(copy_constructor:opq.proto3.GetInfoResponse)
+  // @@protoc_insertion_point(copy_constructor:opq.opqbox3.GetInfoResponse)
 }
 
 void GetInfoResponse::SharedCtor() {
@@ -2444,7 +3215,7 @@ void GetInfoResponse::SharedCtor() {
 }
 
 GetInfoResponse::~GetInfoResponse() {
-  // @@protoc_insertion_point(destructor:opq.proto3.GetInfoResponse)
+  // @@protoc_insertion_point(destructor:opq.opqbox3.GetInfoResponse)
   SharedDtor();
 }
 
@@ -2483,7 +3254,7 @@ GetInfoResponse* GetInfoResponse::New(::google::protobuf::Arena* arena) const {
 }
 
 void GetInfoResponse::Clear() {
-// @@protoc_insertion_point(message_clear_start:opq.proto3.GetInfoResponse)
+// @@protoc_insertion_point(message_clear_start:opq.opqbox3.GetInfoResponse)
 #if defined(__clang__)
 #define ZR_HELPER_(f) \
   _Pragma("clang diagnostic push") \
@@ -2516,7 +3287,7 @@ bool GetInfoResponse::MergePartialFromCodedStream(
     ::google::protobuf::io::CodedInputStream* input) {
 #define DO_(EXPRESSION) if (!GOOGLE_PREDICT_TRUE(EXPRESSION)) goto failure
   ::google::protobuf::uint32 tag;
-  // @@protoc_insertion_point(parse_start:opq.proto3.GetInfoResponse)
+  // @@protoc_insertion_point(parse_start:opq.opqbox3.GetInfoResponse)
   for (;;) {
     ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
     tag = p.first;
@@ -2530,7 +3301,7 @@ bool GetInfoResponse::MergePartialFromCodedStream(
           DO_(::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
             this->mac_addr().data(), this->mac_addr().length(),
             ::google::protobuf::internal::WireFormatLite::PARSE,
-            "opq.proto3.GetInfoResponse.mac_addr"));
+            "opq.opqbox3.GetInfoResponse.mac_addr"));
         } else {
           goto handle_unusual;
         }
@@ -2547,7 +3318,7 @@ bool GetInfoResponse::MergePartialFromCodedStream(
           DO_(::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
             this->wifi_network().data(), this->wifi_network().length(),
             ::google::protobuf::internal::WireFormatLite::PARSE,
-            "opq.proto3.GetInfoResponse.wifi_network"));
+            "opq.opqbox3.GetInfoResponse.wifi_network"));
         } else {
           goto handle_unusual;
         }
@@ -2564,7 +3335,7 @@ bool GetInfoResponse::MergePartialFromCodedStream(
           DO_(::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
             this->ip().data(), this->ip().length(),
             ::google::protobuf::internal::WireFormatLite::PARSE,
-            "opq.proto3.GetInfoResponse.ip"));
+            "opq.opqbox3.GetInfoResponse.ip"));
         } else {
           goto handle_unusual;
         }
@@ -2611,7 +3382,7 @@ bool GetInfoResponse::MergePartialFromCodedStream(
           DO_(::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
             this->pub_key().data(), this->pub_key().length(),
             ::google::protobuf::internal::WireFormatLite::PARSE,
-            "opq.proto3.GetInfoResponse.pub_key"));
+            "opq.opqbox3.GetInfoResponse.pub_key"));
         } else {
           goto handle_unusual;
         }
@@ -2647,23 +3418,23 @@ bool GetInfoResponse::MergePartialFromCodedStream(
     }
   }
 success:
-  // @@protoc_insertion_point(parse_success:opq.proto3.GetInfoResponse)
+  // @@protoc_insertion_point(parse_success:opq.opqbox3.GetInfoResponse)
   return true;
 failure:
-  // @@protoc_insertion_point(parse_failure:opq.proto3.GetInfoResponse)
+  // @@protoc_insertion_point(parse_failure:opq.opqbox3.GetInfoResponse)
   return false;
 #undef DO_
 }
 
 void GetInfoResponse::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
-  // @@protoc_insertion_point(serialize_start:opq.proto3.GetInfoResponse)
+  // @@protoc_insertion_point(serialize_start:opq.opqbox3.GetInfoResponse)
   // optional string mac_addr = 1;
   if (this->mac_addr().size() > 0) {
     ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
       this->mac_addr().data(), this->mac_addr().length(),
       ::google::protobuf::internal::WireFormatLite::SERIALIZE,
-      "opq.proto3.GetInfoResponse.mac_addr");
+      "opq.opqbox3.GetInfoResponse.mac_addr");
     ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
       1, this->mac_addr(), output);
   }
@@ -2673,7 +3444,7 @@ void GetInfoResponse::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
       this->wifi_network().data(), this->wifi_network().length(),
       ::google::protobuf::internal::WireFormatLite::SERIALIZE,
-      "opq.proto3.GetInfoResponse.wifi_network");
+      "opq.opqbox3.GetInfoResponse.wifi_network");
     ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
       2, this->wifi_network(), output);
   }
@@ -2683,7 +3454,7 @@ void GetInfoResponse::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
       this->ip().data(), this->ip().length(),
       ::google::protobuf::internal::WireFormatLite::SERIALIZE,
-      "opq.proto3.GetInfoResponse.ip");
+      "opq.opqbox3.GetInfoResponse.ip");
     ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
       3, this->ip(), output);
   }
@@ -2703,7 +3474,7 @@ void GetInfoResponse::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
       this->pub_key().data(), this->pub_key().length(),
       ::google::protobuf::internal::WireFormatLite::SERIALIZE,
-      "opq.proto3.GetInfoResponse.pub_key");
+      "opq.opqbox3.GetInfoResponse.pub_key");
     ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
       6, this->pub_key(), output);
   }
@@ -2713,18 +3484,18 @@ void GetInfoResponse::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormatLite::WriteUInt32(7, this->measurement_rate(), output);
   }
 
-  // @@protoc_insertion_point(serialize_end:opq.proto3.GetInfoResponse)
+  // @@protoc_insertion_point(serialize_end:opq.opqbox3.GetInfoResponse)
 }
 
 ::google::protobuf::uint8* GetInfoResponse::InternalSerializeWithCachedSizesToArray(
     bool deterministic, ::google::protobuf::uint8* target) const {
-  // @@protoc_insertion_point(serialize_to_array_start:opq.proto3.GetInfoResponse)
+  // @@protoc_insertion_point(serialize_to_array_start:opq.opqbox3.GetInfoResponse)
   // optional string mac_addr = 1;
   if (this->mac_addr().size() > 0) {
     ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
       this->mac_addr().data(), this->mac_addr().length(),
       ::google::protobuf::internal::WireFormatLite::SERIALIZE,
-      "opq.proto3.GetInfoResponse.mac_addr");
+      "opq.opqbox3.GetInfoResponse.mac_addr");
     target =
       ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
         1, this->mac_addr(), target);
@@ -2735,7 +3506,7 @@ void GetInfoResponse::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
       this->wifi_network().data(), this->wifi_network().length(),
       ::google::protobuf::internal::WireFormatLite::SERIALIZE,
-      "opq.proto3.GetInfoResponse.wifi_network");
+      "opq.opqbox3.GetInfoResponse.wifi_network");
     target =
       ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
         2, this->wifi_network(), target);
@@ -2746,7 +3517,7 @@ void GetInfoResponse::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
       this->ip().data(), this->ip().length(),
       ::google::protobuf::internal::WireFormatLite::SERIALIZE,
-      "opq.proto3.GetInfoResponse.ip");
+      "opq.opqbox3.GetInfoResponse.ip");
     target =
       ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
         3, this->ip(), target);
@@ -2767,7 +3538,7 @@ void GetInfoResponse::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
       this->pub_key().data(), this->pub_key().length(),
       ::google::protobuf::internal::WireFormatLite::SERIALIZE,
-      "opq.proto3.GetInfoResponse.pub_key");
+      "opq.opqbox3.GetInfoResponse.pub_key");
     target =
       ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
         6, this->pub_key(), target);
@@ -2778,12 +3549,12 @@ void GetInfoResponse::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::WriteUInt32ToArray(7, this->measurement_rate(), target);
   }
 
-  // @@protoc_insertion_point(serialize_to_array_end:opq.proto3.GetInfoResponse)
+  // @@protoc_insertion_point(serialize_to_array_end:opq.opqbox3.GetInfoResponse)
   return target;
 }
 
 int GetInfoResponse::ByteSize() const {
-// @@protoc_insertion_point(message_byte_size_start:opq.proto3.GetInfoResponse)
+// @@protoc_insertion_point(message_byte_size_start:opq.opqbox3.GetInfoResponse)
   int total_size = 0;
 
   // optional string mac_addr = 1;
@@ -2842,7 +3613,7 @@ int GetInfoResponse::ByteSize() const {
 }
 
 void GetInfoResponse::MergeFrom(const ::google::protobuf::Message& from) {
-// @@protoc_insertion_point(generalized_merge_from_start:opq.proto3.GetInfoResponse)
+// @@protoc_insertion_point(generalized_merge_from_start:opq.opqbox3.GetInfoResponse)
   if (GOOGLE_PREDICT_FALSE(&from == this)) {
     ::google::protobuf::internal::MergeFromFail(__FILE__, __LINE__);
   }
@@ -2850,16 +3621,16 @@ void GetInfoResponse::MergeFrom(const ::google::protobuf::Message& from) {
       ::google::protobuf::internal::DynamicCastToGenerated<const GetInfoResponse>(
           &from);
   if (source == NULL) {
-  // @@protoc_insertion_point(generalized_merge_from_cast_fail:opq.proto3.GetInfoResponse)
+  // @@protoc_insertion_point(generalized_merge_from_cast_fail:opq.opqbox3.GetInfoResponse)
     ::google::protobuf::internal::ReflectionOps::Merge(from, this);
   } else {
-  // @@protoc_insertion_point(generalized_merge_from_cast_success:opq.proto3.GetInfoResponse)
+  // @@protoc_insertion_point(generalized_merge_from_cast_success:opq.opqbox3.GetInfoResponse)
     MergeFrom(*source);
   }
 }
 
 void GetInfoResponse::MergeFrom(const GetInfoResponse& from) {
-// @@protoc_insertion_point(class_specific_merge_from_start:opq.proto3.GetInfoResponse)
+// @@protoc_insertion_point(class_specific_merge_from_start:opq.opqbox3.GetInfoResponse)
   if (GOOGLE_PREDICT_FALSE(&from == this)) {
     ::google::protobuf::internal::MergeFromFail(__FILE__, __LINE__);
   }
@@ -2891,14 +3662,14 @@ void GetInfoResponse::MergeFrom(const GetInfoResponse& from) {
 }
 
 void GetInfoResponse::CopyFrom(const ::google::protobuf::Message& from) {
-// @@protoc_insertion_point(generalized_copy_from_start:opq.proto3.GetInfoResponse)
+// @@protoc_insertion_point(generalized_copy_from_start:opq.opqbox3.GetInfoResponse)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
 }
 
 void GetInfoResponse::CopyFrom(const GetInfoResponse& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:opq.proto3.GetInfoResponse)
+// @@protoc_insertion_point(class_specific_copy_from_start:opq.opqbox3.GetInfoResponse)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
@@ -2941,32 +3712,32 @@ void GetInfoResponse::clear_mac_addr() {
   mac_addr_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
  const ::std::string& GetInfoResponse::mac_addr() const {
-  // @@protoc_insertion_point(field_get:opq.proto3.GetInfoResponse.mac_addr)
+  // @@protoc_insertion_point(field_get:opq.opqbox3.GetInfoResponse.mac_addr)
   return mac_addr_.GetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
  void GetInfoResponse::set_mac_addr(const ::std::string& value) {
   
   mac_addr_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
-  // @@protoc_insertion_point(field_set:opq.proto3.GetInfoResponse.mac_addr)
+  // @@protoc_insertion_point(field_set:opq.opqbox3.GetInfoResponse.mac_addr)
 }
  void GetInfoResponse::set_mac_addr(const char* value) {
   
   mac_addr_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
-  // @@protoc_insertion_point(field_set_char:opq.proto3.GetInfoResponse.mac_addr)
+  // @@protoc_insertion_point(field_set_char:opq.opqbox3.GetInfoResponse.mac_addr)
 }
  void GetInfoResponse::set_mac_addr(const char* value, size_t size) {
   
   mac_addr_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
       ::std::string(reinterpret_cast<const char*>(value), size));
-  // @@protoc_insertion_point(field_set_pointer:opq.proto3.GetInfoResponse.mac_addr)
+  // @@protoc_insertion_point(field_set_pointer:opq.opqbox3.GetInfoResponse.mac_addr)
 }
  ::std::string* GetInfoResponse::mutable_mac_addr() {
   
-  // @@protoc_insertion_point(field_mutable:opq.proto3.GetInfoResponse.mac_addr)
+  // @@protoc_insertion_point(field_mutable:opq.opqbox3.GetInfoResponse.mac_addr)
   return mac_addr_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
  ::std::string* GetInfoResponse::release_mac_addr() {
-  // @@protoc_insertion_point(field_release:opq.proto3.GetInfoResponse.mac_addr)
+  // @@protoc_insertion_point(field_release:opq.opqbox3.GetInfoResponse.mac_addr)
   
   return mac_addr_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
@@ -2977,7 +3748,7 @@ void GetInfoResponse::clear_mac_addr() {
     
   }
   mac_addr_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), mac_addr);
-  // @@protoc_insertion_point(field_set_allocated:opq.proto3.GetInfoResponse.mac_addr)
+  // @@protoc_insertion_point(field_set_allocated:opq.opqbox3.GetInfoResponse.mac_addr)
 }
 
 // optional string wifi_network = 2;
@@ -2985,32 +3756,32 @@ void GetInfoResponse::clear_wifi_network() {
   wifi_network_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
  const ::std::string& GetInfoResponse::wifi_network() const {
-  // @@protoc_insertion_point(field_get:opq.proto3.GetInfoResponse.wifi_network)
+  // @@protoc_insertion_point(field_get:opq.opqbox3.GetInfoResponse.wifi_network)
   return wifi_network_.GetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
  void GetInfoResponse::set_wifi_network(const ::std::string& value) {
   
   wifi_network_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
-  // @@protoc_insertion_point(field_set:opq.proto3.GetInfoResponse.wifi_network)
+  // @@protoc_insertion_point(field_set:opq.opqbox3.GetInfoResponse.wifi_network)
 }
  void GetInfoResponse::set_wifi_network(const char* value) {
   
   wifi_network_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
-  // @@protoc_insertion_point(field_set_char:opq.proto3.GetInfoResponse.wifi_network)
+  // @@protoc_insertion_point(field_set_char:opq.opqbox3.GetInfoResponse.wifi_network)
 }
  void GetInfoResponse::set_wifi_network(const char* value, size_t size) {
   
   wifi_network_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
       ::std::string(reinterpret_cast<const char*>(value), size));
-  // @@protoc_insertion_point(field_set_pointer:opq.proto3.GetInfoResponse.wifi_network)
+  // @@protoc_insertion_point(field_set_pointer:opq.opqbox3.GetInfoResponse.wifi_network)
 }
  ::std::string* GetInfoResponse::mutable_wifi_network() {
   
-  // @@protoc_insertion_point(field_mutable:opq.proto3.GetInfoResponse.wifi_network)
+  // @@protoc_insertion_point(field_mutable:opq.opqbox3.GetInfoResponse.wifi_network)
   return wifi_network_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
  ::std::string* GetInfoResponse::release_wifi_network() {
-  // @@protoc_insertion_point(field_release:opq.proto3.GetInfoResponse.wifi_network)
+  // @@protoc_insertion_point(field_release:opq.opqbox3.GetInfoResponse.wifi_network)
   
   return wifi_network_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
@@ -3021,7 +3792,7 @@ void GetInfoResponse::clear_wifi_network() {
     
   }
   wifi_network_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), wifi_network);
-  // @@protoc_insertion_point(field_set_allocated:opq.proto3.GetInfoResponse.wifi_network)
+  // @@protoc_insertion_point(field_set_allocated:opq.opqbox3.GetInfoResponse.wifi_network)
 }
 
 // optional string ip = 3;
@@ -3029,32 +3800,32 @@ void GetInfoResponse::clear_ip() {
   ip_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
  const ::std::string& GetInfoResponse::ip() const {
-  // @@protoc_insertion_point(field_get:opq.proto3.GetInfoResponse.ip)
+  // @@protoc_insertion_point(field_get:opq.opqbox3.GetInfoResponse.ip)
   return ip_.GetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
  void GetInfoResponse::set_ip(const ::std::string& value) {
   
   ip_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
-  // @@protoc_insertion_point(field_set:opq.proto3.GetInfoResponse.ip)
+  // @@protoc_insertion_point(field_set:opq.opqbox3.GetInfoResponse.ip)
 }
  void GetInfoResponse::set_ip(const char* value) {
   
   ip_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
-  // @@protoc_insertion_point(field_set_char:opq.proto3.GetInfoResponse.ip)
+  // @@protoc_insertion_point(field_set_char:opq.opqbox3.GetInfoResponse.ip)
 }
  void GetInfoResponse::set_ip(const char* value, size_t size) {
   
   ip_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
       ::std::string(reinterpret_cast<const char*>(value), size));
-  // @@protoc_insertion_point(field_set_pointer:opq.proto3.GetInfoResponse.ip)
+  // @@protoc_insertion_point(field_set_pointer:opq.opqbox3.GetInfoResponse.ip)
 }
  ::std::string* GetInfoResponse::mutable_ip() {
   
-  // @@protoc_insertion_point(field_mutable:opq.proto3.GetInfoResponse.ip)
+  // @@protoc_insertion_point(field_mutable:opq.opqbox3.GetInfoResponse.ip)
   return ip_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
  ::std::string* GetInfoResponse::release_ip() {
-  // @@protoc_insertion_point(field_release:opq.proto3.GetInfoResponse.ip)
+  // @@protoc_insertion_point(field_release:opq.opqbox3.GetInfoResponse.ip)
   
   return ip_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
@@ -3065,7 +3836,7 @@ void GetInfoResponse::clear_ip() {
     
   }
   ip_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ip);
-  // @@protoc_insertion_point(field_set_allocated:opq.proto3.GetInfoResponse.ip)
+  // @@protoc_insertion_point(field_set_allocated:opq.opqbox3.GetInfoResponse.ip)
 }
 
 // optional uint64 uptime = 4;
@@ -3073,13 +3844,13 @@ void GetInfoResponse::clear_uptime() {
   uptime_ = GOOGLE_ULONGLONG(0);
 }
  ::google::protobuf::uint64 GetInfoResponse::uptime() const {
-  // @@protoc_insertion_point(field_get:opq.proto3.GetInfoResponse.uptime)
+  // @@protoc_insertion_point(field_get:opq.opqbox3.GetInfoResponse.uptime)
   return uptime_;
 }
  void GetInfoResponse::set_uptime(::google::protobuf::uint64 value) {
   
   uptime_ = value;
-  // @@protoc_insertion_point(field_set:opq.proto3.GetInfoResponse.uptime)
+  // @@protoc_insertion_point(field_set:opq.opqbox3.GetInfoResponse.uptime)
 }
 
 // optional uint64 calibration_constant = 5;
@@ -3087,13 +3858,13 @@ void GetInfoResponse::clear_calibration_constant() {
   calibration_constant_ = GOOGLE_ULONGLONG(0);
 }
  ::google::protobuf::uint64 GetInfoResponse::calibration_constant() const {
-  // @@protoc_insertion_point(field_get:opq.proto3.GetInfoResponse.calibration_constant)
+  // @@protoc_insertion_point(field_get:opq.opqbox3.GetInfoResponse.calibration_constant)
   return calibration_constant_;
 }
  void GetInfoResponse::set_calibration_constant(::google::protobuf::uint64 value) {
   
   calibration_constant_ = value;
-  // @@protoc_insertion_point(field_set:opq.proto3.GetInfoResponse.calibration_constant)
+  // @@protoc_insertion_point(field_set:opq.opqbox3.GetInfoResponse.calibration_constant)
 }
 
 // optional string pub_key = 6;
@@ -3101,32 +3872,32 @@ void GetInfoResponse::clear_pub_key() {
   pub_key_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
  const ::std::string& GetInfoResponse::pub_key() const {
-  // @@protoc_insertion_point(field_get:opq.proto3.GetInfoResponse.pub_key)
+  // @@protoc_insertion_point(field_get:opq.opqbox3.GetInfoResponse.pub_key)
   return pub_key_.GetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
  void GetInfoResponse::set_pub_key(const ::std::string& value) {
   
   pub_key_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
-  // @@protoc_insertion_point(field_set:opq.proto3.GetInfoResponse.pub_key)
+  // @@protoc_insertion_point(field_set:opq.opqbox3.GetInfoResponse.pub_key)
 }
  void GetInfoResponse::set_pub_key(const char* value) {
   
   pub_key_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
-  // @@protoc_insertion_point(field_set_char:opq.proto3.GetInfoResponse.pub_key)
+  // @@protoc_insertion_point(field_set_char:opq.opqbox3.GetInfoResponse.pub_key)
 }
  void GetInfoResponse::set_pub_key(const char* value, size_t size) {
   
   pub_key_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
       ::std::string(reinterpret_cast<const char*>(value), size));
-  // @@protoc_insertion_point(field_set_pointer:opq.proto3.GetInfoResponse.pub_key)
+  // @@protoc_insertion_point(field_set_pointer:opq.opqbox3.GetInfoResponse.pub_key)
 }
  ::std::string* GetInfoResponse::mutable_pub_key() {
   
-  // @@protoc_insertion_point(field_mutable:opq.proto3.GetInfoResponse.pub_key)
+  // @@protoc_insertion_point(field_mutable:opq.opqbox3.GetInfoResponse.pub_key)
   return pub_key_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
  ::std::string* GetInfoResponse::release_pub_key() {
-  // @@protoc_insertion_point(field_release:opq.proto3.GetInfoResponse.pub_key)
+  // @@protoc_insertion_point(field_release:opq.opqbox3.GetInfoResponse.pub_key)
   
   return pub_key_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
@@ -3137,7 +3908,7 @@ void GetInfoResponse::clear_pub_key() {
     
   }
   pub_key_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), pub_key);
-  // @@protoc_insertion_point(field_set_allocated:opq.proto3.GetInfoResponse.pub_key)
+  // @@protoc_insertion_point(field_set_allocated:opq.opqbox3.GetInfoResponse.pub_key)
 }
 
 // optional uint32 measurement_rate = 7;
@@ -3145,13 +3916,13 @@ void GetInfoResponse::clear_measurement_rate() {
   measurement_rate_ = 0u;
 }
  ::google::protobuf::uint32 GetInfoResponse::measurement_rate() const {
-  // @@protoc_insertion_point(field_get:opq.proto3.GetInfoResponse.measurement_rate)
+  // @@protoc_insertion_point(field_get:opq.opqbox3.GetInfoResponse.measurement_rate)
   return measurement_rate_;
 }
  void GetInfoResponse::set_measurement_rate(::google::protobuf::uint32 value) {
   
   measurement_rate_ = value;
-  // @@protoc_insertion_point(field_set:opq.proto3.GetInfoResponse.measurement_rate)
+  // @@protoc_insertion_point(field_set:opq.opqbox3.GetInfoResponse.measurement_rate)
 }
 
 #endif  // PROTOBUF_INLINE_NOT_IN_HEADERS
@@ -3165,7 +3936,7 @@ const int SetMeasurementRateResponse::kOldRateCyclesFieldNumber;
 SetMeasurementRateResponse::SetMeasurementRateResponse()
   : ::google::protobuf::Message(), _internal_metadata_(NULL) {
   SharedCtor();
-  // @@protoc_insertion_point(constructor:opq.proto3.SetMeasurementRateResponse)
+  // @@protoc_insertion_point(constructor:opq.opqbox3.SetMeasurementRateResponse)
 }
 
 void SetMeasurementRateResponse::InitAsDefaultInstance() {
@@ -3177,7 +3948,7 @@ SetMeasurementRateResponse::SetMeasurementRateResponse(const SetMeasurementRateR
     _internal_metadata_(NULL) {
   SharedCtor();
   MergeFrom(from);
-  // @@protoc_insertion_point(copy_constructor:opq.proto3.SetMeasurementRateResponse)
+  // @@protoc_insertion_point(copy_constructor:opq.opqbox3.SetMeasurementRateResponse)
 }
 
 void SetMeasurementRateResponse::SharedCtor() {
@@ -3187,7 +3958,7 @@ void SetMeasurementRateResponse::SharedCtor() {
 }
 
 SetMeasurementRateResponse::~SetMeasurementRateResponse() {
-  // @@protoc_insertion_point(destructor:opq.proto3.SetMeasurementRateResponse)
+  // @@protoc_insertion_point(destructor:opq.opqbox3.SetMeasurementRateResponse)
   SharedDtor();
 }
 
@@ -3222,7 +3993,7 @@ SetMeasurementRateResponse* SetMeasurementRateResponse::New(::google::protobuf::
 }
 
 void SetMeasurementRateResponse::Clear() {
-// @@protoc_insertion_point(message_clear_start:opq.proto3.SetMeasurementRateResponse)
+// @@protoc_insertion_point(message_clear_start:opq.opqbox3.SetMeasurementRateResponse)
   old_rate_cycles_ = 0u;
 }
 
@@ -3230,7 +4001,7 @@ bool SetMeasurementRateResponse::MergePartialFromCodedStream(
     ::google::protobuf::io::CodedInputStream* input) {
 #define DO_(EXPRESSION) if (!GOOGLE_PREDICT_TRUE(EXPRESSION)) goto failure
   ::google::protobuf::uint32 tag;
-  // @@protoc_insertion_point(parse_start:opq.proto3.SetMeasurementRateResponse)
+  // @@protoc_insertion_point(parse_start:opq.opqbox3.SetMeasurementRateResponse)
   for (;;) {
     ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
     tag = p.first;
@@ -3263,39 +4034,39 @@ bool SetMeasurementRateResponse::MergePartialFromCodedStream(
     }
   }
 success:
-  // @@protoc_insertion_point(parse_success:opq.proto3.SetMeasurementRateResponse)
+  // @@protoc_insertion_point(parse_success:opq.opqbox3.SetMeasurementRateResponse)
   return true;
 failure:
-  // @@protoc_insertion_point(parse_failure:opq.proto3.SetMeasurementRateResponse)
+  // @@protoc_insertion_point(parse_failure:opq.opqbox3.SetMeasurementRateResponse)
   return false;
 #undef DO_
 }
 
 void SetMeasurementRateResponse::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
-  // @@protoc_insertion_point(serialize_start:opq.proto3.SetMeasurementRateResponse)
+  // @@protoc_insertion_point(serialize_start:opq.opqbox3.SetMeasurementRateResponse)
   // optional uint32 old_rate_cycles = 1;
   if (this->old_rate_cycles() != 0) {
     ::google::protobuf::internal::WireFormatLite::WriteUInt32(1, this->old_rate_cycles(), output);
   }
 
-  // @@protoc_insertion_point(serialize_end:opq.proto3.SetMeasurementRateResponse)
+  // @@protoc_insertion_point(serialize_end:opq.opqbox3.SetMeasurementRateResponse)
 }
 
 ::google::protobuf::uint8* SetMeasurementRateResponse::InternalSerializeWithCachedSizesToArray(
     bool deterministic, ::google::protobuf::uint8* target) const {
-  // @@protoc_insertion_point(serialize_to_array_start:opq.proto3.SetMeasurementRateResponse)
+  // @@protoc_insertion_point(serialize_to_array_start:opq.opqbox3.SetMeasurementRateResponse)
   // optional uint32 old_rate_cycles = 1;
   if (this->old_rate_cycles() != 0) {
     target = ::google::protobuf::internal::WireFormatLite::WriteUInt32ToArray(1, this->old_rate_cycles(), target);
   }
 
-  // @@protoc_insertion_point(serialize_to_array_end:opq.proto3.SetMeasurementRateResponse)
+  // @@protoc_insertion_point(serialize_to_array_end:opq.opqbox3.SetMeasurementRateResponse)
   return target;
 }
 
 int SetMeasurementRateResponse::ByteSize() const {
-// @@protoc_insertion_point(message_byte_size_start:opq.proto3.SetMeasurementRateResponse)
+// @@protoc_insertion_point(message_byte_size_start:opq.opqbox3.SetMeasurementRateResponse)
   int total_size = 0;
 
   // optional uint32 old_rate_cycles = 1;
@@ -3312,7 +4083,7 @@ int SetMeasurementRateResponse::ByteSize() const {
 }
 
 void SetMeasurementRateResponse::MergeFrom(const ::google::protobuf::Message& from) {
-// @@protoc_insertion_point(generalized_merge_from_start:opq.proto3.SetMeasurementRateResponse)
+// @@protoc_insertion_point(generalized_merge_from_start:opq.opqbox3.SetMeasurementRateResponse)
   if (GOOGLE_PREDICT_FALSE(&from == this)) {
     ::google::protobuf::internal::MergeFromFail(__FILE__, __LINE__);
   }
@@ -3320,16 +4091,16 @@ void SetMeasurementRateResponse::MergeFrom(const ::google::protobuf::Message& fr
       ::google::protobuf::internal::DynamicCastToGenerated<const SetMeasurementRateResponse>(
           &from);
   if (source == NULL) {
-  // @@protoc_insertion_point(generalized_merge_from_cast_fail:opq.proto3.SetMeasurementRateResponse)
+  // @@protoc_insertion_point(generalized_merge_from_cast_fail:opq.opqbox3.SetMeasurementRateResponse)
     ::google::protobuf::internal::ReflectionOps::Merge(from, this);
   } else {
-  // @@protoc_insertion_point(generalized_merge_from_cast_success:opq.proto3.SetMeasurementRateResponse)
+  // @@protoc_insertion_point(generalized_merge_from_cast_success:opq.opqbox3.SetMeasurementRateResponse)
     MergeFrom(*source);
   }
 }
 
 void SetMeasurementRateResponse::MergeFrom(const SetMeasurementRateResponse& from) {
-// @@protoc_insertion_point(class_specific_merge_from_start:opq.proto3.SetMeasurementRateResponse)
+// @@protoc_insertion_point(class_specific_merge_from_start:opq.opqbox3.SetMeasurementRateResponse)
   if (GOOGLE_PREDICT_FALSE(&from == this)) {
     ::google::protobuf::internal::MergeFromFail(__FILE__, __LINE__);
   }
@@ -3339,14 +4110,14 @@ void SetMeasurementRateResponse::MergeFrom(const SetMeasurementRateResponse& fro
 }
 
 void SetMeasurementRateResponse::CopyFrom(const ::google::protobuf::Message& from) {
-// @@protoc_insertion_point(generalized_copy_from_start:opq.proto3.SetMeasurementRateResponse)
+// @@protoc_insertion_point(generalized_copy_from_start:opq.opqbox3.SetMeasurementRateResponse)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
 }
 
 void SetMeasurementRateResponse::CopyFrom(const SetMeasurementRateResponse& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:opq.proto3.SetMeasurementRateResponse)
+// @@protoc_insertion_point(class_specific_copy_from_start:opq.opqbox3.SetMeasurementRateResponse)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
@@ -3383,13 +4154,13 @@ void SetMeasurementRateResponse::clear_old_rate_cycles() {
   old_rate_cycles_ = 0u;
 }
  ::google::protobuf::uint32 SetMeasurementRateResponse::old_rate_cycles() const {
-  // @@protoc_insertion_point(field_get:opq.proto3.SetMeasurementRateResponse.old_rate_cycles)
+  // @@protoc_insertion_point(field_get:opq.opqbox3.SetMeasurementRateResponse.old_rate_cycles)
   return old_rate_cycles_;
 }
  void SetMeasurementRateResponse::set_old_rate_cycles(::google::protobuf::uint32 value) {
   
   old_rate_cycles_ = value;
-  // @@protoc_insertion_point(field_set:opq.proto3.SetMeasurementRateResponse.old_rate_cycles)
+  // @@protoc_insertion_point(field_set:opq.opqbox3.SetMeasurementRateResponse.old_rate_cycles)
 }
 
 #endif  // PROTOBUF_INLINE_NOT_IN_HEADERS
@@ -3397,81 +4168,81 @@ void SetMeasurementRateResponse::clear_old_rate_cycles() {
 // ===================================================================
 
 #if !defined(_MSC_VER) || _MSC_VER >= 1900
-const int GetDateResponseHeader::kStartTsFieldNumber;
-const int GetDateResponseHeader::kEndTsFieldNumber;
+const int GetDataResponseHeader::kStartTsFieldNumber;
+const int GetDataResponseHeader::kEndTsFieldNumber;
 #endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
 
-GetDateResponseHeader::GetDateResponseHeader()
+GetDataResponseHeader::GetDataResponseHeader()
   : ::google::protobuf::Message(), _internal_metadata_(NULL) {
   SharedCtor();
-  // @@protoc_insertion_point(constructor:opq.proto3.GetDateResponseHeader)
+  // @@protoc_insertion_point(constructor:opq.opqbox3.GetDataResponseHeader)
 }
 
-void GetDateResponseHeader::InitAsDefaultInstance() {
+void GetDataResponseHeader::InitAsDefaultInstance() {
   _is_default_instance_ = true;
 }
 
-GetDateResponseHeader::GetDateResponseHeader(const GetDateResponseHeader& from)
+GetDataResponseHeader::GetDataResponseHeader(const GetDataResponseHeader& from)
   : ::google::protobuf::Message(),
     _internal_metadata_(NULL) {
   SharedCtor();
   MergeFrom(from);
-  // @@protoc_insertion_point(copy_constructor:opq.proto3.GetDateResponseHeader)
+  // @@protoc_insertion_point(copy_constructor:opq.opqbox3.GetDataResponseHeader)
 }
 
-void GetDateResponseHeader::SharedCtor() {
+void GetDataResponseHeader::SharedCtor() {
     _is_default_instance_ = false;
   _cached_size_ = 0;
   start_ts_ = GOOGLE_ULONGLONG(0);
   end_ts_ = GOOGLE_ULONGLONG(0);
 }
 
-GetDateResponseHeader::~GetDateResponseHeader() {
-  // @@protoc_insertion_point(destructor:opq.proto3.GetDateResponseHeader)
+GetDataResponseHeader::~GetDataResponseHeader() {
+  // @@protoc_insertion_point(destructor:opq.opqbox3.GetDataResponseHeader)
   SharedDtor();
 }
 
-void GetDateResponseHeader::SharedDtor() {
+void GetDataResponseHeader::SharedDtor() {
   if (this != default_instance_) {
   }
 }
 
-void GetDateResponseHeader::SetCachedSize(int size) const {
+void GetDataResponseHeader::SetCachedSize(int size) const {
   GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
   _cached_size_ = size;
   GOOGLE_SAFE_CONCURRENT_WRITES_END();
 }
-const ::google::protobuf::Descriptor* GetDateResponseHeader::descriptor() {
+const ::google::protobuf::Descriptor* GetDataResponseHeader::descriptor() {
   protobuf_AssignDescriptorsOnce();
-  return GetDateResponseHeader_descriptor_;
+  return GetDataResponseHeader_descriptor_;
 }
 
-const GetDateResponseHeader& GetDateResponseHeader::default_instance() {
+const GetDataResponseHeader& GetDataResponseHeader::default_instance() {
   if (default_instance_ == NULL) protobuf_AddDesc_opqbox3_2eproto();
   return *default_instance_;
 }
 
-GetDateResponseHeader* GetDateResponseHeader::default_instance_ = NULL;
+GetDataResponseHeader* GetDataResponseHeader::default_instance_ = NULL;
 
-GetDateResponseHeader* GetDateResponseHeader::New(::google::protobuf::Arena* arena) const {
-  GetDateResponseHeader* n = new GetDateResponseHeader;
+GetDataResponseHeader* GetDataResponseHeader::New(::google::protobuf::Arena* arena) const {
+  GetDataResponseHeader* n = new GetDataResponseHeader;
   if (arena != NULL) {
     arena->Own(n);
   }
   return n;
 }
 
-void GetDateResponseHeader::Clear() {
-// @@protoc_insertion_point(message_clear_start:opq.proto3.GetDateResponseHeader)
+void GetDataResponseHeader::Clear() {
+// @@protoc_insertion_point(message_clear_start:opq.opqbox3.GetDataResponseHeader)
 #if defined(__clang__)
 #define ZR_HELPER_(f) \
   _Pragma("clang diagnostic push") \
   _Pragma("clang diagnostic ignored \"-Winvalid-offsetof\"") \
-  __builtin_offsetof(GetDateResponseHeader, f) \
+  __builtin_offsetof(GetDataResponseHeader, f) \
   _Pragma("clang diagnostic pop")
 #else
 #define ZR_HELPER_(f) reinterpret_cast<char*>(\
-  &reinterpret_cast<GetDateResponseHeader*>(16)->f)
+  &reinterpret_cast<GetDataResponseHeader*>(16)->f)
 #endif
 
 #define ZR_(first, last) do {\
@@ -3486,11 +4257,11 @@ void GetDateResponseHeader::Clear() {
 
 }
 
-bool GetDateResponseHeader::MergePartialFromCodedStream(
+bool GetDataResponseHeader::MergePartialFromCodedStream(
     ::google::protobuf::io::CodedInputStream* input) {
 #define DO_(EXPRESSION) if (!GOOGLE_PREDICT_TRUE(EXPRESSION)) goto failure
   ::google::protobuf::uint32 tag;
-  // @@protoc_insertion_point(parse_start:opq.proto3.GetDateResponseHeader)
+  // @@protoc_insertion_point(parse_start:opq.opqbox3.GetDataResponseHeader)
   for (;;) {
     ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
     tag = p.first;
@@ -3538,17 +4309,17 @@ bool GetDateResponseHeader::MergePartialFromCodedStream(
     }
   }
 success:
-  // @@protoc_insertion_point(parse_success:opq.proto3.GetDateResponseHeader)
+  // @@protoc_insertion_point(parse_success:opq.opqbox3.GetDataResponseHeader)
   return true;
 failure:
-  // @@protoc_insertion_point(parse_failure:opq.proto3.GetDateResponseHeader)
+  // @@protoc_insertion_point(parse_failure:opq.opqbox3.GetDataResponseHeader)
   return false;
 #undef DO_
 }
 
-void GetDateResponseHeader::SerializeWithCachedSizes(
+void GetDataResponseHeader::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
-  // @@protoc_insertion_point(serialize_start:opq.proto3.GetDateResponseHeader)
+  // @@protoc_insertion_point(serialize_start:opq.opqbox3.GetDataResponseHeader)
   // optional uint64 start_ts = 1;
   if (this->start_ts() != 0) {
     ::google::protobuf::internal::WireFormatLite::WriteUInt64(1, this->start_ts(), output);
@@ -3559,12 +4330,12 @@ void GetDateResponseHeader::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormatLite::WriteUInt64(2, this->end_ts(), output);
   }
 
-  // @@protoc_insertion_point(serialize_end:opq.proto3.GetDateResponseHeader)
+  // @@protoc_insertion_point(serialize_end:opq.opqbox3.GetDataResponseHeader)
 }
 
-::google::protobuf::uint8* GetDateResponseHeader::InternalSerializeWithCachedSizesToArray(
+::google::protobuf::uint8* GetDataResponseHeader::InternalSerializeWithCachedSizesToArray(
     bool deterministic, ::google::protobuf::uint8* target) const {
-  // @@protoc_insertion_point(serialize_to_array_start:opq.proto3.GetDateResponseHeader)
+  // @@protoc_insertion_point(serialize_to_array_start:opq.opqbox3.GetDataResponseHeader)
   // optional uint64 start_ts = 1;
   if (this->start_ts() != 0) {
     target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(1, this->start_ts(), target);
@@ -3575,12 +4346,12 @@ void GetDateResponseHeader::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(2, this->end_ts(), target);
   }
 
-  // @@protoc_insertion_point(serialize_to_array_end:opq.proto3.GetDateResponseHeader)
+  // @@protoc_insertion_point(serialize_to_array_end:opq.opqbox3.GetDataResponseHeader)
   return target;
 }
 
-int GetDateResponseHeader::ByteSize() const {
-// @@protoc_insertion_point(message_byte_size_start:opq.proto3.GetDateResponseHeader)
+int GetDataResponseHeader::ByteSize() const {
+// @@protoc_insertion_point(message_byte_size_start:opq.opqbox3.GetDataResponseHeader)
   int total_size = 0;
 
   // optional uint64 start_ts = 1;
@@ -3603,25 +4374,25 @@ int GetDateResponseHeader::ByteSize() const {
   return total_size;
 }
 
-void GetDateResponseHeader::MergeFrom(const ::google::protobuf::Message& from) {
-// @@protoc_insertion_point(generalized_merge_from_start:opq.proto3.GetDateResponseHeader)
+void GetDataResponseHeader::MergeFrom(const ::google::protobuf::Message& from) {
+// @@protoc_insertion_point(generalized_merge_from_start:opq.opqbox3.GetDataResponseHeader)
   if (GOOGLE_PREDICT_FALSE(&from == this)) {
     ::google::protobuf::internal::MergeFromFail(__FILE__, __LINE__);
   }
-  const GetDateResponseHeader* source = 
-      ::google::protobuf::internal::DynamicCastToGenerated<const GetDateResponseHeader>(
+  const GetDataResponseHeader* source = 
+      ::google::protobuf::internal::DynamicCastToGenerated<const GetDataResponseHeader>(
           &from);
   if (source == NULL) {
-  // @@protoc_insertion_point(generalized_merge_from_cast_fail:opq.proto3.GetDateResponseHeader)
+  // @@protoc_insertion_point(generalized_merge_from_cast_fail:opq.opqbox3.GetDataResponseHeader)
     ::google::protobuf::internal::ReflectionOps::Merge(from, this);
   } else {
-  // @@protoc_insertion_point(generalized_merge_from_cast_success:opq.proto3.GetDateResponseHeader)
+  // @@protoc_insertion_point(generalized_merge_from_cast_success:opq.opqbox3.GetDataResponseHeader)
     MergeFrom(*source);
   }
 }
 
-void GetDateResponseHeader::MergeFrom(const GetDateResponseHeader& from) {
-// @@protoc_insertion_point(class_specific_merge_from_start:opq.proto3.GetDateResponseHeader)
+void GetDataResponseHeader::MergeFrom(const GetDataResponseHeader& from) {
+// @@protoc_insertion_point(class_specific_merge_from_start:opq.opqbox3.GetDataResponseHeader)
   if (GOOGLE_PREDICT_FALSE(&from == this)) {
     ::google::protobuf::internal::MergeFromFail(__FILE__, __LINE__);
   }
@@ -3633,73 +4404,309 @@ void GetDateResponseHeader::MergeFrom(const GetDateResponseHeader& from) {
   }
 }
 
-void GetDateResponseHeader::CopyFrom(const ::google::protobuf::Message& from) {
-// @@protoc_insertion_point(generalized_copy_from_start:opq.proto3.GetDateResponseHeader)
+void GetDataResponseHeader::CopyFrom(const ::google::protobuf::Message& from) {
+// @@protoc_insertion_point(generalized_copy_from_start:opq.opqbox3.GetDataResponseHeader)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
 }
 
-void GetDateResponseHeader::CopyFrom(const GetDateResponseHeader& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:opq.proto3.GetDateResponseHeader)
+void GetDataResponseHeader::CopyFrom(const GetDataResponseHeader& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:opq.opqbox3.GetDataResponseHeader)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
 }
 
-bool GetDateResponseHeader::IsInitialized() const {
+bool GetDataResponseHeader::IsInitialized() const {
 
   return true;
 }
 
-void GetDateResponseHeader::Swap(GetDateResponseHeader* other) {
+void GetDataResponseHeader::Swap(GetDataResponseHeader* other) {
   if (other == this) return;
   InternalSwap(other);
 }
-void GetDateResponseHeader::InternalSwap(GetDateResponseHeader* other) {
+void GetDataResponseHeader::InternalSwap(GetDataResponseHeader* other) {
   std::swap(start_ts_, other->start_ts_);
   std::swap(end_ts_, other->end_ts_);
   _internal_metadata_.Swap(&other->_internal_metadata_);
   std::swap(_cached_size_, other->_cached_size_);
 }
 
-::google::protobuf::Metadata GetDateResponseHeader::GetMetadata() const {
+::google::protobuf::Metadata GetDataResponseHeader::GetMetadata() const {
   protobuf_AssignDescriptorsOnce();
   ::google::protobuf::Metadata metadata;
-  metadata.descriptor = GetDateResponseHeader_descriptor_;
-  metadata.reflection = GetDateResponseHeader_reflection_;
+  metadata.descriptor = GetDataResponseHeader_descriptor_;
+  metadata.reflection = GetDataResponseHeader_reflection_;
   return metadata;
 }
 
 #if PROTOBUF_INLINE_NOT_IN_HEADERS
-// GetDateResponseHeader
+// GetDataResponseHeader
 
 // optional uint64 start_ts = 1;
-void GetDateResponseHeader::clear_start_ts() {
+void GetDataResponseHeader::clear_start_ts() {
   start_ts_ = GOOGLE_ULONGLONG(0);
 }
- ::google::protobuf::uint64 GetDateResponseHeader::start_ts() const {
-  // @@protoc_insertion_point(field_get:opq.proto3.GetDateResponseHeader.start_ts)
+ ::google::protobuf::uint64 GetDataResponseHeader::start_ts() const {
+  // @@protoc_insertion_point(field_get:opq.opqbox3.GetDataResponseHeader.start_ts)
   return start_ts_;
 }
- void GetDateResponseHeader::set_start_ts(::google::protobuf::uint64 value) {
+ void GetDataResponseHeader::set_start_ts(::google::protobuf::uint64 value) {
   
   start_ts_ = value;
-  // @@protoc_insertion_point(field_set:opq.proto3.GetDateResponseHeader.start_ts)
+  // @@protoc_insertion_point(field_set:opq.opqbox3.GetDataResponseHeader.start_ts)
 }
 
 // optional uint64 end_ts = 2;
-void GetDateResponseHeader::clear_end_ts() {
+void GetDataResponseHeader::clear_end_ts() {
   end_ts_ = GOOGLE_ULONGLONG(0);
 }
- ::google::protobuf::uint64 GetDateResponseHeader::end_ts() const {
-  // @@protoc_insertion_point(field_get:opq.proto3.GetDateResponseHeader.end_ts)
+ ::google::protobuf::uint64 GetDataResponseHeader::end_ts() const {
+  // @@protoc_insertion_point(field_get:opq.opqbox3.GetDataResponseHeader.end_ts)
   return end_ts_;
 }
- void GetDateResponseHeader::set_end_ts(::google::protobuf::uint64 value) {
+ void GetDataResponseHeader::set_end_ts(::google::protobuf::uint64 value) {
   
   end_ts_ = value;
-  // @@protoc_insertion_point(field_set:opq.proto3.GetDateResponseHeader.end_ts)
+  // @@protoc_insertion_point(field_set:opq.opqbox3.GetDataResponseHeader.end_ts)
+}
+
+#endif  // PROTOBUF_INLINE_NOT_IN_HEADERS
+
+// ===================================================================
+
+#if !defined(_MSC_VER) || _MSC_VER >= 1900
+const int SendCommandToPluginResponse::kOkFieldNumber;
+#endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
+
+SendCommandToPluginResponse::SendCommandToPluginResponse()
+  : ::google::protobuf::Message(), _internal_metadata_(NULL) {
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:opq.opqbox3.SendCommandToPluginResponse)
+}
+
+void SendCommandToPluginResponse::InitAsDefaultInstance() {
+  _is_default_instance_ = true;
+}
+
+SendCommandToPluginResponse::SendCommandToPluginResponse(const SendCommandToPluginResponse& from)
+  : ::google::protobuf::Message(),
+    _internal_metadata_(NULL) {
+  SharedCtor();
+  MergeFrom(from);
+  // @@protoc_insertion_point(copy_constructor:opq.opqbox3.SendCommandToPluginResponse)
+}
+
+void SendCommandToPluginResponse::SharedCtor() {
+    _is_default_instance_ = false;
+  _cached_size_ = 0;
+  ok_ = false;
+}
+
+SendCommandToPluginResponse::~SendCommandToPluginResponse() {
+  // @@protoc_insertion_point(destructor:opq.opqbox3.SendCommandToPluginResponse)
+  SharedDtor();
+}
+
+void SendCommandToPluginResponse::SharedDtor() {
+  if (this != default_instance_) {
+  }
+}
+
+void SendCommandToPluginResponse::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* SendCommandToPluginResponse::descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return SendCommandToPluginResponse_descriptor_;
+}
+
+const SendCommandToPluginResponse& SendCommandToPluginResponse::default_instance() {
+  if (default_instance_ == NULL) protobuf_AddDesc_opqbox3_2eproto();
+  return *default_instance_;
+}
+
+SendCommandToPluginResponse* SendCommandToPluginResponse::default_instance_ = NULL;
+
+SendCommandToPluginResponse* SendCommandToPluginResponse::New(::google::protobuf::Arena* arena) const {
+  SendCommandToPluginResponse* n = new SendCommandToPluginResponse;
+  if (arena != NULL) {
+    arena->Own(n);
+  }
+  return n;
+}
+
+void SendCommandToPluginResponse::Clear() {
+// @@protoc_insertion_point(message_clear_start:opq.opqbox3.SendCommandToPluginResponse)
+  ok_ = false;
+}
+
+bool SendCommandToPluginResponse::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!GOOGLE_PREDICT_TRUE(EXPRESSION)) goto failure
+  ::google::protobuf::uint32 tag;
+  // @@protoc_insertion_point(parse_start:opq.opqbox3.SendCommandToPluginResponse)
+  for (;;) {
+    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
+    tag = p.first;
+    if (!p.second) goto handle_unusual;
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // optional bool ok = 1;
+      case 1: {
+        if (tag == 8) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   bool, ::google::protobuf::internal::WireFormatLite::TYPE_BOOL>(
+                 input, &ok_)));
+
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectAtEnd()) goto success;
+        break;
+      }
+
+      default: {
+      handle_unusual:
+        if (tag == 0 ||
+            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          goto success;
+        }
+        DO_(::google::protobuf::internal::WireFormatLite::SkipField(input, tag));
+        break;
+      }
+    }
+  }
+success:
+  // @@protoc_insertion_point(parse_success:opq.opqbox3.SendCommandToPluginResponse)
+  return true;
+failure:
+  // @@protoc_insertion_point(parse_failure:opq.opqbox3.SendCommandToPluginResponse)
+  return false;
+#undef DO_
+}
+
+void SendCommandToPluginResponse::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // @@protoc_insertion_point(serialize_start:opq.opqbox3.SendCommandToPluginResponse)
+  // optional bool ok = 1;
+  if (this->ok() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteBool(1, this->ok(), output);
+  }
+
+  // @@protoc_insertion_point(serialize_end:opq.opqbox3.SendCommandToPluginResponse)
+}
+
+::google::protobuf::uint8* SendCommandToPluginResponse::InternalSerializeWithCachedSizesToArray(
+    bool deterministic, ::google::protobuf::uint8* target) const {
+  // @@protoc_insertion_point(serialize_to_array_start:opq.opqbox3.SendCommandToPluginResponse)
+  // optional bool ok = 1;
+  if (this->ok() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteBoolToArray(1, this->ok(), target);
+  }
+
+  // @@protoc_insertion_point(serialize_to_array_end:opq.opqbox3.SendCommandToPluginResponse)
+  return target;
+}
+
+int SendCommandToPluginResponse::ByteSize() const {
+// @@protoc_insertion_point(message_byte_size_start:opq.opqbox3.SendCommandToPluginResponse)
+  int total_size = 0;
+
+  // optional bool ok = 1;
+  if (this->ok() != 0) {
+    total_size += 1 + 1;
+  }
+
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = total_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  return total_size;
+}
+
+void SendCommandToPluginResponse::MergeFrom(const ::google::protobuf::Message& from) {
+// @@protoc_insertion_point(generalized_merge_from_start:opq.opqbox3.SendCommandToPluginResponse)
+  if (GOOGLE_PREDICT_FALSE(&from == this)) {
+    ::google::protobuf::internal::MergeFromFail(__FILE__, __LINE__);
+  }
+  const SendCommandToPluginResponse* source = 
+      ::google::protobuf::internal::DynamicCastToGenerated<const SendCommandToPluginResponse>(
+          &from);
+  if (source == NULL) {
+  // @@protoc_insertion_point(generalized_merge_from_cast_fail:opq.opqbox3.SendCommandToPluginResponse)
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+  // @@protoc_insertion_point(generalized_merge_from_cast_success:opq.opqbox3.SendCommandToPluginResponse)
+    MergeFrom(*source);
+  }
+}
+
+void SendCommandToPluginResponse::MergeFrom(const SendCommandToPluginResponse& from) {
+// @@protoc_insertion_point(class_specific_merge_from_start:opq.opqbox3.SendCommandToPluginResponse)
+  if (GOOGLE_PREDICT_FALSE(&from == this)) {
+    ::google::protobuf::internal::MergeFromFail(__FILE__, __LINE__);
+  }
+  if (from.ok() != 0) {
+    set_ok(from.ok());
+  }
+}
+
+void SendCommandToPluginResponse::CopyFrom(const ::google::protobuf::Message& from) {
+// @@protoc_insertion_point(generalized_copy_from_start:opq.opqbox3.SendCommandToPluginResponse)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void SendCommandToPluginResponse::CopyFrom(const SendCommandToPluginResponse& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:opq.opqbox3.SendCommandToPluginResponse)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool SendCommandToPluginResponse::IsInitialized() const {
+
+  return true;
+}
+
+void SendCommandToPluginResponse::Swap(SendCommandToPluginResponse* other) {
+  if (other == this) return;
+  InternalSwap(other);
+}
+void SendCommandToPluginResponse::InternalSwap(SendCommandToPluginResponse* other) {
+  std::swap(ok_, other->ok_);
+  _internal_metadata_.Swap(&other->_internal_metadata_);
+  std::swap(_cached_size_, other->_cached_size_);
+}
+
+::google::protobuf::Metadata SendCommandToPluginResponse::GetMetadata() const {
+  protobuf_AssignDescriptorsOnce();
+  ::google::protobuf::Metadata metadata;
+  metadata.descriptor = SendCommandToPluginResponse_descriptor_;
+  metadata.reflection = SendCommandToPluginResponse_reflection_;
+  return metadata;
+}
+
+#if PROTOBUF_INLINE_NOT_IN_HEADERS
+// SendCommandToPluginResponse
+
+// optional bool ok = 1;
+void SendCommandToPluginResponse::clear_ok() {
+  ok_ = false;
+}
+ bool SendCommandToPluginResponse::ok() const {
+  // @@protoc_insertion_point(field_get:opq.opqbox3.SendCommandToPluginResponse.ok)
+  return ok_;
+}
+ void SendCommandToPluginResponse::set_ok(bool value) {
+  
+  ok_ = value;
+  // @@protoc_insertion_point(field_set:opq.opqbox3.SendCommandToPluginResponse.ok)
 }
 
 #endif  // PROTOBUF_INLINE_NOT_IN_HEADERS
@@ -3713,19 +4720,21 @@ const int Response::kTimestampMsFieldNumber;
 const int Response::kInfoResponseFieldNumber;
 const int Response::kMessageRateReponseFieldNumber;
 const int Response::kGetDataResponseFieldNumber;
+const int Response::kCommandToPluginResponseFieldNumber;
 #endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
 
 Response::Response()
   : ::google::protobuf::Message(), _internal_metadata_(NULL) {
   SharedCtor();
-  // @@protoc_insertion_point(constructor:opq.proto3.Response)
+  // @@protoc_insertion_point(constructor:opq.opqbox3.Response)
 }
 
 void Response::InitAsDefaultInstance() {
   _is_default_instance_ = true;
-  Response_default_oneof_instance_->info_response_ = const_cast< ::opq::proto3::GetInfoResponse*>(&::opq::proto3::GetInfoResponse::default_instance());
-  Response_default_oneof_instance_->message_rate_reponse_ = const_cast< ::opq::proto3::SetMeasurementRateResponse*>(&::opq::proto3::SetMeasurementRateResponse::default_instance());
-  Response_default_oneof_instance_->get_data_response_ = const_cast< ::opq::proto3::GetDateResponseHeader*>(&::opq::proto3::GetDateResponseHeader::default_instance());
+  Response_default_oneof_instance_->info_response_ = const_cast< ::opq::opqbox3::GetInfoResponse*>(&::opq::opqbox3::GetInfoResponse::default_instance());
+  Response_default_oneof_instance_->message_rate_reponse_ = const_cast< ::opq::opqbox3::SetMeasurementRateResponse*>(&::opq::opqbox3::SetMeasurementRateResponse::default_instance());
+  Response_default_oneof_instance_->get_data_response_ = const_cast< ::opq::opqbox3::GetDataResponseHeader*>(&::opq::opqbox3::GetDataResponseHeader::default_instance());
+  Response_default_oneof_instance_->command_to_plugin_response_ = const_cast< ::opq::opqbox3::SendCommandToPluginResponse*>(&::opq::opqbox3::SendCommandToPluginResponse::default_instance());
 }
 
 Response::Response(const Response& from)
@@ -3733,7 +4742,7 @@ Response::Response(const Response& from)
     _internal_metadata_(NULL) {
   SharedCtor();
   MergeFrom(from);
-  // @@protoc_insertion_point(copy_constructor:opq.proto3.Response)
+  // @@protoc_insertion_point(copy_constructor:opq.opqbox3.Response)
 }
 
 void Response::SharedCtor() {
@@ -3746,7 +4755,7 @@ void Response::SharedCtor() {
 }
 
 Response::~Response() {
-  // @@protoc_insertion_point(destructor:opq.proto3.Response)
+  // @@protoc_insertion_point(destructor:opq.opqbox3.Response)
   SharedDtor();
 }
 
@@ -3784,7 +4793,7 @@ Response* Response::New(::google::protobuf::Arena* arena) const {
 }
 
 void Response::clear_response() {
-// @@protoc_insertion_point(one_of_clear_start:opq.proto3.Response)
+// @@protoc_insertion_point(one_of_clear_start:opq.opqbox3.Response)
   switch(response_case()) {
     case kInfoResponse: {
       delete response_.info_response_;
@@ -3798,6 +4807,10 @@ void Response::clear_response() {
       delete response_.get_data_response_;
       break;
     }
+    case kCommandToPluginResponse: {
+      delete response_.command_to_plugin_response_;
+      break;
+    }
     case RESPONSE_NOT_SET: {
       break;
     }
@@ -3807,7 +4820,7 @@ void Response::clear_response() {
 
 
 void Response::Clear() {
-// @@protoc_insertion_point(message_clear_start:opq.proto3.Response)
+// @@protoc_insertion_point(message_clear_start:opq.opqbox3.Response)
 #if defined(__clang__)
 #define ZR_HELPER_(f) \
   _Pragma("clang diagnostic push") \
@@ -3836,7 +4849,7 @@ bool Response::MergePartialFromCodedStream(
     ::google::protobuf::io::CodedInputStream* input) {
 #define DO_(EXPRESSION) if (!GOOGLE_PREDICT_TRUE(EXPRESSION)) goto failure
   ::google::protobuf::uint32 tag;
-  // @@protoc_insertion_point(parse_start:opq.proto3.Response)
+  // @@protoc_insertion_point(parse_start:opq.opqbox3.Response)
   for (;;) {
     ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
     tag = p.first;
@@ -3886,7 +4899,7 @@ bool Response::MergePartialFromCodedStream(
         break;
       }
 
-      // optional .opq.proto3.GetInfoResponse info_response = 4;
+      // optional .opq.opqbox3.GetInfoResponse info_response = 4;
       case 4: {
         if (tag == 34) {
          parse_info_response:
@@ -3899,7 +4912,7 @@ bool Response::MergePartialFromCodedStream(
         break;
       }
 
-      // optional .opq.proto3.SetMeasurementRateResponse message_rate_reponse = 5;
+      // optional .opq.opqbox3.SetMeasurementRateResponse message_rate_reponse = 5;
       case 5: {
         if (tag == 42) {
          parse_message_rate_reponse:
@@ -3912,12 +4925,25 @@ bool Response::MergePartialFromCodedStream(
         break;
       }
 
-      // optional .opq.proto3.GetDateResponseHeader get_data_response = 6;
+      // optional .opq.opqbox3.GetDataResponseHeader get_data_response = 6;
       case 6: {
         if (tag == 50) {
          parse_get_data_response:
           DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
                input, mutable_get_data_response()));
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(58)) goto parse_command_to_plugin_response;
+        break;
+      }
+
+      // optional .opq.opqbox3.SendCommandToPluginResponse command_to_plugin_response = 7;
+      case 7: {
+        if (tag == 58) {
+         parse_command_to_plugin_response:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_command_to_plugin_response()));
         } else {
           goto handle_unusual;
         }
@@ -3938,17 +4964,17 @@ bool Response::MergePartialFromCodedStream(
     }
   }
 success:
-  // @@protoc_insertion_point(parse_success:opq.proto3.Response)
+  // @@protoc_insertion_point(parse_success:opq.opqbox3.Response)
   return true;
 failure:
-  // @@protoc_insertion_point(parse_failure:opq.proto3.Response)
+  // @@protoc_insertion_point(parse_failure:opq.opqbox3.Response)
   return false;
 #undef DO_
 }
 
 void Response::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
-  // @@protoc_insertion_point(serialize_start:opq.proto3.Response)
+  // @@protoc_insertion_point(serialize_start:opq.opqbox3.Response)
   // optional int32 box_id = 1;
   if (this->box_id() != 0) {
     ::google::protobuf::internal::WireFormatLite::WriteInt32(1, this->box_id(), output);
@@ -3964,30 +4990,36 @@ void Response::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormatLite::WriteUInt64(3, this->timestamp_ms(), output);
   }
 
-  // optional .opq.proto3.GetInfoResponse info_response = 4;
+  // optional .opq.opqbox3.GetInfoResponse info_response = 4;
   if (has_info_response()) {
     ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
       4, *response_.info_response_, output);
   }
 
-  // optional .opq.proto3.SetMeasurementRateResponse message_rate_reponse = 5;
+  // optional .opq.opqbox3.SetMeasurementRateResponse message_rate_reponse = 5;
   if (has_message_rate_reponse()) {
     ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
       5, *response_.message_rate_reponse_, output);
   }
 
-  // optional .opq.proto3.GetDateResponseHeader get_data_response = 6;
+  // optional .opq.opqbox3.GetDataResponseHeader get_data_response = 6;
   if (has_get_data_response()) {
     ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
       6, *response_.get_data_response_, output);
   }
 
-  // @@protoc_insertion_point(serialize_end:opq.proto3.Response)
+  // optional .opq.opqbox3.SendCommandToPluginResponse command_to_plugin_response = 7;
+  if (has_command_to_plugin_response()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      7, *response_.command_to_plugin_response_, output);
+  }
+
+  // @@protoc_insertion_point(serialize_end:opq.opqbox3.Response)
 }
 
 ::google::protobuf::uint8* Response::InternalSerializeWithCachedSizesToArray(
     bool deterministic, ::google::protobuf::uint8* target) const {
-  // @@protoc_insertion_point(serialize_to_array_start:opq.proto3.Response)
+  // @@protoc_insertion_point(serialize_to_array_start:opq.opqbox3.Response)
   // optional int32 box_id = 1;
   if (this->box_id() != 0) {
     target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(1, this->box_id(), target);
@@ -4003,33 +5035,40 @@ void Response::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(3, this->timestamp_ms(), target);
   }
 
-  // optional .opq.proto3.GetInfoResponse info_response = 4;
+  // optional .opq.opqbox3.GetInfoResponse info_response = 4;
   if (has_info_response()) {
     target = ::google::protobuf::internal::WireFormatLite::
       InternalWriteMessageNoVirtualToArray(
         4, *response_.info_response_, false, target);
   }
 
-  // optional .opq.proto3.SetMeasurementRateResponse message_rate_reponse = 5;
+  // optional .opq.opqbox3.SetMeasurementRateResponse message_rate_reponse = 5;
   if (has_message_rate_reponse()) {
     target = ::google::protobuf::internal::WireFormatLite::
       InternalWriteMessageNoVirtualToArray(
         5, *response_.message_rate_reponse_, false, target);
   }
 
-  // optional .opq.proto3.GetDateResponseHeader get_data_response = 6;
+  // optional .opq.opqbox3.GetDataResponseHeader get_data_response = 6;
   if (has_get_data_response()) {
     target = ::google::protobuf::internal::WireFormatLite::
       InternalWriteMessageNoVirtualToArray(
         6, *response_.get_data_response_, false, target);
   }
 
-  // @@protoc_insertion_point(serialize_to_array_end:opq.proto3.Response)
+  // optional .opq.opqbox3.SendCommandToPluginResponse command_to_plugin_response = 7;
+  if (has_command_to_plugin_response()) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      InternalWriteMessageNoVirtualToArray(
+        7, *response_.command_to_plugin_response_, false, target);
+  }
+
+  // @@protoc_insertion_point(serialize_to_array_end:opq.opqbox3.Response)
   return target;
 }
 
 int Response::ByteSize() const {
-// @@protoc_insertion_point(message_byte_size_start:opq.proto3.Response)
+// @@protoc_insertion_point(message_byte_size_start:opq.opqbox3.Response)
   int total_size = 0;
 
   // optional int32 box_id = 1;
@@ -4054,25 +5093,32 @@ int Response::ByteSize() const {
   }
 
   switch (response_case()) {
-    // optional .opq.proto3.GetInfoResponse info_response = 4;
+    // optional .opq.opqbox3.GetInfoResponse info_response = 4;
     case kInfoResponse: {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
           *response_.info_response_);
       break;
     }
-    // optional .opq.proto3.SetMeasurementRateResponse message_rate_reponse = 5;
+    // optional .opq.opqbox3.SetMeasurementRateResponse message_rate_reponse = 5;
     case kMessageRateReponse: {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
           *response_.message_rate_reponse_);
       break;
     }
-    // optional .opq.proto3.GetDateResponseHeader get_data_response = 6;
+    // optional .opq.opqbox3.GetDataResponseHeader get_data_response = 6;
     case kGetDataResponse: {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
           *response_.get_data_response_);
+      break;
+    }
+    // optional .opq.opqbox3.SendCommandToPluginResponse command_to_plugin_response = 7;
+    case kCommandToPluginResponse: {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+          *response_.command_to_plugin_response_);
       break;
     }
     case RESPONSE_NOT_SET: {
@@ -4086,7 +5132,7 @@ int Response::ByteSize() const {
 }
 
 void Response::MergeFrom(const ::google::protobuf::Message& from) {
-// @@protoc_insertion_point(generalized_merge_from_start:opq.proto3.Response)
+// @@protoc_insertion_point(generalized_merge_from_start:opq.opqbox3.Response)
   if (GOOGLE_PREDICT_FALSE(&from == this)) {
     ::google::protobuf::internal::MergeFromFail(__FILE__, __LINE__);
   }
@@ -4094,30 +5140,34 @@ void Response::MergeFrom(const ::google::protobuf::Message& from) {
       ::google::protobuf::internal::DynamicCastToGenerated<const Response>(
           &from);
   if (source == NULL) {
-  // @@protoc_insertion_point(generalized_merge_from_cast_fail:opq.proto3.Response)
+  // @@protoc_insertion_point(generalized_merge_from_cast_fail:opq.opqbox3.Response)
     ::google::protobuf::internal::ReflectionOps::Merge(from, this);
   } else {
-  // @@protoc_insertion_point(generalized_merge_from_cast_success:opq.proto3.Response)
+  // @@protoc_insertion_point(generalized_merge_from_cast_success:opq.opqbox3.Response)
     MergeFrom(*source);
   }
 }
 
 void Response::MergeFrom(const Response& from) {
-// @@protoc_insertion_point(class_specific_merge_from_start:opq.proto3.Response)
+// @@protoc_insertion_point(class_specific_merge_from_start:opq.opqbox3.Response)
   if (GOOGLE_PREDICT_FALSE(&from == this)) {
     ::google::protobuf::internal::MergeFromFail(__FILE__, __LINE__);
   }
   switch (from.response_case()) {
     case kInfoResponse: {
-      mutable_info_response()->::opq::proto3::GetInfoResponse::MergeFrom(from.info_response());
+      mutable_info_response()->::opq::opqbox3::GetInfoResponse::MergeFrom(from.info_response());
       break;
     }
     case kMessageRateReponse: {
-      mutable_message_rate_reponse()->::opq::proto3::SetMeasurementRateResponse::MergeFrom(from.message_rate_reponse());
+      mutable_message_rate_reponse()->::opq::opqbox3::SetMeasurementRateResponse::MergeFrom(from.message_rate_reponse());
       break;
     }
     case kGetDataResponse: {
-      mutable_get_data_response()->::opq::proto3::GetDateResponseHeader::MergeFrom(from.get_data_response());
+      mutable_get_data_response()->::opq::opqbox3::GetDataResponseHeader::MergeFrom(from.get_data_response());
+      break;
+    }
+    case kCommandToPluginResponse: {
+      mutable_command_to_plugin_response()->::opq::opqbox3::SendCommandToPluginResponse::MergeFrom(from.command_to_plugin_response());
       break;
     }
     case RESPONSE_NOT_SET: {
@@ -4136,14 +5186,14 @@ void Response::MergeFrom(const Response& from) {
 }
 
 void Response::CopyFrom(const ::google::protobuf::Message& from) {
-// @@protoc_insertion_point(generalized_copy_from_start:opq.proto3.Response)
+// @@protoc_insertion_point(generalized_copy_from_start:opq.opqbox3.Response)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
 }
 
 void Response::CopyFrom(const Response& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:opq.proto3.Response)
+// @@protoc_insertion_point(class_specific_copy_from_start:opq.opqbox3.Response)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
@@ -4184,13 +5234,13 @@ void Response::clear_box_id() {
   box_id_ = 0;
 }
  ::google::protobuf::int32 Response::box_id() const {
-  // @@protoc_insertion_point(field_get:opq.proto3.Response.box_id)
+  // @@protoc_insertion_point(field_get:opq.opqbox3.Response.box_id)
   return box_id_;
 }
  void Response::set_box_id(::google::protobuf::int32 value) {
   
   box_id_ = value;
-  // @@protoc_insertion_point(field_set:opq.proto3.Response.box_id)
+  // @@protoc_insertion_point(field_set:opq.opqbox3.Response.box_id)
 }
 
 // optional uint32 seq = 2;
@@ -4198,13 +5248,13 @@ void Response::clear_seq() {
   seq_ = 0u;
 }
  ::google::protobuf::uint32 Response::seq() const {
-  // @@protoc_insertion_point(field_get:opq.proto3.Response.seq)
+  // @@protoc_insertion_point(field_get:opq.opqbox3.Response.seq)
   return seq_;
 }
  void Response::set_seq(::google::protobuf::uint32 value) {
   
   seq_ = value;
-  // @@protoc_insertion_point(field_set:opq.proto3.Response.seq)
+  // @@protoc_insertion_point(field_set:opq.opqbox3.Response.seq)
 }
 
 // optional uint64 timestamp_ms = 3;
@@ -4212,16 +5262,16 @@ void Response::clear_timestamp_ms() {
   timestamp_ms_ = GOOGLE_ULONGLONG(0);
 }
  ::google::protobuf::uint64 Response::timestamp_ms() const {
-  // @@protoc_insertion_point(field_get:opq.proto3.Response.timestamp_ms)
+  // @@protoc_insertion_point(field_get:opq.opqbox3.Response.timestamp_ms)
   return timestamp_ms_;
 }
  void Response::set_timestamp_ms(::google::protobuf::uint64 value) {
   
   timestamp_ms_ = value;
-  // @@protoc_insertion_point(field_set:opq.proto3.Response.timestamp_ms)
+  // @@protoc_insertion_point(field_set:opq.opqbox3.Response.timestamp_ms)
 }
 
-// optional .opq.proto3.GetInfoResponse info_response = 4;
+// optional .opq.opqbox3.GetInfoResponse info_response = 4;
 bool Response::has_info_response() const {
   return response_case() == kInfoResponse;
 }
@@ -4234,42 +5284,42 @@ void Response::clear_info_response() {
     clear_has_response();
   }
 }
- const ::opq::proto3::GetInfoResponse& Response::info_response() const {
-  // @@protoc_insertion_point(field_get:opq.proto3.Response.info_response)
+ const ::opq::opqbox3::GetInfoResponse& Response::info_response() const {
+  // @@protoc_insertion_point(field_get:opq.opqbox3.Response.info_response)
   return has_info_response()
       ? *response_.info_response_
-      : ::opq::proto3::GetInfoResponse::default_instance();
+      : ::opq::opqbox3::GetInfoResponse::default_instance();
 }
-::opq::proto3::GetInfoResponse* Response::mutable_info_response() {
+::opq::opqbox3::GetInfoResponse* Response::mutable_info_response() {
   if (!has_info_response()) {
     clear_response();
     set_has_info_response();
-    response_.info_response_ = new ::opq::proto3::GetInfoResponse;
+    response_.info_response_ = new ::opq::opqbox3::GetInfoResponse;
   }
-  // @@protoc_insertion_point(field_mutable:opq.proto3.Response.info_response)
+  // @@protoc_insertion_point(field_mutable:opq.opqbox3.Response.info_response)
   return response_.info_response_;
 }
-::opq::proto3::GetInfoResponse* Response::release_info_response() {
-  // @@protoc_insertion_point(field_release:opq.proto3.Response.info_response)
+::opq::opqbox3::GetInfoResponse* Response::release_info_response() {
+  // @@protoc_insertion_point(field_release:opq.opqbox3.Response.info_response)
   if (has_info_response()) {
     clear_has_response();
-    ::opq::proto3::GetInfoResponse* temp = response_.info_response_;
+    ::opq::opqbox3::GetInfoResponse* temp = response_.info_response_;
     response_.info_response_ = NULL;
     return temp;
   } else {
     return NULL;
   }
 }
-void Response::set_allocated_info_response(::opq::proto3::GetInfoResponse* info_response) {
+void Response::set_allocated_info_response(::opq::opqbox3::GetInfoResponse* info_response) {
   clear_response();
   if (info_response) {
     set_has_info_response();
     response_.info_response_ = info_response;
   }
-  // @@protoc_insertion_point(field_set_allocated:opq.proto3.Response.info_response)
+  // @@protoc_insertion_point(field_set_allocated:opq.opqbox3.Response.info_response)
 }
 
-// optional .opq.proto3.SetMeasurementRateResponse message_rate_reponse = 5;
+// optional .opq.opqbox3.SetMeasurementRateResponse message_rate_reponse = 5;
 bool Response::has_message_rate_reponse() const {
   return response_case() == kMessageRateReponse;
 }
@@ -4282,42 +5332,42 @@ void Response::clear_message_rate_reponse() {
     clear_has_response();
   }
 }
- const ::opq::proto3::SetMeasurementRateResponse& Response::message_rate_reponse() const {
-  // @@protoc_insertion_point(field_get:opq.proto3.Response.message_rate_reponse)
+ const ::opq::opqbox3::SetMeasurementRateResponse& Response::message_rate_reponse() const {
+  // @@protoc_insertion_point(field_get:opq.opqbox3.Response.message_rate_reponse)
   return has_message_rate_reponse()
       ? *response_.message_rate_reponse_
-      : ::opq::proto3::SetMeasurementRateResponse::default_instance();
+      : ::opq::opqbox3::SetMeasurementRateResponse::default_instance();
 }
-::opq::proto3::SetMeasurementRateResponse* Response::mutable_message_rate_reponse() {
+::opq::opqbox3::SetMeasurementRateResponse* Response::mutable_message_rate_reponse() {
   if (!has_message_rate_reponse()) {
     clear_response();
     set_has_message_rate_reponse();
-    response_.message_rate_reponse_ = new ::opq::proto3::SetMeasurementRateResponse;
+    response_.message_rate_reponse_ = new ::opq::opqbox3::SetMeasurementRateResponse;
   }
-  // @@protoc_insertion_point(field_mutable:opq.proto3.Response.message_rate_reponse)
+  // @@protoc_insertion_point(field_mutable:opq.opqbox3.Response.message_rate_reponse)
   return response_.message_rate_reponse_;
 }
-::opq::proto3::SetMeasurementRateResponse* Response::release_message_rate_reponse() {
-  // @@protoc_insertion_point(field_release:opq.proto3.Response.message_rate_reponse)
+::opq::opqbox3::SetMeasurementRateResponse* Response::release_message_rate_reponse() {
+  // @@protoc_insertion_point(field_release:opq.opqbox3.Response.message_rate_reponse)
   if (has_message_rate_reponse()) {
     clear_has_response();
-    ::opq::proto3::SetMeasurementRateResponse* temp = response_.message_rate_reponse_;
+    ::opq::opqbox3::SetMeasurementRateResponse* temp = response_.message_rate_reponse_;
     response_.message_rate_reponse_ = NULL;
     return temp;
   } else {
     return NULL;
   }
 }
-void Response::set_allocated_message_rate_reponse(::opq::proto3::SetMeasurementRateResponse* message_rate_reponse) {
+void Response::set_allocated_message_rate_reponse(::opq::opqbox3::SetMeasurementRateResponse* message_rate_reponse) {
   clear_response();
   if (message_rate_reponse) {
     set_has_message_rate_reponse();
     response_.message_rate_reponse_ = message_rate_reponse;
   }
-  // @@protoc_insertion_point(field_set_allocated:opq.proto3.Response.message_rate_reponse)
+  // @@protoc_insertion_point(field_set_allocated:opq.opqbox3.Response.message_rate_reponse)
 }
 
-// optional .opq.proto3.GetDateResponseHeader get_data_response = 6;
+// optional .opq.opqbox3.GetDataResponseHeader get_data_response = 6;
 bool Response::has_get_data_response() const {
   return response_case() == kGetDataResponse;
 }
@@ -4330,39 +5380,87 @@ void Response::clear_get_data_response() {
     clear_has_response();
   }
 }
- const ::opq::proto3::GetDateResponseHeader& Response::get_data_response() const {
-  // @@protoc_insertion_point(field_get:opq.proto3.Response.get_data_response)
+ const ::opq::opqbox3::GetDataResponseHeader& Response::get_data_response() const {
+  // @@protoc_insertion_point(field_get:opq.opqbox3.Response.get_data_response)
   return has_get_data_response()
       ? *response_.get_data_response_
-      : ::opq::proto3::GetDateResponseHeader::default_instance();
+      : ::opq::opqbox3::GetDataResponseHeader::default_instance();
 }
-::opq::proto3::GetDateResponseHeader* Response::mutable_get_data_response() {
+::opq::opqbox3::GetDataResponseHeader* Response::mutable_get_data_response() {
   if (!has_get_data_response()) {
     clear_response();
     set_has_get_data_response();
-    response_.get_data_response_ = new ::opq::proto3::GetDateResponseHeader;
+    response_.get_data_response_ = new ::opq::opqbox3::GetDataResponseHeader;
   }
-  // @@protoc_insertion_point(field_mutable:opq.proto3.Response.get_data_response)
+  // @@protoc_insertion_point(field_mutable:opq.opqbox3.Response.get_data_response)
   return response_.get_data_response_;
 }
-::opq::proto3::GetDateResponseHeader* Response::release_get_data_response() {
-  // @@protoc_insertion_point(field_release:opq.proto3.Response.get_data_response)
+::opq::opqbox3::GetDataResponseHeader* Response::release_get_data_response() {
+  // @@protoc_insertion_point(field_release:opq.opqbox3.Response.get_data_response)
   if (has_get_data_response()) {
     clear_has_response();
-    ::opq::proto3::GetDateResponseHeader* temp = response_.get_data_response_;
+    ::opq::opqbox3::GetDataResponseHeader* temp = response_.get_data_response_;
     response_.get_data_response_ = NULL;
     return temp;
   } else {
     return NULL;
   }
 }
-void Response::set_allocated_get_data_response(::opq::proto3::GetDateResponseHeader* get_data_response) {
+void Response::set_allocated_get_data_response(::opq::opqbox3::GetDataResponseHeader* get_data_response) {
   clear_response();
   if (get_data_response) {
     set_has_get_data_response();
     response_.get_data_response_ = get_data_response;
   }
-  // @@protoc_insertion_point(field_set_allocated:opq.proto3.Response.get_data_response)
+  // @@protoc_insertion_point(field_set_allocated:opq.opqbox3.Response.get_data_response)
+}
+
+// optional .opq.opqbox3.SendCommandToPluginResponse command_to_plugin_response = 7;
+bool Response::has_command_to_plugin_response() const {
+  return response_case() == kCommandToPluginResponse;
+}
+void Response::set_has_command_to_plugin_response() {
+  _oneof_case_[0] = kCommandToPluginResponse;
+}
+void Response::clear_command_to_plugin_response() {
+  if (has_command_to_plugin_response()) {
+    delete response_.command_to_plugin_response_;
+    clear_has_response();
+  }
+}
+ const ::opq::opqbox3::SendCommandToPluginResponse& Response::command_to_plugin_response() const {
+  // @@protoc_insertion_point(field_get:opq.opqbox3.Response.command_to_plugin_response)
+  return has_command_to_plugin_response()
+      ? *response_.command_to_plugin_response_
+      : ::opq::opqbox3::SendCommandToPluginResponse::default_instance();
+}
+::opq::opqbox3::SendCommandToPluginResponse* Response::mutable_command_to_plugin_response() {
+  if (!has_command_to_plugin_response()) {
+    clear_response();
+    set_has_command_to_plugin_response();
+    response_.command_to_plugin_response_ = new ::opq::opqbox3::SendCommandToPluginResponse;
+  }
+  // @@protoc_insertion_point(field_mutable:opq.opqbox3.Response.command_to_plugin_response)
+  return response_.command_to_plugin_response_;
+}
+::opq::opqbox3::SendCommandToPluginResponse* Response::release_command_to_plugin_response() {
+  // @@protoc_insertion_point(field_release:opq.opqbox3.Response.command_to_plugin_response)
+  if (has_command_to_plugin_response()) {
+    clear_has_response();
+    ::opq::opqbox3::SendCommandToPluginResponse* temp = response_.command_to_plugin_response_;
+    response_.command_to_plugin_response_ = NULL;
+    return temp;
+  } else {
+    return NULL;
+  }
+}
+void Response::set_allocated_command_to_plugin_response(::opq::opqbox3::SendCommandToPluginResponse* command_to_plugin_response) {
+  clear_response();
+  if (command_to_plugin_response) {
+    set_has_command_to_plugin_response();
+    response_.command_to_plugin_response_ = command_to_plugin_response;
+  }
+  // @@protoc_insertion_point(field_set_allocated:opq.opqbox3.Response.command_to_plugin_response)
 }
 
 bool Response::has_response() const {
@@ -4376,9 +5474,340 @@ Response::ResponseCase Response::response_case() const {
 }
 #endif  // PROTOBUF_INLINE_NOT_IN_HEADERS
 
+// ===================================================================
+
+#if !defined(_MSC_VER) || _MSC_VER >= 1900
+const int Cycle::kDatapointsFieldNumber;
+const int Cycle::kTimestampMsFieldNumber;
+#endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
+
+Cycle::Cycle()
+  : ::google::protobuf::Message(), _internal_metadata_(NULL) {
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:opq.opqbox3.Cycle)
+}
+
+void Cycle::InitAsDefaultInstance() {
+  _is_default_instance_ = true;
+}
+
+Cycle::Cycle(const Cycle& from)
+  : ::google::protobuf::Message(),
+    _internal_metadata_(NULL) {
+  SharedCtor();
+  MergeFrom(from);
+  // @@protoc_insertion_point(copy_constructor:opq.opqbox3.Cycle)
+}
+
+void Cycle::SharedCtor() {
+    _is_default_instance_ = false;
+  _cached_size_ = 0;
+  timestamp_ms_ = GOOGLE_ULONGLONG(0);
+}
+
+Cycle::~Cycle() {
+  // @@protoc_insertion_point(destructor:opq.opqbox3.Cycle)
+  SharedDtor();
+}
+
+void Cycle::SharedDtor() {
+  if (this != default_instance_) {
+  }
+}
+
+void Cycle::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* Cycle::descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return Cycle_descriptor_;
+}
+
+const Cycle& Cycle::default_instance() {
+  if (default_instance_ == NULL) protobuf_AddDesc_opqbox3_2eproto();
+  return *default_instance_;
+}
+
+Cycle* Cycle::default_instance_ = NULL;
+
+Cycle* Cycle::New(::google::protobuf::Arena* arena) const {
+  Cycle* n = new Cycle;
+  if (arena != NULL) {
+    arena->Own(n);
+  }
+  return n;
+}
+
+void Cycle::Clear() {
+// @@protoc_insertion_point(message_clear_start:opq.opqbox3.Cycle)
+  timestamp_ms_ = GOOGLE_ULONGLONG(0);
+  datapoints_.Clear();
+}
+
+bool Cycle::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!GOOGLE_PREDICT_TRUE(EXPRESSION)) goto failure
+  ::google::protobuf::uint32 tag;
+  // @@protoc_insertion_point(parse_start:opq.opqbox3.Cycle)
+  for (;;) {
+    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
+    tag = p.first;
+    if (!p.second) goto handle_unusual;
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // repeated int32 datapoints = 1;
+      case 1: {
+        if (tag == 10) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPackedPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, this->mutable_datapoints())));
+        } else if (tag == 8) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadRepeatedPrimitiveNoInline<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 1, 10, input, this->mutable_datapoints())));
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(16)) goto parse_timestamp_ms;
+        break;
+      }
+
+      // optional uint64 timestamp_ms = 2;
+      case 2: {
+        if (tag == 16) {
+         parse_timestamp_ms:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::uint64, ::google::protobuf::internal::WireFormatLite::TYPE_UINT64>(
+                 input, &timestamp_ms_)));
+
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectAtEnd()) goto success;
+        break;
+      }
+
+      default: {
+      handle_unusual:
+        if (tag == 0 ||
+            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          goto success;
+        }
+        DO_(::google::protobuf::internal::WireFormatLite::SkipField(input, tag));
+        break;
+      }
+    }
+  }
+success:
+  // @@protoc_insertion_point(parse_success:opq.opqbox3.Cycle)
+  return true;
+failure:
+  // @@protoc_insertion_point(parse_failure:opq.opqbox3.Cycle)
+  return false;
+#undef DO_
+}
+
+void Cycle::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // @@protoc_insertion_point(serialize_start:opq.opqbox3.Cycle)
+  // repeated int32 datapoints = 1;
+  if (this->datapoints_size() > 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteTag(1, ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED, output);
+    output->WriteVarint32(_datapoints_cached_byte_size_);
+  }
+  for (int i = 0; i < this->datapoints_size(); i++) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32NoTag(
+      this->datapoints(i), output);
+  }
+
+  // optional uint64 timestamp_ms = 2;
+  if (this->timestamp_ms() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteUInt64(2, this->timestamp_ms(), output);
+  }
+
+  // @@protoc_insertion_point(serialize_end:opq.opqbox3.Cycle)
+}
+
+::google::protobuf::uint8* Cycle::InternalSerializeWithCachedSizesToArray(
+    bool deterministic, ::google::protobuf::uint8* target) const {
+  // @@protoc_insertion_point(serialize_to_array_start:opq.opqbox3.Cycle)
+  // repeated int32 datapoints = 1;
+  if (this->datapoints_size() > 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteTagToArray(
+      1,
+      ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED,
+      target);
+    target = ::google::protobuf::io::CodedOutputStream::WriteVarint32ToArray(
+      _datapoints_cached_byte_size_, target);
+  }
+  for (int i = 0; i < this->datapoints_size(); i++) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteInt32NoTagToArray(this->datapoints(i), target);
+  }
+
+  // optional uint64 timestamp_ms = 2;
+  if (this->timestamp_ms() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(2, this->timestamp_ms(), target);
+  }
+
+  // @@protoc_insertion_point(serialize_to_array_end:opq.opqbox3.Cycle)
+  return target;
+}
+
+int Cycle::ByteSize() const {
+// @@protoc_insertion_point(message_byte_size_start:opq.opqbox3.Cycle)
+  int total_size = 0;
+
+  // optional uint64 timestamp_ms = 2;
+  if (this->timestamp_ms() != 0) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::UInt64Size(
+        this->timestamp_ms());
+  }
+
+  // repeated int32 datapoints = 1;
+  {
+    int data_size = 0;
+    for (int i = 0; i < this->datapoints_size(); i++) {
+      data_size += ::google::protobuf::internal::WireFormatLite::
+        Int32Size(this->datapoints(i));
+    }
+    if (data_size > 0) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::Int32Size(data_size);
+    }
+    GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+    _datapoints_cached_byte_size_ = data_size;
+    GOOGLE_SAFE_CONCURRENT_WRITES_END();
+    total_size += data_size;
+  }
+
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = total_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  return total_size;
+}
+
+void Cycle::MergeFrom(const ::google::protobuf::Message& from) {
+// @@protoc_insertion_point(generalized_merge_from_start:opq.opqbox3.Cycle)
+  if (GOOGLE_PREDICT_FALSE(&from == this)) {
+    ::google::protobuf::internal::MergeFromFail(__FILE__, __LINE__);
+  }
+  const Cycle* source = 
+      ::google::protobuf::internal::DynamicCastToGenerated<const Cycle>(
+          &from);
+  if (source == NULL) {
+  // @@protoc_insertion_point(generalized_merge_from_cast_fail:opq.opqbox3.Cycle)
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+  // @@protoc_insertion_point(generalized_merge_from_cast_success:opq.opqbox3.Cycle)
+    MergeFrom(*source);
+  }
+}
+
+void Cycle::MergeFrom(const Cycle& from) {
+// @@protoc_insertion_point(class_specific_merge_from_start:opq.opqbox3.Cycle)
+  if (GOOGLE_PREDICT_FALSE(&from == this)) {
+    ::google::protobuf::internal::MergeFromFail(__FILE__, __LINE__);
+  }
+  datapoints_.MergeFrom(from.datapoints_);
+  if (from.timestamp_ms() != 0) {
+    set_timestamp_ms(from.timestamp_ms());
+  }
+}
+
+void Cycle::CopyFrom(const ::google::protobuf::Message& from) {
+// @@protoc_insertion_point(generalized_copy_from_start:opq.opqbox3.Cycle)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void Cycle::CopyFrom(const Cycle& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:opq.opqbox3.Cycle)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool Cycle::IsInitialized() const {
+
+  return true;
+}
+
+void Cycle::Swap(Cycle* other) {
+  if (other == this) return;
+  InternalSwap(other);
+}
+void Cycle::InternalSwap(Cycle* other) {
+  datapoints_.UnsafeArenaSwap(&other->datapoints_);
+  std::swap(timestamp_ms_, other->timestamp_ms_);
+  _internal_metadata_.Swap(&other->_internal_metadata_);
+  std::swap(_cached_size_, other->_cached_size_);
+}
+
+::google::protobuf::Metadata Cycle::GetMetadata() const {
+  protobuf_AssignDescriptorsOnce();
+  ::google::protobuf::Metadata metadata;
+  metadata.descriptor = Cycle_descriptor_;
+  metadata.reflection = Cycle_reflection_;
+  return metadata;
+}
+
+#if PROTOBUF_INLINE_NOT_IN_HEADERS
+// Cycle
+
+// repeated int32 datapoints = 1;
+int Cycle::datapoints_size() const {
+  return datapoints_.size();
+}
+void Cycle::clear_datapoints() {
+  datapoints_.Clear();
+}
+ ::google::protobuf::int32 Cycle::datapoints(int index) const {
+  // @@protoc_insertion_point(field_get:opq.opqbox3.Cycle.datapoints)
+  return datapoints_.Get(index);
+}
+ void Cycle::set_datapoints(int index, ::google::protobuf::int32 value) {
+  datapoints_.Set(index, value);
+  // @@protoc_insertion_point(field_set:opq.opqbox3.Cycle.datapoints)
+}
+ void Cycle::add_datapoints(::google::protobuf::int32 value) {
+  datapoints_.Add(value);
+  // @@protoc_insertion_point(field_add:opq.opqbox3.Cycle.datapoints)
+}
+ const ::google::protobuf::RepeatedField< ::google::protobuf::int32 >&
+Cycle::datapoints() const {
+  // @@protoc_insertion_point(field_list:opq.opqbox3.Cycle.datapoints)
+  return datapoints_;
+}
+ ::google::protobuf::RepeatedField< ::google::protobuf::int32 >*
+Cycle::mutable_datapoints() {
+  // @@protoc_insertion_point(field_mutable_list:opq.opqbox3.Cycle.datapoints)
+  return &datapoints_;
+}
+
+// optional uint64 timestamp_ms = 2;
+void Cycle::clear_timestamp_ms() {
+  timestamp_ms_ = GOOGLE_ULONGLONG(0);
+}
+ ::google::protobuf::uint64 Cycle::timestamp_ms() const {
+  // @@protoc_insertion_point(field_get:opq.opqbox3.Cycle.timestamp_ms)
+  return timestamp_ms_;
+}
+ void Cycle::set_timestamp_ms(::google::protobuf::uint64 value) {
+  
+  timestamp_ms_ = value;
+  // @@protoc_insertion_point(field_set:opq.opqbox3.Cycle.timestamp_ms)
+}
+
+#endif  // PROTOBUF_INLINE_NOT_IN_HEADERS
+
 // @@protoc_insertion_point(namespace_scope)
 
-}  // namespace proto3
+}  // namespace opqbox3
 }  // namespace opq
 
 // @@protoc_insertion_point(global_scope)

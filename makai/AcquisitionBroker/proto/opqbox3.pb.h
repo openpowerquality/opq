@@ -29,10 +29,11 @@
 #include <google/protobuf/map.h>
 #include <google/protobuf/map_field_inl.h>
 #include <google/protobuf/unknown_field_set.h>
+#include "rustproto.pb.h"
 // @@protoc_insertion_point(includes)
 
 namespace opq {
-namespace proto3 {
+namespace opqbox3 {
 
 // Internal implementation detail -- do not call these.
 void protobuf_AddDesc_opqbox3_2eproto();
@@ -40,18 +41,118 @@ void protobuf_AssignDesc_opqbox3_2eproto();
 void protobuf_ShutdownFile_opqbox3_2eproto();
 
 class Command;
+class Cycle;
 class GetDataCommand;
-class GetDateResponseHeader;
+class GetDataResponseHeader;
 class GetInfoCommand;
 class GetInfoResponse;
 class Measurement;
+class Metric;
 class Response;
+class SendCommandToPlugin;
+class SendCommandToPluginResponse;
 class SetMeasturementRateCommand;
 class SetMeasurementRateResponse;
 
 // ===================================================================
 
-class Measurement : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:opq.proto3.Measurement) */ {
+class Metric : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:opq.opqbox3.Metric) */ {
+ public:
+  Metric();
+  virtual ~Metric();
+
+  Metric(const Metric& from);
+
+  inline Metric& operator=(const Metric& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const Metric& default_instance();
+
+  void Swap(Metric* other);
+
+  // implements Message ----------------------------------------------
+
+  inline Metric* New() const { return New(NULL); }
+
+  Metric* New(::google::protobuf::Arena* arena) const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const Metric& from);
+  void MergeFrom(const Metric& from);
+  void Clear();
+  bool IsInitialized() const;
+
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
+      bool deterministic, ::google::protobuf::uint8* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const {
+    return InternalSerializeWithCachedSizesToArray(false, output);
+  }
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  void InternalSwap(Metric* other);
+  private:
+  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
+    return _internal_metadata_.arena();
+  }
+  inline void* MaybeArenaPtr() const {
+    return _internal_metadata_.raw_arena_ptr();
+  }
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // optional float min = 1;
+  void clear_min();
+  static const int kMinFieldNumber = 1;
+  float min() const;
+  void set_min(float value);
+
+  // optional float max = 2;
+  void clear_max();
+  static const int kMaxFieldNumber = 2;
+  float max() const;
+  void set_max(float value);
+
+  // optional float average = 3;
+  void clear_average();
+  static const int kAverageFieldNumber = 3;
+  float average() const;
+  void set_average(float value);
+
+  // @@protoc_insertion_point(class_scope:opq.opqbox3.Metric)
+ private:
+
+  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  bool _is_default_instance_;
+  float min_;
+  float max_;
+  float average_;
+  mutable int _cached_size_;
+  friend void  protobuf_AddDesc_opqbox3_2eproto();
+  friend void protobuf_AssignDesc_opqbox3_2eproto();
+  friend void protobuf_ShutdownFile_opqbox3_2eproto();
+
+  void InitAsDefaultInstance();
+  static Metric* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class Measurement : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:opq.opqbox3.Measurement) */ {
  public:
   Measurement();
   virtual ~Measurement();
@@ -124,31 +225,31 @@ class Measurement : public ::google::protobuf::Message /* @@protoc_insertion_poi
   ::google::protobuf::uint64 timestamp_ms() const;
   void set_timestamp_ms(::google::protobuf::uint64 value);
 
-  // map<string, float> metrics = 3;
+  // map<string, .opq.opqbox3.Metric> metrics = 3;
   int metrics_size() const;
   void clear_metrics();
   static const int kMetricsFieldNumber = 3;
-  const ::google::protobuf::Map< ::std::string, float >&
+  const ::google::protobuf::Map< ::std::string, ::opq::opqbox3::Metric >&
       metrics() const;
-  ::google::protobuf::Map< ::std::string, float >*
+  ::google::protobuf::Map< ::std::string, ::opq::opqbox3::Metric >*
       mutable_metrics();
 
-  // @@protoc_insertion_point(class_scope:opq.proto3.Measurement)
+  // @@protoc_insertion_point(class_scope:opq.opqbox3.Measurement)
  private:
 
   ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
   bool _is_default_instance_;
   ::google::protobuf::uint64 timestamp_ms_;
   typedef ::google::protobuf::internal::MapEntryLite<
-      ::std::string, float,
+      ::std::string, ::opq::opqbox3::Metric,
       ::google::protobuf::internal::WireFormatLite::TYPE_STRING,
-      ::google::protobuf::internal::WireFormatLite::TYPE_FLOAT,
+      ::google::protobuf::internal::WireFormatLite::TYPE_MESSAGE,
       0 >
       Measurement_MetricsEntry;
   ::google::protobuf::internal::MapField<
-      ::std::string, float,
+      ::std::string, ::opq::opqbox3::Metric,
       ::google::protobuf::internal::WireFormatLite::TYPE_STRING,
-      ::google::protobuf::internal::WireFormatLite::TYPE_FLOAT,
+      ::google::protobuf::internal::WireFormatLite::TYPE_MESSAGE,
       0 > metrics_;
   ::google::protobuf::uint32 box_id_;
   mutable int _cached_size_;
@@ -161,7 +262,7 @@ class Measurement : public ::google::protobuf::Message /* @@protoc_insertion_poi
 };
 // -------------------------------------------------------------------
 
-class GetInfoCommand : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:opq.proto3.GetInfoCommand) */ {
+class GetInfoCommand : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:opq.opqbox3.GetInfoCommand) */ {
  public:
   GetInfoCommand();
   virtual ~GetInfoCommand();
@@ -221,7 +322,7 @@ class GetInfoCommand : public ::google::protobuf::Message /* @@protoc_insertion_
 
   // accessors -------------------------------------------------------
 
-  // @@protoc_insertion_point(class_scope:opq.proto3.GetInfoCommand)
+  // @@protoc_insertion_point(class_scope:opq.opqbox3.GetInfoCommand)
  private:
 
   ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
@@ -236,7 +337,7 @@ class GetInfoCommand : public ::google::protobuf::Message /* @@protoc_insertion_
 };
 // -------------------------------------------------------------------
 
-class GetDataCommand : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:opq.proto3.GetDataCommand) */ {
+class GetDataCommand : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:opq.opqbox3.GetDataCommand) */ {
  public:
   GetDataCommand();
   virtual ~GetDataCommand();
@@ -314,7 +415,7 @@ class GetDataCommand : public ::google::protobuf::Message /* @@protoc_insertion_
   bool wait() const;
   void set_wait(bool value);
 
-  // @@protoc_insertion_point(class_scope:opq.proto3.GetDataCommand)
+  // @@protoc_insertion_point(class_scope:opq.opqbox3.GetDataCommand)
  private:
 
   ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
@@ -332,7 +433,7 @@ class GetDataCommand : public ::google::protobuf::Message /* @@protoc_insertion_
 };
 // -------------------------------------------------------------------
 
-class SetMeasturementRateCommand : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:opq.proto3.SetMeasturementRateCommand) */ {
+class SetMeasturementRateCommand : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:opq.opqbox3.SetMeasturementRateCommand) */ {
  public:
   SetMeasturementRateCommand();
   virtual ~SetMeasturementRateCommand();
@@ -398,19 +499,12 @@ class SetMeasturementRateCommand : public ::google::protobuf::Message /* @@proto
   ::google::protobuf::uint32 measurement_window_cycles() const;
   void set_measurement_window_cycles(::google::protobuf::uint32 value);
 
-  // optional uint32 duration_ms = 2;
-  void clear_duration_ms();
-  static const int kDurationMsFieldNumber = 2;
-  ::google::protobuf::uint32 duration_ms() const;
-  void set_duration_ms(::google::protobuf::uint32 value);
-
-  // @@protoc_insertion_point(class_scope:opq.proto3.SetMeasturementRateCommand)
+  // @@protoc_insertion_point(class_scope:opq.opqbox3.SetMeasturementRateCommand)
  private:
 
   ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
   bool _is_default_instance_;
   ::google::protobuf::uint32 measurement_window_cycles_;
-  ::google::protobuf::uint32 duration_ms_;
   mutable int _cached_size_;
   friend void  protobuf_AddDesc_opqbox3_2eproto();
   friend void protobuf_AssignDesc_opqbox3_2eproto();
@@ -421,7 +515,106 @@ class SetMeasturementRateCommand : public ::google::protobuf::Message /* @@proto
 };
 // -------------------------------------------------------------------
 
-class Command : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:opq.proto3.Command) */ {
+class SendCommandToPlugin : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:opq.opqbox3.SendCommandToPlugin) */ {
+ public:
+  SendCommandToPlugin();
+  virtual ~SendCommandToPlugin();
+
+  SendCommandToPlugin(const SendCommandToPlugin& from);
+
+  inline SendCommandToPlugin& operator=(const SendCommandToPlugin& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const SendCommandToPlugin& default_instance();
+
+  void Swap(SendCommandToPlugin* other);
+
+  // implements Message ----------------------------------------------
+
+  inline SendCommandToPlugin* New() const { return New(NULL); }
+
+  SendCommandToPlugin* New(::google::protobuf::Arena* arena) const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const SendCommandToPlugin& from);
+  void MergeFrom(const SendCommandToPlugin& from);
+  void Clear();
+  bool IsInitialized() const;
+
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
+      bool deterministic, ::google::protobuf::uint8* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const {
+    return InternalSerializeWithCachedSizesToArray(false, output);
+  }
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  void InternalSwap(SendCommandToPlugin* other);
+  private:
+  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
+    return _internal_metadata_.arena();
+  }
+  inline void* MaybeArenaPtr() const {
+    return _internal_metadata_.raw_arena_ptr();
+  }
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // optional string plugin_name = 1;
+  void clear_plugin_name();
+  static const int kPluginNameFieldNumber = 1;
+  const ::std::string& plugin_name() const;
+  void set_plugin_name(const ::std::string& value);
+  void set_plugin_name(const char* value);
+  void set_plugin_name(const char* value, size_t size);
+  ::std::string* mutable_plugin_name();
+  ::std::string* release_plugin_name();
+  void set_allocated_plugin_name(::std::string* plugin_name);
+
+  // optional string message = 2;
+  void clear_message();
+  static const int kMessageFieldNumber = 2;
+  const ::std::string& message() const;
+  void set_message(const ::std::string& value);
+  void set_message(const char* value);
+  void set_message(const char* value, size_t size);
+  ::std::string* mutable_message();
+  ::std::string* release_message();
+  void set_allocated_message(::std::string* message);
+
+  // @@protoc_insertion_point(class_scope:opq.opqbox3.SendCommandToPlugin)
+ private:
+
+  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  bool _is_default_instance_;
+  ::google::protobuf::internal::ArenaStringPtr plugin_name_;
+  ::google::protobuf::internal::ArenaStringPtr message_;
+  mutable int _cached_size_;
+  friend void  protobuf_AddDesc_opqbox3_2eproto();
+  friend void protobuf_AssignDesc_opqbox3_2eproto();
+  friend void protobuf_ShutdownFile_opqbox3_2eproto();
+
+  void InitAsDefaultInstance();
+  static SendCommandToPlugin* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class Command : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:opq.opqbox3.Command) */ {
  public:
   Command();
   virtual ~Command();
@@ -437,9 +630,10 @@ class Command : public ::google::protobuf::Message /* @@protoc_insertion_point(c
   static const Command& default_instance();
 
   enum CommandCase {
-    kInfoCommand = 4,
-    kDataCommand = 5,
-    kSamplingRateCommand = 6,
+    kInfoCommand = 3,
+    kDataCommand = 4,
+    kSamplingRateCommand = 5,
+    kSendCommandToPlugin = 7,
     COMMAND_NOT_SET = 0,
   };
 
@@ -488,62 +682,61 @@ class Command : public ::google::protobuf::Message /* @@protoc_insertion_point(c
 
   // accessors -------------------------------------------------------
 
-  // optional uint32 box_id = 1;
-  void clear_box_id();
-  static const int kBoxIdFieldNumber = 1;
-  ::google::protobuf::uint32 box_id() const;
-  void set_box_id(::google::protobuf::uint32 value);
+  // optional uint32 seq = 1;
+  void clear_seq();
+  static const int kSeqFieldNumber = 1;
+  ::google::protobuf::uint32 seq() const;
+  void set_seq(::google::protobuf::uint32 value);
 
-  // optional string identity = 2;
-  void clear_identity();
-  static const int kIdentityFieldNumber = 2;
-  const ::std::string& identity() const;
-  void set_identity(const ::std::string& value);
-  void set_identity(const char* value);
-  void set_identity(const char* value, size_t size);
-  ::std::string* mutable_identity();
-  ::std::string* release_identity();
-  void set_allocated_identity(::std::string* identity);
-
-  // optional uint64 timestamp_ms = 3;
+  // optional uint64 timestamp_ms = 2;
   void clear_timestamp_ms();
-  static const int kTimestampMsFieldNumber = 3;
+  static const int kTimestampMsFieldNumber = 2;
   ::google::protobuf::uint64 timestamp_ms() const;
   void set_timestamp_ms(::google::protobuf::uint64 value);
 
-  // optional .opq.proto3.GetInfoCommand info_command = 4;
+  // optional .opq.opqbox3.GetInfoCommand info_command = 3;
   bool has_info_command() const;
   void clear_info_command();
-  static const int kInfoCommandFieldNumber = 4;
-  const ::opq::proto3::GetInfoCommand& info_command() const;
-  ::opq::proto3::GetInfoCommand* mutable_info_command();
-  ::opq::proto3::GetInfoCommand* release_info_command();
-  void set_allocated_info_command(::opq::proto3::GetInfoCommand* info_command);
+  static const int kInfoCommandFieldNumber = 3;
+  const ::opq::opqbox3::GetInfoCommand& info_command() const;
+  ::opq::opqbox3::GetInfoCommand* mutable_info_command();
+  ::opq::opqbox3::GetInfoCommand* release_info_command();
+  void set_allocated_info_command(::opq::opqbox3::GetInfoCommand* info_command);
 
-  // optional .opq.proto3.GetDataCommand data_command = 5;
+  // optional .opq.opqbox3.GetDataCommand data_command = 4;
   bool has_data_command() const;
   void clear_data_command();
-  static const int kDataCommandFieldNumber = 5;
-  const ::opq::proto3::GetDataCommand& data_command() const;
-  ::opq::proto3::GetDataCommand* mutable_data_command();
-  ::opq::proto3::GetDataCommand* release_data_command();
-  void set_allocated_data_command(::opq::proto3::GetDataCommand* data_command);
+  static const int kDataCommandFieldNumber = 4;
+  const ::opq::opqbox3::GetDataCommand& data_command() const;
+  ::opq::opqbox3::GetDataCommand* mutable_data_command();
+  ::opq::opqbox3::GetDataCommand* release_data_command();
+  void set_allocated_data_command(::opq::opqbox3::GetDataCommand* data_command);
 
-  // optional .opq.proto3.SetMeasturementRateCommand sampling_rate_command = 6;
+  // optional .opq.opqbox3.SetMeasturementRateCommand sampling_rate_command = 5;
   bool has_sampling_rate_command() const;
   void clear_sampling_rate_command();
-  static const int kSamplingRateCommandFieldNumber = 6;
-  const ::opq::proto3::SetMeasturementRateCommand& sampling_rate_command() const;
-  ::opq::proto3::SetMeasturementRateCommand* mutable_sampling_rate_command();
-  ::opq::proto3::SetMeasturementRateCommand* release_sampling_rate_command();
-  void set_allocated_sampling_rate_command(::opq::proto3::SetMeasturementRateCommand* sampling_rate_command);
+  static const int kSamplingRateCommandFieldNumber = 5;
+  const ::opq::opqbox3::SetMeasturementRateCommand& sampling_rate_command() const;
+  ::opq::opqbox3::SetMeasturementRateCommand* mutable_sampling_rate_command();
+  ::opq::opqbox3::SetMeasturementRateCommand* release_sampling_rate_command();
+  void set_allocated_sampling_rate_command(::opq::opqbox3::SetMeasturementRateCommand* sampling_rate_command);
+
+  // optional .opq.opqbox3.SendCommandToPlugin send_command_to_plugin = 7;
+  bool has_send_command_to_plugin() const;
+  void clear_send_command_to_plugin();
+  static const int kSendCommandToPluginFieldNumber = 7;
+  const ::opq::opqbox3::SendCommandToPlugin& send_command_to_plugin() const;
+  ::opq::opqbox3::SendCommandToPlugin* mutable_send_command_to_plugin();
+  ::opq::opqbox3::SendCommandToPlugin* release_send_command_to_plugin();
+  void set_allocated_send_command_to_plugin(::opq::opqbox3::SendCommandToPlugin* send_command_to_plugin);
 
   CommandCase command_case() const;
-  // @@protoc_insertion_point(class_scope:opq.proto3.Command)
+  // @@protoc_insertion_point(class_scope:opq.opqbox3.Command)
  private:
   inline void set_has_info_command();
   inline void set_has_data_command();
   inline void set_has_sampling_rate_command();
+  inline void set_has_send_command_to_plugin();
 
   inline bool has_command() const;
   void clear_command();
@@ -551,14 +744,14 @@ class Command : public ::google::protobuf::Message /* @@protoc_insertion_point(c
 
   ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
   bool _is_default_instance_;
-  ::google::protobuf::internal::ArenaStringPtr identity_;
   ::google::protobuf::uint64 timestamp_ms_;
-  ::google::protobuf::uint32 box_id_;
+  ::google::protobuf::uint32 seq_;
   union CommandUnion {
     CommandUnion() {}
-    ::opq::proto3::GetInfoCommand* info_command_;
-    ::opq::proto3::GetDataCommand* data_command_;
-    ::opq::proto3::SetMeasturementRateCommand* sampling_rate_command_;
+    ::opq::opqbox3::GetInfoCommand* info_command_;
+    ::opq::opqbox3::GetDataCommand* data_command_;
+    ::opq::opqbox3::SetMeasturementRateCommand* sampling_rate_command_;
+    ::opq::opqbox3::SendCommandToPlugin* send_command_to_plugin_;
   } command_;
   mutable int _cached_size_;
   ::google::protobuf::uint32 _oneof_case_[1];
@@ -572,7 +765,7 @@ class Command : public ::google::protobuf::Message /* @@protoc_insertion_point(c
 };
 // -------------------------------------------------------------------
 
-class GetInfoResponse : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:opq.proto3.GetInfoResponse) */ {
+class GetInfoResponse : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:opq.opqbox3.GetInfoResponse) */ {
  public:
   GetInfoResponse();
   virtual ~GetInfoResponse();
@@ -694,7 +887,7 @@ class GetInfoResponse : public ::google::protobuf::Message /* @@protoc_insertion
   ::google::protobuf::uint32 measurement_rate() const;
   void set_measurement_rate(::google::protobuf::uint32 value);
 
-  // @@protoc_insertion_point(class_scope:opq.proto3.GetInfoResponse)
+  // @@protoc_insertion_point(class_scope:opq.opqbox3.GetInfoResponse)
  private:
 
   ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
@@ -716,7 +909,7 @@ class GetInfoResponse : public ::google::protobuf::Message /* @@protoc_insertion
 };
 // -------------------------------------------------------------------
 
-class SetMeasurementRateResponse : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:opq.proto3.SetMeasurementRateResponse) */ {
+class SetMeasurementRateResponse : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:opq.opqbox3.SetMeasurementRateResponse) */ {
  public:
   SetMeasurementRateResponse();
   virtual ~SetMeasurementRateResponse();
@@ -782,7 +975,7 @@ class SetMeasurementRateResponse : public ::google::protobuf::Message /* @@proto
   ::google::protobuf::uint32 old_rate_cycles() const;
   void set_old_rate_cycles(::google::protobuf::uint32 value);
 
-  // @@protoc_insertion_point(class_scope:opq.proto3.SetMeasurementRateResponse)
+  // @@protoc_insertion_point(class_scope:opq.opqbox3.SetMeasurementRateResponse)
  private:
 
   ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
@@ -798,32 +991,32 @@ class SetMeasurementRateResponse : public ::google::protobuf::Message /* @@proto
 };
 // -------------------------------------------------------------------
 
-class GetDateResponseHeader : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:opq.proto3.GetDateResponseHeader) */ {
+class GetDataResponseHeader : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:opq.opqbox3.GetDataResponseHeader) */ {
  public:
-  GetDateResponseHeader();
-  virtual ~GetDateResponseHeader();
+  GetDataResponseHeader();
+  virtual ~GetDataResponseHeader();
 
-  GetDateResponseHeader(const GetDateResponseHeader& from);
+  GetDataResponseHeader(const GetDataResponseHeader& from);
 
-  inline GetDateResponseHeader& operator=(const GetDateResponseHeader& from) {
+  inline GetDataResponseHeader& operator=(const GetDataResponseHeader& from) {
     CopyFrom(from);
     return *this;
   }
 
   static const ::google::protobuf::Descriptor* descriptor();
-  static const GetDateResponseHeader& default_instance();
+  static const GetDataResponseHeader& default_instance();
 
-  void Swap(GetDateResponseHeader* other);
+  void Swap(GetDataResponseHeader* other);
 
   // implements Message ----------------------------------------------
 
-  inline GetDateResponseHeader* New() const { return New(NULL); }
+  inline GetDataResponseHeader* New() const { return New(NULL); }
 
-  GetDateResponseHeader* New(::google::protobuf::Arena* arena) const;
+  GetDataResponseHeader* New(::google::protobuf::Arena* arena) const;
   void CopyFrom(const ::google::protobuf::Message& from);
   void MergeFrom(const ::google::protobuf::Message& from);
-  void CopyFrom(const GetDateResponseHeader& from);
-  void MergeFrom(const GetDateResponseHeader& from);
+  void CopyFrom(const GetDataResponseHeader& from);
+  void MergeFrom(const GetDataResponseHeader& from);
   void Clear();
   bool IsInitialized() const;
 
@@ -842,7 +1035,7 @@ class GetDateResponseHeader : public ::google::protobuf::Message /* @@protoc_ins
   void SharedCtor();
   void SharedDtor();
   void SetCachedSize(int size) const;
-  void InternalSwap(GetDateResponseHeader* other);
+  void InternalSwap(GetDataResponseHeader* other);
   private:
   inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
     return _internal_metadata_.arena();
@@ -870,7 +1063,7 @@ class GetDateResponseHeader : public ::google::protobuf::Message /* @@protoc_ins
   ::google::protobuf::uint64 end_ts() const;
   void set_end_ts(::google::protobuf::uint64 value);
 
-  // @@protoc_insertion_point(class_scope:opq.proto3.GetDateResponseHeader)
+  // @@protoc_insertion_point(class_scope:opq.opqbox3.GetDataResponseHeader)
  private:
 
   ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
@@ -883,11 +1076,93 @@ class GetDateResponseHeader : public ::google::protobuf::Message /* @@protoc_ins
   friend void protobuf_ShutdownFile_opqbox3_2eproto();
 
   void InitAsDefaultInstance();
-  static GetDateResponseHeader* default_instance_;
+  static GetDataResponseHeader* default_instance_;
 };
 // -------------------------------------------------------------------
 
-class Response : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:opq.proto3.Response) */ {
+class SendCommandToPluginResponse : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:opq.opqbox3.SendCommandToPluginResponse) */ {
+ public:
+  SendCommandToPluginResponse();
+  virtual ~SendCommandToPluginResponse();
+
+  SendCommandToPluginResponse(const SendCommandToPluginResponse& from);
+
+  inline SendCommandToPluginResponse& operator=(const SendCommandToPluginResponse& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const SendCommandToPluginResponse& default_instance();
+
+  void Swap(SendCommandToPluginResponse* other);
+
+  // implements Message ----------------------------------------------
+
+  inline SendCommandToPluginResponse* New() const { return New(NULL); }
+
+  SendCommandToPluginResponse* New(::google::protobuf::Arena* arena) const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const SendCommandToPluginResponse& from);
+  void MergeFrom(const SendCommandToPluginResponse& from);
+  void Clear();
+  bool IsInitialized() const;
+
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
+      bool deterministic, ::google::protobuf::uint8* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const {
+    return InternalSerializeWithCachedSizesToArray(false, output);
+  }
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  void InternalSwap(SendCommandToPluginResponse* other);
+  private:
+  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
+    return _internal_metadata_.arena();
+  }
+  inline void* MaybeArenaPtr() const {
+    return _internal_metadata_.raw_arena_ptr();
+  }
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // optional bool ok = 1;
+  void clear_ok();
+  static const int kOkFieldNumber = 1;
+  bool ok() const;
+  void set_ok(bool value);
+
+  // @@protoc_insertion_point(class_scope:opq.opqbox3.SendCommandToPluginResponse)
+ private:
+
+  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  bool _is_default_instance_;
+  bool ok_;
+  mutable int _cached_size_;
+  friend void  protobuf_AddDesc_opqbox3_2eproto();
+  friend void protobuf_AssignDesc_opqbox3_2eproto();
+  friend void protobuf_ShutdownFile_opqbox3_2eproto();
+
+  void InitAsDefaultInstance();
+  static SendCommandToPluginResponse* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class Response : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:opq.opqbox3.Response) */ {
  public:
   Response();
   virtual ~Response();
@@ -906,6 +1181,7 @@ class Response : public ::google::protobuf::Message /* @@protoc_insertion_point(
     kInfoResponse = 4,
     kMessageRateReponse = 5,
     kGetDataResponse = 6,
+    kCommandToPluginResponse = 7,
     RESPONSE_NOT_SET = 0,
   };
 
@@ -972,39 +1248,49 @@ class Response : public ::google::protobuf::Message /* @@protoc_insertion_point(
   ::google::protobuf::uint64 timestamp_ms() const;
   void set_timestamp_ms(::google::protobuf::uint64 value);
 
-  // optional .opq.proto3.GetInfoResponse info_response = 4;
+  // optional .opq.opqbox3.GetInfoResponse info_response = 4;
   bool has_info_response() const;
   void clear_info_response();
   static const int kInfoResponseFieldNumber = 4;
-  const ::opq::proto3::GetInfoResponse& info_response() const;
-  ::opq::proto3::GetInfoResponse* mutable_info_response();
-  ::opq::proto3::GetInfoResponse* release_info_response();
-  void set_allocated_info_response(::opq::proto3::GetInfoResponse* info_response);
+  const ::opq::opqbox3::GetInfoResponse& info_response() const;
+  ::opq::opqbox3::GetInfoResponse* mutable_info_response();
+  ::opq::opqbox3::GetInfoResponse* release_info_response();
+  void set_allocated_info_response(::opq::opqbox3::GetInfoResponse* info_response);
 
-  // optional .opq.proto3.SetMeasurementRateResponse message_rate_reponse = 5;
+  // optional .opq.opqbox3.SetMeasurementRateResponse message_rate_reponse = 5;
   bool has_message_rate_reponse() const;
   void clear_message_rate_reponse();
   static const int kMessageRateReponseFieldNumber = 5;
-  const ::opq::proto3::SetMeasurementRateResponse& message_rate_reponse() const;
-  ::opq::proto3::SetMeasurementRateResponse* mutable_message_rate_reponse();
-  ::opq::proto3::SetMeasurementRateResponse* release_message_rate_reponse();
-  void set_allocated_message_rate_reponse(::opq::proto3::SetMeasurementRateResponse* message_rate_reponse);
+  const ::opq::opqbox3::SetMeasurementRateResponse& message_rate_reponse() const;
+  ::opq::opqbox3::SetMeasurementRateResponse* mutable_message_rate_reponse();
+  ::opq::opqbox3::SetMeasurementRateResponse* release_message_rate_reponse();
+  void set_allocated_message_rate_reponse(::opq::opqbox3::SetMeasurementRateResponse* message_rate_reponse);
 
-  // optional .opq.proto3.GetDateResponseHeader get_data_response = 6;
+  // optional .opq.opqbox3.GetDataResponseHeader get_data_response = 6;
   bool has_get_data_response() const;
   void clear_get_data_response();
   static const int kGetDataResponseFieldNumber = 6;
-  const ::opq::proto3::GetDateResponseHeader& get_data_response() const;
-  ::opq::proto3::GetDateResponseHeader* mutable_get_data_response();
-  ::opq::proto3::GetDateResponseHeader* release_get_data_response();
-  void set_allocated_get_data_response(::opq::proto3::GetDateResponseHeader* get_data_response);
+  const ::opq::opqbox3::GetDataResponseHeader& get_data_response() const;
+  ::opq::opqbox3::GetDataResponseHeader* mutable_get_data_response();
+  ::opq::opqbox3::GetDataResponseHeader* release_get_data_response();
+  void set_allocated_get_data_response(::opq::opqbox3::GetDataResponseHeader* get_data_response);
+
+  // optional .opq.opqbox3.SendCommandToPluginResponse command_to_plugin_response = 7;
+  bool has_command_to_plugin_response() const;
+  void clear_command_to_plugin_response();
+  static const int kCommandToPluginResponseFieldNumber = 7;
+  const ::opq::opqbox3::SendCommandToPluginResponse& command_to_plugin_response() const;
+  ::opq::opqbox3::SendCommandToPluginResponse* mutable_command_to_plugin_response();
+  ::opq::opqbox3::SendCommandToPluginResponse* release_command_to_plugin_response();
+  void set_allocated_command_to_plugin_response(::opq::opqbox3::SendCommandToPluginResponse* command_to_plugin_response);
 
   ResponseCase response_case() const;
-  // @@protoc_insertion_point(class_scope:opq.proto3.Response)
+  // @@protoc_insertion_point(class_scope:opq.opqbox3.Response)
  private:
   inline void set_has_info_response();
   inline void set_has_message_rate_reponse();
   inline void set_has_get_data_response();
+  inline void set_has_command_to_plugin_response();
 
   inline bool has_response() const;
   void clear_response();
@@ -1017,9 +1303,10 @@ class Response : public ::google::protobuf::Message /* @@protoc_insertion_point(
   ::google::protobuf::uint64 timestamp_ms_;
   union ResponseUnion {
     ResponseUnion() {}
-    ::opq::proto3::GetInfoResponse* info_response_;
-    ::opq::proto3::SetMeasurementRateResponse* message_rate_reponse_;
-    ::opq::proto3::GetDateResponseHeader* get_data_response_;
+    ::opq::opqbox3::GetInfoResponse* info_response_;
+    ::opq::opqbox3::SetMeasurementRateResponse* message_rate_reponse_;
+    ::opq::opqbox3::GetDataResponseHeader* get_data_response_;
+    ::opq::opqbox3::SendCommandToPluginResponse* command_to_plugin_response_;
   } response_;
   mutable int _cached_size_;
   ::google::protobuf::uint32 _oneof_case_[1];
@@ -1031,12 +1318,154 @@ class Response : public ::google::protobuf::Message /* @@protoc_insertion_point(
   void InitAsDefaultInstance();
   static Response* default_instance_;
 };
+// -------------------------------------------------------------------
+
+class Cycle : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:opq.opqbox3.Cycle) */ {
+ public:
+  Cycle();
+  virtual ~Cycle();
+
+  Cycle(const Cycle& from);
+
+  inline Cycle& operator=(const Cycle& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const Cycle& default_instance();
+
+  void Swap(Cycle* other);
+
+  // implements Message ----------------------------------------------
+
+  inline Cycle* New() const { return New(NULL); }
+
+  Cycle* New(::google::protobuf::Arena* arena) const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const Cycle& from);
+  void MergeFrom(const Cycle& from);
+  void Clear();
+  bool IsInitialized() const;
+
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
+      bool deterministic, ::google::protobuf::uint8* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const {
+    return InternalSerializeWithCachedSizesToArray(false, output);
+  }
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  void InternalSwap(Cycle* other);
+  private:
+  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
+    return _internal_metadata_.arena();
+  }
+  inline void* MaybeArenaPtr() const {
+    return _internal_metadata_.raw_arena_ptr();
+  }
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // repeated int32 datapoints = 1;
+  int datapoints_size() const;
+  void clear_datapoints();
+  static const int kDatapointsFieldNumber = 1;
+  ::google::protobuf::int32 datapoints(int index) const;
+  void set_datapoints(int index, ::google::protobuf::int32 value);
+  void add_datapoints(::google::protobuf::int32 value);
+  const ::google::protobuf::RepeatedField< ::google::protobuf::int32 >&
+      datapoints() const;
+  ::google::protobuf::RepeatedField< ::google::protobuf::int32 >*
+      mutable_datapoints();
+
+  // optional uint64 timestamp_ms = 2;
+  void clear_timestamp_ms();
+  static const int kTimestampMsFieldNumber = 2;
+  ::google::protobuf::uint64 timestamp_ms() const;
+  void set_timestamp_ms(::google::protobuf::uint64 value);
+
+  // @@protoc_insertion_point(class_scope:opq.opqbox3.Cycle)
+ private:
+
+  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  bool _is_default_instance_;
+  ::google::protobuf::RepeatedField< ::google::protobuf::int32 > datapoints_;
+  mutable int _datapoints_cached_byte_size_;
+  ::google::protobuf::uint64 timestamp_ms_;
+  mutable int _cached_size_;
+  friend void  protobuf_AddDesc_opqbox3_2eproto();
+  friend void protobuf_AssignDesc_opqbox3_2eproto();
+  friend void protobuf_ShutdownFile_opqbox3_2eproto();
+
+  void InitAsDefaultInstance();
+  static Cycle* default_instance_;
+};
 // ===================================================================
 
 
 // ===================================================================
 
 #if !PROTOBUF_INLINE_NOT_IN_HEADERS
+// Metric
+
+// optional float min = 1;
+inline void Metric::clear_min() {
+  min_ = 0;
+}
+inline float Metric::min() const {
+  // @@protoc_insertion_point(field_get:opq.opqbox3.Metric.min)
+  return min_;
+}
+inline void Metric::set_min(float value) {
+  
+  min_ = value;
+  // @@protoc_insertion_point(field_set:opq.opqbox3.Metric.min)
+}
+
+// optional float max = 2;
+inline void Metric::clear_max() {
+  max_ = 0;
+}
+inline float Metric::max() const {
+  // @@protoc_insertion_point(field_get:opq.opqbox3.Metric.max)
+  return max_;
+}
+inline void Metric::set_max(float value) {
+  
+  max_ = value;
+  // @@protoc_insertion_point(field_set:opq.opqbox3.Metric.max)
+}
+
+// optional float average = 3;
+inline void Metric::clear_average() {
+  average_ = 0;
+}
+inline float Metric::average() const {
+  // @@protoc_insertion_point(field_get:opq.opqbox3.Metric.average)
+  return average_;
+}
+inline void Metric::set_average(float value) {
+  
+  average_ = value;
+  // @@protoc_insertion_point(field_set:opq.opqbox3.Metric.average)
+}
+
+// -------------------------------------------------------------------
+
 // Measurement
 
 // optional uint32 box_id = 1;
@@ -1044,13 +1473,13 @@ inline void Measurement::clear_box_id() {
   box_id_ = 0u;
 }
 inline ::google::protobuf::uint32 Measurement::box_id() const {
-  // @@protoc_insertion_point(field_get:opq.proto3.Measurement.box_id)
+  // @@protoc_insertion_point(field_get:opq.opqbox3.Measurement.box_id)
   return box_id_;
 }
 inline void Measurement::set_box_id(::google::protobuf::uint32 value) {
   
   box_id_ = value;
-  // @@protoc_insertion_point(field_set:opq.proto3.Measurement.box_id)
+  // @@protoc_insertion_point(field_set:opq.opqbox3.Measurement.box_id)
 }
 
 // optional uint64 timestamp_ms = 2;
@@ -1058,30 +1487,30 @@ inline void Measurement::clear_timestamp_ms() {
   timestamp_ms_ = GOOGLE_ULONGLONG(0);
 }
 inline ::google::protobuf::uint64 Measurement::timestamp_ms() const {
-  // @@protoc_insertion_point(field_get:opq.proto3.Measurement.timestamp_ms)
+  // @@protoc_insertion_point(field_get:opq.opqbox3.Measurement.timestamp_ms)
   return timestamp_ms_;
 }
 inline void Measurement::set_timestamp_ms(::google::protobuf::uint64 value) {
   
   timestamp_ms_ = value;
-  // @@protoc_insertion_point(field_set:opq.proto3.Measurement.timestamp_ms)
+  // @@protoc_insertion_point(field_set:opq.opqbox3.Measurement.timestamp_ms)
 }
 
-// map<string, float> metrics = 3;
+// map<string, .opq.opqbox3.Metric> metrics = 3;
 inline int Measurement::metrics_size() const {
   return metrics_.size();
 }
 inline void Measurement::clear_metrics() {
   metrics_.Clear();
 }
-inline const ::google::protobuf::Map< ::std::string, float >&
+inline const ::google::protobuf::Map< ::std::string, ::opq::opqbox3::Metric >&
 Measurement::metrics() const {
-  // @@protoc_insertion_point(field_map:opq.proto3.Measurement.metrics)
+  // @@protoc_insertion_point(field_map:opq.opqbox3.Measurement.metrics)
   return metrics_.GetMap();
 }
-inline ::google::protobuf::Map< ::std::string, float >*
+inline ::google::protobuf::Map< ::std::string, ::opq::opqbox3::Metric >*
 Measurement::mutable_metrics() {
-  // @@protoc_insertion_point(field_mutable_map:opq.proto3.Measurement.metrics)
+  // @@protoc_insertion_point(field_mutable_map:opq.opqbox3.Measurement.metrics)
   return metrics_.MutableMap();
 }
 
@@ -1098,13 +1527,13 @@ inline void GetDataCommand::clear_start_ms() {
   start_ms_ = GOOGLE_ULONGLONG(0);
 }
 inline ::google::protobuf::uint64 GetDataCommand::start_ms() const {
-  // @@protoc_insertion_point(field_get:opq.proto3.GetDataCommand.start_ms)
+  // @@protoc_insertion_point(field_get:opq.opqbox3.GetDataCommand.start_ms)
   return start_ms_;
 }
 inline void GetDataCommand::set_start_ms(::google::protobuf::uint64 value) {
   
   start_ms_ = value;
-  // @@protoc_insertion_point(field_set:opq.proto3.GetDataCommand.start_ms)
+  // @@protoc_insertion_point(field_set:opq.opqbox3.GetDataCommand.start_ms)
 }
 
 // optional uint64 end_ms = 2;
@@ -1112,13 +1541,13 @@ inline void GetDataCommand::clear_end_ms() {
   end_ms_ = GOOGLE_ULONGLONG(0);
 }
 inline ::google::protobuf::uint64 GetDataCommand::end_ms() const {
-  // @@protoc_insertion_point(field_get:opq.proto3.GetDataCommand.end_ms)
+  // @@protoc_insertion_point(field_get:opq.opqbox3.GetDataCommand.end_ms)
   return end_ms_;
 }
 inline void GetDataCommand::set_end_ms(::google::protobuf::uint64 value) {
   
   end_ms_ = value;
-  // @@protoc_insertion_point(field_set:opq.proto3.GetDataCommand.end_ms)
+  // @@protoc_insertion_point(field_set:opq.opqbox3.GetDataCommand.end_ms)
 }
 
 // optional bool wait = 3;
@@ -1126,13 +1555,13 @@ inline void GetDataCommand::clear_wait() {
   wait_ = false;
 }
 inline bool GetDataCommand::wait() const {
-  // @@protoc_insertion_point(field_get:opq.proto3.GetDataCommand.wait)
+  // @@protoc_insertion_point(field_get:opq.opqbox3.GetDataCommand.wait)
   return wait_;
 }
 inline void GetDataCommand::set_wait(bool value) {
   
   wait_ = value;
-  // @@protoc_insertion_point(field_set:opq.proto3.GetDataCommand.wait)
+  // @@protoc_insertion_point(field_set:opq.opqbox3.GetDataCommand.wait)
 }
 
 // -------------------------------------------------------------------
@@ -1144,106 +1573,140 @@ inline void SetMeasturementRateCommand::clear_measurement_window_cycles() {
   measurement_window_cycles_ = 0u;
 }
 inline ::google::protobuf::uint32 SetMeasturementRateCommand::measurement_window_cycles() const {
-  // @@protoc_insertion_point(field_get:opq.proto3.SetMeasturementRateCommand.measurement_window_cycles)
+  // @@protoc_insertion_point(field_get:opq.opqbox3.SetMeasturementRateCommand.measurement_window_cycles)
   return measurement_window_cycles_;
 }
 inline void SetMeasturementRateCommand::set_measurement_window_cycles(::google::protobuf::uint32 value) {
   
   measurement_window_cycles_ = value;
-  // @@protoc_insertion_point(field_set:opq.proto3.SetMeasturementRateCommand.measurement_window_cycles)
+  // @@protoc_insertion_point(field_set:opq.opqbox3.SetMeasturementRateCommand.measurement_window_cycles)
 }
 
-// optional uint32 duration_ms = 2;
-inline void SetMeasturementRateCommand::clear_duration_ms() {
-  duration_ms_ = 0u;
+// -------------------------------------------------------------------
+
+// SendCommandToPlugin
+
+// optional string plugin_name = 1;
+inline void SendCommandToPlugin::clear_plugin_name() {
+  plugin_name_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
-inline ::google::protobuf::uint32 SetMeasturementRateCommand::duration_ms() const {
-  // @@protoc_insertion_point(field_get:opq.proto3.SetMeasturementRateCommand.duration_ms)
-  return duration_ms_;
+inline const ::std::string& SendCommandToPlugin::plugin_name() const {
+  // @@protoc_insertion_point(field_get:opq.opqbox3.SendCommandToPlugin.plugin_name)
+  return plugin_name_.GetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
-inline void SetMeasturementRateCommand::set_duration_ms(::google::protobuf::uint32 value) {
+inline void SendCommandToPlugin::set_plugin_name(const ::std::string& value) {
   
-  duration_ms_ = value;
-  // @@protoc_insertion_point(field_set:opq.proto3.SetMeasturementRateCommand.duration_ms)
+  plugin_name_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
+  // @@protoc_insertion_point(field_set:opq.opqbox3.SendCommandToPlugin.plugin_name)
+}
+inline void SendCommandToPlugin::set_plugin_name(const char* value) {
+  
+  plugin_name_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:opq.opqbox3.SendCommandToPlugin.plugin_name)
+}
+inline void SendCommandToPlugin::set_plugin_name(const char* value, size_t size) {
+  
+  plugin_name_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
+      ::std::string(reinterpret_cast<const char*>(value), size));
+  // @@protoc_insertion_point(field_set_pointer:opq.opqbox3.SendCommandToPlugin.plugin_name)
+}
+inline ::std::string* SendCommandToPlugin::mutable_plugin_name() {
+  
+  // @@protoc_insertion_point(field_mutable:opq.opqbox3.SendCommandToPlugin.plugin_name)
+  return plugin_name_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline ::std::string* SendCommandToPlugin::release_plugin_name() {
+  // @@protoc_insertion_point(field_release:opq.opqbox3.SendCommandToPlugin.plugin_name)
+  
+  return plugin_name_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline void SendCommandToPlugin::set_allocated_plugin_name(::std::string* plugin_name) {
+  if (plugin_name != NULL) {
+    
+  } else {
+    
+  }
+  plugin_name_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), plugin_name);
+  // @@protoc_insertion_point(field_set_allocated:opq.opqbox3.SendCommandToPlugin.plugin_name)
+}
+
+// optional string message = 2;
+inline void SendCommandToPlugin::clear_message() {
+  message_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline const ::std::string& SendCommandToPlugin::message() const {
+  // @@protoc_insertion_point(field_get:opq.opqbox3.SendCommandToPlugin.message)
+  return message_.GetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline void SendCommandToPlugin::set_message(const ::std::string& value) {
+  
+  message_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
+  // @@protoc_insertion_point(field_set:opq.opqbox3.SendCommandToPlugin.message)
+}
+inline void SendCommandToPlugin::set_message(const char* value) {
+  
+  message_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:opq.opqbox3.SendCommandToPlugin.message)
+}
+inline void SendCommandToPlugin::set_message(const char* value, size_t size) {
+  
+  message_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
+      ::std::string(reinterpret_cast<const char*>(value), size));
+  // @@protoc_insertion_point(field_set_pointer:opq.opqbox3.SendCommandToPlugin.message)
+}
+inline ::std::string* SendCommandToPlugin::mutable_message() {
+  
+  // @@protoc_insertion_point(field_mutable:opq.opqbox3.SendCommandToPlugin.message)
+  return message_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline ::std::string* SendCommandToPlugin::release_message() {
+  // @@protoc_insertion_point(field_release:opq.opqbox3.SendCommandToPlugin.message)
+  
+  return message_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline void SendCommandToPlugin::set_allocated_message(::std::string* message) {
+  if (message != NULL) {
+    
+  } else {
+    
+  }
+  message_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), message);
+  // @@protoc_insertion_point(field_set_allocated:opq.opqbox3.SendCommandToPlugin.message)
 }
 
 // -------------------------------------------------------------------
 
 // Command
 
-// optional uint32 box_id = 1;
-inline void Command::clear_box_id() {
-  box_id_ = 0u;
+// optional uint32 seq = 1;
+inline void Command::clear_seq() {
+  seq_ = 0u;
 }
-inline ::google::protobuf::uint32 Command::box_id() const {
-  // @@protoc_insertion_point(field_get:opq.proto3.Command.box_id)
-  return box_id_;
+inline ::google::protobuf::uint32 Command::seq() const {
+  // @@protoc_insertion_point(field_get:opq.opqbox3.Command.seq)
+  return seq_;
 }
-inline void Command::set_box_id(::google::protobuf::uint32 value) {
+inline void Command::set_seq(::google::protobuf::uint32 value) {
   
-  box_id_ = value;
-  // @@protoc_insertion_point(field_set:opq.proto3.Command.box_id)
+  seq_ = value;
+  // @@protoc_insertion_point(field_set:opq.opqbox3.Command.seq)
 }
 
-// optional string identity = 2;
-inline void Command::clear_identity() {
-  identity_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-}
-inline const ::std::string& Command::identity() const {
-  // @@protoc_insertion_point(field_get:opq.proto3.Command.identity)
-  return identity_.GetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-}
-inline void Command::set_identity(const ::std::string& value) {
-  
-  identity_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
-  // @@protoc_insertion_point(field_set:opq.proto3.Command.identity)
-}
-inline void Command::set_identity(const char* value) {
-  
-  identity_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
-  // @@protoc_insertion_point(field_set_char:opq.proto3.Command.identity)
-}
-inline void Command::set_identity(const char* value, size_t size) {
-  
-  identity_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
-      ::std::string(reinterpret_cast<const char*>(value), size));
-  // @@protoc_insertion_point(field_set_pointer:opq.proto3.Command.identity)
-}
-inline ::std::string* Command::mutable_identity() {
-  
-  // @@protoc_insertion_point(field_mutable:opq.proto3.Command.identity)
-  return identity_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-}
-inline ::std::string* Command::release_identity() {
-  // @@protoc_insertion_point(field_release:opq.proto3.Command.identity)
-  
-  return identity_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-}
-inline void Command::set_allocated_identity(::std::string* identity) {
-  if (identity != NULL) {
-    
-  } else {
-    
-  }
-  identity_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), identity);
-  // @@protoc_insertion_point(field_set_allocated:opq.proto3.Command.identity)
-}
-
-// optional uint64 timestamp_ms = 3;
+// optional uint64 timestamp_ms = 2;
 inline void Command::clear_timestamp_ms() {
   timestamp_ms_ = GOOGLE_ULONGLONG(0);
 }
 inline ::google::protobuf::uint64 Command::timestamp_ms() const {
-  // @@protoc_insertion_point(field_get:opq.proto3.Command.timestamp_ms)
+  // @@protoc_insertion_point(field_get:opq.opqbox3.Command.timestamp_ms)
   return timestamp_ms_;
 }
 inline void Command::set_timestamp_ms(::google::protobuf::uint64 value) {
   
   timestamp_ms_ = value;
-  // @@protoc_insertion_point(field_set:opq.proto3.Command.timestamp_ms)
+  // @@protoc_insertion_point(field_set:opq.opqbox3.Command.timestamp_ms)
 }
 
-// optional .opq.proto3.GetInfoCommand info_command = 4;
+// optional .opq.opqbox3.GetInfoCommand info_command = 3;
 inline bool Command::has_info_command() const {
   return command_case() == kInfoCommand;
 }
@@ -1256,42 +1719,42 @@ inline void Command::clear_info_command() {
     clear_has_command();
   }
 }
-inline  const ::opq::proto3::GetInfoCommand& Command::info_command() const {
-  // @@protoc_insertion_point(field_get:opq.proto3.Command.info_command)
+inline  const ::opq::opqbox3::GetInfoCommand& Command::info_command() const {
+  // @@protoc_insertion_point(field_get:opq.opqbox3.Command.info_command)
   return has_info_command()
       ? *command_.info_command_
-      : ::opq::proto3::GetInfoCommand::default_instance();
+      : ::opq::opqbox3::GetInfoCommand::default_instance();
 }
-inline ::opq::proto3::GetInfoCommand* Command::mutable_info_command() {
+inline ::opq::opqbox3::GetInfoCommand* Command::mutable_info_command() {
   if (!has_info_command()) {
     clear_command();
     set_has_info_command();
-    command_.info_command_ = new ::opq::proto3::GetInfoCommand;
+    command_.info_command_ = new ::opq::opqbox3::GetInfoCommand;
   }
-  // @@protoc_insertion_point(field_mutable:opq.proto3.Command.info_command)
+  // @@protoc_insertion_point(field_mutable:opq.opqbox3.Command.info_command)
   return command_.info_command_;
 }
-inline ::opq::proto3::GetInfoCommand* Command::release_info_command() {
-  // @@protoc_insertion_point(field_release:opq.proto3.Command.info_command)
+inline ::opq::opqbox3::GetInfoCommand* Command::release_info_command() {
+  // @@protoc_insertion_point(field_release:opq.opqbox3.Command.info_command)
   if (has_info_command()) {
     clear_has_command();
-    ::opq::proto3::GetInfoCommand* temp = command_.info_command_;
+    ::opq::opqbox3::GetInfoCommand* temp = command_.info_command_;
     command_.info_command_ = NULL;
     return temp;
   } else {
     return NULL;
   }
 }
-inline void Command::set_allocated_info_command(::opq::proto3::GetInfoCommand* info_command) {
+inline void Command::set_allocated_info_command(::opq::opqbox3::GetInfoCommand* info_command) {
   clear_command();
   if (info_command) {
     set_has_info_command();
     command_.info_command_ = info_command;
   }
-  // @@protoc_insertion_point(field_set_allocated:opq.proto3.Command.info_command)
+  // @@protoc_insertion_point(field_set_allocated:opq.opqbox3.Command.info_command)
 }
 
-// optional .opq.proto3.GetDataCommand data_command = 5;
+// optional .opq.opqbox3.GetDataCommand data_command = 4;
 inline bool Command::has_data_command() const {
   return command_case() == kDataCommand;
 }
@@ -1304,42 +1767,42 @@ inline void Command::clear_data_command() {
     clear_has_command();
   }
 }
-inline  const ::opq::proto3::GetDataCommand& Command::data_command() const {
-  // @@protoc_insertion_point(field_get:opq.proto3.Command.data_command)
+inline  const ::opq::opqbox3::GetDataCommand& Command::data_command() const {
+  // @@protoc_insertion_point(field_get:opq.opqbox3.Command.data_command)
   return has_data_command()
       ? *command_.data_command_
-      : ::opq::proto3::GetDataCommand::default_instance();
+      : ::opq::opqbox3::GetDataCommand::default_instance();
 }
-inline ::opq::proto3::GetDataCommand* Command::mutable_data_command() {
+inline ::opq::opqbox3::GetDataCommand* Command::mutable_data_command() {
   if (!has_data_command()) {
     clear_command();
     set_has_data_command();
-    command_.data_command_ = new ::opq::proto3::GetDataCommand;
+    command_.data_command_ = new ::opq::opqbox3::GetDataCommand;
   }
-  // @@protoc_insertion_point(field_mutable:opq.proto3.Command.data_command)
+  // @@protoc_insertion_point(field_mutable:opq.opqbox3.Command.data_command)
   return command_.data_command_;
 }
-inline ::opq::proto3::GetDataCommand* Command::release_data_command() {
-  // @@protoc_insertion_point(field_release:opq.proto3.Command.data_command)
+inline ::opq::opqbox3::GetDataCommand* Command::release_data_command() {
+  // @@protoc_insertion_point(field_release:opq.opqbox3.Command.data_command)
   if (has_data_command()) {
     clear_has_command();
-    ::opq::proto3::GetDataCommand* temp = command_.data_command_;
+    ::opq::opqbox3::GetDataCommand* temp = command_.data_command_;
     command_.data_command_ = NULL;
     return temp;
   } else {
     return NULL;
   }
 }
-inline void Command::set_allocated_data_command(::opq::proto3::GetDataCommand* data_command) {
+inline void Command::set_allocated_data_command(::opq::opqbox3::GetDataCommand* data_command) {
   clear_command();
   if (data_command) {
     set_has_data_command();
     command_.data_command_ = data_command;
   }
-  // @@protoc_insertion_point(field_set_allocated:opq.proto3.Command.data_command)
+  // @@protoc_insertion_point(field_set_allocated:opq.opqbox3.Command.data_command)
 }
 
-// optional .opq.proto3.SetMeasturementRateCommand sampling_rate_command = 6;
+// optional .opq.opqbox3.SetMeasturementRateCommand sampling_rate_command = 5;
 inline bool Command::has_sampling_rate_command() const {
   return command_case() == kSamplingRateCommand;
 }
@@ -1352,39 +1815,87 @@ inline void Command::clear_sampling_rate_command() {
     clear_has_command();
   }
 }
-inline  const ::opq::proto3::SetMeasturementRateCommand& Command::sampling_rate_command() const {
-  // @@protoc_insertion_point(field_get:opq.proto3.Command.sampling_rate_command)
+inline  const ::opq::opqbox3::SetMeasturementRateCommand& Command::sampling_rate_command() const {
+  // @@protoc_insertion_point(field_get:opq.opqbox3.Command.sampling_rate_command)
   return has_sampling_rate_command()
       ? *command_.sampling_rate_command_
-      : ::opq::proto3::SetMeasturementRateCommand::default_instance();
+      : ::opq::opqbox3::SetMeasturementRateCommand::default_instance();
 }
-inline ::opq::proto3::SetMeasturementRateCommand* Command::mutable_sampling_rate_command() {
+inline ::opq::opqbox3::SetMeasturementRateCommand* Command::mutable_sampling_rate_command() {
   if (!has_sampling_rate_command()) {
     clear_command();
     set_has_sampling_rate_command();
-    command_.sampling_rate_command_ = new ::opq::proto3::SetMeasturementRateCommand;
+    command_.sampling_rate_command_ = new ::opq::opqbox3::SetMeasturementRateCommand;
   }
-  // @@protoc_insertion_point(field_mutable:opq.proto3.Command.sampling_rate_command)
+  // @@protoc_insertion_point(field_mutable:opq.opqbox3.Command.sampling_rate_command)
   return command_.sampling_rate_command_;
 }
-inline ::opq::proto3::SetMeasturementRateCommand* Command::release_sampling_rate_command() {
-  // @@protoc_insertion_point(field_release:opq.proto3.Command.sampling_rate_command)
+inline ::opq::opqbox3::SetMeasturementRateCommand* Command::release_sampling_rate_command() {
+  // @@protoc_insertion_point(field_release:opq.opqbox3.Command.sampling_rate_command)
   if (has_sampling_rate_command()) {
     clear_has_command();
-    ::opq::proto3::SetMeasturementRateCommand* temp = command_.sampling_rate_command_;
+    ::opq::opqbox3::SetMeasturementRateCommand* temp = command_.sampling_rate_command_;
     command_.sampling_rate_command_ = NULL;
     return temp;
   } else {
     return NULL;
   }
 }
-inline void Command::set_allocated_sampling_rate_command(::opq::proto3::SetMeasturementRateCommand* sampling_rate_command) {
+inline void Command::set_allocated_sampling_rate_command(::opq::opqbox3::SetMeasturementRateCommand* sampling_rate_command) {
   clear_command();
   if (sampling_rate_command) {
     set_has_sampling_rate_command();
     command_.sampling_rate_command_ = sampling_rate_command;
   }
-  // @@protoc_insertion_point(field_set_allocated:opq.proto3.Command.sampling_rate_command)
+  // @@protoc_insertion_point(field_set_allocated:opq.opqbox3.Command.sampling_rate_command)
+}
+
+// optional .opq.opqbox3.SendCommandToPlugin send_command_to_plugin = 7;
+inline bool Command::has_send_command_to_plugin() const {
+  return command_case() == kSendCommandToPlugin;
+}
+inline void Command::set_has_send_command_to_plugin() {
+  _oneof_case_[0] = kSendCommandToPlugin;
+}
+inline void Command::clear_send_command_to_plugin() {
+  if (has_send_command_to_plugin()) {
+    delete command_.send_command_to_plugin_;
+    clear_has_command();
+  }
+}
+inline  const ::opq::opqbox3::SendCommandToPlugin& Command::send_command_to_plugin() const {
+  // @@protoc_insertion_point(field_get:opq.opqbox3.Command.send_command_to_plugin)
+  return has_send_command_to_plugin()
+      ? *command_.send_command_to_plugin_
+      : ::opq::opqbox3::SendCommandToPlugin::default_instance();
+}
+inline ::opq::opqbox3::SendCommandToPlugin* Command::mutable_send_command_to_plugin() {
+  if (!has_send_command_to_plugin()) {
+    clear_command();
+    set_has_send_command_to_plugin();
+    command_.send_command_to_plugin_ = new ::opq::opqbox3::SendCommandToPlugin;
+  }
+  // @@protoc_insertion_point(field_mutable:opq.opqbox3.Command.send_command_to_plugin)
+  return command_.send_command_to_plugin_;
+}
+inline ::opq::opqbox3::SendCommandToPlugin* Command::release_send_command_to_plugin() {
+  // @@protoc_insertion_point(field_release:opq.opqbox3.Command.send_command_to_plugin)
+  if (has_send_command_to_plugin()) {
+    clear_has_command();
+    ::opq::opqbox3::SendCommandToPlugin* temp = command_.send_command_to_plugin_;
+    command_.send_command_to_plugin_ = NULL;
+    return temp;
+  } else {
+    return NULL;
+  }
+}
+inline void Command::set_allocated_send_command_to_plugin(::opq::opqbox3::SendCommandToPlugin* send_command_to_plugin) {
+  clear_command();
+  if (send_command_to_plugin) {
+    set_has_send_command_to_plugin();
+    command_.send_command_to_plugin_ = send_command_to_plugin;
+  }
+  // @@protoc_insertion_point(field_set_allocated:opq.opqbox3.Command.send_command_to_plugin)
 }
 
 inline bool Command::has_command() const {
@@ -1405,32 +1916,32 @@ inline void GetInfoResponse::clear_mac_addr() {
   mac_addr_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
 inline const ::std::string& GetInfoResponse::mac_addr() const {
-  // @@protoc_insertion_point(field_get:opq.proto3.GetInfoResponse.mac_addr)
+  // @@protoc_insertion_point(field_get:opq.opqbox3.GetInfoResponse.mac_addr)
   return mac_addr_.GetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
 inline void GetInfoResponse::set_mac_addr(const ::std::string& value) {
   
   mac_addr_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
-  // @@protoc_insertion_point(field_set:opq.proto3.GetInfoResponse.mac_addr)
+  // @@protoc_insertion_point(field_set:opq.opqbox3.GetInfoResponse.mac_addr)
 }
 inline void GetInfoResponse::set_mac_addr(const char* value) {
   
   mac_addr_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
-  // @@protoc_insertion_point(field_set_char:opq.proto3.GetInfoResponse.mac_addr)
+  // @@protoc_insertion_point(field_set_char:opq.opqbox3.GetInfoResponse.mac_addr)
 }
 inline void GetInfoResponse::set_mac_addr(const char* value, size_t size) {
   
   mac_addr_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
       ::std::string(reinterpret_cast<const char*>(value), size));
-  // @@protoc_insertion_point(field_set_pointer:opq.proto3.GetInfoResponse.mac_addr)
+  // @@protoc_insertion_point(field_set_pointer:opq.opqbox3.GetInfoResponse.mac_addr)
 }
 inline ::std::string* GetInfoResponse::mutable_mac_addr() {
   
-  // @@protoc_insertion_point(field_mutable:opq.proto3.GetInfoResponse.mac_addr)
+  // @@protoc_insertion_point(field_mutable:opq.opqbox3.GetInfoResponse.mac_addr)
   return mac_addr_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
 inline ::std::string* GetInfoResponse::release_mac_addr() {
-  // @@protoc_insertion_point(field_release:opq.proto3.GetInfoResponse.mac_addr)
+  // @@protoc_insertion_point(field_release:opq.opqbox3.GetInfoResponse.mac_addr)
   
   return mac_addr_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
@@ -1441,7 +1952,7 @@ inline void GetInfoResponse::set_allocated_mac_addr(::std::string* mac_addr) {
     
   }
   mac_addr_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), mac_addr);
-  // @@protoc_insertion_point(field_set_allocated:opq.proto3.GetInfoResponse.mac_addr)
+  // @@protoc_insertion_point(field_set_allocated:opq.opqbox3.GetInfoResponse.mac_addr)
 }
 
 // optional string wifi_network = 2;
@@ -1449,32 +1960,32 @@ inline void GetInfoResponse::clear_wifi_network() {
   wifi_network_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
 inline const ::std::string& GetInfoResponse::wifi_network() const {
-  // @@protoc_insertion_point(field_get:opq.proto3.GetInfoResponse.wifi_network)
+  // @@protoc_insertion_point(field_get:opq.opqbox3.GetInfoResponse.wifi_network)
   return wifi_network_.GetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
 inline void GetInfoResponse::set_wifi_network(const ::std::string& value) {
   
   wifi_network_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
-  // @@protoc_insertion_point(field_set:opq.proto3.GetInfoResponse.wifi_network)
+  // @@protoc_insertion_point(field_set:opq.opqbox3.GetInfoResponse.wifi_network)
 }
 inline void GetInfoResponse::set_wifi_network(const char* value) {
   
   wifi_network_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
-  // @@protoc_insertion_point(field_set_char:opq.proto3.GetInfoResponse.wifi_network)
+  // @@protoc_insertion_point(field_set_char:opq.opqbox3.GetInfoResponse.wifi_network)
 }
 inline void GetInfoResponse::set_wifi_network(const char* value, size_t size) {
   
   wifi_network_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
       ::std::string(reinterpret_cast<const char*>(value), size));
-  // @@protoc_insertion_point(field_set_pointer:opq.proto3.GetInfoResponse.wifi_network)
+  // @@protoc_insertion_point(field_set_pointer:opq.opqbox3.GetInfoResponse.wifi_network)
 }
 inline ::std::string* GetInfoResponse::mutable_wifi_network() {
   
-  // @@protoc_insertion_point(field_mutable:opq.proto3.GetInfoResponse.wifi_network)
+  // @@protoc_insertion_point(field_mutable:opq.opqbox3.GetInfoResponse.wifi_network)
   return wifi_network_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
 inline ::std::string* GetInfoResponse::release_wifi_network() {
-  // @@protoc_insertion_point(field_release:opq.proto3.GetInfoResponse.wifi_network)
+  // @@protoc_insertion_point(field_release:opq.opqbox3.GetInfoResponse.wifi_network)
   
   return wifi_network_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
@@ -1485,7 +1996,7 @@ inline void GetInfoResponse::set_allocated_wifi_network(::std::string* wifi_netw
     
   }
   wifi_network_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), wifi_network);
-  // @@protoc_insertion_point(field_set_allocated:opq.proto3.GetInfoResponse.wifi_network)
+  // @@protoc_insertion_point(field_set_allocated:opq.opqbox3.GetInfoResponse.wifi_network)
 }
 
 // optional string ip = 3;
@@ -1493,32 +2004,32 @@ inline void GetInfoResponse::clear_ip() {
   ip_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
 inline const ::std::string& GetInfoResponse::ip() const {
-  // @@protoc_insertion_point(field_get:opq.proto3.GetInfoResponse.ip)
+  // @@protoc_insertion_point(field_get:opq.opqbox3.GetInfoResponse.ip)
   return ip_.GetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
 inline void GetInfoResponse::set_ip(const ::std::string& value) {
   
   ip_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
-  // @@protoc_insertion_point(field_set:opq.proto3.GetInfoResponse.ip)
+  // @@protoc_insertion_point(field_set:opq.opqbox3.GetInfoResponse.ip)
 }
 inline void GetInfoResponse::set_ip(const char* value) {
   
   ip_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
-  // @@protoc_insertion_point(field_set_char:opq.proto3.GetInfoResponse.ip)
+  // @@protoc_insertion_point(field_set_char:opq.opqbox3.GetInfoResponse.ip)
 }
 inline void GetInfoResponse::set_ip(const char* value, size_t size) {
   
   ip_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
       ::std::string(reinterpret_cast<const char*>(value), size));
-  // @@protoc_insertion_point(field_set_pointer:opq.proto3.GetInfoResponse.ip)
+  // @@protoc_insertion_point(field_set_pointer:opq.opqbox3.GetInfoResponse.ip)
 }
 inline ::std::string* GetInfoResponse::mutable_ip() {
   
-  // @@protoc_insertion_point(field_mutable:opq.proto3.GetInfoResponse.ip)
+  // @@protoc_insertion_point(field_mutable:opq.opqbox3.GetInfoResponse.ip)
   return ip_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
 inline ::std::string* GetInfoResponse::release_ip() {
-  // @@protoc_insertion_point(field_release:opq.proto3.GetInfoResponse.ip)
+  // @@protoc_insertion_point(field_release:opq.opqbox3.GetInfoResponse.ip)
   
   return ip_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
@@ -1529,7 +2040,7 @@ inline void GetInfoResponse::set_allocated_ip(::std::string* ip) {
     
   }
   ip_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ip);
-  // @@protoc_insertion_point(field_set_allocated:opq.proto3.GetInfoResponse.ip)
+  // @@protoc_insertion_point(field_set_allocated:opq.opqbox3.GetInfoResponse.ip)
 }
 
 // optional uint64 uptime = 4;
@@ -1537,13 +2048,13 @@ inline void GetInfoResponse::clear_uptime() {
   uptime_ = GOOGLE_ULONGLONG(0);
 }
 inline ::google::protobuf::uint64 GetInfoResponse::uptime() const {
-  // @@protoc_insertion_point(field_get:opq.proto3.GetInfoResponse.uptime)
+  // @@protoc_insertion_point(field_get:opq.opqbox3.GetInfoResponse.uptime)
   return uptime_;
 }
 inline void GetInfoResponse::set_uptime(::google::protobuf::uint64 value) {
   
   uptime_ = value;
-  // @@protoc_insertion_point(field_set:opq.proto3.GetInfoResponse.uptime)
+  // @@protoc_insertion_point(field_set:opq.opqbox3.GetInfoResponse.uptime)
 }
 
 // optional uint64 calibration_constant = 5;
@@ -1551,13 +2062,13 @@ inline void GetInfoResponse::clear_calibration_constant() {
   calibration_constant_ = GOOGLE_ULONGLONG(0);
 }
 inline ::google::protobuf::uint64 GetInfoResponse::calibration_constant() const {
-  // @@protoc_insertion_point(field_get:opq.proto3.GetInfoResponse.calibration_constant)
+  // @@protoc_insertion_point(field_get:opq.opqbox3.GetInfoResponse.calibration_constant)
   return calibration_constant_;
 }
 inline void GetInfoResponse::set_calibration_constant(::google::protobuf::uint64 value) {
   
   calibration_constant_ = value;
-  // @@protoc_insertion_point(field_set:opq.proto3.GetInfoResponse.calibration_constant)
+  // @@protoc_insertion_point(field_set:opq.opqbox3.GetInfoResponse.calibration_constant)
 }
 
 // optional string pub_key = 6;
@@ -1565,32 +2076,32 @@ inline void GetInfoResponse::clear_pub_key() {
   pub_key_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
 inline const ::std::string& GetInfoResponse::pub_key() const {
-  // @@protoc_insertion_point(field_get:opq.proto3.GetInfoResponse.pub_key)
+  // @@protoc_insertion_point(field_get:opq.opqbox3.GetInfoResponse.pub_key)
   return pub_key_.GetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
 inline void GetInfoResponse::set_pub_key(const ::std::string& value) {
   
   pub_key_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
-  // @@protoc_insertion_point(field_set:opq.proto3.GetInfoResponse.pub_key)
+  // @@protoc_insertion_point(field_set:opq.opqbox3.GetInfoResponse.pub_key)
 }
 inline void GetInfoResponse::set_pub_key(const char* value) {
   
   pub_key_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
-  // @@protoc_insertion_point(field_set_char:opq.proto3.GetInfoResponse.pub_key)
+  // @@protoc_insertion_point(field_set_char:opq.opqbox3.GetInfoResponse.pub_key)
 }
 inline void GetInfoResponse::set_pub_key(const char* value, size_t size) {
   
   pub_key_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
       ::std::string(reinterpret_cast<const char*>(value), size));
-  // @@protoc_insertion_point(field_set_pointer:opq.proto3.GetInfoResponse.pub_key)
+  // @@protoc_insertion_point(field_set_pointer:opq.opqbox3.GetInfoResponse.pub_key)
 }
 inline ::std::string* GetInfoResponse::mutable_pub_key() {
   
-  // @@protoc_insertion_point(field_mutable:opq.proto3.GetInfoResponse.pub_key)
+  // @@protoc_insertion_point(field_mutable:opq.opqbox3.GetInfoResponse.pub_key)
   return pub_key_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
 inline ::std::string* GetInfoResponse::release_pub_key() {
-  // @@protoc_insertion_point(field_release:opq.proto3.GetInfoResponse.pub_key)
+  // @@protoc_insertion_point(field_release:opq.opqbox3.GetInfoResponse.pub_key)
   
   return pub_key_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
@@ -1601,7 +2112,7 @@ inline void GetInfoResponse::set_allocated_pub_key(::std::string* pub_key) {
     
   }
   pub_key_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), pub_key);
-  // @@protoc_insertion_point(field_set_allocated:opq.proto3.GetInfoResponse.pub_key)
+  // @@protoc_insertion_point(field_set_allocated:opq.opqbox3.GetInfoResponse.pub_key)
 }
 
 // optional uint32 measurement_rate = 7;
@@ -1609,13 +2120,13 @@ inline void GetInfoResponse::clear_measurement_rate() {
   measurement_rate_ = 0u;
 }
 inline ::google::protobuf::uint32 GetInfoResponse::measurement_rate() const {
-  // @@protoc_insertion_point(field_get:opq.proto3.GetInfoResponse.measurement_rate)
+  // @@protoc_insertion_point(field_get:opq.opqbox3.GetInfoResponse.measurement_rate)
   return measurement_rate_;
 }
 inline void GetInfoResponse::set_measurement_rate(::google::protobuf::uint32 value) {
   
   measurement_rate_ = value;
-  // @@protoc_insertion_point(field_set:opq.proto3.GetInfoResponse.measurement_rate)
+  // @@protoc_insertion_point(field_set:opq.opqbox3.GetInfoResponse.measurement_rate)
 }
 
 // -------------------------------------------------------------------
@@ -1627,45 +2138,63 @@ inline void SetMeasurementRateResponse::clear_old_rate_cycles() {
   old_rate_cycles_ = 0u;
 }
 inline ::google::protobuf::uint32 SetMeasurementRateResponse::old_rate_cycles() const {
-  // @@protoc_insertion_point(field_get:opq.proto3.SetMeasurementRateResponse.old_rate_cycles)
+  // @@protoc_insertion_point(field_get:opq.opqbox3.SetMeasurementRateResponse.old_rate_cycles)
   return old_rate_cycles_;
 }
 inline void SetMeasurementRateResponse::set_old_rate_cycles(::google::protobuf::uint32 value) {
   
   old_rate_cycles_ = value;
-  // @@protoc_insertion_point(field_set:opq.proto3.SetMeasurementRateResponse.old_rate_cycles)
+  // @@protoc_insertion_point(field_set:opq.opqbox3.SetMeasurementRateResponse.old_rate_cycles)
 }
 
 // -------------------------------------------------------------------
 
-// GetDateResponseHeader
+// GetDataResponseHeader
 
 // optional uint64 start_ts = 1;
-inline void GetDateResponseHeader::clear_start_ts() {
+inline void GetDataResponseHeader::clear_start_ts() {
   start_ts_ = GOOGLE_ULONGLONG(0);
 }
-inline ::google::protobuf::uint64 GetDateResponseHeader::start_ts() const {
-  // @@protoc_insertion_point(field_get:opq.proto3.GetDateResponseHeader.start_ts)
+inline ::google::protobuf::uint64 GetDataResponseHeader::start_ts() const {
+  // @@protoc_insertion_point(field_get:opq.opqbox3.GetDataResponseHeader.start_ts)
   return start_ts_;
 }
-inline void GetDateResponseHeader::set_start_ts(::google::protobuf::uint64 value) {
+inline void GetDataResponseHeader::set_start_ts(::google::protobuf::uint64 value) {
   
   start_ts_ = value;
-  // @@protoc_insertion_point(field_set:opq.proto3.GetDateResponseHeader.start_ts)
+  // @@protoc_insertion_point(field_set:opq.opqbox3.GetDataResponseHeader.start_ts)
 }
 
 // optional uint64 end_ts = 2;
-inline void GetDateResponseHeader::clear_end_ts() {
+inline void GetDataResponseHeader::clear_end_ts() {
   end_ts_ = GOOGLE_ULONGLONG(0);
 }
-inline ::google::protobuf::uint64 GetDateResponseHeader::end_ts() const {
-  // @@protoc_insertion_point(field_get:opq.proto3.GetDateResponseHeader.end_ts)
+inline ::google::protobuf::uint64 GetDataResponseHeader::end_ts() const {
+  // @@protoc_insertion_point(field_get:opq.opqbox3.GetDataResponseHeader.end_ts)
   return end_ts_;
 }
-inline void GetDateResponseHeader::set_end_ts(::google::protobuf::uint64 value) {
+inline void GetDataResponseHeader::set_end_ts(::google::protobuf::uint64 value) {
   
   end_ts_ = value;
-  // @@protoc_insertion_point(field_set:opq.proto3.GetDateResponseHeader.end_ts)
+  // @@protoc_insertion_point(field_set:opq.opqbox3.GetDataResponseHeader.end_ts)
+}
+
+// -------------------------------------------------------------------
+
+// SendCommandToPluginResponse
+
+// optional bool ok = 1;
+inline void SendCommandToPluginResponse::clear_ok() {
+  ok_ = false;
+}
+inline bool SendCommandToPluginResponse::ok() const {
+  // @@protoc_insertion_point(field_get:opq.opqbox3.SendCommandToPluginResponse.ok)
+  return ok_;
+}
+inline void SendCommandToPluginResponse::set_ok(bool value) {
+  
+  ok_ = value;
+  // @@protoc_insertion_point(field_set:opq.opqbox3.SendCommandToPluginResponse.ok)
 }
 
 // -------------------------------------------------------------------
@@ -1677,13 +2206,13 @@ inline void Response::clear_box_id() {
   box_id_ = 0;
 }
 inline ::google::protobuf::int32 Response::box_id() const {
-  // @@protoc_insertion_point(field_get:opq.proto3.Response.box_id)
+  // @@protoc_insertion_point(field_get:opq.opqbox3.Response.box_id)
   return box_id_;
 }
 inline void Response::set_box_id(::google::protobuf::int32 value) {
   
   box_id_ = value;
-  // @@protoc_insertion_point(field_set:opq.proto3.Response.box_id)
+  // @@protoc_insertion_point(field_set:opq.opqbox3.Response.box_id)
 }
 
 // optional uint32 seq = 2;
@@ -1691,13 +2220,13 @@ inline void Response::clear_seq() {
   seq_ = 0u;
 }
 inline ::google::protobuf::uint32 Response::seq() const {
-  // @@protoc_insertion_point(field_get:opq.proto3.Response.seq)
+  // @@protoc_insertion_point(field_get:opq.opqbox3.Response.seq)
   return seq_;
 }
 inline void Response::set_seq(::google::protobuf::uint32 value) {
   
   seq_ = value;
-  // @@protoc_insertion_point(field_set:opq.proto3.Response.seq)
+  // @@protoc_insertion_point(field_set:opq.opqbox3.Response.seq)
 }
 
 // optional uint64 timestamp_ms = 3;
@@ -1705,16 +2234,16 @@ inline void Response::clear_timestamp_ms() {
   timestamp_ms_ = GOOGLE_ULONGLONG(0);
 }
 inline ::google::protobuf::uint64 Response::timestamp_ms() const {
-  // @@protoc_insertion_point(field_get:opq.proto3.Response.timestamp_ms)
+  // @@protoc_insertion_point(field_get:opq.opqbox3.Response.timestamp_ms)
   return timestamp_ms_;
 }
 inline void Response::set_timestamp_ms(::google::protobuf::uint64 value) {
   
   timestamp_ms_ = value;
-  // @@protoc_insertion_point(field_set:opq.proto3.Response.timestamp_ms)
+  // @@protoc_insertion_point(field_set:opq.opqbox3.Response.timestamp_ms)
 }
 
-// optional .opq.proto3.GetInfoResponse info_response = 4;
+// optional .opq.opqbox3.GetInfoResponse info_response = 4;
 inline bool Response::has_info_response() const {
   return response_case() == kInfoResponse;
 }
@@ -1727,42 +2256,42 @@ inline void Response::clear_info_response() {
     clear_has_response();
   }
 }
-inline  const ::opq::proto3::GetInfoResponse& Response::info_response() const {
-  // @@protoc_insertion_point(field_get:opq.proto3.Response.info_response)
+inline  const ::opq::opqbox3::GetInfoResponse& Response::info_response() const {
+  // @@protoc_insertion_point(field_get:opq.opqbox3.Response.info_response)
   return has_info_response()
       ? *response_.info_response_
-      : ::opq::proto3::GetInfoResponse::default_instance();
+      : ::opq::opqbox3::GetInfoResponse::default_instance();
 }
-inline ::opq::proto3::GetInfoResponse* Response::mutable_info_response() {
+inline ::opq::opqbox3::GetInfoResponse* Response::mutable_info_response() {
   if (!has_info_response()) {
     clear_response();
     set_has_info_response();
-    response_.info_response_ = new ::opq::proto3::GetInfoResponse;
+    response_.info_response_ = new ::opq::opqbox3::GetInfoResponse;
   }
-  // @@protoc_insertion_point(field_mutable:opq.proto3.Response.info_response)
+  // @@protoc_insertion_point(field_mutable:opq.opqbox3.Response.info_response)
   return response_.info_response_;
 }
-inline ::opq::proto3::GetInfoResponse* Response::release_info_response() {
-  // @@protoc_insertion_point(field_release:opq.proto3.Response.info_response)
+inline ::opq::opqbox3::GetInfoResponse* Response::release_info_response() {
+  // @@protoc_insertion_point(field_release:opq.opqbox3.Response.info_response)
   if (has_info_response()) {
     clear_has_response();
-    ::opq::proto3::GetInfoResponse* temp = response_.info_response_;
+    ::opq::opqbox3::GetInfoResponse* temp = response_.info_response_;
     response_.info_response_ = NULL;
     return temp;
   } else {
     return NULL;
   }
 }
-inline void Response::set_allocated_info_response(::opq::proto3::GetInfoResponse* info_response) {
+inline void Response::set_allocated_info_response(::opq::opqbox3::GetInfoResponse* info_response) {
   clear_response();
   if (info_response) {
     set_has_info_response();
     response_.info_response_ = info_response;
   }
-  // @@protoc_insertion_point(field_set_allocated:opq.proto3.Response.info_response)
+  // @@protoc_insertion_point(field_set_allocated:opq.opqbox3.Response.info_response)
 }
 
-// optional .opq.proto3.SetMeasurementRateResponse message_rate_reponse = 5;
+// optional .opq.opqbox3.SetMeasurementRateResponse message_rate_reponse = 5;
 inline bool Response::has_message_rate_reponse() const {
   return response_case() == kMessageRateReponse;
 }
@@ -1775,42 +2304,42 @@ inline void Response::clear_message_rate_reponse() {
     clear_has_response();
   }
 }
-inline  const ::opq::proto3::SetMeasurementRateResponse& Response::message_rate_reponse() const {
-  // @@protoc_insertion_point(field_get:opq.proto3.Response.message_rate_reponse)
+inline  const ::opq::opqbox3::SetMeasurementRateResponse& Response::message_rate_reponse() const {
+  // @@protoc_insertion_point(field_get:opq.opqbox3.Response.message_rate_reponse)
   return has_message_rate_reponse()
       ? *response_.message_rate_reponse_
-      : ::opq::proto3::SetMeasurementRateResponse::default_instance();
+      : ::opq::opqbox3::SetMeasurementRateResponse::default_instance();
 }
-inline ::opq::proto3::SetMeasurementRateResponse* Response::mutable_message_rate_reponse() {
+inline ::opq::opqbox3::SetMeasurementRateResponse* Response::mutable_message_rate_reponse() {
   if (!has_message_rate_reponse()) {
     clear_response();
     set_has_message_rate_reponse();
-    response_.message_rate_reponse_ = new ::opq::proto3::SetMeasurementRateResponse;
+    response_.message_rate_reponse_ = new ::opq::opqbox3::SetMeasurementRateResponse;
   }
-  // @@protoc_insertion_point(field_mutable:opq.proto3.Response.message_rate_reponse)
+  // @@protoc_insertion_point(field_mutable:opq.opqbox3.Response.message_rate_reponse)
   return response_.message_rate_reponse_;
 }
-inline ::opq::proto3::SetMeasurementRateResponse* Response::release_message_rate_reponse() {
-  // @@protoc_insertion_point(field_release:opq.proto3.Response.message_rate_reponse)
+inline ::opq::opqbox3::SetMeasurementRateResponse* Response::release_message_rate_reponse() {
+  // @@protoc_insertion_point(field_release:opq.opqbox3.Response.message_rate_reponse)
   if (has_message_rate_reponse()) {
     clear_has_response();
-    ::opq::proto3::SetMeasurementRateResponse* temp = response_.message_rate_reponse_;
+    ::opq::opqbox3::SetMeasurementRateResponse* temp = response_.message_rate_reponse_;
     response_.message_rate_reponse_ = NULL;
     return temp;
   } else {
     return NULL;
   }
 }
-inline void Response::set_allocated_message_rate_reponse(::opq::proto3::SetMeasurementRateResponse* message_rate_reponse) {
+inline void Response::set_allocated_message_rate_reponse(::opq::opqbox3::SetMeasurementRateResponse* message_rate_reponse) {
   clear_response();
   if (message_rate_reponse) {
     set_has_message_rate_reponse();
     response_.message_rate_reponse_ = message_rate_reponse;
   }
-  // @@protoc_insertion_point(field_set_allocated:opq.proto3.Response.message_rate_reponse)
+  // @@protoc_insertion_point(field_set_allocated:opq.opqbox3.Response.message_rate_reponse)
 }
 
-// optional .opq.proto3.GetDateResponseHeader get_data_response = 6;
+// optional .opq.opqbox3.GetDataResponseHeader get_data_response = 6;
 inline bool Response::has_get_data_response() const {
   return response_case() == kGetDataResponse;
 }
@@ -1823,39 +2352,87 @@ inline void Response::clear_get_data_response() {
     clear_has_response();
   }
 }
-inline  const ::opq::proto3::GetDateResponseHeader& Response::get_data_response() const {
-  // @@protoc_insertion_point(field_get:opq.proto3.Response.get_data_response)
+inline  const ::opq::opqbox3::GetDataResponseHeader& Response::get_data_response() const {
+  // @@protoc_insertion_point(field_get:opq.opqbox3.Response.get_data_response)
   return has_get_data_response()
       ? *response_.get_data_response_
-      : ::opq::proto3::GetDateResponseHeader::default_instance();
+      : ::opq::opqbox3::GetDataResponseHeader::default_instance();
 }
-inline ::opq::proto3::GetDateResponseHeader* Response::mutable_get_data_response() {
+inline ::opq::opqbox3::GetDataResponseHeader* Response::mutable_get_data_response() {
   if (!has_get_data_response()) {
     clear_response();
     set_has_get_data_response();
-    response_.get_data_response_ = new ::opq::proto3::GetDateResponseHeader;
+    response_.get_data_response_ = new ::opq::opqbox3::GetDataResponseHeader;
   }
-  // @@protoc_insertion_point(field_mutable:opq.proto3.Response.get_data_response)
+  // @@protoc_insertion_point(field_mutable:opq.opqbox3.Response.get_data_response)
   return response_.get_data_response_;
 }
-inline ::opq::proto3::GetDateResponseHeader* Response::release_get_data_response() {
-  // @@protoc_insertion_point(field_release:opq.proto3.Response.get_data_response)
+inline ::opq::opqbox3::GetDataResponseHeader* Response::release_get_data_response() {
+  // @@protoc_insertion_point(field_release:opq.opqbox3.Response.get_data_response)
   if (has_get_data_response()) {
     clear_has_response();
-    ::opq::proto3::GetDateResponseHeader* temp = response_.get_data_response_;
+    ::opq::opqbox3::GetDataResponseHeader* temp = response_.get_data_response_;
     response_.get_data_response_ = NULL;
     return temp;
   } else {
     return NULL;
   }
 }
-inline void Response::set_allocated_get_data_response(::opq::proto3::GetDateResponseHeader* get_data_response) {
+inline void Response::set_allocated_get_data_response(::opq::opqbox3::GetDataResponseHeader* get_data_response) {
   clear_response();
   if (get_data_response) {
     set_has_get_data_response();
     response_.get_data_response_ = get_data_response;
   }
-  // @@protoc_insertion_point(field_set_allocated:opq.proto3.Response.get_data_response)
+  // @@protoc_insertion_point(field_set_allocated:opq.opqbox3.Response.get_data_response)
+}
+
+// optional .opq.opqbox3.SendCommandToPluginResponse command_to_plugin_response = 7;
+inline bool Response::has_command_to_plugin_response() const {
+  return response_case() == kCommandToPluginResponse;
+}
+inline void Response::set_has_command_to_plugin_response() {
+  _oneof_case_[0] = kCommandToPluginResponse;
+}
+inline void Response::clear_command_to_plugin_response() {
+  if (has_command_to_plugin_response()) {
+    delete response_.command_to_plugin_response_;
+    clear_has_response();
+  }
+}
+inline  const ::opq::opqbox3::SendCommandToPluginResponse& Response::command_to_plugin_response() const {
+  // @@protoc_insertion_point(field_get:opq.opqbox3.Response.command_to_plugin_response)
+  return has_command_to_plugin_response()
+      ? *response_.command_to_plugin_response_
+      : ::opq::opqbox3::SendCommandToPluginResponse::default_instance();
+}
+inline ::opq::opqbox3::SendCommandToPluginResponse* Response::mutable_command_to_plugin_response() {
+  if (!has_command_to_plugin_response()) {
+    clear_response();
+    set_has_command_to_plugin_response();
+    response_.command_to_plugin_response_ = new ::opq::opqbox3::SendCommandToPluginResponse;
+  }
+  // @@protoc_insertion_point(field_mutable:opq.opqbox3.Response.command_to_plugin_response)
+  return response_.command_to_plugin_response_;
+}
+inline ::opq::opqbox3::SendCommandToPluginResponse* Response::release_command_to_plugin_response() {
+  // @@protoc_insertion_point(field_release:opq.opqbox3.Response.command_to_plugin_response)
+  if (has_command_to_plugin_response()) {
+    clear_has_response();
+    ::opq::opqbox3::SendCommandToPluginResponse* temp = response_.command_to_plugin_response_;
+    response_.command_to_plugin_response_ = NULL;
+    return temp;
+  } else {
+    return NULL;
+  }
+}
+inline void Response::set_allocated_command_to_plugin_response(::opq::opqbox3::SendCommandToPluginResponse* command_to_plugin_response) {
+  clear_response();
+  if (command_to_plugin_response) {
+    set_has_command_to_plugin_response();
+    response_.command_to_plugin_response_ = command_to_plugin_response;
+  }
+  // @@protoc_insertion_point(field_set_allocated:opq.opqbox3.Response.command_to_plugin_response)
 }
 
 inline bool Response::has_response() const {
@@ -1867,7 +2444,63 @@ inline void Response::clear_has_response() {
 inline Response::ResponseCase Response::response_case() const {
   return Response::ResponseCase(_oneof_case_[0]);
 }
+// -------------------------------------------------------------------
+
+// Cycle
+
+// repeated int32 datapoints = 1;
+inline int Cycle::datapoints_size() const {
+  return datapoints_.size();
+}
+inline void Cycle::clear_datapoints() {
+  datapoints_.Clear();
+}
+inline ::google::protobuf::int32 Cycle::datapoints(int index) const {
+  // @@protoc_insertion_point(field_get:opq.opqbox3.Cycle.datapoints)
+  return datapoints_.Get(index);
+}
+inline void Cycle::set_datapoints(int index, ::google::protobuf::int32 value) {
+  datapoints_.Set(index, value);
+  // @@protoc_insertion_point(field_set:opq.opqbox3.Cycle.datapoints)
+}
+inline void Cycle::add_datapoints(::google::protobuf::int32 value) {
+  datapoints_.Add(value);
+  // @@protoc_insertion_point(field_add:opq.opqbox3.Cycle.datapoints)
+}
+inline const ::google::protobuf::RepeatedField< ::google::protobuf::int32 >&
+Cycle::datapoints() const {
+  // @@protoc_insertion_point(field_list:opq.opqbox3.Cycle.datapoints)
+  return datapoints_;
+}
+inline ::google::protobuf::RepeatedField< ::google::protobuf::int32 >*
+Cycle::mutable_datapoints() {
+  // @@protoc_insertion_point(field_mutable_list:opq.opqbox3.Cycle.datapoints)
+  return &datapoints_;
+}
+
+// optional uint64 timestamp_ms = 2;
+inline void Cycle::clear_timestamp_ms() {
+  timestamp_ms_ = GOOGLE_ULONGLONG(0);
+}
+inline ::google::protobuf::uint64 Cycle::timestamp_ms() const {
+  // @@protoc_insertion_point(field_get:opq.opqbox3.Cycle.timestamp_ms)
+  return timestamp_ms_;
+}
+inline void Cycle::set_timestamp_ms(::google::protobuf::uint64 value) {
+  
+  timestamp_ms_ = value;
+  // @@protoc_insertion_point(field_set:opq.opqbox3.Cycle.timestamp_ms)
+}
+
 #endif  // !PROTOBUF_INLINE_NOT_IN_HEADERS
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
 // -------------------------------------------------------------------
 
 // -------------------------------------------------------------------
@@ -1887,7 +2520,7 @@ inline Response::ResponseCase Response::response_case() const {
 
 // @@protoc_insertion_point(namespace_scope)
 
-}  // namespace proto3
+}  // namespace opqbox3
 }  // namespace opq
 
 // @@protoc_insertion_point(global_scope)
