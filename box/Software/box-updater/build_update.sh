@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
-DIST=opq-box-update-$(date +%s)
+VERSION=$(date +%s)
+DIST=opq-box-update-${VERSION}
 
 mkdir -p ${DIST}
 
@@ -10,8 +11,11 @@ cp -R ../box-config-daemon ${DIST}/.
 # box-updater
 
 
-# install script
+# Install script
 cp install_update.sh ${DIST}/.
+
+# Version info
+echo ${VERSION} > ${DIST}/version
 
 # Compress
 tar cjf ${DIST}.tar.bz2 ${DIST}
