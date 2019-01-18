@@ -6,7 +6,7 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 import json
 import logging
 
-import pify.pify
+# import pify.pify
 import threading
 
 logging.basicConfig(level=logging.DEBUG)
@@ -154,7 +154,7 @@ def opq_request_handler_factory(config_path, nm):
                     else:
                         timer = threading.Timer(5, pify.pify.connect_wpa, (nm, ssid, password))
                         timer.start()
-                        self.json({"status": "Attempting to connect to %s" % ssid})
+                        self.json({"status": "Attempting to connect OPQ Box to %s. If the connection is successful, this device will drop the OPQ connection and reconnect to the previously connected network. If the connection is unsuccessful, the OPQ Box will go back into AP mode and the OPQ network will reappear to attempt to setup the connection again." % ssid})
                 except Exception as e:
                     self.error("Could not connect to WiFi access point", ex=e)
             elif path == "/box_config":
@@ -186,4 +186,3 @@ def run_server(port, config_file, nm):
         pass
     httpd.server_close()
     logging.info("Exiting box-config-daemon server")
-
