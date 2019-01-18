@@ -105,7 +105,7 @@ void app_to_box(zmqpp::context& ctx, SynchronizedMap<int, string>& map, Config c
 		pull.receive(msg);
 
 		// Deserialize the message upon receiving it
-		opq::proto3::Command cmd;
+		opq::opqbox3::Command cmd;
 		cmd.ParseFromString(msg);
 
 		// Log the identity of the app
@@ -137,7 +137,7 @@ void box_to_app(zmqpp::context& ctx, SynchronizedMap<int, string>& map, Config c
 		pull.receive(msg);
 
 		// Deserialize the message upon receiving it
-		opq::proto3::Response res;
+		opq::opqbox3::Response res;
 		res.ParseFromString(msg);
 
 		// Find the identity of the app
