@@ -24,7 +24,7 @@ echo "Done"
 echo "Running update script..."
 cd opq-box-update-*
 echo "Found update version $(<version)"
-./install_update.sh
+sudo ./install_update.sh
 echo "Done"
 
 echo "Cleaning up..."
