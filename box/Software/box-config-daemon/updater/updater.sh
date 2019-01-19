@@ -9,6 +9,9 @@ fi
 
 UPDATES_ENDPOINT=${1}
 
+mkdir -p /tmp/opq
+cd /tmp/opq
+
 echo "Deleting any old updates..."
 rm -rf opq-box-update-*
 echo "Done."
