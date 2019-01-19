@@ -6,7 +6,6 @@ if [[ $EUID -ne 0 ]]; then
 fi
 
 # Update box-config-daemon
-killall python3
 rm -rf /usr/local/box-config-daemon/*
 mkdir -p /usr/local/box-config-daemon
 cp -R box-config-daemon /usr/local/box-config-daemon/.
