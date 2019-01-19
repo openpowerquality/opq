@@ -11,8 +11,7 @@ def request_handler_factory(update_dir: str):
     def enumerate_updates() -> typing.List[str]:
         pattern = update_dir + "/opq-box-update-*.tar.bz2"
         update_packages = glob.glob(pattern)
-        sorted(update_packages)
-        return update_packages
+        return sorted(update_packages)
 
     def version() -> typing.Optional[int]:
         updates = enumerate_updates()
