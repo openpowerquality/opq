@@ -14,11 +14,11 @@ rm -rf opq-box-update-*
 echo "Done."
 
 echo "Downloading latest update..."
-curl -JLO ${UPDATES_ENDPOINT}/latest
+wget ${UPDATES_ENDPOINT}/latest -O update.tar.bz2
 echo "Done."
 
 echo "Extracting contents..."
-tar xf opq-box-update-*.tar.bz2
+tar xf update.tar.bz2
 echo "Done"
 
 echo "Running update script..."
@@ -30,6 +30,7 @@ echo "Done"
 echo "Cleaning up..."
 cd ..
 rm -rf opq-box-update*
+rm -rf update.tar.bz2
 echo "Done."
 
 echo "Rebooting..."
