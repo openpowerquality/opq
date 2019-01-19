@@ -8,7 +8,7 @@ fi
 # Update box-config-daemon
 rm -rf /usr/local/box-config-daemon/*
 mkdir -p /usr/local/box-config-daemon
-cp -R box-config-daemon /usr/local/box-config-daemon/.
+cp -R box-config-daemon/* /usr/local/box-config-daemon/.
 
 # Update triggering
 
