@@ -233,26 +233,80 @@ class TransientPluginTests(unittest.TestCase):
                                                             + fundamental_waveform[mid: mid + transient_waveform.size])
 
         # first ensure that if transient and fundamental waveforms were recovered perfectly then we could classify the
-        # impulsive transient and reasonably recover
+        # impulsive transient
+        impulsive = impulsive_classifier(transient_waveform, self.configs)
+        self.assertTrue(impulsive[0])
+
+        # Ensure butterworth filter and transient sliding window sensitivity can reasonably discern
+        # fundamental and transient waveforms
+        waveforms = waveform_filter(raw_waveform, self.configs['filter_order'], self.configs['filter_cutoff_frequency'])
+        candidate_transient_windows = transient_sliding_window(waveforms["filtered_waveform"],
+                                                               self.configs["noise_floor"],
+                                                               self.configs["max_lull_ms"])
+
+        # only 1 potential transient is in waveform
+        self.assertEqual(len(candidate_transient_windows), 1)
+
+        window = candidate_transient_windows[0]
+
+        windowed_waveforms = {"fundamental_waveform": waveforms["fundamental_waveform"][window[0]: window[1] + 1],
+                              "filtered_waveform": waveforms["filtered_waveform"][window[0]: window[1] + 1],
+                              "raw_waveform": waveforms["raw_waveform"][window[0]: window[1] + 1]}
+
+        impulsive = impulsive_classifier(windowed_waveforms['filtered_waveform'], self.configs)
+        self.assertTrue(impulsive[0])
+
+    def test_arcing_classifier(self):
+        """
+        test transient plugin functions on waveform with arcing transient
+        :return: None
+        """
+
+        # 6 cycles 60Hz 120 VRMS.
+        fundamental_waveform = simulate_waveform()
+        raw_waveform = copy.deepcopy(fundamental_waveform)
+
+        # raw waveform created by superposition of fundamental waveform and sinusoidal wave with "random" frequencies
+        transient_waveform = numpy.array([])
+
+        numpy.random.seed(0)
+
+        for r in numpy.random.rand(7) * 40 + 1:
+            freq = int(r) * constants.CYCLES_PER_SECOND
+            samples = int(constants.SAMPLES_PER_CYCLE / int(r))
+
+            transient_cycle = simulate_waveform(freq=freq,
+                                                vrms=6 * self.noise_floor / numpy.sqrt(2),
+                                                num_samples=samples)
+
+            transient_waveform = numpy.concatenate((transient_waveform, transient_cycle))
 
 
+        mid = int(numpy.floor(len(raw_waveform) / 2))
 
+        raw_waveform[mid: mid + transient_waveform.size] = (transient_waveform
+                                                            + fundamental_waveform[mid: mid + transient_waveform.size])
 
+        # first ensure that if transient and fundamental waveforms were recovered perfectly then we could classify the
+        # arcing transient
+        arcing = arcing_classifier(transient_waveform, self.configs)
+        self.assertTrue(arcing[0])
 
+        # Ensure butterworth filter and transient sliding window sensitivity can reasonably discern
+        # fundamental and transient waveforms
+        waveforms = waveform_filter(raw_waveform, self.configs['filter_order'], self.configs['filter_cutoff_frequency'])
+        candidate_transient_windows = transient_sliding_window(waveforms["filtered_waveform"],
+                                                               self.configs["noise_floor"],
+                                                               self.configs["max_lull_ms"])
 
+        # only 1 potential transient is in waveform
+        self.assertEqual(len(candidate_transient_windows), 1)
 
+        window = candidate_transient_windows[0]
 
+        windowed_waveforms = {"fundamental_waveform": waveforms["fundamental_waveform"][window[0]: window[1] + 1],
+                              "filtered_waveform": waveforms["filtered_waveform"][window[0]: window[1] + 1],
+                              "raw_waveform": waveforms["raw_waveform"][window[0]: window[1] + 1]}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+        arcing = arcing_classifier(windowed_waveforms["filtered_waveform"], self.configs)
+        self.assertTrue(arcing[0])
