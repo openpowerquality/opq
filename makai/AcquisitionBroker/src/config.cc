@@ -26,6 +26,7 @@ Config::Config(string fname) {
         backend_interface_pull = j["backend_pull"].get<string>();
         backend_interface_pub = j["backend_pub"].get<string>();
         mongo_uri = j["mongo_uri"].get<string>();
+	white_list = j["white_list"].get<bool>();
     }
     catch(const std::domain_error& e){
         throw std::runtime_error("Malformed config file");

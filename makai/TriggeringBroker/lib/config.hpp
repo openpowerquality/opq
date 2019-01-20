@@ -10,9 +10,11 @@ class Config{
         string privateCert(){return _private_cert;}
         string boxPort() {return _box_interface;}
         string backendPort(){return _backend_interface;}
+		bool whiteList(){return _white_list;}
 	private:
 		string _public_certs;
 		string _private_cert;
         string _box_interface;
         string _backend_interface;
+		bool _white_list;
 };

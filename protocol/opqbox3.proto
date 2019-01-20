@@ -1,6 +1,16 @@
 syntax = "proto3";
 
-package opq.proto3;
+package opq.opqbox3;
+
+import "rustproto.proto";
+
+option (rustproto.expose_oneof_all) = true;
+
+message Metric{
+    float min = 1;
+    float max = 2;
+    float average = 3;
+}
 
 //Measurements containing features from the box.
 message Measurement {
@@ -9,8 +19,10 @@ message Measurement {
     //Timestamp in ms of when the raw data was READ OUT.
     uint64 timestamp_ms = 2;
     //A map of metrics.
-    map<string, float> metrics = 3;
+    map<string, Metric> metrics = 3;
 }
+
+
 
 //Get the info from the box
 message GetInfoCommand {
@@ -30,23 +42,30 @@ message GetDataCommand {
 message SetMeasturementRateCommand {
     //How many grid cycles to process per measurements.
     uint32 measurement_window_cycles = 1;
-    //How long shoud the new rate percist in ms. 0 will adapt new rate indefinitely.
-    uint32 duration_ms = 2;
+}
+
+//Send a command to a specific plugin.
+message SendCommandToPlugin{
+    string plugin_name = 1;
+    string message = 2;
 }
 
 //Command buffer.
 message Command {
-    //Box Id
-    uint32 box_id = 1;
-    //Identity
-    string identity = 2;
+    //Sequence number of the command and response must match.
+    uint32 seq = 1;
+    //Device id
+    int32 box_id = 2;
     //Timestamp in milliseconds.
     uint64 timestamp_ms = 3;
+    //Identity of the sender
+    string identity = 4;
     //Only a single command type is possible per command buffer.
     oneof command {
-        GetInfoCommand info_command = 4;
-        GetDataCommand data_command = 5;
-        SetMeasturementRateCommand sampling_rate_command = 6;
+        GetInfoCommand info_command = 5;
+        GetDataCommand data_command = 6;
+        SetMeasturementRateCommand sampling_rate_command = 7;
+        SendCommandToPlugin send_command_to_plugin = 8;
     }
 }
 
@@ -68,6 +87,8 @@ message GetInfoResponse {
     uint32 measurement_rate = 7;
 }
 
+
+
 //Response to the set measurement rate command.
 message SetMeasurementRateResponse {
     //how many cycles we processed per measurement last time.
@@ -75,9 +96,14 @@ message SetMeasurementRateResponse {
 }
 
 //Header for the get data command. 
-message GetDateResponseHeader {
+message GetDataResponseHeader {
     uint64 start_ts = 1;
     uint64 end_ts = 2;
+}
+
+//Response to the set measurement rate command.
+message SendCommandToPluginResponse {
+    bool ok = 1;
 }
 
 //Response buffer.
@@ -92,6 +118,12 @@ message Response {
     oneof response {
         GetInfoResponse info_response = 4;
         SetMeasurementRateResponse message_rate_reponse = 5;
-        GetDateResponseHeader get_data_response = 6;
+        GetDataResponseHeader get_data_response = 6;
+        SendCommandToPluginResponse command_to_plugin_response = 7;
     }
+}
+
+message Cycle {
+    repeated int32 datapoints = 1;
+    uint64 timestamp_ms = 2;
 }

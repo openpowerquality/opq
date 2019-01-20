@@ -1,6 +1,6 @@
 #include <iostream>
 #include <zmqpp/zmqpp.hpp>
-#include "opq.pb.h"
+#include "opqbox3.pb.h"
 #include <chrono>
 
 using namespace std;
@@ -29,22 +29,24 @@ int main() {
     sub.connect("tcp://localhost:9882");
     sub.subscribe("");
 
-    opq::proto::RequestEventMessage m;
-
     uint64_t now = chrono_to_mili_now();
 
-    m.set_trigger_type(m.OTHER);
-    m.set_description("This is a test event");
-    m.set_end_timestamp_ms_utc(now - 10000);
-    m.set_start_timestamp_ms_utc(now - 20000);
-    m.set_percent_magnitude(50);
-    m.set_requestee("test");
-    m.set_description("Test event");
-    m.set_request_data(true);
-    push.send(m.SerializeAsString());
+    opq::proto3::GetDataCommand dcmd;
+    dcmd.set_start_ms(now - 20000);
+    dcmd.set_end_ms(now - 10000);
+    dcmd.set_wait(false);
+
+    opq::proto3::Command cmd;
+    cmd.set_box_id(-1);
+    cmd.set_identity("test");
+    cmd.set_timestamp_ms(now);
+    cmd.set_allocated_data_command(&dcmd);
+
     std::string out;
+    cmd.SerializeToString(&out);
+    push.send(out);
+
     zmqpp::message_t msg;
     sub.receive(msg);
-    out = msg.get(1);
-    cout << out << endl;
+    cout << msg.get(1) << endl;
 }
