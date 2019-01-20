@@ -54,10 +54,6 @@ class TransientPluginTests(unittest.TestCase):
             "oscillatory_med_freq_max": float(self.config["plugins.TransientPlugin.oscillatory.med.freq.max.hz"]),
             "oscillatory_high_freq_max": float(self.config["plugins.TransientPlugin.oscillatory.high.freq.max.hz"]),
             "arc_zero_xing_threshold": int(self.config["plugins.TransientPlugin.arcing.zero.crossing.threshold"]),
-            "pf_cap_switch_low_ratio": float(self.config["plugins.TransientPlugin.PF.cap.switching.low.ratio"]),
-            "pf_cap_switch_high_ratio": float(self.config["plugins.TransientPlugin.PF.cap.switching.high.ratio"]),
-            "pf_cap_switch_low_freq": float(self.config["plugins.TransientPlugin.PF.cap.switching.low.freq.hz"]),
-            "pf_cap_switch_high_freq": float(self.config["plugins.TransientPlugin.PF.cap.switching.high.freq.hz"]),
             "max_lull_ms": float(self.config["plugins.TransientPlugin.max.lull.ms"]),
             "max_std_periodic_notching": float(
                 self.config["plugins.TransientPlugin.max.periodic.notching.std.dev"]),
@@ -310,3 +306,130 @@ class TransientPluginTests(unittest.TestCase):
 
         arcing = arcing_classifier(windowed_waveforms["filtered_waveform"], self.configs)
         self.assertTrue(arcing[0])
+
+    def test_transient_incident_classifier(self):
+        """
+        test the transient incident classifier on different transient types
+        :return:
+        """
+
+        # first test impulsive transient that does not cause additional zero crossings will not trigger oscillatory,
+        # arcing, periodic notching, or multiple zero crossing classifications
+        fundamental_waveform = simulate_waveform()
+        raw_waveform = copy.deepcopy(fundamental_waveform)
+
+        # raw waveform created by superposition of fundamental waveform and an exponentially decaying excitation with
+        # peak amplitude of 12 times the noise floor and decay time of 1 / 32 cycles
+        transient_waveform = 12 * self.noise_floor * numpy.ones(int(constants.SAMPLES_PER_CYCLE / 32))
+        amp = numpy.exp(numpy.linspace(0, -numpy.log(self.noise_floor), int(constants.SAMPLES_PER_CYCLE / 32)))
+        transient_waveform = numpy.multiply(amp, transient_waveform)
+
+        mid = int(numpy.floor(len(raw_waveform) / 2))
+
+        raw_waveform[mid: mid + transient_waveform.size] = (transient_waveform
+                                                            + fundamental_waveform[mid: mid + transient_waveform.size])
+
+        incidents = transient_incident_classifier(0, "", raw_waveform, 0, self.configs)
+
+        # assert only one transient detected in raw waveform
+        self.assertEqual(len(incidents), 1)
+        # assert the transient was only classified as impulsive
+        self.assertEqual(incidents[0]['incident_classifications'], ['IMPULSIVE_TRANSIENT'])
+
+        # Next test oscillatory transient will not trigger oscillatory, arcing, or periodic notching
+        # 6 cycles 60Hz 120 VRMS.
+        fundamental_waveform = simulate_waveform()
+        raw_waveform = copy.deepcopy(fundamental_waveform)
+
+        # raw waveform created by superposition of fundamental waveform and sinusoidal wave with 960Hz
+        # frequency and amplitude an exponentially decaying function of time starting at 12 times the noise floor
+        freq = 16 * constants.CYCLES_PER_SECOND
+
+        transient_waveform = simulate_waveform(freq=freq,
+                                               vrms=12 * self.noise_floor / numpy.sqrt(2),
+                                               num_samples=int(constants.SAMPLES_PER_CYCLE / 4))
+        amp = numpy.exp(numpy.linspace(0, -numpy.log(self.noise_floor), int(constants.SAMPLES_PER_CYCLE / 4)))
+        transient_waveform = numpy.multiply(amp, transient_waveform)
+
+        mid = int(numpy.floor(len(raw_waveform) / 2))
+
+        raw_waveform[mid: mid + transient_waveform.size] = (transient_waveform
+                                                            + fundamental_waveform[mid: mid + transient_waveform.size])
+
+        incidents = transient_incident_classifier(0, "", raw_waveform, 0, self.configs)
+
+        # assert only one transient detected in raw waveform
+        self.assertEqual(len(incidents), 1)
+        # assert the transient was only classified as arcing and possible multiple zero crossing
+        self.assertTrue("OSCILLATORY_TRANSIENT" in incidents[0]['incident_classifications'])
+        self.assertTrue("IMPULSIVE_TRANSIENT" not in incidents[0]['incident_classifications'])
+        self.assertTrue("ARCING_TRANSIENT" not in incidents[0]['incident_classifications'])
+
+        # Next test arcing transient will not trigger oscillatory, impulsive, or periodic notching
+        # 6 cycles 60Hz 120 VRMS.
+        fundamental_waveform = simulate_waveform()
+        raw_waveform = copy.deepcopy(fundamental_waveform)
+
+        # raw waveform created by superposition of fundamental waveform and sinusoidal wave with "random" frequencies
+        transient_waveform = numpy.array([])
+
+        numpy.random.seed(0)
+
+        for r in numpy.random.rand(7) * 40 + 1:
+            freq = int(r) * constants.CYCLES_PER_SECOND
+            samples = int(constants.SAMPLES_PER_CYCLE / int(r))
+
+            transient_cycle = simulate_waveform(freq=freq,
+                                                vrms=6 * self.noise_floor / numpy.sqrt(2),
+                                                num_samples=samples)
+
+            transient_waveform = numpy.concatenate((transient_waveform, transient_cycle))
+
+        mid = int(numpy.floor(len(raw_waveform) / 2))
+
+        raw_waveform[mid: mid + transient_waveform.size] = (transient_waveform
+                                                            + fundamental_waveform[mid: mid + transient_waveform.size])
+
+        incidents = transient_incident_classifier(0, "", raw_waveform, 0, self.configs)
+
+        # assert only one transient detected in raw waveform
+        self.assertEqual(len(incidents), 1)
+        # assert the transient was only classified as arcing and possible multiple zero crossing
+        self.assertTrue("ARCING_TRANSIENT" in incidents[0]['incident_classifications'])
+        self.assertTrue("IMPULSIVE_TRANSIENT" not in incidents[0]['incident_classifications'])
+        self.assertTrue("OSCILLATORY_TRANSIENT" not in incidents[0]['incident_classifications'])
+
+        # Finally test multiple zero transient will trigger multiple zero crossing transient
+        # 6 cycles 60Hz 120 VRMS.
+        fundamental_waveform = simulate_waveform()
+        raw_waveform = copy.deepcopy(fundamental_waveform)
+
+        # multiple zero crossing transient simulated from superposition with single sawtooth period.
+        # sawtooth amp = 12 * (noise floor) and 10 sample period
+        t = numpy.linspace(0, 10, 11)
+        transient_waveform = 12 / 2 * self.noise_floor * signal.sawtooth(
+            2 * numpy.pi * 1 / 10 * t) + 12 / 2 * self.noise_floor
+
+        # find zero crossings of fundamental waveform and superimpose signals
+        zero_crossings = find_zero_xings(fundamental_waveform)
+        zero_crossing_indices = numpy.where(zero_crossings)[0]
+
+        mid = int(numpy.floor(len(zero_crossing_indices) / 2))
+        for i in numpy.arange(mid, mid + 3):
+            if fundamental_waveform[zero_crossing_indices[i] + 1] < 0:
+                raw_waveform[zero_crossing_indices[i] + 1: zero_crossing_indices[i] + 12] = (
+                    fundamental_waveform[zero_crossing_indices[i] + 1: zero_crossing_indices[i] + 12] +
+                    transient_waveform
+                )
+            else:
+                raw_waveform[zero_crossing_indices[i] + 1: zero_crossing_indices[i] + 12] = (
+                        fundamental_waveform[zero_crossing_indices[i] + 1: zero_crossing_indices[i] + 12] -
+                        transient_waveform
+                )
+
+        incidents = transient_incident_classifier(0, "", raw_waveform, 0, self.configs)
+
+        # assert only one transient detected in raw waveform
+        self.assertEqual(len(incidents), 1)
+        # assert the transient was only classified as arcing and possible multiple zero crossing
+        print(incidents[0]['incident_classifications'])

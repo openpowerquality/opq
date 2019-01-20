@@ -109,6 +109,8 @@ def oscillatory_classifier(filtered_waveform: numpy.ndarray) -> (bool, dict):
     guess_freq = 2500.0
     guess_phase = 0.0
     guess_mean = 0.0
+    # TODO: Fix this so that we ensure shape of idx matches that of the filtered waveform.
+    # It seems that sometime it is off by one
     idx = numpy.arange(0, len(filtered_waveform) / constants.SAMPLE_RATE_HZ, 1 / constants.SAMPLE_RATE_HZ)
     alpha = 0.05
 
@@ -136,6 +138,9 @@ def oscillatory_classifier(filtered_waveform: numpy.ndarray) -> (bool, dict):
         return filtered_waveform - y_hat
 
     lst_sq_sol_null = optimize.leastsq(optimize_func_null, numpy.array([0]))
+
+    # TODO: Fix this so that we do an incremental F test to verify the frequency is a significant variable,
+    # or update multiple zero crossing test so that instead of sawtooth waveform we use exponential.
 
     rss0 = numpy.power(optimize_func_null(lst_sq_sol_null[0]), 2).sum()
 
@@ -239,22 +244,6 @@ def periodic_notching_classifier(filtered_waveform: numpy.ndarray, fundamental_w
     last_non_zero_index = numpy.nonzero(noise_canceled_waveform)[0][-1]
     transient = noise_canceled_waveform[first_non_zero_index: last_non_zero_index + 1]
 
-    # # first calculate the 0 gaps
-    # gaps = numpy.diff(numpy.nonzero(transient))
-    # gaps = gaps[gaps != 1]
-    # std_gaps = numpy.std(gaps)
-    #
-    # # then notch widths
-    # widths = numpy.diff(numpy.nonzero(transient))
-    # widths = numpy.diff(numpy.array(list(range(len(widths[0]))))[widths[0] != 1])
-    # std_widths = numpy.std(widths)
-    #
-    # if std_widths > configs["max_std_periodic_notching"] or std_gaps > configs["max_std_periodic_notching"]:
-    #     return False, {}
-    #
-    # else:
-
-
     #determine whether transient wave is nearly periodic
     transient_abs = numpy.abs(transient)
 
@@ -270,21 +259,6 @@ def periodic_notching_classifier(filtered_waveform: numpy.ndarray, fundamental_w
             transient_abs[scipy.signal.find_peaks(transient_abs)[0]]) + configs['noise_floor']
         average_period = numpy.average(periods) / constants.SAMPLE_RATE_HZ
         return True, {'amplitude': average_amplitude, 'period': average_period}
-
-
-def pf_cap_switching_classifier(filtered_waveform: numpy.ndarray, fundamental_waveform: numpy.ndarray,
-                                configs: dict) -> (bool, dict):
-    """
-    Identifies whether the transient is pf_cap_switching and, if so, calculates additional meta data for the transient,
-    such as the frequency, peak amplitude, and oscillatory decay time
-    :param filtered_waveform: The transient waveform, that is the sampled waveform without the fundamental frequency
-    included
-    :param fundamental_waveform: The fundamental waveform, that is the sampled waveform without any interference
-    :param configs: Includes the necessary parameters needed to classify the transient
-    :return: A tuple which has contains a boolean indicator of whether the transient was indeed classified as being
-    pf_cap_switching and then a dictionary of the calculated meta data.
-    """
-    # TODO
 
 
 def multiple_zero_xing_classifier(waveforms: dict, configs: dict) -> (bool, dict):
@@ -364,7 +338,16 @@ def transient_incident_classifier(event_id: int, box_id: str, raw_waveform: nump
                     incident_classifications.append("OSCILLATORY_TRANSIENT")
                     incident_flag = True
 
-        multiple_zero_xing = multiple_zero_xing_classifier(waveforms["filtered_waveform"][window[0]: window[1] + 1],
+                else:
+                    periodic_notching = periodic_notching_classifier(windowed_waveforms["filtered_waveform"],
+                                                                     windowed_waveforms["fundamental_waveform"],
+                                                                     configs)
+                    if periodic_notching[0]:
+                        meta.update(periodic_notching[1])
+                        incident_classifications.append("PERIODIC_NOTCHING_TRANSIENT")
+                        incident_flag = True
+
+        multiple_zero_xing = multiple_zero_xing_classifier(windowed_waveforms,
                                                            configs)
         if multiple_zero_xing[0]:
             meta.update(multiple_zero_xing[1])
@@ -372,7 +355,9 @@ def transient_incident_classifier(event_id: int, box_id: str, raw_waveform: nump
             incident_flag = True
 
         if incident_flag:
-            incidents.append({"event_id": event_id, "box_id": box_id, "incident_start_ts": incident_start_ts,
+            incidents.append({"event_id": event_id,
+                              "box_id": box_id,
+                              "incident_start_ts": incident_start_ts,
                               "incident_end_ts": incident_end_ts,
                               "incident_type": mongo.IncidentMeasurementType.TRANSIENT,
                               "max_deviation": numpy.max(numpy.abs(windowed_waveforms["filtered_waveform"])),
@@ -407,10 +392,6 @@ class TransientPlugin(plugins.base_plugin.MaukaPlugin):
             "oscillatory_med_freq_max": float(self.config_get("plugins.TransientPlugin.oscillatory.med.freq.max.hz")),
             "oscillatory_high_freq_max": float(self.config_get("plugins.TransientPlugin.oscillatory.high.freq.max.hz")),
             "arc_zero_xing_threshold": int(self.config_get("plugins.TransientPlugin.arcing.zero.crossing.threshold")),
-            "pf_cap_switch_low_ratio": float(self.config_get("plugins.TransientPlugin.PF.cap.switching.low.ratio")),
-            "pf_cap_switch_high_ratio": float(self.config_get("plugins.TransientPlugin.PF.cap.switching.high.ratio")),
-            "pf_cap_switch_low_freq": float(self.config_get("plugins.TransientPlugin.PF.cap.switching.low.freq.hz")),
-            "pf_cap_switch_high_freq": float(self.config_get("plugins.TransientPlugin.PF.cap.switching.high.freq.hz")),
             "max_lull_ms": float(self.config_get("plugins.TransientPlugin.max.lull.ms")),
             "max_std_periodic_notching": float(self.config_get("plugins.TransientPlugin.max.periodic.notching.std.dev")),
             "auto_corr_thresh_periodicity": float(
@@ -440,7 +421,7 @@ class TransientPlugin(plugins.base_plugin.MaukaPlugin):
                     incident["incident_start_ts"],
                     incident["incident_end_ts"],
                     incident["incident_type"],
-                    incident["avg_deviation"],
+                    incident["max_deviation"],
                     incident["incident_classifications"],
                     incident["annotations"],
                     incident["metadata"],
