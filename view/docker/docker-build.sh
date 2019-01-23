@@ -7,10 +7,11 @@
 timestamp=$(date +%Y%m%d_%H%M%S)
 mkdir $timestamp
 
-# Invoke the 'meteor build' command while inside the view/app directory
-# Note that we include the --directory option, which produces a bundle directory instead of a tarball
-echo "=> Building Meteor app bundle..."
-(cd ../app && meteor build ../docker/$timestamp --directory --architecture os.linux.x86_64)
+# Invoke the 'meteor build' command while inside the view/app directory. We include the --directory option, which
+# produces a bundle directory instead of a tarball.
+# Note: We invoke 'meteor npm install' to ensure that the app's packages are available before we invoke 'meteor build'.
+echo "=> Installing app's npm packages, then building Meteor app bundle..."
+(cd ../app && meteor npm install && meteor build ../docker/$timestamp --directory --architecture os.linux.x86_64)
 echo "=> Meteor build complete"
 
 # Retrieve and print the Meteor bundle's Node version
