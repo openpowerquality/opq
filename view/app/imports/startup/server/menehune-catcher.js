@@ -1,6 +1,6 @@
 import { Meteor } from 'meteor/meteor';
 import Moment from 'moment';
-import { SyncedCron } from 'meteor/percolate:synced-cron';
+import { SyncedCron } from 'meteor/littledata:synced-cron';
 import { OpqBoxes } from '../../api/opq-boxes/OpqBoxesCollection';
 
 /**

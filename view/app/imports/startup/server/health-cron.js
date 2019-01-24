@@ -1,5 +1,5 @@
 import { Meteor } from 'meteor/meteor';
-import { SyncedCron } from 'meteor/percolate:synced-cron';
+import { SyncedCron } from 'meteor/littledata:synced-cron';
 import _ from 'lodash';
 import { Healths } from '../../api/health/HealthsCollection';
 import { Notifications } from '../../api/notifications/NotificationsCollection';
