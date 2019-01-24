@@ -5,14 +5,9 @@ from plugins.transient_plugin import arcing_classifier
 from plugins.transient_plugin import impulsive_classifier
 from plugins.transient_plugin import oscillatory_classifier
 from plugins.transient_plugin import find_zero_xings
-from plugins.transient_plugin import noise_canceler
 from plugins.transient_plugin import periodic_notching_classifier
 from plugins.transient_plugin import waveform_filter
 from opq_mauka import load_config
-
-# temporary import for debugging
-import pandas as pd
-import matplotlib.pyplot as plt
 
 import copy
 import unittest

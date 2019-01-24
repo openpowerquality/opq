@@ -120,7 +120,6 @@ def oscillatory_classifier(filtered_waveform: numpy.ndarray) -> (bool, dict):
             idx = numpy.arange(0, (len(filtered_waveform) + i) / constants.SAMPLE_RATE_HZ, 1 / constants.SAMPLE_RATE_HZ)
             i = i + 1
 
-
     def optimize_func(args):
         """
         Optimized the function for finding and fitting the frequency.
@@ -134,7 +133,6 @@ def oscillatory_classifier(filtered_waveform: numpy.ndarray) -> (bool, dict):
                                   numpy.array([guess_amp, guess_decay, guess_freq, guess_phase, guess_mean]))
 
     rss1 = numpy.power(optimize_func(lst_sq_sol[0]), 2).sum()
-
 
     def optimize_func_constrained(args):
         """
@@ -247,7 +245,7 @@ def periodic_notching_classifier(filtered_waveform: numpy.ndarray, fundamental_w
     last_non_zero_index = numpy.nonzero(noise_canceled_waveform)[0][-1]
     transient = noise_canceled_waveform[first_non_zero_index: last_non_zero_index + 1]
 
-    #determine whether transient wave is nearly periodic
+    # determine whether transient wave is nearly periodic
     transient_abs = numpy.abs(transient)
 
     auto_corr = numpy.correlate(transient_abs, transient_abs[:int(transient_abs.size / 2)], mode='valid')
@@ -398,7 +396,8 @@ class TransientPlugin(plugins.base_plugin.MaukaPlugin):
             "oscillatory_high_freq_max": float(self.config_get("plugins.TransientPlugin.oscillatory.high.freq.max.hz")),
             "arc_zero_xing_threshold": int(self.config_get("plugins.TransientPlugin.arcing.zero.crossing.threshold")),
             "max_lull_ms": float(self.config_get("plugins.TransientPlugin.max.lull.ms")),
-            "max_std_periodic_notching": float(self.config_get("plugins.TransientPlugin.max.periodic.notching.std.dev")),
+            "max_std_periodic_notching": float(self.config_get(
+                "plugins.TransientPlugin.max.periodic.notching.std.dev")),
             "auto_corr_thresh_periodicity": float(
                 self.config_get("plugins.TransientPlugin.auto.corr.thresh.periodicity"))
             }
