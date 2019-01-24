@@ -109,10 +109,17 @@ def oscillatory_classifier(filtered_waveform: numpy.ndarray) -> (bool, dict):
     guess_freq = 2500.0
     guess_phase = 0.0
     guess_mean = 0.0
-    # TODO: Fix this so that we ensure shape of idx matches that of the filtered waveform.
-    # It seems that sometime it is off by one
     idx = numpy.arange(0, len(filtered_waveform) / constants.SAMPLE_RATE_HZ, 1 / constants.SAMPLE_RATE_HZ)
     alpha = 0.05
+
+    i = 0
+    while len(idx) != len(filtered_waveform):
+        if len(idx) > len(filtered_waveform):
+            idx = idx[:len(filtered_waveform)]
+        elif len(idx) < len(filtered_waveform):
+            idx = numpy.arange(0, (len(filtered_waveform) + i) / constants.SAMPLE_RATE_HZ, 1 / constants.SAMPLE_RATE_HZ)
+            i = i + 1
+
 
     def optimize_func(args):
         """
@@ -128,28 +135,24 @@ def oscillatory_classifier(filtered_waveform: numpy.ndarray) -> (bool, dict):
 
     rss1 = numpy.power(optimize_func(lst_sq_sol[0]), 2).sum()
 
-    def optimize_func_null(args):
+
+    def optimize_func_constrained(args):
         """
         Optimized the function for finding and fitting the frequency.
         :param args: A list containing in this order:
         :return: Optimized function.
         """
-        y_hat = idx + args[0]
+        y_hat = args[0] * numpy.exp(-1.0 * args[1] * idx) + args[1]
         return filtered_waveform - y_hat
 
-    lst_sq_sol_null = optimize.leastsq(optimize_func_null, numpy.array([0]))
+    lst_sq_sol_constrained = optimize.leastsq(optimize_func_constrained, numpy.array([0, 0]))
 
-    # TODO: Fix this so that we do an incremental F test to verify the frequency is a significant variable,
-    # or update multiple zero crossing test so that instead of sawtooth waveform we use exponential.
+    rss0 = numpy.power(optimize_func_constrained(lst_sq_sol_constrained[0]), 2).sum()
 
-    rss0 = numpy.power(optimize_func_null(lst_sq_sol_null[0]), 2).sum()
-
-    f_num = numpy.divide((rss0 - rss1), 4)
-    f_denom = numpy.divide(rss1, (len(idx) - 5))
-
+    f_num = numpy.divide((rss0 - rss1), 2)
+    f_denom = numpy.divide(rss1, (len(idx) - 4 - 1))
     f = f_num / f_denom
-
-    p_value = 1 - stats.f.cdf(f, 4, 195)
+    p_value = 1 - stats.f.cdf(f, 2, (len(idx) - 4 - 1))
 
     if p_value < alpha:
         return True, {'Frequency': lst_sq_sol[0][2], 'p_value': p_value}
@@ -334,7 +337,7 @@ def transient_incident_classifier(event_id: int, box_id: str, raw_waveform: nump
             else:
                 oscillatory = oscillatory_classifier(windowed_waveforms["filtered_waveform"])
                 if oscillatory[0]:
-                    meta.update(arcing[1])
+                    meta.update(oscillatory[1])
                     incident_classifications.append("OSCILLATORY_TRANSIENT")
                     incident_flag = True
 
@@ -367,6 +370,8 @@ def transient_incident_classifier(event_id: int, box_id: str, raw_waveform: nump
                               "mongo_client": mongo_client})
 
         incident_flag = False
+        incident_classifications = []
+        meta = {}
 
     return incidents
 

@@ -10,11 +10,16 @@ from plugins.transient_plugin import periodic_notching_classifier
 from plugins.transient_plugin import waveform_filter
 from opq_mauka import load_config
 
+# temporary import for debugging
+import pandas as pd
+import matplotlib.pyplot as plt
+
 import copy
 import unittest
 import numpy
 import constants
 from scipy import signal
+
 
 def periodic_notching_transient_wave_filter(voltage, noise_floor):
     if abs(voltage) < noise_floor:
@@ -37,6 +42,7 @@ def simulate_waveform(freq: float=constants.CYCLES_PER_SECOND, vrms: float = 120
     else:
         return numpy.sqrt(2) * vrms * numpy.sin([freq * 2 * numpy.pi * x / sample_rate for x in range(num_samples)]
                                                 ) + numpy.sqrt(noise_variance) * rand.randn(1, num_samples)[0]
+
 
 class TransientPluginTests(unittest.TestCase):
 
@@ -277,7 +283,6 @@ class TransientPluginTests(unittest.TestCase):
 
             transient_waveform = numpy.concatenate((transient_waveform, transient_cycle))
 
-
         mid = int(numpy.floor(len(raw_waveform) / 2))
 
         raw_waveform[mid: mid + transient_waveform.size] = (transient_waveform
@@ -415,21 +420,23 @@ class TransientPluginTests(unittest.TestCase):
         zero_crossing_indices = numpy.where(zero_crossings)[0]
 
         mid = int(numpy.floor(len(zero_crossing_indices) / 2))
-        for i in numpy.arange(mid, mid + 3):
-            if fundamental_waveform[zero_crossing_indices[i] + 1] < 0:
-                raw_waveform[zero_crossing_indices[i] + 1: zero_crossing_indices[i] + 12] = (
-                    fundamental_waveform[zero_crossing_indices[i] + 1: zero_crossing_indices[i] + 12] +
+        if fundamental_waveform[zero_crossing_indices[mid] + 1] < 0:
+            raw_waveform[zero_crossing_indices[mid] + 1: zero_crossing_indices[mid] + 12] = (
+                fundamental_waveform[zero_crossing_indices[mid] + 1: zero_crossing_indices[mid] + 12] +
+                transient_waveform
+            )
+        else:
+            raw_waveform[zero_crossing_indices[mid] + 1: zero_crossing_indices[mid] + 12] = (
+                    fundamental_waveform[zero_crossing_indices[mid] + 1: zero_crossing_indices[mid] + 12] -
                     transient_waveform
-                )
-            else:
-                raw_waveform[zero_crossing_indices[i] + 1: zero_crossing_indices[i] + 12] = (
-                        fundamental_waveform[zero_crossing_indices[i] + 1: zero_crossing_indices[i] + 12] -
-                        transient_waveform
-                )
+            )
 
         incidents = transient_incident_classifier(0, "", raw_waveform, 0, self.configs)
 
         # assert only one transient detected in raw waveform
         self.assertEqual(len(incidents), 1)
-        # assert the transient was only classified as arcing and possible multiple zero crossing
-        print(incidents[0]['incident_classifications'])
+        # assert the transient was only classified as multiple zero crossing
+        self.assertTrue("ARCING_TRANSIENT" not in incidents[0]['incident_classifications'])
+        self.assertTrue("IMPULSIVE_TRANSIENT" not in incidents[0]['incident_classifications'])
+        self.assertTrue("OSCILLATORY_TRANSIENT" not in incidents[0]['incident_classifications'])
+        self.assertTrue("MULTIPLE_ZERO_CROSSING_TRANSIENT" in incidents[0]['incident_classifications'])
