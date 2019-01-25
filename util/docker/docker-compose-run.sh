@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 
-# Set environment variables for Docker-Compose
+# Set environment variables for Docker-Compose.
+# When 'docker-compose up' is invoked, Compose automatically looks for environment variables set in the shell and
+# substitutes them into the docker-compose.yml configuration file.
+# See: https://docs.docker.com/compose/compose-file/#variable-substitution
 
 # OPQView Env Vars
 export MONGO_URL='mongodb://localhost:27017/opq'

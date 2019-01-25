@@ -2,7 +2,7 @@ version: '3.7'
 
 services:
   view:
-    image: openpowerquality/opqview:0.1
+    image: ${VIEW_IMAGE}
     network_mode: "host"
     restart: always
     environment:
@@ -11,11 +11,11 @@ services:
       - PORT
       - METEOR_SETTINGS
   mauka:
-    image: openpowerquality/opqmauka:0.1
+    image: ${MAUKA_IMAGE}
     restart: always
     network_mode: "host"
   health:
-    image: openpowerquality/opqhealth:0.1
+    image: ${HEALTH_IMAGE}
     restart: always
     network_mode: "host"
     volumes:
