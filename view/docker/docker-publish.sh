@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 
+## Publishes the most recently created View image to DockerHub.
+## Reminder: Publishing a new version of this service requires modifying the Docker-Compose .env file found in
+## opq/util/docker. See the official OPQ docs for further details.
+
 # Source the Docker-Compose .env file and grab the VIEW_IMAGE variable.
 . ../../util/docker/.env
 
