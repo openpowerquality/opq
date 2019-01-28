@@ -94,9 +94,9 @@ def request_handler_factory(update_dir: str):
             """
             Respond with most recent version of an OPQBox update.
             """
-            v = version()
-            if v is not None:
-                self.resp_plain_text(str(v))
+            version_num = version()
+            if version_num is not None:
+                self.resp_plain_text(str(version_num))
             else:
                 self.resp_plain_text("Update dir does not contain any valid updates.", 404)
 
@@ -124,6 +124,7 @@ def request_handler_factory(update_dir: str):
             else:
                 self.resp_redirect("/update/%s" % updates[-1].split("/")[-1])
 
+        # pylint: disable=C0103
         def do_GET(self):
             """
             Specify HTTP routes.
@@ -164,26 +165,26 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
-        port = int(sys.argv[1])
+        PORT = int(sys.argv[1])
     except ValueError:
         logging.warning("Port is not a valid integer.")
         usage()
         sys.exit(1)
 
-    update_dir = sys.argv[2]
+    UPDATE_DIR = sys.argv[2]
 
-    if not os.path.isdir(update_dir):
+    if not os.path.isdir(UPDATE_DIR):
         logging.warning("Update directory does not exist!")
         usage()
         sys.exit(1)
 
     logging.info("Starting box-update-server")
-    httpd = http.server.HTTPServer(("", port), request_handler_factory(update_dir))
+    HTTPD = http.server.HTTPServer(("", PORT), request_handler_factory(UPDATE_DIR))
 
     try:
-        httpd.serve_forever()
+        HTTPD.serve_forever()
     except KeyboardInterrupt:
         pass
 
-    httpd.server_close()
+    HTTPD.server_close()
     logging.info("Exiting box-update-server")
