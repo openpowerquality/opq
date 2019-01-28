@@ -1,15 +1,20 @@
 #!/bin/bash
 
-docker run
+HTTP_SERVER_PORT=8151
+UPDATES_DIR=/var/opq/box-updates
+VERSION=0.1
+
+docker run                                                  \
     --detach                                                \
     --interactive                                           \
     --tty                                                   \
     --name opqboxupdateserver                               \
     --network="host"                                        \
-    --expose=8151                                           \
-    --publish 8151:8151                                     \
-    --volume /var/opq/box-updates:/var/opq/box-updates:ro   \
+    --expose=${HTTP_SERVER_PORT}                            \
+    --publish ${HTTP_SERVER_PORT}:${HTTP_SERVER_PORT}       \
+    --volume ${UPDATES_DIR}:${UPDATES_DIR}:ro               \
     --restart always                                        \
-    openpowerquality/opqboxupdateserver:0.1                 \
-    8151                                                    \
-    /var/opq/box-updates
+                                                            \
+    openpowerquality/opqboxupdateserver:${VERSION}          \
+    ${HTTP_SERVER_PORT}                                     \
+    ${UPDATES_DIR}
