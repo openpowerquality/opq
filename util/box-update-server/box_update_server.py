@@ -26,7 +26,6 @@ def request_handler_factory(update_dir: str):
         versions = list(map(extract_version, updates))
         return versions[-1]
 
-
     class BoxUpdateServerHandler(http.server.BaseHTTPRequestHandler):
         def resp_plain_text(self, msg: str, code: int = 200):
             self.send_response(code)
