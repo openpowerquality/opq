@@ -12,7 +12,7 @@ cp -R ../box-config-daemon ${DIST}/.
 cp install_update.sh ${DIST}/.
 
 # Version info
-echo ${VERSION} > ${DIST}/version
+echo ${VERSION} > ${DIST}/VERSION
 
 # Compress
 tar cjf ${DIST}.tar.bz2 ${DIST}
