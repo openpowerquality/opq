@@ -6,7 +6,7 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 import json
 import logging
 
-import pify.pify
+# import pify.pify
 import threading
 
 import updater.updater as updater
@@ -113,6 +113,12 @@ def opq_request_handler_factory(config_path, nm):
                     self.json({"box_config": read_config()})
                 except Exception as e:
                     self.error("Unable to read box config", ex=e)
+            elif path == "/version":
+                try:
+                    with open("VERSION", "r") as fin:
+                        self.json({"version": int(list(fin)[0].strip())})
+                except Exception as e:
+                    self.error("Unable to read version information.", ex=e)
             elif path == "/ssids":
                 try:
                     ssid_name_set = set()
