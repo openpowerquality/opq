@@ -20,4 +20,4 @@ log = "0.4.0"
 syslog = "4"
 crossbeam-channel = "0.2"
 pnet = "0.21.0"
-
+box_api = { path = "box_api" }

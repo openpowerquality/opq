@@ -1,0 +1,11 @@
+[package]
+name = "box_api"
+version = "0.1.0"
+authors = ["Serge <sin8@hawaii.edu>"]
+edition = "2018"
+
+[build-dependencies]
+protoc-rust = "1.4"
+
+[dependencies]
+protobuf="1.3"

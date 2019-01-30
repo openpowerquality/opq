@@ -1,6 +1,6 @@
 use std::any::Any;
 use std::collections::HashMap;
-use types;
+use crate::types;
 
 pub trait TriggeringPlugin: Any {
     fn name(&self) -> &'static str;

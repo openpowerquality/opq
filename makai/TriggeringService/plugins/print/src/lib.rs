@@ -3,7 +3,7 @@ extern crate triggering_service;
 use std::str;
 use triggering_service::makai_plugin::MakaiPlugin;
 use triggering_service::proto::opqbox3::Measurement;
-use triggering_service::proto::makai::RequestEventMessage;
+use triggering_service::proto::opqbox3::Command;
 use std::sync::Arc;
 
 #[macro_use] extern crate serde_derive;
@@ -34,7 +34,7 @@ impl MakaiPlugin for PrintPlugin {
         "Print Plugin"
     }
 
-    fn process_measurement(&mut self, msg: Arc<Measurement>) -> Option<RequestEventMessage> {
+    fn process_measurement(&mut self, msg: Arc<Measurement>) -> Option<Vec<Command>> {
         if self.settings.print{
             println!("{:?}", msg);
         }

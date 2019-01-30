@@ -1,9 +1,6 @@
-use zmq;
-#[macro_use(doc)]
-extern crate bson;
+extern crate zmq;
 extern crate chrono;
 extern crate libloading;
-extern crate mongodb;
 extern crate num;
 extern crate protobuf;
 extern crate pub_sub;
@@ -19,5 +16,4 @@ pub mod config;
 pub mod plugin_manager;
 pub mod makai_plugin;
 pub mod event_requester;
-pub mod overlapping_interval;
 //pub mod mongo;

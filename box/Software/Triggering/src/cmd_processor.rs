@@ -1,6 +1,6 @@
 use crossbeam_channel::Sender;
 use network_manager::NetworkManager;
-use opqbox3::{
+use box_api::opqbox3::{
     Command, Command_oneof_command, GetDataResponseHeader, GetInfoResponse, Response,
     SendCommandToPlugin, SendCommandToPluginResponse, SetMeasurementRateResponse,
 };

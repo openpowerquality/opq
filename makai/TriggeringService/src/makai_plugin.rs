@@ -1,12 +1,12 @@
 
 use crate::proto::opqbox3::Measurement;
-use crate::proto::makai::RequestEventMessage;
+use crate::proto::opqbox3::Command;
 use std::sync::Arc;
 use std::any::Any;
 
 pub trait MakaiPlugin: Any{
     fn name(&self) -> &'static str;
-    fn process_measurement(&mut self, msg : Arc<Measurement>) -> Option<RequestEventMessage>;
+    fn process_measurement(&mut self, msg : Arc<Measurement>) -> Option<Vec<Command>>;
     fn on_plugin_load(&mut self, json : String);
     fn on_plugin_unload(&mut self);
 }
