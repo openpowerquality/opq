@@ -25,7 +25,7 @@
         <div class="card">
             <header class="card-header has-background-light">
                 <p class="card-header-title">
-                    WiFi Configuration
+                   OPQ Box WiFi Configuration
                 </p>
             </header>
             <div class="card-content">
@@ -84,7 +84,6 @@
                 <div class="content">
                     <form>
                         <div class="field">
-                            <label class="label">OPQ Box Configuration</label>
                             <div class="control">
                                 <textarea class="textarea" rows="15" id="box-config-input"></textarea>
                             </div>
@@ -98,6 +97,25 @@
                 </div>
             </div>
             <footer class="card-footer has-text-white" id="box-config-footer"></footer>
+        </div>
+    </div>
+</section>
+
+<!-- Box configuration -->
+<section class="section">
+    <div class="container">
+        <div class="card">
+            <header class="card-header has-background-light">
+                <p class="card-header-title">
+                    OPQ Box Updates <div id="version"></div>
+                </p>
+            </header>
+            <div class="card-content">
+                <div class="content">
+                    <a class="button is-danger" id="update-box-button">Update Box</a>
+                </div>
+            </div>
+            <footer class="card-footer has-text-white" id="update-box-footer"></footer>
         </div>
     </div>
 </section>
@@ -140,6 +158,23 @@
             }
         };
         req.open("GET", "/box_config", true);
+        req.send();
+    }
+
+    // Makes a GET request for the current box update version
+    function getUpdateVersion() {
+        var req = new XMLHttpRequest();
+        req.onreadystatechange = function () {
+            if (req.readyState === XMLHttpRequest.DONE) {
+                var version = document.getElementById("version");
+                if (req.status === 200) {
+                    setSuccess("update-box-footer", req.responseText)
+                } else {
+                    setError("update-box-footer", req.responseText);
+                }
+            }
+        };
+        req.open("GET", "/version", true);
         req.send();
     }
 
@@ -221,6 +256,7 @@
         // Initialize SSID list and box configuration file
         getSsids();
         getBoxConfig();
+        getUpdateVersion();
 
         // Setup button press listeners
         // Refresh SSID list
@@ -245,6 +281,11 @@
             } else {
                 setError("box-config-footer", "JSON can not be parsed.\n" + valid.error);
             }
+        });
+
+        // Update box button
+        document.getElementById("update-box-button").addEventListener("click", function () {
+            postResource("/box_update", {}, "update-box-footer");
         });
     });
 </script>

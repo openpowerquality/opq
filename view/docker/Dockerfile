@@ -1,5 +1,5 @@
 # Pull base Node image. Be sure that this Node version matches that of the Meteor bundle.
-FROM node:8.11.1
+FROM node:8.11.4
 
 # Create and set working directory for the container
 WORKDIR /view

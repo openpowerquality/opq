@@ -1,5 +1,5 @@
 import { Meteor } from 'meteor/meteor';
-import { SyncedCron } from 'meteor/percolate:synced-cron';
+import { SyncedCron } from 'meteor/littledata:synced-cron';
 import { Email } from 'meteor/email';
 import _ from 'lodash';
 import { SSR } from 'meteor/meteorhacks:ssr';

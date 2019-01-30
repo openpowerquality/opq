@@ -1,0 +1,21 @@
+[boxupdateserver]
+files = box_update_server.py
+
+[boxupdateserver.spacing]
+bears = SpaceConsistencyBear
+use_spaces = True
+
+[boxupdateserver.pep8]
+bears = PEP8Bear
+max_line_length = 120
+
+[boxupdateserver.pylint]
+bears = PyLintBear
+pylint_disable = C0301, C1801, R
+
+[boxupdateserver.pyflakes]
+bears = PyFlakesBear
+
+[boxupdateserver.bandit]
+bears = BanditBear
+bandit_skipped_tests = B322
