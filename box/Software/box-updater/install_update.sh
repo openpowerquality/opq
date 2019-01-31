@@ -16,8 +16,6 @@ cp -R box-config-daemon/* /usr/local/box-config-daemon/.
 
 sudo cp box-config-daemon/${SERVICE} /etc/systemd/system/.
 sudo systemctl enable ${SERVICE}
-sudo systemctl start ${SERVICE}
-
 
 # Update version info
 cp VERSION /usr/local/box-config-daemon/.
