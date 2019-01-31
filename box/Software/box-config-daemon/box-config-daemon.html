@@ -107,7 +107,7 @@
         <div class="card">
             <header class="card-header has-background-light">
                 <p class="card-header-title">
-                    OPQ Box Updates
+                    OPQ Box Updates <div id="version"></div>
                 </p>
             </header>
             <div class="card-content">
@@ -158,6 +158,23 @@
             }
         };
         req.open("GET", "/box_config", true);
+        req.send();
+    }
+
+    // Makes a GET request for the current box update version
+    function getUpdateVersion() {
+        var req = new XMLHttpRequest();
+        req.onreadystatechange = function () {
+            if (req.readyState === XMLHttpRequest.DONE) {
+                var version = document.getElementById("version");
+                if (req.status === 200) {
+                    setSuccess("update-box-footer", req.responseText)
+                } else {
+                    setError("update-box-footer", req.responseText);
+                }
+            }
+        };
+        req.open("GET", "/version", true);
         req.send();
     }
 
@@ -239,6 +256,7 @@
         // Initialize SSID list and box configuration file
         getSsids();
         getBoxConfig();
+        getUpdateVersion();
 
         // Setup button press listeners
         // Refresh SSID list

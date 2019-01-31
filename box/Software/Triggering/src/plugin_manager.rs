@@ -7,9 +7,9 @@ use std::thread;
 use std::time::SystemTime;
 
 use config::State;
-use opqbox3::SendCommandToPlugin;
-use plugin::TriggeringPlugin;
-use types;
+use box_api::opqbox3::SendCommandToPlugin;
+use box_api::plugin::TriggeringPlugin;
+use box_api::types;
 
 ///A structure used to keep track of dynamically loaded plugins.
 struct PluginManager {

@@ -9,10 +9,4 @@ fn main() {
         includes: &["../../protocol/"],
     }).expect("protoc");
 
-    protoc_rust::run(protoc_rust::Args {
-        out_dir: "src/proto",
-        input: &["../../protocol/makai.proto"],
-        includes: &["../../protocol/"],
-    }).expect("protoc");
-
 }

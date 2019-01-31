@@ -1,21 +1,15 @@
 //! Makai is a event detection daemon used for identifying distributed events. Furthermore it will store triggering data to a mongo database.
 extern crate zmq;
-
-#[macro_use(doc)]
-extern crate bson;
-
 extern crate chrono;
 extern crate libloading;
-extern crate mongodb;
 extern crate num;
 extern crate protobuf;
 extern crate pub_sub;
 extern crate serde;
-#[macro_use]
+
 extern crate serde_derive;
 extern crate serde_json;
 extern crate time;
-use mongodb::{Client, ThreadedClient};
 use std::thread;
 use std::sync::Arc;
 use std::env;
@@ -24,7 +18,6 @@ use triggering_service::config::Settings;
 use triggering_service::trigger_receiver::TriggerReceiver;
 use triggering_service::plugin_manager::PluginManager;
 use triggering_service::proto::opqbox3::Measurement;
-//use triggering_service::mongo::MongoMeasurements;
 
 //mod config;
 

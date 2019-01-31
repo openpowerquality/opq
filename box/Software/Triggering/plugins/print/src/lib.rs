@@ -1,7 +1,7 @@
 #[macro_use]
-extern crate triggering_v3;
+extern crate box_api;
 
-use triggering_v3::types::Window;
+use box_api::types::Window;
 use std::collections::HashMap;
 #[derive(Debug, Default)]
 pub struct PrintPlugin{
@@ -14,7 +14,7 @@ impl PrintPlugin {
     }
 }
 
-impl triggering_v3::plugin::TriggeringPlugin for PrintPlugin {
+impl box_api::plugin::TriggeringPlugin for PrintPlugin {
 
     fn name(&self) -> &'static str  {
         "Print Plugin"

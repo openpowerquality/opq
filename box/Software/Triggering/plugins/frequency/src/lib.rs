@@ -1,9 +1,9 @@
 #[macro_use]
-extern crate triggering_v3;
+extern crate box_api;
 extern crate num;
 
 use std::collections::HashMap;
-use triggering_v3::types::Window;
+use box_api::types::Window;
 
 mod fir;
 use fir::FIR;
@@ -50,7 +50,7 @@ impl Frequency {
     }
 }
 
-impl triggering_v3::plugin::TriggeringPlugin for Frequency {
+impl box_api::plugin::TriggeringPlugin for Frequency {
     fn name(&self) -> &'static str {
         "Frequency Plugin"
     }
@@ -146,3 +146,4 @@ mod tests {
 
     }
 }
+

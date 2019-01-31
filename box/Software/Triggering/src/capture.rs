@@ -10,7 +10,7 @@ use std::sync::Arc;
 use std::thread;
 //Local dependencies
 use config::State;
-use types;
+use box_api::types;
 
 pub fn start_capture(tx: Sender<types::Window>, state: Arc<State>) -> thread::JoinHandle<()> {
     thread::spawn(move || {
