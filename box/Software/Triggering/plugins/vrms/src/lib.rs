@@ -10,10 +10,14 @@ pub struct VRMS{
 }
 
 impl VRMS {
-    fn new() -> VRMS{
+    pub fn new() -> VRMS{
         VRMS{
         }
     }
+    pub fn box_new() -> Box<box_api::plugin::TriggeringPlugin>{
+        Box::new(VRMS::new())
+    }
+
 }
 
 impl box_api::plugin::TriggeringPlugin for VRMS {
@@ -40,4 +44,3 @@ impl box_api::plugin::TriggeringPlugin for VRMS {
     }
 }
 
-declare_plugin!(VRMS, VRMS::new);

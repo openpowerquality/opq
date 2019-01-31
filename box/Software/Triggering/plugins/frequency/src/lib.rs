@@ -40,13 +40,17 @@ pub struct Frequency {
 }
 
 impl Frequency {
-    fn new() -> Frequency {
+    pub fn new() -> Frequency {
         Frequency {
             state: (PluginState::Initializing(0)),
             downsampling: FIR::new(&DOWNSAMPLING_FILTER_TAPS.to_vec(), DECIMATION_FACTOR , 1),
             lowpass: FIR::new(&LOW_PASS_FILTER_TAPS.to_vec(), 1, 1),
             samples_per_measurement: 6,
         }
+    }
+
+    pub fn box_new() -> Box<box_api::plugin::TriggeringPlugin>{
+        Box::new(Frequency::new())
     }
 }
 
@@ -111,9 +115,6 @@ fn calculate_frequency(data : & Vec<f32>) -> f32{
           (DECIMATION_FACTOR as f32) /
         accumulator/ (2.0)
 }
-
-declare_plugin!(Frequency, Frequency::new);
-
 
 #[cfg(test)]
 mod tests {

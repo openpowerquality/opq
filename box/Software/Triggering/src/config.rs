@@ -5,6 +5,10 @@ use std::path::Path;
 use std::sync::Arc;
 use std::sync::Mutex;
 use zmq::CurveKeyPair;
+use thd_plugin;
+use frequency_plugin;
+use vrms_plugin;
+use box_api::plugin;
 
 pub const WINDOWS_PER_MEASUREMENT: &'static str = "windows_per_measurement";
 
@@ -13,6 +17,13 @@ pub struct State {
     pub settings: Settings,
     state: Mutex<HashMap<String, f32>>,
 }
+
+//List of builtin compiled plugins.
+pub const INTERNAL_PLUGINS: [fn() -> Box<plugin::TriggeringPlugin>; 3] =[
+    thd_plugin::THD::box_new,
+    vrms_plugin::VRMS::box_new,
+    frequency_plugin::Frequency::box_new
+];
 
 impl State {
     pub fn new(file_path: &str) -> Result<Arc<State>, String> {
