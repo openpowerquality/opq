@@ -6,3 +6,4 @@ settings-production.*
 settings.production.json
 node_modules
 _book
+util/docker-transfer/*.gz
