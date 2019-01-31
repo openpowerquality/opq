@@ -9,6 +9,7 @@ fi
 
 UPDATES_ENDPOINT=${1}
 
+sudo rm -rf /tmp/opq
 mkdir -p /tmp/opq
 cd /tmp/opq
 
