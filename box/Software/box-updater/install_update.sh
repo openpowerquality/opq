@@ -14,7 +14,7 @@ rm -rf /usr/local/box-config-daemon/*
 mkdir -p /usr/local/box-config-daemon
 cp -R box-config-daemon/* /usr/local/box-config-daemon/.
 
-sudo cp boc-config-daemon/${SERVICE} /etc/systemd/system/.
+sudo cp box-config-daemon/${SERVICE} /etc/systemd/system/.
 sudo systemctl enable ${SERVICE}
 sudo systemctl start ${SERVICE}
 
