@@ -13,4 +13,4 @@ docker run \
     --env METEOR_SETTINGS \
     -p 8888:8888 \
     -d \
-    aghalarp/opqview-test:v1
+    opqview:latest

@@ -11,4 +11,4 @@ docker run           \
     -p 9883:9883     \
     -p 9884:9884     \
     --restart always \
-    opq
+    opqmauka:latest
