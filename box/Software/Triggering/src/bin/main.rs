@@ -3,8 +3,7 @@ extern crate zmq;
 #[macro_use]
 extern crate log;
 extern crate crossbeam_channel;
-extern crate network_manager;
-extern crate pnet;
+//extern crate network_manager;
 extern crate serde_json;
 extern crate syslog;
 extern crate triggering_v3;
@@ -19,6 +18,8 @@ use triggering_v3::config::State;
 use triggering_v3::measurement_filter::run_filter;
 use triggering_v3::plugin_manager::run_plugins;
 use triggering_v3::window_db::WindowDB;
+
+
 
 fn main() {
     syslog::init(

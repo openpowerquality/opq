@@ -34,7 +34,7 @@ pub struct THD {
 }
 
 impl THD {
-    fn new() -> THD {
+    pub fn new() -> THD {
         let mut planner = FFTplanner::new(false);
         let mut fft = planner.plan_fft(DEFAULT_WINDOW_COUNT * SAMPLES_PER_CYCLE);
         THD {
@@ -44,6 +44,10 @@ impl THD {
             fft: fft,
             samples: vec![],
         }
+    }
+
+    pub fn box_new() -> Box<box_api::plugin::TriggeringPlugin>{
+        Box::new(THD::new())
     }
 }
 
@@ -88,8 +92,6 @@ impl box_api::plugin::TriggeringPlugin for THD {
         println!("loaded a THD plugin!");
     }
 }
-
-declare_plugin!(THD, THD::new);
 
 #[cfg(test)]
 mod tests {

@@ -8,7 +8,7 @@ pub struct PrintPlugin{
 }
 
 impl PrintPlugin {
-    fn new() -> PrintPlugin{
+    pub fn new() -> PrintPlugin{
         PrintPlugin{
         }
     }
