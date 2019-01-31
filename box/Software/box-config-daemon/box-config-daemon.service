@@ -1,0 +1,14 @@
+[Unit]
+Description=box-config-daemon
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/python3 -u box-config-daemon.py /etc/opq/opqbox_config.json 8888
+WorkingDirectory=/usr/local/box-config-daemon
+StandardOutput=inherit
+StandardError=inherit
+Restart=always
+User=pi
+
+[Install]
+WantedBy=multi-user.target
