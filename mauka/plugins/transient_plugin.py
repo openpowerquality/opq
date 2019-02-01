@@ -5,15 +5,16 @@ Transient are classified using the IEEE 1159 standard
 import typing
 import multiprocessing
 import numpy
-import scipy
+
+from scipy import optimize
+from scipy import stats
+from scipy import signal
+
 import constants
 import plugins.base_plugin
 import protobuf.mauka_pb2
 import protobuf.util
 import mongo
-from scipy import optimize
-from scipy import stats
-from scipy import signal
 
 
 def transient_sliding_window(filtered_waveform: numpy.ndarray, noise_floor: float, max_lull_ms: float) -> list:
@@ -52,6 +53,12 @@ def transient_sliding_window(filtered_waveform: numpy.ndarray, noise_floor: floa
 
 
 def noise_canceler(voltage, noise_floor):
+    """
+    Cancels waveform measurements below noise floor. This method is intended to be used in a vectorized fashion.
+    :param voltage: The voltage measurement
+    :param noise_floor: The noise floor
+    :return: voltage above noise floor.
+    """
     if abs(voltage) < noise_floor:
         return 0.0
     else:
@@ -147,10 +154,10 @@ def oscillatory_classifier(filtered_waveform: numpy.ndarray) -> (bool, dict):
 
     rss0 = numpy.power(optimize_func_constrained(lst_sq_sol_constrained[0]), 2).sum()
 
-    f_num = numpy.divide((rss0 - rss1), 2)
-    f_denom = numpy.divide(rss1, (len(idx) - 4 - 1))
-    f = f_num / f_denom
-    p_value = 1 - stats.f.cdf(f, 2, (len(idx) - 4 - 1))
+    numerator = numpy.divide((rss0 - rss1), 2)
+    denominator = numpy.divide(rss1, (len(idx) - 4 - 1))
+    f_statistic = numerator / denominator
+    p_value = 1 - stats.f.cdf(f_statistic, 2, (len(idx) - 4 - 1))
 
     if p_value < alpha:
         return True, {'Frequency': lst_sq_sol[0][2], 'p_value': p_value}
@@ -251,13 +258,13 @@ def periodic_notching_classifier(filtered_waveform: numpy.ndarray, fundamental_w
     auto_corr = numpy.correlate(transient_abs, transient_abs[:int(transient_abs.size / 2)], mode='valid')
     auto_corr = auto_corr[int(auto_corr.size / 2):]
     auto_corr = auto_corr / numpy.max(auto_corr)
-    peaks = scipy.signal.find_peaks(auto_corr, height=configs["auto_corr_thresh_periodicity"])
+    peaks = signal.find_peaks(auto_corr, height=configs["auto_corr_thresh_periodicity"])
     periods = numpy.diff(peaks[0])
     if numpy.std(numpy.abs(numpy.diff(periods))) > configs["max_std_periodic_notching"]:
         return False, {}
     else:
         average_amplitude = numpy.average(
-            transient_abs[scipy.signal.find_peaks(transient_abs)[0]]) + configs['noise_floor']
+            transient_abs[signal.find_peaks(transient_abs)[0]]) + configs['noise_floor']
         average_period = numpy.average(periods) / constants.SAMPLE_RATE_HZ
         return True, {'amplitude': average_amplitude, 'period': average_period}
 
