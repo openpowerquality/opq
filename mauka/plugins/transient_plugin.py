@@ -153,9 +153,10 @@ def oscillatory_classifier(filtered_waveform: numpy.ndarray) -> (bool, dict):
     lst_sq_sol_constrained = optimize.leastsq(optimize_func_constrained, numpy.array([0, 0]))
 
     rss0 = numpy.power(optimize_func_constrained(lst_sq_sol_constrained[0]), 2).sum()
-
+    # Start ignoring PyLintBear
     numerator = numpy.divide((rss0 - rss1), 2)
     denominator = numpy.divide(rss1, (len(idx) - 4 - 1))
+    # Stop ignoring
     f_statistic = numerator / denominator
     p_value = 1 - stats.f.cdf(f_statistic, 2, (len(idx) - 4 - 1))
 
@@ -282,7 +283,9 @@ def multiple_zero_xing_classifier(waveforms: dict, configs: dict) -> (bool, dict
     fundamental_zero_xings = find_zero_xings(waveforms['fundamental_waveform'])
 
     if raw_zero_xings.sum() > fundamental_zero_xings.sum():
+        # Start ignoring PyLintBear
         extra_zero_xings = numpy.logical_xor(raw_zero_xings, fundamental_zero_xings)
+        # Stop ignoring
         voltages_at_extra_xings = waveforms['filtered_waveform'][numpy.where(extra_zero_xings)[0]]
         extra_xings_above_noise_floor = numpy.abs(voltages_at_extra_xings) > configs['noise_floor']
         num_xings = extra_xings_above_noise_floor.sum()

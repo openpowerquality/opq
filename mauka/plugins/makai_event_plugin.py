@@ -1,5 +1,5 @@
 """
-This module provides a plugin and utilies for interacting and transforming raw data produced from Makai events.
+This module provides a plugin and utilities for interacting and transforming raw data produced from Makai events.
 """
 
 import logging
