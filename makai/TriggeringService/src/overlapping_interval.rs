@@ -70,7 +70,6 @@ impl<T: Ord + Clone> OverlappingIntervals<T> {
 
 
 mod tests {
-    use super::*;
     #[test]
     fn overlap_test() {
         let mut i = OverlappingIntervals::new();

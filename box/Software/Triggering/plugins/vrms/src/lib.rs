@@ -1,7 +1,7 @@
 #[macro_use]
-extern crate triggering_v3;
+extern crate box_api;
 
-use triggering_v3::types::Window;
+use box_api::types::Window;
 use std::collections::HashMap;
 use std::num;
 
@@ -10,13 +10,17 @@ pub struct VRMS{
 }
 
 impl VRMS {
-    fn new() -> VRMS{
+    pub fn new() -> VRMS{
         VRMS{
         }
     }
+    pub fn box_new() -> Box<box_api::plugin::TriggeringPlugin>{
+        Box::new(VRMS::new())
+    }
+
 }
 
-impl triggering_v3::plugin::TriggeringPlugin for VRMS {
+impl box_api::plugin::TriggeringPlugin for VRMS {
 
     fn name(&self) -> &'static str  {
         "VRMS Plugin"
@@ -40,4 +44,3 @@ impl triggering_v3::plugin::TriggeringPlugin for VRMS {
     }
 }
 
-declare_plugin!(VRMS, VRMS::new);

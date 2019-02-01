@@ -1,9 +1,15 @@
 use std::collections::HashMap;
 use std::fmt;
 use std::time::SystemTime;
+use std::time::UNIX_EPOCH;
 
-use opqbox3::Cycle;
-use util::systemtime_to_unix_timestamp;
+use crate::opqbox3::Cycle;
+
+fn systemtime_to_unix_timestamp(time: &SystemTime) -> u64 {
+    let since_the_epoch = time.duration_since(UNIX_EPOCH).unwrap();
+    since_the_epoch.as_secs() * 1000 + since_the_epoch.subsec_nanos() as u64 / 1_000_000
+}
+
 
 pub const POINTS_PER_PACKET: usize = 200;
 
@@ -45,6 +51,12 @@ pub struct Window {
     pub samples : [f32 ; POINTS_PER_PACKET],
     pub time_stamp_ms: SystemTime,
     pub results: HashMap<String, f32>,
+}
+
+impl fmt::Debug for Window {
+    fn fmt(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+        self.samples[..].fmt(formatter)
+    }
 }
 
 impl Window {

@@ -4,10 +4,10 @@ version = "0.1.0"
 authors = ["Serge <sin8@hawaii.edu>"]
 
 [dependencies]
-triggering_v3 = { path = "../../" }
+box_api = { path = "../../box_api" }
 
-[lib]
-name = "print_plugin"
-crate-type = [
-    "dylib"
-]
+#[lib]
+#name = "print_plugin"
+#crate-type = [
+#    "cdylib"
+#]

@@ -1,11 +1,11 @@
 use config::{State, WINDOWS_PER_MEASUREMENT};
 use crossbeam_channel::Receiver;
-use opqbox3::{Measurement, Metric};
+use box_api::opqbox3::{Measurement, Metric};
 use protobuf::Message;
 use std::collections::HashMap;
 use std::sync::Arc;
 use std::thread;
-use types::Window;
+use box_api::types::Window;
 use window_db::WindowDB;
 use zmq::{Context, Socket, PUB, SNDMORE};
 use util::unix_timestamp;

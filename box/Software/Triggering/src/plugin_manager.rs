@@ -7,9 +7,12 @@ use std::thread;
 use std::time::SystemTime;
 
 use config::State;
-use opqbox3::SendCommandToPlugin;
-use plugin::TriggeringPlugin;
-use types;
+use config::INTERNAL_PLUGINS;
+use box_api::opqbox3::SendCommandToPlugin;
+use box_api::plugin::TriggeringPlugin;
+use box_api::types;
+
+
 
 ///A structure used to keep track of dynamically loaded plugins.
 struct PluginManager {
@@ -76,6 +79,10 @@ pub fn run_plugins(
     thread::spawn(move || {
         let mut plugins = vec![];
         let mut manager = PluginManager::new();
+
+        for func in &INTERNAL_PLUGINS {
+            plugins.push(func());
+        }
 
         for path in config.settings.plugins.clone() {
             plugins.push(match manager.load_plugin(&path) {

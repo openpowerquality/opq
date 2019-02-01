@@ -1,9 +1,9 @@
 #[macro_use]
-extern crate triggering_v3;
+extern crate box_api;
 extern crate num;
 
 use std::collections::HashMap;
-use triggering_v3::types::Window;
+use box_api::types::Window;
 
 mod fir;
 use fir::FIR;
@@ -40,7 +40,7 @@ pub struct Frequency {
 }
 
 impl Frequency {
-    fn new() -> Frequency {
+    pub fn new() -> Frequency {
         Frequency {
             state: (PluginState::Initializing(0)),
             downsampling: FIR::new(&DOWNSAMPLING_FILTER_TAPS.to_vec(), DECIMATION_FACTOR , 1),
@@ -48,9 +48,13 @@ impl Frequency {
             samples_per_measurement: 6,
         }
     }
+
+    pub fn box_new() -> Box<box_api::plugin::TriggeringPlugin>{
+        Box::new(Frequency::new())
+    }
 }
 
-impl triggering_v3::plugin::TriggeringPlugin for Frequency {
+impl box_api::plugin::TriggeringPlugin for Frequency {
     fn name(&self) -> &'static str {
         "Frequency Plugin"
     }
@@ -112,9 +116,6 @@ fn calculate_frequency(data : & Vec<f32>) -> f32{
         accumulator/ (2.0)
 }
 
-declare_plugin!(Frequency, Frequency::new);
-
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -146,3 +147,4 @@ mod tests {
 
     }
 }
+

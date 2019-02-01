@@ -1,12 +1,12 @@
 #[macro_use]
-extern crate triggering_v3;
+extern crate box_api;
 extern crate rustfft;
 use rustfft::num_complex::Complex32;
 use rustfft::FFTplanner;
 use rustfft::FFT;
 use std::collections::HashMap;
 use std::sync::Arc;
-use triggering_v3::types::Window;
+use box_api::types::Window;
 
 const SAMPLES_PER_CYCLE: usize = 200;
 const CYCLES_PER_SEC: usize = 60;
@@ -34,7 +34,7 @@ pub struct THD {
 }
 
 impl THD {
-    fn new() -> THD {
+    pub fn new() -> THD {
         let mut planner = FFTplanner::new(false);
         let mut fft = planner.plan_fft(DEFAULT_WINDOW_COUNT * SAMPLES_PER_CYCLE);
         THD {
@@ -45,9 +45,13 @@ impl THD {
             samples: vec![],
         }
     }
+
+    pub fn box_new() -> Box<box_api::plugin::TriggeringPlugin>{
+        Box::new(THD::new())
+    }
 }
 
-impl triggering_v3::plugin::TriggeringPlugin for THD {
+impl box_api::plugin::TriggeringPlugin for THD {
     fn name(&self) -> &'static str {
         "THD Plugin"
     }
@@ -88,8 +92,6 @@ impl triggering_v3::plugin::TriggeringPlugin for THD {
         println!("loaded a THD plugin!");
     }
 }
-
-declare_plugin!(THD, THD::new);
 
 #[cfg(test)]
 mod tests {

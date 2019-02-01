@@ -4,11 +4,11 @@ version = "0.1.0"
 authors = ["Serge <sin8@hawaii.edu>"]
 
 [dependencies]
-triggering_v3 = { path = "../../" }
+box_api = { path = "../../box_api" }
 num = "0.1.42"
 
-[lib]
-name = "frequency_plugin"
-crate-type = [
-    "dylib"
-]
+#[lib]
+#name = "frequency_plugin"
+#crate-type = [
+#    "dylib"
+#]

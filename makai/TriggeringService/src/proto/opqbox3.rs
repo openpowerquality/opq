@@ -1312,7 +1312,9 @@ impl ::protobuf::reflect::ProtobufValue for SendCommandToPlugin {
 pub struct Command {
     // message fields
     pub seq: u32,
+    pub box_id: i32,
     pub timestamp_ms: u64,
+    pub identity: ::std::string::String,
     // message oneof groups
     pub command: ::std::option::Option<Command_oneof_command>,
     // special fields
@@ -1369,7 +1371,30 @@ impl Command {
         &mut self.seq
     }
 
-    // uint64 timestamp_ms = 2;
+    // int32 box_id = 2;
+
+    pub fn clear_box_id(&mut self) {
+        self.box_id = 0;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_box_id(&mut self, v: i32) {
+        self.box_id = v;
+    }
+
+    pub fn get_box_id(&self) -> i32 {
+        self.box_id
+    }
+
+    fn get_box_id_for_reflect(&self) -> &i32 {
+        &self.box_id
+    }
+
+    fn mut_box_id_for_reflect(&mut self) -> &mut i32 {
+        &mut self.box_id
+    }
+
+    // uint64 timestamp_ms = 3;
 
     pub fn clear_timestamp_ms(&mut self) {
         self.timestamp_ms = 0;
@@ -1392,7 +1417,41 @@ impl Command {
         &mut self.timestamp_ms
     }
 
-    // .opq.opqbox3.GetInfoCommand info_command = 3;
+    // string identity = 4;
+
+    pub fn clear_identity(&mut self) {
+        self.identity.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_identity(&mut self, v: ::std::string::String) {
+        self.identity = v;
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_identity(&mut self) -> &mut ::std::string::String {
+        &mut self.identity
+    }
+
+    // Take field
+    pub fn take_identity(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.identity, ::std::string::String::new())
+    }
+
+    pub fn get_identity(&self) -> &str {
+        &self.identity
+    }
+
+    fn get_identity_for_reflect(&self) -> &::std::string::String {
+        &self.identity
+    }
+
+    fn mut_identity_for_reflect(&mut self) -> &mut ::std::string::String {
+        &mut self.identity
+    }
+
+    // .opq.opqbox3.GetInfoCommand info_command = 5;
 
     pub fn clear_info_command(&mut self) {
         self.command = ::std::option::Option::None;
@@ -1441,7 +1500,7 @@ impl Command {
         }
     }
 
-    // .opq.opqbox3.GetDataCommand data_command = 4;
+    // .opq.opqbox3.GetDataCommand data_command = 6;
 
     pub fn clear_data_command(&mut self) {
         self.command = ::std::option::Option::None;
@@ -1490,7 +1549,7 @@ impl Command {
         }
     }
 
-    // .opq.opqbox3.SetMeasturementRateCommand sampling_rate_command = 5;
+    // .opq.opqbox3.SetMeasturementRateCommand sampling_rate_command = 7;
 
     pub fn clear_sampling_rate_command(&mut self) {
         self.command = ::std::option::Option::None;
@@ -1539,7 +1598,7 @@ impl Command {
         }
     }
 
-    // .opq.opqbox3.SendCommandToPlugin send_command_to_plugin = 7;
+    // .opq.opqbox3.SendCommandToPlugin send_command_to_plugin = 8;
 
     pub fn clear_send_command_to_plugin(&mut self) {
         self.command = ::std::option::Option::None;
@@ -1629,28 +1688,38 @@ impl ::protobuf::Message for Command {
                     if wire_type != ::protobuf::wire_format::WireTypeVarint {
                         return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
                     }
+                    let tmp = is.read_int32()?;
+                    self.box_id = tmp;
+                },
+                3 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
                     let tmp = is.read_uint64()?;
                     self.timestamp_ms = tmp;
                 },
-                3 => {
-                    if wire_type != ::protobuf::wire_format::WireTypeLengthDelimited {
-                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
-                    }
-                    self.command = ::std::option::Option::Some(Command_oneof_command::info_command(is.read_message()?));
-                },
                 4 => {
-                    if wire_type != ::protobuf::wire_format::WireTypeLengthDelimited {
-                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
-                    }
-                    self.command = ::std::option::Option::Some(Command_oneof_command::data_command(is.read_message()?));
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.identity)?;
                 },
                 5 => {
                     if wire_type != ::protobuf::wire_format::WireTypeLengthDelimited {
                         return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
                     }
-                    self.command = ::std::option::Option::Some(Command_oneof_command::sampling_rate_command(is.read_message()?));
+                    self.command = ::std::option::Option::Some(Command_oneof_command::info_command(is.read_message()?));
+                },
+                6 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeLengthDelimited {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    self.command = ::std::option::Option::Some(Command_oneof_command::data_command(is.read_message()?));
                 },
                 7 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeLengthDelimited {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    self.command = ::std::option::Option::Some(Command_oneof_command::sampling_rate_command(is.read_message()?));
+                },
+                8 => {
                     if wire_type != ::protobuf::wire_format::WireTypeLengthDelimited {
                         return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
                     }
@@ -1671,8 +1740,14 @@ impl ::protobuf::Message for Command {
         if self.seq != 0 {
             my_size += ::protobuf::rt::value_size(1, self.seq, ::protobuf::wire_format::WireTypeVarint);
         }
+        if self.box_id != 0 {
+            my_size += ::protobuf::rt::value_size(2, self.box_id, ::protobuf::wire_format::WireTypeVarint);
+        }
         if self.timestamp_ms != 0 {
-            my_size += ::protobuf::rt::value_size(2, self.timestamp_ms, ::protobuf::wire_format::WireTypeVarint);
+            my_size += ::protobuf::rt::value_size(3, self.timestamp_ms, ::protobuf::wire_format::WireTypeVarint);
+        }
+        if !self.identity.is_empty() {
+            my_size += ::protobuf::rt::string_size(4, &self.identity);
         }
         if let ::std::option::Option::Some(ref v) = self.command {
             match v {
@@ -1703,28 +1778,34 @@ impl ::protobuf::Message for Command {
         if self.seq != 0 {
             os.write_uint32(1, self.seq)?;
         }
+        if self.box_id != 0 {
+            os.write_int32(2, self.box_id)?;
+        }
         if self.timestamp_ms != 0 {
-            os.write_uint64(2, self.timestamp_ms)?;
+            os.write_uint64(3, self.timestamp_ms)?;
+        }
+        if !self.identity.is_empty() {
+            os.write_string(4, &self.identity)?;
         }
         if let ::std::option::Option::Some(ref v) = self.command {
             match v {
                 &Command_oneof_command::info_command(ref v) => {
-                    os.write_tag(3, ::protobuf::wire_format::WireTypeLengthDelimited)?;
-                    os.write_raw_varint32(v.get_cached_size())?;
-                    v.write_to_with_cached_sizes(os)?;
-                },
-                &Command_oneof_command::data_command(ref v) => {
-                    os.write_tag(4, ::protobuf::wire_format::WireTypeLengthDelimited)?;
-                    os.write_raw_varint32(v.get_cached_size())?;
-                    v.write_to_with_cached_sizes(os)?;
-                },
-                &Command_oneof_command::sampling_rate_command(ref v) => {
                     os.write_tag(5, ::protobuf::wire_format::WireTypeLengthDelimited)?;
                     os.write_raw_varint32(v.get_cached_size())?;
                     v.write_to_with_cached_sizes(os)?;
                 },
-                &Command_oneof_command::send_command_to_plugin(ref v) => {
+                &Command_oneof_command::data_command(ref v) => {
+                    os.write_tag(6, ::protobuf::wire_format::WireTypeLengthDelimited)?;
+                    os.write_raw_varint32(v.get_cached_size())?;
+                    v.write_to_with_cached_sizes(os)?;
+                },
+                &Command_oneof_command::sampling_rate_command(ref v) => {
                     os.write_tag(7, ::protobuf::wire_format::WireTypeLengthDelimited)?;
+                    os.write_raw_varint32(v.get_cached_size())?;
+                    v.write_to_with_cached_sizes(os)?;
+                },
+                &Command_oneof_command::send_command_to_plugin(ref v) => {
+                    os.write_tag(8, ::protobuf::wire_format::WireTypeLengthDelimited)?;
                     os.write_raw_varint32(v.get_cached_size())?;
                     v.write_to_with_cached_sizes(os)?;
                 },
@@ -1779,10 +1860,20 @@ impl ::protobuf::MessageStatic for Command {
                     Command::get_seq_for_reflect,
                     Command::mut_seq_for_reflect,
                 ));
+                fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeInt32>(
+                    "box_id",
+                    Command::get_box_id_for_reflect,
+                    Command::mut_box_id_for_reflect,
+                ));
                 fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeUint64>(
                     "timestamp_ms",
                     Command::get_timestamp_ms_for_reflect,
                     Command::mut_timestamp_ms_for_reflect,
+                ));
+                fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+                    "identity",
+                    Command::get_identity_for_reflect,
+                    Command::mut_identity_for_reflect,
                 ));
                 fields.push(::protobuf::reflect::accessor::make_singular_message_accessor::<_, GetInfoCommand>(
                     "info_command",
@@ -1817,7 +1908,9 @@ impl ::protobuf::MessageStatic for Command {
 impl ::protobuf::Clear for Command {
     fn clear(&mut self) {
         self.clear_seq();
+        self.clear_box_id();
         self.clear_timestamp_ms();
+        self.clear_identity();
         self.clear_info_command();
         self.clear_data_command();
         self.clear_sampling_rate_command();
@@ -3649,37 +3742,38 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     \x08R\x04wait\"X\n\x1aSetMeasturementRateCommand\x12:\n\x19measurement_w\
     indow_cycles\x18\x01\x20\x01(\rR\x17measurementWindowCycles\"P\n\x13Send\
     CommandToPlugin\x12\x1f\n\x0bplugin_name\x18\x01\x20\x01(\tR\npluginName\
-    \x12\x18\n\x07message\x18\x02\x20\x01(\tR\x07message\"\x85\x03\n\x07Comm\
-    and\x12\x10\n\x03seq\x18\x01\x20\x01(\rR\x03seq\x12!\n\x0ctimestamp_ms\
-    \x18\x02\x20\x01(\x04R\x0btimestampMs\x12@\n\x0cinfo_command\x18\x03\x20\
-    \x01(\x0b2\x1b.opq.opqbox3.GetInfoCommandH\0R\x0binfoCommand\x12@\n\x0cd\
-    ata_command\x18\x04\x20\x01(\x0b2\x1b.opq.opqbox3.GetDataCommandH\0R\x0b\
-    dataCommand\x12]\n\x15sampling_rate_command\x18\x05\x20\x01(\x0b2'.opq.o\
-    pqbox3.SetMeasturementRateCommandH\0R\x13samplingRateCommand\x12W\n\x16s\
-    end_command_to_plugin\x18\x07\x20\x01(\x0b2\x20.opq.opqbox3.SendCommandT\
-    oPluginH\0R\x13sendCommandToPluginB\t\n\x07command\"\xee\x01\n\x0fGetInf\
-    oResponse\x12\x19\n\x08mac_addr\x18\x01\x20\x01(\tR\x07macAddr\x12!\n\
-    \x0cwifi_network\x18\x02\x20\x01(\tR\x0bwifiNetwork\x12\x0e\n\x02ip\x18\
-    \x03\x20\x01(\tR\x02ip\x12\x16\n\x06uptime\x18\x04\x20\x01(\x04R\x06upti\
-    me\x121\n\x14calibration_constant\x18\x05\x20\x01(\x04R\x13calibrationCo\
-    nstant\x12\x17\n\x07pub_key\x18\x06\x20\x01(\tR\x06pubKey\x12)\n\x10meas\
-    urement_rate\x18\x07\x20\x01(\rR\x0fmeasurementRate\"D\n\x1aSetMeasureme\
-    ntRateResponse\x12&\n\x0fold_rate_cycles\x18\x01\x20\x01(\rR\roldRateCyc\
-    les\"I\n\x15GetDataResponseHeader\x12\x19\n\x08start_ts\x18\x01\x20\x01(\
-    \x04R\x07startTs\x12\x15\n\x06end_ts\x18\x02\x20\x01(\x04R\x05endTs\"-\n\
-    \x1bSendCommandToPluginResponse\x12\x0e\n\x02ok\x18\x01\x20\x01(\x08R\
-    \x02ok\"\xbf\x03\n\x08Response\x12\x15\n\x06box_id\x18\x01\x20\x01(\x05R\
-    \x05boxId\x12\x10\n\x03seq\x18\x02\x20\x01(\rR\x03seq\x12!\n\x0ctimestam\
-    p_ms\x18\x03\x20\x01(\x04R\x0btimestampMs\x12C\n\rinfo_response\x18\x04\
-    \x20\x01(\x0b2\x1c.opq.opqbox3.GetInfoResponseH\0R\x0cinfoResponse\x12[\
-    \n\x14message_rate_reponse\x18\x05\x20\x01(\x0b2'.opq.opqbox3.SetMeasure\
-    mentRateResponseH\0R\x12messageRateReponse\x12P\n\x11get_data_response\
-    \x18\x06\x20\x01(\x0b2\".opq.opqbox3.GetDataResponseHeaderH\0R\x0fgetDat\
-    aResponse\x12g\n\x1acommand_to_plugin_response\x18\x07\x20\x01(\x0b2(.op\
-    q.opqbox3.SendCommandToPluginResponseH\0R\x17commandToPluginResponseB\n\
-    \n\x08response\"J\n\x05Cycle\x12\x1e\n\ndatapoints\x18\x01\x20\x03(\x05R\
-    \ndatapoints\x12!\n\x0ctimestamp_ms\x18\x02\x20\x01(\x04R\x0btimestampMs\
-    B\x04\xc8\xa6\x08\x01b\x06proto3\
+    \x12\x18\n\x07message\x18\x02\x20\x01(\tR\x07message\"\xb8\x03\n\x07Comm\
+    and\x12\x10\n\x03seq\x18\x01\x20\x01(\rR\x03seq\x12\x15\n\x06box_id\x18\
+    \x02\x20\x01(\x05R\x05boxId\x12!\n\x0ctimestamp_ms\x18\x03\x20\x01(\x04R\
+    \x0btimestampMs\x12\x1a\n\x08identity\x18\x04\x20\x01(\tR\x08identity\
+    \x12@\n\x0cinfo_command\x18\x05\x20\x01(\x0b2\x1b.opq.opqbox3.GetInfoCom\
+    mandH\0R\x0binfoCommand\x12@\n\x0cdata_command\x18\x06\x20\x01(\x0b2\x1b\
+    .opq.opqbox3.GetDataCommandH\0R\x0bdataCommand\x12]\n\x15sampling_rate_c\
+    ommand\x18\x07\x20\x01(\x0b2'.opq.opqbox3.SetMeasturementRateCommandH\0R\
+    \x13samplingRateCommand\x12W\n\x16send_command_to_plugin\x18\x08\x20\x01\
+    (\x0b2\x20.opq.opqbox3.SendCommandToPluginH\0R\x13sendCommandToPluginB\t\
+    \n\x07command\"\xee\x01\n\x0fGetInfoResponse\x12\x19\n\x08mac_addr\x18\
+    \x01\x20\x01(\tR\x07macAddr\x12!\n\x0cwifi_network\x18\x02\x20\x01(\tR\
+    \x0bwifiNetwork\x12\x0e\n\x02ip\x18\x03\x20\x01(\tR\x02ip\x12\x16\n\x06u\
+    ptime\x18\x04\x20\x01(\x04R\x06uptime\x121\n\x14calibration_constant\x18\
+    \x05\x20\x01(\x04R\x13calibrationConstant\x12\x17\n\x07pub_key\x18\x06\
+    \x20\x01(\tR\x06pubKey\x12)\n\x10measurement_rate\x18\x07\x20\x01(\rR\
+    \x0fmeasurementRate\"D\n\x1aSetMeasurementRateResponse\x12&\n\x0fold_rat\
+    e_cycles\x18\x01\x20\x01(\rR\roldRateCycles\"I\n\x15GetDataResponseHeade\
+    r\x12\x19\n\x08start_ts\x18\x01\x20\x01(\x04R\x07startTs\x12\x15\n\x06en\
+    d_ts\x18\x02\x20\x01(\x04R\x05endTs\"-\n\x1bSendCommandToPluginResponse\
+    \x12\x0e\n\x02ok\x18\x01\x20\x01(\x08R\x02ok\"\xbf\x03\n\x08Response\x12\
+    \x15\n\x06box_id\x18\x01\x20\x01(\x05R\x05boxId\x12\x10\n\x03seq\x18\x02\
+    \x20\x01(\rR\x03seq\x12!\n\x0ctimestamp_ms\x18\x03\x20\x01(\x04R\x0btime\
+    stampMs\x12C\n\rinfo_response\x18\x04\x20\x01(\x0b2\x1c.opq.opqbox3.GetI\
+    nfoResponseH\0R\x0cinfoResponse\x12[\n\x14message_rate_reponse\x18\x05\
+    \x20\x01(\x0b2'.opq.opqbox3.SetMeasurementRateResponseH\0R\x12messageRat\
+    eReponse\x12P\n\x11get_data_response\x18\x06\x20\x01(\x0b2\".opq.opqbox3\
+    .GetDataResponseHeaderH\0R\x0fgetDataResponse\x12g\n\x1acommand_to_plugi\
+    n_response\x18\x07\x20\x01(\x0b2(.opq.opqbox3.SendCommandToPluginRespons\
+    eH\0R\x17commandToPluginResponseB\n\n\x08response\"J\n\x05Cycle\x12\x1e\
+    \n\ndatapoints\x18\x01\x20\x03(\x05R\ndatapoints\x12!\n\x0ctimestamp_ms\
+    \x18\x02\x20\x01(\x04R\x0btimestampMsB\x04\xc8\xa6\x08\x01b\x06proto3\
 ";
 
 static mut file_descriptor_proto_lazy: ::protobuf::lazy::Lazy<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::lazy::Lazy {

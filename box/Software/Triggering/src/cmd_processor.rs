@@ -1,14 +1,13 @@
 use crossbeam_channel::Sender;
-use network_manager::NetworkManager;
-use opqbox3::{
+//use network_manager::NetworkManager;
+use box_api::opqbox3::{
     Command, Command_oneof_command, GetDataResponseHeader, GetInfoResponse, Response,
     SendCommandToPlugin, SendCommandToPluginResponse, SetMeasurementRateResponse,
 };
-use pnet;
 use protobuf::{parse_from_bytes, Message, ProtobufError};
 use std::sync::Arc;
 use std::thread;
-
+use nix::ifaddrs;
 use config::{State, WINDOWS_PER_MEASUREMENT};
 use std::time::{Duration, UNIX_EPOCH};
 use uptime_lib;
@@ -52,26 +51,26 @@ fn create_push_socket(ctx: &Context, state: &Arc<State>) -> Socket {
 fn process_info_command(state: &Arc<State>) -> Response {
     let mut info = GetInfoResponse::new();
     let mut ips = String::new();
-    let mut macs = String::new();
-    for iface in pnet::datalink::interfaces() {
-        if iface.is_loopback() {
-            continue;
-        }
-        for ip in &iface.ips {
-            ips += &ip.to_string();
+    let macs = String::new();
+    let addrs = ifaddrs::getifaddrs().unwrap();
+    for ifaddr in addrs {
+        if let Some(address) = ifaddr.address {
+            ips += &address.to_string();
             ips += "\n";
         }
-        macs += &iface.mac_address().to_string();
-        macs += "\n"
     }
     info.set_mac_addr(macs);
     info.set_ip(ips);
+    /*
     let manager = NetworkManager::new();
     let mut ssids = String::new();
+
     for conn in manager.get_active_connections().unwrap() {
         ssids += conn.settings().ssid.as_str().unwrap();
         ssids += "\n";
     }
+    */
+    let ssids = String::new();
     info.set_wifi_network(ssids);
     info.set_calibration_constant(0);
     info.set_pub_key(state.settings.box_public_key.clone().unwrap());
