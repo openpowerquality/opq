@@ -13,11 +13,16 @@ serde_json = "*"
 serde_derive = "*"
 serde = "*"
 zmq="0.8.2"
-network-manager="*"
+#network-manager="*"
 uptime_lib ="*"
 libloading = "*"
 log = "0.4.0"
 syslog = "4"
 crossbeam-channel = "0.2"
-pnet = "0.21.0"
+nix = "0.13.0"
 box_api = { path = "box_api" }
+frequency_plugin = { path = "plugins/frequency" }
+thd_plugin = {path = "plugins/thd"}
+vrms_plugin = {path = "plugins/vrms"}
+
+

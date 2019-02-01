@@ -7,8 +7,8 @@ authors = ["Serge <sin8@hawaii.edu>"]
 box_api = { path = "../../box_api" }
 num = "0.1.42"
 
-[lib]
-name = "frequency_plugin"
-crate-type = [
-    "dylib"
-]
+#[lib]
+#name = "frequency_plugin"
+#crate-type = [
+#    "dylib"
+#]

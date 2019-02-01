@@ -4,6 +4,7 @@ This module manages the startup of components needed to configure an OPQ Box and
 
 import http_server
 import logging
+import time
 
 import pify.pify
 import pify.nmoperations
@@ -11,6 +12,7 @@ import pify.nmoperations
 logging.basicConfig(level=logging.DEBUG)
 
 if __name__ == "__main__":
+    time.sleep(20)
     import sys
 
     if len(sys.argv) != 3:

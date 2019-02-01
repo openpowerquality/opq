@@ -6,8 +6,8 @@ authors = ["Serge <sin8@hawaii.edu>"]
 [dependencies]
 box_api = { path = "../../box_api" }
 
-[lib]
-name = "print_plugin"
-crate-type = [
-    "dylib"
-]
+#[lib]
+#name = "print_plugin"
+#crate-type = [
+#    "cdylib"
+#]

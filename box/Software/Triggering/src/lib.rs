@@ -6,8 +6,7 @@ extern crate zmq;
 #[macro_use]
 extern crate serde_derive;
 extern crate libloading;
-extern crate network_manager;
-extern crate pnet;
+//extern crate network_manager;
 extern crate serde_json;
 extern crate syslog;
 extern crate uptime_lib;
@@ -16,7 +15,11 @@ extern crate crossbeam_channel;
 #[macro_use]
 extern crate log;
 extern crate box_api;
+extern crate nix;
 
+extern crate thd_plugin;
+extern crate vrms_plugin;
+extern crate frequency_plugin;
 
 pub mod capture;
 pub mod cmd_processor;

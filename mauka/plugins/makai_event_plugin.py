@@ -42,9 +42,7 @@ def smooth_waveform(sample: numpy.ndarray, filter_order: int = 2, cutoff_frequen
     cutoff_frequency_nyquist = cutoff_frequency * 2 / constants.SAMPLE_RATE_HZ
     numerator, denominator = signal.butter(filter_order, cutoff_frequency_nyquist, output='ba')
 
-    # Second, apply the filter
-    # return signal.filtfilt(b, a, sample)
-
+    # Second, create Dicrete-time linear time invariant system instance
     dtltis = signal.dlti(numerator, denominator)
     # decimate signal to improve runtime
     return signal.decimate(sample, downsample_factor, ftype=dtltis)
@@ -90,22 +88,22 @@ def vrms_waveform(waveform: numpy.ndarray, window_size: int = constants.SAMPLES_
     return numpy.array(rms_voltages)
 
 
-def frequency(samples: numpy.ndarray, downsample_factor: int) -> float:
+def frequency(samples: numpy.ndarray, down_sample_factor: int) -> float:
     """
     Calculates the frequency of the supplied samples
     :param samples: Samples to calculate frequency over.
-    :param downsample_factor: the downsampling factor from the filtering, used to modify the sampling rate
+    :param down_sample_factor: the down sampling factor from the filtering, used to modify the sampling rate
     :return: The frequency value of the provided samples in Hz.
     """
 
     # Fit sinusoidal curve to data
-    guess_amp = 120.0 * numpy.sqrt(2)
+    guess_amp = constants.NOMINAL_VRMS * numpy.sqrt(2)
     guess_freq = constants.CYCLES_PER_SECOND
     guess_phase = 0.0
     guess_mean = 0.0
     idx = numpy.arange(0,
-                       len(samples) / (constants.SAMPLE_RATE_HZ / downsample_factor),
-                       1 / (constants.SAMPLE_RATE_HZ / downsample_factor))
+                       len(samples) / (constants.SAMPLE_RATE_HZ / down_sample_factor),
+                       1 / (constants.SAMPLE_RATE_HZ / down_sample_factor))
     idx = idx[:len(samples)]
 
     def optimize_func(args):

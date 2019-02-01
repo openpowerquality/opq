@@ -18,7 +18,7 @@ def simulate_waveform(freq: float=constants.CYCLES_PER_SECOND, vrms: float = 120
         return numpy.sqrt(2) * vrms * numpy.sin([freq * 2 * numpy.pi * x / sample_rate for x in range(num_samples)])
     else:
         return numpy.sqrt(2) * vrms * numpy.sin([freq * 2 * numpy.pi * x / sample_rate for x in range(num_samples)]
-                                                ) + numpy.sqrt(noise_variance) * rand.randn(num_samples)
+                                                ) + numpy.sqrt(noise_variance) * rand.randn(1, num_samples)[0]
 
 
 def read_waveform(filename: str):
@@ -52,7 +52,7 @@ class MakaiEventPluginTests(unittest.TestCase):
 
         """MakaiEventPlugin frequency Method"""
         waveform_window = simulate_waveform()
-        self.assertAlmostEqual(frequency(waveform_window, downsample_factor=1),
+        self.assertAlmostEqual(frequency(waveform_window, down_sample_factor=1),
                                constants.CYCLES_PER_SECOND, delta=0.2)
 
         """MakaiEventPlugin frequency_waveform Method"""
