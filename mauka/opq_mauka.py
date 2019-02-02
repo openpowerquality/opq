@@ -13,6 +13,7 @@ import log
 import plugins.acquisition_trigger_plugin
 import plugins.frequency_threshold_plugin
 import plugins.frequency_variation_plugin
+import plugins.transient_plugin
 import plugins.itic_plugin
 import plugins.makai_event_plugin
 import plugins.outage_plugin
@@ -69,6 +70,7 @@ def main():
     plugin_manager.register_plugin(plugins.thd_plugin.ThdPlugin)
     plugin_manager.register_plugin(plugins.itic_plugin.IticPlugin)
     plugin_manager.register_plugin(plugins.frequency_variation_plugin.FrequencyVariationPlugin)
+    plugin_manager.register_plugin(plugins.transient_plugin.TransientPlugin)
     plugin_manager.register_plugin(plugins.ieee1159_voltage_plugin.Ieee1159VoltagePlugin)
     plugin_manager.register_plugin(plugins.semi_f47_plugin.SemiF47Plugin)
     plugin_manager.register_plugin(plugins.outage_plugin.OutagePlugin)
