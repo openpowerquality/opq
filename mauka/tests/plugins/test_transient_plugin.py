@@ -15,6 +15,8 @@ import numpy
 import constants
 from scipy import signal
 
+# import matplotlib.pyplot as plt
+# import matplotlib.gridspec as gridspec
 
 def periodic_notching_transient_wave_filter(voltage, noise_floor):
     if abs(voltage) < noise_floor:
@@ -95,8 +97,41 @@ class TransientPluginTests(unittest.TestCase):
         # now ensure that application of butterworth filter does not filter out transient
         waveforms = waveform_filter(raw_waveform, self.filter_order, self.cutoff_frequency)
 
-        periodic_notching = periodic_notching_classifier(waveforms["filtered_waveform"],
-                                                         waveforms["fundamental_waveform"], self.configs)
+        candidate_transient_windows = transient_sliding_window(waveforms["filtered_waveform"],
+                                                               self.configs["noise_floor"],
+                                                               self.configs["max_lull_ms"])
+
+        # only 1 potential transient is in waveform
+        self.assertEqual(len(candidate_transient_windows), 1)
+
+        window = candidate_transient_windows[0]
+
+        windowed_waveforms = {"fundamental_waveform": waveforms["fundamental_waveform"][window[0]: window[1] + 1],
+                              "filtered_waveform": waveforms["filtered_waveform"][window[0]: window[1] + 1],
+                              "raw_waveform": waveforms["raw_waveform"][window[0]: window[1] + 1]}
+
+        periodic_notching = periodic_notching_classifier(windowed_waveforms["filtered_waveform"],
+                                                         windowed_waveforms["fundamental_waveform"], self.configs)
+
+        # plt.figure(figsize=(6, 6))
+        # gs = gridspec.GridSpec(6, 6)
+        # raw_ax = plt.subplot(gs[0:4, :])
+        # fund_ax = plt.subplot(gs[4:, 0:3])
+        # trans_ax = plt.subplot(gs[4:, 3:])
+        #
+        # raw_ax.set(xlabel='Measurements', ylabel='Voltage (V)',
+        #            title='Simulated Raw Waveform with Periodic Notching Transient')
+        # fund_ax.set(xlabel='Measurements', ylabel='Voltage (V)', title='Extracted Fundamental Waveform')
+        # trans_ax.set(xlabel='Measurements', ylabel='Voltage (V)', title='Extracted Transient Waveform')
+        #
+        # raw_ax.grid()
+        # fund_ax.grid()
+        # trans_ax.grid()
+        #
+        # raw_ax.plot(raw_waveform, color='C7')
+        # fund_ax.plot(windowed_waveforms['fundamental_waveform'])
+        # trans_ax.plot(windowed_waveforms['filtered_waveform'], color='C3')
+        # plt.show()
 
         self.assertTrue(periodic_notching[0])
 
@@ -156,6 +191,35 @@ class TransientPluginTests(unittest.TestCase):
         # Assert additional number of zero crossings is 6
         self.assertEqual(mult_zero_xing[1]['num_extra_zero_crossings'], 6)
 
+        candidate_transient_windows = transient_sliding_window(waveforms["filtered_waveform"],
+                                                               self.configs["noise_floor"],
+                                                               self.configs["max_lull_ms"])
+        window = candidate_transient_windows[0]
+
+        windowed_waveforms = {"fundamental_waveform": waveforms["fundamental_waveform"][window[0]: window[1] + 1],
+                              "filtered_waveform": waveforms["filtered_waveform"][window[0]: window[1] + 1],
+                              "raw_waveform": waveforms["raw_waveform"][window[0]: window[1] + 1]}
+
+        # plt.figure(figsize=(6, 6))
+        # gs = gridspec.GridSpec(6, 6)
+        # raw_ax = plt.subplot(gs[0:4, :])
+        # fund_ax = plt.subplot(gs[4:, 0:3])
+        # trans_ax = plt.subplot(gs[4:, 3:])
+        #
+        # raw_ax.set(xlabel='Measurements', ylabel='Voltage (V)',
+        #            title='Simulated Raw Waveform with Multiple Zero Crossing Transient')
+        # fund_ax.set(xlabel='Measurements', ylabel='Voltage (V)', title='Extracted Fundamental Waveform')
+        # trans_ax.set(xlabel='Measurements', ylabel='Voltage (V)', title='Extracted Transient Waveform')
+        #
+        # raw_ax.grid()
+        # fund_ax.grid()
+        # trans_ax.grid()
+        #
+        # raw_ax.plot(raw_waveform, color='C7')
+        # fund_ax.plot(windowed_waveforms['fundamental_waveform'])
+        # trans_ax.plot(windowed_waveforms['filtered_waveform'], color='C3')
+        # plt.show()
+
     def test_oscillatory_transient(self):
         """
         test transient plugin functions on waveform with oscillatory transient
@@ -183,7 +247,7 @@ class TransientPluginTests(unittest.TestCase):
 
         # first ensure that if transient and fundamental waveforms were recovered perfectly then we could classify the
         # oscillatory transient and reasonably recover amplitude and frequency
-        oscillatory = oscillatory_classifier(transient_waveform)
+        oscillatory = oscillatory_classifier(transient_waveform, self.configs)
 
         self.assertTrue(oscillatory[0])
         self.assertAlmostEqual(oscillatory[1]['Frequency'], freq, places=1)
@@ -203,7 +267,27 @@ class TransientPluginTests(unittest.TestCase):
                               "filtered_waveform": waveforms["filtered_waveform"][window[0]: window[1] + 1],
                               "raw_waveform": waveforms["raw_waveform"][window[0]: window[1] + 1]}
 
-        oscillatory = oscillatory_classifier(windowed_waveforms['filtered_waveform'])
+        # plt.figure(figsize=(6, 6))
+        # gs = gridspec.GridSpec(6, 6)
+        # raw_ax = plt.subplot(gs[0:4, :])
+        # fund_ax = plt.subplot(gs[4:, 0:3])
+        # trans_ax = plt.subplot(gs[4:, 3:])
+        #
+        # raw_ax.set(xlabel='Measurements', ylabel='Voltage (V)',
+        #            title='Simulated Raw Waveform with Oscillatory Transient')
+        # fund_ax.set(xlabel='Measurements', ylabel='Voltage (V)', title='Extracted Fundamental Waveform')
+        # trans_ax.set(xlabel='Measurements', ylabel='Voltage (V)', title='Extracted Transient Waveform')
+        #
+        # raw_ax.grid()
+        # fund_ax.grid()
+        # trans_ax.grid()
+        #
+        # raw_ax.plot(raw_waveform, color='C7')
+        # fund_ax.plot(windowed_waveforms['fundamental_waveform'])
+        # trans_ax.plot(windowed_waveforms['filtered_waveform'], color='C3')
+        # plt.show()
+
+        oscillatory = oscillatory_classifier(windowed_waveforms['filtered_waveform'], self.configs)
 
         self.assertTrue(oscillatory[0])
         self.assertAlmostEqual(oscillatory[1]['Frequency'], freq, delta=freq * 0.1)
@@ -220,7 +304,7 @@ class TransientPluginTests(unittest.TestCase):
 
         # raw waveform created by superposition of fundamental waveform and an exponentially decaying excitation with
         # peak amplitude of 12 times the noise floor and decay time of 1 / 32 cycles
-        transient_waveform = 12 * self.noise_floor * numpy.ones(int(constants.SAMPLES_PER_CYCLE / 32))
+        transient_waveform = 3 * self.noise_floor * numpy.ones(int(constants.SAMPLES_PER_CYCLE / 32))
         amp = numpy.exp(numpy.linspace(0, -numpy.log(self.noise_floor), int(constants.SAMPLES_PER_CYCLE / 32)))
         transient_waveform = numpy.multiply(amp, transient_waveform)
 
@@ -249,6 +333,26 @@ class TransientPluginTests(unittest.TestCase):
         windowed_waveforms = {"fundamental_waveform": waveforms["fundamental_waveform"][window[0]: window[1] + 1],
                               "filtered_waveform": waveforms["filtered_waveform"][window[0]: window[1] + 1],
                               "raw_waveform": waveforms["raw_waveform"][window[0]: window[1] + 1]}
+
+        # plt.figure(figsize=(6, 6))
+        # gs = gridspec.GridSpec(6, 6)
+        # raw_ax = plt.subplot(gs[0:4, :])
+        # fund_ax = plt.subplot(gs[4:, 0:3])
+        # trans_ax = plt.subplot(gs[4:, 3:])
+        #
+        # raw_ax.set(xlabel='Measurements', ylabel='Voltage (V)',
+        #            title='Simulated Raw Waveform with ImpulsiveTransient')
+        # fund_ax.set(xlabel='Measurements', ylabel='Voltage (V)', title='Extracted Fundamental Waveform')
+        # trans_ax.set(xlabel='Measurements', ylabel='Voltage (V)', title='Extracted Transient Waveform')
+        #
+        # raw_ax.grid()
+        # fund_ax.grid()
+        # trans_ax.grid()
+        #
+        # raw_ax.plot(raw_waveform, color='C7')
+        # fund_ax.plot(windowed_waveforms['fundamental_waveform'])
+        # trans_ax.plot(windowed_waveforms['filtered_waveform'], color='C3')
+        # plt.show()
 
         impulsive = impulsive_classifier(windowed_waveforms['filtered_waveform'], self.configs)
         self.assertTrue(impulsive[0])
@@ -304,6 +408,26 @@ class TransientPluginTests(unittest.TestCase):
                               "filtered_waveform": waveforms["filtered_waveform"][window[0]: window[1] + 1],
                               "raw_waveform": waveforms["raw_waveform"][window[0]: window[1] + 1]}
 
+        # plt.figure(figsize=(6, 6))
+        # gs = gridspec.GridSpec(6, 6)
+        # raw_ax = plt.subplot(gs[0:4, :])
+        # fund_ax = plt.subplot(gs[4:, 0:3])
+        # trans_ax = plt.subplot(gs[4:, 3:])
+        #
+        # raw_ax.set(xlabel='Measurements', ylabel='Voltage (V)',
+        #            title='Simulated Raw Waveform with Arcing Transient')
+        # fund_ax.set(xlabel='Measurements', ylabel='Voltage (V)', title='Extracted Fundamental Waveform')
+        # trans_ax.set(xlabel='Measurements', ylabel='Voltage (V)', title='Extracted Transient Waveform')
+        #
+        # raw_ax.grid()
+        # fund_ax.grid()
+        # trans_ax.grid()
+        #
+        # raw_ax.plot(raw_waveform, color='C7')
+        # fund_ax.plot(windowed_waveforms['fundamental_waveform'])
+        # trans_ax.plot(windowed_waveforms['filtered_waveform'], color='C3')
+        # plt.show()
+
         arcing = arcing_classifier(windowed_waveforms["filtered_waveform"], self.configs)
         self.assertTrue(arcing[0])
 
@@ -320,7 +444,7 @@ class TransientPluginTests(unittest.TestCase):
 
         # raw waveform created by superposition of fundamental waveform and an exponentially decaying excitation with
         # peak amplitude of 12 times the noise floor and decay time of 1 / 32 cycles
-        transient_waveform = 12 * self.noise_floor * numpy.ones(int(constants.SAMPLES_PER_CYCLE / 32))
+        transient_waveform = 3 * self.noise_floor * numpy.ones(int(constants.SAMPLES_PER_CYCLE / 32))
         amp = numpy.exp(numpy.linspace(0, -numpy.log(self.noise_floor), int(constants.SAMPLES_PER_CYCLE / 32)))
         transient_waveform = numpy.multiply(amp, transient_waveform)
 

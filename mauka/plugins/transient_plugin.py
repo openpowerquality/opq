@@ -25,7 +25,7 @@ def transient_sliding_window(filtered_waveform: numpy.ndarray, noise_floor: floa
     :param max_lull_ms:
     :return:
     """
-    voltage_above_noise_floor = filtered_waveform >= noise_floor
+    voltage_above_noise_floor = abs(filtered_waveform) >= noise_floor
     transient_windows = []
     max_samples = int(constants.SAMPLES_PER_MILLISECOND * max_lull_ms)
     lull_counter = 0
@@ -99,7 +99,7 @@ def waveform_filter(raw_waveform: numpy.ndarray, filter_order: int, transient_cu
             "raw_waveform": raw_waveform}
 
 
-def oscillatory_classifier(filtered_waveform: numpy.ndarray) -> (bool, dict):
+def oscillatory_classifier(filtered_waveform: numpy.ndarray, configs: dict) -> (bool, dict):
     """
     Identifies whether the transient is oscillatory and, if so, further classifies the transient as a medium, low, or
     high frequency oscillatory transient and calculates additional meta data for the transient such as the magnitude,
@@ -109,6 +109,12 @@ def oscillatory_classifier(filtered_waveform: numpy.ndarray) -> (bool, dict):
     :return: A tuple which has contains a boolean indicator of whether the transient was indeed classified as being
     oscillatory and then a dictionary of the calculated meta data.
     """
+
+    # First ensure there is at least 3 periods in the potential oscillatory waveform
+    noise_canceled_waveform = numpy.vectorize(noise_canceler)(filtered_waveform, configs['noise_floor'])
+    z_crossings = find_zero_xings(noise_canceled_waveform)
+    if z_crossings.sum() < configs['oscillatory_min_cycles']:
+        return False, {}
 
     # Fit damped sine wave to signal
     guess_amp = constants.NOMINAL_VRMS * numpy.sqrt(2)
@@ -343,7 +349,7 @@ def transient_incident_classifier(event_id: int, box_id: str, raw_waveform: nump
                 incident_flag = True
 
             else:
-                oscillatory = oscillatory_classifier(windowed_waveforms["filtered_waveform"])
+                oscillatory = oscillatory_classifier(windowed_waveforms["filtered_waveform"], configs)
                 if oscillatory[0]:
                     meta.update(oscillatory[1])
                     incident_classifications.append("OSCILLATORY_TRANSIENT")
