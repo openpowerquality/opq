@@ -1,0 +1,39 @@
+digraph mauka_functional_diagram {
+    // Define styles for certain nodes
+    OPQMakai [shape=box];
+    MongoDB [shape=cylinder];
+
+    // Coming from Makai
+    OPQMakai -> MakaiEventPlugin [label="MakaiEvent"]
+    OPQMakai -> FrequencyThresholdPlugin [label="measurements"][style=dotted]
+    OPQMakai -> VoltageThresholdPlugin [label="measurements"][style=dotted]
+
+    // Going back to Makai
+    FrequencyThresholdPlugin -> AcquisitionTriggerPlugin [label="FrequencyEvent"]
+    VoltageThresholdPlugin -> AcquisitionTriggerPlugin [label="VoltageEvent"]
+    AcquisitionTriggerPlugin -> OPQMakai
+
+    // From MaukaPlugin
+    MaukaPlugin -> OutagePlugin [label="heartbeat"]
+    MaukaPlugin -> StatusPlugin [label="heartbeat"]
+
+    // Coming from MakaiEventPlugin
+    MakaiEventPlugin -> FrequencyVariationPlugin [label="WindowedFrequency"]
+    MakaiEventPlugin -> Ieee1159VoltagePlugin [label="RmsWindowedVoltage"]
+    MakaiEventPlugin -> IticPlugin [label="RmsWindowedVoltage"]
+    MakaiEventPlugin -> SemiF47Plugin [label="RmsWindowedVoltage"]
+    MakaiEventPlugin -> TransientPlugin [label="RawVoltage"]
+    MakaiEventPlugin -> ThdPlugin [label="AdcSamples, ThdRequestEvent"]
+
+    // MongoDB In
+    MongoDB -> MakaiEventPlugin
+
+    // MongoDB Out
+    FrequencyVariationPlugin -> MongoDB
+    Ieee1159VoltagePlugin -> MongoDB
+    IticPlugin -> MongoDB
+    SemiF47Plugin -> MongoDB
+    TransientPlugin -> MongoDB
+    ThdPlugin -> MongoDB
+    OutagePlugin -> MongoDB
+}
