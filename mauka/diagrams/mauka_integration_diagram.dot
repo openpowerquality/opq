@@ -8,6 +8,7 @@ digraph mauka_services_diagram {
         PubSubBroker [label="Mauka Pub/Sub Broker"];
         MaukaPlugins [label="Mauka Plugins"];
         MaukaPluginManager [label="Mauka Plugin Manager"];
+        MaukaCli [label="Mauka CLI"]
         color=blue;
 
         MakaiMeasurementBridge -> PubSubBroker [label="typed measurements"]
@@ -16,6 +17,8 @@ digraph mauka_services_diagram {
         MaukaPlugins -> PubSubBroker [label="plugin pub messages"]
         MaukaPlugins -> MaukaPluginManager [label="plugin status"]
         MaukaPluginManager -> MaukaPlugins [label="plugin control"]
+        MaukaCli -> MaukaPluginManager [label="plugin control"]
+        MaukaPluginManager -> MaukaCli
     }
 
     OPQMakai -> MakaiMeasurementBridge [label="measurements"]
