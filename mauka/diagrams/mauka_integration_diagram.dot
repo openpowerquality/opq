@@ -10,26 +10,26 @@ digraph mauka_services_diagram {
         MaukaPluginManager [label="Mauka Plugin Manager"];
         color=blue;
 
-        MakaiMeasurementBridge -> PubSubBroker
-        MakaiEventBridge -> PubSubBroker
-        PubSubBroker -> MaukaPlugins
-        MaukaPlugins -> PubSubBroker
-        MaukaPlugins -> MaukaPluginManager
-        MaukaPluginManager -> MaukaPlugins
+        MakaiMeasurementBridge -> PubSubBroker [label="typed measurements"]
+        MakaiEventBridge -> PubSubBroker [label="typed event ids"]
+        PubSubBroker -> MaukaPlugins [label="plugin sub messages"]
+        MaukaPlugins -> PubSubBroker [label="plugin pub messages"]
+        MaukaPlugins -> MaukaPluginManager [label="plugin status"]
+        MaukaPluginManager -> MaukaPlugins [label="plugin control"]
     }
 
-    OPQMakai -> MakaiMeasurementBridge
-    OPQMakai -> MakaiEventBridge
+    OPQMakai -> MakaiMeasurementBridge [label="measurements"]
+    OPQMakai -> MakaiEventBridge [label="event ids"]
 
     OPQHealth[shape=box];
     OPQView[shape=box]
     MongoDB[shape=cylinder];
 
-    MaukaPlugins -> MongoDB
-    MongoDB -> MaukaPlugins
-    MaukaPlugins -> OPQHealth
+    MaukaPlugins -> MongoDB [label="analysis results"]
+    MongoDB -> MaukaPlugins [label="PQ data"]
+    MaukaPlugins -> OPQHealth [label="health metrics"]
 
-    MongoDB -> OPQView
+    MongoDB -> OPQView [label="analysis results"]
 
-    MaukaPlugins -> OPQMakai
+    MaukaPlugins -> OPQMakai [label="RequestEventMessage"]
 }
