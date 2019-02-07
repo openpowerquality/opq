@@ -1,0 +1,35 @@
+digraph mauka_services_diagram {
+    OPQMakai[shape=box];
+
+    subgraph cluster_mauka {
+        label="OPQMauka";
+        MakaiMeasurementBridge [label="Makai Measurement Bridge"];
+        MakaiEventBridge [label="Makai Event Bridge"];
+        PubSubBroker [label="Mauka Pub/Sub Broker"];
+        MaukaPlugins [label="Mauka Plugins"];
+        MaukaPluginManager [label="Mauka Plugin Manager"];
+        color=blue;
+
+        MakaiMeasurementBridge -> PubSubBroker
+        MakaiEventBridge -> PubSubBroker
+        PubSubBroker -> MaukaPlugins
+        MaukaPlugins -> PubSubBroker
+        MaukaPlugins -> MaukaPluginManager
+        MaukaPluginManager -> MaukaPlugins
+    }
+
+    OPQMakai -> MakaiMeasurementBridge
+    OPQMakai -> MakaiEventBridge
+
+    OPQHealth[shape=box];
+    OPQView[shape=box]
+    MongoDB[shape=cylinder];
+
+    MaukaPlugins -> MongoDB
+    MongoDB -> MaukaPlugins
+    MaukaPlugins -> OPQHealth
+
+    MongoDB -> OPQView
+
+    MaukaPlugins -> OPQMakai
+}
