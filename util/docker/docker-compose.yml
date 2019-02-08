@@ -1,6 +1,15 @@
 version: '3.7'
 
 services:
+  mongo:
+    image: ${MONGO_IMAGE}
+    restart: always
+    expose:
+      - "${MONGO_PORT}"
+    ports:
+      - "${MONGO_PORT}:${MONGO_PORT}"
+    volumes:
+      - "${MONGO_VOLUME}:/data/db"
   view:
     image: ${VIEW_IMAGE}
     network_mode: "host"
