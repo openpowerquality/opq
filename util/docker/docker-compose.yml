@@ -12,6 +12,8 @@ services:
       - "${MONGO_VOLUME}:/data/db"
   view:
     image: ${VIEW_IMAGE}
+    depends_on:
+      - mongo
     network_mode: "host"
     restart: always
     environment:
@@ -21,10 +23,14 @@ services:
       - METEOR_SETTINGS
   mauka:
     image: ${MAUKA_IMAGE}
+    depends_on:
+      - mongo
     restart: always
     network_mode: "host"
   health:
     image: ${HEALTH_IMAGE}
+    depends_on:
+      - mongo
     restart: always
     network_mode: "host"
     volumes:
