@@ -1,5 +1,5 @@
 [package]
-name = "print_plugin"
+name = "mongo_plugin"
 version = "0.1.0"
 authors = ["Serge <sin8@hawaii.edu>"]
 
@@ -10,7 +10,7 @@ serde_derive = "1.0"
 serde = "1.0"
 
 [lib]
-name = "print_plugin"
+name = "mongo_plugin"
 crate-type = [
     "dylib"
 ]
