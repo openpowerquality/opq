@@ -14,8 +14,14 @@
     {
       "path" : "./libhealth_plugin.so",
       "address" : "localhost:8080"
+    },
+    {
+      "path" : "./libmongo_plugin.so",
+      "host" : "localhost",
+      "port" : 27017,
+      "measurement_expiration_seconds" : 86400,
+      "trends_update_interval_seconds" : 60
     }
-
   ]
 
 }
