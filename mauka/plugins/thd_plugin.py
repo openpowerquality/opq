@@ -7,6 +7,7 @@ import typing
 import numpy
 import scipy.fftpack
 
+import config
 import constants
 import mongo
 import plugins.base_plugin
@@ -99,15 +100,15 @@ class ThdPlugin(plugins.base_plugin.MaukaPlugin):
     """
     NAME = "ThdPlugin"
 
-    def __init__(self, config: typing.Dict, exit_event: multiprocessing.Event):
+    def __init__(self, conf: config.MaukaConfig, exit_event: multiprocessing.Event):
         """
         Initializes this plugin
-        :param config: Mauka configuration
+        :param conf: Mauka configuration
         :param exit_event: Exit event that can disable this plugin from parent process
         """
-        super().__init__(config, ["AdcSamples", "ThdRequestEvent"], ThdPlugin.NAME, exit_event)
-        self.threshold_percent = float(self.config_get("plugins.ThdPlugin.threshold.percent"))
-        self.sliding_window_ms = float(self.config_get("plugins.ThdPlugin.window.size.ms"))
+        super().__init__(conf, ["AdcSamples", "ThdRequestEvent"], ThdPlugin.NAME, exit_event)
+        self.threshold_percent = float(self.config.get("plugins.ThdPlugin.threshold.percent"))
+        self.sliding_window_ms = float(self.config.get("plugins.ThdPlugin.window.size.ms"))
 
     def on_message(self, topic, mauka_message):
         """

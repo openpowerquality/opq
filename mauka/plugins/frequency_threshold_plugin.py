@@ -3,8 +3,8 @@ This module contains the frequency threshold plugin which is responsible for cla
 """
 
 import multiprocessing
-import typing
 
+import config
 import mongo
 import plugins.threshold_plugin
 import protobuf.util
@@ -27,20 +27,20 @@ class FrequencyThresholdPlugin(plugins.threshold_plugin.ThresholdPlugin):
 
     NAME = "FrequencyThresholdPlugin"
 
-    def __init__(self, config: typing.Dict, exit_event: multiprocessing.Event):
+    def __init__(self, conf: config.MaukaConfig, exit_event: multiprocessing.Event):
         """Initializes this plugin
 
-        :param config: Configuration dictionary
+        :param conf: Configuration dictionary
         """
-        super().__init__(config, FrequencyThresholdPlugin.NAME, exit_event)
+        super().__init__(conf, FrequencyThresholdPlugin.NAME, exit_event)
 
-        self.frequency_ref = float(self.config_get("plugins.ThresholdPlugin.frequency.ref"))
+        self.frequency_ref = float(self.config.get("plugins.ThresholdPlugin.frequency.ref"))
         """Reference frequency (steady state)"""
 
-        self.frequency_percent_low = float(self.config_get("plugins.ThresholdPlugin.frequency.threshold.percent.low"))
+        self.frequency_percent_low = float(self.config.get("plugins.ThresholdPlugin.frequency.threshold.percent.low"))
         """Percent below reference that is the low threshold"""
 
-        self.frequency_percent_high = float(self.config_get("plugins.ThresholdPlugin.frequency.threshold.percent.high"))
+        self.frequency_percent_high = float(self.config.get("plugins.ThresholdPlugin.frequency.threshold.percent.high"))
         """Percent above reference that is the high threshold"""
 
         self.subscribe_threshold(extract_frequency, self.frequency_ref, self.frequency_percent_low,

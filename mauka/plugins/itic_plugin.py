@@ -9,6 +9,7 @@ import matplotlib.path
 import numpy
 
 import analysis
+import config
 import mongo
 import plugins.base_plugin
 import protobuf.mauka_pb2
@@ -207,14 +208,14 @@ class IticPlugin(plugins.base_plugin.MaukaPlugin):
     """
     NAME = "IticPlugin"
 
-    def __init__(self, config: typing.Dict, exit_event: multiprocessing.Event):
+    def __init__(self, conf: config.MaukaConfig, exit_event: multiprocessing.Event):
         """
         Initializes this plugin
-        :param config: Configuration dictionary
+        :param conf: Configuration dictionary
         :param exit_event: Exit event
         """
-        super().__init__(config, ["RmsWindowedVoltage"], IticPlugin.NAME, exit_event)
-        self.segment_threshold = self.config["plugins.IticPlugin.segment.threshold.rms"]
+        super().__init__(conf, ["RmsWindowedVoltage"], IticPlugin.NAME, exit_event)
+        self.segment_threshold = self.config.get("plugins.IticPlugin.segment.threshold.rms")
 
     def on_message(self, topic, mauka_message):
         """

@@ -2,7 +2,6 @@
 This plugin detects, classifies, and stores transient incidents.
 Transient are classified using the IEEE 1159 standard
 """
-import typing
 import multiprocessing
 import numpy
 
@@ -10,6 +9,7 @@ from scipy import optimize
 from scipy import stats
 from scipy import signal
 
+import config
 import constants
 import plugins.base_plugin
 import protobuf.mauka_pb2
@@ -395,27 +395,27 @@ class TransientPlugin(plugins.base_plugin.MaukaPlugin):
     Mauka plugin that detects and classifies transients in accordance to the IEEE 1159 standard."""
     NAME = "TransientPlugin"
 
-    def __init__(self, config: typing.Dict, exit_event: multiprocessing.Event):
+    def __init__(self, conf: config.MaukaConfig, exit_event: multiprocessing.Event):
         """
         Initializes this plugin
-        :param config: Mauka configuration
+        :param conf: Mauka configuration
         :param exit_event: Exit event that can disable this plugin from parent process
         """
-        super().__init__(config, ["RawVoltage"], TransientPlugin.NAME, exit_event)
+        super().__init__(conf, ["RawVoltage"], TransientPlugin.NAME, exit_event)
         self.configs = {
-            "noise_floor": float(self.config_get("plugins.TransientPlugin.noise.floor")),
-            "filter_cutoff_frequency": float(self.config_get("plugins.MakaiEventPlugin.cutoffFrequency")),
-            "filter_order": float(self.config_get("plugins.MakaiEventPlugin.filterOrder")),
-            "oscillatory_min_cycles": int(self.config_get("plugins.TransientPlugin.oscillatory.min.cycles")),
-            "oscillatory_low_freq_max": float(self.config_get("plugins.TransientPlugin.oscillatory.low.freq.max.hz")),
-            "oscillatory_med_freq_max": float(self.config_get("plugins.TransientPlugin.oscillatory.med.freq.max.hz")),
-            "oscillatory_high_freq_max": float(self.config_get("plugins.TransientPlugin.oscillatory.high.freq.max.hz")),
-            "arc_zero_xing_threshold": int(self.config_get("plugins.TransientPlugin.arcing.zero.crossing.threshold")),
-            "max_lull_ms": float(self.config_get("plugins.TransientPlugin.max.lull.ms")),
-            "max_std_periodic_notching": float(self.config_get(
+            "noise_floor": float(self.config.get("plugins.TransientPlugin.noise.floor")),
+            "filter_cutoff_frequency": float(self.config.get("plugins.MakaiEventPlugin.cutoffFrequency")),
+            "filter_order": float(self.config.get("plugins.MakaiEventPlugin.filterOrder")),
+            "oscillatory_min_cycles": int(self.config.get("plugins.TransientPlugin.oscillatory.min.cycles")),
+            "oscillatory_low_freq_max": float(self.config.get("plugins.TransientPlugin.oscillatory.low.freq.max.hz")),
+            "oscillatory_med_freq_max": float(self.config.get("plugins.TransientPlugin.oscillatory.med.freq.max.hz")),
+            "oscillatory_high_freq_max": float(self.config.get("plugins.TransientPlugin.oscillatory.high.freq.max.hz")),
+            "arc_zero_xing_threshold": int(self.config.get("plugins.TransientPlugin.arcing.zero.crossing.threshold")),
+            "max_lull_ms": float(self.config.get("plugins.TransientPlugin.max.lull.ms")),
+            "max_std_periodic_notching": float(self.config.get(
                 "plugins.TransientPlugin.max.periodic.notching.std.dev")),
             "auto_corr_thresh_periodicity": float(
-                self.config_get("plugins.TransientPlugin.auto.corr.thresh.periodicity"))
+                self.config.get("plugins.TransientPlugin.auto.corr.thresh.periodicity"))
             }
 
     def on_message(self, topic, mauka_message):

@@ -4,13 +4,12 @@
 This module allows us to mock and inject any (topic, message) pair into the Mauka system.
 """
 
-import json
 import sys
 import time
-import typing
 
 import zmq
 
+import config
 import log
 
 
@@ -45,26 +44,13 @@ def main():
     Entry point when called as a script.
     """
 
-    def load_config(path: str) -> typing.Dict:
-        """Loads a configuration file from the file system
-
-        :param path: Path of configuration file
-        :return: Configuration dictionary
-        """
-        try:
-            with open(path, "r") as config_file:
-                return json.load(config_file)
-        except FileNotFoundError:
-            logger.error("usage: ./mock_plugin.py config topic message")
-            exit(0)
-
     if len(sys.argv) != 4:
         sys.exit("usage: ./mock_plugin.py config topic message")
 
-    config = load_config(sys.argv[1])
+    conf = config.from_file(sys.argv[1])
     topic = sys.argv[2]
     message = sys.argv[3]
-    broker = config["zmq.mauka.plugin.pub.interface"]
+    broker = conf.get("zmq.mauka.plugin.pub.interface")
     produce(broker, topic, message)
 
 

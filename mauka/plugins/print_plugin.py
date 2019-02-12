@@ -3,8 +3,8 @@ This module contains a plugin that prints every message
 """
 
 import multiprocessing
-import typing
 
+import config
 import plugins.base_plugin
 
 
@@ -15,12 +15,12 @@ class PrintPlugin(plugins.base_plugin.MaukaPlugin):
 
     NAME = "PrintPlugin"
 
-    def __init__(self, config: typing.Dict, exit_event: multiprocessing.Event):
+    def __init__(self, conf: config.MaukaConfig, exit_event: multiprocessing.Event):
         """ Initializes this plugin
 
-        :param config: Configuration dictionary
+        :param conf: Configuration dictionary
         """
-        super().__init__(config, [""], PrintPlugin.NAME, exit_event)
+        super().__init__(conf, [""], PrintPlugin.NAME, exit_event)
 
     def on_message(self, topic, mauka_message):
         """Subscribed messages occur async

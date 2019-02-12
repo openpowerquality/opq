@@ -9,6 +9,7 @@ import typing
 
 import zmq
 
+import config
 import plugins.base_plugin
 import protobuf.opq_pb2
 import protobuf.util
@@ -24,12 +25,12 @@ class AcquisitionTriggerPlugin(plugins.base_plugin.MaukaPlugin):
 
     NAME = "AcquisitionTriggerPlugin"
 
-    def __init__(self, config: typing.Dict, exit_event: multiprocessing.Event):
+    def __init__(self, conf: config.MaukaConfig, exit_event: multiprocessing.Event):
         """ Initializes this plugin
 
-        :param config: Configuration dictionary
+        :param conf: Configuration dictionary
         """
-        super().__init__(config, ["VoltageEvent", "FrequencyEvent", "OtherEvent"], AcquisitionTriggerPlugin.NAME,
+        super().__init__(conf, ["VoltageEvent", "FrequencyEvent", "OtherEvent"], AcquisitionTriggerPlugin.NAME,
                          exit_event)
 
         self.zmq_req_ctx = zmq.Context()
@@ -40,13 +41,13 @@ class AcquisitionTriggerPlugin(plugins.base_plugin.MaukaPlugin):
         self.push_socket = self.zmq_req_ctx.socket(zmq.PUSH)
         """ZeroMQ request socket"""
 
-        self.ms_before = int(self.config_get("plugins.AcquisitionTriggerPlugin.msBefore"))
+        self.ms_before = int(self.config.get("plugins.AcquisitionTriggerPlugin.msBefore"))
         """Number of ms before an event that we should also request data"""
 
-        self.ms_after = int(self.config_get("plugins.AcquisitionTriggerPlugin.msAfter"))
+        self.ms_after = int(self.config.get("plugins.AcquisitionTriggerPlugin.msAfter"))
         """Number of ms after an event that we should also request data"""
 
-        self.s_dead_zone = int(self.config_get("plugins.AcquisitionTriggerPlugin.sDeadZoneAfterTrigger"))
+        self.s_dead_zone = int(self.config.get("plugins.AcquisitionTriggerPlugin.sDeadZoneAfterTrigger"))
         """Number of seconds of deadzone that we should not request raw data after just requesting data"""
 
         self.event_type_to_last_timestamp = {}
@@ -55,7 +56,7 @@ class AcquisitionTriggerPlugin(plugins.base_plugin.MaukaPlugin):
         self.event_type_to_last_event = {}
         """Store event types to the last event of that type"""
 
-        self.push_socket.connect(self.config_get("zmq.makai.push.interface"))
+        self.push_socket.connect(self.config.get("zmq.makai.push.interface"))
 
     def request_event_message(self, start_ms: int, end_ms: int, trigger_type: str, percent_magnitude: float,
                               box_ids: typing.List[int], requestee: str, description: str, request_data: bool):

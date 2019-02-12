@@ -14,6 +14,7 @@ import bson
 import bson.objectid
 import zmq
 
+import config
 import log
 import mongo
 import protobuf.mauka_pb2
@@ -23,16 +24,16 @@ import protobuf.util
 logger = log.get_logger(__name__)
 
 
-def run_plugin(plugin_class, config: typing.Dict):
+def run_plugin(plugin_class, conf: config.MaukaConfig):
     """Runs the given plugin using the given configuration dictionary
 
     :param plugin_class: Name of the class of the plugin to be ran
-    :param config: Configuration dictionary
+    :param conf: Configuration dictionary
     """
 
     def _run_plugin():
         """Inner function that acts as target to multiprocess constructor"""
-        plugin_instance = plugin_class(config)
+        plugin_instance = plugin_class(conf)
         plugin_instance.run_plugin()
 
     process = multiprocessing.Process(target=_run_plugin)
@@ -84,16 +85,16 @@ class MaukaPlugin:
 
     NAME = "MaukaPlugin"
 
-    def __init__(self, config: typing.Dict, subscriptions: typing.List[str], name: str,
+    def __init__(self, conf: config.MaukaConfig, subscriptions: typing.List[str], name: str,
                  exit_event: multiprocessing.Event):
         """ Initializes the base plugin
 
-        :param config: Configuration dictionary
+        :param conf: Configuration dictionary
         :param subscriptions: List of subscriptions this plugin should subscribe to
         :param name: The name of this plugin
         """
 
-        self.config = config
+        self.config = conf
         """Configuration dictionary"""
 
         self.subscriptions = subscriptions
@@ -121,7 +122,7 @@ class MaukaPlugin:
         self.zmq_producer = self.zmq_context.socket(zmq.PUB)
         """ZeroMQ producer"""
 
-        self.heartbeat_interval_s = float(self.config_get("plugins.base.heartbeatIntervalS"))
+        self.heartbeat_interval_s = float(self.config.get("plugins.base.heartbeatIntervalS"))
         """How often in seconds this plugin should produce a heartbeat"""
 
         self.on_message_cnt = 0
@@ -136,13 +137,13 @@ class MaukaPlugin:
         self.producer_lock = multiprocessing.Lock()
         """Lock that ensures the base plugin is thread safe while producing messages"""
 
-        self.zmq_consumer.connect(self.config_get("zmq.mauka.plugin.sub.interface"))
-        self.zmq_producer.connect(self.config_get("zmq.mauka.plugin.pub.interface"))
+        self.zmq_consumer.connect(self.config.get("zmq.mauka.plugin.sub.interface"))
+        self.zmq_producer.connect(self.config.get("zmq.mauka.plugin.pub.interface"))
 
         # Every plugin subscribes to itself to allow for plugin control
         self.subscriptions.append(name)
 
-        self.mauka_debug = self.config["mauka.debug"]
+        self.mauka_debug = self.config.get("mauka.debug")
 
     # pylint: disable=R0201
     def get_status(self) -> str:
@@ -156,9 +157,9 @@ class MaukaPlugin:
 
         :return: An OPQ mongo client
         """
-        mongo_host = self.config_get("mongo.host")
-        mongo_port = self.config_get("mongo.port")
-        mongo_db = self.config_get("mongo.db")
+        mongo_host = self.config.get("mongo.host")
+        mongo_port = self.config.get("mongo.port")
+        mongo_db = self.config.get("mongo.db")
         return mongo.OpqMongoClient(mongo_host, mongo_port, mongo_db)
 
     def start_heartbeat(self):
@@ -184,18 +185,6 @@ class MaukaPlugin:
             timer.start()
 
         threading.Timer(start_after_seconds, heartbeat).start()
-
-    def config_get(self, key: str) -> str:
-        """Retrieves a value from the configuration dictionary
-
-        :param key: The key associated with the value we're looking to retrieve
-        :return: The value associated with the provided key
-        :raises KeyError: When key is not in the configuration
-        """
-        if key not in self.config:
-            raise KeyError("Key {} not in config".format(key))
-        else:
-            return self.config[key]
 
     # pylint: disable=W0613
     # pylint: disable=R0201

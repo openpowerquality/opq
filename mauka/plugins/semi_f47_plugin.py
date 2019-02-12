@@ -4,6 +4,7 @@ This module contains the plugin definition for classifying voltage incidents by 
 
 import numpy
 
+import config
 import plugins.base_plugin
 import protobuf.util
 import protobuf.mauka_pb2
@@ -93,8 +94,8 @@ class SemiF47Plugin(plugins.base_plugin.MaukaPlugin):
     This plugin subscribes to RMS windowed voltage and classifies Semi F47 violations.
     """
 
-    def __init__(self, config, exit_event):
-        super().__init__(config, ["RmsWindowedVoltage"], "SemiF47Plugin", exit_event)
+    def __init__(self, conf: config.MaukaConfig, exit_event):
+        super().__init__(conf, ["RmsWindowedVoltage"], "SemiF47Plugin", exit_event)
 
     def on_message(self, topic, mauka_message):
         if protobuf.util.is_payload(mauka_message, protobuf.mauka_pb2.VOLTAGE_RMS_WINDOWED):

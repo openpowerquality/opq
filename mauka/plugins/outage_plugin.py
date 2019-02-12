@@ -2,8 +2,8 @@
 
 import datetime
 import multiprocessing
-import typing
 
+import config
 import mongo
 import protobuf.mauka_pb2
 import protobuf.util
@@ -43,9 +43,9 @@ class OutagePlugin(MaukaPlugin):
     """This plugin identifies power outages by keeping track of the health collection for box status."""
     NAME = "OutagePlugin"
 
-    def __init__(self, config: typing.Dict,
+    def __init__(self, conf: config.MaukaConfig,
                  exit_event: multiprocessing.Event):
-        super().__init__(config, ["heartbeat"], OutagePlugin.NAME, exit_event)
+        super().__init__(conf, ["heartbeat"], OutagePlugin.NAME, exit_event)
         self.last_update = datetime.datetime.utcnow()
         self.prev_incident_ids = {}
 
