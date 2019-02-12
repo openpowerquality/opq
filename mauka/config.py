@@ -27,11 +27,14 @@ class MaukaConfig:
         """
         replacement_dict = {}
         for key, value in config_dict.items():
-            if type(value) == str and value.startswith("?"):
+            if type(value) == str and (value.startswith("?") or value.startswith("!")):
                 env_name = value[:1]
                 replacement = os.getenv(env_name)
                 if replacement is None:
                     raise RuntimeError("Environment variable with name %s was not found in the environment." % env_name)
+
+                if value.startswith("!"):
+                    replacement = int(replacement)
 
                 replacement_dict[key] = replacement
             else:
