@@ -3,8 +3,8 @@ This module contains the voltage threshold plugin which is responsible for class
 """
 
 import multiprocessing
-import typing
 
+import config
 import mongo
 import plugins.threshold_plugin
 import protobuf.util
@@ -27,20 +27,20 @@ class VoltageThresholdPlugin(plugins.threshold_plugin.ThresholdPlugin):
 
     NAME = "VoltageThresholdPlugin"
 
-    def __init__(self, config: typing.Dict, exit_event: multiprocessing.Event):
+    def __init__(self, conf: config.MaukaConfig, exit_event: multiprocessing.Event):
         """Initializes this plugin
 
-        :param config: Configuration dictionary
+        :param conf: Configuration dictionary
         """
-        super().__init__(config, VoltageThresholdPlugin.NAME, exit_event)
+        super().__init__(conf, VoltageThresholdPlugin.NAME, exit_event)
 
-        self.voltage_ref = float(self.config_get("plugins.ThresholdPlugin.voltage.ref"))
+        self.voltage_ref = float(self.config.get("plugins.ThresholdPlugin.voltage.ref"))
         """Reference frequency (steady state)"""
 
-        self.voltage_percent_low = float(self.config_get("plugins.ThresholdPlugin.voltage.threshold.percent.low"))
+        self.voltage_percent_low = float(self.config.get("plugins.ThresholdPlugin.voltage.threshold.percent.low"))
         """Percent below reference that is the low threshold"""
 
-        self.voltage_percent_high = float(self.config_get("plugins.ThresholdPlugin.voltage.threshold.percent.high"))
+        self.voltage_percent_high = float(self.config.get("plugins.ThresholdPlugin.voltage.threshold.percent.high"))
         """Percent above reference that is the high threshold"""
 
         self.subscribe_threshold(extract_voltage, self.voltage_ref, self.voltage_percent_low, self.voltage_percent_high)

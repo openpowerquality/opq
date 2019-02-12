@@ -12,6 +12,7 @@ import numpy
 from scipy import optimize
 from scipy import signal
 
+import config
 import constants
 import mongo
 import plugins.base_plugin
@@ -22,7 +23,6 @@ import plugins.semi_f47_plugin
 import plugins.thd_plugin
 import protobuf.mauka_pb2
 import protobuf.util
-import opq_mauka
 
 
 def smooth_waveform(sample: numpy.ndarray, filter_order: int = 2, cutoff_frequency: float = 500.0,
@@ -228,14 +228,14 @@ class MakaiEventPlugin(plugins.base_plugin.MaukaPlugin):
     """
     NAME = "MakaiEventPlugin"
 
-    def __init__(self, config: typing.Dict, exit_event: multiprocessing.Event):
-        super().__init__(config, ["MakaiEvent"], MakaiEventPlugin.NAME, exit_event)
+    def __init__(self, conf: config.MaukaConfig, exit_event: multiprocessing.Event):
+        super().__init__(conf, ["MakaiEvent"], MakaiEventPlugin.NAME, exit_event)
         self.get_data_after_s = float(self.config["plugins.MakaiEventPlugin.getDataAfterS"])
-        self.filter_order = int(self.config_get("plugins.MakaiEventPlugin.filterOrder"))
-        self.cutoff_frequency = float(self.config_get("plugins.MakaiEventPlugin.cutoffFrequency"))
-        self.samples_per_window = int(constants.SAMPLES_PER_CYCLE) * int(self.config_get(
+        self.filter_order = int(self.config.get("plugins.MakaiEventPlugin.filterOrder"))
+        self.cutoff_frequency = float(self.config.get("plugins.MakaiEventPlugin.cutoffFrequency"))
+        self.samples_per_window = int(constants.SAMPLES_PER_CYCLE) * int(self.config.get(
             "plugins.MakaiEventPlugin.frequencyWindowCycles"))
-        self.down_sample_factor = int(self.config_get("plugins.MakaiEventPlugin.frequencyDownSampleRate"))
+        self.down_sample_factor = int(self.config.get("plugins.MakaiEventPlugin.frequencyDownSampleRate"))
 
     def acquire_and_produce(self, event_id: int):
         """
@@ -278,12 +278,12 @@ def rerun(event_id: int):
     """
     client = mongo.get_default_client()
     logger = logging.getLogger()
-    config = opq_mauka.load_config("./config.json")
-    filter_order = int(config["plugins.MakaiEventPlugin.filterOrder"])
-    cutoff_frequency = float(config["plugins.MakaiEventPlugin.cutoffFrequency"])
+    conf = config.from_file("./config.json")
+    filter_order = int(conf.get("plugins.MakaiEventPlugin.filterOrder"))
+    cutoff_frequency = float(conf.get("plugins.MakaiEventPlugin.cutoffFrequency"))
     samples_per_window = int(constants.SAMPLES_PER_CYCLE) * int(
-        config["plugins.MakaiEventPlugin.frequencyWindowCycles"])
-    down_sample_factor = int(config["plugins.MakaiEventPlugin.frequencyDownSampleRate"])
+        conf.get("plugins.MakaiEventPlugin.frequencyWindowCycles"))
+    down_sample_factor = int(conf.get("plugins.MakaiEventPlugin.frequencyDownSampleRate"))
     try:
         box_events = client.box_events_collection.find({"event_id": event_id})
         for box_event in box_events:

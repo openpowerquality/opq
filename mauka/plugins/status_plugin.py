@@ -7,8 +7,8 @@ import http.server
 import multiprocessing
 import threading
 import time
-import typing
 
+import config
 import plugins.base_plugin
 import protobuf.util
 
@@ -88,13 +88,13 @@ class StatusPlugin(plugins.base_plugin.MaukaPlugin):
 
     NAME = "StatusPlugin"
 
-    def __init__(self, config: typing.Dict, exit_event: multiprocessing.Event):
+    def __init__(self, conf: config.MaukaConfig, exit_event: multiprocessing.Event):
         """ Initializes this plugin
 
-        :param config: Configuration dictionary
+        :param conf: Configuration dictionary
         """
-        super().__init__(config, ["heartbeat"], StatusPlugin.NAME, exit_event)
-        health_porth = int(config["plugins.StatusPlugin.port"])
+        super().__init__(conf, ["heartbeat"], StatusPlugin.NAME, exit_event)
+        health_porth = int(conf.get("plugins.StatusPlugin.port"))
         self.httpd_thread = threading.Thread(target=start_health_sate_httpd_server, args=(health_porth,))
         self.httpd_thread.start()
 

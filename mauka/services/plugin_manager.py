@@ -14,6 +14,7 @@ import typing
 
 import zmq
 
+import config
 import log
 
 # pylint: disable=C0103
@@ -160,13 +161,13 @@ class PluginManager:
     This class provides facilities for managing (stopping, starting, loading, reloading) plugin subprocesses.
     """
 
-    def __init__(self, mauka_config: typing.Dict):
+    def __init__(self, mauka_config: config.MaukaConfig):
         """Initializes the plugin manager
 
         :param mauka_config: Configuration dictionary
 
         """
-        self.config = mauka_config
+        self.config: config.MaukaConfig = mauka_config
         """Configuration dictionary"""
 
         self.name_to_plugin_class = {}
@@ -193,7 +194,7 @@ class PluginManager:
 
         self.tcp_server_exit_event = multiprocessing.Event()
 
-        self.zmq_pub_socket.connect(self.config["zmq.mauka.plugin.pub.interface"])
+        self.zmq_pub_socket.connect(self.config.get("zmq.mauka.plugin.pub.interface"))
         self.init_cli()
 
     def init_cli(self):
@@ -323,7 +324,7 @@ class PluginManager:
             logger.info("Starting plugin manager TCP server")
             zmq_context = zmq.Context()
             zmq_reply_socket = zmq_context.socket(zmq.REP)
-            zmq_reply_socket.bind(self.config["zmq.mauka.plugin.management.rep.interface"])
+            zmq_reply_socket.bind(self.config.get("zmq.mauka.plugin.management.rep.interface"))
             zmq_reply_socket.setsockopt(zmq.RCVTIMEO, 1)
 
             while not self.tcp_server_exit_event.is_set():
@@ -426,7 +427,7 @@ class PluginManager:
             return error("Path {} DNE".format(path))
 
         try:
-            self.config = load_config(path)
+            self.config = config.from_file(path)
             return ok("Configuration loaded from {}".format(path))
         except FileNotFoundError as err:
             return error("Could not load file: {}".format(err))
@@ -587,7 +588,7 @@ def make_completer(vocabulary):
     return custom_complete
 
 
-def run_cli(cli_config: typing.Dict):
+def run_cli(cli_config: config.MaukaConfig):
     """Starts the REPL and sends commands to the plugin manager over TCP using ZMQ
 
     :param cli_config: Configuration dictionary
@@ -596,7 +597,7 @@ def run_cli(cli_config: typing.Dict):
     # noinspection PyUnresolvedReferences
     # pylint: disable=E1101
     zmq_request_socket = zmq_context.socket(zmq.REQ)
-    zmq_request_socket.connect(cli_config["zmq.mauka.plugin.management.req.interface"])
+    zmq_request_socket.connect(cli_config.get("zmq.mauka.plugin.management.req.interface"))
     prompt = "opq-mauka> "
 
     try:
@@ -627,22 +628,6 @@ def run_cli(cli_config: typing.Dict):
         sys.exit(0)
 
 
-def load_config(path: str) -> typing.Dict:
-    """Loads a configuration file from the file system
-
-    :param path: Path of configuration file
-    :return: Configuration dictionary
-    """
-    logger.info("Loading configuration from %s", path)
-    try:
-        with open(path, "r") as config_file:
-            return json.load(config_file)
-    except FileNotFoundError as err:
-        logger.error(err)
-        logger.error("usage: python3 -m plugins.manager config.json")
-        exit(0)
-
-
 if __name__ == "__main__":
     # Entry point to plugin manager repl/cli
     logger.info("Starting OpqMauka CLI")
@@ -652,5 +637,5 @@ if __name__ == "__main__":
         exit(0)
 
     config_path = sys.argv[1]
-    config = load_config(config_path)
+    config = config.from_file(config_path)
     run_cli(config)

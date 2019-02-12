@@ -6,6 +6,7 @@ import collections
 import multiprocessing
 import typing
 
+import config
 import mongo
 import plugins.base_plugin
 import protobuf.util
@@ -25,13 +26,13 @@ class ThresholdPlugin(plugins.base_plugin.MaukaPlugin):
 
     NAME = "ThresholdPlugin"
 
-    def __init__(self, config: typing.Dict, name: str, exit_event: multiprocessing.Event):
+    def __init__(self, conf: config.MaukaConfig, name: str, exit_event: multiprocessing.Event):
         """ Initializes this plugin
 
-        :param config: Configuration dictionary
+        :param conf: Configuration dictionary
         :param name: Name of the threshold
         """
-        super().__init__(config, ["measurement"], name, exit_event)
+        super().__init__(conf, ["measurement"], name, exit_event)
 
         self.measurement_value_fn = None
         """Function that extracts measurement value from triggering measurement"""

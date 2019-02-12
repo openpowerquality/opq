@@ -4,11 +4,10 @@
 This module is the entry point into the OPQ Mauka system.
 """
 
-import json
 import signal
 import sys
-import typing
 
+import config
 import log
 import plugins.acquisition_trigger_plugin
 import plugins.frequency_threshold_plugin
@@ -34,21 +33,6 @@ def usage():
     logger.info("Usage: ./opq_mauka.py [config file]")
 
 
-def load_config(path: str) -> typing.Dict:
-    """Loads a configuration file from the file system
-
-    :param path: Path of configuration file
-    :return: Configuration dictionary
-    """
-    try:
-        with open(path, "r") as config_file:
-            return json.load(config_file)
-    except FileNotFoundError as error:
-        logger.error(error)
-        usage()
-        exit(0)
-
-
 def main():
     """
     Entry point to OPQ Mauka.
@@ -59,9 +43,9 @@ def main():
         usage()
         exit(0)
 
-    config = load_config(sys.argv[1])
+    conf = config.from_file(sys.argv[1])
 
-    plugin_manager = services.plugin_manager.PluginManager(config)
+    plugin_manager = services.plugin_manager.PluginManager(conf)
     plugin_manager.register_plugin(plugins.frequency_threshold_plugin.FrequencyThresholdPlugin)
     plugin_manager.register_plugin(plugins.voltage_threshold_plugin.VoltageThresholdPlugin)
     plugin_manager.register_plugin(plugins.acquisition_trigger_plugin.AcquisitionTriggerPlugin)
@@ -75,9 +59,9 @@ def main():
     plugin_manager.register_plugin(plugins.semi_f47_plugin.SemiF47Plugin)
     plugin_manager.register_plugin(plugins.outage_plugin.OutagePlugin)
 
-    broker_process = services.brokers.start_mauka_pub_sub_broker(config)
-    makai_bridge_process = services.brokers.start_makai_bridge(config)
-    makai_bridge_event_process = services.brokers.start_makai_event_bridge(config)
+    broker_process = services.brokers.start_mauka_pub_sub_broker(conf)
+    makai_bridge_process = services.brokers.start_makai_bridge(conf)
+    makai_bridge_event_process = services.brokers.start_makai_event_bridge(conf)
 
     # start-stop-daemon sends a SIGTERM, we need to handle it to gracefully shutdown mauka
     def sigterm_handler(signum, frame):

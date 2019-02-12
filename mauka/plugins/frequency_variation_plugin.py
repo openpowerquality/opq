@@ -2,9 +2,11 @@
 This plugin detects, classifies, and stores frequency variation incidents.
 Frequency variations are classified as +/-0.10hz as specified by IEEE standards
 """
-import typing
 import multiprocessing
+
 import numpy
+
+import config
 import constants
 import plugins.base_plugin
 import protobuf.mauka_pb2
@@ -132,20 +134,20 @@ class FrequencyVariationPlugin(plugins.base_plugin.MaukaPlugin):
     """
     NAME = "FrequencyVariationPlugin"
 
-    def __init__(self, config: typing.Dict, exit_event: multiprocessing.Event):
+    def __init__(self, conf: config.MaukaConfig, exit_event: multiprocessing.Event):
         """
         Initializes this plugin
-        :param config: Mauka configuration
+        :param conf: Mauka configuration
         :param exit_event: Exit event that can disable this plugin from parent process
         """
-        super().__init__(config, ["WindowedFrequency"], FrequencyVariationPlugin.NAME, exit_event)
-        self.freq_ref = float(self.config_get("plugins.FrequencyVariationPlugin.frequency.ref"))
-        self.freq_var_low = float(self.config_get("plugins.FrequencyVariationPlugin.frequency.variation.threshold.low"))
-        self.freq_var_high = float(self.config_get(
+        super().__init__(conf, ["WindowedFrequency"], FrequencyVariationPlugin.NAME, exit_event)
+        self.freq_ref = float(self.config.get("plugins.FrequencyVariationPlugin.frequency.ref"))
+        self.freq_var_low = float(self.config.get("plugins.FrequencyVariationPlugin.frequency.variation.threshold.low"))
+        self.freq_var_high = float(self.config.get(
             "plugins.FrequencyVariationPlugin.frequency.variation.threshold.high"))
-        self.freq_interruption = float(self.config_get("plugins.FrequencyVariationPlugin.frequency.interruption"))
-        self.frequency_window_cycles = int(self.config_get("plugins.MakaiEventPlugin.frequencyWindowCycles"))
-        self.max_lull = int(self.config_get("plugins.FrequencyVariationPlugin.max.lull.windows"))
+        self.freq_interruption = float(self.config.get("plugins.FrequencyVariationPlugin.frequency.interruption"))
+        self.frequency_window_cycles = int(self.config.get("plugins.MakaiEventPlugin.frequencyWindowCycles"))
+        self.max_lull = int(self.config.get("plugins.FrequencyVariationPlugin.max.lull.windows"))
 
     def on_message(self, topic, mauka_message):
         """

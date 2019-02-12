@@ -10,7 +10,12 @@
     {
       "path" : "./libprint_plugin.so",
       "print" : true
+    },
+    {
+      "path" : "./libhealth_plugin.so",
+      "address" : "localhost:8080"
     }
+
   ]
 
 }
