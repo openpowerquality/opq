@@ -7,15 +7,16 @@ services:
     expose:
       - "${MONGO_PORT}"
     ports:
-      - "${MONGO_PORT}:${MONGO_PORT}"
+      - "127.0.0.1:${MONGO_PORT}:${MONGO_PORT}"
     volumes:
       - "${MONGO_VOLUME}:/data/db"
   view:
     image: ${VIEW_IMAGE}
     depends_on:
       - mongo
-    network_mode: "host"
     restart: always
+    ports:
+      - "127.0.0.1:${VIEW_PORT}:${VIEW_PORT}"
     environment:
       - MONGO_URL=${VIEW_MONGO_URL}
       - ROOT_URL=${VIEW_ROOT_URL}
