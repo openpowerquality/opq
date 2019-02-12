@@ -8,8 +8,18 @@
   "event_request_expiration_window_ms" : 1800000,
   "plugins" : [
     {
-      "path" : "./libprint_plugin.so",
+      "path" : "./libprint_plugin.d",
       "print" : true
+    },
+    {
+      "path" : "./libthreshold_trigger.plugin.d",
+      "reference_frequency": 60.0,
+      "frequency_threshold_percent_low": 0.5,
+      "frequency_threshold_percent_high": 0.5,
+      "reference_voltage": 120.0,
+      "voltage_threshold_percent_low": 5.0,
+      "voltage_threshold_percent_high": 5.0,
+      "thd_threshold_high": 5.0
     }
   ]
 
