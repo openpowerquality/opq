@@ -15,14 +15,13 @@ use triggering_service::proto::opqbox3::Command;
 use triggering_service::proto::opqbox3::GetDataCommand;
 use triggering_service::proto::opqbox3::Measurement;
 
-
 fn timestamp_ms() -> u64 {
     let start = SystemTime::now();
-    let since_the_epoch = start.duration_since(UNIX_EPOCH)
+    let since_the_epoch = start
+        .duration_since(UNIX_EPOCH)
         .expect("Time went backwards");
-    return
-        (since_the_epoch.as_secs() as u128 * 1000
-            + since_the_epoch.subsec_millis() as u128) as u64;
+    return (since_the_epoch.as_secs() as u128 * 1000 + since_the_epoch.subsec_millis() as u128)
+        as u64;
 }
 
 type StateMap = HashMap<StateKey, StateEntry>;
@@ -38,7 +37,7 @@ pub struct StateEntry {
     prev_state: State,
     prev_state_timestamp_ms: u64,
     latest_state: State,
-    latest_state_timestamp_ms: u64
+    latest_state_timestamp_ms: u64,
 }
 
 impl StateEntry {
@@ -48,7 +47,7 @@ impl StateEntry {
             prev_state: state.clone(),
             prev_state_timestamp_ms: timestamp,
             latest_state: state.clone(),
-            latest_state_timestamp_ms: timestamp
+            latest_state_timestamp_ms: timestamp,
         }
     }
 
@@ -64,7 +63,7 @@ impl StateEntry {
 pub struct Trigger {
     box_id: u32,
     start_timestamp_ms: u64,
-    end_timestamp_ms: u64
+    end_timestamp_ms: u64,
 }
 
 impl Trigger {
@@ -72,7 +71,7 @@ impl Trigger {
         Trigger {
             box_id,
             start_timestamp_ms: state_entry.prev_state_timestamp_ms,
-            end_timestamp_ms: state_entry.latest_state_timestamp_ms
+            end_timestamp_ms: state_entry.latest_state_timestamp_ms,
         }
     }
 }
@@ -81,20 +80,20 @@ impl Trigger {
 enum TriggerType {
     Frequency,
     Thd,
-    Voltage
+    Voltage,
 }
 
 #[derive(Debug, Hash, Eq, Clone)]
 pub struct StateKey {
     box_id: u32,
-    trigger_type: TriggerType
+    trigger_type: TriggerType,
 }
 
 impl StateKey {
     fn from(box_id: u32, trigger_type: TriggerType) -> StateKey {
         StateKey {
             box_id,
-            trigger_type
+            trigger_type,
         }
     }
 }
@@ -107,32 +106,34 @@ impl PartialEq for StateKey {
 
 #[derive(Debug, Default)]
 pub struct Fsm {
-    state_map: StateMap
+    state_map: StateMap,
 }
 
 impl Fsm {
     pub fn new() -> Fsm {
         Fsm {
-            state_map: HashMap::new()
+            state_map: HashMap::new(),
         }
     }
 
-    pub fn update(&mut self, state_key: StateKey,  new_state: State) {
-        self.state_map.entry(state_key)
+    pub fn update(&mut self, state_key: StateKey, new_state: State) {
+        self.state_map
+            .entry(state_key)
             .and_modify(|state_entry| state_entry.mutable_update(new_state))
             .or_insert(StateEntry::new(new_state));
     }
 
-    pub fn is_triggering(&self, state_key: StateKey) -> Option<Trigger> {
-        match self.state_map.get(&state_key) {
+    pub fn is_triggering(&self, state_key: &StateKey) -> Option<Trigger> {
+        match self.state_map.get(state_key) {
             Some(state_entry) => {
-                if state_entry.prev_state == State::Triggering &&
-                    state_entry.latest_state == State::Nominal {
+                if state_entry.prev_state == State::Triggering
+                    && state_entry.latest_state == State::Nominal
+                {
                     return Some(Trigger::from(state_key.box_id, state_entry));
                 }
                 None
-            },
-            _ => None
+            }
+            _ => None,
         }
     }
 }
@@ -159,7 +160,7 @@ pub struct ThresholdTriggerPlugin {
     voltage_threshold_high: f32,
     thd_threshold_high: f32,
 
-    fsm: Fsm
+    fsm: Fsm,
 }
 
 impl ThresholdTriggerPlugin {
@@ -171,46 +172,66 @@ impl ThresholdTriggerPlugin {
             voltage_threshold_low: 0.0,
             voltage_threshold_high: 0.0,
             thd_threshold_high: 0.0,
-            fsm: Fsm::new()
+            fsm: Fsm::new(),
         }
     }
 
-    fn check_metric(&mut self,
-                    measurement: &Arc<Measurement>,
-                    metric: &str,
-                    trigger_type: TriggerType,
-                    threshold_low: f32,
-                    threshold_high: f32) -> Option<Trigger> {
+    fn check_metric(
+        &mut self,
+        measurement: &Arc<Measurement>,
+        metric: &str,
+        trigger_type: TriggerType,
+        threshold_low: f32,
+        threshold_high: f32,
+    ) -> Option<Trigger> {
         let state_key = StateKey::from(measurement.box_id, trigger_type);
         match measurement.metrics.get(metric) {
-            None => {return None},
+            None => return None,
             Some(metric) => {
                 if metric.min < threshold_low || metric.max > threshold_high {
                     self.fsm.update(state_key.clone(), State::Triggering)
                 } else {
                     self.fsm.update(state_key.clone(), State::Nominal)
                 }
-            },
+            }
         }
-        self.fsm.is_triggering(state_key.clone())
+        self.fsm.is_triggering(&state_key)
     }
 
-    fn check_frequency(&mut self, measurement: &Arc<Measurement>) -> Option<Trigger>{
+    fn check_frequency(&mut self, measurement: &Arc<Measurement>) -> Option<Trigger> {
         let threshold_low = self.frequency_threshold_low;
         let threshold_high = self.frequency_threshold_high;
-        self.check_metric(measurement, "f", TriggerType::Frequency, threshold_low, threshold_high)
+        self.check_metric(
+            measurement,
+            "f",
+            TriggerType::Frequency,
+            threshold_low,
+            threshold_high,
+        )
     }
 
-    fn check_voltage(&mut self, measurement: &Arc<Measurement>) -> Option<Trigger>{
+    fn check_voltage(&mut self, measurement: &Arc<Measurement>) -> Option<Trigger> {
         let threshold_low = self.voltage_threshold_low;
         let threshold_high = self.voltage_threshold_high;
-        self.check_metric(measurement, "rms", TriggerType::Voltage, threshold_low, threshold_high)
+        self.check_metric(
+            measurement,
+            "rms",
+            TriggerType::Voltage,
+            threshold_low,
+            threshold_high,
+        )
     }
 
-    fn check_thd(&mut self, measurement: &Arc<Measurement>) -> Option<Trigger>{
+    fn check_thd(&mut self, measurement: &Arc<Measurement>) -> Option<Trigger> {
         let threshold_low = -1.0;
         let threshold_high = self.thd_threshold_high;
-        self.check_metric(measurement, "thd", TriggerType::Thd, threshold_low, threshold_high)
+        self.check_metric(
+            measurement,
+            "thd",
+            TriggerType::Thd,
+            threshold_low,
+            threshold_high,
+        )
     }
 
     fn trigger_cmd(&self, trigger: &Trigger) -> Command {
@@ -237,24 +258,24 @@ impl MakaiPlugin for ThresholdTriggerPlugin {
         let mut cmds = Vec::new();
 
         match self.check_frequency(&measurement) {
-            None => {},
+            None => {}
             Some(trigger) => {
                 cmds.push(self.trigger_cmd(&trigger));
-            },
+            }
         }
 
         match self.check_voltage(&measurement) {
-            None => {},
+            None => {}
             Some(trigger) => {
                 cmds.push(self.trigger_cmd(&trigger));
-            },
+            }
         }
 
         match self.check_thd(&measurement) {
-            None => {},
+            None => {}
             Some(trigger) => {
                 cmds.push(self.trigger_cmd(&trigger));
-            },
+            }
         }
 
         None
@@ -269,10 +290,14 @@ impl MakaiPlugin for ThresholdTriggerPlugin {
                 ThresholdTriggerPluginSettings::default()
             }
         };
-        self.frequency_threshold_low = self.settings.reference_frequency - (self.settings.reference_frequency * self.frequency_threshold_low);
-        self.frequency_threshold_high = self.settings.reference_frequency + (self.settings.reference_frequency * self.frequency_threshold_high);
-        self.voltage_threshold_low = self.settings.reference_voltage - (self.settings.reference_voltage * self.frequency_threshold_low);
-        self.voltage_threshold_high = self.settings.reference_voltage - (self.settings.reference_voltage * self.frequency_threshold_high);
+        self.frequency_threshold_low = self.settings.reference_frequency
+            - (self.settings.reference_frequency * self.frequency_threshold_low);
+        self.frequency_threshold_high = self.settings.reference_frequency
+            + (self.settings.reference_frequency * self.frequency_threshold_high);
+        self.voltage_threshold_low = self.settings.reference_voltage
+            - (self.settings.reference_voltage * self.frequency_threshold_low);
+        self.voltage_threshold_high = self.settings.reference_voltage
+            - (self.settings.reference_voltage * self.frequency_threshold_high);
         self.thd_threshold_high = self.settings.thd_threshold_high;
     }
 
