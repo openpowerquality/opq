@@ -14,8 +14,17 @@
     {
       "path" : "./libhealth_plugin.so",
       "address" : "localhost:8080"
+    },
+    {
+      "path" : "./libthreshold_trigger.plugin.so",
+      "reference_frequency": 60.0,
+      "frequency_threshold_percent_low": 0.5,
+      "frequency_threshold_percent_high": 0.5,
+      "reference_voltage": 120.0,
+      "voltage_threshold_percent_low": 5.0,
+      "voltage_threshold_percent_high": 5.0,
+      "thd_threshold_high": 5.0
     }
-
   ]
 
 }
