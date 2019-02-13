@@ -14,6 +14,7 @@ CONFIG_TYPE = typing.Dict[str, CONFIG_VALUE_TYPE]
 # pylint: disable=C0103
 logger = log.get_logger(__name__)
 
+
 class MaukaConfig:
     """
     An instance of a Mauka config that will throw when a key doesn't exist (unless a default is provided)
