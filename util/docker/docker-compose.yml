@@ -1,10 +1,22 @@
 version: '3.7'
 
 services:
+  mongo:
+    image: ${MONGO_IMAGE}
+    restart: always
+    expose:
+      - "${MONGO_PORT}"
+    ports:
+      - "127.0.0.1:${MONGO_PORT}:${MONGO_PORT}"
+    volumes:
+      - "${MONGO_VOLUME}:/data/db"
   view:
     image: ${VIEW_IMAGE}
-    network_mode: "host"
+    depends_on:
+      - mongo
     restart: always
+    ports:
+      - "127.0.0.1:${VIEW_PORT}:${VIEW_PORT}"
     environment:
       - MONGO_URL=${VIEW_MONGO_URL}
       - ROOT_URL=${VIEW_ROOT_URL}
@@ -12,10 +24,28 @@ services:
       - METEOR_SETTINGS
   mauka:
     image: ${MAUKA_IMAGE}
+    depends_on:
+      - mongo
     restart: always
     network_mode: "host"
+    environment:
+      - MAUKA_ZMQ_TRIGGERING_INTERFACE=${MAUKA_ZMQ_TRIGGERING_INTERFACE}
+      - MAUKA_EVENT_INTERFACE=${MAUKA_EVENT_INTERFACE}
+      - MAUKA_ZMQ_BROKER_PUB_INTERFACE=${MAUKA_ZMQ_BROKER_PUB_INTERFACE}
+      - MAUKA_ZMQ_BROKER_SUB_INTERFACE=${MAUKA_ZMQ_BROKER_SUB_INTERFACE}
+      - MAUKA_ZMQ_PLUGIN_PUB_INTERFACE=${MAUKA_ZMQ_PLUGIN_PUB_INTERFACE}
+      - MAUKA_ZMQ_PLUGIN_SUB_INTERFACE=${MAUKA_ZMQ_PLUGIN_SUB_INTERFACE}
+      - MAUKA_ZMQ_MAKAI_PUSH_INTERFACE=${MAUKA_ZMQ_MAKAI_PUSH_INTERFACE}
+      - MAUKA_ZMQ_PLUGIN_MANAGEMENT_REP_INTERFACE=${MAUKA_ZMQ_PLUGIN_MANAGEMENT_REP_INTERFACE}
+      - MAUKA_ZMQ_PLUGIN_MANAGEMENT_REQ_INTERFACE=${MAUKA_ZMQ_PLUGIN_MANAGEMENT_REQ_INTERFACE}
+      - MAUKA_STATUS_PORT=${MAUKA_STATUS_PORT}
+      - MONGO_HOST=${MONGO_HOST}
+      - MONGO_PORT=${MONGO_PORT}
+      - MONGO_DB=${MONGO_DB}
   health:
     image: ${HEALTH_IMAGE}
+    depends_on:
+      - mongo
     restart: always
     network_mode: "host"
     volumes:
