@@ -36,7 +36,7 @@ class MaukaConfig:
                 replacement = os.getenv(env_name)
 
                 if replacement is None:
-                    logger.warning("Value for %s not found in environment." % env_name)
+                    logger.warning("Value for %s not found in environment.", env_name)
                     continue
 
                 if value.startswith("!"):
