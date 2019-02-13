@@ -1,18 +1,20 @@
+extern crate serde;
+#[macro_use]
+extern crate serde_derive;
+extern crate serde_json;
 #[macro_use]
 extern crate triggering_service;
+
 use std::collections::HashMap;
 use std::str;
 use std::sync::Arc;
 use std::time::{SystemTime, UNIX_EPOCH};
+
 use triggering_service::makai_plugin::MakaiPlugin;
 use triggering_service::proto::opqbox3::Command;
-use triggering_service::proto::opqbox3::Measurement;
 use triggering_service::proto::opqbox3::GetDataCommand;
+use triggering_service::proto::opqbox3::Measurement;
 
-#[macro_use]
-extern crate serde_derive;
-extern crate serde;
-extern crate serde_json;
 
 fn timestamp_ms() -> u64 {
     let start = SystemTime::now();
@@ -22,6 +24,8 @@ fn timestamp_ms() -> u64 {
         (since_the_epoch.as_secs() as u128 * 1000
             + since_the_epoch.subsec_millis() as u128) as u64;
 }
+
+type StateMap = HashMap<StateKey, StateEntry>;
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum State {
@@ -35,51 +39,6 @@ pub struct StateEntry {
     prev_state_timestamp_ms: u64,
     latest_state: State,
     latest_state_timestamp_ms: u64
-}
-
-#[derive(Debug)]
-pub struct Trigger {
-    box_id: u32,
-    start_timestamp_ms: u64,
-    end_timestamp_ms: u64
-}
-
-#[derive(Debug, Hash, PartialEq, Eq)]
-enum TriggerType {
-    Frequency,
-    Thd,
-    Voltage
-}
-
-#[derive(Debug, Hash, Eq)]
-pub struct StateKey {
-    box_id: u32,
-    trigger_type: TriggerType
-}
-
-impl PartialEq for StateKey {
-    fn eq(&self, other: &StateKey) -> bool {
-        self.box_id == other.box_id
-    }
-}
-
-impl StateKey {
-    fn from(box_id: u32, trigger_type: TriggerType) -> StateKey {
-        StateKey {
-            box_id,
-            trigger_type
-        }
-    }
-}
-
-impl Trigger {
-    fn from(box_id: u32, state_entry: &StateEntry) -> Trigger {
-        Trigger {
-            box_id,
-            start_timestamp_ms: state_entry.prev_state_timestamp_ms,
-            end_timestamp_ms: state_entry.latest_state_timestamp_ms
-        }
-    }
 }
 
 impl StateEntry {
@@ -101,7 +60,50 @@ impl StateEntry {
     }
 }
 
-type StateMap = HashMap<StateKey, StateEntry>;
+#[derive(Debug)]
+pub struct Trigger {
+    box_id: u32,
+    start_timestamp_ms: u64,
+    end_timestamp_ms: u64
+}
+
+impl Trigger {
+    fn from(box_id: u32, state_entry: &StateEntry) -> Trigger {
+        Trigger {
+            box_id,
+            start_timestamp_ms: state_entry.prev_state_timestamp_ms,
+            end_timestamp_ms: state_entry.latest_state_timestamp_ms
+        }
+    }
+}
+
+#[derive(Debug, Hash, PartialEq, Eq, Clone)]
+enum TriggerType {
+    Frequency,
+    Thd,
+    Voltage
+}
+
+#[derive(Debug, Hash, Eq, Clone)]
+pub struct StateKey {
+    box_id: u32,
+    trigger_type: TriggerType
+}
+
+impl StateKey {
+    fn from(box_id: u32, trigger_type: TriggerType) -> StateKey {
+        StateKey {
+            box_id,
+            trigger_type
+        }
+    }
+}
+
+impl PartialEq for StateKey {
+    fn eq(&self, other: &StateKey) -> bool {
+        self.box_id == other.box_id && self.trigger_type == other.trigger_type
+    }
+}
 
 #[derive(Debug, Default)]
 pub struct Fsm {
@@ -173,32 +175,56 @@ impl ThresholdTriggerPlugin {
         }
     }
 
-    fn get_state(&self, measurement: Arc<Measurement>) -> Option<State> {
-        let timestamp = timestamp_ms();
-
-        if (!measurement.metrics.contains_key("f")) &&
-            (!measurement.metrics.contains_key("rms")) &&
-            (!measurement.metrics.contains_key("thd")) {
-            return None;
-        }
-
-        match measurement.metrics.get("rms") {
-            None => {},
+    fn check_metric(&mut self,
+                    measurement: &Arc<Measurement>,
+                    metric: &str,
+                    trigger_type: TriggerType,
+                    threshold_low: f32,
+                    threshold_high: f32) -> Option<Trigger> {
+        let state_key = StateKey::from(measurement.box_id, trigger_type);
+        match measurement.metrics.get(metric) {
+            None => {return None},
             Some(metric) => {
-                if metric.min < self.voltage_threshold_low || metric.max > self.voltage_threshold_high {
-                    return Some(State::Triggering)
-                }
-            }
-        }
-        match measurement.metrics.get("f") {
-            None => {},
-            Some(metric) => {
-                if metric.min < self.frequency_threshold_low || metric.max > self.frequency_threshold_high {
-                    return Some(State::Triggering)
+                if metric.min < threshold_low || metric.max > threshold_high {
+                    self.fsm.update(state_key.clone(), State::Triggering)
+                } else {
+                    self.fsm.update(state_key.clone(), State::Nominal)
                 }
             },
         }
-        None
+        self.fsm.is_triggering(state_key.clone())
+    }
+
+    fn check_frequency(&mut self, measurement: &Arc<Measurement>) -> Option<Trigger>{
+        let threshold_low = self.frequency_threshold_low;
+        let threshold_high = self.frequency_threshold_high;
+        self.check_metric(measurement, "f", TriggerType::Frequency, threshold_low, threshold_high)
+    }
+
+    fn check_voltage(&mut self, measurement: &Arc<Measurement>) -> Option<Trigger>{
+        let threshold_low = self.voltage_threshold_low;
+        let threshold_high = self.voltage_threshold_high;
+        self.check_metric(measurement, "rms", TriggerType::Voltage, threshold_low, threshold_high)
+    }
+
+    fn check_thd(&mut self, measurement: &Arc<Measurement>) -> Option<Trigger>{
+        let threshold_low = -1.0;
+        let threshold_high = self.thd_threshold_high;
+        self.check_metric(measurement, "thd", TriggerType::Thd, threshold_low, threshold_high)
+    }
+
+    fn trigger_cmd(&self, trigger: &Trigger) -> Command {
+        let mut get_data_command = GetDataCommand::new();
+        get_data_command.set_wait(true);
+        get_data_command.set_start_ms(trigger.start_timestamp_ms);
+        get_data_command.set_end_ms(trigger.end_timestamp_ms);
+        let mut cmd = Command::new();
+        cmd.set_box_id(trigger.box_id as i32);
+        cmd.set_data_command(get_data_command);
+        cmd.set_identity(String::new());
+        cmd.set_timestamp_ms(timestamp_ms());
+        cmd.set_seq(0);
+        return cmd;
     }
 }
 
@@ -208,50 +234,29 @@ impl MakaiPlugin for ThresholdTriggerPlugin {
     }
 
     fn process_measurement(&mut self, measurement: Arc<Measurement>) -> Option<Vec<Command>> {
-//        let state = self.state(measurement.clone());
-//        let measurement = measurement.clone();
-//        match state {
-//            ThresholdState::NotAvailable(_) => {}
-//            ThresholdState::Nominal(_) => {
-//                match self.box_trigger_state.get(&measurement.box_id) {
-//                    Some(ThresholdState::NotAvailable(_)) => {}
-//                    // Previous value was nominal, current value is nominal, keep on keeping on
-//                    Some(ThresholdState::Nominal(_)) => {}
-//                    // There was no previous value, insert a nominal value
-//                    None => {
-//                        self.box_trigger_state.insert(measurement.box_id, state);
-//                    }
-//                    // Previous value was nominal, new value is triggering
-//                    Some(ThresholdState::Triggering(_)) => {
-//                        self.box_trigger_state.insert(measurement.box_id, state);
-//                    }
-//                }
-//            },
-//            ThresholdState::Triggering(triggering_timestamp) => match self.box_trigger_state.get(&measurement.box_id) {
-//                Some(ThresholdState::NotAvailable(_)) => {}
-//                // Previous value was triggering, current value is triggering, still triggering
-//                Some(ThresholdState::Triggering(_)) => {}
-//                // There was no previous value, current value is triggering
-//                None => {
-//                    self.box_trigger_state.insert(measurement.box_id, state);
-//                }
-//                // Previous state was triggering, now nominal, request data
-//                Some(ThresholdState::Nominal(nominal_timestamp)) => {
-//                    // Request data
-//                    let mut get_data_command = GetDataCommand::new();
-//                    get_data_command.set_wait(true);
-//                    get_data_command.set_start_ms(triggering_timestamp);
-//                    get_data_command.set_end_ms(nominal_timestamp.clone());
-//                    let mut cmd = Command::new();
-//                    cmd.set_box_id(measurement.box_id as i32);
-//                    cmd.set_data_command(get_data_command);
-//                    cmd.set_identity(String::new());
-//                    cmd.set_timestamp_ms(timestamp_ms());
-//                    cmd.set_seq(0);
-//                    Some(vec![cmd]);
-//                }
-//            }
-//        }
+        let mut cmds = Vec::new();
+
+        match self.check_frequency(&measurement) {
+            None => {},
+            Some(trigger) => {
+                cmds.push(self.trigger_cmd(&trigger));
+            },
+        }
+
+        match self.check_voltage(&measurement) {
+            None => {},
+            Some(trigger) => {
+                cmds.push(self.trigger_cmd(&trigger));
+            },
+        }
+
+        match self.check_thd(&measurement) {
+            None => {},
+            Some(trigger) => {
+                cmds.push(self.trigger_cmd(&trigger));
+            },
+        }
+
         None
     }
 
