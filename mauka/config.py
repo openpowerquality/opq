@@ -6,9 +6,13 @@ import json
 import os
 import typing
 
+import log
+
 CONFIG_VALUE_TYPE = typing.Union[str, int, float, bool]
 CONFIG_TYPE = typing.Dict[str, CONFIG_VALUE_TYPE]
 
+# pylint: disable=C0103
+logger = log.get_logger(__name__)
 
 class MaukaConfig:
     """
@@ -30,8 +34,10 @@ class MaukaConfig:
             if isinstance(value, str) and (value.startswith("?") or value.startswith("!")):
                 env_name = value[1:]
                 replacement = os.getenv(env_name)
+
                 if replacement is None:
-                    raise RuntimeError("Environment variable with name %s was not found in the environment." % env_name)
+                    logger.warning("Value for %s not found in environment." % env_name)
+                    continue
 
                 if value.startswith("!"):
                     replacement = int(replacement)
