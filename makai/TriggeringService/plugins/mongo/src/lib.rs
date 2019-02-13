@@ -5,14 +5,21 @@ use triggering_service::makai_plugin::MakaiPlugin;
 use triggering_service::proto::opqbox3::Measurement;
 use triggering_service::proto::opqbox3::Command;
 use std::sync::Arc;
+
+//#[macro_use(bson, doc)]
+//extern crate mongodb;
 use mongodb::{Bson, bson, doc};
 use mongodb::{Client, ThreadedClient};
 use mongodb::db::ThreadedDatabase;
-use bson::*;
-use bson::Document;
-use chrono::prelude::*;
 
-use crate::constants::*;
+//extern crate bson;
+//use bson::Document;
+//use chrono::prelude::*;
+
+//extern crate triggering_service::constants::*;
+
+mod constants;
+use constants::*;
 
 #[macro_use] extern crate serde_derive;
 extern crate serde;
@@ -88,7 +95,7 @@ impl MakaiPlugin for MongoPlugin {
                     },
                     Some(location) => {doc.insert(MONGO_LONG_TERM_MEASUREMENTS_LOCATION_FIELD, location.clone());},
                 }
-            },
+            }
         };
         //Insert the long term measurement.
         self.slow_coll
@@ -104,8 +111,8 @@ impl MakaiPlugin for MongoPlugin {
         let set = serde_json::from_str(&args);
         self.settings = match set{
             Ok(s) => {s},
-            Err(e) => {println!("Bad settings file for plugin {}: {:?}", self.name(), e); MongoPluginSettings::default()},
-        }
+            Err(e) => {println!("Bad settings file for plugin {}: {:?}", self.name(), e); MongoPluginSettings::default()}
+        };
 
         self.client = Client::connect(settings.host, settings.port).expect("Failed to initialize client.");
         self.live_coll = self.client.db(MONGO_DATABASE).collection(MONGO_MEASUREMENT_COLLECTION);
@@ -113,7 +120,7 @@ impl MakaiPlugin for MongoPlugin {
     }
 
     fn on_plugin_unload(&mut self) {
-        println!("Mongo plugin unloaded.")
+        println!("Mongo plugin unloaded.");
     }
 }
 
