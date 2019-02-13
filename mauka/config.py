@@ -6,8 +6,8 @@ import json
 import os
 import typing
 
-ConfigValueType = typing.Union[str, int, float, bool]
-ConfigType = typing.Dict[str, ConfigValueType]
+CONFIG_VALUE_TYPE = typing.Union[str, int, float, bool]
+CONFIG_TYPE = typing.Dict[str, CONFIG_VALUE_TYPE]
 
 
 class MaukaConfig:
@@ -15,10 +15,10 @@ class MaukaConfig:
     An instance of a Mauka config that will throw when a key doesn't exist (unless a default is provided)
     """
 
-    def __init__(self, config_dict: ConfigType):
+    def __init__(self, config_dict: CONFIG_TYPE):
         self.config_dict = self.replace_env(config_dict)
 
-    def replace_env(self, config_dict: ConfigType) -> ConfigType:
+    def replace_env(self, config_dict: CONFIG_TYPE) -> CONFIG_TYPE:
         """
         This function parses values from the config that are strings and start with a question mark "?" and replaces
         them with the value set in the environment using the name of everything after the question mark.
@@ -27,7 +27,7 @@ class MaukaConfig:
         """
         replacement_dict = {}
         for key, value in config_dict.items():
-            if type(value) == str and (value.startswith("?") or value.startswith("!")):
+            if isinstance(value, str) and (value.startswith("?") or value.startswith("!")):
                 env_name = value[:1]
                 replacement = os.getenv(env_name)
                 if replacement is None:
@@ -42,7 +42,7 @@ class MaukaConfig:
 
         return replacement_dict
 
-    def get(self, key: str, default: ConfigValueType = None) -> ConfigValueType:
+    def get(self, key: str, default: CONFIG_VALUE_TYPE = None) -> CONFIG_VALUE_TYPE:
         """
         Returns the value in the configuration associated with this key.
         :param key: The key to search for.
@@ -74,7 +74,7 @@ def from_file(path: str) -> MaukaConfig:
         raise FileNotFoundError("Error opening config at path {}".format(path))
 
 
-def from_dict(config_dict: ConfigType) -> MaukaConfig:
+def from_dict(config_dict: CONFIG_TYPE) -> MaukaConfig:
     """
     Create an instance of a MaukaConfig from a dictionary.
     :param config_dict: Dictionary of config values.

@@ -9,18 +9,18 @@ import config
 import protobuf.util
 
 
-def start_mauka_pub_sub_broker(config: config.MaukaConfig):
+def start_mauka_pub_sub_broker(mauka_config: config.MaukaConfig):
     """
     Starts an instance of a mauka pub/sub broker in a separate process
-    :param config: Configuration dictionary
+    :param mauka_config: Configuration dictionary
     """
 
     # noinspection PyUnresolvedReferences
     # pylint: disable=E1101
-    def _run(config: config.MaukaConfig):
+    def _run(conf: config.MaukaConfig):
         """
         This is the target function that will run as its own process.
-        :param config: OPQ Mauka config file
+        :param conf: OPQ Mauka config file
         :return: The process object.
         """
         import logging
@@ -35,8 +35,8 @@ def start_mauka_pub_sub_broker(config: config.MaukaConfig):
 
         signal.signal(signal.SIGINT, signal.SIG_IGN)
 
-        zmq_pub_interface = config.get("zmq.mauka.broker.pub.interface")
-        zmq_sub_interface = config.get("zmq.mauka.broker.sub.interface")
+        zmq_pub_interface = conf.get("zmq.mauka.broker.pub.interface")
+        zmq_sub_interface = conf.get("zmq.mauka.broker.sub.interface")
         zmq_context = zmq.Context()
         zmq_pub_socket = zmq_context.socket(zmq.PUB)
         zmq_sub_socket = zmq_context.socket(zmq.SUB)
@@ -48,20 +48,20 @@ def start_mauka_pub_sub_broker(config: config.MaukaConfig):
         zmq.proxy(zmq_sub_socket, zmq_pub_socket)
         _logger.info("Exiting Mauka pub/sub broker")
 
-    process = multiprocessing.Process(target=_run, args=(config,))
+    process = multiprocessing.Process(target=_run, args=(mauka_config,))
     process.start()
     return process
 
 
-def start_makai_bridge(config: config.MaukaConfig):
+def start_makai_bridge(mauka_config: config.MaukaConfig):
     """
     Starts an instance of the makai bridge to bring makai triggering data into mauka as a separate process
-    :param config: Configuration dictionary
+    :param mauka_config: Configuration dictionary
     """
 
     # noinspection PyUnresolvedReferences
     # pylint: disable=E1101
-    def _run(config: config.MaukaConfig):
+    def _run(conf: config.MaukaConfig):
         import logging
         import signal
         import os
@@ -80,8 +80,8 @@ def start_makai_bridge(config: config.MaukaConfig):
         zmq_sub_trigger_socket = zmq_context.socket(zmq.SUB)
         zmq_sub_trigger_socket.setsockopt(zmq.SUBSCRIBE, b"")
         zmq_pub_socket = zmq_context.socket(zmq.PUB)
-        zmq_sub_trigger_socket.connect(config.get("zmq.triggering.interface"))
-        zmq_pub_socket.connect(config.get("zmq.mauka.plugin.pub.interface"))
+        zmq_sub_trigger_socket.connect(conf.get("zmq.triggering.interface"))
+        zmq_pub_socket.connect(conf.get("zmq.mauka.plugin.pub.interface"))
 
         while True:
             trigger_msg = zmq_sub_trigger_socket.recv_multipart()
@@ -95,12 +95,12 @@ def start_makai_bridge(config: config.MaukaConfig):
             mauka_message_bytes = protobuf.util.serialize_mauka_message(maukapb)
             zmq_pub_socket.send_multipart(("measurement".encode(), mauka_message_bytes))
 
-    process = multiprocessing.Process(target=_run, args=(config,))
+    process = multiprocessing.Process(target=_run, args=(mauka_config,))
     process.start()
     return process
 
 
-def start_makai_event_bridge(config: config.MaukaConfig):
+def start_makai_event_bridge(mauka_config: config.MaukaConfig):
     """
     Starts an instance of the makai bridge to bring makai event information into mauka as a separate process
     :param config: Configuration dictionary
@@ -108,7 +108,7 @@ def start_makai_event_bridge(config: config.MaukaConfig):
 
     # noinspection PyUnresolvedReferences
     # pylint: disable=E1101
-    def _run(config: config.MaukaConfig):
+    def _run(conf: config.MaukaConfig):
         import logging
         import signal
         import os
@@ -127,8 +127,8 @@ def start_makai_event_bridge(config: config.MaukaConfig):
         zmq_sub_event_socket = zmq_context.socket(zmq.SUB)
         zmq_sub_event_socket.setsockopt(zmq.SUBSCRIBE, b"")
         zmq_pub_socket = zmq_context.socket(zmq.PUB)
-        zmq_sub_event_socket.connect(config.get("zmq.event.interface"))
-        zmq_pub_socket.connect(config.get("zmq.mauka.plugin.pub.interface"))
+        zmq_sub_event_socket.connect(conf.get("zmq.event.interface"))
+        zmq_pub_socket.connect(conf.get("zmq.mauka.plugin.pub.interface"))
 
         while True:
             event_msg = zmq_sub_event_socket.recv_multipart()
@@ -139,6 +139,6 @@ def start_makai_event_bridge(config: config.MaukaConfig):
 
         _logger.info("Exiting makai event bridge")
 
-    process = multiprocessing.Process(target=_run, args=(config,))
+    process = multiprocessing.Process(target=_run, args=(mauka_config,))
     process.start()
     return process
