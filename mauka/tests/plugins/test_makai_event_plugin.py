@@ -1,6 +1,6 @@
 from plugins.makai_event_plugin import frequency_waveform
 from plugins.makai_event_plugin import frequency
-from opq_mauka import load_config
+import config
 
 import unittest
 import numpy
@@ -39,7 +39,7 @@ class MakaiEventPluginTests(unittest.TestCase):
 
     def setUp(self):
         self.freq_ref = constants.CYCLES_PER_SECOND
-        self.config = load_config("./config.json")
+        self.config = config.from_file("./config.json")
         self.window_size = int(self.config["plugins.MakaiEventPlugin.frequencyWindowCycles"]
                                * constants.SAMPLES_PER_CYCLE)
         self.downsample_factor = int(self.config["plugins.MakaiEventPlugin.frequencyDownSampleRate"])

@@ -1,7 +1,7 @@
 from plugins.frequency_variation_plugin import frequency_variation
 from plugins.frequency_variation_plugin import frequency_incident_classifier
-from opq_mauka import load_config
 
+import config
 import unittest
 import mongo
 import numpy
@@ -12,7 +12,7 @@ class FrequencyVariationTests(unittest.TestCase):
 
     def setUp(self):
         self.freq_ref = constants.CYCLES_PER_SECOND
-        self.config = load_config("./config.json")
+        self.config = config.from_file("./config.json")
         self.freq_var_low = float(self.config["plugins.FrequencyVariationPlugin.frequency.variation.threshold.low"])
         self.freq_var_high = float(self.config["plugins.FrequencyVariationPlugin.frequency.variation.threshold.high"])
         self.freq_interruption = float(self.config["plugins.FrequencyVariationPlugin.frequency.interruption"])
