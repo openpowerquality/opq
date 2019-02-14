@@ -27,7 +27,13 @@ services:
     depends_on:
       - mongo
     restart: always
-    network_mode: "host"
+    extra_hosts:
+      - "dockerhostnet:${DOCKER_HOST_IP}"
+    ports:
+      - "9883:9883"
+      - "9882:9882"
+      - "12000:12000"
+      - "8911:8911"
     environment:
       - MAUKA_ZMQ_TRIGGERING_INTERFACE=${MAUKA_ZMQ_TRIGGERING_INTERFACE}
       - MAUKA_EVENT_INTERFACE=${MAUKA_EVENT_INTERFACE}
