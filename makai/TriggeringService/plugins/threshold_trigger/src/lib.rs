@@ -300,18 +300,18 @@ impl MakaiPlugin for ThresholdTriggerPlugin {
             }
         };
         self.frequency_threshold_low = self.settings.reference_frequency
-            - (self.settings.reference_frequency * self.frequency_threshold_low);
+            - (self.settings.reference_frequency * self.settings.frequency_threshold_percent_low);
 
         self.frequency_threshold_high = self.settings.reference_frequency
-            + (self.settings.reference_frequency * self.frequency_threshold_high);
+            + (self.settings.reference_frequency * self.settings.frequency_threshold_percent_high);
 
         self.voltage_threshold_low = self.settings.reference_voltage
-            - (self.settings.reference_voltage * self.voltage_threshold_low);
+            - (self.settings.reference_voltage * self.settings.voltage_threshold_percent_low);
 
         self.voltage_threshold_high = self.settings.reference_voltage
-            + (self.settings.reference_voltage * self.voltage_threshold_high);
+            + (self.settings.reference_voltage * self.settings.voltage_threshold_percent_high);
 
-        self.thd_threshold_high = self.settings.thd_threshold_high;
+        self.thd_threshold_high = self.settings.thd_threshold_high
     }
 
     fn on_plugin_unload(&mut self) {
