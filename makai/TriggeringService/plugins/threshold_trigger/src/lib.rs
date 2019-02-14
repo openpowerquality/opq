@@ -261,7 +261,7 @@ impl MakaiPlugin for ThresholdTriggerPlugin {
 
     fn process_measurement(&mut self, measurement: Arc<Measurement>) -> Option<Vec<Command>> {
         if self.settings.debug {
-            println!("{:?}", self.fsm)
+            println!("{:#?}", self.fsm)
         }
 
         let mut cmds = Vec::new();
@@ -295,7 +295,7 @@ impl MakaiPlugin for ThresholdTriggerPlugin {
         self.settings = match set {
             Ok(s) => s,
             Err(e) => {
-                println!("Bad setting found for plugin {}: {:?}", self.name(), e);
+                println!("Bad setting found for plugin {}: {:#?}", self.name(), e);
                 ThresholdTriggerPluginSettings::default()
             }
         };
@@ -310,7 +310,7 @@ impl MakaiPlugin for ThresholdTriggerPlugin {
 
         self.voltage_threshold_high = self.settings.reference_voltage
             + (self.settings.reference_voltage * self.voltage_threshold_high);
-        
+
         self.thd_threshold_high = self.settings.thd_threshold_high;
     }
 
