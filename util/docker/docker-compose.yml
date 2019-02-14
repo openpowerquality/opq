@@ -69,7 +69,6 @@ services:
   boxupdateserver:
     image: ${BOXUPDATESERVER_IMAGE}
     restart: always
-    network_mode: "host"
     expose:
       - "${BOXUPDATESERVER_HTTP_SERVER_PORT}"
     ports:
