@@ -23,7 +23,8 @@
       "reference_voltage": 120.0,
       "voltage_threshold_percent_low": 5.0,
       "voltage_threshold_percent_high": 5.0,
-      "thd_threshold_high": 5.0
+      "thd_threshold_high": 5.0,
+      "debug": true
     }
   ]
 

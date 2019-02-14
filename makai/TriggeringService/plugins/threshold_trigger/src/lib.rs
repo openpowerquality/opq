@@ -149,6 +149,8 @@ struct ThresholdTriggerPluginSettings {
     pub voltage_threshold_percent_high: f32,
 
     pub thd_threshold_high: f32,
+
+    pub debug: bool
 }
 
 #[derive(Debug, Default)]
@@ -245,6 +247,9 @@ impl ThresholdTriggerPlugin {
         cmd.set_identity(String::new());
         cmd.set_timestamp_ms(timestamp_ms());
         cmd.set_seq(0);
+        if self.settings.debug {
+            println!("Sending CMD {:?}", self.fsm)
+        }
         return cmd;
     }
 }
@@ -255,6 +260,10 @@ impl MakaiPlugin for ThresholdTriggerPlugin {
     }
 
     fn process_measurement(&mut self, measurement: Arc<Measurement>) -> Option<Vec<Command>> {
+        if self.settings.debug {
+            println!("{:?}", self.fsm)
+        }
+
         let mut cmds = Vec::new();
 
         match self.check_frequency(&measurement) {
