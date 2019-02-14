@@ -77,8 +77,8 @@ impl PluginManager {
             plugin.on_plugin_load(document.to_string());
             loop {
                 let msg = subscription.recv().unwrap();
-                if let Some(list) = plugin.process_measurement(msg) {
-                    for item in list.iter() {
+                if let Some(mut list) = plugin.process_measurement(msg) {
+                    for item in &mut list {
                         trigger.lock().unwrap().trigger(item)
                     }
                 };

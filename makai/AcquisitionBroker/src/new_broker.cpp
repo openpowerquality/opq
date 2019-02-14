@@ -1,6 +1,7 @@
 #include "../lib/config.h"
 #include "../lib/SynchronizedMap.hpp"
 #include "../proto/opqbox3.pb.h"
+#include "../lib/util.h"
 #include <iostream>
 #include <vector>
 #include <zmqpp/zmqpp.hpp>
@@ -11,7 +12,6 @@
 #include <mongocxx/instance.hpp>
 #include <thread>
 #include <chrono>
-
 using namespace std::string_literals;
 
 /*
@@ -22,12 +22,7 @@ void app_to_box(zmqpp::context& ctx, SynchronizedMap<int, string>& map, Config c
 /*
  * Box-to-app thread callable.
  */
-void box_to_app(zmqpp::context& ctx, SynchronizedMap<int, string>& map, Config config);
-
-/*
- * Loads a certificate from a file as a pair of strings.
- */
-auto load_certificate(string const& path) -> std::pair<string, string>;
+void box_to_app(zmqpp::context& ctx, SynchronizedMap<int, string>& map, Config config, string cert);
 
 int main (int argc, char **argv) {
 	auto config = argc == 1 ? Config{} : Config{ argv[1] };
@@ -72,11 +67,11 @@ int main (int argc, char **argv) {
 	SynchronizedMap<int, string> map;
 
 	// Starts the thread that pulls from app and publishes to box
-	std::thread th{app_to_box, std::ref(ctx), std::ref(map), config, server_cert.second};
-
+	std::thread th1{app_to_box, std::ref(ctx), std::ref(map), config, server_cert.second};
+  std::thread th2{box_to_app, std::ref(ctx), std::ref(map), config, server_cert.second};
 	// For good measure
-	th.join();
-
+	th1.join();
+	th2.join();
 	return 0;
 }
 
@@ -95,10 +90,11 @@ void app_to_box(zmqpp::context& ctx, SynchronizedMap<int, string>& map, Config c
 	pub.set(zmqpp::socket_option::curve_secret_key, cert);
 	pub.set(zmqpp::socket_option::zap_domain, "global");
 	pub.bind(config.box_interface_pub);
-	//pub.bind("tcp://*4445");
 
 	// Wait for sockets to bind
 	std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
+    uint32_t sequence = 0;
 
 	while (true) {
 		string msg;
@@ -107,23 +103,27 @@ void app_to_box(zmqpp::context& ctx, SynchronizedMap<int, string>& map, Config c
 		// Deserialize the message upon receiving it
 		opq::opqbox3::Command cmd;
 		cmd.ParseFromString(msg);
-
+        cmd.set_seq(sequence);
 		// Log the identity of the app
-		map.insert(cmd.box_id(), cmd.identity());
-
+		map.insert(sequence, cmd.identity());
+        sequence++;
 		// Forward it to boxes subscribed to the box_id as topic
 		zmqpp::message fwd;
 		fwd.add(cmd.box_id());
-		fwd.add(msg);
-
+		fwd.add(cmd.SerializeAsString());
 		pub.send(fwd);
 	}
 }
 
-void box_to_app(zmqpp::context& ctx, SynchronizedMap<int, string>& map, Config config) {
+void box_to_app(zmqpp::context& ctx, SynchronizedMap<int, string>& map, Config config, string cert) {
 	// Initialize pull socket
 	zmqpp::socket pull{ctx, zmqpp::socket_type::pull};
-	pull.bind(config.box_interface_pull);
+    pull.set(zmqpp::socket_option::identity, "ACQ_BROKER");
+    pull.set(zmqpp::socket_option::curve_server, true);
+    pull.set(zmqpp::socket_option::curve_secret_key, cert);
+    pull.set(zmqpp::socket_option::zap_domain, "global");
+    pull.bind(config.box_interface_pull);
+
 
 	// Initialize pub socket and encrypt it
 	zmqpp::socket pub{ctx, zmqpp::socket_type::publish};
@@ -141,7 +141,7 @@ void box_to_app(zmqpp::context& ctx, SynchronizedMap<int, string>& map, Config c
 		res.ParseFromString(msg);
 
 		// Find the identity of the app
-		auto iterator = map.find(res.box_id());
+		auto iterator = map.find(res.seq());
 		if (iterator == map.end()) {
 			// Drop the message
 			continue;
@@ -156,24 +156,4 @@ void box_to_app(zmqpp::context& ctx, SynchronizedMap<int, string>& map, Config c
 
 		pub.send(fwd);
 	}
-}
-
-auto load_certificate( string const& path ) -> std::pair<string, string> {
-	auto file = std::ifstream{ path };
-	assert(file);
-
-	auto ss = std::stringstream{};
-	ss << file.rdbuf();
-	auto contents = ss.str();
-
-	auto public_sm = std::smatch{}, private_sm = std::smatch{};
-
-	auto public_re = std::regex{R"r(public-key\s+=\s+"(.+)")r"};
-	auto private_re = std::regex{R"r(secret-key\s+=\s+"(.+)")r"};
-
-	auto has_public = std::regex_search(contents, public_sm, public_re);
-	auto has_private = std::regex_search(contents, private_sm, private_re);
-
-	return {has_public ? public_sm[1] : ""s,
-		has_private ? private_sm[1] : ""s};
 }
