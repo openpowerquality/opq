@@ -301,12 +301,16 @@ impl MakaiPlugin for ThresholdTriggerPlugin {
         };
         self.frequency_threshold_low = self.settings.reference_frequency
             - (self.settings.reference_frequency * self.frequency_threshold_low);
+
         self.frequency_threshold_high = self.settings.reference_frequency
             + (self.settings.reference_frequency * self.frequency_threshold_high);
+
         self.voltage_threshold_low = self.settings.reference_voltage
-            - (self.settings.reference_voltage * self.frequency_threshold_low);
+            - (self.settings.reference_voltage * self.voltage_threshold_low);
+
         self.voltage_threshold_high = self.settings.reference_voltage
-            - (self.settings.reference_voltage * self.frequency_threshold_high);
+            + (self.settings.reference_voltage * self.voltage_threshold_high);
+        
         self.thd_threshold_high = self.settings.thd_threshold_high;
     }
 
@@ -316,3 +320,30 @@ impl MakaiPlugin for ThresholdTriggerPlugin {
 }
 
 declare_plugin!(ThresholdTriggerPlugin, ThresholdTriggerPlugin::new);
+
+#[cfg(test)]
+mod tests {
+    use Fsm;
+    use State;
+    use StateKey;
+    use TriggerType;
+    use triggering_service::proto::opqbox3::Command_oneof_command::send_command_to_plugin;
+
+    #[test]
+    fn test() {
+        let mut fsm = Fsm::new();
+        let state_key = StateKey::from(1, TriggerType::Frequency);
+
+        fsm.update(state_key.clone(), State::Nominal);
+        assert_eq!(fsm.is_triggering(&state_key).is_some(), false);
+        fsm.update(state_key.clone(), State::Nominal);
+        assert_eq!(fsm.is_triggering(&state_key).is_some(), false);
+        fsm.update(state_key.clone(), State::Triggering);
+        assert_eq!(fsm.is_triggering(&state_key).is_some(), false);
+        fsm.update(state_key.clone(), State::Triggering);
+        assert_eq!(fsm.is_triggering(&state_key).is_some(), false);
+        fsm.update(state_key.clone(), State::Nominal);
+        assert_eq!(fsm.is_triggering(&state_key).is_some(), true);
+    }
+}
+
