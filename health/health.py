@@ -3,6 +3,7 @@ import argparse
 import zmq
 import protobuf.opq_pb2
 import requests
+import os
 from time import ctime
 from time import sleep
 from time import time
@@ -345,8 +346,31 @@ def set_mongo_url(url):
     global mongo_addr
     mongo_addr = url
 
+def with_env_vars(config):
+    # Checks for the following env vars, overwriting default values if set:
+    # MONGO_URL, VIEW_URL, BOX_URL, MAUKA_URL, MAKAI_PUSH_URL, MAKAI_SUB_URL
+
+    # Mongo Env
+    config[4]['url'] = os.getenv('MONGO_URL', config[4]['url'])
+
+    # View Env
+    config[3]['url'] = os.getenv('VIEW_URL', config[3]['url'])
+
+    # Box Env
+    config[0]['box_port'] = os.getenv('BOX_URL', config[0]['box_port'])
+
+    # Mauka Env
+    config[1]['url'] = os.getenv('MAUKA_URL', config[1]['url'])
+
+    # Makai Env
+    config[2]['mongo'] = os.getenv('MONGO_URL', config[2]['mongo'])
+    config[2]['push_port'] = os.getenv('MAKAI_PUSH_URL', config[2]['push_port'])
+    config[2]['sub_port'] = os.getenv('MAKAI_SUB_URL', config[2]['sub_port'])
+
+    return config
+
 def main(config_file):
-    health_config = file_to_dict(config_file)
+    health_config = with_env_vars(file_to_dict(config_file))
 
     set_mongo_url(health_config[4]['url'])
 

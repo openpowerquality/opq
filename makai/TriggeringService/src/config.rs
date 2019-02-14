@@ -1,6 +1,7 @@
 use serde_json::{from_reader, Value};
 use std::fs::File;
 use std::path::Path;
+use uuid::Uuid;
 
 ///Representation of the configuration file's required fields.
 #[derive(Debug, Serialize, Deserialize)]
@@ -19,6 +20,8 @@ pub struct Settings {
     pub mongo_trends_update_interval_seconds: u64,
     ///How long the overlapping intervals structure keeps data.
     pub event_request_expiration_window_ms: u64,
+    ///Makai Instance Identity.
+    pub identity : Option<String>,
     ///Plugin specific settings.
     pub plugins: Vec<Value>,
 }
@@ -27,7 +30,11 @@ impl Settings {
     /// Load the settings file from disk.
     pub fn load_from_file<P: AsRef<Path>>(path: P) -> Result<Settings, String> {
         let file = File::open(path).or(Err("No such file"))?;
-        let u = from_reader(file).or(Err("Could not parse config file."))?;
-        Ok(u)
+        let mut settings : Settings = from_reader(file).or(Err("Could not parse config file."))?;
+        if settings.identity.is_none(){
+            settings.identity = Some(Uuid::new_v4().to_string());
+        }
+        println!("Staring with identity: {}", settings.identity.clone().unwrap());
+        Ok(settings)
     }
 }

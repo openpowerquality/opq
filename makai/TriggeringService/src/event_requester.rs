@@ -11,6 +11,7 @@ pub type SyncEventRequester = Arc<Mutex<EventRequester>>;
 pub struct EventRequester {
     ///ZMQ socket to the acquisition broker.
     acq_broker: zmq::Socket,
+    identity : String,
 }
 
 impl EventRequester {
@@ -18,6 +19,7 @@ impl EventRequester {
     pub fn new(ctx: &zmq::Context, settings: &Settings) -> EventRequester {
         let ret = EventRequester {
             acq_broker: ctx.socket(zmq::PUSH).unwrap(),
+            identity : settings.identity.clone().unwrap(),
         };
         ret.acq_broker
             .connect(&settings.zmq_acquisition_endpoint)
@@ -26,7 +28,8 @@ impl EventRequester {
     }
 
     /// Sends a request for an event to the acquisition broker.
-    pub fn trigger(&mut self, request: &Command) {
+    pub fn trigger(&mut self, request: &mut Command) {
+        request.identity = self.identity.clone();
         let serialized = request.write_to_bytes().unwrap();
         self.acq_broker.send(&serialized, 0).unwrap();
     }
