@@ -52,8 +52,18 @@ services:
     image: ${HEALTH_IMAGE}
     depends_on:
       - mongo
+      - mauka
+      - view
     restart: always
-    network_mode: "host"
+    extra_hosts:
+      - "dockerhostnet:${DOCKER_HOST_IP}"
+    environment:
+      - MONGO_URL=${HEALTH_MONGO_URL}
+      - VIEW_URL=${HEALTH_VIEW_URL}
+      - BOX_URL=${HEALTH_BOX_URL}
+      - MAUKA_URL=${HEALTH_MAUKA_URL}
+      - MAKAI_PUSH_URL=${HEALTH_MAKAI_PUSH_URL}
+      - MAKAI_SUB_URL=${HEALTH_MAKAI_SUB_URL}
     volumes:
       - /tmp/opqhealth:/var/log/health
   boxupdateserver:
