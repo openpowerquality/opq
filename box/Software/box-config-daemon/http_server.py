@@ -6,7 +6,7 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 import json
 import logging
 
-# import pify.pify
+import pify.pify
 import threading
 
 import updater.updater as updater
