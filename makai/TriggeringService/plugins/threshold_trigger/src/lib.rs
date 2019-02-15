@@ -187,12 +187,26 @@ impl ThresholdTriggerPlugin {
         threshold_high: f32,
     ) -> Option<Trigger> {
         let state_key = StateKey::from(measurement.box_id, trigger_type);
+        if self.settings.debug {
+            println!("Checking metric for {}", metric);
+        }
         match measurement.metrics.get(metric) {
-            None => return None,
+            None => {
+                if self.settings.debug {
+                    println!("No metric found for {}", metric);
+                }
+                return None;
+            },
             Some(metric) => {
                 if metric.min < threshold_low || metric.max > threshold_high {
+                    if self.settings.debug {
+                        println!("Metrics are triggering metric min:{} metric max:{} threshold low:{} threshold high: {}", metric.min, metric.max, threshold_low, threshold_high);
+                    }
                     self.fsm.update(state_key.clone(), State::Triggering)
                 } else {
+                    if self.settings.debug {
+                        println!("Metrics are nominal metric min:{} metric max:{} threshold low:{} threshold high: {}", metric.min, metric.max, threshold_low, threshold_high);
+                    }
                     self.fsm.update(state_key.clone(), State::Nominal)
                 }
             }
@@ -261,7 +275,8 @@ impl MakaiPlugin for ThresholdTriggerPlugin {
 
     fn process_measurement(&mut self, measurement: Arc<Measurement>) -> Option<Vec<Command>> {
         if self.settings.debug {
-            println!("{:#?}", self.fsm)
+            println!("{:#?}", measurement);
+            println!("{:#?}", self.fsm);
         }
 
         let mut cmds = Vec::new();
@@ -328,9 +343,16 @@ mod tests {
     use StateKey;
     use TriggerType;
     use triggering_service::proto::opqbox3::Command_oneof_command::send_command_to_plugin;
+    use triggering_service::proto::opqbox3::Measurement;
+    use timestamp_ms;
+    use std::collections::HashMap;
+    use triggering_service::proto::opqbox3::Metric;
+    use ThresholdTriggerPlugin;
+    use std::fs::File;
+    use std::io::Read;
 
     #[test]
-    fn test() {
+    fn test_fsm() {
         let mut fsm = Fsm::new();
         let state_key = StateKey::from(1, TriggerType::Frequency);
 
@@ -344,6 +366,19 @@ mod tests {
         assert_eq!(fsm.is_triggering(&state_key).is_some(), false);
         fsm.update(state_key.clone(), State::Nominal);
         assert_eq!(fsm.is_triggering(&state_key).is_some(), true);
+    }
+
+    fn make_voltage_measurement(rms_low: f32, rms_high: f32) -> Measurement {
+        let mut measurement = Measurement::new();
+        measurement.box_id = 1;
+        measurement.timestamp_ms = timestamp_ms();
+        let mut metrics: HashMap<String, Metric> = HashMap::new();
+        let mut metric = Metric::new();
+        metric.set_min(rms_low);
+        metric.set_max(rms_high);
+        metrics.insert(String::from("rms"), metric);
+        measurement.set_metrics(metrics);
+        return measurement;
     }
 }
 
