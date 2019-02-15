@@ -10,6 +10,8 @@ extern crate serde;
 extern crate serde_derive;
 extern crate serde_json;
 extern crate time;
+extern crate mongodb;
+
 use std::thread;
 use std::sync::Arc;
 use std::env;
@@ -18,6 +20,7 @@ use triggering_service::config::Settings;
 use triggering_service::trigger_receiver::TriggerReceiver;
 use triggering_service::plugin_manager::PluginManager;
 use triggering_service::proto::opqbox3::Measurement;
+use triggering_service::mongo_storage_service::MongoStorageService;
 
 //mod config;
 
@@ -34,24 +37,21 @@ fn main() {
         Err(e) => {println!("Could not load a settings file {}: {}", config_path, e); return},
     };
 
-    /*
-    //DB
-    let client = match Client::connect(&settings.mongo_host, settings.mongo_port) {
-        Ok(t) => t,
-        Err(e) => {println!("Could not initialize mongo: {}", e); return}
-    };
-    */
 
     let ctx = zmq::Context::new();
 
     let channel: pub_sub::PubSub<Arc<Measurement>> = pub_sub::PubSub::new();
     let zmq_reader = TriggerReceiver::new(channel.clone(), &ctx, &settings);
-
+    let mut mongo_storage = MongoStorageService::new(&ctx, &settings);
     //let mongo = MongoMeasurements::new(&client, channel.subscribe(), &settings);
 
     let mut handles = vec![];
     handles.push(thread::spawn(move || {
         zmq_reader.run_loop();
+    }));
+
+    handles.push(thread::spawn(move || {
+        mongo_storage.run_loop();
     }));
 
     //handles.push(thread::spawn(move || {

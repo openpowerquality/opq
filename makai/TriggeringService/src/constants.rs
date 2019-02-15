@@ -47,3 +47,17 @@ pub static MONGO_OPQ_BOXES_COLLECTION: &str = "opq_boxes";
 pub static MONGO_OPQ_BOXES_BOX_ID_FIELD: &str = "box_id";
 //Mongo boxes collection box id.
 pub static MONGO_OPQ_BOXES_LOCATION_FIELD: &str = "location";
+
+
+//Mongo events collection:
+pub static MONGO_BOX_EVENTS_COLLECTION: &str = "box_events";
+//Mongo events collection event id;
+pub static MONGO_BOX_EVENTS_ID_FIELD: &str = "event_id";
+
+
+pub static MONGO_BOX_EVENTS_BOX_ID_FIELD: &str  = "box_id";
+pub static MONGO_BOX_EVENTS_EVENT_START_FIELD: &str  = "event_start_timestamp_ms";
+pub static MONGO_BOX_EVENTS_EVENT_END_FIELD: &str  = "event_end_timestamp_ms";
+pub static MONGO_BOX_EVENTS_WINDOW_TS_FIELD: &str  = "window_timestamps_ms";
+pub static MONGO_BOX_EVENTS_LOCATION_FIELD: &str  = "location";
+pub static MONGO_BOX_EVENTS_FS_FIELD: &str  = "data_fs_filename";
