@@ -53,7 +53,10 @@ impl StateEntry {
 
     fn mutable_update(&mut self, state: State) {
         self.prev_state = self.latest_state.clone();
-        self.prev_state_timestamp_ms = self.latest_state_timestamp_ms;
+        // Don't update timestamp if previous state was triggering
+        if self.prev_state != State::Triggering {
+            self.prev_state_timestamp_ms = self.latest_state_timestamp_ms;
+        }
         self.latest_state = state;
         self.latest_state_timestamp_ms = timestamp_ms();
     }
