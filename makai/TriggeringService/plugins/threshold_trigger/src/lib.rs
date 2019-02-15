@@ -302,7 +302,12 @@ impl MakaiPlugin for ThresholdTriggerPlugin {
             }
         }
 
-        None
+        if cmds.is_empty() {
+            return None;
+        }
+        else {
+            return Some(cmds);
+        }
     }
 
     fn on_plugin_load(&mut self, args: String) {
