@@ -53,7 +53,10 @@ impl StateEntry {
 
     fn mutable_update(&mut self, state: State) {
         self.prev_state = self.latest_state.clone();
-        self.prev_state_timestamp_ms = self.latest_state_timestamp_ms;
+        // Don't update timestamp if previous state was triggering
+        if self.prev_state != State::Triggering {
+            self.prev_state_timestamp_ms = self.latest_state_timestamp_ms;
+        }
         self.latest_state = state;
         self.latest_state_timestamp_ms = timestamp_ms();
     }
@@ -355,6 +358,8 @@ mod tests {
     use ThresholdTriggerPlugin;
     use std::fs::File;
     use std::io::Read;
+    use std::thread::sleep;
+    use std::time::Duration;
 
     #[test]
     fn test_fsm() {
@@ -371,19 +376,6 @@ mod tests {
         assert_eq!(fsm.is_triggering(&state_key).is_some(), false);
         fsm.update(state_key.clone(), State::Nominal);
         assert_eq!(fsm.is_triggering(&state_key).is_some(), true);
-    }
-
-    fn make_voltage_measurement(rms_low: f32, rms_high: f32) -> Measurement {
-        let mut measurement = Measurement::new();
-        measurement.box_id = 1;
-        measurement.timestamp_ms = timestamp_ms();
-        let mut metrics: HashMap<String, Metric> = HashMap::new();
-        let mut metric = Metric::new();
-        metric.set_min(rms_low);
-        metric.set_max(rms_high);
-        metrics.insert(String::from("rms"), metric);
-        measurement.set_metrics(metrics);
-        return measurement;
     }
 }
 
