@@ -14,6 +14,8 @@
 #include <chrono>
 using namespace std::string_literals;
 
+using namespace std;
+
 /*
  * App-to-box thread callable.
  */
@@ -37,6 +39,7 @@ int main (int argc, char **argv) {
 
 	auto ctx = zmqpp::context{};
 	zmqpp::auth auth{ctx};
+  auth.set_verbose(true);
 	auth.configure_domain("*");
 
 	//Load all of the client public keys.
@@ -99,16 +102,17 @@ void app_to_box(zmqpp::context& ctx, SynchronizedMap<int, string>& map, Config c
 	while (true) {
 		string msg;
 		pull.receive(msg);
-
+    std::cout << "Poop" << std::endl;
 		// Deserialize the message upon receiving it
 		opq::opqbox3::Command cmd;
 		cmd.ParseFromString(msg);
-        cmd.set_seq(sequence);
+    cmd.set_seq(sequence);
 		// Log the identity of the app
 		map.insert(sequence, cmd.identity());
-        sequence++;
+    sequence++;
 		// Forward it to boxes subscribed to the box_id as topic
 		zmqpp::message fwd;
+    cout << cmd.box_id() << endl;
 		fwd.add(cmd.box_id());
 		fwd.add(cmd.SerializeAsString());
 		pub.send(fwd);
@@ -135,7 +139,7 @@ void box_to_app(zmqpp::context& ctx, SynchronizedMap<int, string>& map, Config c
 	while (true) {
 		string msg;
 		pull.receive(msg);
-
+    std::cout << "Also Poop" << std::endl;
 		// Deserialize the message upon receiving it
 		opq::opqbox3::Response res;
 		res.ParseFromString(msg);

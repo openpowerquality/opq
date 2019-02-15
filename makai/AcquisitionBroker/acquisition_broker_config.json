@@ -1,8 +1,8 @@
 {
   "client_certs": "/etc/opq/curve/public_keys",
   "server_cert": "/etc/opq/curve/private_keys/opqserver_secret",
-  "box_pub": "tcp://*:8194",
-  "box_pull": "tcp://*:8196",
+  "box_pub": "tcp://*:9000",
+  "box_pull": "tcp://*:9001",
   "backend_pull": "tcp://*:9884",
   "backend_pub": "tcp://*:9899",
   "mongo_uri": "mongodb://localhost:27017",
