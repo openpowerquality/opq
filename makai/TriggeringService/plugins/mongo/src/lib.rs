@@ -15,6 +15,8 @@ use mongodb::db::ThreadedDatabase;
 //extern crate bson;
 //use bson::Document;
 //use chrono::prelude::*;
+//use std::time::Duration;
+use chrono::{DateTime, Utc, Duration};
 
 //extern crate triggering_service::constants::*;
 
@@ -27,8 +29,9 @@ extern crate serde_json;
 
 #[derive(Serialize, Deserialize, Default, Debug)]
 struct MongoPluginSettings{
-    pub host : str,
-    pub port: i32
+    pub host : &'static str,
+    pub port : u16,
+    pub measurement_expiration_seconds : i64
 }
 
 #[derive(Debug, Default)]
@@ -42,7 +45,8 @@ pub struct MongoPlugin{
 impl MongoPlugin {
     fn new() -> MongoPlugin{
         MongoPlugin{
-            settings : MongoPluginSettings::default()
+            //settings : MongoPluginSettings::default(),
+            //client : Client::connect("localhost", 27017).expect("adfa")
         }
     }
 }
@@ -54,19 +58,19 @@ impl MakaiPlugin for MongoPlugin {
     }
 
     fn process_measurement(&mut self, msg: Arc<Measurement>) -> Option<Vec<Command>> {
-        // Get voltage, frequency and thd... hopefully it errors out if cannot
+        // Get voltage, frequency and thd...
         let metrics = msg.get_metrics();
-        let volt = metrics.find("voltage").unwrap().expect("Unable to retrieve voltage.");
-        let freq = metrics.find("frequency").unwrap().expect("Unable to retrieve frequency.");
-        let thd = metrics.find("thd").unwrap().expect("Unable to retrieve frequency.");
+        let volt = metrics.get("rms").expect("Unable to retrieve voltage.");
+        let freq = metrics.get("f").expect("Unable to retrieve frequency.");
+        let thd = metrics.get("thd").expect("Unable to retrieve frequency.");
         let expire_time: DateTime<Utc> =
             Utc::now() + Duration::seconds(self.settings.measurement_expiration_seconds as i64);
         let bson_expire_time = Bson::from(expire_time);
 
         // Insert live measurement
         let mut doc = doc! {
-            MONGO_BOX_ID_FIELD : msg.get_id().to_string(),
-            MONGO_TIMESTAMP_FIELD : msg.get_time() as u64,
+            MONGO_BOX_ID_FIELD : msg.box_id.to_string(),
+            MONGO_TIMESTAMP_FIELD : msg.timestamp_ms as u64,
             MONGO_MEASUREMENTS_VOLTAGE_FIELD : volt.get_average() as f32,
             MONGO_MEASUREMENTS_FREQUENCY_FIELD : freq.get_average() as f32,
             MONGO_MEASUREMENTS_THD_FIELD: thd.get_average() as f32,
@@ -114,7 +118,7 @@ impl MakaiPlugin for MongoPlugin {
             Err(e) => {println!("Bad settings file for plugin {}: {:?}", self.name(), e); MongoPluginSettings::default()}
         };
 
-        self.client = Client::connect(settings.host, settings.port).expect("Failed to initialize client.");
+        self.client = Client::connect(self.settings.host, self.settings.port).expect("Failed to initialize client.");
         self.live_coll = self.client.db(MONGO_DATABASE).collection(MONGO_MEASUREMENT_COLLECTION);
         self.slow_coll = self.client.db(MONGO_DATABASE).collection(MONGO_LONG_TERM_MEASUREMENT_COLLECTION);
     }
