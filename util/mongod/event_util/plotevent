@@ -26,6 +26,7 @@ def to_s16bit(data: bytes) -> np.ndarray:
 def waveform_from_file(fs: gridfs.GridFS, filename: str) -> np.ndarray:
     buf = fs.get_last_version(filename).read()
     s16bit_buf = to_s16bit(buf)
+    print (s16bit_buf) 
     return s16bit_buf
 
 database_name = "opq"
@@ -56,7 +57,11 @@ cal_constant = 1
 
 for box_event in box_events.find( {"event_id" : event_num}):
     event_name = box_event["data_fs_filename"]
-    box_cal = float(box_info.find_one({"box_id" : box_event["box_id"]})["calibration_constant"])
+    box_cal = box_info.find_one({"box_id" : box_event["box_id"]})
+    if box_cal == None:
+        box_cal = 1
+    else:
+        box_cal = float(box_cal["calibration_constant"])
     event_data = waveform_from_file(fs, event_name)
     event_data = event_data[min:max]
     event_data = [x/box_cal for x in event_data]

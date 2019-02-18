@@ -1,7 +1,7 @@
 {
-  "zmq_trigger_endpoint" : "tcp://10.0.1.8:9881",
-  "zmq_acquisition_endpoint" : "tcp://10.0.1.8:9884",
-  "zmq_data_endpoint" : "tcp://127.0.0.1:9899",
+  "zmq_trigger_endpoint" : "tcp://localhost:9881",
+  "zmq_acquisition_endpoint" : "tcp://localhost:9899",
+  "zmq_data_endpoint" : "tcp://localhost:9884",
   "mongo_host" : "localhost",
   "mongo_port" : 27017,
   "mongo_measurement_expiration_seconds" : 86400,
@@ -9,11 +9,11 @@
   "event_request_expiration_window_ms" : 1800000,
   "plugins" : [
     {
-      "path" : "./libprint_plugin.so",
+      "path" : "/usr/local/opq/makai/plugins//libprint_plugin.so",
       "print" : false
     },
     {
-      "path" : "./libhealth_plugin.so",
+      "path" : "/usr/local/opq/makai/plugins//libhealth_plugin.so",
       "address" : "localhost:8080"
     }
     

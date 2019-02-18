@@ -99,10 +99,10 @@ impl MongoStorageService {
                     let cycle = cycle_result.unwrap();
                     let mut data_to_write = vec![];
                     for sample in cycle.datapoints{
-                        let high = ((sample >> 8) | 0xFF00) as u8;
-                        let low = (sample | 0xFF) as u8;
-                        data_to_write.push(high);
+                        let high = ((sample >> 8) & 0xFF) as u8;
+                        let low = (sample & 0xFF) as u8;
                         data_to_write.push(low);
+                        data_to_write.push(high);
                     }
                     data_file.write_all(&data_to_write).unwrap();
                 }
