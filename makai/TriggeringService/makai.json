@@ -1,8 +1,8 @@
 {
   "zmq_trigger_endpoint" : "tcp://10.0.1.8:9881",
   "zmq_acquisition_endpoint" : "tcp://10.0.1.8:9884",
+  "zmq_data_endpoint" : "tcp://127.0.0.1:9899",
   "mongo_host" : "localhost",
-  "zmq_data_endpoint" : "tcp://127.0.0.1:9881",
   "mongo_port" : 27017,
   "mongo_measurement_expiration_seconds" : 86400,
   "mongo_trends_update_interval_seconds" : 60,
@@ -15,18 +15,8 @@
     {
       "path" : "./libhealth_plugin.so",
       "address" : "localhost:8080"
-    },
-    {
-      "path" : "./libthreshold_trigger_plugin.so",
-      "reference_frequency": 60.0,
-      "frequency_threshold_percent_low": 0.05,
-      "frequency_threshold_percent_high": 0.05,
-      "reference_voltage": 120.0,
-      "voltage_threshold_percent_low": 0.05,
-      "voltage_threshold_percent_high": 0.05,
-      "thd_threshold_high": 0.05,
-      "debug": false
     }
+    
   ]
 
 }

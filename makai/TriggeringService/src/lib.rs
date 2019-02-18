@@ -11,7 +11,6 @@ extern crate serde_json;
 extern crate time;
 extern crate uuid;
 extern crate mongodb;
-#[macro_use]
 extern crate bson;
 
 pub mod trigger_receiver;

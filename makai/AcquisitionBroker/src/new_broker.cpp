@@ -12,6 +12,7 @@
 #include <mongocxx/instance.hpp>
 #include <thread>
 #include <chrono>
+
 using namespace std::string_literals;
 
 using namespace std;
@@ -19,109 +20,112 @@ using namespace std;
 /*
  * App-to-box thread callable.
  */
-void app_to_box(zmqpp::context& ctx, SynchronizedMap<int, string>& map, Config config, string cert);
+void app_to_box(zmqpp::context &ctx, SynchronizedMap<int, string> &map, Config config, string cert);
 
 /*
  * Box-to-app thread callable.
  */
-void box_to_app(zmqpp::context& ctx, SynchronizedMap<int, string>& map, Config config, string cert);
+void box_to_app(zmqpp::context &ctx, SynchronizedMap<int, string> &map, Config config, string cert);
 
-int main (int argc, char **argv) {
-	auto config = argc == 1 ? Config{} : Config{ argv[1] };
+int main(int argc, char **argv) {
+    auto config = argc == 1 ? Config{} : Config{argv[1]};
 
-	//Load our certificate. Make sure we get both public and private keys.
-	auto server_cert = load_certificate(config.private_cert);
-	if(server_cert.first == "" || server_cert.second != ""){
-	    syslog(LOG_ERR, "Could not load Certificates");
-	}
+    //Load our certificate. Make sure we get both public and private keys.
+    auto server_cert = load_certificate(config.private_cert);
+    if (server_cert.first == "" || server_cert.second != "") {
+        syslog(LOG_ERR, "Could not load Certificates");
+    }
 
-	syslog(LOG_NOTICE, "%s", ("server public key " +  server_cert.first).c_str());
+    syslog(LOG_NOTICE, "%s", ("server public key " + server_cert.first).c_str());
 
-	auto ctx = zmqpp::context{};
-	zmqpp::auth auth{ctx};
-  auth.set_verbose(true);
-	auth.configure_domain("*");
+    auto ctx = zmqpp::context{};
+    zmqpp::auth auth{ctx};
+    auth.set_verbose(true);
+    auth.configure_domain("*");
 
-	//Load all of the client public keys.
-	int count = 0;
-	mongocxx::instance inst{};
-	mongocxx::client conn{mongocxx::uri{}};
+    //Load all of the client public keys.
+    int count = 0;
+    mongocxx::instance inst{};
+    mongocxx::client conn{mongocxx::uri{}};
 
-	if (config.white_list) {
+    if (config.white_list) {
 
-		auto opq_boxes = conn["opq"]["opq_boxes"];
-		auto cursor = opq_boxes.find({});
+        auto opq_boxes = conn["opq"]["opq_boxes"];
+        auto cursor = opq_boxes.find({});
 
-		for (auto&& doc : cursor) {
-			auto public_key = doc["public_key"];
-	 		auto client_public_cert = public_key? public_key.get_utf8().value.to_string() : ""s;
+        for (auto &&doc : cursor) {
+            auto public_key = doc["public_key"];
+            auto client_public_cert = public_key ? public_key.get_utf8().value.to_string() : ""s;
 
-	    		auth.configure_curve(client_public_cert);
-	    		count++;
-			//std::cout << ".";
-		}
+            auth.configure_curve(client_public_cert);
+            count++;
+            //std::cout << ".";
+        }
 
-		syslog(LOG_NOTICE, "%s", ("Loaded " + std::to_string(count) + " keys").c_str());
-	} else {
-		syslog(LOG_NOTICE, "Whitelisting Disabled");
-		auth.configure_curve("CURVE_ALLOW_ANY");
-	}
+        syslog(LOG_NOTICE, "%s", ("Loaded " + std::to_string(count) + " keys").c_str());
+    } else {
+        syslog(LOG_NOTICE, "Whitelisting Disabled");
+        auth.configure_curve("CURVE_ALLOW_ANY");
+    }
 
-	SynchronizedMap<int, string> map;
+    SynchronizedMap<int, string> map;
 
-	// Starts the thread that pulls from app and publishes to box
-	std::thread th1{app_to_box, std::ref(ctx), std::ref(map), config, server_cert.second};
-  std::thread th2{box_to_app, std::ref(ctx), std::ref(map), config, server_cert.second};
-	// For good measure
-	th1.join();
-	th2.join();
-	return 0;
+    // Starts the thread that pulls from app and publishes to box
+    std::thread th1{app_to_box, std::ref(ctx), std::ref(map), config, server_cert.second};
+    std::thread th2{box_to_app, std::ref(ctx), std::ref(map), config, server_cert.second};
+    // For good measure
+    th1.join();
+    th2.join();
+    return 0;
 }
 
-void app_to_box(zmqpp::context& ctx, SynchronizedMap<int, string>& map, Config config, string cert) {
-	//std::cout << "Hello from app-to-box thread" << std::endl;
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wmissing-noreturn"
 
-	// Initialize pull socket
-	zmqpp::socket pull{ctx, zmqpp::socket_type::pull};
-	pull.bind(config.backend_interface_pull);
-	//pull.bind("tcp://*:4444");
+void app_to_box(zmqpp::context &ctx, SynchronizedMap<int, string> &map, Config config, string cert) {
+    //std::cout << "Hello from app-to-box thread" << std::endl;
 
-	// Initialize pub socket and encrypt it
-	zmqpp::socket pub{ctx, zmqpp::socket_type::publish};
-	pub.set(zmqpp::socket_option::identity, "ACQ_BROKER");
-	pub.set(zmqpp::socket_option::curve_server, true);
-	pub.set(zmqpp::socket_option::curve_secret_key, cert);
-	pub.set(zmqpp::socket_option::zap_domain, "global");
-	pub.bind(config.box_interface_pub);
+    // Initialize pull socket
+    zmqpp::socket pull{ctx, zmqpp::socket_type::pull};
+    pull.bind(config.backend_interface_pull);
+    //pull.bind("tcp://*:4444");
 
-	// Wait for sockets to bind
-	std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    // Initialize pub socket and encrypt it
+    zmqpp::socket pub{ctx, zmqpp::socket_type::publish};
+    pub.set(zmqpp::socket_option::identity, "ACQ_BROKER");
+    pub.set(zmqpp::socket_option::curve_server, true);
+    pub.set(zmqpp::socket_option::curve_secret_key, cert);
+    pub.set(zmqpp::socket_option::zap_domain, "global");
+    pub.bind(config.box_interface_pub);
+
+    // Wait for sockets to bind
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
     uint32_t sequence = 0;
 
-	while (true) {
-		string msg;
-		pull.receive(msg);
-    std::cout << "Poop" << std::endl;
-		// Deserialize the message upon receiving it
-		opq::opqbox3::Command cmd;
-		cmd.ParseFromString(msg);
-    cmd.set_seq(sequence);
-		// Log the identity of the app
-		map.insert(sequence, cmd.identity());
-    sequence++;
-		// Forward it to boxes subscribed to the box_id as topic
-		zmqpp::message fwd;
-    cout << cmd.box_id() << endl;
-		fwd.add(cmd.box_id());
-		fwd.add(cmd.SerializeAsString());
-		pub.send(fwd);
-	}
+    while (true) {
+        string msg;
+        pull.receive(msg);
+        // Deserialize the message upon receiving it
+        opq::opqbox3::Command cmd;
+        cmd.ParseFromString(msg);
+        cmd.set_seq(sequence);
+        // Log the identity of the app
+        map.insert(sequence, cmd.identity());
+        cout << "New command for box " << cmd.box_id() << " sequence " << sequence << endl;
+
+        sequence++;
+        // Forward it to boxes subscribed to the box_id as topic
+        zmqpp::message fwd;
+        fwd.add(std::to_string(cmd.box_id()));
+        fwd.add(cmd.SerializeAsString());
+        pub.send(fwd);
+    }
 }
 
-void box_to_app(zmqpp::context& ctx, SynchronizedMap<int, string>& map, Config config, string cert) {
-	// Initialize pull socket
-	zmqpp::socket pull{ctx, zmqpp::socket_type::pull};
+void box_to_app(zmqpp::context &ctx, SynchronizedMap<int, string> &map, Config config, string cert) {
+    // Initialize pull socket
+    zmqpp::socket pull{ctx, zmqpp::socket_type::pull};
     pull.set(zmqpp::socket_option::identity, "ACQ_BROKER");
     pull.set(zmqpp::socket_option::curve_server, true);
     pull.set(zmqpp::socket_option::curve_secret_key, cert);
@@ -129,35 +133,36 @@ void box_to_app(zmqpp::context& ctx, SynchronizedMap<int, string>& map, Config c
     pull.bind(config.box_interface_pull);
 
 
-	// Initialize pub socket and encrypt it
-	zmqpp::socket pub{ctx, zmqpp::socket_type::publish};
-	pub.bind(config.backend_interface_pub);
+    // Initialize pub socket and encrypt it
+    zmqpp::socket pub{ctx, zmqpp::socket_type::publish};
+    pub.bind(config.backend_interface_pub);
 
-	// Wait for sockets to bind
-	std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    // Wait for sockets to bind
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
-	while (true) {
-		string msg;
-		pull.receive(msg);
-    std::cout << "Also Poop" << std::endl;
-		// Deserialize the message upon receiving it
-		opq::opqbox3::Response res;
-		res.ParseFromString(msg);
+    while (true) {
+        zmqpp::message_t message;
 
-		// Find the identity of the app
-		auto iterator = map.find(res.seq());
-		if (iterator == map.end()) {
-			// Drop the message
-			continue;
-		}
+        pull.receive(message);
 
-		// Forward it to boxes subscribed to the identity as topic
-		zmqpp::message fwd;
-		fwd.add(iterator->second);
-		fwd.add(msg);
+        string header = message.get(0);
+        // Deserialize the message upon receiving it
+        opq::opqbox3::Response res;
+        res.ParseFromString(header);
 
-		map.erase(res.box_id());
+        cout << "New response from box " << res.box_id() << " sequence " << res.seq() << endl;
 
-		pub.send(fwd);
-	}
+        // Find the identity of the app
+        auto iterator = map.find(res.seq());
+        if (iterator == map.end()) {
+            // Drop the message
+            continue;
+        }
+        message.push_front(iterator->second);
+        map.erase(res.seq());
+
+        pub.send(message);
+    }
 }
+
+#pragma clang diagnostic pop

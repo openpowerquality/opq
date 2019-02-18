@@ -10,14 +10,21 @@ pub fn start_server(stats : Arc<Mutex<Statistics>>, settings : HealthPluginSetti
         router!(request,
         (GET) (/) => {
 
-            let mut stats = stats.lock().unwrap();
+            let stats = stats.lock().unwrap();
             let mut out = Vec::new();
             for (key, value) in stats.box_status.iter(){
                 out.push(value.clone());
             }
             Response::json(&out)
         },
+        (GET) (/trigger) => {
+            let mut stats = stats.lock().unwrap();
+            stats.trigger_now = true;
+            Response::html("Triggered!")
+        },
+
         _ => Response::empty_404()
     )
+
     })
 }

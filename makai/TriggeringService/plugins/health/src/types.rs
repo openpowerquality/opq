@@ -2,7 +2,8 @@ use std::collections::HashMap;
 
 #[derive(Default)]
 pub struct Statistics{
-    pub box_status : HashMap<u32, OpqBox>
+    pub box_status : HashMap<u32, OpqBox>,
+    pub trigger_now : bool
 }
 
 #[derive(Serialize, Default, Copy, Clone)]

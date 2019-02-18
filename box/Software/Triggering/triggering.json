@@ -10,8 +10,7 @@
   "device_path" : "/home/tusk/pipe",
   
   "calibration" : 152.5,
-  "windows_per_measurements" : 10,
+  "windows_per_measurements" : 60,
   "windows_in_storage_buffer" : 3000,
-  "plugins" : [
-               "./libprint_plugin.so"]
+  "plugins" : []
 }

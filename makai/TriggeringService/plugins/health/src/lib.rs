@@ -4,6 +4,8 @@ use std::str;
 use triggering_service::makai_plugin::MakaiPlugin;
 use triggering_service::proto::opqbox3::Measurement;
 use triggering_service::proto::opqbox3::Command;
+use triggering_service::proto::opqbox3::GetDataCommand;
+use triggering_service::proto::opqbox3::Command_oneof_command;
 use std::sync::Arc;
 use std::thread;
 use std::sync::Mutex;
@@ -39,6 +41,19 @@ impl MakaiPlugin for HealthPlugin {
             ok: true,
         };
         stats.box_status.insert(msg.box_id, opq_box );
+        if stats.trigger_now {
+            stats.trigger_now = false;
+            let mut trg = Command::new();
+            trg.box_id  = msg.box_id as i32;
+            trg.timestamp_ms = 0;
+            let mut get_data = GetDataCommand::new();
+            get_data.start_ms = msg.timestamp_ms - 1000;
+            get_data.end_ms = msg.timestamp_ms - 500;
+            get_data.wait = false;
+            trg.command = Some(Command_oneof_command::data_command(get_data));
+            println!("Forced Trigger");
+            return Some(vec![trg]);
+        }
         None
     }
 
