@@ -9,4 +9,4 @@
 export METEOR_SETTINGS=$(cat settings.production.json)
 
 # Startup Docker-Compose. Note: Be sure that docker-compose.yml is same directory as this script.
-docker-compose up -d
+docker-compose up -d --remove-orphans
