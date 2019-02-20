@@ -107,7 +107,7 @@ impl MongoStorageService {
                     }
                     data_file.write_all(&data_to_write).unwrap();
                 }
-                self.event_broker.send_multipart(&["".as_bytes(), event_number.to_string().as_bytes()], 0);
+                self.event_broker.send_multipart(&["".as_bytes(), event_number.to_string().as_bytes()], 0).unwrap();
                 event_number += 1;
             }
         }
