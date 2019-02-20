@@ -40,7 +40,7 @@ impl MongoStorageService {
         };
         receiver.acq_broker.connect(&settings.zmq_data_endpoint).unwrap();
         receiver.acq_broker.set_subscribe(receiver.identity.as_bytes()).unwrap();
-        receiver.event_broker.connect(&settings.zmq_event_endpoint).unwrap();
+        receiver.event_broker.bind(&settings.zmq_event_endpoint).unwrap();
 
         receiver
     }
