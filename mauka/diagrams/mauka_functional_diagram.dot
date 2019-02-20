@@ -5,13 +5,6 @@ digraph mauka_functional_diagram {
 
     // Coming from Makai
     OPQMakai -> MakaiEventPlugin [label="MakaiEvent"]
-    OPQMakai -> FrequencyThresholdPlugin [label="measurements"]
-    OPQMakai -> VoltageThresholdPlugin [label="measurements"]
-
-    // Going back to Makai
-    FrequencyThresholdPlugin -> AcquisitionTriggerPlugin [label="FrequencyEvent"]
-    VoltageThresholdPlugin -> AcquisitionTriggerPlugin [label="VoltageEvent"]
-    AcquisitionTriggerPlugin -> OPQMakai
 
     // From MaukaPlugin
     MaukaPlugin -> OutagePlugin [label="heartbeat"]

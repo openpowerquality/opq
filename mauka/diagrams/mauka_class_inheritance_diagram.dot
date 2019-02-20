@@ -1,5 +1,4 @@
 digraph mauka_class_inheritance_diagram {
-    MaukaPlugin -> AcquisitionTriggerPlugin
     MaukaPlugin -> FrequencyVariationPlugin
     MaukaPlugin -> Ieee1159VoltagePlugin
     MaukaPlugin -> IticPlugin
@@ -9,9 +8,5 @@ digraph mauka_class_inheritance_diagram {
     MaukaPlugin -> SemiF47Plugin
     MaukaPlugin -> StatusPlugin
     MaukaPlugin -> ThdPlugin
-    MaukaPlugin -> ThresholdPlugin
     MaukaPlugin -> TransientPlugin
-
-    ThresholdPlugin -> FrequencyThresholdPlugin
-    ThresholdPlugin -> VoltageThresholdPlugin
 }

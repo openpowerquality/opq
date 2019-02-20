@@ -3,7 +3,6 @@ digraph mauka_services_diagram {
 
     subgraph cluster_mauka {
         label="OPQMauka";
-        MakaiMeasurementBridge [label="Makai Measurement Bridge"];
         MakaiEventBridge [label="Makai Event Bridge"];
         PubSubBroker [label="Mauka Pub/Sub Broker"];
         MaukaPlugins [label="Mauka Plugins"];
@@ -11,7 +10,6 @@ digraph mauka_services_diagram {
         MaukaCli [label="Mauka CLI"]
         color=blue;
 
-        MakaiMeasurementBridge -> PubSubBroker [label="typed measurements"]
         MakaiEventBridge -> PubSubBroker [label="typed event ids"]
         PubSubBroker -> MaukaPlugins [label="plugin sub messages"]
         MaukaPlugins -> PubSubBroker [label="plugin pub messages"]
@@ -21,7 +19,6 @@ digraph mauka_services_diagram {
         MaukaPluginManager -> MaukaCli
     }
 
-    OPQMakai -> MakaiMeasurementBridge [label="measurements"]
     OPQMakai -> MakaiEventBridge [label="event ids"]
 
     OPQHealth[shape=box];

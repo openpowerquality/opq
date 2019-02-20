@@ -1,13 +1,11 @@
 {
   "mauka.debug": true,
 
-  "zmq.triggering.interface"      : "?MAUKA_ZMQ_TRIGGERING_INTERFACE",
   "zmq.event.interface"           : "?MAUKA_EVENT_INTERFACE",
   "zmq.mauka.broker.pub.interface": "?MAUKA_ZMQ_BROKER_PUB_INTERFACE",
   "zmq.mauka.broker.sub.interface": "?MAUKA_ZMQ_BROKER_SUB_INTERFACE",
   "zmq.mauka.plugin.pub.interface": "?MAUKA_ZMQ_PLUGIN_PUB_INTERFACE",
   "zmq.mauka.plugin.sub.interface": "?MAUKA_ZMQ_PLUGIN_SUB_INTERFACE",
-  "zmq.makai.push.interface"      : "?MAUKA_ZMQ_MAKAI_PUSH_INTERFACE",
 
   "zmq.mauka.plugin.management.rep.interface": "?MAUKA_ZMQ_PLUGIN_MANAGEMENT_REP_INTERFACE",
   "zmq.mauka.plugin.management.req.interface": "?MAUKA_ZMQ_PLUGIN_MANAGEMENT_REQ_INTERFACE",
@@ -15,10 +13,6 @@
   "mongo.host": "?MONGO_HOST",
   "mongo.port": "!MONGO_PORT",
   "mongo.db": "?MONGO_DB",
-
-  "plugins.AcquisitionTriggerPlugin.msBefore": 1000,
-  "plugins.AcquisitionTriggerPlugin.msAfter": 1000,
-  "plugins.AcquisitionTriggerPlugin.sDeadZoneAfterTrigger": 60,
 
   "plugins.base.heartbeatIntervalS": 15.0,
 
@@ -46,18 +40,8 @@
   "plugins.MakaiEventPlugin.frequencyWindowCycles": 1,
   "plugins.MakaiEventPlugin.frequencyDownSampleRate": 2,
 
-  "plugins.MeasurementPlugin.sample_every": 3.0,
-
   "plugins.ThdPlugin.threshold.percent": 5.0,
   "plugins.ThdPlugin.window.size.ms": 200,
-
-  "plugins.ThresholdPlugin.voltage.ref": 120.0,
-  "plugins.ThresholdPlugin.voltage.threshold.percent.low": 5.0,
-  "plugins.ThresholdPlugin.voltage.threshold.percent.high": 5.0,
-
-  "plugins.ThresholdPlugin.frequency.ref": 60.0,
-  "plugins.ThresholdPlugin.frequency.threshold.percent.low": 0.5,
-  "plugins.ThresholdPlugin.frequency.threshold.percent.high": 0.5,
 
   "plugins.StatusPlugin.port": "!MAUKA_STATUS_PORT"
 }

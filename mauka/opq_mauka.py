@@ -9,8 +9,6 @@ import sys
 
 import config
 import log
-import plugins.acquisition_trigger_plugin
-import plugins.frequency_threshold_plugin
 import plugins.frequency_variation_plugin
 import plugins.transient_plugin
 import plugins.itic_plugin
@@ -18,7 +16,6 @@ import plugins.makai_event_plugin
 import plugins.outage_plugin
 import plugins.status_plugin
 import plugins.thd_plugin
-import plugins.voltage_threshold_plugin
 import plugins.ieee1159_voltage_plugin
 import plugins.semi_f47_plugin
 import services.brokers
@@ -46,9 +43,6 @@ def main():
     conf = config.from_file(sys.argv[1])
 
     plugin_manager = services.plugin_manager.PluginManager(conf)
-    plugin_manager.register_plugin(plugins.frequency_threshold_plugin.FrequencyThresholdPlugin)
-    plugin_manager.register_plugin(plugins.voltage_threshold_plugin.VoltageThresholdPlugin)
-    plugin_manager.register_plugin(plugins.acquisition_trigger_plugin.AcquisitionTriggerPlugin)
     plugin_manager.register_plugin(plugins.makai_event_plugin.MakaiEventPlugin)
     plugin_manager.register_plugin(plugins.status_plugin.StatusPlugin)
     plugin_manager.register_plugin(plugins.thd_plugin.ThdPlugin)
@@ -60,7 +54,6 @@ def main():
     plugin_manager.register_plugin(plugins.outage_plugin.OutagePlugin)
 
     broker_process = services.brokers.start_mauka_pub_sub_broker(conf)
-    makai_bridge_process = services.brokers.start_makai_bridge(conf)
     makai_bridge_event_process = services.brokers.start_makai_event_bridge(conf)
 
     # start-stop-daemon sends a SIGTERM, we need to handle it to gracefully shutdown mauka
@@ -81,8 +74,6 @@ def main():
         plugin_manager.start_tcp_server()
         logger.info("Killing broker process")
         broker_process.terminate()
-        logger.info("Killing makai bridge process")
-        makai_bridge_process.terminate()
         logger.info("Killing makai event bridge process")
         makai_bridge_event_process.terminate()
         logger.info("Goodbye")

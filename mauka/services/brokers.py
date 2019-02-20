@@ -53,53 +53,6 @@ def start_mauka_pub_sub_broker(mauka_config: config.MaukaConfig):
     return process
 
 
-def start_makai_bridge(mauka_config: config.MaukaConfig):
-    """
-    Starts an instance of the makai bridge to bring makai triggering data into mauka as a separate process
-    :param mauka_config: Configuration dictionary
-    """
-
-    # noinspection PyUnresolvedReferences
-    # pylint: disable=E1101
-    def _run(conf: config.MaukaConfig):
-        import logging
-        import signal
-        import os
-        import zmq
-
-        _logger = logging.getLogger("app")
-        logging.basicConfig(
-            format="[%(levelname)s][%(asctime)s][{} %(filename)s:%(lineno)s - %(funcName)s() ] %(message)s".format(
-                os.getpid()))
-
-        signal.signal(signal.SIGINT, signal.SIG_IGN)
-
-        _logger.info("Starting makai bridge...")
-
-        zmq_context = zmq.Context()
-        zmq_sub_trigger_socket = zmq_context.socket(zmq.SUB)
-        zmq_sub_trigger_socket.setsockopt(zmq.SUBSCRIBE, b"")
-        zmq_pub_socket = zmq_context.socket(zmq.PUB)
-        zmq_sub_trigger_socket.connect(conf.get("zmq.triggering.interface"))
-        zmq_pub_socket.connect(conf.get("zmq.mauka.plugin.pub.interface"))
-
-        while True:
-            trigger_msg = zmq_sub_trigger_socket.recv_multipart()
-            makaipb = protobuf.util.decode_trigger_message(trigger_msg[1])
-            maukapb = protobuf.util.build_measurement("makai_bridge",
-                                                      str(makaipb.id),
-                                                      makaipb.time,
-                                                      makaipb.frequency,
-                                                      makaipb.rms,
-                                                      makaipb.thd)
-            mauka_message_bytes = protobuf.util.serialize_mauka_message(maukapb)
-            zmq_pub_socket.send_multipart(("measurement".encode(), mauka_message_bytes))
-
-    process = multiprocessing.Process(target=_run, args=(mauka_config,))
-    process.start()
-    return process
-
-
 def start_makai_event_bridge(mauka_config: config.MaukaConfig):
     """
     Starts an instance of the makai bridge to bring makai event information into mauka as a separate process
