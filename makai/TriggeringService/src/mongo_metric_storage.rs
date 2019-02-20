@@ -124,7 +124,7 @@ impl MeasurementDecimator {
         ret
     }
 }
-/*
+
 ///This object is responsible for processing measurement messages.
 pub struct MongoMeasurements {
     sub_chan: Subscription<Arc<Measurement>>,
@@ -182,9 +182,10 @@ impl MongoMeasurements {
             MONGO_TIMESTAMP_FIELD : msg.timestamp_ms as u64,
             MONGO_EXPIRE_FIELD : bson_expire_time
         };
-        for (_, mongo_name) in MONGO_FIELD_REMAP.iter() {
-
-            doc.insert(proto_name)
+        for (proto_name, mongo_name) in MONGO_FIELD_REMAP.iter() {
+            if let Some(metric) = msg.metrics.get(proto_name.clone()) {
+                doc.insert(mongo_name.to_string(), metric.average);
+            };
         }
 
 
@@ -209,7 +210,7 @@ impl MongoMeasurements {
             }
 
 
-            let box_stat = map.entry(msg.get_id())
+            let box_stat = map.entry(msg.box_id)
                 .or_insert(MeasurementDecimator::new());
 
 
@@ -217,12 +218,12 @@ impl MongoMeasurements {
             if box_stat.last_insert + Duration::seconds(self.trend_time_sec as i64) < Utc::now() {
                 //Build the long term measurement header
                 let mut doc = box_stat.generate_document_and_reset();
-                doc.insert(MONGO_BOX_ID_FIELD, msg.get_id().to_string());
-                doc.insert(MONGO_TIMESTAMP_FIELD, msg.get_time());
+                doc.insert(MONGO_BOX_ID_FIELD, msg.box_id.to_string());
+                doc.insert(MONGO_TIMESTAMP_FIELD, msg.timestamp_ms);
 
                 //Query mongo for box location
                 let query  = doc!{
-                  MONGO_OPQ_BOXES_BOX_ID_FIELD : msg.get_id().to_string(),
+                  MONGO_OPQ_BOXES_BOX_ID_FIELD : msg.box_id.to_string(),
                 };
                 let query_result = self.box_coll.find_one(Some(query), None).unwrap();
                 //Fill in the location for the long term measurement if it is present.
@@ -248,4 +249,3 @@ impl MongoMeasurements {
         }
     }
 }
-*/
