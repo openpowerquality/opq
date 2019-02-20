@@ -11,10 +11,7 @@
         "plugins": [
             "StatusPlugin",
             "IticPlugin",
-            "AcquisitionTriggerPlugin",
-            "VoltageThresholdPlugin",
-            "ThdPlugin",
-            "FrequencyThresholdPlugin"
+            "ThdPlugin"
         ]
     },
     {
