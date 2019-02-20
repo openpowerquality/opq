@@ -17,13 +17,14 @@
       "address" : "localhost:8080"
     },
     {
-      "path" : "/usr/local/opq/makai/plugins/libtheshold_trigger_plugin.so",
+      "path" : "/usr/local/opq/makai/plugins/libthreshold_trigger_plugin.so",
       "reference_frequency": 60.0,
       "frequency_threshold_percent_low": 0.05,
       "frequency_threshold_percent_high": 0.05,
       "reference_voltage": 120.0,
       "voltage_threshold_percent_low": 0.05,
       "voltage_threshold_percent_high": 0.05,
+      "thd_threshold_high": 0.05,
       "debug": false
     }
   ]
