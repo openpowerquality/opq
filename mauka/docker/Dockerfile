@@ -1,7 +1,7 @@
-FROM python:alpine3.7
+FROM python:3.7-stretch
 
 # These are mostly required for matplotlib, scipy, and pandas
-RUN apk --no-cache --update-cache add build-base pkgconfig freetype-dev libpng-dev gfortran openblas-dev
+#apk --no-cache --update-cache add build-base pkgconfig freetype-dev libpng-dev gfortran openblas-dev
 
 WORKDIR /opq
 
