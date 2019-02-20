@@ -12,6 +12,8 @@ pub struct Settings {
     pub zmq_acquisition_endpoint: String,
     ///zmq endpoint for the acquisition broker.
     pub zmq_data_endpoint: String,
+    ///zmq endpoint for event
+    pub zmq_event_endpoint: String,
     ///Mongo endpoint.
     pub mongo_host: String,
     ///Mongo port.

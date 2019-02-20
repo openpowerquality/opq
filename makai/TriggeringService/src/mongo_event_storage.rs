@@ -26,22 +26,23 @@ pub struct MongoStorageService{
     client: mongodb::Client,
     ///ZMQ socket to the acquisition broker.
     acq_broker: zmq::Socket,
+    event_broker: zmq::Socket,
     identity : String,
 }
 
 impl MongoStorageService {
     pub fn new(ctx: &zmq::Context, settings: &Settings) -> MongoStorageService {
-        let reciever =MongoStorageService{
+        let receiver = MongoStorageService{
             client: Client::connect(&settings.mongo_host, settings.mongo_port).unwrap(),
             acq_broker: ctx.socket(zmq::SUB).unwrap(),
+            event_broker: ctx.socket(zmq::PUB).unwrap(),
             identity : settings.identity.clone().unwrap(),
         };
-        reciever
-            .acq_broker
-            .connect(&settings.zmq_data_endpoint)
-            .unwrap();
-        reciever.acq_broker.set_subscribe(reciever.identity.as_bytes()).unwrap();;
-        reciever
+        receiver.acq_broker.connect(&settings.zmq_data_endpoint).unwrap();
+        receiver.acq_broker.set_subscribe(receiver.identity.as_bytes()).unwrap();
+        receiver.event_broker.connect(&settings.zmq_event_endpoint).unwrap();
+
+        receiver
     }
 
     pub fn run_loop(&mut self){
@@ -106,11 +107,9 @@ impl MongoStorageService {
                     }
                     data_file.write_all(&data_to_write).unwrap();
                 }
+                self.event_broker.send_multipart(&["".as_bytes(), event_number.to_string().as_bytes()], 0);
                 event_number += 1;
-
             }
-
-
         }
     }
 
