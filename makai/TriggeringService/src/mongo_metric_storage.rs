@@ -4,6 +4,7 @@ use std::collections::HashMap;
 use std::sync::Arc;
 
 use mongodb;
+use mongodb::Client;
 use mongodb::ThreadedClient;
 use mongodb::db::ThreadedDatabase;
 use mongodb::coll::options::IndexOptions;
@@ -126,7 +127,7 @@ impl MeasurementDecimator {
 }
 
 ///This object is responsible for processing measurement messages.
-pub struct MongoMeasurements {
+pub struct MongoMetricStorage {
     sub_chan: Subscription<Arc<Measurement>>,
     live_coll: mongodb::coll::Collection,
     slow_coll: mongodb::coll::Collection,
@@ -137,17 +138,17 @@ pub struct MongoMeasurements {
     trend_time_sec: u64,
 }
 
-impl MongoMeasurements {
+impl MongoMetricStorage {
     ///Creates a new mongo measurement store.
     /// # Arguments
     /// * `client` -  a reference to a mongodb client instance.
     /// * `sub_chan` -  a channel for receiving triggering messages.
     pub fn new(
-        client: &mongodb::Client,
         sub_chan: Subscription<Arc<Measurement>>,
         settings: &Settings,
-    ) -> MongoMeasurements {
-        let ret = MongoMeasurements {
+    ) -> MongoMetricStorage {
+        let client = Client::connect(&settings.mongo_host, settings.mongo_port).unwrap();
+        let ret = MongoMetricStorage {
             sub_chan,
             live_coll: client
                 .db(MONGO_DATABASE)

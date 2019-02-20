@@ -21,8 +21,7 @@ use triggering_service::trigger_receiver::TriggerReceiver;
 use triggering_service::plugin_manager::PluginManager;
 use triggering_service::proto::opqbox3::Measurement;
 use triggering_service::mongo_event_storage::MongoStorageService;
-
-//mod config;
+use triggering_service::mongo_metric_storage::MongoMetricStorage;
 
 
 fn main() {
@@ -42,7 +41,8 @@ fn main() {
 
     let channel: pub_sub::PubSub<Arc<Measurement>> = pub_sub::PubSub::new();
     let zmq_reader = TriggerReceiver::new(channel.clone(), &ctx, &settings);
-    let mut mongo_storage = MongoStorageService::new(&ctx, &settings);
+    let mut mongo_event_storage = MongoStorageService::new(&ctx, &settings);
+    let mongo_metric_storage = MongoMetricStorage::new(channel.subscribe(), &settings);
     //let mongo = MongoMeasurements::new(&client, channel.subscribe(), &settings);
 
     let mut handles = vec![];
@@ -51,12 +51,12 @@ fn main() {
     }));
 
     handles.push(thread::spawn(move || {
-        mongo_storage.run_loop();
+        mongo_event_storage.run_loop();
     }));
 
-    //handles.push(thread::spawn(move || {
-    //    mongo.run_loop();
-    //}));
+    handles.push(thread::spawn(move || {
+        mongo_metric_storage.run_loop();
+    }));
     let mut plugin_manager = PluginManager::new(&ctx, &settings);
     for document in settings.plugins {
         let filename = match document.get("path"){
