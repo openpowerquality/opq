@@ -20,7 +20,7 @@ use triggering_service::config::Settings;
 use triggering_service::trigger_receiver::TriggerReceiver;
 use triggering_service::plugin_manager::PluginManager;
 use triggering_service::proto::opqbox3::Measurement;
-use triggering_service::mongo_storage_service::MongoStorageService;
+use triggering_service::mongo_event_storage::MongoStorageService;
 
 //mod config;
 

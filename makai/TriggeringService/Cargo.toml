@@ -21,4 +21,5 @@ serde = "*"
 libloading = "0.4.2"
 mongodb = "0.3"
 bson = "0.13"
+lazy_static = "1.2.0"
 uuid = { version = "0.7", features = ["v4"] }

@@ -9,14 +9,23 @@
   "event_request_expiration_window_ms" : 1800000,
   "plugins" : [
     {
-      "path" : "/usr/local/opq/makai/plugins//libprint_plugin.so",
+      "path" : "/usr/local/opq/makai/plugins/libprint_plugin.so",
       "print" : false
     },
     {
-      "path" : "/usr/local/opq/makai/plugins//libhealth_plugin.so",
+      "path" : "/usr/local/opq/makai/plugins/libhealth_plugin.so",
       "address" : "localhost:8080"
+    },
+    {
+      "path" : "/usr/local/opq/makai/plugins/libthreshold_trigger_plugin.so",
+      "reference_frequency": 60.0,
+      "frequency_threshold_percent_low": 0.05,
+      "frequency_threshold_percent_high": 0.05,
+      "reference_voltage": 120.0,
+      "voltage_threshold_percent_low": 0.05,
+      "voltage_threshold_percent_high": 0.05,
+      "thd_threshold_high": 0.05,
+      "debug": false
     }
-    
   ]
-
 }
