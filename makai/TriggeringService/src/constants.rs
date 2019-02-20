@@ -1,5 +1,21 @@
 //Mongo common
 #![allow(dead_code)]
+
+///Remapping of names for protobuf to
+
+use std::collections::HashMap;
+
+lazy_static! {
+    pub static ref MONGO_FIELD_REMAP: HashMap<&'static str, &'static str> = {
+        let mut m = HashMap::new();
+        m.insert("rms", "voltage");
+        m.insert("f", "frequency");
+        m.insert("thd", "thd");
+        m
+    };
+}
+
+
 ///Mongo database that makai will be using.
 pub static MONGO_DATABASE: &str = "opq";
 
