@@ -42,6 +42,7 @@ impl MongoStorageService {
         receiver.acq_broker.set_subscribe(receiver.identity.as_bytes()).unwrap();
         receiver.event_broker.bind(&settings.zmq_event_endpoint).unwrap();
 
+
         receiver
     }
 
