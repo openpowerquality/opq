@@ -24,7 +24,7 @@ echo "=> Please ensure that the Dockerfile utilizes a base Node image with match
 # Build Docker Image #
 ######################
 
-IMAGE_NAME=opqview
+IMAGE_NAME=view
 
 echo "=> Building Docker image..."
 

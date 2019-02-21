@@ -103,7 +103,6 @@ impl MeasurementDecimator {
                 };
             }
         }
-        self.last_insert = Utc::now();
     }
 
 
