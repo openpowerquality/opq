@@ -7,7 +7,7 @@ mkdir $timestamp
 # Build Docker Image #
 ######################
 
-IMAGE_NAME=opqhealth
+IMAGE_NAME=health
 
 echo "=> Copying health source files into $timestamp"
 

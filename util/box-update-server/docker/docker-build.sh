@@ -8,7 +8,7 @@ mkdir -p ${TIMESTAMP}
 # Build Docker Image #
 ######################
 
-IMAGE_NAME=opqboxupdateserver
+IMAGE_NAME=box-update-server
 
 echo "=> Copying box-update-server source files into ${TIMESTAMP}"
 
