@@ -68,6 +68,7 @@ impl MongoStorageService {
                     MONGO_EVENTS_RECEIVED_FIELD: [header.box_id.to_string()],
                     MONGO_EVENTS_START_FIELD:  resp.start_ts,
                     MONGO_EVENTS_END_FIELD: resp.end_ts,
+                    MONGO_BOX_EVENTS_TYPE_FIELD : MONGO_BOX_EVENTS_TYPE_VALUE,
                 };
                 match event_db.insert_one(event, None){
                     Ok(_) => {},
@@ -107,7 +108,7 @@ impl MongoStorageService {
                     }
                     data_file.write_all(&data_to_write).unwrap();
                 }
-                self.event_broker.send_multipart(&["".as_bytes(), event_number.to_string().as_bytes()], 0).unwrap();
+                self.event_broker.send_multipart(&[self.identity.as_bytes(), event_number.to_string().as_bytes()], 0).unwrap();
                 event_number += 1;
             }
         }
