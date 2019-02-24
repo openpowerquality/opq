@@ -9,5 +9,7 @@ DOCKER_DEPLOY_DIR=/home/opquser/docker/deployment
 cp docker-compose.yml ${DOCKER_DEPLOY_DIR}
 cp docker-compose-run.sh ${DOCKER_DEPLOY_DIR}
 cp .env ${DOCKER_DEPLOY_DIR}
+cp init-letsencrypt.sh ${DOCKER_DEPLOY_DIR}
+cp data/nginx/app.conf ${DOCKER_DEPLOY_DIR}/data/nginx
 
 cd ${DOCKER_DEPLOY_DIR} && ./docker-compose-run.sh

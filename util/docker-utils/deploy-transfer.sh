@@ -4,10 +4,13 @@ set -x
 
 timestamp=$(date +%Y%m%d_%H%M%S)
 mkdir ${timestamp}
+mkdir ${timestamp}/data
 
 cp ../docker-deployment/docker-compose.yml ${timestamp}
 cp ../docker-deployment/docker-compose-run.sh ${timestamp}
 cp ../docker-deployment/.env ${timestamp}
+cp ../docker-deployment/init-letsencrypt.sh ${timestamp}
+cp -r ../docker-deployment/data/. ${timestamp}/data
 cp docker-prepare-and-run.sh ${timestamp}
 
 tar czf $timestamp.tar.gz ${timestamp}

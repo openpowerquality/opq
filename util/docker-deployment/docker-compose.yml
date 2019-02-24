@@ -12,6 +12,8 @@ services:
       - "${MONGO_VOLUME}:/data/db"
   nginx:
     image: ${NGINX_IMAGE}
+    depends_on:
+      - view
     ports:
       - "80:80"
       - "443:443"
@@ -22,6 +24,8 @@ services:
     command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
   certbot:
     image: ${CERTBOT_IMAGE}
+    depends_on:
+      - nginx
     volumes:
       - ./data/certbot/conf:/etc/letsencrypt
       - ./data/certbot/www:/var/www/certbot
@@ -32,7 +36,7 @@ services:
       - mongo
     restart: always
     ports:
-      - "127.0.0.1:${VIEW_PORT}:${VIEW_PORT}"
+      - "${VIEW_PORT}:${VIEW_PORT}"
     environment:
       - MONGO_URL=${VIEW_MONGO_URL}
       - ROOT_URL=${VIEW_ROOT_URL}
