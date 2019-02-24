@@ -14,8 +14,6 @@ COPY . /view
 # RUN is complete, not dissimilar to a subshell invocation.
 RUN cd /view/programs/server && npm install --unsafe-perm
 
-EXPOSE 80
-
 EXPOSE 8888
 
 CMD ["node", "main.js"]
