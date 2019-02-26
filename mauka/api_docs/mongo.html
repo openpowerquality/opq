@@ -1,0 +1,475 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module mongo</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong>mongo</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:/Users/anthony/Development/opq/mauka/mongo.py">/Users/anthony/Development/opq/mauka/mongo.py</a></font></td></tr></table>
+    <p><tt>This&nbsp;module&nbsp;contains&nbsp;classes&nbsp;and&nbsp;functions&nbsp;for&nbsp;querying&nbsp;and&nbsp;manipulating&nbsp;data&nbsp;within&nbsp;a&nbsp;mongo&nbsp;database.</tt></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="analysis.html">analysis</a><br>
+<a href="bson.html">bson</a><br>
+</td><td width="25%" valign=top><a href="constants.html">constants</a><br>
+<a href="enum.html">enum</a><br>
+</td><td width="25%" valign=top><a href="gridfs.html">gridfs</a><br>
+<a href="numpy.html">numpy</a><br>
+</td><td width="25%" valign=top><a href="pymongo.html">pymongo</a><br>
+<a href="typing.html">typing</a><br>
+</td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ee77aa">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Classes</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#ee77aa"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl>
+<dt><font face="helvetica, arial"><a href="builtins.html#object">builtins.object</a>
+</font></dt><dd>
+<dl>
+<dt><font face="helvetica, arial"><a href="mongo.html#OpqMongoClient">OpqMongoClient</a>
+</font></dt></dl>
+</dd>
+<dt><font face="helvetica, arial"><a href="enum.html#Enum">enum.Enum</a>(<a href="builtins.html#object">builtins.object</a>)
+</font></dt><dd>
+<dl>
+<dt><font face="helvetica, arial"><a href="mongo.html#BoxEventType">BoxEventType</a>
+</font></dt><dt><font face="helvetica, arial"><a href="mongo.html#Collection">Collection</a>
+</font></dt><dt><font face="helvetica, arial"><a href="mongo.html#IEEEDuration">IEEEDuration</a>
+</font></dt><dt><font face="helvetica, arial"><a href="mongo.html#IncidentClassification">IncidentClassification</a>
+</font></dt><dt><font face="helvetica, arial"><a href="mongo.html#IncidentIeeeDuration">IncidentIeeeDuration</a>
+</font></dt><dt><font face="helvetica, arial"><a href="mongo.html#IncidentMeasurementType">IncidentMeasurementType</a>
+</font></dt></dl>
+</dd>
+</dl>
+ <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="BoxEventType">class <strong>BoxEventType</strong></a>(<a href="enum.html#Enum">enum.Enum</a>)</font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt><a href="#BoxEventType">BoxEventType</a>(value,&nbsp;names=None,&nbsp;*,&nbsp;module=None,&nbsp;qualname=None,&nbsp;type=None,&nbsp;start=1)<br>
+&nbsp;<br>
+String&nbsp;enumerations&nbsp;and&nbsp;constants&nbsp;for&nbsp;event&nbsp;types<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%"><dl><dt>Method resolution order:</dt>
+<dd><a href="mongo.html#BoxEventType">BoxEventType</a></dd>
+<dd><a href="enum.html#Enum">enum.Enum</a></dd>
+<dd><a href="builtins.html#object">builtins.object</a></dd>
+</dl>
+<hr>
+Data and other attributes defined here:<br>
+<dl><dt><strong>FREQUENCY_DIP</strong> = &lt;BoxEventType.FREQUENCY_DIP: 'FREQUENCY_SAG'&gt;</dl>
+
+<dl><dt><strong>FREQUENCY_INTERRUPTION</strong> = &lt;BoxEventType.FREQUENCY_INTERRUPTION: 'FREQUENCY_INTERRUPTION'&gt;</dl>
+
+<dl><dt><strong>FREQUENCY_SWELL</strong> = &lt;BoxEventType.FREQUENCY_SWELL: 'FREQUENCY_SWELL'&gt;</dl>
+
+<dl><dt><strong>OTHER</strong> = &lt;BoxEventType.OTHER: 'OTHER'&gt;</dl>
+
+<dl><dt><strong>THD</strong> = &lt;BoxEventType.THD: 'THD'&gt;</dl>
+
+<dl><dt><strong>VOLTAGE_DIP</strong> = &lt;BoxEventType.VOLTAGE_DIP: 'VOLTAGE_SAG'&gt;</dl>
+
+<dl><dt><strong>VOLTAGE_SWELL</strong> = &lt;BoxEventType.VOLTAGE_SWELL: 'VOLTAGE_SWELL'&gt;</dl>
+
+<hr>
+Data descriptors inherited from <a href="enum.html#Enum">enum.Enum</a>:<br>
+<dl><dt><strong>name</strong></dt>
+<dd><tt>The&nbsp;name&nbsp;of&nbsp;the&nbsp;Enum&nbsp;member.</tt></dd>
+</dl>
+<dl><dt><strong>value</strong></dt>
+<dd><tt>The&nbsp;value&nbsp;of&nbsp;the&nbsp;Enum&nbsp;member.</tt></dd>
+</dl>
+<hr>
+Data descriptors inherited from <a href="enum.html#EnumMeta">enum.EnumMeta</a>:<br>
+<dl><dt><strong>__members__</strong></dt>
+<dd><tt>Returns&nbsp;a&nbsp;mapping&nbsp;of&nbsp;member&nbsp;name-&gt;value.<br>
+&nbsp;<br>
+This&nbsp;mapping&nbsp;lists&nbsp;all&nbsp;enum&nbsp;members,&nbsp;including&nbsp;aliases.&nbsp;Note&nbsp;that&nbsp;this<br>
+is&nbsp;a&nbsp;read-only&nbsp;view&nbsp;of&nbsp;the&nbsp;internal&nbsp;mapping.</tt></dd>
+</dl>
+</td></tr></table> <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="Collection">class <strong>Collection</strong></a>(<a href="enum.html#Enum">enum.Enum</a>)</font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt><a href="#Collection">Collection</a>(value,&nbsp;names=None,&nbsp;*,&nbsp;module=None,&nbsp;qualname=None,&nbsp;type=None,&nbsp;start=1)<br>
+&nbsp;<br>
+String&nbsp;enumerations&nbsp;and&nbsp;constants&nbsp;for&nbsp;collection&nbsp;names<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%"><dl><dt>Method resolution order:</dt>
+<dd><a href="mongo.html#Collection">Collection</a></dd>
+<dd><a href="enum.html#Enum">enum.Enum</a></dd>
+<dd><a href="builtins.html#object">builtins.object</a></dd>
+</dl>
+<hr>
+Data and other attributes defined here:<br>
+<dl><dt><strong>BOX_EVENTS</strong> = &lt;Collection.BOX_EVENTS: 'box_events'&gt;</dl>
+
+<dl><dt><strong>EVENTS</strong> = &lt;Collection.EVENTS: 'events'&gt;</dl>
+
+<dl><dt><strong>HEALTH</strong> = &lt;Collection.HEALTH: 'health'&gt;</dl>
+
+<dl><dt><strong>INCIDENTS</strong> = &lt;Collection.INCIDENTS: 'incidents'&gt;</dl>
+
+<dl><dt><strong>MEASUREMENTS</strong> = &lt;Collection.MEASUREMENTS: 'measurements'&gt;</dl>
+
+<dl><dt><strong>OPQ_BOXES</strong> = &lt;Collection.OPQ_BOXES: 'opq_boxes'&gt;</dl>
+
+<hr>
+Data descriptors inherited from <a href="enum.html#Enum">enum.Enum</a>:<br>
+<dl><dt><strong>name</strong></dt>
+<dd><tt>The&nbsp;name&nbsp;of&nbsp;the&nbsp;Enum&nbsp;member.</tt></dd>
+</dl>
+<dl><dt><strong>value</strong></dt>
+<dd><tt>The&nbsp;value&nbsp;of&nbsp;the&nbsp;Enum&nbsp;member.</tt></dd>
+</dl>
+<hr>
+Data descriptors inherited from <a href="enum.html#EnumMeta">enum.EnumMeta</a>:<br>
+<dl><dt><strong>__members__</strong></dt>
+<dd><tt>Returns&nbsp;a&nbsp;mapping&nbsp;of&nbsp;member&nbsp;name-&gt;value.<br>
+&nbsp;<br>
+This&nbsp;mapping&nbsp;lists&nbsp;all&nbsp;enum&nbsp;members,&nbsp;including&nbsp;aliases.&nbsp;Note&nbsp;that&nbsp;this<br>
+is&nbsp;a&nbsp;read-only&nbsp;view&nbsp;of&nbsp;the&nbsp;internal&nbsp;mapping.</tt></dd>
+</dl>
+</td></tr></table> <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="IEEEDuration">class <strong>IEEEDuration</strong></a>(<a href="enum.html#Enum">enum.Enum</a>)</font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt><a href="#IEEEDuration">IEEEDuration</a>(value,&nbsp;names=None,&nbsp;*,&nbsp;module=None,&nbsp;qualname=None,&nbsp;type=None,&nbsp;start=1)<br>
+&nbsp;<br>
+String&nbsp;enumerations&nbsp;and&nbsp;constants&nbsp;for&nbsp;durations<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%"><dl><dt>Method resolution order:</dt>
+<dd><a href="mongo.html#IEEEDuration">IEEEDuration</a></dd>
+<dd><a href="enum.html#Enum">enum.Enum</a></dd>
+<dd><a href="builtins.html#object">builtins.object</a></dd>
+</dl>
+<hr>
+Data and other attributes defined here:<br>
+<dl><dt><strong>INSTANTANEOUS</strong> = &lt;IEEEDuration.INSTANTANEOUS: 'INSTANTANEOUS'&gt;</dl>
+
+<dl><dt><strong>MOMENTARY</strong> = &lt;IEEEDuration.MOMENTARY: 'MOMENTARY'&gt;</dl>
+
+<dl><dt><strong>SUSTAINED</strong> = &lt;IEEEDuration.SUSTAINED: 'SUSTAINED'&gt;</dl>
+
+<dl><dt><strong>TEMPORARY</strong> = &lt;IEEEDuration.TEMPORARY: 'TEMPORARY'&gt;</dl>
+
+<hr>
+Data descriptors inherited from <a href="enum.html#Enum">enum.Enum</a>:<br>
+<dl><dt><strong>name</strong></dt>
+<dd><tt>The&nbsp;name&nbsp;of&nbsp;the&nbsp;Enum&nbsp;member.</tt></dd>
+</dl>
+<dl><dt><strong>value</strong></dt>
+<dd><tt>The&nbsp;value&nbsp;of&nbsp;the&nbsp;Enum&nbsp;member.</tt></dd>
+</dl>
+<hr>
+Data descriptors inherited from <a href="enum.html#EnumMeta">enum.EnumMeta</a>:<br>
+<dl><dt><strong>__members__</strong></dt>
+<dd><tt>Returns&nbsp;a&nbsp;mapping&nbsp;of&nbsp;member&nbsp;name-&gt;value.<br>
+&nbsp;<br>
+This&nbsp;mapping&nbsp;lists&nbsp;all&nbsp;enum&nbsp;members,&nbsp;including&nbsp;aliases.&nbsp;Note&nbsp;that&nbsp;this<br>
+is&nbsp;a&nbsp;read-only&nbsp;view&nbsp;of&nbsp;the&nbsp;internal&nbsp;mapping.</tt></dd>
+</dl>
+</td></tr></table> <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="IncidentClassification">class <strong>IncidentClassification</strong></a>(<a href="enum.html#Enum">enum.Enum</a>)</font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt><a href="#IncidentClassification">IncidentClassification</a>(value,&nbsp;names=None,&nbsp;*,&nbsp;module=None,&nbsp;qualname=None,&nbsp;type=None,&nbsp;start=1)<br>
+&nbsp;<br>
+Incident&nbsp;Classification&nbsp;Types<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%"><dl><dt>Method resolution order:</dt>
+<dd><a href="mongo.html#IncidentClassification">IncidentClassification</a></dd>
+<dd><a href="enum.html#Enum">enum.Enum</a></dd>
+<dd><a href="builtins.html#object">builtins.object</a></dd>
+</dl>
+<hr>
+Data and other attributes defined here:<br>
+<dl><dt><strong>ARCING_TRANSIENT</strong> = &lt;IncidentClassification.ARCING_TRANSIENT: 'ARCING_TRANSIENT'&gt;</dl>
+
+<dl><dt><strong>BIPOLAR_TRANSIENT</strong> = &lt;IncidentClassification.BIPOLAR_TRANSIENT: 'BIPOLAR_TRANSIENT'&gt;</dl>
+
+<dl><dt><strong>EXCESSIVE_THD</strong> = &lt;IncidentClassification.EXCESSIVE_THD: 'EXCESSIVE_THD'&gt;</dl>
+
+<dl><dt><strong>FREQUENCY_INTERRUPTION</strong> = &lt;IncidentClassification.FREQUENCY_INTERRUPTION: 'FREQUENCY_INTERRUPTION'&gt;</dl>
+
+<dl><dt><strong>FREQUENCY_SAG</strong> = &lt;IncidentClassification.FREQUENCY_SAG: 'FREQUENCY_SAG'&gt;</dl>
+
+<dl><dt><strong>FREQUENCY_SWELL</strong> = &lt;IncidentClassification.FREQUENCY_SWELL: 'FREQUENCY_SWELL'&gt;</dl>
+
+<dl><dt><strong>IMPULSIVE_TRANSIENT</strong> = &lt;IncidentClassification.IMPULSIVE_TRANSIENT: 'IMPULSIVE_TRANSIENT'&gt;</dl>
+
+<dl><dt><strong>ITIC_NO_DAMAGE</strong> = &lt;IncidentClassification.ITIC_NO_DAMAGE: 'ITIC_NO_DAMAGE'&gt;</dl>
+
+<dl><dt><strong>ITIC_PROHIBITED</strong> = &lt;IncidentClassification.ITIC_PROHIBITED: 'ITIC_PROHIBITED'&gt;</dl>
+
+<dl><dt><strong>MULTIPLE_ZERO_CROSSING_TRANSIENT</strong> = &lt;IncidentClassification.MULTIPLE_ZERO_CROSSING_TRANSIENT: 'MULTIPLE_ZERO_CROSSING_TRANSIENT'&gt;</dl>
+
+<dl><dt><strong>OSCILLATORY_TRANSIENT</strong> = &lt;IncidentClassification.OSCILLATORY_TRANSIENT: 'OSCILLATORY_TRANSIENT'&gt;</dl>
+
+<dl><dt><strong>OUTAGE</strong> = &lt;IncidentClassification.OUTAGE: 'OUTAGE'&gt;</dl>
+
+<dl><dt><strong>PERIODIC_NOTCHING</strong> = &lt;IncidentClassification.PERIODIC_NOTCHING: 'PERIODIC_NOTCHING'&gt;</dl>
+
+<dl><dt><strong>SEMI_F47_VIOLATION</strong> = &lt;IncidentClassification.SEMI_F47_VIOLATION: 'SEMI_F47_VIOLATION'&gt;</dl>
+
+<dl><dt><strong>UNDEFINED</strong> = &lt;IncidentClassification.UNDEFINED: 'UNDEFINED'&gt;</dl>
+
+<dl><dt><strong>UNIPOLAR_TRANSIENT</strong> = &lt;IncidentClassification.UNIPOLAR_TRANSIENT: 'UNIPOLAR_TRANSIENT'&gt;</dl>
+
+<dl><dt><strong>VOLTAGE_INTERRUPTION</strong> = &lt;IncidentClassification.VOLTAGE_INTERRUPTION: 'VOLTAGE_INTERRUPTION'&gt;</dl>
+
+<dl><dt><strong>VOLTAGE_SAG</strong> = &lt;IncidentClassification.VOLTAGE_SAG: 'VOLTAGE_SAG'&gt;</dl>
+
+<dl><dt><strong>VOLTAGE_SWELL</strong> = &lt;IncidentClassification.VOLTAGE_SWELL: 'VOLTAGE_SWELL'&gt;</dl>
+
+<hr>
+Data descriptors inherited from <a href="enum.html#Enum">enum.Enum</a>:<br>
+<dl><dt><strong>name</strong></dt>
+<dd><tt>The&nbsp;name&nbsp;of&nbsp;the&nbsp;Enum&nbsp;member.</tt></dd>
+</dl>
+<dl><dt><strong>value</strong></dt>
+<dd><tt>The&nbsp;value&nbsp;of&nbsp;the&nbsp;Enum&nbsp;member.</tt></dd>
+</dl>
+<hr>
+Data descriptors inherited from <a href="enum.html#EnumMeta">enum.EnumMeta</a>:<br>
+<dl><dt><strong>__members__</strong></dt>
+<dd><tt>Returns&nbsp;a&nbsp;mapping&nbsp;of&nbsp;member&nbsp;name-&gt;value.<br>
+&nbsp;<br>
+This&nbsp;mapping&nbsp;lists&nbsp;all&nbsp;enum&nbsp;members,&nbsp;including&nbsp;aliases.&nbsp;Note&nbsp;that&nbsp;this<br>
+is&nbsp;a&nbsp;read-only&nbsp;view&nbsp;of&nbsp;the&nbsp;internal&nbsp;mapping.</tt></dd>
+</dl>
+</td></tr></table> <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="IncidentIeeeDuration">class <strong>IncidentIeeeDuration</strong></a>(<a href="enum.html#Enum">enum.Enum</a>)</font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt><a href="#IncidentIeeeDuration">IncidentIeeeDuration</a>(value,&nbsp;names=None,&nbsp;*,&nbsp;module=None,&nbsp;qualname=None,&nbsp;type=None,&nbsp;start=1)<br>
+&nbsp;<br>
+IEEE&nbsp;Duration&nbsp;Classifications<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%"><dl><dt>Method resolution order:</dt>
+<dd><a href="mongo.html#IncidentIeeeDuration">IncidentIeeeDuration</a></dd>
+<dd><a href="enum.html#Enum">enum.Enum</a></dd>
+<dd><a href="builtins.html#object">builtins.object</a></dd>
+</dl>
+<hr>
+Data and other attributes defined here:<br>
+<dl><dt><strong>INSTANTANEOUS</strong> = &lt;IncidentIeeeDuration.INSTANTANEOUS: 'INSTANTANEOUS'&gt;</dl>
+
+<dl><dt><strong>MOMENTARY</strong> = &lt;IncidentIeeeDuration.MOMENTARY: 'MOMENTARY'&gt;</dl>
+
+<dl><dt><strong>SUSTAINED</strong> = &lt;IncidentIeeeDuration.SUSTAINED: 'SUSTAINED'&gt;</dl>
+
+<dl><dt><strong>TEMPORARY</strong> = &lt;IncidentIeeeDuration.TEMPORARY: 'TEMPORARY'&gt;</dl>
+
+<dl><dt><strong>UNDEFINED</strong> = &lt;IncidentIeeeDuration.UNDEFINED: 'UNDEFINED'&gt;</dl>
+
+<hr>
+Data descriptors inherited from <a href="enum.html#Enum">enum.Enum</a>:<br>
+<dl><dt><strong>name</strong></dt>
+<dd><tt>The&nbsp;name&nbsp;of&nbsp;the&nbsp;Enum&nbsp;member.</tt></dd>
+</dl>
+<dl><dt><strong>value</strong></dt>
+<dd><tt>The&nbsp;value&nbsp;of&nbsp;the&nbsp;Enum&nbsp;member.</tt></dd>
+</dl>
+<hr>
+Data descriptors inherited from <a href="enum.html#EnumMeta">enum.EnumMeta</a>:<br>
+<dl><dt><strong>__members__</strong></dt>
+<dd><tt>Returns&nbsp;a&nbsp;mapping&nbsp;of&nbsp;member&nbsp;name-&gt;value.<br>
+&nbsp;<br>
+This&nbsp;mapping&nbsp;lists&nbsp;all&nbsp;enum&nbsp;members,&nbsp;including&nbsp;aliases.&nbsp;Note&nbsp;that&nbsp;this<br>
+is&nbsp;a&nbsp;read-only&nbsp;view&nbsp;of&nbsp;the&nbsp;internal&nbsp;mapping.</tt></dd>
+</dl>
+</td></tr></table> <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="IncidentMeasurementType">class <strong>IncidentMeasurementType</strong></a>(<a href="enum.html#Enum">enum.Enum</a>)</font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt><a href="#IncidentMeasurementType">IncidentMeasurementType</a>(value,&nbsp;names=None,&nbsp;*,&nbsp;module=None,&nbsp;qualname=None,&nbsp;type=None,&nbsp;start=1)<br>
+&nbsp;<br>
+Incident&nbsp;Feature&nbsp;Extracted&nbsp;Measurement&nbsp;Types<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%"><dl><dt>Method resolution order:</dt>
+<dd><a href="mongo.html#IncidentMeasurementType">IncidentMeasurementType</a></dd>
+<dd><a href="enum.html#Enum">enum.Enum</a></dd>
+<dd><a href="builtins.html#object">builtins.object</a></dd>
+</dl>
+<hr>
+Data and other attributes defined here:<br>
+<dl><dt><strong>FREQUENCY</strong> = &lt;IncidentMeasurementType.FREQUENCY: 'FREQUENCY'&gt;</dl>
+
+<dl><dt><strong>HEALTH</strong> = &lt;IncidentMeasurementType.HEALTH: 'HEALTH'&gt;</dl>
+
+<dl><dt><strong>THD</strong> = &lt;IncidentMeasurementType.THD: 'THD'&gt;</dl>
+
+<dl><dt><strong>TRANSIENT</strong> = &lt;IncidentMeasurementType.TRANSIENT: 'TRANSIENT'&gt;</dl>
+
+<dl><dt><strong>VOLTAGE</strong> = &lt;IncidentMeasurementType.VOLTAGE: 'VOLTAGE'&gt;</dl>
+
+<hr>
+Data descriptors inherited from <a href="enum.html#Enum">enum.Enum</a>:<br>
+<dl><dt><strong>name</strong></dt>
+<dd><tt>The&nbsp;name&nbsp;of&nbsp;the&nbsp;Enum&nbsp;member.</tt></dd>
+</dl>
+<dl><dt><strong>value</strong></dt>
+<dd><tt>The&nbsp;value&nbsp;of&nbsp;the&nbsp;Enum&nbsp;member.</tt></dd>
+</dl>
+<hr>
+Data descriptors inherited from <a href="enum.html#EnumMeta">enum.EnumMeta</a>:<br>
+<dl><dt><strong>__members__</strong></dt>
+<dd><tt>Returns&nbsp;a&nbsp;mapping&nbsp;of&nbsp;member&nbsp;name-&gt;value.<br>
+&nbsp;<br>
+This&nbsp;mapping&nbsp;lists&nbsp;all&nbsp;enum&nbsp;members,&nbsp;including&nbsp;aliases.&nbsp;Note&nbsp;that&nbsp;this<br>
+is&nbsp;a&nbsp;read-only&nbsp;view&nbsp;of&nbsp;the&nbsp;internal&nbsp;mapping.</tt></dd>
+</dl>
+</td></tr></table> <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="OpqMongoClient">class <strong>OpqMongoClient</strong></a>(<a href="builtins.html#object">builtins.object</a>)</font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt><a href="#OpqMongoClient">OpqMongoClient</a>(host:&nbsp;str&nbsp;=&nbsp;'127.0.0.1',&nbsp;port:&nbsp;int&nbsp;=&nbsp;27017,&nbsp;database_name:&nbsp;str&nbsp;=&nbsp;'opq')<br>
+&nbsp;<br>
+Convenience&nbsp;mongo&nbsp;client&nbsp;for&nbsp;easily&nbsp;operating&nbsp;on&nbsp;OPQ&nbsp;data<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="OpqMongoClient-__init__"><strong>__init__</strong></a>(self, host: str = '127.0.0.1', port: int = 27017, database_name: str = 'opq')</dt><dd><tt>Initializes&nbsp;an&nbsp;<a href="#OpqMongoClient">OpqMongoClient</a>.<br>
+:param&nbsp;host:&nbsp;Host&nbsp;of&nbsp;mongo&nbsp;database<br>
+:param&nbsp;port:&nbsp;Port&nbsp;of&nbsp;mongo&nbsp;database<br>
+:param&nbsp;database_name:&nbsp;The&nbsp;name&nbsp;of&nbsp;the&nbsp;database&nbsp;on&nbsp;mongo</tt></dd></dl>
+
+<dl><dt><a name="OpqMongoClient-drop_collection"><strong>drop_collection</strong></a>(self, collection: str)</dt><dd><tt>Drops&nbsp;a&nbsp;collection&nbsp;by&nbsp;name<br>
+&nbsp;<br>
+Parameters<br>
+----------<br>
+collection&nbsp;:&nbsp;str<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Name&nbsp;of&nbsp;the&nbsp;collection</tt></dd></dl>
+
+<dl><dt><a name="OpqMongoClient-drop_indexes"><strong>drop_indexes</strong></a>(self, collection: str)</dt><dd><tt>Drop&nbsp;all&nbsp;indexes&nbsp;of&nbsp;a&nbsp;particular&nbsp;named&nbsp;collection<br>
+&nbsp;<br>
+Parameters<br>
+----------<br>
+collection&nbsp;:&nbsp;str<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Name&nbsp;of&nbsp;the&nbsp;collection<br>
+&nbsp;<br>
+Returns<br>
+-------</tt></dd></dl>
+
+<dl><dt><a name="OpqMongoClient-get_collection"><strong>get_collection</strong></a>(self, collection: str)</dt><dd><tt>Returns&nbsp;a&nbsp;mongo&nbsp;collection&nbsp;by&nbsp;name<br>
+&nbsp;<br>
+Parameters<br>
+----------<br>
+collection&nbsp;:&nbsp;str<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Name&nbsp;of&nbsp;collection<br>
+&nbsp;<br>
+Returns<br>
+-------<br>
+A&nbsp;mongo&nbsp;collection</tt></dd></dl>
+
+<dl><dt><a name="OpqMongoClient-read_file"><strong>read_file</strong></a>(self, fid: str) -&gt; bytes</dt><dd><tt>Loads&nbsp;a&nbsp;file&nbsp;from&nbsp;gridfs&nbsp;as&nbsp;an&nbsp;array&nbsp;of&nbsp;bytes<br>
+:param&nbsp;fid:&nbsp;The&nbsp;file&nbsp;name&nbsp;to&nbsp;open&nbsp;stored&nbsp;in&nbsp;gridfs<br>
+:return:&nbsp;A&nbsp;list&nbsp;of&nbsp;bytes&nbsp;from&nbsp;reading&nbsp;the&nbsp;file</tt></dd></dl>
+
+<dl><dt><a name="OpqMongoClient-write_incident_waveform"><strong>write_incident_waveform</strong></a>(self, incident_id: int, gridfs_filename: str, payload: bytes)</dt><dd><tt>Write&nbsp;incident&nbsp;waveform&nbsp;to&nbsp;database.<br>
+:param&nbsp;incident_id:&nbsp;The&nbsp;id&nbsp;of&nbsp;the&nbsp;incident&nbsp;we&nbsp;are&nbsp;storing&nbsp;a&nbsp;waveform&nbsp;for.<br>
+:param&nbsp;gridfs_filename:&nbsp;The&nbsp;filename&nbsp;to&nbsp;store&nbsp;the&nbsp;waveform&nbsp;to.<br>
+:param&nbsp;payload:&nbsp;The&nbsp;bytes&nbsp;of&nbsp;the&nbsp;waveform.</tt></dd></dl>
+
+<hr>
+Data descriptors defined here:<br>
+<dl><dt><strong>__dict__</strong></dt>
+<dd><tt>dictionary&nbsp;for&nbsp;instance&nbsp;variables&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+<dl><dt><strong>__weakref__</strong></dt>
+<dd><tt>list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+</td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#eeaa77">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Functions</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl><dt><a name="-cached_calibration_constant"><strong>cached_calibration_constant</strong></a> = helper(key)</dt><dd><tt>Closure&nbsp;that&nbsp;closes&nbsp;over&nbsp;cache.&nbsp;If&nbsp;value&nbsp;is&nbsp;not&nbsp;in&nbsp;cache,&nbsp;callable&nbsp;is&nbsp;ran&nbsp;to&nbsp;produce&nbsp;the&nbsp;value.<br>
+:param&nbsp;key:&nbsp;Value&nbsp;to&nbsp;check&nbsp;if&nbsp;in&nbsp;cache<br>
+:return:&nbsp;Value&nbsp;from&nbsp;fn&nbsp;call.</tt></dd></dl>
+ <dl><dt><a name="-get_box_calibration_constants"><strong>get_box_calibration_constants</strong></a>(mongo_client: mongo.OpqMongoClient = None, defaults=None) -&gt; Dict[int, float]</dt><dd><tt>Loads&nbsp;calibration&nbsp;constants&nbsp;from&nbsp;the&nbsp;mongo&nbsp;database&nbsp;a&nbsp;a&nbsp;dictionary&nbsp;from&nbsp;box&nbsp;id&nbsp;to&nbsp;calibration&nbsp;constant.<br>
+Default&nbsp;values&nbsp;can&nbsp;be&nbsp;passed&nbsp;in&nbsp;if&nbsp;needed.<br>
+:param&nbsp;mongo_client:&nbsp;Optional&nbsp;mongo&nbsp;db&nbsp;opq&nbsp;client<br>
+:param&nbsp;defaults:&nbsp;Default&nbsp;values&nbsp;supplied&nbsp;as&nbsp;a&nbsp;mapping&nbsp;from&nbsp;box&nbsp;id&nbsp;to&nbsp;calibration&nbsp;constant.<br>
+:return:&nbsp;A&nbsp;dictionary&nbsp;mapping&nbsp;of&nbsp;box_id&nbsp;to&nbsp;calibration&nbsp;constant</tt></dd></dl>
+ <dl><dt><a name="-get_box_event"><strong>get_box_event</strong></a>(event_id: int, box_id: str, opq_mongo_client: mongo.OpqMongoClient = None) -&gt; Dict</dt><dd><tt>Returns&nbsp;the&nbsp;box_event&nbsp;associated&nbsp;with&nbsp;the&nbsp;provided&nbsp;event_id&nbsp;and&nbsp;box_id.<br>
+:param&nbsp;event_id:&nbsp;The&nbsp;event_id&nbsp;associated&nbsp;with&nbsp;this&nbsp;box_event.<br>
+:param&nbsp;box_id:&nbsp;The&nbsp;box_id&nbsp;associated&nbsp;with&nbsp;this&nbsp;box_event.<br>
+:param&nbsp;opq_mongo_client:&nbsp;An&nbsp;optional&nbsp;mongo&nbsp;client&nbsp;to&nbsp;use&nbsp;for&nbsp;DB&nbsp;access&nbsp;(will&nbsp;be&nbsp;created&nbsp;if&nbsp;not-provided)<br>
+:return:&nbsp;The&nbsp;box&nbsp;event&nbsp;associated&nbsp;with&nbsp;the&nbsp;provided&nbsp;event&nbsp;and&nbsp;box&nbsp;ids.</tt></dd></dl>
+ <dl><dt><a name="-get_calibration_constant"><strong>get_calibration_constant</strong></a>(box_id: int) -&gt; float</dt><dd><tt>Return&nbsp;the&nbsp;calibration&nbsp;constant&nbsp;for&nbsp;a&nbsp;specified&nbsp;box&nbsp;id.<br>
+:param&nbsp;box_id:&nbsp;The&nbsp;box&nbsp;id&nbsp;to&nbsp;query<br>
+:return:&nbsp;The&nbsp;calibration&nbsp;constant&nbsp;or&nbsp;1.0&nbsp;if&nbsp;the&nbsp;constant&nbsp;can't&nbsp;be&nbsp;found</tt></dd></dl>
+ <dl><dt><a name="-get_default_client"><strong>get_default_client</strong></a>(mongo_client: mongo.OpqMongoClient = None) -&gt; mongo.OpqMongoClient</dt><dd><tt>Creates&nbsp;a&nbsp;new&nbsp;mongo&nbsp;client&nbsp;or&nbsp;reuses&nbsp;a&nbsp;passed&nbsp;in&nbsp;mongo&nbsp;client<br>
+:param&nbsp;mongo_client:&nbsp;Mongo&nbsp;client<br>
+:return:&nbsp;Mongo&nbsp;client</tt></dd></dl>
+ <dl><dt><a name="-get_ieee_duration"><strong>get_ieee_duration</strong></a>(duration_ms: float) -&gt; mongo.IncidentIeeeDuration</dt><dd><tt>Given&nbsp;a&nbsp;duration&nbsp;in&nbsp;milliseconds,&nbsp;return&nbsp;the&nbsp;corresponding&nbsp;IEEE&nbsp;duration&nbsp;classification.<br>
+:param&nbsp;duration_ms:&nbsp;Duration&nbsp;in&nbsp;milliseconds.<br>
+:return:&nbsp;IEEE&nbsp;duration&nbsp;classification.</tt></dd></dl>
+ <dl><dt><a name="-get_location"><strong>get_location</strong></a>(box_id: str, opq_mongo_client: mongo.OpqMongoClient) -&gt; str</dt><dd><tt>Returns&nbsp;the&nbsp;current&nbsp;location&nbsp;of&nbsp;a&nbsp;box,&nbsp;or&nbsp;"UNKNOWN"&nbsp;if&nbsp;the&nbsp;location&nbsp;DNE.<br>
+:param&nbsp;box_id:&nbsp;The&nbsp;box&nbsp;to&nbsp;lookup&nbsp;the&nbsp;location&nbsp;for.<br>
+:param&nbsp;opq_mongo_client:&nbsp;An&nbsp;optional&nbsp;mongo&nbsp;client&nbsp;to&nbsp;use&nbsp;for&nbsp;DB&nbsp;access&nbsp;(will&nbsp;be&nbsp;created&nbsp;if&nbsp;not-provided)<br>
+:return:&nbsp;The&nbsp;location&nbsp;slug&nbsp;for&nbsp;the&nbsp;provided&nbsp;box</tt></dd></dl>
+ <dl><dt><a name="-get_waveform"><strong>get_waveform</strong></a>(mongo_client: mongo.OpqMongoClient, data_fs_filename: str) -&gt; numpy.ndarray</dt><dd><tt>Returns&nbsp;the&nbsp;waveform&nbsp;at&nbsp;data_fs_filename.<br>
+:param&nbsp;mongo_client:<br>
+:param&nbsp;data_fs_filename:<br>
+:return:&nbsp;The&nbsp;waveform&nbsp;stored&nbsp;at&nbsp;data_fs_filename&nbsp;as&nbsp;a&nbsp;numpy&nbsp;array.</tt></dd></dl>
+ <dl><dt><a name="-memoize"><strong>memoize</strong></a>(single_param_fn: Callable) -&gt; Callable</dt><dd><tt>Memoizes&nbsp;function&nbsp;returns.<br>
+:param&nbsp;single_param_fn:&nbsp;The&nbsp;function&nbsp;to&nbsp;memoize.<br>
+:return:&nbsp;A&nbsp;memoized&nbsp;version&nbsp;of&nbsp;callable</tt></dd></dl>
+ <dl><dt><a name="-next_available_incident_id"><strong>next_available_incident_id</strong></a>(opq_mongo_client: mongo.OpqMongoClient) -&gt; int</dt><dd><tt>Returns&nbsp;the&nbsp;next&nbsp;available&nbsp;incident&nbsp;id&nbsp;using&nbsp;the&nbsp;database&nbsp;as&nbsp;a&nbsp;source&nbsp;of&nbsp;truth<br>
+:param&nbsp;opq_mongo_client:&nbsp;An&nbsp;optional&nbsp;mongo&nbsp;client&nbsp;to&nbsp;use&nbsp;for&nbsp;DB&nbsp;access&nbsp;(will&nbsp;be&nbsp;created&nbsp;if&nbsp;not-provided)<br>
+:return:&nbsp;Next&nbsp;available&nbsp;incident&nbsp;id</tt></dd></dl>
+ <dl><dt><a name="-object_id"><strong>object_id</strong></a>(oid: str) -&gt; bson.objectid.ObjectId</dt><dd><tt>Given&nbsp;the&nbsp;string&nbsp;representation&nbsp;of&nbsp;an&nbsp;<a href="builtins.html#object">object</a>&nbsp;an&nbsp;id,&nbsp;return&nbsp;an&nbsp;instance&nbsp;of&nbsp;an&nbsp;ObjectID<br>
+&nbsp;<br>
+:param&nbsp;oid:&nbsp;The&nbsp;oid&nbsp;to&nbsp;encode<br>
+:return:&nbsp;ObjectId&nbsp;from&nbsp;string</tt></dd></dl>
+ <dl><dt><a name="-store_incident"><strong>store_incident</strong></a>(event_id: int, box_id: str, start_timestamp_ms: int, end_timestamp_ms: int, measurement_type: mongo.IncidentMeasurementType, deviation_from_nominal: float, classifications: List[mongo.IncidentClassification], annotations: List = None, metadata: Dict = None, opq_mongo_client: mongo.OpqMongoClient = None, copy_data: bool = True) -&gt; int</dt><dd><tt>Creates&nbsp;and&nbsp;stores&nbsp;an&nbsp;incident&nbsp;in&nbsp;the&nbsp;database.<br>
+:param&nbsp;event_id:&nbsp;The&nbsp;event_id&nbsp;that&nbsp;this&nbsp;incident&nbsp;is&nbsp;associated&nbsp;with.<br>
+:param&nbsp;box_id:&nbsp;The&nbsp;box_id&nbsp;that&nbsp;this&nbsp;incident&nbsp;is&nbsp;associated&nbsp;with.<br>
+:param&nbsp;start_timestamp_ms:&nbsp;The&nbsp;start&nbsp;timestamp&nbsp;of&nbsp;this&nbsp;incident.<br>
+:param&nbsp;end_timestamp_ms:&nbsp;The&nbsp;end&nbsp;timestamp&nbsp;of&nbsp;this&nbsp;incident.<br>
+:param&nbsp;measurement_type:&nbsp;&nbsp;The&nbsp;feature&nbsp;measurement&nbsp;type&nbsp;this&nbsp;incident&nbsp;was&nbsp;derrived&nbsp;from.<br>
+:param&nbsp;deviation_from_nominal:&nbsp;The&nbsp;maximum&nbsp;deviation&nbsp;from&nbsp;nominal&nbsp;during&nbsp;this&nbsp;incident.<br>
+:param&nbsp;classifications:&nbsp;A&nbsp;list&nbsp;of&nbsp;classifications&nbsp;assigned&nbsp;to&nbsp;this&nbsp;incident<br>
+:param&nbsp;annotations:&nbsp;A&nbsp;list&nbsp;of&nbsp;annotations&nbsp;assigned&nbsp;to&nbsp;this&nbsp;incident<br>
+:param&nbsp;metadata:&nbsp;An&nbsp;incident&nbsp;specific&nbsp;dictionary&nbsp;of&nbsp;key-pair&nbsp;values&nbsp;providing&nbsp;extra&nbsp;context&nbsp;to&nbsp;this&nbsp;incident<br>
+:param&nbsp;opq_mongo_client:&nbsp;An&nbsp;optional&nbsp;mongo&nbsp;client&nbsp;to&nbsp;use&nbsp;for&nbsp;DB&nbsp;access&nbsp;(will&nbsp;be&nbsp;created&nbsp;if&nbsp;not-provided)<br>
+:param&nbsp;copy_data:&nbsp;Should&nbsp;data&nbsp;be&nbsp;copied&nbsp;from&nbsp;measurements&nbsp;and&nbsp;waveforms?</tt></dd></dl>
+ <dl><dt><a name="-to_s16bit"><strong>to_s16bit</strong></a>(data: bytes) -&gt; numpy.ndarray</dt><dd><tt>Converts&nbsp;raw&nbsp;bytes&nbsp;into&nbsp;an&nbsp;array&nbsp;of&nbsp;16&nbsp;bit&nbsp;integers.<br>
+:param&nbsp;data:<br>
+:return:</tt></dd></dl>
+</td></tr></table>
+</body></html>

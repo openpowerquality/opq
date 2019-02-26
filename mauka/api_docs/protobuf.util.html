@@ -1,0 +1,112 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module protobuf.util</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong><a href="protobuf.html"><font color="#ffffff">protobuf</font></a>.util</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:/Users/anthony/Development/opq/mauka/protobuf/util.py">/Users/anthony/Development/opq/mauka/protobuf/util.py</a></font></td></tr></table>
+    <p><tt>Utility&nbsp;methods&nbsp;for&nbsp;interacting&nbsp;with&nbsp;protobuf&nbsp;messages&nbsp;from&nbsp;Makai&nbsp;and/or&nbsp;Mauka.</tt></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="protobuf.mauka_pb2.html">protobuf.mauka_pb2</a><br>
+<a href="numpy.html">numpy</a><br>
+</td><td width="25%" valign=top><a href="protobuf.html">protobuf</a><br>
+<a href="time.html">time</a><br>
+</td><td width="25%" valign=top><a href="typing.html">typing</a><br>
+</td><td width="25%" valign=top></td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#eeaa77">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Functions</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl><dt><a name="-build_heartbeat"><strong>build_heartbeat</strong></a>(source: str, last_received_timestamp_ms: int, on_message_count: int, status: str) -&gt; mauka_pb2.MaukaMessage</dt><dd><tt>Instance&nbsp;of&nbsp;Heartbeat&nbsp;protobuf&nbsp;message<br>
+:param&nbsp;source:&nbsp;Where&nbsp;this&nbsp;message&nbsp;is&nbsp;created&nbsp;from&nbsp;(plugin&nbsp;name&nbsp;or&nbsp;service&nbsp;name)<br>
+:param&nbsp;last_received_timestamp_ms:&nbsp;Last&nbsp;time&nbsp;a&nbsp;plugin&nbsp;received&nbsp;a&nbsp;on_message<br>
+:param&nbsp;on_message_count:&nbsp;Number&nbsp;of&nbsp;times&nbsp;a&nbsp;plugin's&nbsp;on_message&nbsp;has&nbsp;been&nbsp;fired<br>
+:param&nbsp;status:&nbsp;Custom&nbsp;status&nbsp;message<br>
+:return:&nbsp;Insantiated&nbsp;MaukaMessage&nbsp;with&nbsp;message&nbsp;type&nbsp;heartbeat</tt></dd></dl>
+ <dl><dt><a name="-build_makai_event"><strong>build_makai_event</strong></a>(source: str, event_id: int) -&gt; mauka_pb2.MaukaMessage</dt><dd><tt>Instance&nbsp;of&nbsp;a&nbsp;MakaiEvent&nbsp;that&nbsp;gets&nbsp;injected&nbsp;into&nbsp;the&nbsp;Mauka&nbsp;system&nbsp;by&nbsp;a&nbsp;service&nbsp;broker.<br>
+:param&nbsp;source:&nbsp;Where&nbsp;this&nbsp;message&nbsp;is&nbsp;created&nbsp;from&nbsp;(plugin&nbsp;name&nbsp;or&nbsp;service&nbsp;name)<br>
+:param&nbsp;event_id:<br>
+:return:</tt></dd></dl>
+ <dl><dt><a name="-build_makai_trigger"><strong>build_makai_trigger</strong></a>(source: str, event_start_timestamp_ms: int, event_end_timestamp_ms: int, event_type: str, max_value: float, box_id: str) -&gt; mauka_pb2.MaukaMessage</dt><dd><tt>Instantiates&nbsp;a&nbsp;makai&nbsp;trigger&nbsp;message.<br>
+:param&nbsp;source:&nbsp;Where&nbsp;this&nbsp;message&nbsp;is&nbsp;created&nbsp;from&nbsp;(plugin&nbsp;name&nbsp;or&nbsp;service&nbsp;name)<br>
+:param&nbsp;event_start_timestamp_ms:&nbsp;Start&nbsp;time&nbsp;of&nbsp;makai&nbsp;trigger<br>
+:param&nbsp;event_end_timestamp_ms:&nbsp;End&nbsp;time&nbsp;of&nbsp;makai&nbsp;trigger<br>
+:param&nbsp;event_type:&nbsp;Type&nbsp;of&nbsp;event&nbsp;that&nbsp;causes&nbsp;this&nbsp;trigger<br>
+:param&nbsp;max_value:&nbsp;Max&nbsp;deviation&nbsp;from&nbsp;nominal<br>
+:param&nbsp;box_id:&nbsp;Box&nbsp;id&nbsp;that&nbsp;caused&nbsp;this&nbsp;trigger&nbsp;message&nbsp;to&nbsp;be&nbsp;created<br>
+:return:&nbsp;Instantiated&nbsp;MaukaMessage&nbsp;with&nbsp;a&nbsp;message&nbsp;type&nbsp;of&nbsp;makai&nbsp;trigger</tt></dd></dl>
+ <dl><dt><a name="-build_mauka_message"><strong>build_mauka_message</strong></a>(source: str, timestamp_ms: int = 1551213483558) -&gt; mauka_pb2.MaukaMessage</dt><dd><tt>Instantiates&nbsp;a&nbsp;MaukaMessage.<br>
+:param&nbsp;source:&nbsp;Where&nbsp;this&nbsp;message&nbsp;is&nbsp;created&nbsp;from&nbsp;(plugin&nbsp;name&nbsp;or&nbsp;service&nbsp;name)<br>
+:param&nbsp;timestamp_ms:&nbsp;When&nbsp;this&nbsp;message&nbsp;was&nbsp;created&nbsp;(ms&nbsp;since&nbsp;epoch)<br>
+:return:&nbsp;Insantiated&nbsp;MaukaMessage</tt></dd></dl>
+ <dl><dt><a name="-build_measurement"><strong>build_measurement</strong></a>(source: str, box_id: str, timestamp_ms: int, frequency: float, voltage_rms: float, thd: float) -&gt; mauka_pb2.MaukaMessage</dt><dd><tt>Instantiates&nbsp;a&nbsp;protobuf&nbsp;mauka&nbsp;measurement.<br>
+:param&nbsp;source:&nbsp;Where&nbsp;this&nbsp;message&nbsp;is&nbsp;created&nbsp;from&nbsp;(plugin&nbsp;name&nbsp;or&nbsp;service&nbsp;name)<br>
+:param&nbsp;box_id:&nbsp;Id&nbsp;of&nbsp;the&nbsp;box&nbsp;that&nbsp;created&nbsp;this&nbsp;measurement<br>
+:param&nbsp;timestamp_ms:&nbsp;Timestamp&nbsp;that&nbsp;this&nbsp;measurement&nbsp;was&nbsp;created<br>
+:param&nbsp;frequency:&nbsp;Frequency&nbsp;value&nbsp;when&nbsp;this&nbsp;measurement&nbsp;was&nbsp;recorded<br>
+:param&nbsp;voltage_rms:&nbsp;Voltage&nbsp;value&nbsp;when&nbsp;this&nbsp;measurement&nbsp;was&nbsp;recorded<br>
+:param&nbsp;thd:&nbsp;THD&nbsp;value&nbsp;when&nbsp;this&nbsp;measurement&nbsp;was&nbsp;recorded<br>
+:return:&nbsp;Instance&nbsp;of&nbsp;MaukaMessage&nbsp;with&nbsp;message&nbsp;type&nbsp;of&nbsp;measurement.</tt></dd></dl>
+ <dl><dt><a name="-build_payload"><strong>build_payload</strong></a>(source: str, event_id: int, box_id: str, payload_type: &lt;google.protobuf.internal.enum_type_wrapper.EnumTypeWrapper object at 0x11b05d048&gt;, data: Union[numpy.ndarray, List], start_timestamp_ms: int, end_timestamp_ms: int) -&gt; mauka_pb2.MaukaMessage</dt><dd><tt>Builds&nbsp;an&nbsp;instance&nbsp;of&nbsp;a&nbsp;MaukaMessage&nbsp;with&nbsp;message&nbsp;type&nbsp;Payload<br>
+:param&nbsp;source:&nbsp;Where&nbsp;this&nbsp;message&nbsp;is&nbsp;created&nbsp;from&nbsp;(plugin&nbsp;name&nbsp;or&nbsp;service&nbsp;name)<br>
+:param&nbsp;event_id:&nbsp;Event_id&nbsp;this&nbsp;payload&nbsp;is&nbsp;associated&nbsp;with<br>
+:param&nbsp;box_id:&nbsp;Box&nbsp;id&nbsp;this&nbsp;payload&nbsp;is&nbsp;associated&nbsp;with<br>
+:param&nbsp;payload_type:&nbsp;The&nbsp;type&nbsp;of&nbsp;payload&nbsp;that&nbsp;this&nbsp;represents&nbsp;(see&nbsp;PayloadType&nbsp;of&nbsp;mauka.proto)<br>
+:param&nbsp;data:&nbsp;Payload&nbsp;data&nbsp;cast&nbsp;to&nbsp;float64's<br>
+:param&nbsp;start_timestamp_ms:&nbsp;Start&nbsp;timestamp&nbsp;of&nbsp;this&nbsp;payload<br>
+:param&nbsp;end_timestamp_ms:&nbsp;End&nbsp;timestamp&nbsp;of&nbsp;this&nbsp;payload<br>
+:return:&nbsp;Instance&nbsp;of&nbsp;MaukaMessage&nbsp;Payload</tt></dd></dl>
+ <dl><dt><a name="-decode_trigger_message"><strong>decode_trigger_message</strong></a>(encoded_trigger_message)</dt><dd><tt>Decodes&nbsp;and&nbsp;returns&nbsp;a&nbsp;serialized&nbsp;triggering&nbsp;message<br>
+&nbsp;<br>
+:param&nbsp;encoded_trigger_message:&nbsp;The&nbsp;protobuf&nbsp;encoded&nbsp;triggering&nbsp;message<br>
+:return:&nbsp;The&nbsp;decoded&nbsp;TriggerMessage&nbsp;object</tt></dd></dl>
+ <dl><dt><a name="-deserialize_mauka_message"><strong>deserialize_mauka_message</strong></a>(mauka_message_bytes: bytes) -&gt; mauka_pb2.MaukaMessage</dt><dd><tt>Deserialized&nbsp;a&nbsp;mauka&nbsp;message&nbsp;from&nbsp;bytes&nbsp;to&nbsp;an&nbsp;instance&nbsp;of&nbsp;MaukaMessage.<br>
+:param&nbsp;mauka_message_bytes:&nbsp;Serialized&nbsp;bytes<br>
+:return:&nbsp;An&nbsp;instance&nbsp;of&nbsp;MaukaMessage</tt></dd></dl>
+ <dl><dt><a name="-encode_trigger_message"><strong>encode_trigger_message</strong></a>(idd, timestamp, frequency, rms)</dt><dd><tt>Encodes&nbsp;a&nbsp;Makai&nbsp;trigger&nbsp;message<br>
+:param&nbsp;idd:&nbsp;Id&nbsp;of&nbsp;the&nbsp;box<br>
+:param&nbsp;timestamp:&nbsp;Timestamp&nbsp;ms<br>
+:param&nbsp;frequency:&nbsp;The&nbsp;inst&nbsp;frequency<br>
+:param&nbsp;rms:&nbsp;The&nbsp;inst&nbsp;voltage&nbsp;RMS<br>
+:return:&nbsp;Serialized&nbsp;Makai&nbsp;trigger&nbsp;message</tt></dd></dl>
+ <dl><dt><a name="-get_timestamp_ms"><strong>get_timestamp_ms</strong></a>() -&gt; int</dt><dd><tt>Returns&nbsp;the&nbsp;current&nbsp;time&nbsp;as&nbsp;a&nbsp;timestamp&nbsp;as&nbsp;the&nbsp;number&nbsp;of&nbsp;milliseconds&nbsp;since&nbsp;the&nbsp;epoch.<br>
+:return:&nbsp;The&nbsp;number&nbsp;of&nbsp;milliseconds&nbsp;since&nbsp;the&nbsp;epoch.</tt></dd></dl>
+ <dl><dt><a name="-is_heartbeat_message"><strong>is_heartbeat_message</strong></a>(mauka_message: mauka_pb2.MaukaMessage) -&gt; bool</dt><dd><tt>Determine&nbsp;if&nbsp;message&nbsp;type&nbsp;is&nbsp;a&nbsp;heartbeat<br>
+:param&nbsp;mauka_message:&nbsp;Mauka&nbsp;message&nbsp;to&nbsp;check&nbsp;the&nbsp;message&nbsp;type&nbsp;of.<br>
+:return:&nbsp;True&nbsp;if&nbsp;this&nbsp;is&nbsp;a&nbsp;heartbeat&nbsp;type,&nbsp;fasle&nbsp;otherwise</tt></dd></dl>
+ <dl><dt><a name="-is_makai_event_message"><strong>is_makai_event_message</strong></a>(mauka_message: mauka_pb2.MaukaMessage) -&gt; bool</dt><dd><tt>Determine&nbsp;if&nbsp;message&nbsp;type&nbsp;is&nbsp;a&nbsp;makai_event<br>
+:param&nbsp;mauka_message:&nbsp;Mauka&nbsp;message&nbsp;to&nbsp;check&nbsp;the&nbsp;message&nbsp;type&nbsp;of.<br>
+:return:&nbsp;True&nbsp;if&nbsp;this&nbsp;is&nbsp;a&nbsp;makai_event&nbsp;type,&nbsp;fasle&nbsp;otherwise</tt></dd></dl>
+ <dl><dt><a name="-is_makai_trigger"><strong>is_makai_trigger</strong></a>(mauka_message: mauka_pb2.MaukaMessage) -&gt; bool</dt><dd><tt>Determine&nbsp;if&nbsp;message&nbsp;type&nbsp;is&nbsp;a&nbsp;makai_trigger<br>
+:param&nbsp;mauka_message:&nbsp;Mauka&nbsp;message&nbsp;to&nbsp;check&nbsp;the&nbsp;message&nbsp;type&nbsp;of.<br>
+:return:&nbsp;True&nbsp;if&nbsp;this&nbsp;is&nbsp;a&nbsp;makai_trigger&nbsp;type,&nbsp;fasle&nbsp;otherwise</tt></dd></dl>
+ <dl><dt><a name="-is_measurement"><strong>is_measurement</strong></a>(mauka_message: mauka_pb2.MaukaMessage) -&gt; bool</dt><dd><tt>Determine&nbsp;if&nbsp;message&nbsp;type&nbsp;is&nbsp;a&nbsp;measurement<br>
+:param&nbsp;mauka_message:&nbsp;Mauka&nbsp;message&nbsp;to&nbsp;check&nbsp;the&nbsp;message&nbsp;type&nbsp;of.<br>
+:return:&nbsp;True&nbsp;if&nbsp;this&nbsp;is&nbsp;a&nbsp;measurement&nbsp;type,&nbsp;fasle&nbsp;otherwise</tt></dd></dl>
+ <dl><dt><a name="-is_payload"><strong>is_payload</strong></a>(mauka_message: mauka_pb2.MaukaMessage, payload_type: &lt;google.protobuf.internal.enum_type_wrapper.EnumTypeWrapper object at 0x11b05d048&gt; = None) -&gt; bool</dt><dd><tt>Determine&nbsp;if&nbsp;message&nbsp;type&nbsp;is&nbsp;payload&nbsp;and&nbsp;optionally&nbsp;checks&nbsp;payload&nbsp;type&nbsp;if&nbsp;provided.<br>
+:param&nbsp;mauka_message:&nbsp;Mauka&nbsp;message&nbsp;to&nbsp;check&nbsp;the&nbsp;message&nbsp;type&nbsp;of.<br>
+:param&nbsp;payload_type:&nbsp;The&nbsp;type&nbsp;of&nbsp;payload&nbsp;to&nbsp;check&nbsp;against.<br>
+:return:&nbsp;True&nbsp;if&nbsp;the&nbsp;message&nbsp;and&nbsp;payload&nbsp;type&nbsp;match,&nbsp;false&nbsp;otherwise.</tt></dd></dl>
+ <dl><dt><a name="-repeated_as_ndarray"><strong>repeated_as_ndarray</strong></a>(repeated) -&gt; numpy.ndarray</dt><dd><tt>Converts&nbsp;a&nbsp;protobuf&nbsp;repeated&nbsp;field&nbsp;to&nbsp;a&nbsp;numpy&nbsp;array.<br>
+:param&nbsp;repeated:&nbsp;Protobuf&nbsp;repeated&nbsp;field<br>
+:return:&nbsp;Numpy&nbsp;array</tt></dd></dl>
+ <dl><dt><a name="-serialize_mauka_message"><strong>serialize_mauka_message</strong></a>(mauka_message: mauka_pb2.MaukaMessage) -&gt; bytes</dt><dd><tt>Serializes&nbsp;an&nbsp;instance&nbsp;of&nbsp;a&nbsp;MaukaMessage&nbsp;into&nbsp;bytes.<br>
+:param&nbsp;mauka_message:&nbsp;The&nbsp;MaukaMessage&nbsp;to&nbsp;serialize.<br>
+:return:&nbsp;Serialized&nbsp;bytes.</tt></dd></dl>
+ <dl><dt><a name="-which_message_oneof"><strong>which_message_oneof</strong></a>(mauka_message: mauka_pb2.MaukaMessage) -&gt; str</dt><dd><tt>Returns&nbsp;the&nbsp;one_of&nbsp;field&nbsp;type&nbsp;of&nbsp;the&nbsp;message&nbsp;field&nbsp;in&nbsp;the&nbsp;mauka_message.<br>
+:param&nbsp;mauka_message:&nbsp;Mauka&nbsp;message&nbsp;to&nbsp;inspect.<br>
+:return:&nbsp;The&nbsp;message&nbsp;type&nbsp;assigned&nbsp;in&nbsp;the&nbsp;one_of.</tt></dd></dl>
+</td></tr></table>
+</body></html>

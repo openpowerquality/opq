@@ -1,0 +1,146 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module plugins.frequency_variation_plugin</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong><a href="plugins.html"><font color="#ffffff">plugins</font></a>.frequency_variation_plugin</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:/Users/anthony/Development/opq/mauka/plugins/frequency_variation_plugin.py">/Users/anthony/Development/opq/mauka/plugins/frequency_variation_plugin.py</a></font></td></tr></table>
+    <p><tt>This&nbsp;plugin&nbsp;detects,&nbsp;classifies,&nbsp;and&nbsp;stores&nbsp;frequency&nbsp;variation&nbsp;incidents.<br>
+Frequency&nbsp;variations&nbsp;are&nbsp;classified&nbsp;as&nbsp;+/-0.10hz&nbsp;as&nbsp;specified&nbsp;by&nbsp;IEEE&nbsp;standards</tt></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="config.html">config</a><br>
+<a href="constants.html">constants</a><br>
+</td><td width="25%" valign=top><a href="mongo.html">mongo</a><br>
+<a href="multiprocessing.html">multiprocessing</a><br>
+</td><td width="25%" valign=top><a href="numpy.html">numpy</a><br>
+<a href="plugins.html">plugins</a><br>
+</td><td width="25%" valign=top><a href="protobuf.html">protobuf</a><br>
+</td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ee77aa">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Classes</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#ee77aa"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl>
+<dt><font face="helvetica, arial"><a href="plugins.base_plugin.html#MaukaPlugin">plugins.base_plugin.MaukaPlugin</a>(<a href="builtins.html#object">builtins.object</a>)
+</font></dt><dd>
+<dl>
+<dt><font face="helvetica, arial"><a href="plugins.frequency_variation_plugin.html#FrequencyVariationPlugin">FrequencyVariationPlugin</a>
+</font></dt></dl>
+</dd>
+</dl>
+ <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="FrequencyVariationPlugin">class <strong>FrequencyVariationPlugin</strong></a>(<a href="plugins.base_plugin.html#MaukaPlugin">plugins.base_plugin.MaukaPlugin</a>)</font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt><a href="#FrequencyVariationPlugin-NAME">FrequencyVariationPlugin</a>(conf:&nbsp;config.MaukaConfig,&nbsp;exit_event:&nbsp;&amp;lt;bound&nbsp;method&nbsp;BaseContext.Event&nbsp;of&nbsp;&amp;lt;multiprocessing.context.DefaultContext&nbsp;object&nbsp;at&nbsp;0x109a54470&amp;gt;&amp;gt;)<br>
+&nbsp;<br>
+Mauka&nbsp;plugin&nbsp;that&nbsp;classifies&nbsp;and&nbsp;stores&nbsp;frequency&nbsp;variation&nbsp;incidents&nbsp;for&nbsp;any&nbsp;event&nbsp;that&nbsp;includes&nbsp;a&nbsp;raw&nbsp;waveform<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%"><dl><dt>Method resolution order:</dt>
+<dd><a href="plugins.frequency_variation_plugin.html#FrequencyVariationPlugin">FrequencyVariationPlugin</a></dd>
+<dd><a href="plugins.base_plugin.html#MaukaPlugin">plugins.base_plugin.MaukaPlugin</a></dd>
+<dd><a href="builtins.html#object">builtins.object</a></dd>
+</dl>
+<hr>
+Methods defined here:<br>
+<dl><dt><a name="FrequencyVariationPlugin-__init__"><strong>__init__</strong></a>(self, conf: config.MaukaConfig, exit_event: &lt;bound method BaseContext.Event of &lt;multiprocessing.context.DefaultContext object at 0x109a54470&gt;&gt;)</dt><dd><tt>Initializes&nbsp;this&nbsp;plugin<br>
+:param&nbsp;conf:&nbsp;Mauka&nbsp;configuration<br>
+:param&nbsp;exit_event:&nbsp;Exit&nbsp;event&nbsp;that&nbsp;can&nbsp;disable&nbsp;this&nbsp;plugin&nbsp;from&nbsp;parent&nbsp;process</tt></dd></dl>
+
+<dl><dt><a name="FrequencyVariationPlugin-on_message"><strong>on_message</strong></a>(self, topic, mauka_message)</dt><dd><tt>Called&nbsp;async&nbsp;when&nbsp;a&nbsp;topic&nbsp;this&nbsp;plugin&nbsp;subscribes&nbsp;to&nbsp;produces&nbsp;a&nbsp;message<br>
+:param&nbsp;topic:&nbsp;The&nbsp;topic&nbsp;that&nbsp;is&nbsp;producing&nbsp;the&nbsp;message<br>
+:param&nbsp;mauka_message:&nbsp;The&nbsp;message&nbsp;that&nbsp;was&nbsp;produced</tt></dd></dl>
+
+<hr>
+Data and other attributes defined here:<br>
+<dl><dt><strong>NAME</strong> = 'FrequencyVariationPlugin'</dl>
+
+<hr>
+Methods inherited from <a href="plugins.base_plugin.html#MaukaPlugin">plugins.base_plugin.MaukaPlugin</a>:<br>
+<dl><dt><a name="FrequencyVariationPlugin-debug"><strong>debug</strong></a>(self, msg: str)</dt><dd><tt>Prints&nbsp;a&nbsp;debug&nbsp;message&nbsp;using&nbsp;this&nbsp;classes&nbsp;logger&nbsp;and&nbsp;formatted&nbsp;the&nbsp;plugin&nbsp;name.<br>
+:param&nbsp;msg:&nbsp;Message&nbsp;to&nbsp;print&nbsp;to&nbsp;debug.</tt></dd></dl>
+
+<dl><dt><a name="FrequencyVariationPlugin-get_mongo_client"><strong>get_mongo_client</strong></a>(self)</dt><dd><tt>Returns&nbsp;an&nbsp;OPQ&nbsp;mongo&nbsp;client<br>
+&nbsp;<br>
+:return:&nbsp;An&nbsp;OPQ&nbsp;mongo&nbsp;client</tt></dd></dl>
+
+<dl><dt><a name="FrequencyVariationPlugin-get_status"><strong>get_status</strong></a>(self) -&gt; str</dt><dd><tt>Return&nbsp;the&nbsp;status&nbsp;of&nbsp;this&nbsp;plugin<br>
+:return:&nbsp;The&nbsp;status&nbsp;of&nbsp;this&nbsp;plugin</tt></dd></dl>
+
+<dl><dt><a name="FrequencyVariationPlugin-handle_self_message"><strong>handle_self_message</strong></a>(self, message: str)</dt><dd><tt>Handles&nbsp;a&nbsp;self-message<br>
+&nbsp;<br>
+:param&nbsp;message:&nbsp;The&nbsp;message&nbsp;to&nbsp;handle</tt></dd></dl>
+
+<dl><dt><a name="FrequencyVariationPlugin-is_self_message"><strong>is_self_message</strong></a>(self, topic: str) -&gt; bool</dt><dd><tt>Determines&nbsp;if&nbsp;this&nbsp;is&nbsp;a&nbsp;message&nbsp;directed&nbsp;at&nbsp;this&nbsp;plugin.&nbsp;I.e.&nbsp;the&nbsp;topic&nbsp;is&nbsp;the&nbsp;name&nbsp;of&nbsp;the&nbsp;plugin.<br>
+&nbsp;<br>
+:param&nbsp;topic:&nbsp;Topic&nbsp;of&nbsp;the&nbsp;message<br>
+:return:&nbsp;If&nbsp;this&nbsp;is&nbsp;a&nbsp;self&nbsp;message&nbsp;or&nbsp;not</tt></dd></dl>
+
+<dl><dt><a name="FrequencyVariationPlugin-produce"><strong>produce</strong></a>(self, topic: str, mauka_message: mauka_pb2.MaukaMessage)</dt><dd><tt>Produces&nbsp;a&nbsp;message&nbsp;with&nbsp;a&nbsp;given&nbsp;topic&nbsp;to&nbsp;the&nbsp;system<br>
+&nbsp;<br>
+:param&nbsp;topic:&nbsp;The&nbsp;topic&nbsp;to&nbsp;produce&nbsp;this&nbsp;message&nbsp;to<br>
+:param&nbsp;mauka_message:&nbsp;The&nbsp;message&nbsp;to&nbsp;produce</tt></dd></dl>
+
+<dl><dt><a name="FrequencyVariationPlugin-run_plugin"><strong>run_plugin</strong></a>(self)</dt><dd><tt>This&nbsp;is&nbsp;the&nbsp;run&nbsp;loop&nbsp;for&nbsp;this&nbsp;plugin&nbsp;process</tt></dd></dl>
+
+<dl><dt><a name="FrequencyVariationPlugin-start_heartbeat"><strong>start_heartbeat</strong></a>(self)</dt><dd><tt>This&nbsp;is&nbsp;a&nbsp;recursive&nbsp;function&nbsp;that&nbsp;acts&nbsp;as&nbsp;a&nbsp;heartbeat.<br>
+&nbsp;<br>
+This&nbsp;function&nbsp;calls&nbsp;itself&nbsp;over-and-over&nbsp;on&nbsp;a&nbsp;timer&nbsp;to&nbsp;produce&nbsp;heartbeat&nbsp;messages.&nbsp;The&nbsp;interval&nbsp;can&nbsp;be<br>
+configured&nbsp;is&nbsp;the&nbsp;configuration&nbsp;file.</tt></dd></dl>
+
+<hr>
+Data descriptors inherited from <a href="plugins.base_plugin.html#MaukaPlugin">plugins.base_plugin.MaukaPlugin</a>:<br>
+<dl><dt><strong>__dict__</strong></dt>
+<dd><tt>dictionary&nbsp;for&nbsp;instance&nbsp;variables&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+<dl><dt><strong>__weakref__</strong></dt>
+<dd><tt>list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+</td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#eeaa77">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Functions</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl><dt><a name="-frequency_incident_classifier"><strong>frequency_incident_classifier</strong></a>(event_id: int, box_id: str, windowed_frequencies: numpy.ndarray, box_event_start_ts: int, freq_ref: float, freq_var_high: float, freq_var_low: float, freq_interruption: float, window_size: int, max_lull: int, opq_mongo_client: mongo.OpqMongoClient = None, logger=None)</dt><dd><tt>Classifies&nbsp;a&nbsp;frequency&nbsp;incident&nbsp;as&nbsp;a&nbsp;Sag,&nbsp;Swell,&nbsp;or&nbsp;Interruption.&nbsp;Creates&nbsp;a&nbsp;Mongo&nbsp;Incident&nbsp;document<br>
+:param&nbsp;event_id:&nbsp;Makai&nbsp;Event&nbsp;ID<br>
+:param&nbsp;box_id:&nbsp;Box&nbsp;reporting&nbsp;event<br>
+:param&nbsp;windowed_frequencies:&nbsp;High&nbsp;fidelity&nbsp;frequency&nbsp;measurements&nbsp;of&nbsp;windows<br>
+:param&nbsp;box_event_start_ts:&nbsp;start&nbsp;timestamp&nbsp;of&nbsp;event&nbsp;in&nbsp;milliseconds<br>
+:param&nbsp;freq_ref:&nbsp;the&nbsp;reference&nbsp;frequency<br>
+:param&nbsp;freq_var_high:&nbsp;the&nbsp;threshold&nbsp;amount&nbsp;of&nbsp;variation&nbsp;to&nbsp;trigger&nbsp;a&nbsp;frequency&nbsp;swell&nbsp;incident<br>
+:param&nbsp;freq_var_low:&nbsp;the&nbsp;threshold&nbsp;amount&nbsp;of&nbsp;variation&nbsp;to&nbsp;trigger&nbsp;a&nbsp;frequency&nbsp;sag&nbsp;incident<br>
+:param&nbsp;freq_interruption:&nbsp;the&nbsp;frequency&nbsp;to&nbsp;trigger&nbsp;a&nbsp;frequency&nbsp;interruption&nbsp;incident<br>
+:param&nbsp;window_size:&nbsp;The&nbsp;number&nbsp;of&nbsp;samples&nbsp;per&nbsp;window<br>
+:param&nbsp;max_lull:<br>
+:param&nbsp;opq_mongo_client:<br>
+:param&nbsp;logger:</tt></dd></dl>
+ <dl><dt><a name="-frequency_variation"><strong>frequency_variation</strong></a>(frequency: float, freq_ref: float, freq_var_high: float, freq_var_low: float, freq_interruption: float)</dt><dd><tt>Determine&nbsp;the&nbsp;variation&nbsp;type&nbsp;if&nbsp;any&nbsp;based&nbsp;on&nbsp;IEEE&nbsp;1159&nbsp;standards<br>
+:param&nbsp;frequency:&nbsp;the&nbsp;frequency&nbsp;measured&nbsp;over&nbsp;the&nbsp;window<br>
+:param&nbsp;freq_ref:&nbsp;the&nbsp;reference&nbsp;frequency<br>
+:param&nbsp;freq_var_high:<br>
+:param&nbsp;freq_var_low:<br>
+:param&nbsp;freq_interruption:<br>
+:return:&nbsp;variation_type:&nbsp;the&nbsp;variation&nbsp;type&nbsp;if&nbsp;there&nbsp;is&nbsp;a&nbsp;variation&nbsp;from&nbsp;the&nbsp;reference,&nbsp;otherwise&nbsp;False</tt></dd></dl>
+ <dl><dt><a name="-rerun"><strong>rerun</strong></a>(mongo_client: mongo.OpqMongoClient, logger, mauka_message: mauka_pb2.MaukaMessage)</dt><dd><tt>Rerun&nbsp;a&nbsp;makai&nbsp;event&nbsp;through&nbsp;the&nbsp;frequency&nbsp;variation&nbsp;plugin.<br>
+:param&nbsp;mongo_client:&nbsp;Mongo&nbsp;client&nbsp;to&nbsp;make&nbsp;the&nbsp;query.<br>
+:param&nbsp;logger:&nbsp;Application&nbsp;logger.<br>
+:param&nbsp;mauka_message:&nbsp;The&nbsp;mauka&nbsp;message&nbsp;to&nbsp;rerrun&nbsp;the&nbsp;frequency&nbsp;variation&nbsp;plugin&nbsp;over.</tt></dd></dl>
+</td></tr></table>
+</body></html>

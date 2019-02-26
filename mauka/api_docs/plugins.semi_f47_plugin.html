@@ -1,0 +1,144 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module plugins.semi_f47_plugin</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong><a href="plugins.html"><font color="#ffffff">plugins</font></a>.semi_f47_plugin</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:/Users/anthony/Development/opq/mauka/plugins/semi_f47_plugin.py">/Users/anthony/Development/opq/mauka/plugins/semi_f47_plugin.py</a></font></td></tr></table>
+    <p><tt>This&nbsp;module&nbsp;contains&nbsp;the&nbsp;plugin&nbsp;definition&nbsp;for&nbsp;classifying&nbsp;voltage&nbsp;incidents&nbsp;by&nbsp;the&nbsp;Semi&nbsp;F47&nbsp;standard.</tt></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="config.html">config</a><br>
+<a href="constants.html">constants</a><br>
+</td><td width="25%" valign=top><a href="mongo.html">mongo</a><br>
+<a href="numpy.html">numpy</a><br>
+</td><td width="25%" valign=top><a href="plugins.html">plugins</a><br>
+<a href="protobuf.html">protobuf</a><br>
+</td><td width="25%" valign=top></td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ee77aa">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Classes</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#ee77aa"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl>
+<dt><font face="helvetica, arial"><a href="plugins.base_plugin.html#MaukaPlugin">plugins.base_plugin.MaukaPlugin</a>(<a href="builtins.html#object">builtins.object</a>)
+</font></dt><dd>
+<dl>
+<dt><font face="helvetica, arial"><a href="plugins.semi_f47_plugin.html#SemiF47Plugin">SemiF47Plugin</a>
+</font></dt></dl>
+</dd>
+</dl>
+ <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="SemiF47Plugin">class <strong>SemiF47Plugin</strong></a>(<a href="plugins.base_plugin.html#MaukaPlugin">plugins.base_plugin.MaukaPlugin</a>)</font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt><a href="#SemiF47Plugin">SemiF47Plugin</a>(conf:&nbsp;config.MaukaConfig,&nbsp;exit_event)<br>
+&nbsp;<br>
+This&nbsp;plugin&nbsp;subscribes&nbsp;to&nbsp;RMS&nbsp;windowed&nbsp;voltage&nbsp;and&nbsp;classifies&nbsp;Semi&nbsp;F47&nbsp;violations.<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%"><dl><dt>Method resolution order:</dt>
+<dd><a href="plugins.semi_f47_plugin.html#SemiF47Plugin">SemiF47Plugin</a></dd>
+<dd><a href="plugins.base_plugin.html#MaukaPlugin">plugins.base_plugin.MaukaPlugin</a></dd>
+<dd><a href="builtins.html#object">builtins.object</a></dd>
+</dl>
+<hr>
+Methods defined here:<br>
+<dl><dt><a name="SemiF47Plugin-__init__"><strong>__init__</strong></a>(self, conf: config.MaukaConfig, exit_event)</dt><dd><tt>Initializes&nbsp;the&nbsp;base&nbsp;plugin<br>
+&nbsp;<br>
+:param&nbsp;conf:&nbsp;Configuration&nbsp;dictionary<br>
+:param&nbsp;subscriptions:&nbsp;List&nbsp;of&nbsp;subscriptions&nbsp;this&nbsp;plugin&nbsp;should&nbsp;subscribe&nbsp;to<br>
+:param&nbsp;name:&nbsp;The&nbsp;name&nbsp;of&nbsp;this&nbsp;plugin</tt></dd></dl>
+
+<dl><dt><a name="SemiF47Plugin-on_message"><strong>on_message</strong></a>(self, topic, mauka_message)</dt><dd><tt>This&nbsp;gets&nbsp;called&nbsp;when&nbsp;a&nbsp;subscriber&nbsp;receives&nbsp;a&nbsp;message&nbsp;from&nbsp;a&nbsp;topic&nbsp;they&nbsp;are&nbsp;subscribed&nbsp;too.<br>
+&nbsp;<br>
+This&nbsp;should&nbsp;be&nbsp;implemented&nbsp;in&nbsp;all&nbsp;subclasses.<br>
+&nbsp;<br>
+:param&nbsp;topic:&nbsp;The&nbsp;topic&nbsp;this&nbsp;message&nbsp;is&nbsp;associated&nbsp;with<br>
+:param&nbsp;mauka_message:&nbsp;The&nbsp;message&nbsp;contents</tt></dd></dl>
+
+<hr>
+Methods inherited from <a href="plugins.base_plugin.html#MaukaPlugin">plugins.base_plugin.MaukaPlugin</a>:<br>
+<dl><dt><a name="SemiF47Plugin-debug"><strong>debug</strong></a>(self, msg: str)</dt><dd><tt>Prints&nbsp;a&nbsp;debug&nbsp;message&nbsp;using&nbsp;this&nbsp;classes&nbsp;logger&nbsp;and&nbsp;formatted&nbsp;the&nbsp;plugin&nbsp;name.<br>
+:param&nbsp;msg:&nbsp;Message&nbsp;to&nbsp;print&nbsp;to&nbsp;debug.</tt></dd></dl>
+
+<dl><dt><a name="SemiF47Plugin-get_mongo_client"><strong>get_mongo_client</strong></a>(self)</dt><dd><tt>Returns&nbsp;an&nbsp;OPQ&nbsp;mongo&nbsp;client<br>
+&nbsp;<br>
+:return:&nbsp;An&nbsp;OPQ&nbsp;mongo&nbsp;client</tt></dd></dl>
+
+<dl><dt><a name="SemiF47Plugin-get_status"><strong>get_status</strong></a>(self) -&gt; str</dt><dd><tt>Return&nbsp;the&nbsp;status&nbsp;of&nbsp;this&nbsp;plugin<br>
+:return:&nbsp;The&nbsp;status&nbsp;of&nbsp;this&nbsp;plugin</tt></dd></dl>
+
+<dl><dt><a name="SemiF47Plugin-handle_self_message"><strong>handle_self_message</strong></a>(self, message: str)</dt><dd><tt>Handles&nbsp;a&nbsp;self-message<br>
+&nbsp;<br>
+:param&nbsp;message:&nbsp;The&nbsp;message&nbsp;to&nbsp;handle</tt></dd></dl>
+
+<dl><dt><a name="SemiF47Plugin-is_self_message"><strong>is_self_message</strong></a>(self, topic: str) -&gt; bool</dt><dd><tt>Determines&nbsp;if&nbsp;this&nbsp;is&nbsp;a&nbsp;message&nbsp;directed&nbsp;at&nbsp;this&nbsp;plugin.&nbsp;I.e.&nbsp;the&nbsp;topic&nbsp;is&nbsp;the&nbsp;name&nbsp;of&nbsp;the&nbsp;plugin.<br>
+&nbsp;<br>
+:param&nbsp;topic:&nbsp;Topic&nbsp;of&nbsp;the&nbsp;message<br>
+:return:&nbsp;If&nbsp;this&nbsp;is&nbsp;a&nbsp;self&nbsp;message&nbsp;or&nbsp;not</tt></dd></dl>
+
+<dl><dt><a name="SemiF47Plugin-produce"><strong>produce</strong></a>(self, topic: str, mauka_message: mauka_pb2.MaukaMessage)</dt><dd><tt>Produces&nbsp;a&nbsp;message&nbsp;with&nbsp;a&nbsp;given&nbsp;topic&nbsp;to&nbsp;the&nbsp;system<br>
+&nbsp;<br>
+:param&nbsp;topic:&nbsp;The&nbsp;topic&nbsp;to&nbsp;produce&nbsp;this&nbsp;message&nbsp;to<br>
+:param&nbsp;mauka_message:&nbsp;The&nbsp;message&nbsp;to&nbsp;produce</tt></dd></dl>
+
+<dl><dt><a name="SemiF47Plugin-run_plugin"><strong>run_plugin</strong></a>(self)</dt><dd><tt>This&nbsp;is&nbsp;the&nbsp;run&nbsp;loop&nbsp;for&nbsp;this&nbsp;plugin&nbsp;process</tt></dd></dl>
+
+<dl><dt><a name="SemiF47Plugin-start_heartbeat"><strong>start_heartbeat</strong></a>(self)</dt><dd><tt>This&nbsp;is&nbsp;a&nbsp;recursive&nbsp;function&nbsp;that&nbsp;acts&nbsp;as&nbsp;a&nbsp;heartbeat.<br>
+&nbsp;<br>
+This&nbsp;function&nbsp;calls&nbsp;itself&nbsp;over-and-over&nbsp;on&nbsp;a&nbsp;timer&nbsp;to&nbsp;produce&nbsp;heartbeat&nbsp;messages.&nbsp;The&nbsp;interval&nbsp;can&nbsp;be<br>
+configured&nbsp;is&nbsp;the&nbsp;configuration&nbsp;file.</tt></dd></dl>
+
+<hr>
+Data descriptors inherited from <a href="plugins.base_plugin.html#MaukaPlugin">plugins.base_plugin.MaukaPlugin</a>:<br>
+<dl><dt><strong>__dict__</strong></dt>
+<dd><tt>dictionary&nbsp;for&nbsp;instance&nbsp;variables&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+<dl><dt><strong>__weakref__</strong></dt>
+<dd><tt>list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+<hr>
+Data and other attributes inherited from <a href="plugins.base_plugin.html#MaukaPlugin">plugins.base_plugin.MaukaPlugin</a>:<br>
+<dl><dt><strong>NAME</strong> = 'MaukaPlugin'</dl>
+
+</td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#eeaa77">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Functions</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl><dt><a name="-rerun"><strong>rerun</strong></a>(mongo_client: mongo.OpqMongoClient, mauka_message)</dt><dd><tt>Rerun&nbsp;this&nbsp;plugin&nbsp;over&nbsp;the&nbsp;provided&nbsp;mauka&nbsp;message.<br>
+:param&nbsp;mongo_client:&nbsp;Mongo&nbsp;client&nbsp;to&nbsp;perform&nbsp;DB&nbsp;queries.<br>
+:param&nbsp;mauka_message:&nbsp;Mauka&nbsp;message&nbsp;to&nbsp;rerun&nbsp;this&nbsp;plugin&nbsp;over.</tt></dd></dl>
+ <dl><dt><a name="-semi_violation"><strong>semi_violation</strong></a>(mongo_client, mauka_message)</dt><dd><tt>Calculate&nbsp;semi&nbsp;violations.<br>
+:param&nbsp;mongo_client:&nbsp;Mongo&nbsp;client&nbsp;for&nbsp;DB&nbsp;access.<br>
+:param&nbsp;mauka_message:&nbsp;Mauka&nbsp;message&nbsp;to&nbsp;calculate&nbsp;violations&nbsp;over.</tt></dd></dl>
+ <dl><dt><a name="-viol_check"><strong>viol_check</strong></a>(data, lvl)</dt><dd><tt>viol_check&nbsp;function&nbsp;checks&nbsp;the&nbsp;data&nbsp;for&nbsp;all<br>
+possible&nbsp;instances&nbsp;of&nbsp;the&nbsp;SEMI_F47&nbsp;violation.&nbsp;The<br>
+level&nbsp;is&nbsp;specified&nbsp;by&nbsp;the&nbsp;second&nbsp;argument&nbsp;lvl.<br>
+:param&nbsp;data:&nbsp;The&nbsp;data&nbsp;to&nbsp;test.<br>
+:param&nbsp;lvl:&nbsp;Level&nbsp;of&nbsp;violation.<br>
+:return:&nbsp;Violations.</tt></dd></dl>
+</td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#55aa55">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Data</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#55aa55"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><strong>PU</strong> = 120.0</td></tr></table>
+</body></html>

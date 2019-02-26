@@ -1,0 +1,185 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module plugins.makai_event_plugin</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong><a href="plugins.html"><font color="#ffffff">plugins</font></a>.makai_event_plugin</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:/Users/anthony/Development/opq/mauka/plugins/makai_event_plugin.py">/Users/anthony/Development/opq/mauka/plugins/makai_event_plugin.py</a></font></td></tr></table>
+    <p><tt>This&nbsp;module&nbsp;provides&nbsp;a&nbsp;plugin&nbsp;and&nbsp;utilities&nbsp;for&nbsp;interacting&nbsp;and&nbsp;transforming&nbsp;raw&nbsp;data&nbsp;produced&nbsp;from&nbsp;Makai&nbsp;events.</tt></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="config.html">config</a><br>
+<a href="constants.html">constants</a><br>
+<a href="logging.html">logging</a><br>
+<a href="math.html">math</a><br>
+</td><td width="25%" valign=top><a href="mongo.html">mongo</a><br>
+<a href="multiprocessing.html">multiprocessing</a><br>
+<a href="numpy.html">numpy</a><br>
+<a href="scipy.optimize.html">scipy.optimize</a><br>
+</td><td width="25%" valign=top><a href="plugins.html">plugins</a><br>
+<a href="protobuf.html">protobuf</a><br>
+<a href="scipy.signal.html">scipy.signal</a><br>
+<a href="threading.html">threading</a><br>
+</td><td width="25%" valign=top><a href="typing.html">typing</a><br>
+</td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ee77aa">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Classes</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#ee77aa"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl>
+<dt><font face="helvetica, arial"><a href="plugins.base_plugin.html#MaukaPlugin">plugins.base_plugin.MaukaPlugin</a>(<a href="builtins.html#object">builtins.object</a>)
+</font></dt><dd>
+<dl>
+<dt><font face="helvetica, arial"><a href="plugins.makai_event_plugin.html#MakaiEventPlugin">MakaiEventPlugin</a>
+</font></dt></dl>
+</dd>
+</dl>
+ <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="MakaiEventPlugin">class <strong>MakaiEventPlugin</strong></a>(<a href="plugins.base_plugin.html#MaukaPlugin">plugins.base_plugin.MaukaPlugin</a>)</font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt><a href="#MakaiEventPlugin-NAME">MakaiEventPlugin</a>(conf:&nbsp;config.MaukaConfig,&nbsp;exit_event:&nbsp;&amp;lt;bound&nbsp;method&nbsp;BaseContext.Event&nbsp;of&nbsp;&amp;lt;multiprocessing.context.DefaultContext&nbsp;object&nbsp;at&nbsp;0x1058e0e10&amp;gt;&amp;gt;)<br>
+&nbsp;<br>
+This&nbsp;plugin&nbsp;retrieves&nbsp;data&nbsp;when&nbsp;Makai&nbsp;triggers&nbsp;events,&nbsp;performs&nbsp;feature&nbsp;extraction,&nbsp;and&nbsp;then&nbsp;publishes&nbsp;relevant<br>
+features&nbsp;to&nbsp;Mauka&nbsp;downstream&nbsp;plugins.<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%"><dl><dt>Method resolution order:</dt>
+<dd><a href="plugins.makai_event_plugin.html#MakaiEventPlugin">MakaiEventPlugin</a></dd>
+<dd><a href="plugins.base_plugin.html#MaukaPlugin">plugins.base_plugin.MaukaPlugin</a></dd>
+<dd><a href="builtins.html#object">builtins.object</a></dd>
+</dl>
+<hr>
+Methods defined here:<br>
+<dl><dt><a name="MakaiEventPlugin-__init__"><strong>__init__</strong></a>(self, conf: config.MaukaConfig, exit_event: &lt;bound method BaseContext.Event of &lt;multiprocessing.context.DefaultContext object at 0x1058e0e10&gt;&gt;)</dt><dd><tt>Initializes&nbsp;the&nbsp;base&nbsp;plugin<br>
+&nbsp;<br>
+:param&nbsp;conf:&nbsp;Configuration&nbsp;dictionary<br>
+:param&nbsp;subscriptions:&nbsp;List&nbsp;of&nbsp;subscriptions&nbsp;this&nbsp;plugin&nbsp;should&nbsp;subscribe&nbsp;to<br>
+:param&nbsp;name:&nbsp;The&nbsp;name&nbsp;of&nbsp;this&nbsp;plugin</tt></dd></dl>
+
+<dl><dt><a name="MakaiEventPlugin-acquire_and_produce"><strong>acquire_and_produce</strong></a>(self, event_id: int)</dt><dd><tt>Acquire&nbsp;raw&nbsp;data&nbsp;for&nbsp;a&nbsp;given&nbsp;event_id,&nbsp;perform&nbsp;feature&nbsp;extraction,&nbsp;and&nbsp;produce&nbsp;to&nbsp;the&nbsp;rest&nbsp;of&nbsp;the&nbsp;Mauka<br>
+processing&nbsp;pipeline.<br>
+:param&nbsp;event_id:&nbsp;The&nbsp;event&nbsp;id&nbsp;to&nbsp;load&nbsp;raw&nbsp;data&nbsp;for.</tt></dd></dl>
+
+<dl><dt><a name="MakaiEventPlugin-on_message"><strong>on_message</strong></a>(self, topic, mauka_message)</dt><dd><tt>This&nbsp;gets&nbsp;called&nbsp;when&nbsp;a&nbsp;subscriber&nbsp;receives&nbsp;a&nbsp;message&nbsp;from&nbsp;a&nbsp;topic&nbsp;they&nbsp;are&nbsp;subscribed&nbsp;too.<br>
+&nbsp;<br>
+This&nbsp;should&nbsp;be&nbsp;implemented&nbsp;in&nbsp;all&nbsp;subclasses.<br>
+&nbsp;<br>
+:param&nbsp;topic:&nbsp;The&nbsp;topic&nbsp;this&nbsp;message&nbsp;is&nbsp;associated&nbsp;with<br>
+:param&nbsp;mauka_message:&nbsp;The&nbsp;message&nbsp;contents</tt></dd></dl>
+
+<hr>
+Data and other attributes defined here:<br>
+<dl><dt><strong>NAME</strong> = 'MakaiEventPlugin'</dl>
+
+<hr>
+Methods inherited from <a href="plugins.base_plugin.html#MaukaPlugin">plugins.base_plugin.MaukaPlugin</a>:<br>
+<dl><dt><a name="MakaiEventPlugin-debug"><strong>debug</strong></a>(self, msg: str)</dt><dd><tt>Prints&nbsp;a&nbsp;debug&nbsp;message&nbsp;using&nbsp;this&nbsp;classes&nbsp;logger&nbsp;and&nbsp;formatted&nbsp;the&nbsp;plugin&nbsp;name.<br>
+:param&nbsp;msg:&nbsp;Message&nbsp;to&nbsp;print&nbsp;to&nbsp;debug.</tt></dd></dl>
+
+<dl><dt><a name="MakaiEventPlugin-get_mongo_client"><strong>get_mongo_client</strong></a>(self)</dt><dd><tt>Returns&nbsp;an&nbsp;OPQ&nbsp;mongo&nbsp;client<br>
+&nbsp;<br>
+:return:&nbsp;An&nbsp;OPQ&nbsp;mongo&nbsp;client</tt></dd></dl>
+
+<dl><dt><a name="MakaiEventPlugin-get_status"><strong>get_status</strong></a>(self) -&gt; str</dt><dd><tt>Return&nbsp;the&nbsp;status&nbsp;of&nbsp;this&nbsp;plugin<br>
+:return:&nbsp;The&nbsp;status&nbsp;of&nbsp;this&nbsp;plugin</tt></dd></dl>
+
+<dl><dt><a name="MakaiEventPlugin-handle_self_message"><strong>handle_self_message</strong></a>(self, message: str)</dt><dd><tt>Handles&nbsp;a&nbsp;self-message<br>
+&nbsp;<br>
+:param&nbsp;message:&nbsp;The&nbsp;message&nbsp;to&nbsp;handle</tt></dd></dl>
+
+<dl><dt><a name="MakaiEventPlugin-is_self_message"><strong>is_self_message</strong></a>(self, topic: str) -&gt; bool</dt><dd><tt>Determines&nbsp;if&nbsp;this&nbsp;is&nbsp;a&nbsp;message&nbsp;directed&nbsp;at&nbsp;this&nbsp;plugin.&nbsp;I.e.&nbsp;the&nbsp;topic&nbsp;is&nbsp;the&nbsp;name&nbsp;of&nbsp;the&nbsp;plugin.<br>
+&nbsp;<br>
+:param&nbsp;topic:&nbsp;Topic&nbsp;of&nbsp;the&nbsp;message<br>
+:return:&nbsp;If&nbsp;this&nbsp;is&nbsp;a&nbsp;self&nbsp;message&nbsp;or&nbsp;not</tt></dd></dl>
+
+<dl><dt><a name="MakaiEventPlugin-produce"><strong>produce</strong></a>(self, topic: str, mauka_message: mauka_pb2.MaukaMessage)</dt><dd><tt>Produces&nbsp;a&nbsp;message&nbsp;with&nbsp;a&nbsp;given&nbsp;topic&nbsp;to&nbsp;the&nbsp;system<br>
+&nbsp;<br>
+:param&nbsp;topic:&nbsp;The&nbsp;topic&nbsp;to&nbsp;produce&nbsp;this&nbsp;message&nbsp;to<br>
+:param&nbsp;mauka_message:&nbsp;The&nbsp;message&nbsp;to&nbsp;produce</tt></dd></dl>
+
+<dl><dt><a name="MakaiEventPlugin-run_plugin"><strong>run_plugin</strong></a>(self)</dt><dd><tt>This&nbsp;is&nbsp;the&nbsp;run&nbsp;loop&nbsp;for&nbsp;this&nbsp;plugin&nbsp;process</tt></dd></dl>
+
+<dl><dt><a name="MakaiEventPlugin-start_heartbeat"><strong>start_heartbeat</strong></a>(self)</dt><dd><tt>This&nbsp;is&nbsp;a&nbsp;recursive&nbsp;function&nbsp;that&nbsp;acts&nbsp;as&nbsp;a&nbsp;heartbeat.<br>
+&nbsp;<br>
+This&nbsp;function&nbsp;calls&nbsp;itself&nbsp;over-and-over&nbsp;on&nbsp;a&nbsp;timer&nbsp;to&nbsp;produce&nbsp;heartbeat&nbsp;messages.&nbsp;The&nbsp;interval&nbsp;can&nbsp;be<br>
+configured&nbsp;is&nbsp;the&nbsp;configuration&nbsp;file.</tt></dd></dl>
+
+<hr>
+Data descriptors inherited from <a href="plugins.base_plugin.html#MaukaPlugin">plugins.base_plugin.MaukaPlugin</a>:<br>
+<dl><dt><strong>__dict__</strong></dt>
+<dd><tt>dictionary&nbsp;for&nbsp;instance&nbsp;variables&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+<dl><dt><strong>__weakref__</strong></dt>
+<dd><tt>list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+</td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#eeaa77">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Functions</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl><dt><a name="-acquire_data"><strong>acquire_data</strong></a>(mongo_client: mongo.OpqMongoClient, event_id: int, box_id: str, name: str, filter_order: int, filter_cutoff_frequency: float, frequency_samples_per_window: int, filter_down_sample_factor: int) -&gt; Tuple[mauka_pb2.MaukaMessage, mauka_pb2.MaukaMessage, mauka_pb2.MaukaMessage, mauka_pb2.MaukaMessage]</dt><dd><tt>Given&nbsp;an&nbsp;event_id,&nbsp;acquire&nbsp;the&nbsp;raw&nbsp;data&nbsp;for&nbsp;each&nbsp;box&nbsp;associated&nbsp;with&nbsp;the&nbsp;given&nbsp;event.&nbsp;Perform&nbsp;feature<br>
+extraction&nbsp;of&nbsp;the&nbsp;raw&nbsp;data&nbsp;and&nbsp;publish&nbsp;those&nbsp;features&nbsp;for&nbsp;downstream&nbsp;plugins.<br>
+:param&nbsp;box_id:&nbsp;The&nbsp;box&nbsp;id.<br>
+:param&nbsp;mongo_client:&nbsp;The&nbsp;mongo&nbsp;client&nbsp;to&nbsp;use&nbsp;to&nbsp;make&nbsp;this&nbsp;request.<br>
+:param&nbsp;event_id:&nbsp;The&nbsp;event&nbsp;id&nbsp;to&nbsp;acquire&nbsp;data&nbsp;for.<br>
+:param&nbsp;name:&nbsp;The&nbsp;name&nbsp;of&nbsp;the&nbsp;service&nbsp;requesting&nbsp;data.<br>
+:param&nbsp;filter_order:<br>
+:param&nbsp;filter_cutoff_frequency:<br>
+:param&nbsp;frequency_samples_per_window:<br>
+:param&nbsp;filter_down_sample_factor:</tt></dd></dl>
+ <dl><dt><a name="-find_zero_xings"><strong>find_zero_xings</strong></a>(waveform: numpy.ndarray) -&gt; numpy.ndarray</dt><dd><tt>Function&nbsp;which&nbsp;returns&nbsp;a&nbsp;boolean&nbsp;array&nbsp;indicating&nbsp;the&nbsp;positions&nbsp;of&nbsp;zero&nbsp;crossings&nbsp;in&nbsp;the&nbsp;the&nbsp;waveform<br>
+:param&nbsp;waveform:<br>
+:return:&nbsp;a&nbsp;boolean&nbsp;array&nbsp;indicating&nbsp;the&nbsp;positions&nbsp;of&nbsp;zero&nbsp;crossings&nbsp;in&nbsp;the&nbsp;the&nbsp;waveform</tt></dd></dl>
+ <dl><dt><a name="-frequency"><strong>frequency</strong></a>(samples: numpy.ndarray, down_sample_factor: int) -&gt; float</dt><dd><tt>Calculates&nbsp;the&nbsp;frequency&nbsp;of&nbsp;the&nbsp;supplied&nbsp;samples<br>
+:param&nbsp;samples:&nbsp;Samples&nbsp;to&nbsp;calculate&nbsp;frequency&nbsp;over.<br>
+:param&nbsp;down_sample_factor:&nbsp;the&nbsp;down&nbsp;sampling&nbsp;factor&nbsp;from&nbsp;the&nbsp;filtering,&nbsp;used&nbsp;to&nbsp;modify&nbsp;the&nbsp;sampling&nbsp;rate<br>
+:return:&nbsp;The&nbsp;frequency&nbsp;value&nbsp;of&nbsp;the&nbsp;provided&nbsp;samples&nbsp;in&nbsp;Hz.</tt></dd></dl>
+ <dl><dt><a name="-frequency_waveform"><strong>frequency_waveform</strong></a>(waveform: numpy.ndarray, window_size: int, filter_order: int, cutoff_frequency: float, down_sample_factor) -&gt; numpy.ndarray</dt><dd><tt>Calculated&nbsp;frequency&nbsp;of&nbsp;a&nbsp;waveform&nbsp;using&nbsp;a&nbsp;given&nbsp;window&nbsp;size.&nbsp;In&nbsp;most&nbsp;cases,&nbsp;our&nbsp;window&nbsp;size&nbsp;should&nbsp;be&nbsp;the<br>
+number&nbsp;of&nbsp;samples&nbsp;in&nbsp;a&nbsp;cycle.<br>
+:param&nbsp;waveform:&nbsp;The&nbsp;waveform&nbsp;to&nbsp;find&nbsp;frequency&nbsp;values&nbsp;for.<br>
+:param&nbsp;window_size:&nbsp;The&nbsp;size&nbsp;of&nbsp;the&nbsp;window&nbsp;used&nbsp;to&nbsp;compute&nbsp;frequency&nbsp;over&nbsp;the&nbsp;waveform.<br>
+:param&nbsp;filter_order:&nbsp;order&nbsp;of&nbsp;band&nbsp;pass&nbsp;butterworth&nbsp;filter<br>
+:param&nbsp;cutoff_frequency:&nbsp;cutoff&nbsp;frequency&nbsp;of&nbsp;low&nbsp;pass&nbsp;butterworth&nbsp;filter&nbsp;to&nbsp;smooth&nbsp;digital&nbsp;signal<br>
+:param&nbsp;down_sample_factor:&nbsp;The&nbsp;down&nbsp;sample&nbsp;factor<br>
+:return:&nbsp;An&nbsp;array&nbsp;of&nbsp;frequency&nbsp;values&nbsp;calculated&nbsp;for&nbsp;a&nbsp;given&nbsp;waveform.</tt></dd></dl>
+ <dl><dt><a name="-rerun"><strong>rerun</strong></a>(event_id: int)</dt><dd><tt>Rerun&nbsp;all&nbsp;makai&nbsp;events&nbsp;through&nbsp;the&nbsp;Mauka&nbsp;analysis&nbsp;pipeline.<br>
+:param&nbsp;event_id:&nbsp;The&nbsp;event&nbsp;id&nbsp;to&nbsp;rerun&nbsp;through&nbsp;the&nbsp;Mauka&nbsp;analysis&nbsp;pipeline.</tt></dd></dl>
+ <dl><dt><a name="-smooth_waveform"><strong>smooth_waveform</strong></a>(sample: numpy.ndarray, filter_order: int = 2, cutoff_frequency: float = 500.0, downsample_factor: int = 4) -&gt; numpy.ndarray</dt><dd><tt>Method&nbsp;to&nbsp;smooth&nbsp;waveform&nbsp;using&nbsp;a&nbsp;butterworth&nbsp;filter&nbsp;to&nbsp;lower&nbsp;sensitivity&nbsp;of&nbsp;frequency&nbsp;calculation.<br>
+:param&nbsp;sample:<br>
+:param&nbsp;filter_order:<br>
+:param&nbsp;cutoff_frequency:<br>
+:param&nbsp;downsample_factor:&nbsp;downsample&nbsp;factor&nbsp;for&nbsp;decimate&nbsp;function<br>
+:return:</tt></dd></dl>
+ <dl><dt><a name="-vrms"><strong>vrms</strong></a>(samples: numpy.ndarray) -&gt; float</dt><dd><tt>Calculates&nbsp;the&nbsp;Voltage&nbsp;root-mean-square&nbsp;of&nbsp;the&nbsp;supplied&nbsp;samples<br>
+:param&nbsp;samples:&nbsp;Samples&nbsp;to&nbsp;calculate&nbsp;Vrms&nbsp;over.<br>
+:return:&nbsp;The&nbsp;Vrms&nbsp;value&nbsp;of&nbsp;the&nbsp;provided&nbsp;samples.</tt></dd></dl>
+ <dl><dt><a name="-vrms_waveform"><strong>vrms_waveform</strong></a>(waveform: numpy.ndarray, window_size: int = 200.0) -&gt; numpy.ndarray</dt><dd><tt>Calculated&nbsp;Vrms&nbsp;of&nbsp;a&nbsp;waveform&nbsp;using&nbsp;a&nbsp;given&nbsp;window&nbsp;size.&nbsp;In&nbsp;most&nbsp;cases,&nbsp;our&nbsp;window&nbsp;size&nbsp;should&nbsp;be&nbsp;the<br>
+number&nbsp;of&nbsp;samples&nbsp;in&nbsp;a&nbsp;cycle.<br>
+:param&nbsp;waveform:&nbsp;The&nbsp;waveform&nbsp;to&nbsp;find&nbsp;Vrms&nbsp;values&nbsp;for.<br>
+:param&nbsp;window_size:&nbsp;The&nbsp;size&nbsp;of&nbsp;the&nbsp;window&nbsp;used&nbsp;to&nbsp;compute&nbsp;Vrms&nbsp;over&nbsp;the&nbsp;waveform.<br>
+:return:&nbsp;An&nbsp;array&nbsp;of&nbsp;vrms&nbsp;values&nbsp;calculated&nbsp;for&nbsp;a&nbsp;given&nbsp;waveform.</tt></dd></dl>
+</td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#55aa55">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Data</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#55aa55"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><strong>ACQUIRE_DATA_TYPE</strong> = typing.Tuple[mauka_pb2.MaukaMessage, mauka_pb2.M..., mauka_pb2.MaukaMessage, mauka_pb2.MaukaMessage]</td></tr></table>
+</body></html>

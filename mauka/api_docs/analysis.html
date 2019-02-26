@@ -1,0 +1,47 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module analysis</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong>analysis</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:/Users/anthony/Development/opq/mauka/analysis.py">/Users/anthony/Development/opq/mauka/analysis.py</a></font></td></tr></table>
+    <p><tt>This&nbsp;module&nbsp;provides&nbsp;analysis/util&nbsp;functions&nbsp;that&nbsp;may&nbsp;be&nbsp;called&nbsp;from&nbsp;multiple&nbsp;locations.</tt></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="constants.html">constants</a><br>
+</td><td width="25%" valign=top><a href="numpy.html">numpy</a><br>
+</td><td width="25%" valign=top><a href="typing.html">typing</a><br>
+</td><td width="25%" valign=top></td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#eeaa77">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Functions</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl><dt><a name="-c_to_ms"><strong>c_to_ms</strong></a>(cycles: float) -&gt; float</dt><dd><tt>Convert&nbsp;cycles&nbsp;to&nbsp;milliseconds<br>
+:param&nbsp;cycles:&nbsp;cycles<br>
+:return:&nbsp;milliseconds</tt></dd></dl>
+ <dl><dt><a name="-ms_to_c"><strong>ms_to_c</strong></a>(duration_ms: float) -&gt; float</dt><dd><tt>Convert&nbsp;a&nbsp;duration&nbsp;in&nbsp;milliseconds&nbsp;to&nbsp;cycles.<br>
+:param&nbsp;duration_ms:&nbsp;milliseconds<br>
+:return:&nbsp;cycles</tt></dd></dl>
+ <dl><dt><a name="-ms_to_samples"><strong>ms_to_samples</strong></a>(duration_ms: float) -&gt; float</dt><dd><tt>Convert&nbsp;a&nbsp;duration&nbsp;in&nbsp;milliseconds&nbsp;to&nbsp;cycles.<br>
+:param&nbsp;duration_ms:&nbsp;milliseconds<br>
+:return:&nbsp;Number&nbsp;of&nbsp;samples&nbsp;over&nbsp;that&nbsp;duration</tt></dd></dl>
+ <dl><dt><a name="-samples_to_ms"><strong>samples_to_ms</strong></a>(samples: float) -&gt; float</dt><dd><tt>Convert&nbsp;a&nbsp;given&nbsp;number&nbsp;of&nbsp;samples&nbsp;to&nbsp;milliseconds.<br>
+:param&nbsp;samples:&nbsp;Number&nbsp;of&nbsp;samples.<br>
+:return:&nbsp;Milliseconds&nbsp;computed&nbsp;from&nbsp;number&nbsp;of&nbsp;samples.</tt></dd></dl>
+ <dl><dt><a name="-segment"><strong>segment</strong></a>(array: numpy.ndarray, delta: float) -&gt; List[numpy.ndarray]</dt><dd><tt>Segments&nbsp;an&nbsp;array&nbsp;by&nbsp;splitting&nbsp;the&nbsp;array&nbsp;into&nbsp;stable&nbsp;segments&nbsp;and&nbsp;throwing&nbsp;away&nbsp;"changing"&nbsp;segments.<br>
+:param&nbsp;array:&nbsp;An&nbsp;array.<br>
+:param&nbsp;delta:&nbsp;The&nbsp;segmentation&nbsp;threshold.<br>
+:return:&nbsp;A&nbsp;list&nbsp;of&nbsp;segmented&nbsp;arrays&nbsp;where&nbsp;each&nbsp;segment&nbsp;is&nbsp;a&nbsp;stable&nbsp;segment.</tt></dd></dl>
+</td></tr></table>
+</body></html>

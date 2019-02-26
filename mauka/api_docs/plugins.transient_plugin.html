@@ -1,0 +1,187 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module plugins.transient_plugin</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong><a href="plugins.html"><font color="#ffffff">plugins</font></a>.transient_plugin</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:/Users/anthony/Development/opq/mauka/plugins/transient_plugin.py">/Users/anthony/Development/opq/mauka/plugins/transient_plugin.py</a></font></td></tr></table>
+    <p><tt>This&nbsp;plugin&nbsp;detects,&nbsp;classifies,&nbsp;and&nbsp;stores&nbsp;transient&nbsp;incidents.<br>
+Transient&nbsp;are&nbsp;classified&nbsp;using&nbsp;the&nbsp;IEEE&nbsp;1159&nbsp;standard</tt></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="config.html">config</a><br>
+<a href="constants.html">constants</a><br>
+<a href="mongo.html">mongo</a><br>
+</td><td width="25%" valign=top><a href="multiprocessing.html">multiprocessing</a><br>
+<a href="numpy.html">numpy</a><br>
+<a href="scipy.optimize.html">scipy.optimize</a><br>
+</td><td width="25%" valign=top><a href="plugins.html">plugins</a><br>
+<a href="protobuf.html">protobuf</a><br>
+<a href="scipy.signal.html">scipy.signal</a><br>
+</td><td width="25%" valign=top><a href="scipy.stats.html">scipy.stats</a><br>
+</td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ee77aa">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Classes</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#ee77aa"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl>
+<dt><font face="helvetica, arial"><a href="plugins.base_plugin.html#MaukaPlugin">plugins.base_plugin.MaukaPlugin</a>(<a href="builtins.html#object">builtins.object</a>)
+</font></dt><dd>
+<dl>
+<dt><font face="helvetica, arial"><a href="plugins.transient_plugin.html#TransientPlugin">TransientPlugin</a>
+</font></dt></dl>
+</dd>
+</dl>
+ <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="TransientPlugin">class <strong>TransientPlugin</strong></a>(<a href="plugins.base_plugin.html#MaukaPlugin">plugins.base_plugin.MaukaPlugin</a>)</font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt><a href="#TransientPlugin-NAME">TransientPlugin</a>(conf:&nbsp;config.MaukaConfig,&nbsp;exit_event:&nbsp;&amp;lt;bound&nbsp;method&nbsp;BaseContext.Event&nbsp;of&nbsp;&amp;lt;multiprocessing.context.DefaultContext&nbsp;object&nbsp;at&nbsp;0x102421be0&amp;gt;&amp;gt;)<br>
+&nbsp;<br>
+Mauka&nbsp;plugin&nbsp;that&nbsp;detects&nbsp;and&nbsp;classifies&nbsp;transients&nbsp;in&nbsp;accordance&nbsp;to&nbsp;the&nbsp;IEEE&nbsp;1159&nbsp;standard.<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%"><dl><dt>Method resolution order:</dt>
+<dd><a href="plugins.transient_plugin.html#TransientPlugin">TransientPlugin</a></dd>
+<dd><a href="plugins.base_plugin.html#MaukaPlugin">plugins.base_plugin.MaukaPlugin</a></dd>
+<dd><a href="builtins.html#object">builtins.object</a></dd>
+</dl>
+<hr>
+Methods defined here:<br>
+<dl><dt><a name="TransientPlugin-__init__"><strong>__init__</strong></a>(self, conf: config.MaukaConfig, exit_event: &lt;bound method BaseContext.Event of &lt;multiprocessing.context.DefaultContext object at 0x102421be0&gt;&gt;)</dt><dd><tt>Initializes&nbsp;this&nbsp;plugin<br>
+:param&nbsp;conf:&nbsp;Mauka&nbsp;configuration<br>
+:param&nbsp;exit_event:&nbsp;Exit&nbsp;event&nbsp;that&nbsp;can&nbsp;disable&nbsp;this&nbsp;plugin&nbsp;from&nbsp;parent&nbsp;process</tt></dd></dl>
+
+<dl><dt><a name="TransientPlugin-on_message"><strong>on_message</strong></a>(self, topic, mauka_message)</dt><dd><tt>Called&nbsp;async&nbsp;when&nbsp;a&nbsp;topic&nbsp;this&nbsp;plugin&nbsp;subscribes&nbsp;to&nbsp;produces&nbsp;a&nbsp;message<br>
+:param&nbsp;topic:&nbsp;The&nbsp;topic&nbsp;that&nbsp;is&nbsp;producing&nbsp;the&nbsp;message<br>
+:param&nbsp;mauka_message:&nbsp;The&nbsp;message&nbsp;that&nbsp;was&nbsp;produced</tt></dd></dl>
+
+<hr>
+Data and other attributes defined here:<br>
+<dl><dt><strong>NAME</strong> = 'TransientPlugin'</dl>
+
+<hr>
+Methods inherited from <a href="plugins.base_plugin.html#MaukaPlugin">plugins.base_plugin.MaukaPlugin</a>:<br>
+<dl><dt><a name="TransientPlugin-debug"><strong>debug</strong></a>(self, msg: str)</dt><dd><tt>Prints&nbsp;a&nbsp;debug&nbsp;message&nbsp;using&nbsp;this&nbsp;classes&nbsp;logger&nbsp;and&nbsp;formatted&nbsp;the&nbsp;plugin&nbsp;name.<br>
+:param&nbsp;msg:&nbsp;Message&nbsp;to&nbsp;print&nbsp;to&nbsp;debug.</tt></dd></dl>
+
+<dl><dt><a name="TransientPlugin-get_mongo_client"><strong>get_mongo_client</strong></a>(self)</dt><dd><tt>Returns&nbsp;an&nbsp;OPQ&nbsp;mongo&nbsp;client<br>
+&nbsp;<br>
+:return:&nbsp;An&nbsp;OPQ&nbsp;mongo&nbsp;client</tt></dd></dl>
+
+<dl><dt><a name="TransientPlugin-get_status"><strong>get_status</strong></a>(self) -&gt; str</dt><dd><tt>Return&nbsp;the&nbsp;status&nbsp;of&nbsp;this&nbsp;plugin<br>
+:return:&nbsp;The&nbsp;status&nbsp;of&nbsp;this&nbsp;plugin</tt></dd></dl>
+
+<dl><dt><a name="TransientPlugin-handle_self_message"><strong>handle_self_message</strong></a>(self, message: str)</dt><dd><tt>Handles&nbsp;a&nbsp;self-message<br>
+&nbsp;<br>
+:param&nbsp;message:&nbsp;The&nbsp;message&nbsp;to&nbsp;handle</tt></dd></dl>
+
+<dl><dt><a name="TransientPlugin-is_self_message"><strong>is_self_message</strong></a>(self, topic: str) -&gt; bool</dt><dd><tt>Determines&nbsp;if&nbsp;this&nbsp;is&nbsp;a&nbsp;message&nbsp;directed&nbsp;at&nbsp;this&nbsp;plugin.&nbsp;I.e.&nbsp;the&nbsp;topic&nbsp;is&nbsp;the&nbsp;name&nbsp;of&nbsp;the&nbsp;plugin.<br>
+&nbsp;<br>
+:param&nbsp;topic:&nbsp;Topic&nbsp;of&nbsp;the&nbsp;message<br>
+:return:&nbsp;If&nbsp;this&nbsp;is&nbsp;a&nbsp;self&nbsp;message&nbsp;or&nbsp;not</tt></dd></dl>
+
+<dl><dt><a name="TransientPlugin-produce"><strong>produce</strong></a>(self, topic: str, mauka_message: mauka_pb2.MaukaMessage)</dt><dd><tt>Produces&nbsp;a&nbsp;message&nbsp;with&nbsp;a&nbsp;given&nbsp;topic&nbsp;to&nbsp;the&nbsp;system<br>
+&nbsp;<br>
+:param&nbsp;topic:&nbsp;The&nbsp;topic&nbsp;to&nbsp;produce&nbsp;this&nbsp;message&nbsp;to<br>
+:param&nbsp;mauka_message:&nbsp;The&nbsp;message&nbsp;to&nbsp;produce</tt></dd></dl>
+
+<dl><dt><a name="TransientPlugin-run_plugin"><strong>run_plugin</strong></a>(self)</dt><dd><tt>This&nbsp;is&nbsp;the&nbsp;run&nbsp;loop&nbsp;for&nbsp;this&nbsp;plugin&nbsp;process</tt></dd></dl>
+
+<dl><dt><a name="TransientPlugin-start_heartbeat"><strong>start_heartbeat</strong></a>(self)</dt><dd><tt>This&nbsp;is&nbsp;a&nbsp;recursive&nbsp;function&nbsp;that&nbsp;acts&nbsp;as&nbsp;a&nbsp;heartbeat.<br>
+&nbsp;<br>
+This&nbsp;function&nbsp;calls&nbsp;itself&nbsp;over-and-over&nbsp;on&nbsp;a&nbsp;timer&nbsp;to&nbsp;produce&nbsp;heartbeat&nbsp;messages.&nbsp;The&nbsp;interval&nbsp;can&nbsp;be<br>
+configured&nbsp;is&nbsp;the&nbsp;configuration&nbsp;file.</tt></dd></dl>
+
+<hr>
+Data descriptors inherited from <a href="plugins.base_plugin.html#MaukaPlugin">plugins.base_plugin.MaukaPlugin</a>:<br>
+<dl><dt><strong>__dict__</strong></dt>
+<dd><tt>dictionary&nbsp;for&nbsp;instance&nbsp;variables&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+<dl><dt><strong>__weakref__</strong></dt>
+<dd><tt>list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+</td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#eeaa77">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Functions</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl><dt><a name="-arcing_classifier"><strong>arcing_classifier</strong></a>(filtered_waveform: numpy.ndarray, configs: dict) -&gt; (&lt;class 'bool'&gt;, &lt;class 'dict'&gt;)</dt><dd><tt>Identifies&nbsp;whether&nbsp;the&nbsp;transient&nbsp;is&nbsp;arcing&nbsp;and,&nbsp;if&nbsp;so,&nbsp;calculates&nbsp;additional&nbsp;meta&nbsp;data&nbsp;for&nbsp;the&nbsp;transient,&nbsp;such&nbsp;as<br>
+the&nbsp;number&nbsp;of&nbsp;zero&nbsp;crossings&nbsp;in&nbsp;the&nbsp;transient&nbsp;waveform<br>
+:param&nbsp;filtered_waveform:&nbsp;The&nbsp;transient&nbsp;waveform,&nbsp;that&nbsp;is&nbsp;the&nbsp;sampled&nbsp;waveform&nbsp;without&nbsp;the&nbsp;fundamental&nbsp;frequency<br>
+included<br>
+:param&nbsp;configs:&nbsp;Includes&nbsp;the&nbsp;necessary&nbsp;parameters&nbsp;needed&nbsp;to&nbsp;classify&nbsp;the&nbsp;transient<br>
+:return:&nbsp;A&nbsp;tuple&nbsp;which&nbsp;has&nbsp;contains&nbsp;a&nbsp;boolean&nbsp;indicator&nbsp;of&nbsp;whether&nbsp;the&nbsp;transient&nbsp;was&nbsp;indeed&nbsp;classified&nbsp;as&nbsp;being<br>
+arcing&nbsp;and&nbsp;then&nbsp;a&nbsp;dictionary&nbsp;of&nbsp;the&nbsp;calculated&nbsp;meta&nbsp;data.</tt></dd></dl>
+ <dl><dt><a name="-find_zero_xings"><strong>find_zero_xings</strong></a>(waveform: numpy.ndarray) -&gt; numpy.ndarray</dt><dd><tt>Function&nbsp;which&nbsp;returns&nbsp;a&nbsp;boolean&nbsp;array&nbsp;indicating&nbsp;the&nbsp;positions&nbsp;of&nbsp;zero&nbsp;crossings&nbsp;in&nbsp;the&nbsp;the&nbsp;waveform<br>
+:param&nbsp;waveform:<br>
+:return:&nbsp;a&nbsp;boolean&nbsp;array&nbsp;indicating&nbsp;the&nbsp;positions&nbsp;of&nbsp;zero&nbsp;crossings&nbsp;in&nbsp;the&nbsp;the&nbsp;waveform</tt></dd></dl>
+ <dl><dt><a name="-impulsive_classifier"><strong>impulsive_classifier</strong></a>(filtered_waveform: numpy.ndarray, configs: dict) -&gt; (&lt;class 'bool'&gt;, &lt;class 'dict'&gt;)</dt><dd><tt>Identifies&nbsp;whether&nbsp;the&nbsp;transient&nbsp;is&nbsp;impulsive&nbsp;and,&nbsp;if&nbsp;so,&nbsp;calculates&nbsp;additional&nbsp;meta&nbsp;data&nbsp;for&nbsp;the&nbsp;transient,&nbsp;such&nbsp;as<br>
+the&nbsp;magnitude,&nbsp;duration,&nbsp;and&nbsp;rise/fall&nbsp;and&nbsp;fall/rise&nbsp;times.<br>
+:param&nbsp;filtered_waveform:&nbsp;The&nbsp;transient&nbsp;waveform,&nbsp;that&nbsp;is&nbsp;the&nbsp;sampled&nbsp;waveform&nbsp;without&nbsp;the&nbsp;fundamental&nbsp;frequency<br>
+included<br>
+:param&nbsp;configs:&nbsp;Includes&nbsp;the&nbsp;necessary&nbsp;parameters&nbsp;needed&nbsp;to&nbsp;classify&nbsp;the&nbsp;transient<br>
+:return:&nbsp;A&nbsp;tuple&nbsp;which&nbsp;has&nbsp;contains&nbsp;a&nbsp;boolean&nbsp;indicator&nbsp;of&nbsp;whether&nbsp;the&nbsp;transient&nbsp;was&nbsp;indeed&nbsp;classified&nbsp;as&nbsp;being<br>
+impulsive&nbsp;and&nbsp;then&nbsp;a&nbsp;dictionary&nbsp;of&nbsp;the&nbsp;calculated&nbsp;meta&nbsp;data.</tt></dd></dl>
+ <dl><dt><a name="-multiple_zero_xing_classifier"><strong>multiple_zero_xing_classifier</strong></a>(waveforms: dict, configs: dict) -&gt; (&lt;class 'bool'&gt;, &lt;class 'dict'&gt;)</dt><dd><tt>Identifies&nbsp;whether&nbsp;the&nbsp;transient&nbsp;causes&nbsp;multiple&nbsp;zero&nbsp;crossings&nbsp;and,&nbsp;if&nbsp;so,&nbsp;calculates&nbsp;additional&nbsp;meta&nbsp;data&nbsp;for&nbsp;the<br>
+transient,&nbsp;such&nbsp;as&nbsp;the&nbsp;additional&nbsp;number&nbsp;of&nbsp;zero&nbsp;crossings&nbsp;caused&nbsp;by&nbsp;the&nbsp;transient<br>
+:param&nbsp;waveforms:&nbsp;The&nbsp;raw,&nbsp;fundamental,&nbsp;and&nbsp;filtered&nbsp;waveform<br>
+:param&nbsp;configs:&nbsp;Includes&nbsp;the&nbsp;necessary&nbsp;parameters&nbsp;needed&nbsp;to&nbsp;classify&nbsp;the&nbsp;transient<br>
+:return:&nbsp;A&nbsp;tuple&nbsp;which&nbsp;has&nbsp;contains&nbsp;a&nbsp;boolean&nbsp;indicator&nbsp;of&nbsp;whether&nbsp;the&nbsp;transient&nbsp;was&nbsp;indeed&nbsp;classified&nbsp;as&nbsp;being<br>
+a&nbsp;multiple&nbsp;zero&nbsp;crossing&nbsp;transient,&nbsp;and&nbsp;then&nbsp;a&nbsp;dictionary&nbsp;of&nbsp;the&nbsp;calculated&nbsp;metadata.</tt></dd></dl>
+ <dl><dt><a name="-noise_canceler"><strong>noise_canceler</strong></a>(voltage, noise_floor)</dt><dd><tt>Cancels&nbsp;waveform&nbsp;measurements&nbsp;below&nbsp;noise&nbsp;floor.&nbsp;This&nbsp;method&nbsp;is&nbsp;intended&nbsp;to&nbsp;be&nbsp;used&nbsp;in&nbsp;a&nbsp;vectorized&nbsp;fashion.<br>
+:param&nbsp;voltage:&nbsp;The&nbsp;voltage&nbsp;measurement<br>
+:param&nbsp;noise_floor:&nbsp;The&nbsp;noise&nbsp;floor<br>
+:return:&nbsp;voltage&nbsp;above&nbsp;noise&nbsp;floor.</tt></dd></dl>
+ <dl><dt><a name="-oscillatory_classifier"><strong>oscillatory_classifier</strong></a>(filtered_waveform: numpy.ndarray, configs: dict) -&gt; (&lt;class 'bool'&gt;, &lt;class 'dict'&gt;)</dt><dd><tt>Identifies&nbsp;whether&nbsp;the&nbsp;transient&nbsp;is&nbsp;oscillatory&nbsp;and,&nbsp;if&nbsp;so,&nbsp;further&nbsp;classifies&nbsp;the&nbsp;transient&nbsp;as&nbsp;a&nbsp;medium,&nbsp;low,&nbsp;or<br>
+high&nbsp;frequency&nbsp;oscillatory&nbsp;transient&nbsp;and&nbsp;calculates&nbsp;additional&nbsp;meta&nbsp;data&nbsp;for&nbsp;the&nbsp;transient&nbsp;such&nbsp;as&nbsp;the&nbsp;magnitude,<br>
+duration,&nbsp;and&nbsp;spectral&nbsp;content.<br>
+:param&nbsp;filtered_waveform:&nbsp;The&nbsp;transient&nbsp;waveform,&nbsp;that&nbsp;is&nbsp;the&nbsp;sampled&nbsp;waveform&nbsp;without&nbsp;the&nbsp;fundamental&nbsp;frequency<br>
+included<br>
+:return:&nbsp;A&nbsp;tuple&nbsp;which&nbsp;has&nbsp;contains&nbsp;a&nbsp;boolean&nbsp;indicator&nbsp;of&nbsp;whether&nbsp;the&nbsp;transient&nbsp;was&nbsp;indeed&nbsp;classified&nbsp;as&nbsp;being<br>
+oscillatory&nbsp;and&nbsp;then&nbsp;a&nbsp;dictionary&nbsp;of&nbsp;the&nbsp;calculated&nbsp;meta&nbsp;data.</tt></dd></dl>
+ <dl><dt><a name="-periodic_notching_classifier"><strong>periodic_notching_classifier</strong></a>(filtered_waveform: numpy.ndarray, fundamental_waveform: numpy.ndarray, configs: dict) -&gt; (&lt;class 'bool'&gt;, &lt;class 'dict'&gt;)</dt><dd><tt>Identifies&nbsp;whether&nbsp;the&nbsp;transient&nbsp;is&nbsp;periodic&nbsp;notching&nbsp;and,&nbsp;if&nbsp;so,&nbsp;calculates&nbsp;additional&nbsp;meta&nbsp;data&nbsp;for&nbsp;the&nbsp;transient,<br>
+such&nbsp;as&nbsp;the&nbsp;amplitude,&nbsp;width,&nbsp;period,&nbsp;and&nbsp;time.<br>
+:param&nbsp;filtered_waveform:&nbsp;The&nbsp;transient&nbsp;waveform,&nbsp;that&nbsp;is&nbsp;the&nbsp;sampled&nbsp;waveform&nbsp;without&nbsp;the&nbsp;fundamental&nbsp;frequency<br>
+included<br>
+:param&nbsp;fundamental_waveform:&nbsp;The&nbsp;fundamental&nbsp;waveform&nbsp;of&nbsp;the&nbsp;signal&nbsp;during&nbsp;the&nbsp;transient&nbsp;window,&nbsp;used&nbsp;to&nbsp;determine<br>
+whether&nbsp;the&nbsp;notching&nbsp;is&nbsp;negative&nbsp;power&nbsp;or&nbsp;not.<br>
+:param&nbsp;configs:&nbsp;Includes&nbsp;the&nbsp;necessary&nbsp;parameters&nbsp;needed&nbsp;to&nbsp;classify&nbsp;the&nbsp;transient<br>
+:return:&nbsp;A&nbsp;tuple&nbsp;which&nbsp;has&nbsp;contains&nbsp;a&nbsp;boolean&nbsp;indicator&nbsp;of&nbsp;whether&nbsp;the&nbsp;transient&nbsp;was&nbsp;indeed&nbsp;classified&nbsp;as&nbsp;being<br>
+periodic&nbsp;notching&nbsp;and&nbsp;then&nbsp;a&nbsp;dictionary&nbsp;of&nbsp;the&nbsp;calculated&nbsp;meta&nbsp;data.</tt></dd></dl>
+ <dl><dt><a name="-transient_incident_classifier"><strong>transient_incident_classifier</strong></a>(event_id: int, box_id: str, raw_waveform: numpy.ndarray, box_event_start_ts: int, configs: dict, opq_mongo_client: mongo.OpqMongoClient = None, logger=None)</dt><dd><tt>Classifies&nbsp;transient&nbsp;waveform.&nbsp;Creates&nbsp;a&nbsp;Mongo&nbsp;Incident&nbsp;document<br>
+:param&nbsp;event_id:<br>
+:param&nbsp;box_id:<br>
+:param&nbsp;raw_waveform:<br>
+:param&nbsp;box_event_start_ts:<br>
+:param&nbsp;configs:<br>
+:param&nbsp;opq_mongo_client:<br>
+:param&nbsp;logger:<br>
+:return:&nbsp;list&nbsp;of&nbsp;the&nbsp;classified&nbsp;incidents</tt></dd></dl>
+ <dl><dt><a name="-transient_sliding_window"><strong>transient_sliding_window</strong></a>(filtered_waveform: numpy.ndarray, noise_floor: float, max_lull_ms: float) -&gt; list</dt><dd><tt>Function&nbsp;to&nbsp;find&nbsp;candidate&nbsp;transient&nbsp;window&nbsp;start&nbsp;and&nbsp;stop&nbsp;indices<br>
+:param&nbsp;filtered_waveform:<br>
+:param&nbsp;noise_floor:<br>
+:param&nbsp;max_lull_ms:<br>
+:return:</tt></dd></dl>
+ <dl><dt><a name="-waveform_filter"><strong>waveform_filter</strong></a>(raw_waveform: numpy.ndarray, filter_order: int, transient_cutoff_frequency: float) -&gt; dict</dt><dd><tt>Function&nbsp;to&nbsp;filter&nbsp;out&nbsp;the&nbsp;fundamental&nbsp;waveform&nbsp;to&nbsp;retrieve&nbsp;the&nbsp;potential&nbsp;transient&nbsp;waveform<br>
+:param&nbsp;raw_waveform:&nbsp;The&nbsp;raw&nbsp;sampled&nbsp;voltages<br>
+:param&nbsp;filter_order:&nbsp;The&nbsp;order&nbsp;of&nbsp;the&nbsp;low&nbsp;pass&nbsp;Butterworth&nbsp;filter<br>
+:param&nbsp;transient_cutoff_frequency:&nbsp;The&nbsp;cutoff&nbsp;frequency&nbsp;of&nbsp;the&nbsp;low&nbsp;pass&nbsp;Butterworth&nbsp;filter.<br>
+:return:&nbsp;The&nbsp;filtered&nbsp;waveform,&nbsp;that&nbsp;is&nbsp;the&nbsp;waveform&nbsp;without&nbsp;the&nbsp;fundamental&nbsp;frequency&nbsp;component</tt></dd></dl>
+</td></tr></table>
+</body></html>

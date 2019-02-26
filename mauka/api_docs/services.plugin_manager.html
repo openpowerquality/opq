@@ -1,0 +1,392 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module services.plugin_manager</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong><a href="services.html"><font color="#ffffff">services</font></a>.plugin_manager</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:/Users/anthony/Development/opq/mauka/services/plugin_manager.py">/Users/anthony/Development/opq/mauka/services/plugin_manager.py</a></font></td></tr></table>
+    <p><tt>This&nbsp;module&nbsp;provides&nbsp;facilities&nbsp;for&nbsp;managing&nbsp;(stopping,&nbsp;starting,&nbsp;loading,&nbsp;reloading)&nbsp;plugin&nbsp;subprocesses.</tt></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="argparse.html">argparse</a><br>
+<a href="config.html">config</a><br>
+<a href="importlib.html">importlib</a><br>
+<a href="inspect.html">inspect</a><br>
+</td><td width="25%" valign=top><a href="json.html">json</a><br>
+<a href="log.html">log</a><br>
+<a href="multiprocessing.html">multiprocessing</a><br>
+<a href="os.html">os</a><br>
+</td><td width="25%" valign=top><a href="readline.html">readline</a><br>
+<a href="sys.html">sys</a><br>
+<a href="time.html">time</a><br>
+<a href="typing.html">typing</a><br>
+</td><td width="25%" valign=top><a href="zmq.html">zmq</a><br>
+</td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ee77aa">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Classes</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#ee77aa"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl>
+<dt><font face="helvetica, arial"><a href="argparse.html#ArgumentParser">argparse.ArgumentParser</a>(<a href="argparse.html#_AttributeHolder">argparse._AttributeHolder</a>, <a href="argparse.html#_ActionsContainer">argparse._ActionsContainer</a>)
+</font></dt><dd>
+<dl>
+<dt><font face="helvetica, arial"><a href="services.plugin_manager.html#ThrowingArgumentParser">ThrowingArgumentParser</a>
+</font></dt></dl>
+</dd>
+<dt><font face="helvetica, arial"><a href="builtins.html#Exception">builtins.Exception</a>(<a href="builtins.html#BaseException">builtins.BaseException</a>)
+</font></dt><dd>
+<dl>
+<dt><font face="helvetica, arial"><a href="services.plugin_manager.html#ArgumentParseError">ArgumentParseError</a>
+</font></dt></dl>
+</dd>
+<dt><font face="helvetica, arial"><a href="builtins.html#object">builtins.object</a>
+</font></dt><dd>
+<dl>
+<dt><font face="helvetica, arial"><a href="services.plugin_manager.html#MaukaCli">MaukaCli</a>
+</font></dt><dt><font face="helvetica, arial"><a href="services.plugin_manager.html#PluginManager">PluginManager</a>
+</font></dt></dl>
+</dd>
+</dl>
+ <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="ArgumentParseError">class <strong>ArgumentParseError</strong></a>(<a href="builtins.html#Exception">builtins.Exception</a>)</font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt>Creates&nbsp;a&nbsp;runtime&nbsp;exception&nbsp;with&nbsp;a&nbsp;custom&nbsp;name.<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%"><dl><dt>Method resolution order:</dt>
+<dd><a href="services.plugin_manager.html#ArgumentParseError">ArgumentParseError</a></dd>
+<dd><a href="builtins.html#Exception">builtins.Exception</a></dd>
+<dd><a href="builtins.html#BaseException">builtins.BaseException</a></dd>
+<dd><a href="builtins.html#object">builtins.object</a></dd>
+</dl>
+<hr>
+Data descriptors defined here:<br>
+<dl><dt><strong>__weakref__</strong></dt>
+<dd><tt>list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+<hr>
+Methods inherited from <a href="builtins.html#Exception">builtins.Exception</a>:<br>
+<dl><dt><a name="ArgumentParseError-__init__"><strong>__init__</strong></a>(self, /, *args, **kwargs)</dt><dd><tt>Initialize&nbsp;self.&nbsp;&nbsp;See&nbsp;help(type(self))&nbsp;for&nbsp;accurate&nbsp;signature.</tt></dd></dl>
+
+<hr>
+Static methods inherited from <a href="builtins.html#Exception">builtins.Exception</a>:<br>
+<dl><dt><a name="ArgumentParseError-__new__"><strong>__new__</strong></a>(*args, **kwargs)<font color="#909090"><font face="helvetica, arial"> from <a href="builtins.html#type">builtins.type</a></font></font></dt><dd><tt>Create&nbsp;and&nbsp;return&nbsp;a&nbsp;new&nbsp;<a href="builtins.html#object">object</a>.&nbsp;&nbsp;See&nbsp;help(type)&nbsp;for&nbsp;accurate&nbsp;signature.</tt></dd></dl>
+
+<hr>
+Methods inherited from <a href="builtins.html#BaseException">builtins.BaseException</a>:<br>
+<dl><dt><a name="ArgumentParseError-__delattr__"><strong>__delattr__</strong></a>(self, name, /)</dt><dd><tt>Implement&nbsp;delattr(self,&nbsp;name).</tt></dd></dl>
+
+<dl><dt><a name="ArgumentParseError-__getattribute__"><strong>__getattribute__</strong></a>(self, name, /)</dt><dd><tt>Return&nbsp;getattr(self,&nbsp;name).</tt></dd></dl>
+
+<dl><dt><a name="ArgumentParseError-__reduce__"><strong>__reduce__</strong></a>(...)</dt><dd><tt>Helper&nbsp;for&nbsp;pickle.</tt></dd></dl>
+
+<dl><dt><a name="ArgumentParseError-__repr__"><strong>__repr__</strong></a>(self, /)</dt><dd><tt>Return&nbsp;repr(self).</tt></dd></dl>
+
+<dl><dt><a name="ArgumentParseError-__setattr__"><strong>__setattr__</strong></a>(self, name, value, /)</dt><dd><tt>Implement&nbsp;setattr(self,&nbsp;name,&nbsp;value).</tt></dd></dl>
+
+<dl><dt><a name="ArgumentParseError-__setstate__"><strong>__setstate__</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ArgumentParseError-__str__"><strong>__str__</strong></a>(self, /)</dt><dd><tt>Return&nbsp;str(self).</tt></dd></dl>
+
+<dl><dt><a name="ArgumentParseError-with_traceback"><strong>with_traceback</strong></a>(...)</dt><dd><tt><a href="builtins.html#Exception">Exception</a>.<a href="#ArgumentParseError-with_traceback">with_traceback</a>(tb)&nbsp;--<br>
+set&nbsp;self.<strong>__traceback__</strong>&nbsp;to&nbsp;tb&nbsp;and&nbsp;return&nbsp;self.</tt></dd></dl>
+
+<hr>
+Data descriptors inherited from <a href="builtins.html#BaseException">builtins.BaseException</a>:<br>
+<dl><dt><strong>__cause__</strong></dt>
+<dd><tt>exception&nbsp;cause</tt></dd>
+</dl>
+<dl><dt><strong>__context__</strong></dt>
+<dd><tt>exception&nbsp;context</tt></dd>
+</dl>
+<dl><dt><strong>__dict__</strong></dt>
+</dl>
+<dl><dt><strong>__suppress_context__</strong></dt>
+</dl>
+<dl><dt><strong>__traceback__</strong></dt>
+</dl>
+<dl><dt><strong>args</strong></dt>
+</dl>
+</td></tr></table> <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="MaukaCli">class <strong>MaukaCli</strong></a>(<a href="builtins.html#object">builtins.object</a>)</font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt>Wrapper&nbsp;class&nbsp;that&nbsp;provides&nbsp;functionality&nbsp;for&nbsp;interacting&nbsp;with&nbsp;Mauka&nbsp;over&nbsp;the&nbsp;networked&nbsp;CLI.<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="MaukaCli-__init__"><strong>__init__</strong></a>(self)</dt><dd><tt>Initialize&nbsp;self.&nbsp;&nbsp;See&nbsp;help(type(self))&nbsp;for&nbsp;accurate&nbsp;signature.</tt></dd></dl>
+
+<dl><dt><a name="MaukaCli-add_cmd"><strong>add_cmd</strong></a>(self, name: str, help_str: str, cmd_fn: Callable, arg: str = None, arg_help: str = None)</dt><dd><tt>Utility&nbsp;method&nbsp;for&nbsp;adding&nbsp;commands&nbsp;to&nbsp;this&nbsp;CLI.<br>
+:param&nbsp;name:&nbsp;Name&nbsp;of&nbsp;the&nbsp;command.<br>
+:param&nbsp;help_str:&nbsp;Help&nbsp;message&nbsp;for&nbsp;the&nbsp;command.<br>
+:param&nbsp;cmd_fn:&nbsp;Function&nbsp;to&nbsp;call&nbsp;when&nbsp;this&nbsp;command&nbsp;is&nbsp;issued.<br>
+:param&nbsp;arg:&nbsp;Argument&nbsp;name&nbsp;to&nbsp;the&nbsp;command.<br>
+:param&nbsp;arg_help:&nbsp;Argument&nbsp;help&nbsp;message&nbsp;to&nbsp;the&nbsp;command.</tt></dd></dl>
+
+<dl><dt><a name="MaukaCli-get_help"><strong>get_help</strong></a>(self)</dt><dd><tt>:return:&nbsp;Help&nbsp;message.</tt></dd></dl>
+
+<dl><dt><a name="MaukaCli-get_usage"><strong>get_usage</strong></a>(self)</dt><dd><tt>:return:&nbsp;Usage&nbsp;of&nbsp;this&nbsp;CLI.</tt></dd></dl>
+
+<dl><dt><a name="MaukaCli-parse"><strong>parse</strong></a>(self, args: List[str]) -&gt; str</dt><dd><tt>Attempts&nbsp;to&nbsp;parse&nbsp;arguments&nbsp;provided&nbsp;on&nbsp;CLI.<br>
+:param&nbsp;args:&nbsp;The&nbsp;list&nbsp;of&nbsp;args&nbsp;to&nbsp;parse.<br>
+:return:&nbsp;The&nbsp;response.</tt></dd></dl>
+
+<hr>
+Data descriptors defined here:<br>
+<dl><dt><strong>__dict__</strong></dt>
+<dd><tt>dictionary&nbsp;for&nbsp;instance&nbsp;variables&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+<dl><dt><strong>__weakref__</strong></dt>
+<dd><tt>list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+</td></tr></table> <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="PluginManager">class <strong>PluginManager</strong></a>(<a href="builtins.html#object">builtins.object</a>)</font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt><a href="#PluginManager">PluginManager</a>(mauka_config:&nbsp;config.MaukaConfig)<br>
+&nbsp;<br>
+This&nbsp;class&nbsp;provides&nbsp;facilities&nbsp;for&nbsp;managing&nbsp;(stopping,&nbsp;starting,&nbsp;loading,&nbsp;reloading)&nbsp;plugin&nbsp;subprocesses.<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="PluginManager-__init__"><strong>__init__</strong></a>(self, mauka_config: config.MaukaConfig)</dt><dd><tt>Initializes&nbsp;the&nbsp;plugin&nbsp;manager<br>
+&nbsp;<br>
+:param&nbsp;mauka_config:&nbsp;Configuration&nbsp;dictionary</tt></dd></dl>
+
+<dl><dt><a name="PluginManager-clean_exit"><strong>clean_exit</strong></a>(self)</dt><dd><tt>Attempts&nbsp;to&nbsp;shut&nbsp;down&nbsp;all&nbsp;Mauka&nbsp;plugins&nbsp;and&nbsp;cleanly&nbsp;exit</tt></dd></dl>
+
+<dl><dt><a name="PluginManager-cli_completions"><strong>cli_completions</strong></a>(self) -&gt; str</dt><dd><tt>Returns&nbsp;a&nbsp;list&nbsp;of&nbsp;completable&nbsp;commands.</tt></dd></dl>
+
+<dl><dt><a name="PluginManager-cli_disable_plugin"><strong>cli_disable_plugin</strong></a>(self, args) -&gt; str</dt><dd><tt>Disables&nbsp;the&nbsp;given&nbsp;plugin<br>
+&nbsp;<br>
+:param&nbsp;plugin_name:&nbsp;Name&nbsp;of&nbsp;the&nbsp;plugin&nbsp;to&nbsp;disable<br>
+:return:&nbsp;Server&nbsp;response</tt></dd></dl>
+
+<dl><dt><a name="PluginManager-cli_enable_plugin"><strong>cli_enable_plugin</strong></a>(self, args) -&gt; str</dt><dd><tt>Enables&nbsp;the&nbsp;given&nbsp;plugin<br>
+&nbsp;<br>
+:param&nbsp;plugin_name:&nbsp;Name&nbsp;of&nbsp;the&nbsp;plugin&nbsp;to&nbsp;enable<br>
+:return:&nbsp;Server&nbsp;response</tt></dd></dl>
+
+<dl><dt><a name="PluginManager-cli_kill_plugin"><strong>cli_kill_plugin</strong></a>(self, args) -&gt; str</dt><dd><tt>Kills&nbsp;the&nbsp;named&nbsp;plugin<br>
+&nbsp;<br>
+:param&nbsp;plugin_name:&nbsp;The&nbsp;plugin&nbsp;to&nbsp;kill<br>
+:return:&nbsp;Server&nbsp;response</tt></dd></dl>
+
+<dl><dt><a name="PluginManager-cli_list_plugins"><strong>cli_list_plugins</strong></a>(self) -&gt; str</dt><dd><tt>Returns&nbsp;a&nbsp;list&nbsp;of&nbsp;loaded&nbsp;plugins</tt></dd></dl>
+
+<dl><dt><a name="PluginManager-cli_load_config"><strong>cli_load_config</strong></a>(self, args) -&gt; str</dt><dd><tt>Loads&nbsp;new&nbsp;configuration&nbsp;values<br>
+&nbsp;<br>
+Plugins&nbsp;need&nbsp;to&nbsp;be&nbsp;restarted&nbsp;to&nbsp;take&nbsp;advantage&nbsp;of&nbsp;new&nbsp;values<br>
+&nbsp;<br>
+:param&nbsp;args:&nbsp;List&nbsp;of&nbsp;possible&nbsp;args<br>
+:return:&nbsp;Server&nbsp;response</tt></dd></dl>
+
+<dl><dt><a name="PluginManager-cli_load_plugin"><strong>cli_load_plugin</strong></a>(self, args) -&gt; str</dt><dd><tt>Attempts&nbsp;to&nbsp;load&nbsp;the&nbsp;given&nbsp;plugin&nbsp;from&nbsp;the&nbsp;plugins&nbsp;directory.<br>
+&nbsp;<br>
+The&nbsp;plugin&nbsp;must&nbsp;reside&nbsp;in&nbsp;a&nbsp;class&nbsp;with&nbsp;the&nbsp;same&nbsp;name&nbsp;as&nbsp;its&nbsp;module&nbsp;within&nbsp;the&nbsp;plugins&nbsp;directory.<br>
+If&nbsp;the&nbsp;plugin&nbsp;is&nbsp;already&nbsp;in&nbsp;the&nbsp;namespace,&nbsp;we&nbsp;will&nbsp;reload&nbsp;the&nbsp;module.&nbsp;Otherwise,&nbsp;we&nbsp;load&nbsp;it&nbsp;fresh.<br>
+&nbsp;<br>
+:param&nbsp;plugin_name:&nbsp;Name&nbsp;of&nbsp;the&nbsp;plugin&nbsp;to&nbsp;load<br>
+:return:&nbsp;Server&nbsp;response</tt></dd></dl>
+
+<dl><dt><a name="PluginManager-cli_restart_plugin"><strong>cli_restart_plugin</strong></a>(self, args) -&gt; str</dt><dd><tt>Restarts&nbsp;the&nbsp;given&nbsp;plugin<br>
+&nbsp;<br>
+:param&nbsp;plugin_name:&nbsp;Name&nbsp;of&nbsp;the&nbsp;plugin&nbsp;to&nbsp;restart<br>
+:return:&nbsp;Server&nbsp;response</tt></dd></dl>
+
+<dl><dt><a name="PluginManager-cli_start_plugin"><strong>cli_start_plugin</strong></a>(self, args) -&gt; str</dt><dd><tt>Starts&nbsp;the&nbsp;given&nbsp;plugin&nbsp;if&nbsp;loaded&nbsp;and&nbsp;enabled<br>
+&nbsp;<br>
+:param&nbsp;plugin_name:&nbsp;Name&nbsp;of&nbsp;the&nbsp;plugin&nbsp;to&nbsp;start<br>
+:return:&nbsp;Server&nbsp;response</tt></dd></dl>
+
+<dl><dt><a name="PluginManager-cli_stop_all_plugins"><strong>cli_stop_all_plugins</strong></a>(self) -&gt; str</dt><dd><tt>Stop&nbsp;all&nbsp;plugins.<br>
+:return:&nbsp;Server&nbsp;response.</tt></dd></dl>
+
+<dl><dt><a name="PluginManager-cli_stop_plugin"><strong>cli_stop_plugin</strong></a>(self, args) -&gt; str</dt><dd><tt>Stops&nbsp;the&nbsp;given&nbsp;plugin<br>
+&nbsp;<br>
+:param&nbsp;plugin_name:&nbsp;Name&nbsp;of&nbsp;the&nbsp;plugin&nbsp;to&nbsp;stop<br>
+:return:&nbsp;Server&nbsp;response</tt></dd></dl>
+
+<dl><dt><a name="PluginManager-cli_unload_plugin"><strong>cli_unload_plugin</strong></a>(self, args) -&gt; str</dt><dd><tt>Unload&nbsp;the&nbsp;given&nbsp;plugin<br>
+&nbsp;<br>
+:param&nbsp;plugin_name:&nbsp;Plugin&nbsp;name&nbsp;to&nbsp;unload<br>
+:return:&nbsp;Server&nbsp;response</tt></dd></dl>
+
+<dl><dt><a name="PluginManager-exit"><strong>exit</strong></a>(self)</dt><dd><tt>Exit&nbsp;without&nbsp;clean&nbsp;termination.</tt></dd></dl>
+
+<dl><dt><a name="PluginManager-handle_tcp_request"><strong>handle_tcp_request</strong></a>(self, request: str) -&gt; str</dt><dd><tt>Receives&nbsp;and&nbsp;handles&nbsp;a&nbsp;TCP&nbsp;request.<br>
+:param&nbsp;request:&nbsp;The&nbsp;request&nbsp;string&nbsp;(space&nbsp;delimited)<br>
+:return:&nbsp;Response.</tt></dd></dl>
+
+<dl><dt><a name="PluginManager-init_cli"><strong>init_cli</strong></a>(self)</dt><dd><tt>Initializes&nbsp;the&nbsp;CLI&nbsp;with&nbsp;commands&nbsp;and&nbsp;help&nbsp;texts.</tt></dd></dl>
+
+<dl><dt><a name="PluginManager-register_plugin"><strong>register_plugin</strong></a>(self, plugin_class, enabled: bool = True)</dt><dd><tt>Registers&nbsp;a&nbsp;plugin&nbsp;with&nbsp;the&nbsp;manager<br>
+&nbsp;<br>
+:param&nbsp;plugin_class:&nbsp;Python&nbsp;class&nbsp;of&nbsp;plugin<br>
+:param&nbsp;enabled:&nbsp;Whether&nbsp;or&nbsp;not&nbsp;this&nbsp;plugin&nbsp;is&nbsp;enabled&nbsp;when&nbsp;loaded</tt></dd></dl>
+
+<dl><dt><a name="PluginManager-run_all_plugins"><strong>run_all_plugins</strong></a>(self)</dt><dd><tt>Run&nbsp;all&nbsp;loaded&nbsp;and&nbsp;enabled&nbsp;plugins</tt></dd></dl>
+
+<dl><dt><a name="PluginManager-run_plugin"><strong>run_plugin</strong></a>(self, plugin_name: str)</dt><dd><tt>Run&nbsp;the&nbsp;given&nbsp;plugin<br>
+&nbsp;<br>
+:param&nbsp;plugin_name:&nbsp;Name&nbsp;of&nbsp;the&nbsp;plugin</tt></dd></dl>
+
+<dl><dt><a name="PluginManager-start_tcp_server"><strong>start_tcp_server</strong></a>(self, blocking: bool = True)</dt><dd><tt>Starts&nbsp;a&nbsp;TCP&nbsp;server&nbsp;backed&nbsp;by&nbsp;ZMQ.&nbsp;This&nbsp;server&nbsp;is&nbsp;connected&nbsp;to&nbsp;my&nbsp;out&nbsp;cli&nbsp;client</tt></dd></dl>
+
+<hr>
+Data descriptors defined here:<br>
+<dl><dt><strong>__dict__</strong></dt>
+<dd><tt>dictionary&nbsp;for&nbsp;instance&nbsp;variables&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+<dl><dt><strong>__weakref__</strong></dt>
+<dd><tt>list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+</td></tr></table> <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="ThrowingArgumentParser">class <strong>ThrowingArgumentParser</strong></a>(<a href="argparse.html#ArgumentParser">argparse.ArgumentParser</a>)</font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt><a href="#ThrowingArgumentParser">ThrowingArgumentParser</a>(prog=None,&nbsp;usage=None,&nbsp;description=None,&nbsp;epilog=None,&nbsp;parents=[],&nbsp;formatter_class=&amp;lt;class&nbsp;'argparse.HelpFormatter'&amp;gt;,&nbsp;prefix_chars='-',&nbsp;fromfile_prefix_chars=None,&nbsp;argument_default=None,&nbsp;conflict_handler='error',&nbsp;add_help=True,&nbsp;allow_abbrev=True)<br>
+&nbsp;<br>
+Makes&nbsp;the&nbsp;parser&nbsp;throw.<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%"><dl><dt>Method resolution order:</dt>
+<dd><a href="services.plugin_manager.html#ThrowingArgumentParser">ThrowingArgumentParser</a></dd>
+<dd><a href="argparse.html#ArgumentParser">argparse.ArgumentParser</a></dd>
+<dd><a href="argparse.html#_AttributeHolder">argparse._AttributeHolder</a></dd>
+<dd><a href="argparse.html#_ActionsContainer">argparse._ActionsContainer</a></dd>
+<dd><a href="builtins.html#object">builtins.object</a></dd>
+</dl>
+<hr>
+Methods defined here:<br>
+<dl><dt><a name="ThrowingArgumentParser-error"><strong>error</strong></a>(self, message)</dt><dd><tt>Throws&nbsp;an&nbsp;<a href="#ArgumentParseError">ArgumentParseError</a>&nbsp;on&nbsp;error<br>
+:param&nbsp;message:&nbsp;Message&nbsp;to&nbsp;include&nbsp;in&nbsp;error&nbsp;message</tt></dd></dl>
+
+<dl><dt><a name="ThrowingArgumentParser-print_help"><strong>print_help</strong></a>(self, file=None)</dt><dd><tt>Throws&nbsp;an&nbsp;<a href="#ArgumentParseError">ArgumentParseError</a>&nbsp;when&nbsp;help&nbsp;is&nbsp;printed.<br>
+:param&nbsp;file:&nbsp;None</tt></dd></dl>
+
+<dl><dt><a name="ThrowingArgumentParser-print_usage"><strong>print_usage</strong></a>(self, file=None)</dt><dd><tt>Throws&nbsp;an&nbsp;<a href="#ArgumentParseError">ArgumentParseError</a>&nbsp;when&nbsp;usage&nbsp;is&nbsp;printed.<br>
+:param&nbsp;file:&nbsp;None</tt></dd></dl>
+
+<hr>
+Methods inherited from <a href="argparse.html#ArgumentParser">argparse.ArgumentParser</a>:<br>
+<dl><dt><a name="ThrowingArgumentParser-__init__"><strong>__init__</strong></a>(self, prog=None, usage=None, description=None, epilog=None, parents=[], formatter_class=&lt;class 'argparse.HelpFormatter'&gt;, prefix_chars='-', fromfile_prefix_chars=None, argument_default=None, conflict_handler='error', add_help=True, allow_abbrev=True)</dt><dd><tt>Initialize&nbsp;self.&nbsp;&nbsp;See&nbsp;help(type(self))&nbsp;for&nbsp;accurate&nbsp;signature.</tt></dd></dl>
+
+<dl><dt><a name="ThrowingArgumentParser-add_subparsers"><strong>add_subparsers</strong></a>(self, **kwargs)</dt><dd><tt>#&nbsp;==================================<br>
+#&nbsp;Optional/Positional&nbsp;adding&nbsp;methods<br>
+#&nbsp;==================================</tt></dd></dl>
+
+<dl><dt><a name="ThrowingArgumentParser-convert_arg_line_to_args"><strong>convert_arg_line_to_args</strong></a>(self, arg_line)</dt></dl>
+
+<dl><dt><a name="ThrowingArgumentParser-exit"><strong>exit</strong></a>(self, status=0, message=None)</dt><dd><tt>#&nbsp;===============<br>
+#&nbsp;Exiting&nbsp;methods<br>
+#&nbsp;===============</tt></dd></dl>
+
+<dl><dt><a name="ThrowingArgumentParser-format_help"><strong>format_help</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="ThrowingArgumentParser-format_usage"><strong>format_usage</strong></a>(self)</dt><dd><tt>#&nbsp;=======================<br>
+#&nbsp;Help-formatting&nbsp;methods<br>
+#&nbsp;=======================</tt></dd></dl>
+
+<dl><dt><a name="ThrowingArgumentParser-parse_args"><strong>parse_args</strong></a>(self, args=None, namespace=None)</dt><dd><tt>#&nbsp;=====================================<br>
+#&nbsp;Command&nbsp;line&nbsp;argument&nbsp;parsing&nbsp;methods<br>
+#&nbsp;=====================================</tt></dd></dl>
+
+<dl><dt><a name="ThrowingArgumentParser-parse_intermixed_args"><strong>parse_intermixed_args</strong></a>(self, args=None, namespace=None)</dt></dl>
+
+<dl><dt><a name="ThrowingArgumentParser-parse_known_args"><strong>parse_known_args</strong></a>(self, args=None, namespace=None)</dt></dl>
+
+<dl><dt><a name="ThrowingArgumentParser-parse_known_intermixed_args"><strong>parse_known_intermixed_args</strong></a>(self, args=None, namespace=None)</dt></dl>
+
+<hr>
+Methods inherited from <a href="argparse.html#_AttributeHolder">argparse._AttributeHolder</a>:<br>
+<dl><dt><a name="ThrowingArgumentParser-__repr__"><strong>__repr__</strong></a>(self)</dt><dd><tt>Return&nbsp;repr(self).</tt></dd></dl>
+
+<hr>
+Data descriptors inherited from <a href="argparse.html#_AttributeHolder">argparse._AttributeHolder</a>:<br>
+<dl><dt><strong>__dict__</strong></dt>
+<dd><tt>dictionary&nbsp;for&nbsp;instance&nbsp;variables&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+<dl><dt><strong>__weakref__</strong></dt>
+<dd><tt>list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+<hr>
+Methods inherited from <a href="argparse.html#_ActionsContainer">argparse._ActionsContainer</a>:<br>
+<dl><dt><a name="ThrowingArgumentParser-add_argument"><strong>add_argument</strong></a>(self, *args, **kwargs)</dt><dd><tt><a href="#ThrowingArgumentParser-add_argument">add_argument</a>(dest,&nbsp;...,&nbsp;name=value,&nbsp;...)<br>
+<a href="#ThrowingArgumentParser-add_argument">add_argument</a>(option_string,&nbsp;option_string,&nbsp;...,&nbsp;name=value,&nbsp;...)</tt></dd></dl>
+
+<dl><dt><a name="ThrowingArgumentParser-add_argument_group"><strong>add_argument_group</strong></a>(self, *args, **kwargs)</dt></dl>
+
+<dl><dt><a name="ThrowingArgumentParser-add_mutually_exclusive_group"><strong>add_mutually_exclusive_group</strong></a>(self, **kwargs)</dt></dl>
+
+<dl><dt><a name="ThrowingArgumentParser-get_default"><strong>get_default</strong></a>(self, dest)</dt></dl>
+
+<dl><dt><a name="ThrowingArgumentParser-register"><strong>register</strong></a>(self, registry_name, value, object)</dt><dd><tt>#&nbsp;====================<br>
+#&nbsp;Registration&nbsp;methods<br>
+#&nbsp;====================</tt></dd></dl>
+
+<dl><dt><a name="ThrowingArgumentParser-set_defaults"><strong>set_defaults</strong></a>(self, **kwargs)</dt><dd><tt>#&nbsp;==================================<br>
+#&nbsp;Namespace&nbsp;default&nbsp;accessor&nbsp;methods<br>
+#&nbsp;==================================</tt></dd></dl>
+
+</td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#eeaa77">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Functions</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl><dt><a name="-error"><strong>error</strong></a>(msg: str = 'N/A') -&gt; str</dt><dd><tt>An&nbsp;error&nbsp;response<br>
+&nbsp;<br>
+:param&nbsp;msg:&nbsp;An&nbsp;optional&nbsp;error&nbsp;message<br>
+:return:&nbsp;An&nbsp;error&nbsp;response</tt></dd></dl>
+ <dl><dt><a name="-get_class"><strong>get_class</strong></a>(mod, class_name: str)</dt><dd><tt>Given&nbsp;a&nbsp;module,&nbsp;return&nbsp;a&nbsp;class&nbsp;from&nbsp;that&nbsp;module&nbsp;with&nbsp;the&nbsp;given&nbsp;name<br>
+&nbsp;<br>
+:param&nbsp;mod:&nbsp;The&nbsp;module&nbsp;to&nbsp;search&nbsp;for&nbsp;the&nbsp;class&nbsp;in<br>
+:param&nbsp;class_name:&nbsp;The&nbsp;class&nbsp;name&nbsp;we&nbsp;are&nbsp;attempting&nbsp;to&nbsp;retrieve<br>
+:return:&nbsp;The&nbsp;class&nbsp;we&nbsp;are&nbsp;attempting&nbsp;to&nbsp;retrieve&nbsp;or&nbsp;None&nbsp;if&nbsp;the&nbsp;class&nbsp;DNE</tt></dd></dl>
+ <dl><dt><a name="-is_error"><strong>is_error</strong></a>(response: str) -&gt; bool</dt><dd><tt>Is&nbsp;the&nbsp;given&nbsp;response&nbsp;an&nbsp;error&nbsp;message?<br>
+&nbsp;<br>
+:param&nbsp;response:&nbsp;Response&nbsp;to&nbsp;test<br>
+:return:&nbsp;Whether&nbsp;or&nbsp;not&nbsp;response&nbsp;is&nbsp;an&nbsp;error&nbsp;or&nbsp;not</tt></dd></dl>
+ <dl><dt><a name="-make_completer"><strong>make_completer</strong></a>(vocabulary)</dt><dd><tt>Read&nbsp;line&nbsp;completer&nbsp;factory.<br>
+:param&nbsp;vocabulary:&nbsp;Values&nbsp;to&nbsp;use&nbsp;in&nbsp;completer.<br>
+:return:&nbsp;Completer.</tt></dd></dl>
+ <dl><dt><a name="-ok"><strong>ok</strong></a>(msg: str = '') -&gt; str</dt><dd><tt>An&nbsp;ok&nbsp;response<br>
+&nbsp;<br>
+:return:&nbsp;An&nbsp;ok&nbsp;response</tt></dd></dl>
+ <dl><dt><a name="-run_cli"><strong>run_cli</strong></a>(cli_config: config.MaukaConfig)</dt><dd><tt>Starts&nbsp;the&nbsp;REPL&nbsp;and&nbsp;sends&nbsp;commands&nbsp;to&nbsp;the&nbsp;plugin&nbsp;manager&nbsp;over&nbsp;TCP&nbsp;using&nbsp;ZMQ<br>
+&nbsp;<br>
+:param&nbsp;cli_config:&nbsp;Configuration&nbsp;dictionary</tt></dd></dl>
+</td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#55aa55">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Data</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#55aa55"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><strong>ERROR</strong> = '<font color="#c040c0">\x1b</font>[1;31mERROR<font color="#c040c0">\x1b</font>[0;0m'<br>
+<strong>OK</strong> = '<font color="#c040c0">\x1b</font>[1;32mOK<font color="#c040c0">\x1b</font>[0;0m'<br>
+<strong>logger</strong> = &lt;Logger services.plugin_manager (DEBUG)&gt;</td></tr></table>
+</body></html>

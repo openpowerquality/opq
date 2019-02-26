@@ -1,0 +1,167 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module plugins.ieee1159_voltage_plugin</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong><a href="plugins.html"><font color="#ffffff">plugins</font></a>.ieee1159_voltage_plugin</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:/Users/anthony/Development/opq/mauka/plugins/ieee1159_voltage_plugin.py">/Users/anthony/Development/opq/mauka/plugins/ieee1159_voltage_plugin.py</a></font></td></tr></table>
+    <p><tt>This&nbsp;plugin&nbsp;calculates&nbsp;the&nbsp;IEEE&nbsp;1159&nbsp;voltage&nbsp;events</tt></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="analysis.html">analysis</a><br>
+<a href="config.html">config</a><br>
+<a href="constants.html">constants</a><br>
+</td><td width="25%" valign=top><a href="mongo.html">mongo</a><br>
+<a href="multiprocessing.html">multiprocessing</a><br>
+<a href="numpy.html">numpy</a><br>
+</td><td width="25%" valign=top><a href="plugins.html">plugins</a><br>
+<a href="protobuf.html">protobuf</a><br>
+<a href="typing.html">typing</a><br>
+</td><td width="25%" valign=top></td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ee77aa">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Classes</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#ee77aa"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl>
+<dt><font face="helvetica, arial"><a href="plugins.base_plugin.html#MaukaPlugin">plugins.base_plugin.MaukaPlugin</a>(<a href="builtins.html#object">builtins.object</a>)
+</font></dt><dd>
+<dl>
+<dt><font face="helvetica, arial"><a href="plugins.ieee1159_voltage_plugin.html#Ieee1159VoltagePlugin">Ieee1159VoltagePlugin</a>
+</font></dt></dl>
+</dd>
+</dl>
+ <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="Ieee1159VoltagePlugin">class <strong>Ieee1159VoltagePlugin</strong></a>(<a href="plugins.base_plugin.html#MaukaPlugin">plugins.base_plugin.MaukaPlugin</a>)</font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt><a href="#Ieee1159VoltagePlugin-NAME">Ieee1159VoltagePlugin</a>(conf:&nbsp;config.MaukaConfig,&nbsp;exit_event:&nbsp;&amp;lt;bound&nbsp;method&nbsp;BaseContext.Event&nbsp;of&nbsp;&amp;lt;multiprocessing.context.DefaultContext&nbsp;object&nbsp;at&nbsp;0x10a0cc470&amp;gt;&amp;gt;)<br>
+&nbsp;<br>
+Mauka&nbsp;plugin&nbsp;that&nbsp;calculates&nbsp;IEEE1159&nbsp;voltage&nbsp;incidents&nbsp;from&nbsp;rms_waveform<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%"><dl><dt>Method resolution order:</dt>
+<dd><a href="plugins.ieee1159_voltage_plugin.html#Ieee1159VoltagePlugin">Ieee1159VoltagePlugin</a></dd>
+<dd><a href="plugins.base_plugin.html#MaukaPlugin">plugins.base_plugin.MaukaPlugin</a></dd>
+<dd><a href="builtins.html#object">builtins.object</a></dd>
+</dl>
+<hr>
+Methods defined here:<br>
+<dl><dt><a name="Ieee1159VoltagePlugin-__init__"><strong>__init__</strong></a>(self, conf: config.MaukaConfig, exit_event: &lt;bound method BaseContext.Event of &lt;multiprocessing.context.DefaultContext object at 0x10a0cc470&gt;&gt;)</dt><dd><tt>Initializes&nbsp;this&nbsp;plugin<br>
+:param&nbsp;conf:&nbsp;Configuration&nbsp;dictionary<br>
+:param&nbsp;exit_event:&nbsp;Exit&nbsp;event</tt></dd></dl>
+
+<dl><dt><a name="Ieee1159VoltagePlugin-on_message"><strong>on_message</strong></a>(self, topic, mauka_message)</dt><dd><tt>Called&nbsp;async&nbsp;when&nbsp;a&nbsp;topic&nbsp;this&nbsp;plugin&nbsp;subscribes&nbsp;to&nbsp;produces&nbsp;a&nbsp;message<br>
+:param&nbsp;topic:&nbsp;The&nbsp;topic&nbsp;that&nbsp;is&nbsp;producing&nbsp;the&nbsp;message<br>
+:param&nbsp;mauka_message:&nbsp;The&nbsp;message&nbsp;that&nbsp;was&nbsp;produced</tt></dd></dl>
+
+<hr>
+Data and other attributes defined here:<br>
+<dl><dt><strong>NAME</strong> = 'Ieee1159VoltagePlugin'</dl>
+
+<hr>
+Methods inherited from <a href="plugins.base_plugin.html#MaukaPlugin">plugins.base_plugin.MaukaPlugin</a>:<br>
+<dl><dt><a name="Ieee1159VoltagePlugin-debug"><strong>debug</strong></a>(self, msg: str)</dt><dd><tt>Prints&nbsp;a&nbsp;debug&nbsp;message&nbsp;using&nbsp;this&nbsp;classes&nbsp;logger&nbsp;and&nbsp;formatted&nbsp;the&nbsp;plugin&nbsp;name.<br>
+:param&nbsp;msg:&nbsp;Message&nbsp;to&nbsp;print&nbsp;to&nbsp;debug.</tt></dd></dl>
+
+<dl><dt><a name="Ieee1159VoltagePlugin-get_mongo_client"><strong>get_mongo_client</strong></a>(self)</dt><dd><tt>Returns&nbsp;an&nbsp;OPQ&nbsp;mongo&nbsp;client<br>
+&nbsp;<br>
+:return:&nbsp;An&nbsp;OPQ&nbsp;mongo&nbsp;client</tt></dd></dl>
+
+<dl><dt><a name="Ieee1159VoltagePlugin-get_status"><strong>get_status</strong></a>(self) -&gt; str</dt><dd><tt>Return&nbsp;the&nbsp;status&nbsp;of&nbsp;this&nbsp;plugin<br>
+:return:&nbsp;The&nbsp;status&nbsp;of&nbsp;this&nbsp;plugin</tt></dd></dl>
+
+<dl><dt><a name="Ieee1159VoltagePlugin-handle_self_message"><strong>handle_self_message</strong></a>(self, message: str)</dt><dd><tt>Handles&nbsp;a&nbsp;self-message<br>
+&nbsp;<br>
+:param&nbsp;message:&nbsp;The&nbsp;message&nbsp;to&nbsp;handle</tt></dd></dl>
+
+<dl><dt><a name="Ieee1159VoltagePlugin-is_self_message"><strong>is_self_message</strong></a>(self, topic: str) -&gt; bool</dt><dd><tt>Determines&nbsp;if&nbsp;this&nbsp;is&nbsp;a&nbsp;message&nbsp;directed&nbsp;at&nbsp;this&nbsp;plugin.&nbsp;I.e.&nbsp;the&nbsp;topic&nbsp;is&nbsp;the&nbsp;name&nbsp;of&nbsp;the&nbsp;plugin.<br>
+&nbsp;<br>
+:param&nbsp;topic:&nbsp;Topic&nbsp;of&nbsp;the&nbsp;message<br>
+:return:&nbsp;If&nbsp;this&nbsp;is&nbsp;a&nbsp;self&nbsp;message&nbsp;or&nbsp;not</tt></dd></dl>
+
+<dl><dt><a name="Ieee1159VoltagePlugin-produce"><strong>produce</strong></a>(self, topic: str, mauka_message: mauka_pb2.MaukaMessage)</dt><dd><tt>Produces&nbsp;a&nbsp;message&nbsp;with&nbsp;a&nbsp;given&nbsp;topic&nbsp;to&nbsp;the&nbsp;system<br>
+&nbsp;<br>
+:param&nbsp;topic:&nbsp;The&nbsp;topic&nbsp;to&nbsp;produce&nbsp;this&nbsp;message&nbsp;to<br>
+:param&nbsp;mauka_message:&nbsp;The&nbsp;message&nbsp;to&nbsp;produce</tt></dd></dl>
+
+<dl><dt><a name="Ieee1159VoltagePlugin-run_plugin"><strong>run_plugin</strong></a>(self)</dt><dd><tt>This&nbsp;is&nbsp;the&nbsp;run&nbsp;loop&nbsp;for&nbsp;this&nbsp;plugin&nbsp;process</tt></dd></dl>
+
+<dl><dt><a name="Ieee1159VoltagePlugin-start_heartbeat"><strong>start_heartbeat</strong></a>(self)</dt><dd><tt>This&nbsp;is&nbsp;a&nbsp;recursive&nbsp;function&nbsp;that&nbsp;acts&nbsp;as&nbsp;a&nbsp;heartbeat.<br>
+&nbsp;<br>
+This&nbsp;function&nbsp;calls&nbsp;itself&nbsp;over-and-over&nbsp;on&nbsp;a&nbsp;timer&nbsp;to&nbsp;produce&nbsp;heartbeat&nbsp;messages.&nbsp;The&nbsp;interval&nbsp;can&nbsp;be<br>
+configured&nbsp;is&nbsp;the&nbsp;configuration&nbsp;file.</tt></dd></dl>
+
+<hr>
+Data descriptors inherited from <a href="plugins.base_plugin.html#MaukaPlugin">plugins.base_plugin.MaukaPlugin</a>:<br>
+<dl><dt><strong>__dict__</strong></dt>
+<dd><tt>dictionary&nbsp;for&nbsp;instance&nbsp;variables&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+<dl><dt><strong>__weakref__</strong></dt>
+<dd><tt>list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+</td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#eeaa77">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Functions</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl><dt><a name="-classify_ieee1159_voltage"><strong>classify_ieee1159_voltage</strong></a>(rms_features: numpy.ndarray)</dt><dd><tt>This&nbsp;function&nbsp;classifies&nbsp;an&nbsp;ieee1159&nbsp;voltage&nbsp;incident&nbsp;by&nbsp;analyzing&nbsp;rms_feature&nbsp;array&nbsp;(containing&nbsp;voltage&nbsp;rms<br>
+values&nbsp;over<br>
+a&nbsp;window/cycle).&nbsp;Searches&nbsp;for&nbsp;incidents&nbsp;in&nbsp;descending&nbsp;order&nbsp;of&nbsp;duration.</tt></dd></dl>
+ <dl><dt><a name="-find_incidents"><strong>find_incidents</strong></a>(classes: List[mongo.IncidentClassification], offsets: List[tuple], pu_array: numpy.ndarray, sag_range: List[float], swell_range: List[float], cycle_min: int, cycle_max: int = None)</dt><dd><tt>This&nbsp;function&nbsp;adds&nbsp;to&nbsp;the&nbsp;classes&nbsp;and&nbsp;offset&nbsp;lists&nbsp;incident&nbsp;information&nbsp;(type&nbsp;and&nbsp;cycle&nbsp;offsets)&nbsp;by&nbsp;analyzing<br>
+the&nbsp;pu_array&nbsp;array&nbsp;for&nbsp;segments&nbsp;of&nbsp;pus&nbsp;matching&nbsp;duration&nbsp;(in&nbsp;cycles)&nbsp;and&nbsp;value&nbsp;range&nbsp;specificatons<br>
+If&nbsp;incidents&nbsp;are&nbsp;found&nbsp;the&nbsp;pu_array&nbsp;array&nbsp;is&nbsp;changed&nbsp;to&nbsp;avoid&nbsp;counting&nbsp;a&nbsp;segment&nbsp;in&nbsp;multiple&nbsp;incidents.<br>
+params:&nbsp;classes,&nbsp;offsets&nbsp;-&nbsp;lists&nbsp;of&nbsp;the&nbsp;incident&nbsp;classification&nbsp;types&nbsp;and&nbsp;corresponding&nbsp;offsets.<br>
+params:&nbsp;pu_array&nbsp;-&nbsp;array&nbsp;each&nbsp;entry&nbsp;of&nbsp;which&nbsp;the&nbsp;pu&nbsp;value&nbsp;of&nbsp;a&nbsp;given&nbsp;window&nbsp;(rms/nominal&nbsp;rms).<br>
+params:&nbsp;sag_range,&nbsp;swell_range&nbsp;-&nbsp;range&nbsp;of&nbsp;pu&nbsp;values&nbsp;for&nbsp;which&nbsp;a&nbsp;given&nbsp;cycle&nbsp;should&nbsp;be&nbsp;considered&nbsp;a&nbsp;sag/swell<br>
+params:&nbsp;cycle_min/max&nbsp;-&nbsp;the&nbsp;cycle&nbsp;streak&nbsp;length&nbsp;range&nbsp;required&nbsp;for&nbsp;a&nbsp;segment&nbsp;of&nbsp;pu_array&nbsp;to&nbsp;be&nbsp;classified&nbsp;as&nbsp;an<br>
+incident.<br>
+params:&nbsp;pu_array&nbsp;-&nbsp;are&nbsp;of&nbsp;pu&nbsp;values&nbsp;for&nbsp;each&nbsp;window&nbsp;in&nbsp;the&nbsp;rms_features<br>
+max&nbsp;none&nbsp;correponds&nbsp;to&nbsp;no&nbsp;upper&nbsp;limit&nbsp;on&nbsp;the&nbsp;length&nbsp;of&nbsp;the&nbsp;segments<br>
+return:&nbsp;no&nbsp;return&nbsp;but&nbsp;does&nbsp;add&nbsp;to&nbsp;or&nbsp;alter&nbsp;pu_array,&nbsp;classes&nbsp;and&nbsp;offsets</tt></dd></dl>
+ <dl><dt><a name="-ieee1159_voltage"><strong>ieee1159_voltage</strong></a>(mauka_message: mauka_pb2.MaukaMessage, rms_features: numpy.ndarray, opq_mongo_client: mongo.OpqMongoClient = None)</dt><dd><tt>Calculate&nbsp;the&nbsp;ieee1159&nbsp;voltage&nbsp;incidents&nbsp;and&nbsp;add&nbsp;them&nbsp;to&nbsp;the&nbsp;mongo&nbsp;database</tt></dd></dl>
+ <dl><dt><a name="-indices_to_ranges"><strong>indices_to_ranges</strong></a>(indices: numpy.ndarray, cycle_min: int, cycle_max: int = None) -&gt; List[tuple]</dt><dd><tt>This&nbsp;function&nbsp;looks&nbsp;at&nbsp;an&nbsp;array&nbsp;of&nbsp;indices&nbsp;to&nbsp;find&nbsp;ranges&nbsp;(start&nbsp;and&nbsp;end)&nbsp;of&nbsp;indices&nbsp;that&nbsp;are&nbsp;in&nbsp;accordance&nbsp;with<br>
+the&nbsp;min&nbsp;and&nbsp;max&nbsp;cycle&nbsp;streak&nbsp;length&nbsp;provided.<br>
+params:&nbsp;indices&nbsp;-&nbsp;a&nbsp;numpy&nbsp;array&nbsp;of&nbsp;indices&nbsp;to&nbsp;some&nbsp;other&nbsp;array<br>
+params:&nbsp;cycle_min,&nbsp;cycle_max&nbsp;-&nbsp;the&nbsp;upper&nbsp;and&nbsp;lower&nbsp;bounds&nbsp;of&nbsp;a&nbsp;valid&nbsp;index&nbsp;range&nbsp;length</tt></dd></dl>
+ <dl><dt><a name="-nullifiy_and_add_incidents"><strong>nullifiy_and_add_incidents</strong></a>(classes: List[mongo.IncidentClassification], offsets: List[tuple], ranges: List[tuple], class_key: mongo.IncidentClassification, pu_array: numpy.ndarray)</dt><dd><tt>This&nbsp;function&nbsp;takes&nbsp;an&nbsp;array&nbsp;of&nbsp;indices&nbsp;from&nbsp;an&nbsp;rms_feature&nbsp;array&nbsp;(assumed&nbsp;to&nbsp;be&nbsp;valid&nbsp;incidents)<br>
+adds&nbsp;the&nbsp;corresponding&nbsp;IncidentClassification&nbsp;and&nbsp;cycle&nbsp;offset/index&nbsp;start&nbsp;and&nbsp;ends&nbsp;&nbsp;and&nbsp;signals<br>
+that&nbsp;the&nbsp;range&nbsp;or&nbsp;rms/pu&nbsp;values&nbsp;can&nbsp;no&nbsp;longer&nbsp;be&nbsp;considered&nbsp;for&nbsp;fur&nbsp;incident.<br>
+params:&nbsp;classes,&nbsp;offsets<br>
+params:&nbsp;ranges&nbsp;-&nbsp;list&nbsp;for&nbsp;which&nbsp;each&nbsp;entry&nbsp;has&nbsp;the&nbsp;start&nbsp;and&nbsp;end&nbsp;index/cycle&nbsp;offset&nbsp;of&nbsp;an&nbsp;incident<br>
+params:&nbsp;class_key&nbsp;-&nbsp;the&nbsp;type/name&nbsp;of&nbsp;the&nbsp;incident&nbsp;in&nbsp;question<br>
+is&nbsp;changed&nbsp;to&nbsp;indicate&nbsp;an&nbsp;incident&nbsp;already&nbsp;accounted&nbsp;for&nbsp;(the&nbsp;pu&nbsp;values&nbsp;of&nbsp;an&nbsp;incident&nbsp;are&nbsp;set&nbsp;to&nbsp;-1&nbsp;so<br>
+they&nbsp;will&nbsp;not&nbsp;be&nbsp;considered&nbsp;by&nbsp;future&nbsp;searches&nbsp;for&nbsp;incidents)</tt></dd></dl>
+ <dl><dt><a name="-rerun"><strong>rerun</strong></a>(mauka_message: mauka_pb2.MaukaMessage, logger, mongo_client: mongo.OpqMongoClient = None)</dt><dd><tt>Retruns&nbsp;this&nbsp;plugin&nbsp;over&nbsp;the&nbsp;provided&nbsp;mauka&nbsp;message.<br>
+:param&nbsp;mauka_message:&nbsp;Mauka&nbsp;message&nbsp;to&nbsp;rerun&nbsp;this&nbsp;plugin&nbsp;over.<br>
+:param&nbsp;logger:&nbsp;Application&nbsp;logger.<br>
+:param&nbsp;mongo_client:&nbsp;An&nbsp;optional&nbsp;mongo&nbsp;client&nbsp;to&nbsp;perform&nbsp;DB&nbsp;queries</tt></dd></dl>
+ <dl><dt><a name="-valid_bound"><strong>valid_bound</strong></a>(start: int, end: int, cycle_max: int = None) -&gt; bool</dt><dd><tt>This&nbsp;function&nbsp;asserts&nbsp;that&nbsp;where&nbsp;a&nbsp;cycle_max,&nbsp;where&nbsp;provided,&nbsp;is&nbsp;not&nbsp;exceeding&nbsp;by&nbsp;the<br>
+current&nbsp;range.<br>
+params:&nbsp;start&nbsp;-&nbsp;the&nbsp;starting&nbsp;index&nbsp;of&nbsp;the&nbsp;range&nbsp;being&nbsp;examined<br>
+params:&nbsp;end&nbsp;-&nbsp;the&nbsp;end&nbsp;index&nbsp;of&nbsp;the&nbsp;range&nbsp;being&nbsp;examined<br>
+params:&nbsp;cycle_max&nbsp;-&nbsp;the&nbsp;maximum&nbsp;separation&nbsp;(minus&nbsp;one)&nbsp;allowed&nbsp;between&nbsp;the&nbsp;start&nbsp;and&nbsp;end&nbsp;indices<br>
+return:&nbsp;bool&nbsp;indicating&nbsp;the&nbsp;range&nbsp;of&nbsp;indices&nbsp;does&nbsp;not&nbsp;exceet&nbsp;cycle&nbsp;streak&nbsp;max&nbsp;provided</tt></dd></dl>
+</td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#55aa55">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Data</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#55aa55"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><strong>ALREADY_ACCOUNTED</strong> = -1</td></tr></table>
+</body></html>
