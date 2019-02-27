@@ -137,11 +137,15 @@ SystemHealth.propTypes = {
 
 /** withTracker connects Meteor data to React components. https://guide.meteor.com/react.html#using-withTracker */
 export default withTracker(() => {
+  const startTime = new Date(Date.now() - (1000 * 62));
+  console.log('startTime', startTime, Healths.getPublicationName());
+  //const healthsSub = Meteor.subscribe(Healths.getPublicationName(), { startTime });
   const healthsSub = Meteor.subscribe(Healths.getPublicationName());
   const opqBoxesSub = Meteor.subscribe(OpqBoxes.getPublicationName());
 
   return {
-    ready: healthsSub.ready() && opqBoxesSub.ready(),
+    // ready: healthsSub.ready(), // && opqBoxesSub.ready(),
+    ready: healthsSub.ready(),
     healths:
       Healths.find({ timestamp: { $gt: new Date(Date.now() - (1000 * 62)) } }, { sort: { timestamp: -1 } }).fetch(),
     boxes: OpqBoxes.find().fetch(),
