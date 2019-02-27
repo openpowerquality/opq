@@ -32,7 +32,7 @@ RUN curl -L -O https://github.com/mongodb/mongo-c-driver/archive/1.14.0.tar.gz  
 RUN cd mongo-c-driver-1.14.0/build && \
     cmake -DENABLE_TESTS=OFF -DENABLE_AUTOMATIC_INIT_AND_CLEANUP=OFF -DCMAKE_BUILD_TYPE=Release ..
 
-RUN make -C mongo-c-driver-1.14.0/build         && \
+RUN make -j 4 -C mongo-c-driver-1.14.0/build         && \
     make -C mongo-c-driver-1.14.0/build install && \
     rm -rf mongo-c-driver-1.14.0
 
@@ -44,7 +44,7 @@ RUN curl -L -O https://github.com/mongodb/mongo-cxx-driver/archive/r3.4.0.tar.gz
 RUN cd mongo-cxx-driver-r3.4.0/build && \
     cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local ..
 
-RUN make -C mongo-cxx-driver-r3.4.0/build           && \
+RUN make -j 4 -C mongo-cxx-driver-r3.4.0/build           && \
     make -C mongo-cxx-driver-r3.4.0/build install   && \
     rm -rf mongo-cxx-driver-r3.4.0
 
@@ -53,7 +53,7 @@ RUN curl -L -O https://github.com/zeromq/zmqpp/archive/4.2.0.tar.gz && \
     tar xf 4.2.0.tar.gz                                             && \
     rm 4.2.0.tar.gz
 
-RUN make -C zmqpp-4.2.0         && \
+RUN make -j 4 -C zmqpp-4.2.0         && \
     make -C zmqpp-4.2.0 install && \
     rm -rf zmqpp-4.2.0
 
@@ -65,13 +65,13 @@ RUN mkdir -p /build/makai/AcquisitionBroker/build   && \
     cd /build/makai/AcquisitionBroker/build         && \
     cmake ..
 
-RUN make -C /build/makai/AcquisitionBroker/build
+RUN make -j 4 -C /build/makai/AcquisitionBroker/build
 
 # Triggering broker
 RUN mkdir -p /build/makai/TriggeringBroker/build    && \
     cd /build/makai/TriggeringBroker/build          && \
     cmake ..
 
-RUN make -C /build/makai/TriggeringBroker/build
+RUN make -j 4 -C /build/makai/TriggeringBroker/build
 
 # Triggering service
