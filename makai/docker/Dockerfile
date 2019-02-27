@@ -71,7 +71,7 @@ RUN make -C /build/makai/AcquisitionBroker/build
 RUN mkdir -p /build/makai/TriggeringBroker/build    && \
     cd /build/makai/TriggeringBroker/build          && \
     cmake ..
-    
+
 RUN make -C /build/makai/TriggeringBroker/build
 
 # Triggering service
