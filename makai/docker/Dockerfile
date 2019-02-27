@@ -61,15 +61,17 @@ RUN make -C zmqpp-4.2.0         && \
 ADD makai-build /build
 
 # Acquisition broker
-RUN mkdir -p /build/makai/AcquisitionBroker/build
-RUN cd /build/makai/AcquisitionBroker/build && \
+RUN mkdir -p /build/makai/AcquisitionBroker/build   && \
+    cd /build/makai/AcquisitionBroker/build         && \
     cmake ..
+
 RUN make -C /build/makai/AcquisitionBroker/build
 
 # Triggering broker
-RUN mkdir -p /build/makai/TriggeringBroker/build
-RUN cd /build/makai/TriggeringBroker/build && \
+RUN mkdir -p /build/makai/TriggeringBroker/build    && \
+    cd /build/makai/TriggeringBroker/build          && \
     cmake ..
+    
 RUN make -C /build/makai/TriggeringBroker/build
 
 # Triggering service
