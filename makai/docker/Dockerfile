@@ -16,7 +16,8 @@ RUN apt-get update &&   \
     libzmq5-dev         \
     perl                \
     pkg-config          \
-    protobuf-compiler
+    protobuf-compiler   \
+    && rm -rf /var/lib/apt/lists/*
 
 # Rust
 RUN curl -s https://sh.rustup.rs -sSf | sh -s -- -y && \
