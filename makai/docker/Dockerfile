@@ -1,6 +1,6 @@
 FROM alpine:3.9
 
-WORKDIR /makai
+WORKDIR /build
 
 # Build tools and deps
 RUN apk --no-cache --update-cache add build-base cmake pkgconfig git perl protobuf protobuf-dev zeromq zeromq-dev
@@ -19,7 +19,7 @@ RUN rm -rf mongo-c-driver-1.14.0
 RUN wget https://github.com/mongodb/mongo-cxx-driver/archive/r3.4.0.tar.gz
 RUN tar xf r3.4.0.tar.gz
 RUN rm r3.4.0.tar.gz
-RUN cd mongo-cxx-driver-r3.4.0/build && cmake -DENABLE_TESTS=OFF -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local ..
+RUN cd mongo-cxx-driver-r3.4.0/build && cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local ..
 RUN make -C mongo-cxx-driver-r3.4.0/build
 RUN make -C mongo-cxx-driver-r3.4.0/build install
 RUN rm -rf mongo-cxx-driver-r3.4.0
@@ -32,15 +32,13 @@ RUN make -C zmqpp-4.2.0
 RUN make -C zmqpp-4.2.0 install
 RUN rm -rf zmqpp-4.2.0
 
+# Add makai contents
+ADD makai-build /build
+
 # Acquisition broker
-RUN mkdir /makai/makai
-RUN mkdir /makai/protocol
-ADD ./makai/ /makai/makai
-ADD protocol /makai/protocol
-RUN mkdir -p /makai/makai/AcquisitionBroker/build
-RUN cd /makai/makai/AcquisitionBroker/build && cmake ..
-RUN make -C /makai/makai/AcquisitionBroker/build
-RUN make -C /makai/makai/AcquisitionBroker/build install
+RUN mkdir -p /build/makai/AcquisitionBroker/build
+RUN cd /build/makai/AcquisitionBroker/build && cmake ..
+RUN make -C /build/makai/AcquisitionBroker/build
 
 # Triggering broker
 

@@ -13,9 +13,9 @@ execute_process(
 )
 
 find_package(PkgConfig)
-find_package()
-pkg_check_modules(LIBBSONXX REQUIRED libbsoncxx)
-pkg_check_modules(LIBMONGOCXX REQUIRED libmongocxx)
+find_package(libmongocxx)
+#pkg_check_modules(LIBBSONXX REQUIRED libbsoncxx)
+#pkg_check_modules(LIBMONGOCXX REQUIRED libmongocxx)
 include_directories(${LIBMONGOCXX_INCLUDE_DIRS} ${LIBBSONCXX_INCLUDE_DIRS})
 link_directories(${LIBMONGOCXX_LIBRARY_DIRS} ${LIBBSONCXX_LIBRARY_DIRS})
 
