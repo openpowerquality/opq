@@ -76,3 +76,18 @@ RUN mkdir -p /build/makai/TriggeringBroker/build    && \
 RUN make -j 4 -C /build/makai/TriggeringBroker/build
 
 # Triggering service
+RUN cd /build/makai/TriggeringService && \
+    $HOME/.cargo/bin/cargo build --release
+
+# Triggering service plugins
+RUN cd /build/makai/TriggeringService/plugins/health && \
+    $HOME/.cargo/bin/cargo build --release
+
+RUN cd /build/makai/TriggeringService/plugins/mongo && \
+    $HOME/.cargo/bin/cargo build --release
+
+RUN cd /build/makai/TriggeringService/plugins/print && \
+    $HOME/.cargo/bin/cargo build --release
+
+RUN cd /build/makai/TriggeringService/plugins/threshold_trigger && \
+    $HOME/.cargo/bin/cargo build --release
