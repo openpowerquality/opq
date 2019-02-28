@@ -138,5 +138,5 @@ EXPOSE 8196
 EXPOSE 8194
 
 # Start Makai
-RUN ["/bin/bash", "/build/bin/start-makai.sh"]
+CMD ["/bin/bash", "/build/bin/run-makai.sh"]
 
