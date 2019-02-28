@@ -48,7 +48,7 @@
     "eslint-plugin-meteor": "^4.2.2",
     "eslint-plugin-react": "^7.8.2",
     "hoek": "^4.2.1",
-    "nightmare": "^2.10.0"
+    "nightmare": "^3.0.1"
   },
   "scripts": {
     "start": "cross-env METEOR_NO_RELEASE_CHECK=1 meteor --settings ../config/settings.development.json",
