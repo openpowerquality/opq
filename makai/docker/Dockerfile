@@ -104,9 +104,12 @@ RUN mkdir -p /build/conf                                                        
     cp /build/makai/AcquisitionBroker/build/AcquisitionBroker /build/bin                            && \
     cp /build/makai/TriggeringBroker/build/TriggeringBroker /build/bin                              && \
     cp /build/makai/TriggeringService/target/release/makai /build/bin                               && \
-    cp /build/makai/TriggeringService/plugins/health/target/release/libhealth_plugin.* /build/bin   && \
-    cp /build/makai/TriggeringService/plugins/print/target/release/libprint_plugin.* /build/bin     && \
-    cp /build/makai/TriggeringService/plugins/threshold_trigger/target/release/libthreshold_trigger_plugin.* /build/bin
+    cp /build/makai/TriggeringService/plugins/health/target/release/libhealth_plugin.so /build/bin   && \
+    cp /build/makai/TriggeringService/plugins/print/target/release/libprint_plugin.so /build/bin     && \
+    cp /build/makai/TriggeringService/plugins/threshold_trigger/target/release/libthreshold_trigger_plugin.so /build/bin
+
+# Setup keys and certificates
+# TODO
 
 # Cleanup
 RUN rm -rf /build/makai     && \
