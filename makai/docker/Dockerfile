@@ -113,6 +113,8 @@ RUN rm -rf /build/makai     && \
     rm -rf /build/protocol  && \
     rm -rf $HOME/.cargo     && \
     rm -rf $HOME/.cache     && \
+    rm -rf $HOME/.rustup    && \
+    rm -rf $HOME/.multirust && \
     apt-get purge -y        \
         cmake               \
         curl                \
