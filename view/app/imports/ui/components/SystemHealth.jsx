@@ -137,13 +137,17 @@ SystemHealth.propTypes = {
 
 /** withTracker connects Meteor data to React components. https://guide.meteor.com/react.html#using-withTracker */
 export default withTracker(() => {
-  const healthsSub = Meteor.subscribe(Healths.getPublicationName());
+  // Calculate a timestamp for two minutes ago exactly on the minute.
+  // This ensures that we won't get an excessive number of Health documents.
+  // Note: Can't just calculate the current time in milliseconds, since value changes every millisecond, creating
+  // an infinite loop! That's a day of debugging I will never get back.
+  const startTime = Moment().seconds(0).milliseconds(0).subtract(2, 'minutes').toDate();
+  const healthsSub = Meteor.subscribe(Healths.getPublicationName(), { startTime });
   const opqBoxesSub = Meteor.subscribe(OpqBoxes.getPublicationName());
-
   return {
     ready: healthsSub.ready() && opqBoxesSub.ready(),
     healths:
-      Healths.find({ timestamp: { $gt: new Date(Date.now() - (1000 * 62)) } }, { sort: { timestamp: -1 } }).fetch(),
+      Healths.find({ timestamp: { $gt: startTime } }, { sort: { timestamp: -1 } }).fetch(),
     boxes: OpqBoxes.find().fetch(),
     boxIDs: OpqBoxes.find().fetch().map(box => box.box_id).sort(),
   };

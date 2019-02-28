@@ -1,5 +1,8 @@
+import { Meteor } from 'meteor/meteor';
+import { check } from 'meteor/check';
 import SimpleSchema from 'simpl-schema';
 import BaseCollection from '../base/BaseCollection.js';
+
 
 /**
  * The OPQHealth service creates documents representing its findings on the current health of the system.
@@ -15,6 +18,20 @@ class HealthsCollection extends BaseCollection {
       status: String,
       serviceID: String,
     }));
+  }
+
+  /**
+   * Creates the publications for the Health collection. Subscriber must pass in a Date corresponding
+   * to the earliest Health document of interest.
+   */
+  publish() {
+    const self = this;
+    if (Meteor.isServer) {
+      Meteor.publish(this._collectionName, function ({ startTime = new Date() } = {}) {
+        check(startTime, Date);
+        return self._collection.find({ timestamp: { $gt: startTime } });
+      });
+    }
   }
 }
 

@@ -10,7 +10,7 @@
     "jsdoc": "^3.5.5",
     "leaflet": "^1.3.1",
     "leaflet.markercluster": "^1.3.0",
-    "lodash": "^4.17.10",
+    "lodash": "^4.17.11",
     "meteor-node-stubs": "^0.4.1",
     "moment": "^2.22.1",
     "pondjs": "^0.8.8",
@@ -48,7 +48,7 @@
     "eslint-plugin-meteor": "^4.2.2",
     "eslint-plugin-react": "^7.8.2",
     "hoek": "^4.2.1",
-    "nightmare": "^2.10.0"
+    "nightmare": "^3.0.1"
   },
   "scripts": {
     "start": "cross-env METEOR_NO_RELEASE_CHECK=1 meteor --settings ../config/settings.development.json",

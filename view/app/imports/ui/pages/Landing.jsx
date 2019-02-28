@@ -3,7 +3,6 @@ import { Grid } from 'semantic-ui-react';
 import BoxTrends from '../components/BoxTrends';
 import SystemStats from '../components/SystemStats';
 import SystemHealth from '../components/SystemHealth';
-import EventsTimeline from '../components/EventsTimeline';
 
 const Landing = () => (
   <Grid container stackable>
@@ -16,9 +15,6 @@ const Landing = () => (
         <BoxTrends/>
       </Grid.Column>
     </Grid.Row>
-    <Grid.Column width={16}>
-      <EventsTimeline/>
-    </Grid.Column>
   </Grid>
 );
 
