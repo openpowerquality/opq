@@ -27,7 +27,7 @@ class HealthsCollection extends BaseCollection {
   publish() {
     const self = this;
     if (Meteor.isServer) {
-      Meteor.publish(this._collectionName, function ({ startTime }) {
+      Meteor.publish(this._collectionName, function ({ startTime = new Date() } = {}) {
         check(startTime, Date);
         return self._collection.find({ timestamp: { $gt: startTime } });
       });
