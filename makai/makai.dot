@@ -1,0 +1,12 @@
+digraph makai {
+    OPQBoxes[shape="box", label="OPQ Boxes"]
+
+    subgraph cluster_makai {
+        label = "OPQ Makai";
+        AcquisitionBroker
+        TriggeringBroker
+        TriggeringService
+    }
+
+    OPQMauka[shape=box, label="OPQ Mauka"]
+}
