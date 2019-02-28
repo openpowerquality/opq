@@ -101,15 +101,13 @@ RUN mkdir -p /build/conf                                                        
     cp /build/makai/TriggeringBroker/triggering_broker_config.json /build/conf                      && \
     cp /build/makai/TriggeringService/makai.json /build/conf                                        && \
     mkdir -p /build/bin                                                                             && \
+    cp /build/makai/docker/run-makai.sh /build/bin                                                  && \
     cp /build/makai/AcquisitionBroker/build/AcquisitionBroker /build/bin                            && \
     cp /build/makai/TriggeringBroker/build/TriggeringBroker /build/bin                              && \
     cp /build/makai/TriggeringService/target/release/makai /build/bin                               && \
-    cp /build/makai/TriggeringService/plugins/health/target/release/libhealth_plugin.so /build/bin   && \
-    cp /build/makai/TriggeringService/plugins/print/target/release/libprint_plugin.so /build/bin     && \
+    cp /build/makai/TriggeringService/plugins/health/target/release/libhealth_plugin.so /build/bin  && \
+    cp /build/makai/TriggeringService/plugins/print/target/release/libprint_plugin.so /build/bin    && \
     cp /build/makai/TriggeringService/plugins/threshold_trigger/target/release/libthreshold_trigger_plugin.so /build/bin
-
-# Setup keys and certificates
-# TODO
 
 # Cleanup
 RUN rm -rf /build/makai     && \
@@ -130,4 +128,6 @@ RUN rm -rf /build/makai     && \
     apt-get autoremove -y   && \
     rm -rf /var/lib/apt/lists/*
 
+# Start Makai
+RUN ["/bin/bash", "/build/bin/start-makai.sh"]
 
