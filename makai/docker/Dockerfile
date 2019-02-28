@@ -16,13 +16,23 @@ RUN apt-get update &&   \
     libzmq5-dev         \
     perl                \
     pkg-config          \
-    protobuf-compiler   \
-    && rm -rf /var/lib/apt/lists/*
+    protobuf-compiler
 
 # Rust
 RUN curl -s https://sh.rustup.rs -sSf | sh -s -- -y && \
     $HOME/.cargo/bin/rustup install nightly         && \
     $HOME/.cargo/bin/rustup default nightly
+
+ENV PATH="/root/.cargo/bin:$PATH"
+
+# sccache
+RUN curl -L -O https://github.com/mozilla/sccache/releases/download/0.2.8/sccache-0.2.8-x86_64-unknown-linux-musl.tar.gz && \
+    tar xf sccache-0.2.8-x86_64-unknown-linux-musl.tar.gz && \
+    rm sccache-0.2.8-x86_64-unknown-linux-musl.tar.gz && \
+    cp sccache-0.2.8-x86_64-unknown-linux-musl/sccache $HOME/.cargo/bin && \
+    rm -rf sccache-0.2.8-x86_64-unknown-linux-musl
+
+ENV RUSTC_WRAPPER="sccache"
 
 # Mongo c driver
 RUN curl -L -O https://github.com/mongodb/mongo-c-driver/archive/1.14.0.tar.gz  && \
@@ -77,13 +87,13 @@ RUN make -j 4 -C /build/makai/TriggeringBroker/build
 
 # Triggering service and plugins
 RUN cd /build/makai/TriggeringService                           && \
-    $HOME/.cargo/bin/cargo build --release                      && \
+    cargo build --release                                       && \
     cd /build/makai/TriggeringService/plugins/health            && \
-    $HOME/.cargo/bin/cargo build --release                      && \
+    cargo build --release                                       && \
     cd /build/makai/TriggeringService/plugins/print             && \
-    $HOME/.cargo/bin/cargo build --release                      && \
+    cargo build --release                                       && \
     cd /build/makai/TriggeringService/plugins/threshold_trigger && \
-    $HOME/.cargo/bin/cargo build --release
+    cargo build --release
 
 # Organize makai binaries and configurations
 RUN mkdir -p /build/conf                                                                            && \
@@ -98,8 +108,20 @@ RUN mkdir -p /build/conf                                                        
     cp /build/makai/TriggeringService/plugins/print/target/release/libprint_plugin.* /build/bin     && \
     cp /build/makai/TriggeringService/plugins/threshold_trigger/target/release/libthreshold_trigger_plugin.* /build/bin
 
-
-
 # Cleanup
+RUN rm -rf /build/makai     && \
+    rm -rf /build/protocol  && \
+    rm -rf $HOME/.cargo     && \
+    rm -rf $HOME/.cache     && \
+        apt-get purge -y    \
+        cmake               \
+        curl                \
+        g++                 \
+        gcc                 \
+        git                 \
+        perl                \
+        pkg-config          \
+        protobuf-compiler   && \
+    rm -rf /var/lib/apt/lists/*
 
 
