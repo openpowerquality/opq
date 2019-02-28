@@ -27,5 +27,5 @@ digraph makai {
     OPQBoxes -> TriggeringBroker [label=9880]
     TriggeringBroker -> TriggeringService [label=9881]
 
-    OPQHealth -> TriggeringService [label="?"]
+    OPQHealth -> TriggeringService [label=8080]
 }
