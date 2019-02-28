@@ -1,12 +1,31 @@
 digraph makai {
     OPQBoxes[shape="box", label="OPQ Boxes"]
 
-    subgraph cluster_makai {
-        label = "OPQ Makai";
-        AcquisitionBroker
-        TriggeringBroker
-        TriggeringService
+    subgraph cluster_opq {
+        label = "OPQ Dockerized Services"
+        OPQMauka[shape=box, label="OPQ Mauka"]
+        MongoDB[shape=cylinder]
+        OPQHealth[shape=box]
+
+        subgraph cluster_makai {
+            label = "OPQ Makai";
+            AcquisitionBroker
+            TriggeringBroker
+            TriggeringService
+        }
     }
 
-    OPQMauka[shape=box, label="OPQ Mauka"]
+    OPQBoxes -> AcquisitionBroker [label=8196]
+    AcquisitionBroker -> OPQBoxes [label=8194]
+    AcquisitionBroker -> TriggeringService [label=9899]
+    AcquisitionBroker -> MongoDB [label=27017]
+
+    TriggeringService -> OPQMauka [label=10000]
+    TriggeringService -> MongoDB [label=27017]
+    TriggeringService -> AcquisitionBroker [label=9899]
+
+    OPQBoxes -> TriggeringBroker [label=9880]
+    TriggeringBroker -> TriggeringService [label=9881]
+
+    OPQHealth -> TriggeringService [label="?"]
 }
