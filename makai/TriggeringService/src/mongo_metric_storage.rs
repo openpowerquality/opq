@@ -164,9 +164,11 @@ impl MongoMetricStorage {
         let mut index_opts = IndexOptions::new();
         index_opts.expire_after_seconds = Some(0);
         index_opts.background = Some(true);
-        ret.live_coll
-            .create_index(doc! {"expireAt" : 1}, Some(index_opts))
-            .unwrap();
+        match ret.live_coll.create_index(doc! {"expireAt" : 1}, Some(index_opts)){
+            Ok(_) => {println!("Expire index on measurements created.")},
+            Err(_) => {println!("Expire index on measurements already present.")},
+        }
+
         ret
     }
 
