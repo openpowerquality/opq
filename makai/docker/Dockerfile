@@ -74,26 +74,26 @@ ADD makai-build /build
 # Acquisition broker
 RUN mkdir -p /build/makai/AcquisitionBroker/build   && \
     cd /build/makai/AcquisitionBroker/build         && \
-    cmake ..
-
-RUN make -j 4 -C /build/makai/AcquisitionBroker/build
+    cmake ..                                        && \
+    make -j 4 -C /build/makai/AcquisitionBroker/build
 
 # Triggering broker
 RUN mkdir -p /build/makai/TriggeringBroker/build    && \
     cd /build/makai/TriggeringBroker/build          && \
-    cmake ..
-
-RUN make -j 4 -C /build/makai/TriggeringBroker/build
+    cmake ..                                        && \
+    make -j 4 -C /build/makai/TriggeringBroker/build
 
 # Triggering service and plugins
-RUN cd /build/makai/TriggeringService                           && \
+RUN sccache --start-server                                      && \
+    cd /build/makai/TriggeringService                           && \
     cargo build --release                                       && \
     cd /build/makai/TriggeringService/plugins/health            && \
     cargo build --release                                       && \
     cd /build/makai/TriggeringService/plugins/print             && \
     cargo build --release                                       && \
     cd /build/makai/TriggeringService/plugins/threshold_trigger && \
-    cargo build --release
+    cargo build --release                                       && \
+    sccache --stop-server
 
 # Organize makai binaries and configurations
 RUN mkdir -p /build/conf                                                                            && \
