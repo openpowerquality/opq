@@ -113,7 +113,7 @@ RUN rm -rf /build/makai     && \
     rm -rf /build/protocol  && \
     rm -rf $HOME/.cargo     && \
     rm -rf $HOME/.cache     && \
-        apt-get purge -y    \
+    apt-get purge -y        \
         cmake               \
         curl                \
         g++                 \
@@ -122,6 +122,7 @@ RUN rm -rf /build/makai     && \
         perl                \
         pkg-config          \
         protobuf-compiler   && \
+    apt-get autoremove -y   && \
     rm -rf /var/lib/apt/lists/*
 
 
