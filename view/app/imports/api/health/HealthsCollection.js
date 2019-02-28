@@ -21,28 +21,16 @@ class HealthsCollection extends BaseCollection {
   }
 
   /**
-   * Creates the publications for the Health collection. Subscriber must pass in the millisecond value corresponding
+   * Creates the publications for the Health collection. Subscriber must pass in a Date corresponding
    * to the earliest Health document of interest.
    */
-  // publish() {
-  //   const self = this;
-  //   if (Meteor.isServer) {
-  //     Meteor.publish(self.getPublicationName(), function ({ startTime }) {
-  //       console.log(self.getPublicationName(), startTime);
-  //       check(startTime, Date);
-  //       // return self.find({ timestamp: { $gt: startTime } }) || self.ready;
-  //       return self.find();
-  //     });
-  //   }
-  // }
-
-  /**
-   * Default publication of collection (publishes entire collection). Derived classes will often override with
-   * their own publish() method, as its generally a bad idea to publish the entire collection to the client.
-   */
   publish() {
+    const self = this;
     if (Meteor.isServer) {
-      Meteor.publish(this._collectionName, () => this._collection.find({ timestamp: { $gt: new Date() } }));
+      Meteor.publish(this._collectionName, function ({ startTime }) {
+        check(startTime, Date);
+        return self._collection.find({ timestamp: { $gt: startTime } });
+      });
     }
   }
 }
