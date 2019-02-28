@@ -75,19 +75,31 @@ RUN mkdir -p /build/makai/TriggeringBroker/build    && \
 
 RUN make -j 4 -C /build/makai/TriggeringBroker/build
 
-# Triggering service
-RUN cd /build/makai/TriggeringService && \
+# Triggering service and plugins
+RUN cd /build/makai/TriggeringService                           && \
+    $HOME/.cargo/bin/cargo build --release                      && \
+    cd /build/makai/TriggeringService/plugins/health            && \
+    $HOME/.cargo/bin/cargo build --release                      && \
+    cd /build/makai/TriggeringService/plugins/print             && \
+    $HOME/.cargo/bin/cargo build --release                      && \
+    cd /build/makai/TriggeringService/plugins/threshold_trigger && \
     $HOME/.cargo/bin/cargo build --release
 
-# Triggering service plugins
-RUN cd /build/makai/TriggeringService/plugins/health && \
-    $HOME/.cargo/bin/cargo build --release
+# Organize makai binaries and configurations
+RUN mkdir -p /build/conf                                                                            && \
+    cp /build/makai/AcquisitionBroker/acquisition_broker_config.json /build/conf                    && \
+    cp /build/makai/TriggeringBroker/triggering_broker_config.json /build/conf                      && \
+    cp /build/makai/TriggeringService/makai.json /build/conf                                        && \
+    mkdir -p /build/bin                                                                             && \
+    cp /build/makai/AcquisitionBroker/build/AcquisitionBroker /build/bin                            && \
+    cp /build/makai/TriggeringBroker/build/TriggeringBroker /build/bin                              && \
+    cp /build/makai/TriggeringService/target/release/makai /build/bin                               && \
+    cp /build/makai/TriggeringService/plugins/health/target/release/libhealth_plugin.* /build/bin   && \
+    cp /build/makai/TriggeringService/plugins/print/target/release/libprint_plugin.* /build/bin     && \
+    cp /build/makai/TriggeringService/plugins/threshold_trigger/target/release/libthreshold_trigger_plugin.* /build/bin
 
-RUN cd /build/makai/TriggeringService/plugins/mongo && \
-    $HOME/.cargo/bin/cargo build --release
 
-RUN cd /build/makai/TriggeringService/plugins/print && \
-    $HOME/.cargo/bin/cargo build --release
 
-RUN cd /build/makai/TriggeringService/plugins/threshold_trigger && \
-    $HOME/.cargo/bin/cargo build --release
+# Cleanup
+
+
