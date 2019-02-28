@@ -17,9 +17,10 @@ digraph makai {
 
     OPQBoxes -> AcquisitionBroker [label=8196]
     AcquisitionBroker -> OPQBoxes [label=8194]
-    AcquisitionBroker -> TriggeringService [label=9899]
+    AcquisitionBroker -> TriggeringService [label=9884]
 
     TriggeringService -> OPQMauka [label=10000]
+    OPQMauka -> TriggeringService [label=9899]
     TriggeringService -> MongoDB [label=27017]
     TriggeringService -> AcquisitionBroker [label=9899]
 
