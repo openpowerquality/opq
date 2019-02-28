@@ -123,6 +123,20 @@ RUN rm -rf /build/makai     && \
     apt-get autoremove -y   && \
     rm -rf /var/lib/apt/lists/*
 
+# These ports only need to be exposed to other containers.
+EXPOSE 8080
+
+EXPOSE 9899
+
+EXPOSE 10000
+
+# These ports must be exposed to the outside world. This is accomplished in the docker-compose.yml file.
+EXPOSE 9880
+
+EXPOSE 8196
+
+EXPOSE 8194
+
 # Start Makai
 RUN ["/bin/bash", "/build/bin/start-makai.sh"]
 
