@@ -214,9 +214,11 @@ def check_makai_http(config):
             with requests.Session() as req:
                 response = req.get(config['url'])
             status = response.status_code
-            if status != 200:
+            if status == 200:
+                message = get_msg_as_json('MAKAI', '', 'UP', '')
+            else:
                 message = get_msg_as_json('MAKAI', '', 'DOWN', status)
-                save_message(message)
+            save_message(message)
         except Exception as e:
             message = get_msg_as_json('MAKAI', '', 'DOWN', str(e))
             save_message(message)
