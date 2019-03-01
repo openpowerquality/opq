@@ -16,7 +16,7 @@
     "enabled": false
   },
   "initialEntities": {
-    "enabled": false,
+    "enabled": true,
     "opqBoxes": [
       {
         "box_id": "1",
