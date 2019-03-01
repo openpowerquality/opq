@@ -41,7 +41,9 @@ class ManageLocationPage extends React.Component {
                   <Table.Cell>{location.description}</Table.Cell>
                   <Table.Cell>{location.coordinates[0]}, {location.coordinates[1]}</Table.Cell>
                   <Table.Cell>
-                    <Button size='tiny' as={Link} to={`/admin/manage/location/edit/${location._id}`}>Edit</Button>
+                    <Button size='tiny' as={Link} to={`/admin/manage/location/edit/${location._id.toHexString()}`}>
+                      Edit
+                    </Button>
                   </Table.Cell>
                 </Table.Row>)}
               </Table.Body>
