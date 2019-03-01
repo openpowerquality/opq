@@ -19,7 +19,8 @@
         "interval": 60,
         "mongo": "mongodb://emilia.ics.hawaii.edu:27017/",
         "push_port": "tcp://emilia.ics.hawaii.edu:9884",
-        "sub_port": "tcp://emilia.ics.hawaii.edu:9899"
+        "sub_port": "tcp://emilia.ics.hawaii.edu:9899",
+        "url": "http://emilia.ics.hawaii.edu:8080"
     },
     {
         "service": "view",

@@ -206,6 +206,22 @@ def check_mauka_plugins(config_plugins, mauka_plugins):
         message= get_msg_as_json('MAUKA', '', 'DOWN', '')
     save_message(message)
 
+def check_makai_http(config)
+    sleep_time = config['interval']
+
+    while True:
+        try:
+            with requests.Session() as req:
+                response = req.get(config['url'])
+            status = response.status_code
+            if status != 200:
+                message = get_msg_as_json('MAKAI', '', 'DOWN', status)
+                save_message(message)
+        except Exception as e:
+            message = get_msg_as_json('MAKAI', '', 'DOWN', str(e))
+            save_message(message)
+        sleep(sleep_time)
+
 def check_mauka(config):
     sleep_time = config['interval']
 
@@ -348,7 +364,7 @@ def set_mongo_url(url):
 
 def with_env_vars(config):
     # Checks for the following env vars, overwriting default values if set:
-    # MONGO_URL, VIEW_URL, BOX_URL, MAUKA_URL, MAKAI_PUSH_URL, MAKAI_SUB_URL
+    # MONGO_URL, VIEW_URL, BOX_URL, MAUKA_URL, MAKAI_PUSH_URL, MAKAI_SUB_URL, MAKAI_HEALTH_URL
 
     # Mongo Env
     config[4]['url'] = os.getenv('MONGO_URL', config[4]['url'])
@@ -366,6 +382,7 @@ def with_env_vars(config):
     config[2]['mongo'] = os.getenv('MONGO_URL', config[2]['mongo'])
     config[2]['push_port'] = os.getenv('MAKAI_PUSH_URL', config[2]['push_port'])
     config[2]['sub_port'] = os.getenv('MAKAI_SUB_URL', config[2]['sub_port'])
+    config[2]['url'] = os.getenv('MAKAI_HEALTH_URL', config[2]['url'])
 
     return config
 
@@ -395,7 +412,7 @@ def main(config_file):
     mauka_thread.start()
 
     makai_config = health_config[2]
-    makai_thread = Thread(target=check_makai, args=(makai_config, ))
+    makai_thread = Thread(target=check_makai_http, args=(makai_config, ))
     makai_thread.start()
 
     health_thread.join()
