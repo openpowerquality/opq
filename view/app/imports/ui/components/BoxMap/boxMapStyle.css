@@ -138,21 +138,7 @@
     box-shadow: 0 1px 8px rgba(0,0,0,.5);
 }
 
-.mapListingBoxId {
-    border: 2px solid #2f8acf;
-    font-size: 25px;
-    font-weight: 500;
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    line-height: 98%;
-    margin: 20px 10px 0px 10px;
-}
-
-.mapListingBoxId h2.large {
-    margin-left: 9px;
-}
-
-.mapListingBoxId h2.small {
-    margin-left: 2px;
+.mapListingBoxLabel {
+  font-size: 25px;
+  font-weight: bold;
 }
