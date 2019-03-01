@@ -10,6 +10,7 @@ import time
 import zmq
 
 import config
+import constants
 import log
 
 
@@ -47,7 +48,7 @@ def main():
     if len(sys.argv) != 4:
         sys.exit("usage: ./mock_plugin.py config topic message")
 
-    conf = config.from_file(sys.argv[1])
+    conf = config.from_env(constants.CONFIG_ENV)
     topic = sys.argv[2]
     message = sys.argv[3]
     broker = conf.get("zmq.mauka.plugin.pub.interface")

@@ -88,3 +88,16 @@ def from_dict(config_dict: CONFIG_TYPE) -> MaukaConfig:
     :return: An instance of a MaukaConfig.
     """
     return MaukaConfig(config_dict)
+
+
+def from_env(environment_variable: str) -> MaukaConfig:
+    """
+    Create an instance of a MaukaConfig from the environment.
+    :param environment_variable: The name of the environment variable.
+    :return: An instance of a MaukaConfig.
+    """
+    json_contents = os.environ.get(environment_variable)
+    if json_contents is None or len(json_contents) == 0:
+        logger.warning("No configuration found at env var = %s", environment_variable)
+        raise RuntimeError("No configuration found at env var = %s" % environment_variable)
+    return from_dict(json.loads(json_contents))

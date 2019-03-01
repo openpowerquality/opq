@@ -1,18 +1,18 @@
 {
   "mauka.debug": true,
 
-  "zmq.event.interface"           : "?MAUKA_EVENT_INTERFACE",
-  "zmq.mauka.broker.pub.interface": "?MAUKA_ZMQ_BROKER_PUB_INTERFACE",
-  "zmq.mauka.broker.sub.interface": "?MAUKA_ZMQ_BROKER_SUB_INTERFACE",
-  "zmq.mauka.plugin.pub.interface": "?MAUKA_ZMQ_PLUGIN_PUB_INTERFACE",
-  "zmq.mauka.plugin.sub.interface": "?MAUKA_ZMQ_PLUGIN_SUB_INTERFACE",
+  "zmq.event.interface"           : "tcp://localhost:10000",
+  "zmq.mauka.broker.pub.interface": "tcp://*:9883",
+  "zmq.mauka.broker.sub.interface": "tcp://*:9882",
+  "zmq.mauka.plugin.pub.interface": "tcp://localhost:9882",
+  "zmq.mauka.plugin.sub.interface": "tcp://localhost:9883",
 
-  "zmq.mauka.plugin.management.rep.interface": "?MAUKA_ZMQ_PLUGIN_MANAGEMENT_REP_INTERFACE",
-  "zmq.mauka.plugin.management.req.interface": "?MAUKA_ZMQ_PLUGIN_MANAGEMENT_REQ_INTERFACE",
+  "zmq.mauka.plugin.management.rep.interface": "tcp://*:12000",
+  "zmq.mauka.plugin.management.req.interface": "tcp://localhost:12000",
 
-  "mongo.host": "?MONGO_HOST",
-  "mongo.port": "!MONGO_PORT",
-  "mongo.db": "?MONGO_DB",
+  "mongo.host": "localhost",
+  "mongo.port": 21017,
+  "mongo.db": "opq",
 
   "plugins.base.heartbeatIntervalS": 15.0,
 
@@ -43,5 +43,5 @@
   "plugins.ThdPlugin.threshold.percent": 5.0,
   "plugins.ThdPlugin.window.size.ms": 200,
 
-  "plugins.StatusPlugin.port": "!MAUKA_STATUS_PORT"
+  "plugins.StatusPlugin.port": 8911
 }

@@ -39,7 +39,7 @@ class MakaiEventPluginTests(unittest.TestCase):
 
     def setUp(self):
         self.freq_ref = constants.CYCLES_PER_SECOND
-        self.config = config.from_file("./config.json")
+        self.config = config.from_env(constants.CONFIG_ENV)
         self.window_size = int(self.config["plugins.MakaiEventPlugin.frequencyWindowCycles"]
                                * constants.SAMPLES_PER_CYCLE)
         self.downsample_factor = int(self.config["plugins.MakaiEventPlugin.frequencyDownSampleRate"])

@@ -34,7 +34,7 @@ def profile_makai_event_plugin(data_file: str):
     df = pd.read_table(data_file, header=None)
 
     # load configurations
-    config_dict = load_config("config.json")
+    config_dict = load_config("mauka.config.json")
     config = MaukaConfig(config_dict)
 
     # create profiler

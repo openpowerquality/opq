@@ -8,6 +8,7 @@ import signal
 import sys
 
 import config
+import constants
 import log
 import plugins.frequency_variation_plugin
 import plugins.transient_plugin
@@ -35,12 +36,7 @@ def main():
     Entry point to OPQ Mauka.
     """
     logger.info("Starting OpqMauka")
-    if len(sys.argv) <= 1:
-        logger.error("Configuration file not supplied")
-        usage()
-        exit(0)
-
-    conf = config.from_file(sys.argv[1])
+    conf = config.from_env(constants.CONFIG_ENV)
 
     plugin_manager = services.plugin_manager.PluginManager(conf)
     plugin_manager.register_plugin(plugins.makai_event_plugin.MakaiEventPlugin)

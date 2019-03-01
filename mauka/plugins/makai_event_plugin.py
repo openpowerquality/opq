@@ -278,7 +278,7 @@ def rerun(event_id: int):
     """
     client = mongo.get_default_client()
     logger = logging.getLogger()
-    conf = config.from_file("./config.json")
+    conf = config.from_env(constants.CONFIG_ENV)
     filter_order = int(conf.get("plugins.MakaiEventPlugin.filterOrder"))
     cutoff_frequency = float(conf.get("plugins.MakaiEventPlugin.cutoffFrequency"))
     samples_per_window = int(constants.SAMPLES_PER_CYCLE) * int(

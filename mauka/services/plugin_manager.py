@@ -15,6 +15,7 @@ import typing
 import zmq
 
 import config
+import constants
 import log
 
 # pylint: disable=C0103
@@ -633,9 +634,9 @@ if __name__ == "__main__":
     logger.info("Starting OpqMauka CLI")
     if len(sys.argv) <= 1:
         logger.error("Configuration file not supplied")
-        logger.error("usage: python3 -m plugins.manager config.json")
+        logger.error("usage: python3 -m plugins.manager mauka.config.json")
         exit(0)
 
     config_path = sys.argv[1]
-    config = config.from_file(config_path)
+    config = config.from_env(constants.CONFIG_ENV)
     run_cli(config)
