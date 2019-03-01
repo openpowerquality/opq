@@ -206,7 +206,7 @@ def check_mauka_plugins(config_plugins, mauka_plugins):
         message= get_msg_as_json('MAUKA', '', 'DOWN', '')
     save_message(message)
 
-def check_makai_http(config)
+def check_makai_http(config):
     sleep_time = config['interval']
 
     while True:
