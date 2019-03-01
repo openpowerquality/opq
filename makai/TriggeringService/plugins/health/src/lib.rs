@@ -36,8 +36,8 @@ impl MakaiPlugin for HealthPlugin {
     fn process_measurement(&mut self, msg: Arc<Measurement>) -> Option<Vec<Command>> {
         let mut stats = self.stats.lock().unwrap();
         let opq_box = OpqBox {
-            id: msg.box_id,
-            last_timestamp: msg.timestamp_ms,
+            name: msg.box_id.to_string(),
+            timestamp: msg.timestamp_ms/1000,
             ok: true,
         };
         stats.box_status.insert(msg.box_id, opq_box );
