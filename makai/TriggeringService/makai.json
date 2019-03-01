@@ -15,7 +15,7 @@
     },
     {
       "path" : "/root/bin/libhealth_plugin.so",
-      "address" : "localhost:8080"
+      "address" : "0.0.0.0:8080"
     },
     {
       "path" : "/root/bin/libthreshold_trigger_plugin.so",
