@@ -10,15 +10,15 @@
   "event_request_expiration_window_ms" : 1800000,
   "plugins" : [
     {
-      "path" : "/root/bin/libprint_plugin.so",
+      "path" : "/build/bin/libprint_plugin.so",
       "print" : false
     },
     {
-      "path" : "/root/bin/libhealth_plugin.so",
+      "path" : "/build/bin/libhealth_plugin.so",
       "address" : "0.0.0.0:8080"
     },
     {
-      "path" : "/root/bin/libthreshold_trigger_plugin.so",
+      "path" : "/build/bin/libthreshold_trigger_plugin.so",
       "reference_frequency": 60.0,
       "frequency_threshold_percent_low": 0.05,
       "frequency_threshold_percent_high": 0.05,
