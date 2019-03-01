@@ -43,7 +43,7 @@ class NewLocationPage extends React.Component {
   renderPage() {
     const formSchema = new SimpleSchema({
       slug: String,
-      coordinates: { type: Array },
+      coordinates: { type: Array, minCount: 2, maxCount: 2 },
       'coordinates.$': { type: Number },
       description: String,
     });
@@ -53,7 +53,7 @@ class NewLocationPage extends React.Component {
             <AutoForm schema={formSchema} onSubmit={this.submit}>
               <Segment>
                 <AutoField name='slug'/>
-                <AutoField name='coordinates'/>
+                <AutoField name='coordinates' label='Coordinates (longitude, latitude)'/>
                 <AutoField name='description'/>
                 <SubmitField value='Submit'/>
                 <ErrorsField/>
