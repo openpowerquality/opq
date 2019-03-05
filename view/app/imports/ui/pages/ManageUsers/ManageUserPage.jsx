@@ -72,7 +72,9 @@ class ManageUserPage extends React.Component {
                   <Table.Cell>{user.role}</Table.Cell>
                   <Table.Cell>{Array.from(BoxOwners.findBoxIdsWithOwner(user.username)).join(', ')}</Table.Cell>
                   <Table.Cell>
-                    <Button size='tiny' as={Link} to={`/admin/manage/user/edit/${user._id}`}>Edit</Button>
+                    <Button size='tiny' as={Link} to={`/admin/manage/user/edit/${user._id.toHexString()}`}>
+                      Edit
+                    </Button>
                   </Table.Cell>
                   <Table.Cell>
                     <Button size='tiny' basic color='red' onClick={this.handleOpen}
