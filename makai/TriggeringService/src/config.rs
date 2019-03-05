@@ -1,4 +1,5 @@
 use serde_json::{from_reader, Value};
+use std::env;
 use std::fs::File;
 use std::path::Path;
 use uuid::Uuid;
@@ -40,5 +41,18 @@ impl Settings {
         }
         println!("Staring with identity: {}", settings.identity.clone().unwrap());
         Ok(settings)
+    }
+
+    pub fn load_from_env(env: &str) -> Result<Settings, String> {
+        let contents = env::var(env)
+            .or(Err("Could not parse config from environment."))?;
+        let mut settings: Settings = from_reader(contents.as_bytes())
+            .or(Err("Could not parse config file."))?;
+        if settings.identity.is_none() {
+            settings.identity = Some(Uuid::new_v4().to_string());
+        }
+        println!("Starting with identity: {}", settings.identity.clone().unwrap());
+        Ok(settings)
+
     }
 }

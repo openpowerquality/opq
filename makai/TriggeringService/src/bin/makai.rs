@@ -14,7 +14,6 @@ extern crate mongodb;
 
 use std::thread;
 use std::sync::Arc;
-use std::env;
 
 use triggering_service::config::Settings;
 use triggering_service::trigger_receiver::TriggerReceiver;
@@ -25,15 +24,11 @@ use triggering_service::mongo_metric_storage::MongoMetricStorage;
 
 
 fn main() {
-    let args: Vec<String> = env::args().collect();
-    let config_path = match args.len() {
-        0...1 => "makai.json",
-        _ => &args[1],
-    };
 
-    let settings = match Settings::load_from_file(config_path) {
+
+    let settings = match Settings::load_from_env("MAKAI_SETTINGS") {
         Ok(s) => {s},
-        Err(e) => {println!("Could not load a settings file {}: {}", config_path, e); return},
+        Err(e) => {println!("Could not load a settings file from the environment {}: {}", "MAKAI_SETTINGS", e); return},
     };
 
 
