@@ -92,9 +92,9 @@ RUN sccache --start-server                                      && \
 
 # Organize makai binaries and configurations
 RUN mkdir -p /build/conf                                                                            && \
-    cp /build/makai/AcquisitionBroker/acquisition_broker_config.json /build/conf                    && \
-    cp /build/makai/TriggeringBroker/triggering_broker_config.json /build/conf                      && \
-    cp /build/makai/TriggeringService/makai.json /build/conf                                        && \
+    cp /build/makai/config/acquisition_broker.config.json /build/conf                               && \
+    cp /build/makai/config/triggering_broker.config.json /build/conf                                && \
+    cp /build/makai/config/makai.config.json /build/conf                                            && \
     mkdir -p /build/bin                                                                             && \
     cp /build/makai/run-makai.sh /build/bin                                                         && \
     cp /build/makai/AcquisitionBroker/build/AcquisitionBroker /build/bin                            && \
