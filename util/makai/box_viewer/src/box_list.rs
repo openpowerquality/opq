@@ -1,9 +1,5 @@
-use std::io::Write;
-use mongodb::Client;
 use mongodb::ThreadedClient;
 use mongodb::db::ThreadedDatabase;
-use mongodb::gridfs::Store;
-use mongodb::gridfs::ThreadedStore;
 use mongodb::coll::options::FindOptions;
 use bson::*;
 

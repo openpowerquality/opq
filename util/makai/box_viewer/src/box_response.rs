@@ -1,6 +1,6 @@
 use zmq;
 use protobuf::{parse_from_bytes,ProtobufError};
-use crate::proto::opqbox3::{Response, Response_oneof_response};
+use crate::proto::opqbox3::{Response};
 use crate::config::Settings;
 
 
