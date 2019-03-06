@@ -21,7 +21,7 @@ digraph makai {
 
     OPQMauka -> TriggeringService [label=10000]
 
-    OPQMauka -> TriggeringService [label=9899]
+    OPQMauka -> AcquisitionBroker [label=9899]
 
     TriggeringService -> MongoDB [label=27017]
     MongoDB -> TriggeringService
