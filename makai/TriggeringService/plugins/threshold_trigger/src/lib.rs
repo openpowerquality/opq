@@ -259,7 +259,7 @@ impl ThresholdTriggerPlugin {
         cmd.set_identity(String::new());
         cmd.set_timestamp_ms(timestamp_ms());
         cmd.set_seq(0);
-        self.maybe_debug(trigger.box_id, &format!("Sending CMD {:?}", self.fsm));
+        self.maybe_debug(trigger.box_id, &format!("Sending CMD {:?}", cmd));
         return cmd;
     }
 
