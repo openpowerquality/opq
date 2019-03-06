@@ -26,7 +26,8 @@
       "voltage_threshold_percent_low": 0.05,
       "voltage_threshold_percent_high": 0.05,
       "thd_threshold_high": 0.05,
-      "debug": false
+      "debug": false,
+      "debug_devices": []
     }
   ]
 }
