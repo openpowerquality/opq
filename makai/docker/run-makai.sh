@@ -1,5 +1,5 @@
 #!/bin/bash
 
-/build/bin/AcquisitionBroker /build/conf/acquisition_broker.config.json &
-/build/bin/TriggeringBroker /build/conf/triggering_broker.config.json &
+/build/bin/AcquisitionBroker ACQUISITION_BROKER_SETTINGS &
+/build/bin/TriggeringBroker TRIGGERING_BROKER_SETTINGS &
 /build/bin/makai
