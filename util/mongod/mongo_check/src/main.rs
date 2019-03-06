@@ -4,11 +4,14 @@ extern crate rouille;
 #[macro_use]
 extern crate serde_derive;
 
+use std::time::{SystemTime};
 use mongodb::{Client, ThreadedClient, ClientOptions};
 
 #[derive(Serialize)]
 struct resp {
-    up: bool
+    up: bool,
+    name: String,
+    timestamp: SystemTime
 }
 
 fn main() {
@@ -17,7 +20,9 @@ fn main() {
         router!(request,
             (GET) (/) => {
                 let response = resp {
-                    up: mongo_is_up()
+                    up: mongo_is_up(),
+                    name: String::from("mongo"),
+                    timestamp: SystemTime::now()
                 };
                 rouille::Response::json(&response)
             },
