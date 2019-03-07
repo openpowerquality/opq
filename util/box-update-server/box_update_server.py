@@ -4,8 +4,10 @@ This module provides a pure Python HTTP server that acts as an OPQBox update ser
 
 import glob
 import http.server
+import json
 import logging
 import os.path
+import time
 import typing
 
 logging.basicConfig(level=logging.INFO)
@@ -64,6 +66,17 @@ def request_handler_factory(update_dir: str):
             self.send_header("Content-Type", "text/plain")
             self.end_headers()
             self.wfile.write(msg.encode("utf-8"))
+
+        def resp_json(self, msg: typing.Dict, code: int = 200):
+            """
+            Respond with json.
+            :param msg: A dictionary message to be serialized to json.
+            :param code: The HTTP status code (default 200).
+            """
+            self.send_response(code)
+            self.send_header("Content-Type", "application.json")
+            self.end_headers()
+            self.wfile.write(json.dumps(msg).encode("utf-8"))
 
         def resp_file(self, file_path: str):
             """
@@ -131,7 +144,12 @@ def request_handler_factory(update_dir: str):
             """
             path: str = self.path
             if path == "/":
-                self.resp_plain_text("")
+                self.resp_json({
+                    "name": "Box Update Server",
+                    "ok": True,
+                    "timestamp": int(time.time()),
+                    "subcomponents": []
+                })
             elif path == "/ls":
                 self.handle_ls()
             elif path == "/version":
