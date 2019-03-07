@@ -180,12 +180,13 @@ if __name__ == "__main__":
     """
     import sys
 
-    CONFIG = os.environ.get(BOX_UPDATE_SERVER_SETTINGS)
-    if CONFIG is None or len(CONFIG) == 0:
+    CONFIG_STR = os.environ.get(BOX_UPDATE_SERVER_SETTINGS)
+    if CONFIG_STR is None or len(CONFIG_STR) == 0:
         logging.error("Config could not be loaded from the environment @ %s.", BOX_UPDATE_SERVER_SETTINGS)
         sys.exit(1)
 
-    PORT: int = int(CONFIG["port"])
+    CONFIG = json.loads(CONFIG_STR)
+    PORT: int = CONFIG["port"]
     UPDATE_DIR: str = CONFIG["updates_dir"]
 
     if not os.path.isdir(UPDATE_DIR):
