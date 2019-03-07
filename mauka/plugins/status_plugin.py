@@ -57,7 +57,7 @@ def timestamp_s() -> int:
     """
     return int(time.time())
 
-# pylint: disable=C0103
+
 class StateComponent:
     """
     This class encapsulates the data required by OPQ Health.
@@ -72,11 +72,13 @@ class StateComponent:
         self.timestamp = timestamp
         self.subcomponents: typing.List['StateComponent'] = []
 
+    # pylint: disable=C0103
     def update(self, ok: bool = True):
         """
         Updates the state component with the latest timestamp and status.
         :param ok: An optional status (ok = True otherwise).
         """
+        # pylint: disable=C0103
         self.ok = ok
         self.timestamp = timestamp_s()
 
