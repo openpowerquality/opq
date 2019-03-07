@@ -23,31 +23,31 @@ import plugins.base_plugin
 import protobuf.util
 
 
-def fmt_list(l: typing.List) -> str:
+def fmt_list(values: typing.List) -> str:
     """
     Formats a list suitable for json.
     :param l: List to format.
     :return: A formatted list suitable for json.
     """
-    return "[%s]" % ", ".join(l)
+    return "[%s]" % ", ".join(values)
 
 
-def fmt_bool(b: bool) -> str:
+def fmt_bool(boolean: bool) -> str:
     """
     Formats a bool suitable for json.
     :param b: Bool to format.
     :return: A formatted bool suitable for json.
     """
-    return str(b).lower()
+    return str(boolean).lower()
 
 
-def fmt_str(s: str) -> str:
+def fmt_str(string: str) -> str:
     """
     Formats a str suitable for json.
     :param s: String to format.
     :return: A formatted string suitable for json.
     """
-    return '"%s"' % s
+    return '"%s"' % string
 
 
 def timestamp_s() -> int:
@@ -57,11 +57,12 @@ def timestamp_s() -> int:
     """
     return int(time.time())
 
-
+# pylint: disable=C0103
 class StateComponent:
     """
-    This class provides encapsulates the data required by OPQ Health.
+    This class encapsulates the data required by OPQ Health.
     """
+
     def __init__(self,
                  name: str,
                  ok: bool = True,
@@ -119,6 +120,7 @@ class HealthState:
         with self.lock:
             return self.state.as_json()
 
+    # pylint: disable=C0103
     def update(self, name: str, ok: bool = True):
         """
         Updates the health for a plugin at name.
