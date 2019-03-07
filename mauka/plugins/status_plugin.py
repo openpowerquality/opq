@@ -54,27 +54,19 @@ class HealthState:
         with self.lock:
             return json.dumps(self.state).encode()
 
-    def set_key(self, key, value):
-        """
-        Thread safe message for setting a key-pair value within this class.
-        :param key: The key to set.
-        :param value: The value to set.
-        """
-        with self.lock:
-            self.state[key] = value
-
-    def subcomponent(self, name: str) -> typing.Optional[StateComponent]:
-        with self.lock:
-            for component in self.state.subcomponents:
-                if component.name == name:
-                    return component
-
-            return None
 
     def update(self, name: str, ok: bool = True):
+        def subcomponent(name: str) -> typing.Optional[StateComponent]:
+            with self.lock:
+                for component in self.state.subcomponents:
+                    if component.name == name:
+                        return component
+
+                return None
+
         with self.lock:
             self.state.update()
-            component = self.subcomponent(name)
+            component = subcomponent(name)
             if component is not None:
                 component.update(ok)
             else:
