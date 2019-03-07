@@ -1,5 +1,0 @@
-#!/usr/bin/env bash
-
-cd ././../../../mauka/
-python3 -m analysis.ls_events "$@"
-cd -
