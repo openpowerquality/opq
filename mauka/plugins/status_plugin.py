@@ -68,6 +68,7 @@ class StateComponent:
                  ok: bool = True,
                  timestamp: int = timestamp_s()):
         self.name: str = name
+        # pylint: disable=C0103
         self.ok: bool = ok
         self.timestamp = timestamp
         self.subcomponents: typing.List['StateComponent'] = []
