@@ -185,7 +185,7 @@ if __name__ == "__main__":
         logging.error("Config could not be loaded from the environment @ %s.", BOX_UPDATE_SERVER_SETTINGS)
         sys.exit(1)
 
-    PORT: int = CONFIG["port"]
+    PORT: int = int(CONFIG["port"])
     UPDATE_DIR: str = CONFIG["updates_dir"]
 
     if not os.path.isdir(UPDATE_DIR):
