@@ -180,13 +180,13 @@ if __name__ == "__main__":
     """
     import sys
 
-    config = os.environ.get(BOX_UPDATE_SERVER_SETTINGS)
-    if config is None or len(config) == 0:
+    CONFIG = os.environ.get(BOX_UPDATE_SERVER_SETTINGS)
+    if CONFIG is None or len(CONFIG) == 0:
         logging.error("Config could not be loaded from the environment @ %s.", BOX_UPDATE_SERVER_SETTINGS)
         sys.exit(1)
 
-    PORT: int = config["port"]
-    UPDATE_DIR: str = config["updates_dir"]
+    PORT: int = CONFIG["port"]
+    UPDATE_DIR: str = CONFIG["updates_dir"]
 
     if not os.path.isdir(UPDATE_DIR):
         logging.warning("Update directory does not exist!")
