@@ -1,8 +1,17 @@
 """
 This module contains a plugin that reports and records the status of other plugins in the system
+
+OPQ Health requires a JSON response that has the format of:
+
+component = {
+    "name": str,
+    "ok": bool,
+    "timestamp": int,
+    "subcomponents": list[component]
+}
+
 """
 
-import json
 import http.server
 import multiprocessing
 import threading
@@ -14,41 +23,86 @@ import plugins.base_plugin
 import protobuf.util
 
 
+def fmt_list(l: typing.List) -> str:
+    """
+    Formats a list suitable for json.
+    :param l: List to format.
+    :return: A formatted list suitable for json.
+    """
+    return "[%s]" % ", ".join(l)
+
+
+def fmt_bool(b: bool) -> str:
+    """
+    Formats a bool suitable for json.
+    :param b: Bool to format.
+    :return: A formatted bool suitable for json.
+    """
+    return str(b).lower()
+
+
+def fmt_str(s: str) -> str:
+    """
+    Formats a str suitable for json.
+    :param s: String to format.
+    :return: A formatted string suitable for json.
+    """
+    return '"%s"' % s
+
+
 def timestamp_s() -> int:
+    """
+    Returns a timestamp as the number of seconds since the epoch.
+    :return: A timestamp as the number of seconds since the epoch.
+    """
     return int(time.time())
 
 
-class StateComponent(object):
+class StateComponent:
+    """
+    This class provides encapsulates the data required by OPQ Health.
+    """
     def __init__(self,
                  name: str,
                  ok: bool = True,
-                 timestamp: int = timestamp_s(),
-                 subcomponents: typing.List['StateComponent'] = []):
+                 timestamp: int = timestamp_s()):
         self.name: str = name
         self.ok: bool = ok
         self.timestamp = timestamp
-        self.subcomponents: typing.List['StateComponent'] = subcomponents
+        self.subcomponents: typing.List['StateComponent'] = []
 
-    def update(self, ok: bool = True) -> 'StateComponent':
+    def update(self, ok: bool = True):
+        """
+        Updates the state component with the latest timestamp and status.
+        :param ok: An optional status (ok = True otherwise).
+        """
         self.ok = ok
         self.timestamp = timestamp_s()
-        return self
 
-    def as_dict(self) -> typing.Dict:
-        subcomponents = []
-        for component in self.subcomponents:
-            subcomponents.append({
-                "name": component.name,
-                "ok": component.ok,
-                "timestamp": component.timestamp,
-                "subcomponents": []
-            })
-        return {
-            "name": self.name,
-            "ok": self.ok,
-            "timestamp": self.timestamp,
-            "subcomponents": subcomponents
-        }
+    def as_json(self) -> bytes:
+        """
+        Returns the recursive JSON representation of this object to feed to OPQ Health.
+        :return: The recursive JSON representation of this object to feed to OPQ Health.
+        """
+        def as_json_rec(state_component: 'StateComponent') -> str:
+            """
+            Recursive helper method for building JSON.
+            :param state_component: The state component to serialize.
+            :return: JSON representation of the state component.
+            """
+            if len(state_component.subcomponents) == 0:
+                return '{"name": %s, "ok": %s, "timestamp": %d, "subcomponents": []}' % (
+                    fmt_str(state_component.name),
+                    fmt_bool(state_component.ok),
+                    state_component.timestamp)
+
+            return '{"name": %s, "ok": %s, "timestamp": %d, "subcomponents": %s}' % (
+                fmt_str(state_component.name),
+                fmt_bool(state_component.ok),
+                state_component.timestamp,
+                fmt_list(list(map(as_json_rec, state_component.subcomponents))))
+
+        return as_json_rec(self).encode()
 
 
 class HealthState:
@@ -63,16 +117,26 @@ class HealthState:
         :return: Thread safe method that returns the current state as encoded bytes.
         """
         with self.lock:
-            return json.dumps(self.state.as_dict())
+            return self.state.as_json()
 
     def update(self, name: str, ok: bool = True):
-        def subcomponent(name: str) -> typing.Optional[StateComponent]:
-            with self.lock:
-                for comp in self.state.subcomponents:
-                    if comp.name == name:
-                        return comp
+        """
+        Updates the health for a plugin at name.
+        :param name: Name of the plugin.
+        :param ok: Plugin status.
+        """
 
-                return None
+        def subcomponent(name: str) -> typing.Optional[StateComponent]:
+            """
+            Returns a subcomponent in the first level of the state subcomponents.
+            :param name: Name of the plugin subcomponent.
+            :return: The subcomponent or None if it doesn't exist.
+            """
+            for comp in self.state.subcomponents:
+                if comp.name == name:
+                    return comp
+
+            return None
 
         with self.lock:
             self.state.update()
@@ -81,9 +145,6 @@ class HealthState:
                 component.update(ok)
             else:
                 self.state.subcomponents.append(StateComponent(name, ok))
-
-    def __str__(self):
-        return self.as_json()
 
 
 # pylint: disable=C0103
@@ -158,10 +219,3 @@ class StatusPlugin(plugins.base_plugin.MaukaPlugin):
         else:
             self.logger.error("Incorrect mauka message type [%s] for StatusPlugin",
                               protobuf.util.which_message_oneof(mauka_message))
-
-
-if __name__ == "__main__":
-    health_state = HealthState()
-    print(health_state.as_json())
-    health_state.update("foo")
-    print(health_state.as_json())
