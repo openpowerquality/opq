@@ -74,7 +74,7 @@ def request_handler_factory(update_dir: str):
             :param code: The HTTP status code (default 200).
             """
             self.send_response(code)
-            self.send_header("Content-Type", "application.json")
+            self.send_header("Content-Type", "application/json")
             self.end_headers()
             self.wfile.write(json.dumps(msg).encode("utf-8"))
 
