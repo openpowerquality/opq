@@ -18,8 +18,9 @@ def timestamp_s() -> int:
     return int(time.time())
 
 
-class StateComponent:
-    def __init__(self, name: str,
+class StateComponent(object):
+    def __init__(self,
+                 name: str,
                  ok: bool = True,
                  timestamp: int = timestamp_s(),
                  subcomponents: typing.List['StateComponent'] = []):
@@ -33,11 +34,21 @@ class StateComponent:
         self.timestamp = timestamp_s()
         return self
 
-    def as_json(self) -> str:
-        return json.dumps(self)
-
-    def __str__(self):
-        return self.as_json()
+    def as_dict(self) -> typing.Dict:
+        subcomponents = []
+        for component in self.subcomponents:
+            subcomponents.append({
+                "name": component.name,
+                "ok": component.ok,
+                "timestamp": component.timestamp,
+                "subcomponents": []
+            })
+        return {
+            "name": self.name,
+            "ok": self.ok,
+            "timestamp": self.timestamp,
+            "subcomponents": subcomponents
+        }
 
 
 class HealthState:
@@ -52,15 +63,14 @@ class HealthState:
         :return: Thread safe method that returns the current state as encoded bytes.
         """
         with self.lock:
-            return json.dumps(self.state).encode()
-
+            return json.dumps(self.state.as_dict())
 
     def update(self, name: str, ok: bool = True):
         def subcomponent(name: str) -> typing.Optional[StateComponent]:
             with self.lock:
-                for component in self.state.subcomponents:
-                    if component.name == name:
-                        return component
+                for comp in self.state.subcomponents:
+                    if comp.name == name:
+                        return comp
 
                 return None
 
@@ -71,7 +81,6 @@ class HealthState:
                 component.update(ok)
             else:
                 self.state.subcomponents.append(StateComponent(name, ok))
-
 
     def __str__(self):
         return self.as_json()
@@ -149,3 +158,10 @@ class StatusPlugin(plugins.base_plugin.MaukaPlugin):
         else:
             self.logger.error("Incorrect mauka message type [%s] for StatusPlugin",
                               protobuf.util.which_message_oneof(mauka_message))
+
+
+if __name__ == "__main__":
+    health_state = HealthState()
+    print(health_state.as_json())
+    health_state.update("foo")
+    print(health_state.as_json())
