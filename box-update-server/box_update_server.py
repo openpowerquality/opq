@@ -6,11 +6,14 @@ import glob
 import http.server
 import json
 import logging
+import os
 import os.path
 import time
 import typing
 
 logging.basicConfig(level=logging.INFO)
+
+BOX_UPDATE_SERVER_SETTINGS = "BOX_UPDATE_SERVER_SETTINGS"
 
 
 def request_handler_factory(update_dir: str):
@@ -168,7 +171,7 @@ def usage():
     """
     Logs the usage of this server.
     """
-    logging.info("usage: python3 box_update_server.py [port] [update directory]")
+    logging.info("usage: python3 box_update_server.py")
 
 
 if __name__ == "__main__":
@@ -177,19 +180,13 @@ if __name__ == "__main__":
     """
     import sys
 
-    if len(sys.argv) != 3:
-        logging.warning("Incorrect number of args supplied.")
-        usage()
+    config = os.environ.get(BOX_UPDATE_SERVER_SETTINGS)
+    if config is None or len(config) == 0:
+        logging.error("Config could not be loaded from the environment @ %s.", BOX_UPDATE_SERVER_SETTINGS)
         sys.exit(1)
 
-    try:
-        PORT = int(sys.argv[1])
-    except ValueError:
-        logging.warning("Port is not a valid integer.")
-        usage()
-        sys.exit(1)
-
-    UPDATE_DIR = sys.argv[2]
+    PORT: int = config["port"]
+    UPDATE_DIR: str = config["updates_dir"]
 
     if not os.path.isdir(UPDATE_DIR):
         logging.warning("Update directory does not exist!")
