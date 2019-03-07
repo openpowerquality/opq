@@ -28,7 +28,7 @@ logger = log.get_logger(__name__)
 
 def usage():
     """Displays usage information"""
-    logger.info("Usage: ./opq_mauka.py [config file]")
+    logger.info("Usage: ./opq_mauka.py")
 
 
 def main():

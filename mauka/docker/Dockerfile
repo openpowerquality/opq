@@ -27,4 +27,4 @@ EXPOSE 9883
 # Makai push interface
 EXPOSE 9884
 
-CMD ["python3", "mauka/opq_mauka.py", "mauka/config.json"]
+CMD ["python3", "mauka/opq_mauka.py"]
