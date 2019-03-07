@@ -1,8 +1,12 @@
-FROM mauka-deps
+FROM python:3.7-slim-stretch
 
-WORKDIR /opq
+WORKDIR /build
 
-ADD . /opq
+ADD build /build
+
+# Some of the requirements depend on numpy to be installed first (looking at you Pandas)
+RUN pip3 install --no-cache --trusted-host pypi.python.org numpy && \
+    pip3 install --no-cache --trusted-host pypi.python.org -r mauka/requirements.txt
 
 # Health interface
 EXPOSE 8911
