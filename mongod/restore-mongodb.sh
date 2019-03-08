@@ -10,4 +10,4 @@ PATH_TO_ARCHIVE=${1}
 # Dump the database. The resulting archive will be in /var/bak on the host machine.do
 docker pull mongo:4.0.5
 docker tag mongo:4.0.5 bak-mongo
-docker run -it -v /var/bak:/bak --net opq-docker_default --link opq-mongo:bak-mongo --rm mongo mongorestore --host mongo --db opq --gzip --archive=${PATH_TO_ARCHIVE} --host mongo
+docker run -it -v /var/bak:/bak --net opq-docker_default --link opq-mongo:bak-mongo --rm mongo mongorestore --host mongo --db opq --gzip --archive=${PATH_TO_ARCHIVE}
