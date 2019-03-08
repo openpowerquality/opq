@@ -2,7 +2,7 @@
 
 # This script will upload the latest OPQ dump to Google Drive and then delete all old backups.
 
-BACKUPS_DIR=/home/opquser/backups
+BACKUPS_DIR=/var/bak
 
 cd ${BACKUPS_DIR}
 
