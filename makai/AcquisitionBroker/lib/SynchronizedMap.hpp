@@ -14,12 +14,15 @@ class SynchronizedMap {
 			return _map.insert(pair);
 		};
 		auto erase(T key) {
+			std::lock_guard<std::mutex> lock(_mtx);
 			return _map.erase(key);
 		};
 		auto find(T key) {
+			std::lock_guard<std::mutex> lock(_mtx);
 			return _map.find(key);
 		};
 		auto end() {
+			std::lock_guard<std::mutex> lock(_mtx);
 			return _map.end();
 		};
 	private:
