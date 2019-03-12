@@ -37,6 +37,7 @@ class NavBar extends React.Component {
                 <Dropdown text="Inspector" pointing="top left" style={divStyle}>
                   <Dropdown.Menu>
                     <Dropdown.Item key="EventInspectorPage" text="Events" as={NavLink} exact to="/inspector/event"/>
+                    <Dropdown.Item key="IncidentInspectorPage" text="Incidents" as={NavLink} exact to="/inspector/incident"/>
                   </Dropdown.Menu>
                 </Dropdown>
               </Menu.Item>
