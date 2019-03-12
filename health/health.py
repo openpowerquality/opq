@@ -233,11 +233,10 @@ def check_mauka(config):
                 response = req.get(config['url'])
             status = response.status_code
             if status == 200:
-                mauka_plugins = response.json()
-                check_mauka_plugins(config['plugins'], mauka_plugins)
+                message = get_msg_as_json('MAUKA', '', 'UP')
             else:
                 message = get_msg_as_json('MAUKA', '', 'DOWN', status)
-                save_message(message)
+            save_message(message)
         except Exception as e:
             message = get_msg_as_json('MAUKA', '', 'DOWN', str(e))
             save_message(message)
