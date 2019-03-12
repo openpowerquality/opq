@@ -4,11 +4,16 @@ This module provides a pure Python HTTP server that acts as an OPQBox update ser
 
 import glob
 import http.server
+import json
 import logging
+import os
 import os.path
+import time
 import typing
 
 logging.basicConfig(level=logging.INFO)
+
+BOX_UPDATE_SERVER_SETTINGS = "BOX_UPDATE_SERVER_SETTINGS"
 
 
 def request_handler_factory(update_dir: str):
@@ -64,6 +69,17 @@ def request_handler_factory(update_dir: str):
             self.send_header("Content-Type", "text/plain")
             self.end_headers()
             self.wfile.write(msg.encode("utf-8"))
+
+        def resp_json(self, msg: typing.Dict, code: int = 200):
+            """
+            Respond with json.
+            :param msg: A dictionary message to be serialized to json.
+            :param code: The HTTP status code (default 200).
+            """
+            self.send_response(code)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(json.dumps(msg).encode("utf-8"))
 
         def resp_file(self, file_path: str):
             """
@@ -131,7 +147,12 @@ def request_handler_factory(update_dir: str):
             """
             path: str = self.path
             if path == "/":
-                self.resp_plain_text("")
+                self.resp_json({
+                    "name": "Box Update Server",
+                    "ok": True,
+                    "timestamp": int(time.time()),
+                    "subcomponents": []
+                })
             elif path == "/ls":
                 self.handle_ls()
             elif path == "/version":
@@ -150,7 +171,7 @@ def usage():
     """
     Logs the usage of this server.
     """
-    logging.info("usage: python3 box_update_server.py [port] [update directory]")
+    logging.info("usage: python3 box_update_server.py")
 
 
 if __name__ == "__main__":
@@ -159,19 +180,14 @@ if __name__ == "__main__":
     """
     import sys
 
-    if len(sys.argv) != 3:
-        logging.warning("Incorrect number of args supplied.")
-        usage()
+    CONFIG_STR = os.environ.get(BOX_UPDATE_SERVER_SETTINGS)
+    if CONFIG_STR is None or len(CONFIG_STR) == 0:
+        logging.error("Config could not be loaded from the environment @ %s.", BOX_UPDATE_SERVER_SETTINGS)
         sys.exit(1)
 
-    try:
-        PORT = int(sys.argv[1])
-    except ValueError:
-        logging.warning("Port is not a valid integer.")
-        usage()
-        sys.exit(1)
-
-    UPDATE_DIR = sys.argv[2]
+    CONFIG = json.loads(CONFIG_STR)
+    PORT: int = CONFIG["port"]
+    UPDATE_DIR: str = CONFIG["updates_dir"]
 
     if not os.path.isdir(UPDATE_DIR):
         logging.warning("Update directory does not exist!")
