@@ -151,6 +151,9 @@ class HealthState:
             else:
                 self.state.subcomponents.append(StateComponent(name, ok))
 
+    def __str__(self):
+        return self.as_json().decode()
+
 
 # pylint: disable=C0103
 health_state: HealthState = HealthState()
