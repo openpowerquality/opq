@@ -4,4 +4,4 @@
 # local backup. This allows us to always have one local backup on the server and the previous day's backup
 # "in the cloud".
 
-./upload-and-prune.sh && ./backup-mongodb.sh
+. /home/opquser/backup/upload-and-prune.sh && . /home/opquser/backup-mongodb.sh
