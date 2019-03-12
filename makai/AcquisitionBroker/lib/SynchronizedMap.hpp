@@ -19,12 +19,13 @@ class SynchronizedMap {
 		};
 		auto find(T key) {
 			std::lock_guard<std::mutex> lock(_mtx);
-			return _map.find(key);
+			return _map.find(key)->second;
 		};
-		auto end() {
-			std::lock_guard<std::mutex> lock(_mtx);
-			return _map.end();
-		};
+		auto contains(T key) {
+            std::lock_guard<std::mutex> lock(_mtx);
+            return _map.find(key) != _map.end();
+		}
+
 	private:
 		std::mutex _mtx;
 		std::unordered_map<T, U> _map;
