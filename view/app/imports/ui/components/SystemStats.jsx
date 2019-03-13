@@ -1,5 +1,5 @@
 import React from 'react';
-import { Loader, Statistic, Header, Segment } from 'semantic-ui-react';
+import { Loader, Statistic, Header, Segment, Grid, List} from 'semantic-ui-react';
 import Moment from 'moment';
 import { Meteor } from 'meteor/meteor';
 import PropTypes from 'prop-types';
@@ -12,7 +12,7 @@ import { SystemStats } from '../../api/system-stats/SystemStatsCollection';
  * @param num
  * @returns A string with the number formatted.
  */
-function formatted(num) {
+function formatted(num = 0) {
   // Numbers less than 1,000 are just what they are.
   if (num < 1000) {
     return `${num}`;
@@ -48,40 +48,46 @@ class SystemStatistics extends React.Component {
 
   /** Here's the system stats page. */
   renderPage() { // eslint-disable-line class-methods-use-this
-
-    const missingStats = {
-      events_count: 0, box_events_count: 0, measurements_count: 0, opq_boxes_count: 0,
-      trends_count: 0, users_count: 0,
-    };
-    const stat = this.props.stats[0] || missingStats;
+    const stat = this.props.stats[0];
     const headerStyle = { textAlign: 'center' };
     const footerStyle = { textAlign: 'center', paddingTop: '10px' };
-    const toDateItems = [
-      { key: '1', label: 'Trends', value: formatted(stat.trends_count) },
-      { key: '2', label: 'Events', value: formatted(stat.events_count) },
-      { key: '3', label: 'Measures', value: formatted(stat.measurements_count) },
+    const toDates = [
+      { label: 'phenomena', value: formatted(stat.phenomena_count) },
+      { label: 'incidents', value: formatted(stat.incidents_count) },
+      { label: 'events', value: formatted(stat.events_count) },
+      { label: 'trends', value: formatted(stat.trends_count) },
+      { label: 'measurements', value: formatted(stat.measurements_count) },
     ];
-    const todayItems = [
-      { key: '1', label: 'Trends', value: formatted(stat.trends_count_today) },
-      { key: '2', label: 'Events', value: formatted(stat.events_count_today) },
-      { key: '3', label: 'Measures', value: stat.measurements_count_today },
+    const todays = [
+      { label: 'phenomena', value: formatted(stat.phenomena_count_today) },
+      { label: 'incidents', value: formatted(stat.incidents_count_today) },
+      { label: 'events', value: formatted(stat.events_count_today) },
+      { label: 'trends', value: formatted(stat.trends_count_today) },
+      { label: 'measurements', value: formatted(stat.measurements_count_today) },
     ];
     const divStyle = { paddingLeft: '10px', paddingRight: '10px' };
     const divStyle2 = { paddingLeft: '10px', paddingRight: '10px', marginTop: '5px' };
+    const statStyle = { paddingBottom: '10px'};
     return (
       <WidgetPanel title="System Stats" helpText={this.helpText}>
-        <div style={divStyle}>
-          <Segment>
-            <Header as='h4' style={headerStyle}>To Date</Header>
-            <Statistic.Group widths={3} size="mini" color="blue" items={toDateItems}/>
-          </Segment>
-        </div>
-        <div style={divStyle2}>
-          <Segment>
-            <Header as='h4' style={headerStyle}>Today</Header>
-            <Statistic.Group widths={3} size="mini" color="blue" items={todayItems}/>
-          </Segment>
-        </div>
+        <Grid container columns="two">
+          <Grid.Column textAlign="center">
+            <Grid.Row centered><Header as='h3' style={statStyle}>Today</Header></Grid.Row>
+            <Grid.Row centered><Statistic value={todays[0].value} label={todays[0].label} size="mini" color="blue" style={statStyle}/></Grid.Row>
+            <Grid.Row centered><Statistic value={todays[1].value} label={todays[1].label} size="mini" color="blue" style={statStyle}/></Grid.Row>
+            <Grid.Row centered><Statistic value={todays[2].value} label={todays[2].label} size="mini" color="blue" style={statStyle}/></Grid.Row>
+            <Grid.Row centered><Statistic value={todays[3].value} label={todays[3].label} size="mini" color="blue" style={statStyle}/></Grid.Row>
+            <Grid.Row centered><Statistic value={todays[4].value} label={todays[4].label} size="mini" color="blue" style={statStyle}/></Grid.Row>
+          </Grid.Column>
+          <Grid.Column textAlign="center">
+            <Grid.Row centered><Header as='h3' style={statStyle}>To Date</Header></Grid.Row>
+            <Grid.Row centered><Statistic value={toDates[0].value} label={toDates[0].label} size="mini" color="blue" style={statStyle}/></Grid.Row>
+            <Grid.Row centered><Statistic value={toDates[1].value} label={toDates[1].label} size="mini" color="blue" style={statStyle}/></Grid.Row>
+            <Grid.Row centered><Statistic value={toDates[2].value} label={toDates[2].label} size="mini" color="blue" style={statStyle}/></Grid.Row>
+            <Grid.Row centered><Statistic value={toDates[3].value} label={toDates[3].label} size="mini" color="blue" style={statStyle}/></Grid.Row>
+            <Grid.Row centered><Statistic value={toDates[4].value} label={toDates[4].label} size="mini" color="blue" style={statStyle}/></Grid.Row>
+          </Grid.Column>
+        </Grid>
         <p style={footerStyle}>Last update: {Moment(stat.timestamp).format('MMMM Do YYYY, h:mm:ss a')}</p>
       </WidgetPanel>
     );
