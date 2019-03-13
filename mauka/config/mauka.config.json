@@ -44,5 +44,7 @@
   "plugins.ThdPlugin.threshold.percent": 5.0,
   "plugins.ThdPlugin.window.size.ms": 200,
 
-  "plugins.StatusPlugin.port": 8911
+  "plugins.StatusPlugin.port": 8911,
+
+  "plugins.SystemStatsPlugin.intervalS": 3600
 }
