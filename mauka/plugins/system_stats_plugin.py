@@ -48,7 +48,43 @@ class SystemStatsPlugin(plugins.base_plugin.MaukaPlugin):
         """
         stats = {
             "timestamp_s": timestamp(),
-            "plugin_stats": self.plugin_stats
+            "plugin_stats": self.plugin_stats,
+            "system_stats": {
+                "cpu_load": [],
+                "memory_use_bytes": 0,
+                "disk_use_bytes": 0
+            },
+            "laha_stats": {
+                "instantaneous_measurements_stats": {
+                    "count": 0,
+                    "size_bytes": 0
+                },
+                "aggregate_measurements_stats": {
+                    "measurements": {
+                        "count": 0,
+                        "size_bytes": 0
+                    },
+                    "trends": {}
+                },
+                "detections_stats": {
+                    "events": {
+                        "count": 0,
+                        "size_bytes": 0
+                    }
+                },
+                "incidents_stats": {
+                    "incidents": {
+                        "count": 0,
+                        "size_bytes": 0
+                    }
+                },
+                "phenomena_stats": {
+                    "phenomena": {
+                        "count": 0,
+                        "size_bytes": 0
+                    }
+                }
+            }
         }
         self.mongo_client.laha_stats_collection.insert_one(stats)
         timer = threading.Timer(interval_s, self.collect_stats, args=[interval_s])
