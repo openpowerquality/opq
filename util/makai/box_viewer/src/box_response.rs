@@ -39,7 +39,6 @@ impl BoxResponse {
                             print!("{} ", addr.to_string())
                         }
                     }
-                    print!("{:?}", bit);
                 }
                 println!();
             }
