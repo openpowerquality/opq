@@ -52,6 +52,7 @@ class Collection(enum.Enum):
     OPQ_BOXES = "opq_boxes"
     INCIDENTS = "incidents"
     HEALTH = "health"
+    LAHA_STATS = "laha_stats"
 
 
 class OpqMongoClient:
@@ -90,6 +91,8 @@ class OpqMongoClient:
         "Incidents collection"
 
         self.health_collection = self.get_collection(Collection.HEALTH.value)
+
+        self.laha_stats_collection = self.get_collection(Collection.LAHA_STATS.value)
 
     def get_collection(self, collection: str):
         """ Returns a mongo collection by name
