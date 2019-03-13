@@ -8,6 +8,7 @@ import time
 import typing
 
 import config
+import mongo
 import plugins.base_plugin
 import protobuf.mauka_pb2
 import protobuf.util
@@ -61,28 +62,37 @@ class SystemStatsPlugin(plugins.base_plugin.MaukaPlugin):
                 },
                 "aggregate_measurements_stats": {
                     "measurements": {
-                        "count": 0,
-                        "size_bytes": 0
+                        "count": self.mongo_client.measurements_collection.count(),
+                        "size_bytes": self.mongo_client.get_collection_size_bytes(mongo.Collection.MEASUREMENTS)
                     },
-                    "trends": {}
+                    "trends": {
+                        "count": self.mongo_client.trends_collection.count(),
+                        "size_bytes": self.mongo_client.get_collection_size_bytes(mongo.Collection.TRENDS)
+                    }
                 },
                 "detections_stats": {
                     "events": {
-                        "count": 0,
+                        "count": self.mongo_client.events_collection.count(),
                         "size_bytes": 0
                     }
                 },
                 "incidents_stats": {
                     "incidents": {
-                        "count": 0,
+                        "count": self.mongo_client.incidents_collection.count(),
                         "size_bytes": 0
                     }
                 },
                 "phenomena_stats": {
                     "phenomena": {
-                        "count": 0,
+                        "count": self.mongo_client.phenomena_collection.count(),
                         "size_bytes": 0
                     }
+                }
+            },
+            "other_stats": {
+                "ground_truth": {
+                    "count": self.mongo_client.ground_truth_collection.count(),
+                    "size_bytes": self.mongo_client.get_collection_size_bytes(mongo.Collection.GROUND_TRUTH)
                 }
             }
         }
