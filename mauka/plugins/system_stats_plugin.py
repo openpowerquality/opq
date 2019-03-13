@@ -54,7 +54,7 @@ class SystemStatsPlugin(plugins.base_plugin.MaukaPlugin):
         timer = threading.Timer(interval_s, self.collect_stats, args=[interval_s])
         timer.start()
 
-    def on_message(self, topic, mauka_message):
+    def on_message(self, topic: str, mauka_message: protobuf.mauka_pb2.MaukaMessage):
         """
         Called async when a topic this plugin subscribes to produces a message
         :param topic: The topic that is producing the message
