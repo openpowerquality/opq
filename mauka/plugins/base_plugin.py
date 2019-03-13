@@ -33,11 +33,14 @@ class PluginStats:
 
     def update_received(self, bytes_received: int):
         self.messages_received += 1
-        self.bytes_received += 1
+        self.bytes_received += bytes_received
 
     def update_published(self, bytes_published: int):
         self.messages_published += 1
         self.bytes_published += bytes_published
+
+    def __str__(self):
+        return json.dumps(self.__dict__)
 
 
 def run_plugin(plugin_class, conf: config.MaukaConfig):
@@ -168,7 +171,7 @@ class MaukaPlugin:
         """ Return the status of this plugin
         :return: The status of this plugin
         """
-        return "N/A"
+        return str(self.plugin_stats)
 
     def get_mongo_client(self):
         """ Returns an OPQ mongo client
