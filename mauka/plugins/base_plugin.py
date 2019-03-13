@@ -171,10 +171,10 @@ class MaukaPlugin:
         """ Return the status of this plugin
         :return: The status of this plugin
         """
-        return str({"messages_received": self.messages_received,
-                    "messages_published": self.messages_published,
-                    "bytes_received": self.bytes_received,
-                    "bytes_published": self.bytes_published})
+        return json.dumps({"messages_received": self.messages_received,
+                           "messages_published": self.messages_published,
+                           "bytes_received": self.bytes_received,
+                           "bytes_published": self.bytes_published})
 
     def get_mongo_client(self):
         """ Returns an OPQ mongo client

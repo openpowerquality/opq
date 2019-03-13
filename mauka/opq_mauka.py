@@ -51,8 +51,13 @@ def main():
     plugin_manager.register_plugin(plugins.outage_plugin.OutagePlugin)
     plugin_manager.register_plugin(plugins.system_stats_plugin.SystemStatsPlugin)
 
-    broker_process = services.brokers.start_mauka_pub_sub_broker(conf)
-    makai_bridge_event_process = services.brokers.start_makai_event_bridge(conf)
+    broker_process = None
+    makai_bridge_event_process = None
+    if conf.get("mauka.startPubSubBroker"):
+        broker_process = services.brokers.start_mauka_pub_sub_broker(conf)
+
+    if conf.get("mauka.startEventBroker"):
+        makai_bridge_event_process = services.brokers.start_makai_event_bridge(conf)
 
     # start-stop-daemon sends a SIGTERM, we need to handle it to gracefully shutdown mauka
     def sigterm_handler(signum, frame):
@@ -62,18 +67,25 @@ def main():
         :param frame: Frame of signal.
         """
         logger.info("Received exit signal %s %s", str(signum), str(frame))
-        plugin_manager.clean_exit()
+        if conf.get("mauka.startPlugins"):
+            plugin_manager.clean_exit()
 
     signal.signal(signal.SIGTERM, sigterm_handler)
     signal.signal(signal.SIGINT, sigterm_handler)
 
     try:
-        plugin_manager.run_all_plugins()
-        plugin_manager.start_tcp_server()
-        logger.info("Killing broker process")
-        broker_process.terminate()
-        logger.info("Killing makai event bridge process")
-        makai_bridge_event_process.terminate()
+        if conf.get("mauka.startPlugins"):
+            plugin_manager.run_all_plugins()
+            plugin_manager.start_tcp_server()
+
+        if broker_process is not None:
+            logger.info("Killing broker process")
+            broker_process.terminate()
+
+        if makai_bridge_event_process is not None:
+            logger.info("Killing makai event bridge process")
+            makai_bridge_event_process.terminate()
+
         logger.info("Goodbye")
         sys.exit(0)
     except KeyboardInterrupt:

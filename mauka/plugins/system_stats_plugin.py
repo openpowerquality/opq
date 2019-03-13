@@ -38,8 +38,8 @@ class SystemStatsPlugin(plugins.base_plugin.MaukaPlugin):
         self.plugin_stats: typing.Dict[str, typing.Dict[str, int]] = {}
 
         # Start stats collection
-        # timer = threading.Timer(self.interval_s, self.collect_stats, args=[self.interval_s])
-        # timer.start()
+        timer = threading.Timer(self.interval_s, self.collect_stats, args=[self.interval_s])
+        timer.start()
 
     def collect_stats(self, interval_s: int):
         """
