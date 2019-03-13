@@ -64,4 +64,4 @@ class SystemStatsPlugin(plugins.base_plugin.MaukaPlugin):
             self.plugin_stats[mauka_message.source] = json.loads(mauka_message.heartbeat.status)
         else:
             self.logger.error("Received incorrect mauka message [%s] at %s",
-                              (protobuf.util.which_message_oneof(mauka_message), SystemStatsPlugin.NAME))
+                              protobuf.util.which_message_oneof(mauka_message), SystemStatsPlugin.NAME)

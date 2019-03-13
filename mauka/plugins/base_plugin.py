@@ -25,6 +25,9 @@ logger = log.get_logger(__name__)
 
 
 class PluginStats:
+    """
+    This class encapsulates statistics for a plugin.
+    """
     def __init__(self):
         self.messages_received: int = 0
         self.messages_published: int = 0
@@ -32,10 +35,18 @@ class PluginStats:
         self.bytes_published: int = 0
 
     def update_received(self, bytes_received: int):
+        """
+        Update received statistics.
+        :param bytes_received: Number of bytes received.
+        """
         self.messages_received += 1
         self.bytes_received += bytes_received
 
     def update_published(self, bytes_published: int):
+        """
+        Update published statistics.
+        :param bytes_published: Number of bytes published.
+        """
         self.messages_published += 1
         self.bytes_published += bytes_published
 
