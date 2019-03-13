@@ -28,6 +28,7 @@ class PluginStats:
     """
     This class encapsulates statistics for a plugin.
     """
+    
     def __init__(self):
         self.messages_received: int = 0
         self.messages_published: int = 0
