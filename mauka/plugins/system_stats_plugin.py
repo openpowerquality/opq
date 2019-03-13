@@ -33,7 +33,7 @@ class SystemStatsPlugin(plugins.base_plugin.MaukaPlugin):
         :param conf: Configuration dictionary
         :param exit_event: Exit event
         """
-        super().__init__(conf, [""], SystemStatsPlugin.NAME, exit_event)
+        super().__init__(conf, ["heartbeat"], SystemStatsPlugin.NAME, exit_event)
         self.interval_s = conf.get("plugins.SystemStatsPlugin.intervalS")
         self.plugin_stats: typing.Dict[str, typing.Dict[str, int]] = {}
 
