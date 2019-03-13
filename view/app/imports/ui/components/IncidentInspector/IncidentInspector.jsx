@@ -39,7 +39,7 @@ class IncidentInspector extends React.Component {
         if (urlQueryObj) {
             // If startTime and endTime url params are not specified, will by default use the values set in constructor.
             // This also makes it much simpler to internally link to the inspector, as we only need to specify the
-            // boxes parameter in the url; the startTime and endTime params will automatically be created w/ default values.
+            // boxes parameter in the url; the startTime and endTime params will be created w/ default values.
             this.setState({
                 selectedBoxes: urlQueryObj.boxes.split(','),
                 start: urlQueryObj.startTime || start,
@@ -55,7 +55,7 @@ class IncidentInspector extends React.Component {
   
   <p>Boxes: select one or more boxes whose incidents you are interested in.</p>
   
-  <p>You can view more information about the incident, including incident waveforms, by clicking the "Details" button</p>
+  <p>You can view information about the incident, including incident waveforms, by clicking the "Details" button</p>
   `;
 
     /**
@@ -197,7 +197,7 @@ class IncidentInspector extends React.Component {
                     endTime_ms,
                 },
                 (error, incidents) => {
-                    // Calculate and add a 'duration' property for each incident. This is necessary because we want to be able to
+                    // Calculate and add a 'duration' property for each incident. This is because we want to be able to
                     // sort on the duration field (otherwise we could've just calculated duration in the render method).
                     const incidentsWithDuration = incidents.map(incident => {
                         // eslint-disable-next-line no-param-reassign

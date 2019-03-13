@@ -103,7 +103,7 @@ class SystemStatistics extends React.Component {
 
   /** Here's the system stats page. */
   renderPage() { // eslint-disable-line class-methods-use-this
-    const stat = this.props.stats[0];
+    const stat = this.props.stats[0] || {};
     const footerStyle = { textAlign: 'center', paddingTop: '10px' };
     return (
       <WidgetPanel title="System Stats" helpText={this.helpText}>

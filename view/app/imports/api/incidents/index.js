@@ -1,2 +1,2 @@
-import './IncidentsCollection.js'
-import './IncidentsCollection.methods.js'
+import './IncidentsCollection.js';
+import './IncidentsCollection.methods.js';

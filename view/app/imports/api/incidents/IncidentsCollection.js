@@ -1,5 +1,3 @@
-import { Meteor } from 'meteor/meteor';
-import { check, Match } from 'meteor/check';
 import SimpleSchema from 'simpl-schema';
 import moment from 'moment/moment';
 import BaseCollection from '../base/BaseCollection.js';
@@ -43,8 +41,8 @@ class IncidentsCollection extends BaseCollection {
      * @param {Object[]} measurements - Copied from event.
      * @param {String} gridfs_filename - Filename of trimmed waveform copied from event.
      * @param {String[]} classifications - List of classifications that can be applied to Incident.
-     * @param {String} ieee_duration - A string indicating one of the standard IEEE durations associated with this Incident.
-     * @param {String[]} annotations - 	List of annotations associated with this Incident
+     * @param {String} ieee_duration - A string indicating one of the IEEE durations associated with this Incident.
+     * @param {String[]} annotations - List of annotations associated with this Incident
      * @param {Object} metadata - Key-Value pairs providing meta-data for this Incident.
      * @returns The newly created document ID.
      */
