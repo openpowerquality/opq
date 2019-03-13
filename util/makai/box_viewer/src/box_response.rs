@@ -1,8 +1,9 @@
 use zmq;
 use protobuf::{parse_from_bytes,ProtobufError};
-use crate::proto::opqbox3::{Response};
+use crate::proto::opqbox3::{Response, Response_oneof_response};
 use crate::config::Settings;
-
+use std::net::IpAddr;
+use std::str::FromStr;
 
 pub struct BoxResponse{
     acq_broker : zmq::Socket,
@@ -29,7 +30,23 @@ impl BoxResponse {
                 continue
             };
             let response = response_result.unwrap();
-            print!("{:#?}", response);
+            if let Response_oneof_response::info_response(info) = &response.response.unwrap() {
+                print!("Box {} : ", response.box_id);
+                let bits : Vec<&str> = info.ip.split("\n").collect();
+                for bit in bits {
+                    match IpAddr::from_str(bit){
+                        Ok(addr) => {
+                            if addr.is_ipv4() && !addr.is_loopback(){
+                                print!("{:?} ", addr)
+                            }
+                        },
+                        Err(_) => {},
+                    }
+                    print!("{:?}", bit);
+                }
+                println!();
+            }
+
         }
     }
 }
