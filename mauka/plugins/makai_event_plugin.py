@@ -182,6 +182,9 @@ def acquire_data(mongo_client: mongo.OpqMongoClient,
                              (event_id, box_id, len(waveform)))
 
     box_id = box_event["box_id"]
+    makai_event_plugin.debug("box_id={} and type={}".format(box_id, type(box_id)))
+    calibration_constant = mongo.cached_calibration_constant(box_id)
+    makai_event_plugin.debug("calibration_constant=%f" % calibration_constant)
     waveform_calibrated = waveform / mongo.cached_calibration_constant(box_id)
 
     makai_event_plugin.debug("Loaded calibrated waveform for event_id=%s box_id=%s with len=%d" %

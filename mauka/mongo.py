@@ -187,7 +187,7 @@ def get_waveform(mongo_client: OpqMongoClient, data_fs_filename: str) -> numpy.n
 
 
 def get_box_calibration_constants(mongo_client: OpqMongoClient = None, defaults=None) -> \
-        typing.Dict[int, float]:
+        typing.Dict[str, float]:
     """
     Loads calibration constants from the mongo database a a dictionary from box id to calibration constant.
     Default values can be passed in if needed.
@@ -411,7 +411,7 @@ def get_location(box_id: str, opq_mongo_client: OpqMongoClient) -> str:
     return box["location"]
 
 
-def get_calibration_constant(box_id: int) -> float:
+def get_calibration_constant(box_id: str) -> float:
     """
     Return the calibration constant for a specified box id.
     :param box_id: The box id to query
@@ -458,3 +458,6 @@ def object_id(oid: str) -> bson.objectid.ObjectId:
     :return: ObjectId from string
     """
     return bson.objectid.ObjectId(oid)
+
+if __name__ == "__main__":
+    print(cached_calibration_constant("1003"))
