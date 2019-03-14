@@ -255,7 +255,7 @@ class MaukaPlugin:
         Prints a debug message using this classes logger and formatted the plugin name.
         :param msg: Message to print to debug.
         """
-        if self.mauka_debug:
+        if self.config.debug_plugin(self.name):
             self.logger.debug("%s\n%s", self.name, msg)
 
     def run_plugin(self):
