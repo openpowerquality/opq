@@ -60,7 +60,7 @@ class SystemStatsCollection extends BaseCollection {
     const docID = this._collection.insert({ events_count, box_events_count, measurements_count, opq_boxes_count,
       trends_count, users_count, timestamp: new Date(), box_trend_stats, health, latest_box_trends,
     events_count_today, box_events_count_today, measurements_count_today, trends_count_today, incidents_count,
-    incidents_count_today});
+    incidents_count_today });
     return docID;
   }
 
