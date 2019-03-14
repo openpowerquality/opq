@@ -150,17 +150,17 @@ void box_to_app(zmqpp::context &ctx, SynchronizedMap<int, string> &map, Config c
         opq::opqbox3::Response res;
         res.ParseFromString(header);
 
-        cout << "New response from box " << res.box_id() << " sequence " << res.seq() << endl;
+
 
         // Find the identity of the app
-        auto iterator = map.find(res.seq());
-        if (iterator == map.end()) {
-            // Drop the message
+        if (!map.contains(res.seq())) {
+            cout << "No identity for sequence number " << res.seq() << " id " << res.box_id() << endl;
             continue;
         }
-        message.push_front(iterator->second);
+        auto identity = map.find(res.seq());
+        cout << "New response from box " << res.box_id() << " sequence " << res.seq()  << " identity " << identity << endl;
+        message.push_front(identity);
         map.erase(res.seq());
-
         pub.send(message);
     }
 }

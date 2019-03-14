@@ -14,14 +14,18 @@ class SynchronizedMap {
 			return _map.insert(pair);
 		};
 		auto erase(T key) {
+			std::lock_guard<std::mutex> lock(_mtx);
 			return _map.erase(key);
 		};
 		auto find(T key) {
-			return _map.find(key);
+			std::lock_guard<std::mutex> lock(_mtx);
+			return _map.find(key)->second;
 		};
-		auto end() {
-			return _map.end();
-		};
+		auto contains(T key) {
+            std::lock_guard<std::mutex> lock(_mtx);
+            return _map.find(key) != _map.end();
+		}
+
 	private:
 		std::mutex _mtx;
 		std::unordered_map<T, U> _map;

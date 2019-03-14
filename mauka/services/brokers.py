@@ -56,7 +56,7 @@ def start_mauka_pub_sub_broker(mauka_config: config.MaukaConfig):
 def start_makai_event_bridge(mauka_config: config.MaukaConfig):
     """
     Starts an instance of the makai bridge to bring makai event information into mauka as a separate process
-    :param config: Configuration dictionary
+    :param mauka_config: Configuration dictionary
     """
 
     # noinspection PyUnresolvedReferences
@@ -85,7 +85,8 @@ def start_makai_event_bridge(mauka_config: config.MaukaConfig):
 
         while True:
             event_msg = zmq_sub_event_socket.recv_multipart()
-            _logger.debug("recv event msg: %s", str(event_msg))
+            if mauka_config.get("debug", False):
+                _logger.debug("recv event msg: %s", str(event_msg))
             event_id = int(event_msg[1])
             makai_event = protobuf.util.build_makai_event("makai_event_bridge", event_id)
             mauka_message_bytes = protobuf.util.serialize_mauka_message(makai_event)

@@ -1,5 +1,8 @@
 {
   "mauka.debug": true,
+  "mauka.startEventBroker": true,
+  "mauka.startPubSubBroker": true,
+  "mauka.startPlugins": true,
 
   "zmq.event.interface"           : "tcp://localhost:10000",
   "zmq.trigger.interface"         : "tcp://localhost:9899",
@@ -12,7 +15,7 @@
   "zmq.mauka.plugin.management.req.interface": "tcp://localhost:12000",
 
   "mongo.host": "localhost",
-  "mongo.port": 21017,
+  "mongo.port": 27017,
   "mongo.db": "opq",
 
   "plugins.base.heartbeatIntervalS": 15.0,
@@ -44,5 +47,7 @@
   "plugins.ThdPlugin.threshold.percent": 5.0,
   "plugins.ThdPlugin.window.size.ms": 200,
 
-  "plugins.StatusPlugin.port": 8911
+  "plugins.StatusPlugin.port": 8911,
+
+  "plugins.SystemStatsPlugin.intervalS": 60
 }
