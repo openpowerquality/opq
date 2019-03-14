@@ -110,7 +110,7 @@ class SystemStatistics extends React.Component {
         {this.renderColumnTitles()}
         {this.renderEntity('PHENOMENA', stat.phenomena_count_today, stat.phenomena_count, '?')}
         {this.renderEntity('INCIDENTS', stat.incidents_count_today, stat.incidents_count, '?')}
-        {this.renderEntity('EVENTS', stat.events_count_today, stat.trends_count, '?')}
+        {this.renderEntity('EVENTS', stat.events_count_today, stat.events_count, '?')}
         {this.renderEntity('TRENDS', stat.trends_count_today, stat.trends_count, '?')}
         {this.renderEntity('MEASUREMENTS', stat.measurements_count_today, stat.measurements_count, '?')}
         <p style={footerStyle}>Last update: {Moment(stat.timestamp).format('MMMM Do YYYY, h:mm:ss a')}</p>
