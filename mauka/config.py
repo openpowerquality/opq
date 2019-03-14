@@ -8,7 +8,7 @@ import typing
 
 import log
 
-CONFIG_VALUE_TYPE = typing.Union[str, int, float, bool]
+CONFIG_VALUE_TYPE = typing.Union[str, int, float, bool, typing.List[str, int, float, bool]]
 CONFIG_TYPE = typing.Dict[str, CONFIG_VALUE_TYPE]
 
 # pylint: disable=C0103
@@ -21,7 +21,9 @@ class MaukaConfig:
     """
 
     def __init__(self, config_dict: CONFIG_TYPE):
-        self.config_dict = self.replace_env(config_dict)
+        self.config_dict: CONFIG_TYPE = self.replace_env(config_dict)
+        self.debug: bool = self.get("mauka.debug")
+        self.debug_plugins: typing.Set[str] = set(self.get("mauka.debug.plugins"))
 
     def replace_env(self, config_dict: CONFIG_TYPE) -> CONFIG_TYPE:
         """
@@ -63,6 +65,14 @@ class MaukaConfig:
                 return default
             else:
                 raise KeyError("Key {} was not found in config and no default was supplied.".format(key))
+
+    def debug_plugin(self, plugin_name: str) -> bool:
+        """
+        Determines if debugging is enabled for a specific plugin.
+        :param plugin_name: The plugin to check.
+        :return: True if it is, False otherwise.
+        """
+        return self.debug and plugin_name in self.debug_plugins
 
     def __getitem__(self, item):
         return self.get(item)

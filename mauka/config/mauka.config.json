@@ -1,5 +1,6 @@
 {
   "mauka.debug": true,
+  "mauka.debug.plugins": [],
   "mauka.startEventBroker": true,
   "mauka.startPubSubBroker": true,
   "mauka.startPlugins": true,
