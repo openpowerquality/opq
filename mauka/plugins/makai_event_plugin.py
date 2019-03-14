@@ -244,6 +244,7 @@ class MakaiEventPlugin(plugins.base_plugin.MaukaPlugin):
         :param event_id: The event id to load raw data for.
         """
         box_events = self.mongo_client.box_events_collection.find({"event_id": event_id})
+        self.debug("Found %d box_events" % box_events.count())
         for box_event in box_events:
             box_id = box_event["box_id"]
             adc_samples, raw_voltage, rms_windowed_voltage, frequency_windowed = acquire_data(self.mongo_client,
@@ -254,6 +255,11 @@ class MakaiEventPlugin(plugins.base_plugin.MaukaPlugin):
                                                                                               self.cutoff_frequency,
                                                                                               self.samples_per_window,
                                                                                               self.down_sample_factor)
+            self.debug("Producing AdcSamples[%d], RawVoltage[%d], RmsWindowedVoltage[%d], WindowedFrequency[%d]" %
+                       (len(adc_samples.payload.data),
+                        len(raw_voltage.payload.data),
+                        len(rms_windowed_voltage.payload.data),
+                        len(frequency_windowed.payload.data)))
             self.produce("AdcSamples", adc_samples)
             self.produce("RawVoltage", raw_voltage)
             self.produce("RmsWindowedVoltage", rms_windowed_voltage)

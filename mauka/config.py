@@ -8,7 +8,7 @@ import typing
 
 import log
 
-CONFIG_VALUE_TYPE = typing.Union[str, int, float, bool, typing.List[str, int, float, bool]]
+CONFIG_VALUE_TYPE = typing.Union[str, int, float, bool, typing.List[typing.Union[str, int, float, bool]]]
 CONFIG_TYPE = typing.Dict[str, CONFIG_VALUE_TYPE]
 
 # pylint: disable=C0103
