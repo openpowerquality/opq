@@ -143,6 +143,17 @@ class OpqMongoClient:
         """
         self.database[collection].drop_indexes()
 
+    def get_box_calibration_constant(self, box_id: str) -> float:
+        calibration_constant =  self.box_events_collection.find_one({"box_id": box_id},
+                                                   projection={'_id': False,
+                                                               "calibration_constant": True,
+                                                               "box_id": True})
+
+        if calibration_constant is None:
+            return 1.0
+        else:
+            return calibration_constant
+
     def read_file(self, fid: str) -> bytes:
         """
         Loads a file from gridfs as an array of bytes
@@ -348,7 +359,7 @@ def store_incident(event_id: int,
         incident_end_idx = int(min(len(event_adc_samples),
                                    round(analysis.ms_to_samples(delta_end_ms)) + constants.SAMPLES_PER_MILLISECOND))
         incident_adc_samples_bytes = event_adc_samples[incident_start_idx:incident_end_idx].astype(
-            numpy.int16).tobytes()
+                numpy.int16).tobytes()
 
         gridfs_filename = "incident_{}".format(incident_id)
         mongo_client.write_incident_waveform(incident_id, gridfs_filename, incident_adc_samples_bytes)
@@ -458,6 +469,7 @@ def object_id(oid: str) -> bson.objectid.ObjectId:
     :return: ObjectId from string
     """
     return bson.objectid.ObjectId(oid)
+
 
 if __name__ == "__main__":
     print(cached_calibration_constant("1003"))
