@@ -18,7 +18,7 @@
   "mongo.port": 27017,
   "mongo.db": "opq",
 
-  "plugins.base.heartbeatIntervalS": 15.0,
+  "plugins.base.heartbeatIntervalS": 60.0,
 
   "plugins.IticPlugin.segment.threshold.rms": 0.1,
 
