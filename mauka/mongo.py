@@ -53,6 +53,9 @@ class Collection(enum.Enum):
     INCIDENTS = "incidents"
     HEALTH = "health"
     LAHA_STATS = "laha_stats"
+    TRENDS = "trends"
+    PHENOMENA = "phenomena"
+    GROUND_TRUTH = "ground_truth"
 
 
 class OpqMongoClient:
@@ -94,7 +97,13 @@ class OpqMongoClient:
 
         self.laha_stats_collection = self.get_collection(Collection.LAHA_STATS.value)
 
-    def get_collection(self, collection: str):
+        self.trends_collection = self.get_collection(Collection.TRENDS.value)
+
+        self.phenomena_collection = self.get_collection(Collection.PHENOMENA.value)
+
+        self.ground_truth_collection = self.get_collection(Collection.GROUND_TRUTH.value)
+
+    def get_collection(self, collection: str) -> pymongo.collection.Collection:
         """ Returns a mongo collection by name
 
         Parameters
@@ -151,6 +160,18 @@ class OpqMongoClient:
         """
         self.gridfs.put(payload, **{"filename": gridfs_filename,
                                     "metadata": {"incident_id": incident_id}})
+
+    def get_collection_size_bytes(self,
+                                  collection: Collection,
+                                  query_filter: typing.Optional[typing.Dict] = None) -> int:
+        """
+        Returns the size of a collection in bytes including the size of the index.
+        :param collection: Collection to get size of.
+        :param query_filter: An optional query filter.
+        :return: Size of collection in bytes.
+        """
+        stats = self.database.command("collstats", collection.value)
+        return stats["size"] + stats["totalIndexSize"]
 
 
 def get_waveform(mongo_client: OpqMongoClient, data_fs_filename: str) -> numpy.ndarray:

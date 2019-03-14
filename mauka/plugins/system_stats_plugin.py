@@ -8,6 +8,7 @@ import time
 import typing
 
 import config
+import mongo
 import plugins.base_plugin
 import protobuf.mauka_pb2
 import protobuf.util
@@ -48,7 +49,52 @@ class SystemStatsPlugin(plugins.base_plugin.MaukaPlugin):
         """
         stats = {
             "timestamp_s": timestamp(),
-            "plugin_stats": self.plugin_stats
+            "plugin_stats": self.plugin_stats,
+            "system_stats": {
+                "cpu_load": [],
+                "memory_use_bytes": 0,
+                "disk_use_bytes": 0
+            },
+            "laha_stats": {
+                "instantaneous_measurements_stats": {
+                    "count": 0,
+                    "size_bytes": 0
+                },
+                "aggregate_measurements_stats": {
+                    "measurements": {
+                        "count": self.mongo_client.measurements_collection.count(),
+                        "size_bytes": self.mongo_client.get_collection_size_bytes(mongo.Collection.MEASUREMENTS)
+                    },
+                    "trends": {
+                        "count": self.mongo_client.trends_collection.count(),
+                        "size_bytes": self.mongo_client.get_collection_size_bytes(mongo.Collection.TRENDS)
+                    }
+                },
+                "detections_stats": {
+                    "events": {
+                        "count": self.mongo_client.events_collection.count(),
+                        "size_bytes": 0
+                    }
+                },
+                "incidents_stats": {
+                    "incidents": {
+                        "count": self.mongo_client.incidents_collection.count(),
+                        "size_bytes": 0
+                    }
+                },
+                "phenomena_stats": {
+                    "phenomena": {
+                        "count": self.mongo_client.phenomena_collection.count(),
+                        "size_bytes": 0
+                    }
+                }
+            },
+            "other_stats": {
+                "ground_truth": {
+                    "count": self.mongo_client.ground_truth_collection.count(),
+                    "size_bytes": self.mongo_client.get_collection_size_bytes(mongo.Collection.GROUND_TRUTH)
+                }
+            }
         }
         self.mongo_client.laha_stats_collection.insert_one(stats)
         timer = threading.Timer(interval_s, self.collect_stats, args=[interval_s])
