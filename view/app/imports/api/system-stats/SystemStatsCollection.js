@@ -2,6 +2,7 @@ import SimpleSchema from 'simpl-schema';
 import BaseCollection from '../base/BaseCollection.js';
 import { Events } from '../events/EventsCollection.js';
 import { BoxEvents } from '../box-events/BoxEventsCollection.js';
+import { Incidents } from '../incidents/IncidentsCollection.js';
 import { Measurements } from '../measurements/MeasurementsCollection.js';
 import { OpqBoxes } from '../opq-boxes/OpqBoxesCollection.js';
 import { Trends } from '../trends/TrendsCollection.js';
@@ -22,6 +23,10 @@ class SystemStatsCollection extends BaseCollection {
       measurements_count_today: Number,
       trends_count: Number,
       trends_count_today: Number,
+      incidents_count: { type: Number, optional: true },
+      incidents_count_today: { type: Number, optional: true },
+      phenomena_count: { type: Number, optional: true },
+      phenomena_count_today: { type: Number, optional: true },
       opq_boxes_count: Number,
       users_count: Number,
       timestamp: Date,
@@ -51,10 +56,11 @@ class SystemStatsCollection extends BaseCollection {
    */
   define({ events_count, events_count_today, box_events_count, box_events_count_today, measurements_count,
            measurements_count_today, opq_boxes_count, trends_count, trends_count_today, users_count,
-           box_trend_stats, health, latest_box_trends }) {
+           box_trend_stats, health, latest_box_trends, incidents_count, incidents_count_today }) {
     const docID = this._collection.insert({ events_count, box_events_count, measurements_count, opq_boxes_count,
       trends_count, users_count, timestamp: new Date(), box_trend_stats, health, latest_box_trends,
-    events_count_today, box_events_count_today, measurements_count_today, trends_count_today });
+    events_count_today, box_events_count_today, measurements_count_today, trends_count_today, incidents_count,
+    incidents_count_today });
     return docID;
   }
 
@@ -84,6 +90,8 @@ class SystemStatsCollection extends BaseCollection {
     const box_events_count_today = BoxEvents.countToday('event_start_timestamp_ms');
     const measurements_count = Measurements.count();
     const measurements_count_today = Measurements.countToday('timestamp_ms');
+    const incidents_count = Incidents.count();
+    const incidents_count_today = Incidents.countToday('start_timestamp_ms');
     const opq_boxes_count = OpqBoxes.count();
     const trends_count = Trends.count();
     const trends_count_today = Trends.countToday('timestamp_ms');
@@ -101,7 +109,7 @@ class SystemStatsCollection extends BaseCollection {
       // Create new doc. Should only theoretically have to be done once, when we first create the collection.
       // eslint-disable-next-line max-len
       return this.define({ events_count, box_events_count, measurements_count, opq_boxes_count, trends_count, users_count, box_trend_stats, events_count_today, box_events_count_today, measurements_count_today,
-      trends_count_today, latest_box_trends });
+      trends_count_today, latest_box_trends, incidents_count, incidents_count_today });
     }
 
     // Update the one document with current collection counts.
@@ -109,7 +117,7 @@ class SystemStatsCollection extends BaseCollection {
     return systemStatsDoc && this._collection.update(systemStatsDoc._id, {
       $set: { events_count, box_events_count, measurements_count, opq_boxes_count, trends_count, users_count,
         timestamp: new Date(), box_trend_stats, events_count_today, box_events_count_today,
-        measurements_count_today, trends_count_today, latest_box_trends },
+        measurements_count_today, trends_count_today, latest_box_trends, incidents_count, incidents_count_today },
     });
   }
 }

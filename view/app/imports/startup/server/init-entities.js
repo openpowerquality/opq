@@ -17,6 +17,16 @@ function initEntity(name, collection) {
   definitions.map(definition => collection.define(definition));
 }
 
+/**
+ * Initialize entities in order. Note that Locations must be defined before Regions and OpqBoxes.
+ */
+function initAllEntities() {
+  initEntity('locations', Locations);
+  initEntity('regions', Regions);
+  initEntity('opqBoxes', OpqBoxes);
+  initEntity('userProfiles', UserProfiles);
+}
+
 function defineTestUser() {
   if (Meteor.isAppTest) {
     console.log(`Defining test user: ${testUsername}`);
@@ -26,14 +36,24 @@ function defineTestUser() {
 }
 
 /**
- * Define entities at system startup.  Locations must be defined before regions and opqBoxes.
+ * Define entities at system startup.
+ * Set initialEntities to true in the settings file to initialize Locations, Regions etc. if none are defined.
+ * To initialize entities even when they already exist in the DB, then you must set an environment variable when
+ * running Meteor like this:
+ * <code>
+ *   $ VIEW_FORCE_INIT_ENTITIES=true meteor npm run start
+ * </code>
+ * This helps ensure that the DB is re-initialized only when you really want it to be re-initialized and that
+ * inadvertant commits of enabled=true doesn't propagate into the production DB.
  */
 Meteor.startup(() => {
   if (Meteor.settings.initialEntities && Meteor.settings.initialEntities.enabled) {
-    initEntity('locations', Locations);
-    initEntity('regions', Regions);
-    initEntity('opqBoxes', OpqBoxes);
-    initEntity('userProfiles', UserProfiles);
+    if (process.env.VIEW_FORCE_INIT_ENTITIES) {
+      initAllEntities();
+    } else
+      if ((Locations.count() === 0) && (OpqBoxes.count() === 0)) {
+        initAllEntities();
+      }
   }
 });
 
