@@ -13,6 +13,8 @@ import plugins.base_plugin
 import protobuf.mauka_pb2
 import protobuf.util
 
+import psutil
+
 
 def timestamp() -> int:
     """
@@ -47,13 +49,14 @@ class SystemStatsPlugin(plugins.base_plugin.MaukaPlugin):
         Collects statistics on a provided time interval.
         :param interval_s: The interval in seconds in which statistics should be collected.
         """
+        mem_stats = psutil.virtual_memory()
         stats = {
             "timestamp_s": timestamp(),
             "plugin_stats": self.plugin_stats,
             "system_stats": {
-                "cpu_load": [],
-                "memory_use_bytes": 0,
-                "disk_use_bytes": 0
+                "cpu_load_percent": psutil.cpu_percent(),
+                "memory_use_bytes": mem_stats.total - mem_stats.available,
+                "disk_use_bytes": psutil.disk_usage("/").used
             },
             "laha_stats": {
                 "instantaneous_measurements_stats": {
