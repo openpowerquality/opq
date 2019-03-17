@@ -26,6 +26,7 @@ import LiveDataManager from '../../ui/pages/LiveDataManager';
 import EventInspectorPage from '../pages/EventInspectorPage';
 import EventOverview from '../../ui/components/EventInspector/EventOverview';
 import IncidentInspectorPage from '../pages/IncidentInspectorPage';
+import IncidentViewer from '../../ui/components/IncidentInspector/IncidentViewer';
 
 /** Top-level layout component for this application. Called in imports/startup/client/startup.jsx. */
 class App extends React.Component {
@@ -53,6 +54,7 @@ class App extends React.Component {
               <ProtectedRoute path="/livedata" component={LiveDataManager} />
               <ProtectedRoute path="/inspector/event/:event_id" component={EventOverview}/>
               <ProtectedRoute path="/inspector/event" component={EventInspectorPage} />
+              <ProtectedRoute path="/inspector/incident/:incident_id" component={IncidentViewer} />
               <ProtectedRoute path="/inspector/incident" component={IncidentInspectorPage}/>
               <Route path="/signin" component={Signin} />
               <Route component={NotFound} />
