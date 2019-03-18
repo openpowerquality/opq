@@ -91,6 +91,7 @@ class SystemStatsPlugin(plugins.base_plugin.MaukaPlugin):
         Collects statistics on a provided time interval.
         :param interval_s: The interval in seconds in which statistics should be collected.
         """
+        self.debug("Collecting stats...")
         mem_stats = psutil.virtual_memory()
 
         stats = {
@@ -149,6 +150,7 @@ class SystemStatsPlugin(plugins.base_plugin.MaukaPlugin):
             }
         }
         self.mongo_client.laha_stats_collection.insert_one(stats)
+        self.debug("Stats stored.")
         timer = threading.Timer(interval_s, self.collect_stats, args=[interval_s])
         timer.start()
 
