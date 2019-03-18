@@ -106,39 +106,41 @@ class SystemStatsPlugin(plugins.base_plugin.MaukaPlugin):
             },
             "laha_stats": {
                 "instantaneous_measurements_stats": {
-                    "ttl": 0,
-                    "count": 0,
-                    "size_bytes": 0
+                    "box_samples": {
+                        "ttl": self.mongo_client.get_ttl("box_samples"),
+                        "count": 0,
+                        "size_bytes": 0
+                    }
                 },
                 "aggregate_measurements_stats": {
                     "measurements": {
-                        "ttl": 0,
+                        "ttl": self.mongo_client.get_ttl("measurements"),
                         "count": self.mongo_client.measurements_collection.count(),
                         "size_bytes": self.mongo_client.get_collection_size_bytes(mongo.Collection.MEASUREMENTS)
                     },
                     "trends": {
-                        "ttl": 0,
+                        "ttl": self.get_mongo_client().get_ttl("trends"),
                         "count": self.mongo_client.trends_collection.count(),
                         "size_bytes": self.mongo_client.get_collection_size_bytes(mongo.Collection.TRENDS)
                     }
                 },
                 "detections_stats": {
                     "events": {
-                        "ttl": 0,
+                        "ttl": self.mongo_client.get_ttl("events"),
                         "count": self.mongo_client.events_collection.count(),
                         "size_bytes": self.events_size_bytes()
                     }
                 },
                 "incidents_stats": {
                     "incidents": {
-                        "ttl": 0,
+                        "ttl": self.mongo_client.get_ttl("incidents"),
                         "count": self.mongo_client.incidents_collection.count(),
                         "size_bytes": self.incidents_size_bytes()
                     }
                 },
                 "phenomena_stats": {
                     "phenomena": {
-                        "ttl": 0,
+                        "ttl": -1,
                         "count": self.mongo_client.phenomena_collection.count(),
                         "size_bytes": self.phenomena_size_bytes()
                     }

@@ -13,6 +13,7 @@ import numpy
 import pymongo
 
 import analysis
+import config
 import constants
 
 
@@ -57,7 +58,7 @@ class Collection(enum.Enum):
     PHENOMENA = "phenomena"
     GROUND_TRUTH = "ground_truth"
     FS_FILES = "fs.files"
-
+    LAHA_CONFIG = "laha_config"
 
 class OpqMongoClient:
     """Convenience mongo client for easily operating on OPQ data"""
@@ -106,6 +107,8 @@ class OpqMongoClient:
 
         self.fs_files_collection = self.get_collection(Collection.FS_FILES.value)
 
+        self.laha_config_collection = self.get_collection(Collection.LAHA_CONFIG.value)
+
     def get_collection(self, collection: str) -> pymongo.collection.Collection:
         """ Returns a mongo collection by name
 
@@ -120,6 +123,16 @@ class OpqMongoClient:
 
         """
         return self.database[collection]
+
+    def get_laha_config(self) -> typing.Optional[typing.Dict]:
+        return self.laha_config_collection.find_one()
+
+    def get_ttl(self, service: str) -> int:
+        laha_config = self.get_laha_config()
+        if laha_config is None:
+            return -1
+        else:
+            return laha_config["ttls"][service]
 
     def drop_collection(self, collection: str):
         """Drops a collection by name
@@ -474,5 +487,13 @@ def object_id(oid: str) -> bson.objectid.ObjectId:
     return bson.objectid.ObjectId(oid)
 
 
-if __name__ == "__main__":
-    print(cached_calibration_constant("1003"))
+def from_config(conf: config.MaukaConfig) -> OpqMongoClient:
+    """
+    Returns a OpqMongoClient given a MaukaConfig.
+    :param conf: MaukaConfig.
+    :return: An OpqMongoClient.
+    """
+    mongo_host = conf.get("mongo.host")
+    mongo_port = conf.get("mongo.port")
+    mongo_db = conf.get("mongo.db")
+    return OpqMongoClient(mongo_host, mongo_port, mongo_db)

@@ -10,6 +10,7 @@ import sys
 import config
 import constants
 import log
+import mongo
 import plugins.frequency_variation_plugin
 import plugins.transient_plugin
 import plugins.itic_plugin
@@ -32,12 +33,25 @@ def usage():
     logger.info("Usage: ./opq_mauka.py")
 
 
+def bootstrap_db(conf: config.MaukaConfig):
+    mongo_client: mongo.OpqMongoClient = mongo.from_config(conf)
+    if mongo_client.get_laha_config() is None:
+        logger.info("laha_config DNE, inserting default from config...")
+        mongo_client.laha_config_collection.insert_one(conf.get("laha.config.default"))
+
+
+def bootstrap(conf: config.MaukaConfig):
+    bootstrap_db(conf)
+
+
 def main():
     """
     Entry point to OPQ Mauka.
     """
     logger.info("Starting OpqMauka")
     conf = config.from_env(constants.CONFIG_ENV)
+
+    bootstrap(conf)
 
     plugin_manager = services.plugin_manager.PluginManager(conf)
     plugin_manager.register_plugin(plugins.makai_event_plugin.MakaiEventPlugin)

@@ -50,5 +50,15 @@
 
   "plugins.StatusPlugin.port": 8911,
 
-  "plugins.SystemStatsPlugin.intervalS": 60
+  "plugins.SystemStatsPlugin.intervalS": 60,
+
+  "laha.config.default": {
+    "ttls": {
+      "box_samples": 900,
+      "measurements": 86400,
+      "trends": 604800,
+      "events": 2592000,
+      "incidents": 31536000
+    }
+  }
 }
