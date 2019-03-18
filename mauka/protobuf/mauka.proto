@@ -10,6 +10,7 @@ message MaukaMessage {
                                             MakaiEvent makai_event = 5;
                                             Measurement measurement = 6;
                                             MakaiTrigger makai_trigger = 7;
+                                            Ttl ttl = 8;
     }
 }
 
@@ -71,4 +72,9 @@ message MakaiTrigger {
     string event_type = 3;
     double max_value = 4;
     string box_id = 5;
+}
+
+message Ttl {
+    string collection = 1;
+    uint32 ttl_s = 2;
 }
