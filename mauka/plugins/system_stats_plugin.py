@@ -1,6 +1,7 @@
 """
 This plugin calculates and stores statistics about mauka and the system,
 """
+import functools
 import json
 import multiprocessing.queues
 import threading
@@ -44,12 +45,54 @@ class SystemStatsPlugin(plugins.base_plugin.MaukaPlugin):
         timer = threading.Timer(self.interval_s, self.collect_stats, args=[self.interval_s])
         timer.start()
 
+    def events_size_bytes(self) -> int:
+        events_collection_size_bytes = self.mongo_client.get_collection_size_bytes(mongo.Collection.EVENTS)
+        box_events_collection_size_bytes = self.mongo_client.get_collection_size_bytes(mongo.Collection.BOX_EVENTS)
+
+        cursor = self.mongo_client.fs_files_collection.find({},
+                                                            projection={
+                                                                '_id': False,
+                                                                'filename': True,
+                                                                'length': True})
+
+        only_events = filter(lambda fs_file: fs_file["filename"].startswith("event"), cursor)
+        fs_files_size_bytes = functools.reduce(lambda fs_file1, fs_file2: fs_file1["length"] + fs_file2["length"],
+                                               only_events,
+                                               0)
+        return (
+                events_collection_size_bytes +
+                box_events_collection_size_bytes +
+                fs_files_size_bytes
+        )
+
+    def incidents_size_bytes(self) -> int:
+        incidents_collection_size_bytes = self.mongo_client.get_collection_size_bytes(mongo.Collection.INCIDENTS)
+
+        cursor = self.mongo_client.fs_files_collection.find({},
+                                                            projection={
+                                                                '_id': False,
+                                                                'filename': True,
+                                                                'length': True})
+        only_incidents = filter(lambda fs_file: fs_file["filename"].startswith("incident"), cursor)
+        fs_files_size_bytes = functools.reduce(lambda fs_file1, fs_file2: fs_file1["length"] + fs_file2["length"],
+                                               only_incidents,
+                                               0)
+
+        return (
+            incidents_collection_size_bytes +
+            fs_files_size_bytes
+        )
+
+    def phenomena_size_bytes(self) -> int:
+        return 0
+
     def collect_stats(self, interval_s: int):
         """
         Collects statistics on a provided time interval.
         :param interval_s: The interval in seconds in which statistics should be collected.
         """
         mem_stats = psutil.virtual_memory()
+
         stats = {
             "timestamp_s": timestamp(),
             "plugin_stats": self.plugin_stats,
@@ -80,21 +123,21 @@ class SystemStatsPlugin(plugins.base_plugin.MaukaPlugin):
                     "events": {
                         "ttl": 0,
                         "count": self.mongo_client.events_collection.count(),
-                        "size_bytes": 0
+                        "size_bytes": self.events_size_bytes()
                     }
                 },
                 "incidents_stats": {
                     "incidents": {
                         "ttl": 0,
                         "count": self.mongo_client.incidents_collection.count(),
-                        "size_bytes": 0
+                        "size_bytes": self.incidents_size_bytes()
                     }
                 },
                 "phenomena_stats": {
                     "phenomena": {
                         "ttl": 0,
                         "count": self.mongo_client.phenomena_collection.count(),
-                        "size_bytes": 0
+                        "size_bytes": self.phenomena_size_bytes()
                     }
                 }
             },

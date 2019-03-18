@@ -56,6 +56,7 @@ class Collection(enum.Enum):
     TRENDS = "trends"
     PHENOMENA = "phenomena"
     GROUND_TRUTH = "ground_truth"
+    FS_FILES = "fs.files"
 
 
 class OpqMongoClient:
@@ -102,6 +103,8 @@ class OpqMongoClient:
         self.phenomena_collection = self.get_collection(Collection.PHENOMENA.value)
 
         self.ground_truth_collection = self.get_collection(Collection.GROUND_TRUTH.value)
+
+        self.fs_files_collection = self.get_collection(Collection.FS_FILES.value)
 
     def get_collection(self, collection: str) -> pymongo.collection.Collection:
         """ Returns a mongo collection by name
