@@ -20,7 +20,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='mauka.proto',
   package='',
   syntax='proto3',
-  serialized_pb=_b('\n\x0bmauka.proto\"\xee\x01\n\x0cMaukaMessage\x12\x14\n\x0ctimestamp_ms\x18\x01 \x01(\x04\x12\x0e\n\x06source\x18\x02 \x01(\t\x12\x1b\n\x07payload\x18\x03 \x01(\x0b\x32\x08.PayloadH\x00\x12\x1f\n\theartbeat\x18\x04 \x01(\x0b\x32\n.HeartbeatH\x00\x12\"\n\x0bmakai_event\x18\x05 \x01(\x0b\x32\x0b.MakaiEventH\x00\x12#\n\x0bmeasurement\x18\x06 \x01(\x0b\x32\x0c.MeasurementH\x00\x12&\n\rmakai_trigger\x18\x07 \x01(\x0b\x32\r.MakaiTriggerH\x00\x42\t\n\x07message\"\x93\x01\n\x07Payload\x12\x10\n\x08\x65vent_id\x18\x01 \x01(\r\x12\x0e\n\x06\x62ox_id\x18\x02 \x01(\t\x12\x0c\n\x04\x64\x61ta\x18\x03 \x03(\x01\x12\"\n\x0cpayload_type\x18\x04 \x01(\x0e\x32\x0c.PayloadType\x12\x1a\n\x12start_timestamp_ms\x18\x05 \x01(\x04\x12\x18\n\x10\x65nd_timestamp_ms\x18\x06 \x01(\x04\"Y\n\tHeartbeat\x12\"\n\x1alast_received_timestamp_ms\x18\x01 \x01(\x04\x12\x18\n\x10on_message_count\x18\x02 \x01(\r\x12\x0e\n\x06status\x18\x03 \x01(\t\"\x1e\n\nMakaiEvent\x12\x10\n\x08\x65vent_id\x18\x01 \x01(\r\"h\n\x0bMeasurement\x12\x0e\n\x06\x62ox_id\x18\x01 \x01(\t\x12\x14\n\x0ctimestamp_ms\x18\x02 \x01(\x04\x12\x11\n\tfrequency\x18\x03 \x01(\x01\x12\x13\n\x0bvoltage_rms\x18\x04 \x01(\x01\x12\x0b\n\x03thd\x18\x05 \x01(\x01\"\x87\x01\n\x0cMakaiTrigger\x12 \n\x18\x65vent_start_timestamp_ms\x18\x01 \x01(\x04\x12\x1e\n\x16\x65vent_end_timestamp_ms\x18\x02 \x01(\x04\x12\x12\n\nevent_type\x18\x03 \x01(\t\x12\x11\n\tmax_value\x18\x04 \x01(\x01\x12\x0e\n\x06\x62ox_id\x18\x05 \x01(\t*r\n\x0bPayloadType\x12\x0f\n\x0b\x41\x44\x43_SAMPLES\x10\x00\x12\x0f\n\x0bVOLTAGE_RAW\x10\x01\x12\x0f\n\x0bVOLTAGE_RMS\x10\x02\x12\x18\n\x14VOLTAGE_RMS_WINDOWED\x10\x03\x12\x16\n\x12\x46REQUENCY_WINDOWED\x10\x04\x62\x06proto3')
+  serialized_pb=_b('\n\x0bmauka.proto\"\x92\x02\n\x0cMaukaMessage\x12\x14\n\x0ctimestamp_ms\x18\x01 \x01(\x04\x12\x0e\n\x06source\x18\x02 \x01(\t\x12\x1b\n\x07payload\x18\x03 \x01(\x0b\x32\x08.PayloadH\x00\x12\x1f\n\theartbeat\x18\x04 \x01(\x0b\x32\n.HeartbeatH\x00\x12\"\n\x0bmakai_event\x18\x05 \x01(\x0b\x32\x0b.MakaiEventH\x00\x12#\n\x0bmeasurement\x18\x06 \x01(\x0b\x32\x0c.MeasurementH\x00\x12&\n\rmakai_trigger\x18\x07 \x01(\x0b\x32\r.MakaiTriggerH\x00\x12\"\n\x0blaha_config\x18\x08 \x01(\x0b\x32\x0b.LahaConfigH\x00\x42\t\n\x07message\"\x93\x01\n\x07Payload\x12\x10\n\x08\x65vent_id\x18\x01 \x01(\r\x12\x0e\n\x06\x62ox_id\x18\x02 \x01(\t\x12\x0c\n\x04\x64\x61ta\x18\x03 \x03(\x01\x12\"\n\x0cpayload_type\x18\x04 \x01(\x0e\x32\x0c.PayloadType\x12\x1a\n\x12start_timestamp_ms\x18\x05 \x01(\x04\x12\x18\n\x10\x65nd_timestamp_ms\x18\x06 \x01(\x04\"Y\n\tHeartbeat\x12\"\n\x1alast_received_timestamp_ms\x18\x01 \x01(\x04\x12\x18\n\x10on_message_count\x18\x02 \x01(\r\x12\x0e\n\x06status\x18\x03 \x01(\t\"\x1e\n\nMakaiEvent\x12\x10\n\x08\x65vent_id\x18\x01 \x01(\r\"h\n\x0bMeasurement\x12\x0e\n\x06\x62ox_id\x18\x01 \x01(\t\x12\x14\n\x0ctimestamp_ms\x18\x02 \x01(\x04\x12\x11\n\tfrequency\x18\x03 \x01(\x01\x12\x13\n\x0bvoltage_rms\x18\x04 \x01(\x01\x12\x0b\n\x03thd\x18\x05 \x01(\x01\"\x87\x01\n\x0cMakaiTrigger\x12 \n\x18\x65vent_start_timestamp_ms\x18\x01 \x01(\x04\x12\x1e\n\x16\x65vent_end_timestamp_ms\x18\x02 \x01(\x04\x12\x12\n\nevent_type\x18\x03 \x01(\t\x12\x11\n\tmax_value\x18\x04 \x01(\x01\x12\x0e\n\x06\x62ox_id\x18\x05 \x01(\t\"0\n\nLahaConfig\x12\x13\n\x03ttl\x18\x01 \x01(\x0b\x32\x04.TtlH\x00\x42\r\n\x0blaha_config\"(\n\x03Ttl\x12\x12\n\ncollection\x18\x01 \x01(\t\x12\r\n\x05ttl_s\x18\x02 \x01(\r*r\n\x0bPayloadType\x12\x0f\n\x0b\x41\x44\x43_SAMPLES\x10\x00\x12\x0f\n\x0bVOLTAGE_RAW\x10\x01\x12\x0f\n\x0bVOLTAGE_RMS\x10\x02\x12\x18\n\x14VOLTAGE_RMS_WINDOWED\x10\x03\x12\x16\n\x12\x46REQUENCY_WINDOWED\x10\x04\x62\x06proto3')
 )
 
 _PAYLOADTYPE = _descriptor.EnumDescriptor(
@@ -52,8 +52,8 @@ _PAYLOADTYPE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   options=None,
-  serialized_start=773,
-  serialized_end=887,
+  serialized_start=901,
+  serialized_end=1015,
 )
 _sym_db.RegisterEnumDescriptor(_PAYLOADTYPE)
 
@@ -122,6 +122,13 @@ _MAUKAMESSAGE = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='laha_config', full_name='MaukaMessage.laha_config', index=7,
+      number=8, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
@@ -138,7 +145,7 @@ _MAUKAMESSAGE = _descriptor.Descriptor(
       index=0, containing_type=None, fields=[]),
   ],
   serialized_start=16,
-  serialized_end=254,
+  serialized_end=290,
 )
 
 
@@ -203,8 +210,8 @@ _PAYLOAD = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=257,
-  serialized_end=404,
+  serialized_start=293,
+  serialized_end=440,
 )
 
 
@@ -248,8 +255,8 @@ _HEARTBEAT = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=406,
-  serialized_end=495,
+  serialized_start=442,
+  serialized_end=531,
 )
 
 
@@ -279,8 +286,8 @@ _MAKAIEVENT = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=497,
-  serialized_end=527,
+  serialized_start=533,
+  serialized_end=563,
 )
 
 
@@ -338,8 +345,8 @@ _MEASUREMENT = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=529,
-  serialized_end=633,
+  serialized_start=565,
+  serialized_end=669,
 )
 
 
@@ -397,8 +404,80 @@ _MAKAITRIGGER = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=636,
-  serialized_end=771,
+  serialized_start=672,
+  serialized_end=807,
+)
+
+
+_LAHACONFIG = _descriptor.Descriptor(
+  name='LahaConfig',
+  full_name='LahaConfig',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='ttl', full_name='LahaConfig.ttl', index=0,
+      number=1, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+    _descriptor.OneofDescriptor(
+      name='laha_config', full_name='LahaConfig.laha_config',
+      index=0, containing_type=None, fields=[]),
+  ],
+  serialized_start=809,
+  serialized_end=857,
+)
+
+
+_TTL = _descriptor.Descriptor(
+  name='Ttl',
+  full_name='Ttl',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='collection', full_name='Ttl.collection', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='ttl_s', full_name='Ttl.ttl_s', index=1,
+      number=2, type=13, cpp_type=3, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=859,
+  serialized_end=899,
 )
 
 _MAUKAMESSAGE.fields_by_name['payload'].message_type = _PAYLOAD
@@ -406,6 +485,7 @@ _MAUKAMESSAGE.fields_by_name['heartbeat'].message_type = _HEARTBEAT
 _MAUKAMESSAGE.fields_by_name['makai_event'].message_type = _MAKAIEVENT
 _MAUKAMESSAGE.fields_by_name['measurement'].message_type = _MEASUREMENT
 _MAUKAMESSAGE.fields_by_name['makai_trigger'].message_type = _MAKAITRIGGER
+_MAUKAMESSAGE.fields_by_name['laha_config'].message_type = _LAHACONFIG
 _MAUKAMESSAGE.oneofs_by_name['message'].fields.append(
   _MAUKAMESSAGE.fields_by_name['payload'])
 _MAUKAMESSAGE.fields_by_name['payload'].containing_oneof = _MAUKAMESSAGE.oneofs_by_name['message']
@@ -421,13 +501,22 @@ _MAUKAMESSAGE.fields_by_name['measurement'].containing_oneof = _MAUKAMESSAGE.one
 _MAUKAMESSAGE.oneofs_by_name['message'].fields.append(
   _MAUKAMESSAGE.fields_by_name['makai_trigger'])
 _MAUKAMESSAGE.fields_by_name['makai_trigger'].containing_oneof = _MAUKAMESSAGE.oneofs_by_name['message']
+_MAUKAMESSAGE.oneofs_by_name['message'].fields.append(
+  _MAUKAMESSAGE.fields_by_name['laha_config'])
+_MAUKAMESSAGE.fields_by_name['laha_config'].containing_oneof = _MAUKAMESSAGE.oneofs_by_name['message']
 _PAYLOAD.fields_by_name['payload_type'].enum_type = _PAYLOADTYPE
+_LAHACONFIG.fields_by_name['ttl'].message_type = _TTL
+_LAHACONFIG.oneofs_by_name['laha_config'].fields.append(
+  _LAHACONFIG.fields_by_name['ttl'])
+_LAHACONFIG.fields_by_name['ttl'].containing_oneof = _LAHACONFIG.oneofs_by_name['laha_config']
 DESCRIPTOR.message_types_by_name['MaukaMessage'] = _MAUKAMESSAGE
 DESCRIPTOR.message_types_by_name['Payload'] = _PAYLOAD
 DESCRIPTOR.message_types_by_name['Heartbeat'] = _HEARTBEAT
 DESCRIPTOR.message_types_by_name['MakaiEvent'] = _MAKAIEVENT
 DESCRIPTOR.message_types_by_name['Measurement'] = _MEASUREMENT
 DESCRIPTOR.message_types_by_name['MakaiTrigger'] = _MAKAITRIGGER
+DESCRIPTOR.message_types_by_name['LahaConfig'] = _LAHACONFIG
+DESCRIPTOR.message_types_by_name['Ttl'] = _TTL
 DESCRIPTOR.enum_types_by_name['PayloadType'] = _PAYLOADTYPE
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
@@ -472,6 +561,20 @@ MakaiTrigger = _reflection.GeneratedProtocolMessageType('MakaiTrigger', (_messag
   # @@protoc_insertion_point(class_scope:MakaiTrigger)
   ))
 _sym_db.RegisterMessage(MakaiTrigger)
+
+LahaConfig = _reflection.GeneratedProtocolMessageType('LahaConfig', (_message.Message,), dict(
+  DESCRIPTOR = _LAHACONFIG,
+  __module__ = 'mauka_pb2'
+  # @@protoc_insertion_point(class_scope:LahaConfig)
+  ))
+_sym_db.RegisterMessage(LahaConfig)
+
+Ttl = _reflection.GeneratedProtocolMessageType('Ttl', (_message.Message,), dict(
+  DESCRIPTOR = _TTL,
+  __module__ = 'mauka_pb2'
+  # @@protoc_insertion_point(class_scope:Ttl)
+  ))
+_sym_db.RegisterMessage(Ttl)
 
 
 # @@protoc_insertion_point(module_scope)

@@ -179,6 +179,15 @@ def build_measurement(source: str,
     return mauka_message
 
 
+def build_ttl(source: str,
+              collection: str,
+              ttl_s: int):
+    mauka_message = build_mauka_message(source)
+    mauka_message.laha_config.ttl.collection = collection
+    mauka_message.laha_config.ttl.ttl_s = ttl_s
+    return mauka_message
+
+
 def serialize_mauka_message(mauka_message: mauka_pb2.MaukaMessage) -> bytes:
     """
     Serializes an instance of a MaukaMessage into bytes.
@@ -255,6 +264,14 @@ def is_measurement(mauka_message: mauka_pb2.MaukaMessage) -> bool:
     :return: True if this is a measurement type, fasle otherwise
     """
     return which_message_oneof(mauka_message) == "measurement"
+
+
+def is_laha_config(mauka_message: mauka_pb2.MaukaMessage) -> bool:
+    return which_message_oneof(mauka_message) == "laha_config"
+
+
+def is_ttl(mauka_message: mauka_pb2.MaukaMessage) -> bool:
+    return is_laha_config(mauka_message) and mauka_message.laha_config.WhichOneOf("laha_config") == "ttl"
 
 
 def repeated_as_ndarray(repeated) -> numpy.ndarray:
