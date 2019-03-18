@@ -93,8 +93,6 @@ class SystemStatsPlugin(plugins.base_plugin.MaukaPlugin):
         box_ids = set(map(lambda measurement: measurement["box_id"], measurements_last_minute))
         return len(box_ids)
 
-
-
     def phenomena_size_bytes(self) -> int:
         return 0
 
@@ -107,8 +105,6 @@ class SystemStatsPlugin(plugins.base_plugin.MaukaPlugin):
         mem_stats = psutil.virtual_memory()
         # active_devices = self.num_active_devices()
         # box_samples_ttl = self.mongo_client.get_ttl("box_samples")
-
-
 
         stats = {
             "timestamp_s": timestamp(),

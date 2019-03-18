@@ -60,6 +60,7 @@ class Collection(enum.Enum):
     FS_FILES = "fs.files"
     LAHA_CONFIG = "laha_config"
 
+
 class OpqMongoClient:
     """Convenience mongo client for easily operating on OPQ data"""
 
