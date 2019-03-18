@@ -49,14 +49,16 @@ class SystemStatsPlugin(plugins.base_plugin.MaukaPlugin):
         self.debug("Collecting event stats...")
         events_collection_size_bytes = self.mongo_client.get_collection_size_bytes(mongo.Collection.EVENTS)
         box_events_collection_size_bytes = self.mongo_client.get_collection_size_bytes(mongo.Collection.BOX_EVENTS)
-
+        self.debug("Got collection sizes...")
         cursor = self.mongo_client.fs_files_collection.find({},
                                                             projection={
                                                                 '_id': False,
                                                                 'filename': True,
                                                                 'length': True})
+        self.debug("Got events cursor")
 
         only_events = filter(lambda fs_file: fs_file["filename"].startswith("event"), cursor)
+        self.debug("Got only_events")
         fs_files_size_bytes = functools.reduce(lambda fs_file1, fs_file2: fs_file1["length"] + fs_file2["length"],
                                                only_events,
                                                0)
