@@ -85,6 +85,16 @@ class SystemStatsPlugin(plugins.base_plugin.MaukaPlugin):
             fs_files_size_bytes
         )
 
+    def num_active_devices(self) -> int:
+        measurements_last_minute = self.mongo_client.measurements_collection.find({"timestamp_ms": {"$gt": (timestamp() - 5) * 1000}},
+                                                                                  projection={"_id": False,
+                                                                                              "timestamp_ms": True,
+                                                                                              "box_id": True})
+        box_ids = set(map(lambda measurement: measurement["box_id"], measurements_last_minute))
+        return len(box_ids)
+
+
+
     def phenomena_size_bytes(self) -> int:
         return 0
 
@@ -95,6 +105,10 @@ class SystemStatsPlugin(plugins.base_plugin.MaukaPlugin):
         """
         self.debug("Collecting stats...")
         mem_stats = psutil.virtual_memory()
+        # active_devices = self.num_active_devices()
+        # box_samples_ttl = self.mongo_client.get_ttl("box_samples")
+
+
 
         stats = {
             "timestamp_s": timestamp(),
@@ -107,7 +121,7 @@ class SystemStatsPlugin(plugins.base_plugin.MaukaPlugin):
             "laha_stats": {
                 "instantaneous_measurements_stats": {
                     "box_samples": {
-                        "ttl": self.mongo_client.get_ttl("box_samples"),
+                        "ttl": -1,
                         "count": 0,
                         "size_bytes": 0
                     }
