@@ -46,6 +46,7 @@ class SystemStatsPlugin(plugins.base_plugin.MaukaPlugin):
         timer.start()
 
     def events_size_bytes(self) -> int:
+        self.debug("Collecting event stats...")
         events_collection_size_bytes = self.mongo_client.get_collection_size_bytes(mongo.Collection.EVENTS)
         box_events_collection_size_bytes = self.mongo_client.get_collection_size_bytes(mongo.Collection.BOX_EVENTS)
 
@@ -59,6 +60,7 @@ class SystemStatsPlugin(plugins.base_plugin.MaukaPlugin):
         fs_files_size_bytes = functools.reduce(lambda fs_file1, fs_file2: fs_file1["length"] + fs_file2["length"],
                                                only_events,
                                                0)
+        self.debug("Done collecting event stats.")
         return (
                 events_collection_size_bytes +
                 box_events_collection_size_bytes +
@@ -66,6 +68,7 @@ class SystemStatsPlugin(plugins.base_plugin.MaukaPlugin):
         )
 
     def incidents_size_bytes(self) -> int:
+        self.debug("Collecting incident stats...")
         incidents_collection_size_bytes = self.mongo_client.get_collection_size_bytes(mongo.Collection.INCIDENTS)
 
         cursor = self.mongo_client.fs_files_collection.find({},
@@ -77,6 +80,7 @@ class SystemStatsPlugin(plugins.base_plugin.MaukaPlugin):
         fs_files_size_bytes = functools.reduce(lambda fs_file1, fs_file2: fs_file1["length"] + fs_file2["length"],
                                                only_incidents,
                                                0)
+        self.debug("Done collecting incident stats.")
 
         return (
             incidents_collection_size_bytes +
