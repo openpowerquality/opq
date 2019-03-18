@@ -59,9 +59,7 @@ class SystemStatsPlugin(plugins.base_plugin.MaukaPlugin):
 
         only_events = filter(lambda fs_file: fs_file["filename"].startswith("event"), cursor)
         self.debug("Got only_events")
-        fs_files_size_bytes = functools.reduce(lambda fs_file1, fs_file2: fs_file1["length"] + fs_file2["length"],
-                                               only_events,
-                                               0)
+        fs_files_size_bytes = sum(map(lambda fs_file: fs_file["length"], only_events))
         self.debug("Done collecting event stats.")
         return (
                 events_collection_size_bytes +
@@ -79,9 +77,7 @@ class SystemStatsPlugin(plugins.base_plugin.MaukaPlugin):
                                                                 'filename': True,
                                                                 'length': True})
         only_incidents = filter(lambda fs_file: fs_file["filename"].startswith("incident"), cursor)
-        fs_files_size_bytes = functools.reduce(lambda fs_file1, fs_file2: fs_file1["length"] + fs_file2["length"],
-                                               only_incidents,
-                                               0)
+        fs_files_size_bytes = sum(map(lambda fs_file: fs_file["length"], only_incidents))
         self.debug("Done collecting incident stats.")
 
         return (
