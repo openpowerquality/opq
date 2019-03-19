@@ -53,6 +53,7 @@ class SystemStatsPlugin(plugins.base_plugin.MaukaPlugin):
         """
         self.debug("Collecting event stats...")
         events_collection_size_bytes = self.mongo_client.get_collection_size_bytes(mongo.Collection.EVENTS)
+        # pylint: disable=C0103
         box_events_collection_size_bytes = self.mongo_client.get_collection_size_bytes(mongo.Collection.BOX_EVENTS)
         self.debug("Got collection sizes...")
         cursor = self.mongo_client.fs_files_collection.find({},
