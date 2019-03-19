@@ -278,11 +278,6 @@ class MakaiEventPlugin(plugins.base_plugin.MaukaPlugin):
                                                                                               self.cutoff_frequency,
                                                                                               self.samples_per_window,
                                                                                               self.down_sample_factor)
-            self.debug("Producing AdcSamples[%d], RawVoltage[%d], RmsWindowedVoltage[%d], WindowedFrequency[%d]" %
-                       (len(adc_samples.payload.data),
-                        len(raw_voltage.payload.data),
-                        len(rms_windowed_voltage.payload.data),
-                        len(frequency_windowed.payload.data)))
             self.produce("AdcSamples", adc_samples)
             self.produce("RawVoltage", raw_voltage)
             self.produce("RmsWindowedVoltage", rms_windowed_voltage)

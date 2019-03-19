@@ -34,6 +34,10 @@ def usage():
 
 
 def bootstrap_db(conf: config.MaukaConfig):
+    """
+    Performs bootstrapping of the database.
+    :param conf: Configuration.
+    """
     mongo_client: mongo.OpqMongoClient = mongo.from_config(conf)
     if mongo_client.get_laha_config() is None:
         logger.info("laha_config DNE, inserting default from config...")
@@ -41,6 +45,10 @@ def bootstrap_db(conf: config.MaukaConfig):
 
 
 def bootstrap(conf: config.MaukaConfig):
+    """
+    Performs any bootstrapping.
+    :param conf: Configuration.
+    """
     bootstrap_db(conf)
 
 

@@ -1,20 +1,19 @@
 """
 This plugin calculates and stores statistics about mauka and the system,
 """
-import functools
 import json
 import multiprocessing.queues
 import threading
 import time
 import typing
 
+import psutil
+
 import config
 import mongo
 import plugins.base_plugin
 import protobuf.mauka_pb2
 import protobuf.util
-
-import psutil
 
 
 def timestamp() -> int:
@@ -46,6 +45,12 @@ class SystemStatsPlugin(plugins.base_plugin.MaukaPlugin):
         timer.start()
 
     def events_size_bytes(self) -> int:
+        """
+        Returns the size of the events collection, box_events collection, associated indexes, and associated gridfs
+        content.
+        :return: The size of the events collection, box_events collection, associated indexes, and associated gridfs
+        content.
+        """
         self.debug("Collecting event stats...")
         events_collection_size_bytes = self.mongo_client.get_collection_size_bytes(mongo.Collection.EVENTS)
         box_events_collection_size_bytes = self.mongo_client.get_collection_size_bytes(mongo.Collection.BOX_EVENTS)
@@ -62,12 +67,18 @@ class SystemStatsPlugin(plugins.base_plugin.MaukaPlugin):
         fs_files_size_bytes = sum(map(lambda fs_file: fs_file["length"], only_events))
         self.debug("Done collecting event stats.")
         return (
-                events_collection_size_bytes +
-                box_events_collection_size_bytes +
-                fs_files_size_bytes
+            events_collection_size_bytes +
+            box_events_collection_size_bytes +
+            fs_files_size_bytes
         )
 
     def incidents_size_bytes(self) -> int:
+        """
+        Returns the size of the incidents collection, associated indexes, and associated gridfs
+        content.
+        :return: The size of the incidents collection, associated indexes, and associated gridfs
+        content.
+        """
         self.debug("Collecting incident stats...")
         incidents_collection_size_bytes = self.mongo_client.get_collection_size_bytes(mongo.Collection.INCIDENTS)
 
@@ -86,6 +97,12 @@ class SystemStatsPlugin(plugins.base_plugin.MaukaPlugin):
         )
 
     def num_active_devices(self) -> int:
+        """
+        Returns the number of active devices.
+
+        Devices are considered active if they've send a measurement in the past 5 minutes.
+        :return: The number of active OPQBoxes.
+        """
         measurements_last_minute = self.mongo_client.measurements_collection.find({"timestamp_ms": {"$gt": (timestamp() - 5) * 1000}},
                                                                                   projection={"_id": False,
                                                                                               "timestamp_ms": True,
@@ -94,6 +111,10 @@ class SystemStatsPlugin(plugins.base_plugin.MaukaPlugin):
         return len(box_ids)
 
     def phenomena_size_bytes(self) -> int:
+        """
+        Returns the size of phenomena content.
+        :return: The size of phenomena content.
+        """
         return 0
 
     def collect_stats(self, interval_s: int):

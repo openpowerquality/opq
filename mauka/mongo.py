@@ -126,14 +126,23 @@ class OpqMongoClient:
         return self.database[collection]
 
     def get_laha_config(self) -> typing.Optional[typing.Dict]:
+        """
+        Returns the Laha Config document.
+        :return: The Laha Config document.
+        """
         return self.laha_config_collection.find_one()
 
-    def get_ttl(self, service: str) -> int:
+    def get_ttl(self, collection: str) -> int:
+        """
+        Returns the TTL for the provided collection.
+        :param collection: Collection to get TTL for.
+        :return: The TTL for the provided collection.
+        """
         laha_config = self.get_laha_config()
         if laha_config is None:
             return -1
         else:
-            return laha_config["ttls"][service]
+            return laha_config["ttls"][collection]
 
     def drop_collection(self, collection: str):
         """Drops a collection by name
@@ -161,6 +170,11 @@ class OpqMongoClient:
         self.database[collection].drop_indexes()
 
     def get_box_calibration_constant(self, box_id: str) -> float:
+        """
+        Returns the calibration constant associated with the provided box_id.
+        :param box_id: The box_id to get the calibration constant for.
+        :return: The calibration constant.
+        """
         opq_box = self.opq_boxes_collection.find_one({"box_id": box_id},
                                                      projection={'_id': False,
                                                                  "calibration_constant": True,
@@ -190,12 +204,10 @@ class OpqMongoClient:
                                     "metadata": {"incident_id": incident_id}})
 
     def get_collection_size_bytes(self,
-                                  collection: Collection,
-                                  query_filter: typing.Optional[typing.Dict] = None) -> int:
+                                  collection: Collection) -> int:
         """
         Returns the size of a collection in bytes including the size of the index.
         :param collection: Collection to get size of.
-        :param query_filter: An optional query filter.
         :return: Size of collection in bytes.
         """
         stats = self.database.command("collstats", collection.value)
