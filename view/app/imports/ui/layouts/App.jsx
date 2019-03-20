@@ -26,6 +26,7 @@ import LiveDataManager from '../../ui/pages/LiveDataManager';
 import EventInspectorPage from '../pages/EventInspectorPage';
 import EventOverview from '../../ui/components/EventInspector/EventOverview';
 import IncidentInspectorPage from '../pages/IncidentInspectorPage';
+import MetricsPage from '../pages/MetricsPage';
 
 /** Top-level layout component for this application. Called in imports/startup/client/startup.jsx. */
 class App extends React.Component {
@@ -47,6 +48,7 @@ class App extends React.Component {
               <AdminProtectedRoute path="/admin/manage/location" component={ManageLocationPage}/>
               <AdminProtectedRoute path="/admin/manage/region" component={ManageRegionPage}/>
               <AdminProtectedRoute path="/admin/manage/user" component={ManageUserPage}/>
+              <AdminProtectedRoute path="/admin/metrics" component={MetricsPage}/>
               <ProtectedRoute path="/profile" component={Profile}/>
               <ProtectedRoute path="/boxmap" component={BoxMapPage}/>
               <ProtectedRoute path="/signout" component={Signout} />
