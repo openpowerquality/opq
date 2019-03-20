@@ -25,3 +25,22 @@ export const getIncidentsInRange = new ValidatedMethod({
         return null;
     },
 });
+
+/** Returns the incident document of the given incident_id.
+ * @param {Number} event_id: The event_id of the event to retrieve
+ */
+export const getIncidentByIncidentID = new ValidatedMethod({
+    name: 'Incidents.getIncidentByIncidentID',
+    mixins: [CallPromiseMixin],
+    validate: new SimpleSchema({
+        incident_id: { type: Number },
+    }).validator({ clean: true }),
+    run({ incident_id }) {
+        if (Meteor.isServer) {
+            const incident = Incidents.findOne({ incident_id });
+            if (!incident) throw new Meteor.Error('invalid-incident-id', `The incident ${incident_id} could not be found.`);
+            return incident;
+        }
+        return null;
+    },
+});
