@@ -46,7 +46,7 @@ def bootstrap_db(conf: config.MaukaConfig):
         mongo_client.laha_config_collection.insert_one(conf.get("laha.config.default"))
 
     # Indexes
-    mongo_client.incidents_collection.create_index({"expire_at": 1}, expireAfterSeconds=0)
+    mongo_client.incidents_collection.create_index("expire_at", expireAfterSeconds=0)
 
 
 def bootstrap(conf: config.MaukaConfig):
