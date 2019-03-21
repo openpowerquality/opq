@@ -68,6 +68,7 @@ class Collection(enum.Enum):
     PHENOMENA = "phenomena"
     GROUND_TRUTH = "ground_truth"
     FS_FILES = "fs.files"
+    FS_CHUNKS = "fs.chunks"
     LAHA_CONFIG = "laha_config"
 
 
@@ -119,6 +120,8 @@ class OpqMongoClient:
         self.fs_files_collection = self.get_collection(Collection.FS_FILES.value)
 
         self.laha_config_collection = self.get_collection(Collection.LAHA_CONFIG.value)
+
+        self.fs_chunks_collection = self.get_collection(Collection.FS_CHUNKS.value)
 
     def get_collection(self, collection: str) -> pymongo.collection.Collection:
         """ Returns a mongo collection by name
@@ -203,15 +206,29 @@ class OpqMongoClient:
         """
         return self.gridfs.find_one({"filename": fid}).read()
 
-    def write_incident_waveform(self, incident_id: int, gridfs_filename: str, payload: bytes):
+    def write_incident_waveform(self,
+                                incident_id: int,
+                                gridfs_filename: str,
+                                payload: bytes,
+                                expire_at: datetime.datetime):
         """
         Write incident waveform to database.
+        :param expire_at: When the incident waveform should expire.
         :param incident_id: The id of the incident we are storing a waveform for.
         :param gridfs_filename: The filename to store the waveform to.
         :param payload: The bytes of the waveform.
         """
         self.gridfs.put(payload, **{"filename": gridfs_filename,
+                                    "expire_at": expire_at,
                                     "metadata": {"incident_id": incident_id}})
+
+        # Lookup chunks and set TTL on chunks as well
+        fs_file = self.gridfs.find_one({"filename": gridfs_filename},
+                                       projection={"_id": True,
+                                                   "filename": True})
+        fs_file_id = fs_file["_id"]
+        self.fs_chunks_collection.update_many({"files_id": fs_file_id},
+                                              {"$set": {"expire_at": expire_at}})
 
     def get_collection_size_bytes(self,
                                   collection: Collection) -> int:
@@ -377,6 +394,7 @@ def store_incident(event_id: int,
     incident_id = next_available_incident_id(mongo_client)
     location = get_location(box_id, mongo_client)
     ieee_duration = get_ieee_duration(end_timestamp_ms - start_timestamp_ms).value
+    expire_at = utc_datetime_plus_s(mongo_client.get_ttl("incidents"))
 
     if copy_data:
         box_event = mongo_client.box_events_collection.find_one({"event_id": event_id,
@@ -401,7 +419,7 @@ def store_incident(event_id: int,
             numpy.int16).tobytes()
 
         gridfs_filename = "incident_{}".format(incident_id)
-        mongo_client.write_incident_waveform(incident_id, gridfs_filename, incident_adc_samples_bytes)
+        mongo_client.write_incident_waveform(incident_id, gridfs_filename, incident_adc_samples_bytes, expire_at)
     else:
         measurements = []
         gridfs_filename = ""
@@ -421,7 +439,7 @@ def store_incident(event_id: int,
         "ieee_duration": ieee_duration,
         "annotations": annotations,
         "metadata": metadata,
-        "expire_at": utc_datetime_plus_s(mongo_client.get_ttl("incidents"))
+        "expire_at": expire_at
     }
 
     mongo_client.incidents_collection.insert_one(incident)

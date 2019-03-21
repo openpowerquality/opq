@@ -47,6 +47,8 @@ def bootstrap_db(conf: config.MaukaConfig):
 
     # Indexes
     mongo_client.incidents_collection.create_index("expire_at", expireAfterSeconds=0)
+    mongo_client.fs_files_collection.create_index("expire_at", expireAfterSeconds=0)
+    mongo_client.fs_chunks_collection.create_index("expire_at", expireAfterSeconds=0)
 
 
 def bootstrap(conf: config.MaukaConfig):
