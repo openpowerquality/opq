@@ -44,3 +44,26 @@ export const getIncidentByIncidentID = new ValidatedMethod({
         return null;
     },
 });
+
+/** Returns all Incidents that originated from the same Event for the given incident_id.
+ * @param {Number} event_id: The event_id of the event to retrieve
+ */
+export const getIncidentsFromSameEvent = new ValidatedMethod({
+  name: 'Incidents.getIncidentsFromSameEvent',
+  mixins: [CallPromiseMixin],
+  validate: new SimpleSchema({
+    incident_id: { type: Number },
+  }).validator({ clean: true }),
+  run({ incident_id }) {
+    if (Meteor.isServer) {
+      const incident = Incidents.findOne({ incident_id });
+      if (!incident) throw new Meteor.Error('invalid-incident-id', `The incident ${incident_id} could not be found.`);
+      if (incident.event_id < 0) return [];
+      const incidents = Incidents.find({ event_id: incident.event_id })
+          .fetch()
+          .filter(incid => incid.incident_id !== incident_id);
+      return incidents;
+    }
+    return null;
+  },
+});

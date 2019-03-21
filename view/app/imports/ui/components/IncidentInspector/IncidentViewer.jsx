@@ -2,16 +2,18 @@ import { Meteor } from 'meteor/meteor';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { withTracker } from 'meteor/react-meteor-data';
-import { Grid, Loader, Message, Icon, Segment, Header, List, Tab, Container } from 'semantic-ui-react';
+import { Grid, Loader, Message, Icon, Segment, Header, List, Tab, Container, Button } from 'semantic-ui-react';
+import { Link } from 'react-router-dom';
 import { Map, TileLayer, ZoomControl } from 'react-leaflet';
 import Moment from 'moment/moment';
 import LeafletMarkerManager from '../BoxMap/LeafletMarkerManager';
 import WidgetPanel from '../../layouts/WidgetPanel';
 import { OpqBoxes } from '../../../api/opq-boxes/OpqBoxesCollection';
 import { Locations } from '../../../api/locations/LocationsCollection';
-import { getIncidentByIncidentID } from '../../../api/incidents/IncidentsCollection.methods';
+import { getIncidentByIncidentID, getIncidentsFromSameEvent } from '../../../api/incidents/IncidentsCollection.methods';
 import { getEventWaveformViewerData } from '../../../api/events/EventsCollection.methods';
 import WaveformViewer from '../WaveformViewer';
+
 
 /** Displays details of an individual Incident */
 class IncidentViewer extends React.Component {
@@ -22,6 +24,7 @@ class IncidentViewer extends React.Component {
       isLoading: false,
       incident: null,
       eventWaveformViewerData: null,
+      relatedIncidents: [],
       errorReason: null,
     };
   }
@@ -29,6 +32,15 @@ class IncidentViewer extends React.Component {
   componentDidMount() {
     const { incident_id } = this.props;
     this.retrieveInitialData(incident_id);
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    const { incident } = this.state;
+
+    // Retrieve other related Incidents once primary Incident has been retrieved (via retrieveInitialData()).
+    if (incident && !prevState.incident) {
+      this.retrieveRelatedIncidents(incident.incident_id);
+    }
   }
 
   helpText = `
@@ -145,7 +157,7 @@ class IncidentViewer extends React.Component {
                         gridfs_filename={originatingBox.boxEvent.data_fs_filename}
                         opqBoxDoc={originatingBox.opqBox}
                         startTimeMs={originatingBox.boxEvent.event_start_timestamp_ms}
-                        title={`Originating Event Waveform (Event #${originatingBox.boxEvent.event_id}, Box #${originatingBox.boxEvent.box_id})`}
+                        title={`Source Event Waveform (Event #${originatingBox.boxEvent.event_id}, Box #${originatingBox.boxEvent.box_id})`}
                         displayOnLoad/>
     ) : null;
   }
@@ -154,7 +166,7 @@ class IncidentViewer extends React.Component {
     const panes = [
       { menuItem: 'Incident Details', render: () => <Tab.Pane as={Container}>{this.renderIncidentDetailsList()}</Tab.Pane> },
       { menuItem: 'Metadata', render: () => <Tab.Pane as={Container}>{this.renderMetadataList()}</Tab.Pane> },
-      { menuItem: 'Related', render: () => <Tab.Pane as={Container}>List similar stuff here</Tab.Pane> },
+      { menuItem: 'Related', render: () => <Tab.Pane as={Container}>{this.renderRelatedInfo()}</Tab.Pane> },
     ];
 
     return (
@@ -257,6 +269,49 @@ class IncidentViewer extends React.Component {
     ) : 'No metadata for this Incident';
   }
 
+  renderRelatedInfo() {
+    const { incident, relatedIncidents } = this.state;
+
+    const ButtonLink = ({ to, text, color = 'green' }) => (
+        <Button
+            style={{ marginBottom: '3px' }}
+            icon
+            color={color}
+            as={Link}
+            to={to}>
+          <Icon size='large' name='share' />
+          <span style={{ marginLeft: '3px', verticalAlign: 'middle' }}>{text}</span>
+        </Button>
+    );
+
+    const srcEventButton = incident && incident.event_id > 0 ? (
+        <ButtonLink to={`/inspector/event/${incident.event_id}`} text={`Event #${incident.event_id}`} />
+    ) : 'None';
+
+    const relatedIncidentsButtons = relatedIncidents.length > 0 ? (
+        relatedIncidents.map(incid => (
+            <ButtonLink
+                key={incid.incident_id}
+                to={`/inspector/incident/${incid.incident_id}`}
+                text={`Incident #${incid.incident_id}`} />
+        ))
+    ) : 'None';
+
+    return incident ? (
+       <div>
+         <Header as='h3' dividing>
+           Source Event
+         </Header>
+         {srcEventButton}
+
+         <Header as='h3' dividing>
+           Incidents from same Event
+         </Header>
+         {relatedIncidentsButtons}
+       </div>
+    ) : null;
+  }
+
   renderError(errorMessage) {
     return (
         <Grid centered container stackable>
@@ -302,7 +357,7 @@ class IncidentViewer extends React.Component {
             this.setState({ isLoading: false, errorReason: error.reason });
           }
         } else {
-          // Retrieve filesnames for the given event_id (so we can display originating Event waveform).
+          // Retrieve event data for the given event_id (so we can display originating Event waveform).
           // eslint-disable-next-line no-lonely-if
           if (incident.event_id > -1) { // OUTAGE Incidents receive an event_id = -1
             getEventWaveformViewerData.call({ event_id: incident.event_id }, (err, eventWaveformViewerData) => {
@@ -320,6 +375,19 @@ class IncidentViewer extends React.Component {
           }
         }
       });
+    });
+  }
+
+  retrieveRelatedIncidents(incident_id) {
+    getIncidentsFromSameEvent.call({ incident_id }, (error, incidents) => {
+      if (error) {
+        console.log(error);
+        if (error.error === 'invalid-incident-id') {
+          this.setState({ isLoading: false, errorReason: error.reason });
+        }
+      } else {
+        this.setState({ relatedIncidents: incidents });
+      }
     });
   }
 
