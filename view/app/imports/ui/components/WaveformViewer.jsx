@@ -62,6 +62,7 @@ class WaveformViewer extends React.Component {
   }
 
   renderTopSegment() {
+    const { title = 'Waveform Viewer' } = this.props;
     const { waveformVisible } = this.state;
 
     return (
@@ -77,7 +78,7 @@ class WaveformViewer extends React.Component {
             <Checkbox toggle checked={waveformVisible} onClick={this.toggleWaveform} />
           </div>
           <Header size='medium' floated='left'>
-            Waveform Viewer
+            {title}
           </Header>
         </Segment>
     );
@@ -241,12 +242,14 @@ class WaveformViewer extends React.Component {
  * opqBoxDoc - The OpqBox document associated with the waveform.
  * startTimeMs - The starting time to display for the waveform graph, in milliseconds since epoch.
  * displayOnLoad - Enables automatic download and display of waveform graph once the component is mounted.
+ * title - The title to display in the header segment. Defaults to 'Waveform Viewer'.
  */
 WaveformViewer.propTypes = {
   gridfs_filename: PropTypes.string.isRequired,
   opqBoxDoc: PropTypes.object.isRequired,
   startTimeMs: PropTypes.number.isRequired,
   displayOnLoad: PropTypes.bool,
+  title: PropTypes.string,
 };
 
 // Note: This component does not require withTracker(); all the data it requires should be passed in from the parent
