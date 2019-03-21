@@ -10,6 +10,7 @@ import WidgetPanel from '../../layouts/WidgetPanel';
 import { OpqBoxes } from '../../../api/opq-boxes/OpqBoxesCollection';
 import { Locations } from '../../../api/locations/LocationsCollection';
 import { getIncidentByIncidentID } from '../../../api/incidents/IncidentsCollection.methods';
+import { getEventWaveformViewerData } from '../../../api/events/EventsCollection.methods';
 import WaveformViewer from '../WaveformViewer';
 
 /** Displays details of an individual Incident */
@@ -19,6 +20,8 @@ class IncidentViewer extends React.Component {
 
     this.state = {
       isLoading: false,
+      incident: null,
+      eventWaveformViewerData: null,
       errorReason: null,
     };
   }
@@ -53,7 +56,8 @@ class IncidentViewer extends React.Component {
                   <Grid>
                     <Grid.Column width={16}>{this.renderHeader()}</Grid.Column>
                     <Grid.Column width={16}>{this.renderIncidentDetailsCards()}</Grid.Column>
-                    <Grid.Column width={16}>{this.renderWaveformViewer()}</Grid.Column>
+                    <Grid.Column width={16}>{this.renderIncidentWaveform()}</Grid.Column>
+                    <Grid.Column width={16}>{this.renderEventWaveforms()}</Grid.Column>
                   </Grid>
                 </Grid.Column>
               </Grid>
@@ -111,7 +115,7 @@ class IncidentViewer extends React.Component {
     ) : null;
   }
 
-  renderWaveformViewer() {
+  renderIncidentWaveform() {
     const { opqBoxes } = this.props;
     const { incident } = this.state;
 
@@ -121,6 +125,27 @@ class IncidentViewer extends React.Component {
         <WaveformViewer gridfs_filename={incident.gridfs_filename}
                         opqBoxDoc={opqBox}
                         startTimeMs={incident.start_timestamp_ms}
+                        title={'Incident Waveform'}
+                        displayOnLoad/>
+    ) : null;
+  }
+
+  renderEventWaveforms() {
+    const { eventWaveformViewerData, incident } = this.state;
+
+    // Only display the BoxEvent matching Incident.box_id
+    let originatingBox = null;
+    if (eventWaveformViewerData && incident) {
+      const combined = [...eventWaveformViewerData.triggeredBoxes, ...eventWaveformViewerData.otherBoxes];
+      originatingBox = combined.find(({ boxEvent }) => boxEvent.box_id === incident.box_id);
+    }
+
+    return originatingBox ? (
+        <WaveformViewer key={originatingBox.boxEvent.data_fs_filename}
+                        gridfs_filename={originatingBox.boxEvent.data_fs_filename}
+                        opqBoxDoc={originatingBox.opqBox}
+                        startTimeMs={originatingBox.boxEvent.event_start_timestamp_ms}
+                        title={`Originating Event Waveform (Event #${originatingBox.boxEvent.event_id}, Box #${originatingBox.boxEvent.box_id})`}
                         displayOnLoad/>
     ) : null;
   }
@@ -277,7 +302,22 @@ class IncidentViewer extends React.Component {
             this.setState({ isLoading: false, errorReason: error.reason });
           }
         } else {
-          this.setState({ incident, isLoading: false });
+          // Retrieve filesnames for the given event_id (so we can display originating Event waveform).
+          // eslint-disable-next-line no-lonely-if
+          if (incident.event_id > -1) { // OUTAGE Incidents receive an event_id = -1
+            getEventWaveformViewerData.call({ event_id: incident.event_id }, (err, eventWaveformViewerData) => {
+              if (err) {
+                console.log(err);
+                if (err.error === 'invalid-event-id') {
+                  this.setState({ isLoading: false, errorReason: error.reason });
+                }
+              } else {
+                this.setState({ incident, eventWaveformViewerData, isLoading: false });
+              }
+            });
+          } else {
+            this.setState({ incident, isLoading: false });
+          }
         }
       });
     });

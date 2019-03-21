@@ -3,6 +3,8 @@ import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import { CallPromiseMixin } from 'meteor/didericis:callpromise-mixin';
 import SimpleSchema from 'simpl-schema';
 import { Events } from './EventsCollection.js';
+import { BoxEvents } from "../box-events/BoxEventsCollection";
+import { OpqBoxes } from "../opq-boxes/OpqBoxesCollection";
 
 /** Returns an array of events that were detected by specified boxes, in a specified range.
  * @param {String[]} boxIDs: List of box IDs to get data for
@@ -49,5 +51,42 @@ export const getEventByEventID = new ValidatedMethod({
   },
 });
 
-// jun12018: 1527890400000
-// jan12017: 1483308000000
+/** Helper function that returns an object containing all required information for displaying waveforms associated
+ * with the given event_id.
+ * @param {Number} event_id - The event_id to retrieve information for.
+ */
+export const getEventWaveformViewerData = new ValidatedMethod({
+  name: 'Events.getEventWaveformViewerData',
+  mixins: [CallPromiseMixin],
+  validate: new SimpleSchema({
+    event_id: { type: Number },
+  }).validator({ clean: true }),
+  run({ event_id }) {
+    if (Meteor.isServer) {
+      const event = Events.findOne({ event_id });
+      if (!event) throw new Meteor.Error('invalid-event-id', `The event_id ${event_id} could not be found.`);
+
+      // Each array element is {boxEvent, opqBox}
+      const retObj = {
+        event,
+        triggeredBoxes: [],
+        otherBoxes: [],
+      };
+
+      event.boxes_received.forEach(box_id => {
+        const boxEvent = BoxEvents.findOne({ event_id, box_id });
+        const opqBox = OpqBoxes.findOne({ box_id });
+        if (boxEvent && opqBox) {
+          if (event.boxes_triggered.indexOf(box_id) > -1) {
+            retObj.triggeredBoxes.push({ boxEvent, opqBox });
+          } else {
+            retObj.otherBoxes.push({ boxEvent, opqBox });
+          }
+        }
+      });
+
+      return retObj;
+    }
+    return null;
+  },
+});
