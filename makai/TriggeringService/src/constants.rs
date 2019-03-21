@@ -89,3 +89,7 @@ pub static MONGO_EVENTS_RECEIVED_FIELD: &str ="boxes_received";
 pub static MONGO_EVENTS_START_FIELD: &str ="target_event_start_timestamp_ms";
 pub static MONGO_EVENTS_END_FIELD: &str ="target_event_end_timestamp_ms";
 
+pub static MONGO_LAHA_CONFIG_COLLECTION: &str = "laha_config";
+pub static MONGO_LAHA_CONFIG_TTLS: &str = "ttls";
+pub static MONGO_LAHA_CONFIG_TTLS_EVENTS: &str = "events";
+
