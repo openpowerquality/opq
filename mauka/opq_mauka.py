@@ -39,9 +39,14 @@ def bootstrap_db(conf: config.MaukaConfig):
     :param conf: Configuration.
     """
     mongo_client: mongo.OpqMongoClient = mongo.from_config(conf)
+
+    # Check to make sure a laha config exists
     if mongo_client.get_laha_config() is None:
         logger.info("laha_config DNE, inserting default from config...")
         mongo_client.laha_config_collection.insert_one(conf.get("laha.config.default"))
+
+    # Indexes
+    mongo_client.incidents_collection.create_index({"expire_at": 1}, expireAfterSeconds=0)
 
 
 def bootstrap(conf: config.MaukaConfig):

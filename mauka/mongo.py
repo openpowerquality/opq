@@ -2,6 +2,7 @@
 This module contains classes and functions for querying and manipulating data within a mongo database.
 """
 
+import datetime
 import enum
 import typing
 
@@ -24,6 +25,15 @@ def to_s16bit(data: bytes) -> numpy.ndarray:
     :return:
     """
     return numpy.frombuffer(data, numpy.int16)
+
+
+def utc_datetime_plus_s(seconds: int) -> datetime.datetime:
+    """
+    Returns a datetime which is the current time + some number of seconds.
+    :param seconds: The number of seconds to add to the datetime.
+    :return: A datetime which is the current time + some number of seconds.
+    """
+    return datetime.datetime.utcnow() + datetime.timedelta(seconds=seconds)
 
 
 class IEEEDuration(enum.Enum):
@@ -410,7 +420,8 @@ def store_incident(event_id: int,
         "classifications": list(map(lambda e: e.value, classifications)),
         "ieee_duration": ieee_duration,
         "annotations": annotations,
-        "metadata": metadata
+        "metadata": metadata,
+        "expire_at": utc_datetime_plus_s(mongo_client.get_ttl("incidents"))
     }
 
     mongo_client.incidents_collection.insert_one(incident)
