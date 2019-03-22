@@ -10,6 +10,12 @@ import numpy
 import protobuf.mauka_pb2 as mauka_pb2
 import protobuf.opq_pb2
 
+LAHA = "laha"
+LAHA_TYPE = "laha_type"
+LAHA_ONEOF_TTL = "ttl"
+LAHA_ONEOF_GC_TRIGGER = "gc_trigger"
+LAHA_ONEOF_GC_UPDATE = "gc_update"
+
 
 def decode_trigger_message(encoded_trigger_message):
     """ Decodes and returns a serialized triggering message
@@ -190,8 +196,24 @@ def build_ttl(source: str,
     :return: The MaukaMessage.
     """
     mauka_message = build_mauka_message(source)
-    mauka_message.laha_config.ttl.collection = collection
-    mauka_message.laha_config.ttl.ttl_s = ttl_s
+    mauka_message.laha.ttl.collection = collection
+    mauka_message.laha.ttl.ttl_s = ttl_s
+    return mauka_message
+
+
+def build_gc_trigger(source: str,
+                     gc_domains: typing.List[mauka_pb2.GcDomain]) -> mauka_pb2.MaukaMessage:
+    mauka_message = build_mauka_message(source)
+    mauka_message.laha.gc_trigger.gc_domains[:] = gc_domains
+    return mauka_message
+
+
+def build_gc_update(source: str,
+                    from_domain: mauka_pb2.GcDomain,
+                    _id: str) -> mauka_pb2.MaukaMessage:
+    mauka_message = build_mauka_message(source)
+    mauka_message.gc_update.from_domain = from_domain
+    mauka_message.gc_update.id = _id
     return mauka_message
 
 
@@ -273,13 +295,13 @@ def is_measurement(mauka_message: mauka_pb2.MaukaMessage) -> bool:
     return which_message_oneof(mauka_message) == "measurement"
 
 
-def is_laha_config(mauka_message: mauka_pb2.MaukaMessage) -> bool:
+def is_laha(mauka_message: mauka_pb2.MaukaMessage) -> bool:
     """
     Returns whether this message is a LahaConfig message or not.
     :param mauka_message: Message to test.
     :return: True if this is a Laga Config message, False otherwise.
     """
-    return which_message_oneof(mauka_message) == "laha_config"
+    return which_message_oneof(mauka_message) == LAHA
 
 
 def is_ttl(mauka_message: mauka_pb2.MaukaMessage) -> bool:
@@ -288,7 +310,15 @@ def is_ttl(mauka_message: mauka_pb2.MaukaMessage) -> bool:
     :param mauka_message: Message to test.
     :return: True if this is a TTL message, False otherwise.
     """
-    return is_laha_config(mauka_message) and mauka_message.laha_config.WhichOneOf("laha_config") == "ttl"
+    return is_laha(mauka_message) and mauka_message.laha.WhichOneOf(LAHA_TYPE) == LAHA_ONEOF_GC_TRIGGER
+
+
+def is_gc_trigger(mauka_message: mauka_pb2.MaukaMessage) -> bool:
+    return is_laha(mauka_message) and mauka_message.laha.WhichOneOf(LAHA_TYPE) == LAHA_ONEOF_GC_TRIGGER
+
+
+def is_gc_update(mauka_message: mauka_pb2.MaukaMessage) -> bool:
+    return is_laha(mauka_message) and mauka_message.laha.WhichOneOf(LAHA_TYPE) == LAHA_ONEOF_GC_UPDATE
 
 
 def repeated_as_ndarray(repeated) -> numpy.ndarray:
