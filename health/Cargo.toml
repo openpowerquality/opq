@@ -1,0 +1,11 @@
+[package]
+name = "health"
+version = "0.1.0"
+authors = ["Evan <evanhata@hawaii.edu>"]
+edition = "2018"
+
+[dependencies]
+reqwest = "0.9.11"
+serde_json = "1.0.39"
+chrono = "0.4.0"
+bson = "0.13.0"
