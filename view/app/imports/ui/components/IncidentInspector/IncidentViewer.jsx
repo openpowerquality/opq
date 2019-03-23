@@ -2,7 +2,7 @@ import { Meteor } from 'meteor/meteor';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { withTracker } from 'meteor/react-meteor-data';
-import { Grid, Loader, Message, Icon, Segment, Header, List, Tab, Container, Button } from 'semantic-ui-react';
+import { Grid, Loader, Message, Icon, Segment, Header, List, Tab, Container, Button, Popup, Table } from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
 import { Map, TileLayer, ZoomControl } from 'react-leaflet';
 import Moment from 'moment/moment';
@@ -98,19 +98,30 @@ class IncidentViewer extends React.Component {
   renderIncidentDetailsCards() {
     const { incident } = this.state;
 
-    const IncidentDetailsCard = ({ header, subheader, icon, color }) => (
+    const IncidentDetailsCard = ({ header, subheader, icon, color, withPopupHelperFunc }) => (
         <Grid.Column>
           <Segment inverted={!!color} color={color} >
             <Header as='h3'>
               {icon ? <Icon name={icon} /> : null }
               <Header.Content>
                 {header}
+                {withPopupHelperFunc ? <PopupHelper popupContentsFunc={withPopupHelperFunc}/> : null}
                 <Header.Subheader>{subheader}</Header.Subheader>
               </Header.Content>
             </Header>
           </Segment>
         </Grid.Column>
     );
+
+    const PopupHelper = ({ popupContentsFunc }) => {
+      const iconStyle = { marginLeft: '3px' };
+      return (
+          <Popup trigger={<Icon style={iconStyle} name='question circle' />} wide='very' position='bottom left'>
+            {popupContentsFunc()}
+          </Popup>
+      );
+    };
+
 
     const incidentDuration = incident ? (incident.end_timestamp_ms - incident.start_timestamp_ms).toFixed(3) : null;
     const devFromNominal = incident && incident.deviation_from_nominal
@@ -119,13 +130,15 @@ class IncidentViewer extends React.Component {
 
     return incident ? (
         <Grid columns={4}>
-          <IncidentDetailsCard header='Classifications' subheader={incident.classifications} icon='lightning' color='yellow' />
-          <IncidentDetailsCard header='IEEE Duration' subheader={incident.ieee_duration} icon='clock' color='green' />
+          <IncidentDetailsCard header='Classifications' subheader={incident.classifications} icon='lightning' color='yellow' withPopupHelperFunc={this.renderIncidentClassificationsTable} />
+          <IncidentDetailsCard header='IEEE Duration' subheader={incident.ieee_duration} icon='clock' color='green' withPopupHelperFunc={this.renderIEEEDurationTable} />
           <IncidentDetailsCard header='Dev. from Nominal' subheader={devFromNominal} icon='chart line' color='teal' />
           <IncidentDetailsCard header='Duration' subheader={`${incidentDuration} ms`} icon='clock' color='blue' />
         </Grid>
     ) : null;
   }
+
+
 
   renderIncidentWaveform() {
     const { opqBoxes } = this.props;
@@ -310,6 +323,67 @@ class IncidentViewer extends React.Component {
          {relatedIncidentsButtons}
        </div>
     ) : null;
+  }
+
+  renderIncidentClassificationsTable() {
+    const TableRow = ({ classification, description }) => (
+        <Table.Row>
+          <Table.Cell>{classification}</Table.Cell>
+          <Table.Cell>{description}</Table.Cell>
+        </Table.Row>
+    );
+
+    return (
+        <Table size='small' compact striped celled>
+          <Table.Header>
+            <Table.Row>
+              <Table.HeaderCell>Classification</Table.HeaderCell>
+              <Table.HeaderCell>Description</Table.HeaderCell>
+            </Table.Row>
+          </Table.Header>
+
+          <Table.Body>
+            <TableRow classification='EXCESSIVE_THD' description='Exceeds IEEE 1159 recommendations for THD (5% over 200 ms windows)' />
+            <TableRow classification='ITIC_PROHIBITED' description='Voltage observed in the ITIC prohibited region.' />
+            <TableRow classification='ITIC_NO_DAMAGE' description='Voltage observed in the ITIC no damage region.' />
+            <TableRow classification='VOLTAGE_SWELL' description='Voltage greater than 1.1 pu' />
+            <TableRow classification='VOLTAGE_SAG' description='Voltage between 0.1 - 0.9 pu' />
+            <TableRow classification='VOLTAGE_INTERRUPTION' description='Voltage less than 0.1 pu' />
+            <TableRow classification='FREQUENCY_SWELL' description='Frequency greater than 60.1 Hz' />
+            <TableRow classification='FREQUENCY_SAG' description='Frequency between 58 Hz and 59.9 Hz' />
+            <TableRow classification='FREQUENCY_INTERRUPTION' description='Frequency less than 58 Hz' />
+            <TableRow classification='SEMI_F47_VIOLATION' description='Voltage observed at 0.5 pu for more than 200ms, 0.7 pu for more than 0.5 seconds, or 0.8 pu for more than 1 second.' />
+            <TableRow classification='OUTAGE' description='Power outage' />
+          </Table.Body>
+        </Table>
+    );
+  }
+
+  renderIEEEDurationTable() {
+    const TableRow = ({ classification, description }) => (
+        <Table.Row>
+          <Table.Cell>{classification}</Table.Cell>
+          <Table.Cell>{description}</Table.Cell>
+        </Table.Row>
+    );
+
+    return (
+        <Table size='small' compact striped celled>
+          <Table.Header>
+            <Table.Row>
+              <Table.HeaderCell>IEEE Duration</Table.HeaderCell>
+              <Table.HeaderCell>Description</Table.HeaderCell>
+            </Table.Row>
+          </Table.Header>
+
+          <Table.Body>
+            <TableRow classification='INSTANTANEOUS' description='A duration between 0.5 and 30 cycles' />
+            <TableRow classification='MOMENTARY' description='A duration between 30 cycles and 3 seconds' />
+            <TableRow classification='TEMPORARY' description='A duration between 3 seconds and 1 minute' />
+            <TableRow classification='SUSTAINED' description='A duration greater than 1 minute' />
+          </Table.Body>
+        </Table>
+    );
   }
 
   renderError(errorMessage) {
