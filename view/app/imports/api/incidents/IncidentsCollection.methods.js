@@ -9,18 +9,29 @@ export const getIncidentsInRange = new ValidatedMethod({
     name: 'Incidents.getIncidentsInRange',
     mixins: [CallPromiseMixin],
     validate: new SimpleSchema({
-        boxIds: { type: Array },
+        boxIds: { type: Array, minCount: 1 },
         'boxIds.$': { type: String },
         startTime_ms: { type: Number },
         endTime_ms: { type: Number },
+        classifications: { type: Array, minCount: 1 },
+        'classifications.$': { type: String },
+        ieee_durations: { type: Array, minCount: 1 },
+        'ieee_durations.$': { type: String },
+        annotations: { type: Array, optional: true },
+        'annotations.$': { type: String },
     }).validator({ clean: true }),
-    run({ boxIds, startTime_ms, endTime_ms }) {
+    run({ boxIds, startTime_ms, endTime_ms, classifications, ieee_durations, annotations }) {
         if (Meteor.isServer) {
-            return Incidents.find({
-                box_id: { $in: boxIds },
+            const query = {
                 start_timestamp_ms: { $gte: startTime_ms },
                 end_timestamp_ms: { $lte: endTime_ms },
-            }).fetch();
+            };
+            if (boxIds && boxIds.length && boxIds.indexOf('ALL') === -1) query.box_id = { $in: boxIds };
+            if (classifications && classifications.length && classifications.indexOf('ALL') === -1) query.classifications = { $in: classifications };
+            if (ieee_durations && ieee_durations.length && ieee_durations.indexOf('ALL') === -1) query.ieee_duration = { $in: ieee_durations };
+            if (annotations && annotations.length) query.annotations = { $in: annotations };
+
+            return Incidents.find(query).fetch();
         }
         return null;
     },
