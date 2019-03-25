@@ -3,7 +3,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { withTracker } from 'meteor/react-meteor-data';
 import { withRouter, Link } from 'react-router-dom';
-import { Grid, Input, Button, Loader, Table, Dropdown } from 'semantic-ui-react';
+import { Grid, Input, Button, Loader, Table, Dropdown, Form, Label } from 'semantic-ui-react';
 import Moment from 'moment/moment';
 import Lodash from 'lodash';
 import QueryString from 'query-string';
@@ -32,22 +32,22 @@ class IncidentInspector extends React.Component {
             incidents: [],
             column: null,
             direction: null, // Either 'ascending', 'descending', or null
+            formErrors: [],
         };
     }
 
     componentDidMount() {
-        const { start, end } = this.state;
+        const { start, end, selectedBoxes, selectedClassifications, selectedIeeeDurations } = this.state;
         const urlQueryObj = this.getUrlQueryObj();
+        // If component is mounted with url query values, then set those values, falling back on default values for
+        // the keys that are not given.
         if (urlQueryObj) {
-            // If startTime and endTime url params are not specified, will by default use the values set in constructor.
-            // This also makes it much simpler to internally link to the inspector, as we only need to specify the
-            // boxes parameter in the url; the startTime and endTime params will be created w/ default values.
             this.setState({
-                selectedBoxes: urlQueryObj.boxes,
+                selectedBoxes: urlQueryObj.boxes || selectedBoxes,
                 start: urlQueryObj.startTime || start,
                 end: urlQueryObj.endTime || end,
-                selectedClassifications: urlQueryObj.classifications,
-                selectedIeeeDurations: urlQueryObj.ieeeDurations,
+                selectedClassifications: urlQueryObj.classifications || selectedClassifications,
+                selectedIeeeDurations: urlQueryObj.ieeeDurations || selectedIeeeDurations,
             }, () => this.getIncidents());
         }
     }
@@ -83,39 +83,8 @@ class IncidentInspector extends React.Component {
         <WidgetPanel title='Incident Inspector' helpText={this.helpText}>
           <Grid container><Grid.Column width={16}><Grid stackable>
             <Grid.Row>
-              <Grid.Column width={4}>
-                <Input fluid label='Start' type='datetime-local'
-                       defaultValue={this.state.start} onChange={this.changeStart}/>
-              </Grid.Column>
-              <Grid.Column width={4}>
-                <Input fluid label='End' type='datetime-local'
-                       defaultValue={this.state.end} onChange={this.changeEnd}/>
-              </Grid.Column>
-              <Grid.Column width={5}>
-                <Dropdown multiple search selection fluid
-                          placeholder='Boxes'
-                          options={boxIdDropdownOptions}
-                          onChange={this.onChangeBoxes}
-                          value={this.state.selectedBoxes}/>
-              </Grid.Column>
-              <Grid.Column width={3}>
-                <Button content='Submit' fluid onClick={this.getIncidents}/>
-              </Grid.Column>
-            </Grid.Row>
-            <Grid.Row>
-              <Grid.Column width={4}>
-                <Dropdown multiple search selection fluid
-                          placeholder='Classification'
-                          options={classificationsDropdownOptions}
-                          onChange={this.onChangeClassifications}
-                          value={this.state.selectedClassifications}/>
-              </Grid.Column>
-              <Grid.Column width={4}>
-                <Dropdown multiple search selection fluid
-                          placeholder='IEEE Duration'
-                          options={ieeeDurationsDropdownOptions}
-                          onChange={this.onChangeIeeeDurations}
-                          value={this.state.selectedIeeeDurations}/>
+              <Grid.Column width={16}>
+                {this.renderForm()}
               </Grid.Column>
             </Grid.Row>
             {this.state.loading ? (
@@ -134,6 +103,69 @@ class IncidentInspector extends React.Component {
             ) : ''}
           </Grid></Grid.Column></Grid>
         </WidgetPanel>
+    );
+  }
+
+  renderForm() {
+    const { formErrors } = this.state;
+
+    // Check for form errors.
+    const boxesFormError = formErrors.find(err => err.name === 'boxIds');
+    const classificationsFormError = formErrors.find(err => err.name === 'classifications');
+    const ieeeDurationsFormError = formErrors.find(err => err.name === 'ieee_durations');
+
+    // Create dropdown options, also adding an additional 'ALL' option for each dropdown.
+    const boxIdDropdownOptions = this.props.boxIDs.map(boxID => ({ text: `Box ${boxID}`, value: boxID }));
+    boxIdDropdownOptions.unshift({ text: 'All Boxes', value: 'ALL' });
+    const classificationsDropdownOptions = Incidents.classificationTypes.map(type => ({ text: type, value: type }));
+    classificationsDropdownOptions.unshift({ text: 'All Classifications', value: 'ALL' });
+    const ieeeDurationsDropdownOptions = Incidents.ieeeDurationTypes.map(type => ({ text: type, value: type }));
+    ieeeDurationsDropdownOptions.unshift({ text: 'All Durations', value: 'ALL' });
+
+    return (
+        <Form>
+          <Form.Group>
+            <Form.Field width={3}>
+              <label>Start Time</label>
+              <Input type='datetime-local' defaultValue={this.state.start} onChange={this.changeStart}/>
+            </Form.Field>
+            <Form.Field width={3}>
+              <label>End Time</label>
+              <Input type='datetime-local' defaultValue={this.state.end} onChange={this.changeEnd}/>
+            </Form.Field>
+            <Form.Field width={4}>
+              <label>Boxes</label>
+              <Dropdown multiple search selection fluid
+                        error={!!boxesFormError}
+                        placeholder='Boxes'
+                        options={boxIdDropdownOptions}
+                        onChange={this.onChangeBoxes}
+                        value={this.state.selectedBoxes}/>
+              {boxesFormError ? <Label color='red' pointing>{boxesFormError.message}</Label> : null}
+            </Form.Field>
+            <Form.Field width={3}>
+              <label>Classification</label>
+              <Dropdown multiple search selection fluid
+                        error={!!classificationsFormError}
+                        placeholder='Classification'
+                        options={classificationsDropdownOptions}
+                        onChange={this.onChangeClassifications}
+                        value={this.state.selectedClassifications}/>
+              {classificationsFormError ? <Label color='red' pointing>{classificationsFormError.message}</Label> : null}
+            </Form.Field>
+            <Form.Field width={3}>
+              <label>IEEE Duration</label>
+              <Dropdown multiple search selection fluid
+                        error={!!ieeeDurationsFormError}
+                        placeholder='IEEE Duration'
+                        options={ieeeDurationsDropdownOptions}
+                        onChange={this.onChangeIeeeDurations}
+                        value={this.state.selectedIeeeDurations}/>
+              {ieeeDurationsFormError ? <Label color='red' pointing>{ieeeDurationsFormError.message}</Label> : null}
+            </Form.Field>
+          </Form.Group>
+          <Button color='green' content='Search Incidents' onClick={this.getIncidents}/>
+        </Form>
     );
   }
 
@@ -238,8 +270,11 @@ class IncidentInspector extends React.Component {
                 },
                 (error, incidents) => {
                     if (error) {
-                      console.log(error);
-                      this.setState({ loading: false, loaded: true });
+                      if (error.error === 'validation-error') {
+                        this.setState({ loading: false, loaded: true, formErrors: error.details });
+                      } else {
+                        this.setState({ loading: false, loaded: true });
+                      }
                     } else {
                       // Calculate and add a 'duration' property for each incident. This is because we want to be able
                       // to sort on the duration field (otherwise we could've just calculated duration in the render method).
@@ -252,6 +287,7 @@ class IncidentInspector extends React.Component {
                         incidents: incidentsWithDuration,
                         loading: false,
                         loaded: true,
+                        formErrors: [],
                       }, () => this.handleTableSort('_resetToDefaultState')());
                     }
                 },
