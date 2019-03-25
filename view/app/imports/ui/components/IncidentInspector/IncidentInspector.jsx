@@ -151,28 +151,28 @@ class IncidentInspector extends React.Component {
                             Incident ID
                         </Table.HeaderCell>
                         <Table.HeaderCell
+                            sorted={column === 'box_id' ? direction : null}
+                            onClick={this.handleTableSort('box_id')}
+                        >
+                          Box ID
+                        </Table.HeaderCell>
+                        <Table.HeaderCell
                             sorted={column === 'classifications' ? direction : null}
                             onClick={this.handleTableSort('classifications')}
                         >
                             Classifications
                         </Table.HeaderCell>
                         <Table.HeaderCell
-                            sorted={column === 'box_id' ? direction : null}
-                            onClick={this.handleTableSort('box_id')}
+                            sorted={column === 'ieee_duration' ? direction : null}
+                            onClick={this.handleTableSort('ieee_duration')}
                         >
-                            Box ID
+                          IEEE Duration
                         </Table.HeaderCell>
                         <Table.HeaderCell
                             sorted={column === 'start_timestamp_ms' ? direction : null}
                             onClick={this.handleTableSort('start_timestamp_ms')}
                         >
                             Start Time
-                        </Table.HeaderCell>
-                        <Table.HeaderCell
-                            sorted={column === 'end_timestamp_ms' ? direction : null}
-                            onClick={this.handleTableSort('end_timestamp_ms')}
-                        >
-                            End Time
                         </Table.HeaderCell>
                         <Table.HeaderCell
                             sorted={column === 'duration' ? direction : null}
@@ -184,14 +184,14 @@ class IncidentInspector extends React.Component {
                     </Table.Row>
                 </Table.Header>
                 <Table.Body>
-                    {incidents.map(({ incident_id, classifications, box_id, start_timestamp_ms, end_timestamp_ms }) => (
+                    {incidents.map(({ incident_id, classifications, ieee_duration, box_id, start_timestamp_ms, duration }) => (
                         <Table.Row key={incident_id}>
                             <Table.Cell>{incident_id}</Table.Cell>
-                            <Table.Cell>{classifications}</Table.Cell>
                             <Table.Cell>{box_id}</Table.Cell>
+                            <Table.Cell>{classifications}</Table.Cell>
+                            <Table.Cell>{ieee_duration}</Table.Cell>
                             <Table.Cell>{Moment(start_timestamp_ms).format('YYYY-MM-DD HH:mm:ss.SSS')}</Table.Cell>
-                            <Table.Cell>{Moment(end_timestamp_ms).format('YYYY-MM-DD HH:mm:ss.SSS')}</Table.Cell>
-                            <Table.Cell>{end_timestamp_ms - start_timestamp_ms}</Table.Cell>
+                            <Table.Cell>{typeof duration === 'number' ? duration.toFixed(2) : duration}</Table.Cell>
                             <Table.Cell>
                                 <Button color='blue'
                                         as={Link}
