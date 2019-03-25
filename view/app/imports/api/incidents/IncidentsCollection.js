@@ -26,6 +26,32 @@ class IncidentsCollection extends BaseCollection {
             annotations: [String],
             metadata: Object,
         }));
+
+        // Classification Types
+        this.EXCESSIVE_THD_TYPE = 'EXCESSIVE_THD';
+        this.ITIC_PROHIBITED_TYPE = 'ITIC_PROHIBITED';
+        this.ITIC_NO_DAMAGE_TYPE = 'ITIC_NO_DAMAGE';
+        this.VOLTAGE_SWELL_TYPE = 'VOLTAGE_SWELL';
+        this.VOLTAGE_SAG_TYPE = 'VOLTAGE_SAG';
+        this.VOLTAGE_INTERRUPTION_TYPE = 'VOLTAGE_INTERRUPTION';
+        this.FREQUENCY_SWELL_TYPE = 'FREQUENCY_SWELL';
+        this.FREQUENCY_SAG_TYPE = 'FREQUENCY_SAG';
+        this.FREQUENCY_INTERRUPTION_TYPE = 'FREQUENCY_INTERRUPTION';
+        this.SEMI_F47_VIOLATION_TYPE = 'SEMI_F47_VIOLATION';
+        this.OUTAGE_TYPE = 'OUTAGE';
+
+        this.classificationTypes = [this.EXCESSIVE_THD_TYPE, this.ITIC_PROHIBITED_TYPE, this.ITIC_NO_DAMAGE_TYPE,
+          this.VOLTAGE_SWELL_TYPE, this.VOLTAGE_SAG_TYPE, this.VOLTAGE_INTERRUPTION_TYPE, this.FREQUENCY_SWELL_TYPE,
+          this.FREQUENCY_SAG_TYPE, this.FREQUENCY_INTERRUPTION_TYPE, this.SEMI_F47_VIOLATION_TYPE, this.OUTAGE_TYPE];
+
+        // IEEE Duration Types
+        this.INSTANTANEOUS_DURATION = 'INSTANTANEOUS';
+        this.MOMENTARY_DURATION = 'MOMENTARY';
+        this.TEMPORARY_DURATION = 'TEMPORARY';
+        this.SUSTAINED_DURATION = 'SUSTAINED';
+
+        this.ieeeDurationTypes = [this.INSTANTANEOUS_DURATION, this.MOMENTARY_DURATION, this.TEMPORARY_DURATION,
+          this.SUSTAINED_DURATION];
     }
 
     /**
