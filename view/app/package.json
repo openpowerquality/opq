@@ -53,8 +53,7 @@
     "nightmare": "^3.0.1"
   },
   "scripts": {
-    "start": "cross-env METEOR_NO_RELEASE_CHECK=1 meteor --settings ../config/settings.development.json",
-    "start-production": "cross-env METEOR_NO_RELEASE_CHECK=1 meteor --settings ../config/settings.production.json",
+    "start": "cross-env METEOR_NO_RELEASE_CHECK=1 meteor --settings ../config/view.config.json",
     "build": "meteor build ../deploy --architecture os.linux.x86_64",
     "lint": "cross-env METEOR_NO_RELEASE_CHECK=1 eslint --quiet --ext .jsx --ext .js ./imports",
     "test": "cross-env METEOR_NO_RELEASE_CHECK=1 TEST_BROWSER_DRIVER=nightmare meteor test --once --driver-package meteortesting:mocha --no-release-check --port 3100",
