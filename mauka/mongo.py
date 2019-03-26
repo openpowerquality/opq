@@ -145,6 +145,14 @@ class OpqMongoClient:
         """
         return self.laha_config_collection.find_one()
 
+    def delete_gridfs(self, filename: str):
+        gridfs_document = self.fs_files_collection.find_one({"filename": filename},
+                                                            projection={"_id": True,
+                                                                        "filename": True})
+        if gridfs_document is not None:
+            file_id = gridfs_document["_id"]
+            self.gridfs.delete(file_id)
+
     def get_ttl(self, collection: str) -> int:
         """
         Returns the TTL for the provided collection.

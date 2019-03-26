@@ -2,6 +2,7 @@ import multiprocessing
 import time
 
 import config
+import mongo
 import plugins.base_plugin as base_plugin
 import protobuf.util as util_pb2
 import protobuf.mauka_pb2 as mauka_pb2
@@ -34,18 +35,36 @@ class LahaGcPlugin(base_plugin.MaukaPlugin):
     def handle_gc_trigger_events(self):
         self.debug("gc_trigger events")
         now = timestamp_s()
-        events = self.mongo_client.events_collection.find({"expires_at": {"$lt": now}}
-                                                          )
+        events = self.mongo_client.events_collection.find({"expires_at": {"$lt": now}},
+                                                          projection={"_id": True,
+                                                                      "expires_at": True,
+                                                                      "event_id": True,
+                                                                      "boxes_received": True})
+        
         # Find corresponding box events
+        box_events = []
+        for event in events:
+            for box_triggered in event["boxes_received"]:
+                box_event = self.mongo_client.box_events_collection.find_one({"event_id": event["event_id"],
+                                                                              "box_id": box_triggered},
+                                                                             projection={"_id": True,
+                                                                                         "event_id": True,
+                                                                                         "box_id": True,
+                                                                                         "data_fs_filename": True})
+                
+                if box_event is not None:
+                    box_events.append(box_event)
 
-        # Cleanup gridfs files for each box event
+        # Cleanup gridfs files and box_events
+        for box_event in box_events:
+            self.mongo_client.delete_gridfs(box_event["data_fs_filename"])
+            self.mongo_client.box_events_collection.delete_one({"_id": box_event["_id"]})
 
-        # Cleanup box events
+        self.debug("Garbage collected %d box_events and corresponding gridfs files")
 
         # Cleanup events
         delete_result = self.mongo_client.events_collection.delete_many({"expires_at": {"$lt": now}})
         self.debug("Garbage collected %d events" % delete_result.deleted_count)
-
 
     def handle_gc_trigger_incidents(self):
         self.debug("gc_trigger incidents")
