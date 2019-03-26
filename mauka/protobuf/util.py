@@ -210,7 +210,7 @@ def build_gc_trigger(source: str,
 
 def build_gc_update(source: str,
                     from_domain: mauka_pb2.GcDomain,
-                    _id: str) -> mauka_pb2.MaukaMessage:
+                    _id: int) -> mauka_pb2.MaukaMessage:
     mauka_message = build_mauka_message(source)
     mauka_message.gc_update.from_domain = from_domain
     mauka_message.gc_update.id = _id

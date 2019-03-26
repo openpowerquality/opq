@@ -22,21 +22,21 @@ class LahaGcPlugin(base_plugin.MaukaPlugin):
     def handle_gc_trigger_measurements(self):
         self.debug("gc_trigger measurements")
         now = timestamp_s()
-        delete_result = self.mongo_client.measurements_collection.delete_many({"expires_at": {"$lt": now}})
+        delete_result = self.mongo_client.measurements_collection.delete_many({"expire_at": {"$lt": now}})
         self.debug("Garbage collected %d measurements" % delete_result.deleted_count)
 
     def handle_gc_trigger_trends(self):
         self.debug("gc_trigger trends")
         now = timestamp_s()
-        delete_result = self.mongo_client.trends_collection.delete_many({"expires_at": {"$lt": now}})
+        delete_result = self.mongo_client.trends_collection.delete_many({"expire_at": {"$lt": now}})
         self.debug("Garbage collected %d trends" % delete_result.deleted_count)
 
     def handle_gc_trigger_events(self):
         self.debug("gc_trigger events")
         now = timestamp_s()
-        events = self.mongo_client.events_collection.find({"expires_at": {"$lt": now}},
+        events = self.mongo_client.events_collection.find({"expire_at": {"$lt": now}},
                                                           projection={"_id": True,
-                                                                      "expires_at": True,
+                                                                      "expire_at": True,
                                                                       "event_id": True,
                                                                       "boxes_received": True})
 
@@ -62,20 +62,20 @@ class LahaGcPlugin(base_plugin.MaukaPlugin):
         self.debug("Garbage collected %d box_events and corresponding gridfs data")
 
         # Cleanup events
-        delete_result = self.mongo_client.events_collection.delete_many({"expires_at": {"$lt": now}})
+        delete_result = self.mongo_client.events_collection.delete_many({"expire_at": {"$lt": now}})
         self.debug("Garbage collected %d events" % delete_result.deleted_count)
 
     def handle_gc_trigger_incidents(self):
         self.debug("gc_trigger incidents")
         now = timestamp_s()
-        incidents = self.mongo_client.incidents_collection.find({"expires_at": {"$lt": now}},
-                                                                projection={"expires_at": True,
+        incidents = self.mongo_client.incidents_collection.find({"expire_at": {"$lt": now}},
+                                                                projection={"expire_at": True,
                                                                             "gridfs_filename": True})
         filenames = list(map(lambda incident: incident["gridfs_filename"], incidents))
         for filename in filenames:
             self.mongo_client.delete_gridfs(filename)
 
-        delete_result = self.mongo_client.incidents_collection.delete_many({"expires_at": {"$lt": now}})
+        delete_result = self.mongo_client.incidents_collection.delete_many({"expire_at": {"$lt": now}})
         self.debug("Garbage collected %d incidents and associated gridfs data" % delete_result.deleted_count)
 
     def handle_gc_trigger_phenomena(self):
@@ -111,12 +111,12 @@ class LahaGcPlugin(base_plugin.MaukaPlugin):
                                                                    projection={"_id": True,
                                                                                "incident_id": True,
                                                                                "event_id": True,
-                                                                               "expires_at": True})
+                                                                               "expire_at": True})
         event = self.mongo_client.events_collection.find_one({"event_id": incident["event_id"]},
                                                              projection={"_id": True,
                                                                          "event_id": True})
         self.mongo_client.events_collection.update_one({"event_id": event["event_id"]},
-                                                       {"$set": {"expires_at": incident["expires_at"]}})
+                                                       {"$set": {"expire_at": incident["expire_at"]}})
         self.handle_gc_update_from_event(event["event_id"])
 
     def handle_gc_update_from_event(self, _id: str):
@@ -124,14 +124,14 @@ class LahaGcPlugin(base_plugin.MaukaPlugin):
         event = self.mongo_client.events_collection.find_one({"event_id": _id},
                                                              prjection={"_id": True,
                                                                         "event_id": True,
-                                                                        "expires_at": True,
+                                                                        "expire_at": True,
                                                                         "target_event_start_timestamp_ms": True,
                                                                         "target_event_end_timestamp_ms": True})
 
         query = {"timestamp_ms": {"$gte": event["target_event_start_timestamp_ms"],
                                   "$lte": event["target_event_end_timestamp_ms"]}}
 
-        update = {"$set": {"expires_at": event["expires_at"]}}
+        update = {"$set": {"expire_at": event["expire_at"]}}
 
         # Update trends
         update_trends_result = self.mongo_client.trends_collection.update_many(query, update)
@@ -139,7 +139,7 @@ class LahaGcPlugin(base_plugin.MaukaPlugin):
         # Update measurements
         update_measurements_result = self.mongo_client.measurements_collection.update_many(query, update)
 
-        self.debug("Updated expires_at=%d for %d trends and %d measurements" % (event["expires_at"],
+        self.debug("Updated expire_at=%d for %d trends and %d measurements" % (event["expire_at"],
                                                                                 update_trends_result.modified_count,
                                                                                 update_measurements_result.modified_count))
 

@@ -47,7 +47,7 @@ def thd(waveform: numpy.ndarray, fundamental: int) -> float:
 
 
 def sliding_thd(mongo_client, threshold_percent, sliding_window_ms, event_id: int, box_id: str,
-                box_event_start_timestamp: int, waveform: numpy.ndarray):
+                box_event_start_timestamp: int, waveform: numpy.ndarray) -> typing.List[int]:
     """
     Calculates sliding THD over a waveform.
     High THD values are then stored as incidents to the database.
@@ -64,6 +64,7 @@ def sliding_thd(mongo_client, threshold_percent, sliding_window_ms, event_id: in
     prev_beyond_threshold = False
     prev_idx = -1
     max_thd = -1
+    incident_ids = []
     for i, thd_i in enumerate(thds):
         if thd_i > max_thd:
             max_thd = thd_i
@@ -82,16 +83,20 @@ def sliding_thd(mongo_client, threshold_percent, sliding_window_ms, event_id: in
                 incident_start_timestamp = int(box_event_start_timestamp + (prev_idx * sliding_window_ms))
                 incident_end_timestamp = int(box_event_start_timestamp + (i * sliding_window_ms) + sliding_window_ms)
 
-                mongo.store_incident(event_id,
-                                     box_id,
-                                     incident_start_timestamp,
-                                     incident_end_timestamp,
-                                     mongo.IncidentMeasurementType.THD,
-                                     max_thd,
-                                     [mongo.IncidentClassification.EXCESSIVE_THD],
-                                     [],
-                                     {},
-                                     mongo_client)
+                incident_id = mongo.store_incident(event_id,
+                                                   box_id,
+                                                   incident_start_timestamp,
+                                                   incident_end_timestamp,
+                                                   mongo.IncidentMeasurementType.THD,
+                                                   max_thd,
+                                                   [mongo.IncidentClassification.EXCESSIVE_THD],
+                                                   [],
+                                                   {},
+                                                   mongo_client)
+
+                incident_ids.append(incident_id)
+
+    return incident_ids
 
 
 class ThdPlugin(plugins.base_plugin.MaukaPlugin):
@@ -121,13 +126,18 @@ class ThdPlugin(plugins.base_plugin.MaukaPlugin):
             self.debug("on_message {}:{} len:{}".format(mauka_message.payload.event_id,
                                                         mauka_message.payload.box_id,
                                                         len(mauka_message.payload.data)))
-            sliding_thd(self.mongo_client,
-                        self.threshold_percent,
-                        self.sliding_window_ms,
-                        mauka_message.payload.event_id,
-                        mauka_message.payload.box_id,
-                        mauka_message.payload.start_timestamp_ms,
-                        protobuf.util.repeated_as_ndarray(mauka_message.payload.data))
+            incident_ids = sliding_thd(self.mongo_client,
+                                       self.threshold_percent,
+                                       self.sliding_window_ms,
+                                       mauka_message.payload.event_id,
+                                       mauka_message.payload.box_id,
+                                       mauka_message.payload.start_timestamp_ms,
+                                       protobuf.util.repeated_as_ndarray(mauka_message.payload.data))
+            for incident_id in incident_ids:
+                # Produce a message to the GC
+                self.produce("laha_gc", protobuf.util.build_gc_update(self.name,
+                                                                      protobuf.mauka_pb2.INCIDENTS,
+                                                                      incident_id))
         else:
             self.logger.error("Received incorrect mauka message [%s] at ThdPlugin",
                               protobuf.util.which_message_oneof(mauka_message))

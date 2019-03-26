@@ -137,11 +137,12 @@ def classify_ieee1159_voltage(rms_features: np.ndarray):
 
 
 def ieee1159_voltage(mauka_message: protobuf.mauka_pb2.MaukaMessage, rms_features: np.ndarray,
-                     opq_mongo_client: mongo.OpqMongoClient = None):
+                     opq_mongo_client: mongo.OpqMongoClient = None) -> typing.List[int]:
     """
     Calculate the ieee1159 voltage incidents and add them to the mongo database
     """
     incidents, cycle_offsets = classify_ieee1159_voltage(rms_features)
+    incident_ids = []
 
     for idx, incident in enumerate(incidents):
         start_idx = cycle_offsets[idx][0]
@@ -153,7 +154,7 @@ def ieee1159_voltage(mauka_message: protobuf.mauka_pb2.MaukaMessage, rms_feature
         if max_deviation < max_deviation_neg:
             max_deviation = -max_deviation_neg
 
-        mongo.store_incident(
+        incident_id = mongo.store_incident(
             mauka_message.payload.event_id,
             mauka_message.payload.box_id,
             mauka_message.payload.start_timestamp_ms + analysis.c_to_ms(start_idx),
@@ -165,6 +166,10 @@ def ieee1159_voltage(mauka_message: protobuf.mauka_pb2.MaukaMessage, rms_feature
             {},
             opq_mongo_client
         )
+
+        incident_ids.append(incident_id)
+
+    return incident_ids
 
 
 class Ieee1159VoltagePlugin(plugins.base_plugin.MaukaPlugin):
@@ -189,11 +194,17 @@ class Ieee1159VoltagePlugin(plugins.base_plugin.MaukaPlugin):
         """
         self.debug("on_message")
         if protobuf.util.is_payload(mauka_message, protobuf.mauka_pb2.VOLTAGE_RMS_WINDOWED):
-            ieee1159_voltage(mauka_message,
-                             protobuf.util.repeated_as_ndarray(
-                                 mauka_message.payload.data
-                             ),
-                             self.mongo_client)
+            incident_ids = ieee1159_voltage(mauka_message,
+                                            protobuf.util.repeated_as_ndarray(
+                                                mauka_message.payload.data
+                                            ),
+                                            self.mongo_client)
+            for incident_id in incident_ids:
+                # Produce a message to the GC
+                self.produce("laha_gc", protobuf.util.build_gc_update(self.name,
+                                                                      protobuf.mauka_pb2.INCIDENTS,
+                                                                      incident_id))
+
         else:
             self.logger.error("Received incorrect mauka message [%s] at IticPlugin",
                               protobuf.util.which_message_oneof(mauka_message))

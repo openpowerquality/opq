@@ -101,5 +101,5 @@ message GcTrigger {
 
 message GcUpdate {
     GcDomain from_domain = 1;
-    string id = 2;
+    uint32 id = 2;
 }

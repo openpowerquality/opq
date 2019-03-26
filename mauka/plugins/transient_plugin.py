@@ -434,8 +434,9 @@ class TransientPlugin(plugins.base_plugin.MaukaPlugin):
                                                       protobuf.util.repeated_as_ndarray(mauka_message.payload.data),
                                                       mauka_message.payload.start_timestamp_ms, self.configs)
 
+
             for incident in incidents:
-                mongo.store_incident(
+                incident_id = mongo.store_incident(
                     incident["event_id"],
                     incident["box_id"],
                     incident["incident_start_ts"],
@@ -447,6 +448,11 @@ class TransientPlugin(plugins.base_plugin.MaukaPlugin):
                     incident["metadata"],
                     incident["mongo_client"]
                 )
+                # Produce a message to the GC
+                self.produce("laha_gc", protobuf.util.build_gc_update(self.name,
+                                                                      protobuf.mauka_pb2.INCIDENTS,
+                                                                      incident_id))
+
         else:
             self.logger.error("Received incorrect mauka message [%s] at TransientPlugin",
                               protobuf.util.which_message_oneof(mauka_message))
