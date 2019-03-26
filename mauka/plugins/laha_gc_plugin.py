@@ -17,7 +17,7 @@ class LahaGcPlugin(base_plugin.MaukaPlugin):
     def __init__(self,
                  conf: config.MaukaConfig,
                  exit_event: multiprocessing.Event):
-        super().__init__(conf, ["laha_gc"], LahaGcPlugin.NAME, exit_event)
+        super().__init__(conf, ["laha_gc", "heartbeat"], LahaGcPlugin.NAME, exit_event)
 
     def handle_gc_trigger_measurements(self):
         self.debug("gc_trigger measurements")
@@ -167,7 +167,16 @@ class LahaGcPlugin(base_plugin.MaukaPlugin):
 
     def on_message(self, topic: str, mauka_message: mauka_pb2.MaukaMessage):
         self.debug("Received from %s" % mauka_message.source)
-        if util_pb2.is_gc_trigger(mauka_message):
+        if util_pb2.is_heartbeat_message(mauka_message):
+            # For now, GC is triggered on heartbeats
+            self.produce("laha_gc", util_pb2.build_gc_trigger(self.name, [
+                mauka_pb2.MEASUREMENTS,
+                mauka_pb2.TRENDS,
+                mauka_pb2.EVENTS,
+                mauka_pb2.INCIDENTS,
+                mauka_pb2.PHENOMENA
+            ]))
+        elif util_pb2.is_gc_trigger(mauka_message):
             self.handle_gc_trigger(mauka_message.laha.gc_trigger)
         elif util_pb2.is_gc_update(mauka_message):
             self.handle_gc_update(mauka_message.gc_update)
