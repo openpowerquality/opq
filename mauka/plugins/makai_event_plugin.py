@@ -289,6 +289,9 @@ class MakaiEventPlugin(plugins.base_plugin.MaukaPlugin):
             timer = threading.Timer(self.get_data_after_s,
                                     function=self.acquire_and_produce,
                                     args=[mauka_message.makai_event.event_id])
+            
+            # Produce a message to the GC
+            self.produce("laha_gc", protobuf.util.build_gc_update(self.name, protobuf.mauka_pb2.EVENTS, mauka_message.makai_event.event_id))
             timer.start()
         else:
             self.logger.error("Received incorrect mauka message [%s] for MakaiEventPlugin",

@@ -107,21 +107,23 @@ class LahaGcPlugin(base_plugin.MaukaPlugin):
 
     def handle_gc_update_from_incident(self, _id: str):
         self.debug("gc_update incidents")
-        incident = self.mongo_client.incidents_collection.find_one({"_id": _id},
+        incident = self.mongo_client.incidents_collection.find_one({"incident_id": _id},
                                                                    projection={"_id": True,
+                                                                               "incident_id": True,
                                                                                "event_id": True,
                                                                                "expires_at": True})
         event = self.mongo_client.events_collection.find_one({"event_id": incident["event_id"]},
                                                              projection={"_id": True,
                                                                          "event_id": True})
-        self.mongo_client.events_collection.update_one({"_id": event["_id"]},
+        self.mongo_client.events_collection.update_one({"event_id": event["event_id"]},
                                                        {"$set": {"expires_at": incident["expires_at"]}})
-        self.handle_gc_update_from_event(event["_id"])
+        self.handle_gc_update_from_event(event["event_id"])
 
     def handle_gc_update_from_event(self, _id: str):
         self.debug("gc_update event")
-        event = self.mongo_client.events_collection.find_one({"_id": _id},
+        event = self.mongo_client.events_collection.find_one({"event_id": _id},
                                                              prjection={"_id": True,
+                                                                        "event_id": True,
                                                                         "expires_at": True,
                                                                         "target_event_start_timestamp_ms": True,
                                                                         "target_event_end_timestamp_ms": True})
