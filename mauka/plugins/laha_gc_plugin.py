@@ -2,7 +2,6 @@ import multiprocessing
 import time
 
 import config
-import mongo
 import plugins.base_plugin as base_plugin
 import protobuf.util as util_pb2
 import protobuf.mauka_pb2 as mauka_pb2
@@ -40,7 +39,7 @@ class LahaGcPlugin(base_plugin.MaukaPlugin):
                                                                       "expires_at": True,
                                                                       "event_id": True,
                                                                       "boxes_received": True})
-        
+
         # Find corresponding box events
         box_events = []
         for event in events:
@@ -51,7 +50,7 @@ class LahaGcPlugin(base_plugin.MaukaPlugin):
                                                                                          "event_id": True,
                                                                                          "box_id": True,
                                                                                          "data_fs_filename": True})
-                
+
                 if box_event is not None:
                     box_events.append(box_event)
 
@@ -60,7 +59,7 @@ class LahaGcPlugin(base_plugin.MaukaPlugin):
             self.mongo_client.delete_gridfs(box_event["data_fs_filename"])
             self.mongo_client.box_events_collection.delete_one({"_id": box_event["_id"]})
 
-        self.debug("Garbage collected %d box_events and corresponding gridfs files")
+        self.debug("Garbage collected %d box_events and corresponding gridfs data")
 
         # Cleanup events
         delete_result = self.mongo_client.events_collection.delete_many({"expires_at": {"$lt": now}})
@@ -69,8 +68,15 @@ class LahaGcPlugin(base_plugin.MaukaPlugin):
     def handle_gc_trigger_incidents(self):
         self.debug("gc_trigger incidents")
         now = timestamp_s()
+        incidents = self.mongo_client.incidents_collection.find({"expires_at": {"$lt": now}},
+                                                                projection={"expires_at": True,
+                                                                            "gridfs_filename": True})
+        filenames = list(map(lambda incident: incident["gridfs_filename"], incidents))
+        for filename in filenames:
+            self.mongo_client.delete_gridfs(filename)
+
         delete_result = self.mongo_client.incidents_collection.delete_many({"expires_at": {"$lt": now}})
-        self.debug("Garbage collected %d incidents" % delete_result.deleted_count)
+        self.debug("Garbage collected %d incidents and associated gridfs data" % delete_result.deleted_count)
 
     def handle_gc_trigger_phenomena(self):
         self.debug("gc_trigger phenomena")
@@ -95,37 +101,65 @@ class LahaGcPlugin(base_plugin.MaukaPlugin):
         if mauka_pb2.PHENOMENA in domains:
             self.handle_gc_trigger_phenomena()
 
-    def handle_gc_from_phenomena(self, _id: str):
+    def handle_gc_update_from_phenomena(self, _id: str):
         self.debug("gc_update phenomena")
         pass
 
-    def handle_gc_from_incident(self, _id: str):
+    def handle_gc_update_from_incident(self, _id: str):
         self.debug("gc_update incidents")
-        pass
+        incident = self.mongo_client.incidents_collection.find_one({"_id": _id},
+                                                                   projection={"_id": True,
+                                                                               "event_id": True,
+                                                                               "expires_at": True})
+        event = self.mongo_client.events_collection.find_one({"event_id": incident["event_id"]},
+                                                             projection={"_id": True,
+                                                                         "event_id": True})
+        self.mongo_client.events_collection.update_one({"_id": event["_id"]},
+                                                       {"$set": {"expires_at": incident["expires_at"]}})
+        self.handle_gc_update_from_event(event["_id"])
 
-    def handle_gc_from_event(self, _id: str):
-        self.debug("gc_from event")
-        pass
+    def handle_gc_update_from_event(self, _id: str):
+        self.debug("gc_update event")
+        event = self.mongo_client.events_collection.find_one({"_id": _id},
+                                                             prjection={"_id": True,
+                                                                        "expires_at": True,
+                                                                        "target_event_start_timestamp_ms": True,
+                                                                        "target_event_end_timestamp_ms": True})
 
-    def handle_gc_from_trend(self, _id: str):
+        query = {"timestamp_ms": {"$gte": event["target_event_start_timestamp_ms"],
+                                  "$lte": event["target_event_end_timestamp_ms"]}}
+
+        update = {"$set": {"expires_at": event["expires_at"]}}
+
+        # Update trends
+        update_trends_result = self.mongo_client.trends_collection.update_many(query, update)
+
+        # Update measurements
+        update_measurements_result = self.mongo_client.measurements_collection.update_many(query, update)
+
+        self.debug("Updated expires_at=%d for %d trends and %d measurements" % (event["expires_at"],
+                                                                                update_trends_result.modified_count,
+                                                                                update_measurements_result.modified_count))
+
+    def handle_gc_update_from_trend(self, _id: str):
         self.debug("gc_update trends")
         pass
 
-    def handle_gc_from_measurement(self, _id: str):
+    def handle_gc_update_from_measurement(self, _id: str):
         self.debug("gc_update measurements")
         pass
 
     def handle_gc_update(self, gc_update: mauka_pb2.GcUpdate):
         if gc_update.from_domain == mauka_pb2.PHENOMENA:
-            self.handle_gc_from_phenomena(gc_update.id)
+            self.handle_gc_update_from_phenomena(gc_update.id)
         elif gc_update.from_domain == mauka_pb2.INCIDENTS:
-            self.handle_gc_from_incident(gc_update.id)
+            self.handle_gc_update_from_incident(gc_update.id)
         elif gc_update.from_domain == mauka_pb2.EVENTS:
-            self.handle_gc_from_event(gc_update.id)
+            self.handle_gc_update_from_event(gc_update.id)
         elif gc_update.from_domain == mauka_pb2.TRENDS:
-            self.handle_gc_from_trend(gc_update.id)
+            self.handle_gc_update_from_trend(gc_update.id)
         elif gc_update.from_domain == mauka_pb2.MEASUREMENTS:
-            self.handle_gc_from_measurement(gc_update.id)
+            self.handle_gc_update_from_measurement(gc_update.id)
         else:
             pass
 
