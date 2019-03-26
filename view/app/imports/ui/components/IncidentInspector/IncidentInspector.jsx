@@ -3,7 +3,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { withTracker } from 'meteor/react-meteor-data';
 import { withRouter, Link } from 'react-router-dom';
-import { Grid, Input, Button, Loader, Table, Dropdown, Form, Label } from 'semantic-ui-react';
+import { Grid, Input, Button, Loader, Table, Dropdown, Form, Label, Pagination } from 'semantic-ui-react';
 import Moment from 'moment/moment';
 import Lodash from 'lodash';
 import QueryString from 'query-string';
@@ -32,8 +32,11 @@ class IncidentInspector extends React.Component {
             incidents: [],
             column: null,
             direction: null, // Either 'ascending', 'descending', or null
+            currPaginationPage: 1,
             formErrors: [],
         };
+
+        this.PAGINATION_ROWS_PER_PAGE = 10;
     }
 
     componentDidMount() {
@@ -97,7 +100,9 @@ class IncidentInspector extends React.Component {
             {this.state.loaded ? (
                 <Grid.Row>
                   <Grid.Column width={16}>
+                    {this.renderPagination({})}
                     {this.renderSortableTable()}
+                    {this.renderPagination({ showDisplayRange: false })}
                   </Grid.Column>
                 </Grid.Row>
             ) : ''}
@@ -169,10 +174,44 @@ class IncidentInspector extends React.Component {
     );
   }
 
-    renderSortableTable() {
-        const { incidents, column, direction } = this.state;
+  renderPagination({ showDisplayRange = true }) {
+    const { incidents, currPaginationPage } = this.state;
 
-        return (
+    const totalPages = incidents ? Math.ceil(incidents.length / this.PAGINATION_ROWS_PER_PAGE) : 1;
+
+    // Calculate current display range string
+    const startRange = `${((currPaginationPage - 1) * this.PAGINATION_ROWS_PER_PAGE) + 1}`;
+    const endRange = currPaginationPage !== totalPages ? currPaginationPage * this.PAGINATION_ROWS_PER_PAGE : incidents.length;
+    const currentRange = incidents.length > this.PAGINATION_ROWS_PER_PAGE
+        ? `${startRange} - ${endRange}`
+        : `${incidents.length}`;
+    const displayRangeString = incidents ? `Displaying ${currentRange} of ${incidents.length} Incidents` : null;
+
+    return incidents && incidents.length ? (
+        <Grid stackable>
+          <Grid.Column floated='left' width={4} verticalAlign='bottom'>
+            {showDisplayRange ? <p style={{ marginLeft: '5px' }}>{displayRangeString}</p> : null}
+          </Grid.Column>
+          <Grid.Column floated='right' width={12}>
+            <Pagination
+                floated='right'
+                totalPages={totalPages}
+                activePage={currPaginationPage}
+                onPageChange={this.handlePaginationClick}/>
+          </Grid.Column>
+        </Grid>
+    ) : null;
+  }
+
+    renderSortableTable() {
+        const { incidents, column, direction, currPaginationPage } = this.state;
+
+        const paginatedIncidents = incidents.filter((incident, index) => (
+            index >= this.PAGINATION_ROWS_PER_PAGE * (currPaginationPage - 1)
+            && index < this.PAGINATION_ROWS_PER_PAGE * currPaginationPage
+        ));
+
+        return paginatedIncidents.length ? (
             <Table sortable celled fixed striped>
                 <Table.Header>
                     <Table.Row>
@@ -216,7 +255,7 @@ class IncidentInspector extends React.Component {
                     </Table.Row>
                 </Table.Header>
                 <Table.Body>
-                    {incidents.map(({ incident_id, classifications, ieee_duration, box_id, start_timestamp_ms, duration }) => (
+                    {paginatedIncidents.map(({ incident_id, classifications, ieee_duration, box_id, start_timestamp_ms, duration }) => (
                         <Table.Row key={incident_id}>
                             <Table.Cell>{incident_id}</Table.Cell>
                             <Table.Cell>{box_id}</Table.Cell>
@@ -235,7 +274,7 @@ class IncidentInspector extends React.Component {
                     ))}
                 </Table.Body>
             </Table>
-        );
+        ) : 'No Results';
     }
 
     /**
@@ -247,6 +286,7 @@ class IncidentInspector extends React.Component {
     onChangeBoxes = (event, data) => { this.setState({ selectedBoxes: data.value.sort() }); };
     onChangeClassifications = (event, data) => { this.setState({ selectedClassifications: data.value }); };
     onChangeIeeeDurations = (event, data) => { this.setState({ selectedIeeeDurations: data.value }); };
+    handlePaginationClick = (e, data) => this.setState({ currPaginationPage: data.activePage });
 
     getIncidents = () => {
         const { start, end, selectedBoxes, selectedClassifications, selectedIeeeDurations } = this.state;
@@ -287,6 +327,7 @@ class IncidentInspector extends React.Component {
                         incidents: incidentsWithDuration,
                         loading: false,
                         loaded: true,
+                        currPaginationPage: 1,
                         formErrors: [],
                       }, () => this.handleTableSort('_resetToDefaultState')());
                     }
