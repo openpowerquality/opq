@@ -90,6 +90,7 @@ pub static MONGO_EVENTS_START_FIELD: &str ="target_event_start_timestamp_ms";
 pub static MONGO_EVENTS_END_FIELD: &str ="target_event_end_timestamp_ms";
 
 pub static MONGO_LAHA_CONFIG_COLLECTION: &str = "laha_config";
-pub static MONGO_LAHA_CONFIG_TTLS: &str = "ttls";
-pub static MONGO_LAHA_CONFIG_TTLS_EVENTS: &str = "events";
+pub const MONGO_LAHA_CONFIG_MEASUREMENTS_TTL: &str = "ttls.measurements";
+pub const MONGO_LAHA_CONFIG_TRENDS_TTL: &str = "ttls.trends";
+pub const MONGO_LAHA_CONFIG_EVENTS_TTL: &str = "ttls.events";
 

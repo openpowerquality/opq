@@ -27,6 +27,9 @@ pub struct Settings {
     pub event_request_expiration_window_ms: u64,
     ///Makai Instance Identity.
     pub identity : Option<String>,
+
+    pub ttl_cache_ttl: u64,
+
     ///Plugin specific settings.
     pub plugins: Vec<Value>,
 }

@@ -7,7 +7,6 @@ use mongodb;
 use mongodb::Client;
 use mongodb::ThreadedClient;
 use mongodb::db::ThreadedDatabase;
-use mongodb::coll::options::IndexOptions;
 
 use bson::*;
 use bson::Document;
@@ -134,8 +133,6 @@ pub struct MongoMetricStorage {
     live_coll: mongodb::coll::Collection,
     slow_coll: mongodb::coll::Collection,
     box_coll: mongodb::coll::Collection,
-    ///Mongo Expire time
-    expire_time_sec: u64,
     ///Mongo Trends time
     trend_time_sec: u64,
 
@@ -163,9 +160,8 @@ impl MongoMetricStorage {
             slow_coll: client
                 .db(MONGO_DATABASE)
                 .collection(MONGO_LONG_TERM_MEASUREMENT_COLLECTION),
-            expire_time_sec: settings.mongo_measurement_expiration_seconds,
             trend_time_sec: settings.mongo_trends_update_interval_seconds,
-            cached_ttl_provider: CachedTtlProvider::new(60, &client)
+            cached_ttl_provider: CachedTtlProvider::new(settings.ttl_cache_ttl, &client)
         };
 
         ret
