@@ -20,6 +20,7 @@ use crate::proto::opqbox3::{Metric, Measurement};
 
 use crate::config::Settings;
 use crate::mongodb::coll::options::WriteModel;
+use crate::mongo_ttl::CachedTtlProvider;
 
 
 struct MetricStatistics {
@@ -135,6 +136,8 @@ pub struct MongoMetricStorage {
     expire_time_sec: u64,
     ///Mongo Trends time
     trend_time_sec: u64,
+
+    cached_ttl_provider: CachedTtlProvider
 }
 
 impl MongoMetricStorage {
@@ -160,6 +163,7 @@ impl MongoMetricStorage {
                 .collection(MONGO_LONG_TERM_MEASUREMENT_COLLECTION),
             expire_time_sec: settings.mongo_measurement_expiration_seconds,
             trend_time_sec: settings.mongo_trends_update_interval_seconds,
+            cached_ttl_provider: CachedTtlProvider::new(60, &client)
         };
         let mut index_opts = IndexOptions::new();
         index_opts.expire_after_seconds = Some(0);
@@ -176,9 +180,9 @@ impl MongoMetricStorage {
     /// # Arguments
     /// * `msg` a new trigger message to process.
     fn generate_document(&self, msg: &Measurement) -> Document {
-        let expire_time: DateTime<Utc> =
-            Utc::now() + Duration::seconds(self.expire_time_sec as i64);
-        let bson_expire_time = Bson::from(expire_time);
+//        let expire_time: DateTime<Utc> =
+//            Utc::now() + Duration::seconds(self.expire_time_sec as i64);
+//        let bson_expire_time = Bson::from(expire_time);
         let mut doc = doc! {
             MONGO_BOX_ID_FIELD : msg.box_id.to_string(),
             MONGO_TIMESTAMP_FIELD : msg.timestamp_ms as u64,

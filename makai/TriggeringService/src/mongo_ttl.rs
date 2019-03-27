@@ -39,14 +39,13 @@ pub struct CachedTtlProvider {
 }
 
 impl CachedTtlProvider {
-    pub fn new(cache_for_seconds: u64, settings: &Settings) -> CachedTtlProvider {
+    pub fn new(cache_for_seconds: u64, mongo_client: &Client) -> CachedTtlProvider {
         CachedTtlProvider {
             cache_for_seconds,
             cached_measurements_ttl: None,
             cached_trends_ttl: None,
             cached_events_ttl: None,
-            laha_config_coll: Client::connect(&settings.mongo_host, settings.mongo_port)
-                .unwrap()
+            laha_config_coll: mongo_client
                 .db(MONGO_DATABASE)
                 .collection(MONGO_LAHA_CONFIG_COLLECTION)
         }
