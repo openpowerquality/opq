@@ -82,7 +82,8 @@ impl MeasurementDecimator {
     pub fn new() -> MeasurementDecimator {
         MeasurementDecimator {
             measurements: HashMap::new(),
-            last_insert: Utc::now(),
+            last_insert: Utc::now()
+//            cached_ttl_provider
         }
     }
     ///Clears the buffers.
@@ -108,7 +109,7 @@ impl MeasurementDecimator {
 
 
     ///Generates a bson document based on the values returned, clears the internal statistics, and resets the clock.
-    pub fn generate_document_and_reset(&mut self) -> Document {
+    pub fn generate_document_and_reset(&mut self, expire_at: u64) -> Document {
         let mut ret = Document::new();
         for ( measurement, statistic ) in self.measurements.iter_mut(){
 
@@ -118,6 +119,7 @@ impl MeasurementDecimator {
                         MONGO_LONG_TERM_MEASUREMENTS_MIN_FIELD : statistic.min,
                         MONGO_LONG_TERM_MEASUREMENTS_MAX_FIELD : statistic.max,
                         MONGO_LONG_TERM_MEASUREMENTS_FILTERED_FIELD : statistic.get_average(),
+                        MONGO_EXPIRE_FIELD : expire_at
                     },
             );
         }
@@ -165,13 +167,6 @@ impl MongoMetricStorage {
             trend_time_sec: settings.mongo_trends_update_interval_seconds,
             cached_ttl_provider: CachedTtlProvider::new(60, &client)
         };
-        let mut index_opts = IndexOptions::new();
-        index_opts.expire_after_seconds = Some(0);
-        index_opts.background = Some(true);
-        match ret.live_coll.create_index(doc! {"expireAt" : 1}, Some(index_opts)){
-            Ok(_) => {println!("Expire index on measurements created.")},
-            Err(_) => {println!("Expire index on measurements already present.")},
-        }
 
         ret
     }
@@ -179,14 +174,14 @@ impl MongoMetricStorage {
     ///Generate a new bson document for the live measurements.
     /// # Arguments
     /// * `msg` a new trigger message to process.
-    fn generate_document(&self, msg: &Measurement) -> Document {
+    fn generate_document(&mut self, msg: &Measurement) -> Document {
 //        let expire_time: DateTime<Utc> =
 //            Utc::now() + Duration::seconds(self.expire_time_sec as i64);
 //        let bson_expire_time = Bson::from(expire_time);
         let mut doc = doc! {
             MONGO_BOX_ID_FIELD : msg.box_id.to_string(),
             MONGO_TIMESTAMP_FIELD : msg.timestamp_ms as u64,
-            MONGO_EXPIRE_FIELD : bson_expire_time
+            MONGO_EXPIRE_FIELD : self.cached_ttl_provider.get_measurements_ttl()
         };
         for (proto_name, mongo_name) in MONGO_FIELD_REMAP.iter() {
             if let Some(metric) = msg.metrics.get(proto_name.clone()) {
@@ -199,7 +194,7 @@ impl MongoMetricStorage {
     }
 
     ///The mongo store loop. Run this in a thread.
-    pub fn run_loop(&self) {
+    pub fn run_loop(&mut self) {
         let mut map = HashMap::new();
         let mut update_backlog :Vec<WriteModel> = vec!();
         let mut last_update =  Utc::now();
@@ -223,7 +218,7 @@ impl MongoMetricStorage {
             box_stat.process_message(&msg);
             if box_stat.last_insert + Duration::seconds(self.trend_time_sec as i64) < Utc::now() {
                 //Build the long term measurement header
-                let mut doc = box_stat.generate_document_and_reset();
+                let mut doc = box_stat.generate_document_and_reset(self.cached_ttl_provider.get_trends_ttl());
                 doc.insert(MONGO_BOX_ID_FIELD, msg.box_id.to_string());
                 doc.insert(MONGO_TIMESTAMP_FIELD, msg.timestamp_ms);
 
