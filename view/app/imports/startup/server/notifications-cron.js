@@ -8,10 +8,6 @@ import { UserProfiles } from '../../api/users/UserProfilesCollection';
 
 SSR.compileTemplate('htmlEmail', Assets.getText('email-format.html'));
 
-SyncedCron.config({
-  log: Meteor.settings.syncedCronLogging,
-});
-
 function sendEmail(recipients, notifications, firstName, notificationNum) {
   const bool = notificationNum > 3;
   Email.send({
