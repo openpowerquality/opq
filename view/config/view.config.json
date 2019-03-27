@@ -1,4 +1,13 @@
 {
+  "adminUser": {
+    "username": "adminuser@example.com",
+    "password": "foo",
+    "firstName": "changeme",
+    "lastName": "changeme"
+  },
+  "env": {
+    "MAIL_URL": ""
+  },
   "syncedCron": {
     "logging": false
   },
