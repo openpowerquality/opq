@@ -37,7 +37,7 @@ fn main() {
     let channel: pub_sub::PubSub<Arc<Measurement>> = pub_sub::PubSub::new();
     let zmq_reader = TriggerReceiver::new(channel.clone(), &ctx, &settings);
     let mut mongo_event_storage = MongoStorageService::new(&ctx, &settings);
-    let mongo_metric_storage = MongoMetricStorage::new(channel.subscribe(), &settings);
+    let mut mongo_metric_storage = MongoMetricStorage::new(channel.subscribe(), &settings);
     //let mongo = MongoMeasurements::new(&client, channel.subscribe(), &settings);
 
     let mut handles = vec![];
