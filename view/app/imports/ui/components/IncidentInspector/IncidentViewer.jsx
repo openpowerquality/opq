@@ -408,7 +408,8 @@ class IncidentViewer extends React.Component {
 
   createMarkerLabel = (locationDoc) => {
     const { opqBoxes } = this.props;
-    const opqBox = opqBoxes.find(box => box.location === locationDoc.slug);
+    const { incident } = this.state;
+    const opqBox = opqBoxes.find(box => box.location === locationDoc.slug && box.box_id === incident.box_id);
     return `
       <div>
         <b>${locationDoc.description}</b>
