@@ -23,7 +23,7 @@ pub static MONGO_BOX_ID_FIELD: &str = "box_id";
 ///Mongo timestamp field.
 pub static MONGO_TIMESTAMP_FIELD: &str = "timestamp_ms";
 ///Mongo expire field.
-pub static MONGO_EXPIRE_FIELD: &str = "expireAt";
+pub static MONGO_EXPIRE_FIELD: &str = "expire_at";
 
 //Mongo Measurements
 ///Mongo measurements collection.
