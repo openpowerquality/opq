@@ -66,12 +66,15 @@ impl CachedTtlProvider {
     }
 
     fn mongo_get(&self, collection: &str) -> u64 {
-        let ttl = self.laha_config_coll.find_one(None, None)
-            .unwrap()
-            .unwrap()
-            .get(&format!("{}.{}", MONGO_LAHA_CONFIG_TTLS, collection))
-            .unwrap();
-        ttl.as_i64().unwrap() as u64
+        let laha_config_option = self.laha_config_coll
+            .find_one(None, None)
+            .expect("Error getting laha_config");
+        let laha_config = laha_config_option.expect("laha_config is blank");
+        let ttl = laha_config.get(&format!("ttls.{}", collection))
+            .expect("Could not retrieve ttl value!")
+            .as_i64()
+            .expect("Could not retrieve ttl value!");
+        return ttl as u64;
     }
 
     pub fn get_measurements_ttl(&mut self) -> u64 {
