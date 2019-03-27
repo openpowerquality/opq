@@ -1,6 +1,6 @@
 import './health-cron';
+import './init-admin-user';
 import './init-entities';
-import './menehune-catcher';
 import './notifications-cron';
 import './publications';
 import './synced-cron';
