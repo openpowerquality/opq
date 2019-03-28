@@ -28,24 +28,11 @@ pub static MONGO_EXPIRE_FIELD: &str = "expire_at";
 //Mongo Measurements
 ///Mongo measurements collection.
 pub static MONGO_MEASUREMENT_COLLECTION: &str = "measurements";
-///Mongo measurements collection voltage field.
-//pub static MONGO_MEASUREMENTS_VOLTAGE_FIELD: &str = "voltage";
-///Mongo measurements collection frequency field.
-//pub static MONGO_MEASUREMENTS_FREQUENCY_FIELD: &str = "frequency";
-///Mongo measurements collection total harmonic distortion field.
-//pub static MONGO_MEASUREMENTS_THD_FIELD: &str = "thd";
 
 //Mongo Measurements long term
 ///Mongo long term measurements collection
 pub static MONGO_LONG_TERM_MEASUREMENT_COLLECTION: &str = "trends";
 
-//We now do this dynamically
-///Mongo long term measurements collection voltage field.
-//pub static MONGO_LONG_TERM_MEASUREMENTS_VOLTAGE_FIELD: &str = "voltage";
-///Mongo long term measurements collection frequency field.
-//pub static MONGO_LONG_TERM_MEASUREMENTS_FREQUENCY_FIELD: &str = "frequency";
-///Mongo long term measurements collection total harmonic distortion field.
-//pub static MONGO_LONG_TERM_MEASUREMENTS_THD_FIELD: &str = "thd";
 
 ///Mongo long term measurements collection statistics minimum.
 pub static MONGO_LONG_TERM_MEASUREMENTS_MIN_FIELD: &str = "min";
@@ -67,30 +54,10 @@ pub static MONGO_OPQ_BOXES_BOX_ID_FIELD: &str = "box_id";
 pub static MONGO_OPQ_BOXES_LOCATION_FIELD: &str = "location";
 
 
-//Mongo box events collection:
-pub static MONGO_BOX_EVENTS_COLLECTION: &str = "box_events";
-//Mongo events collection event id;
-pub static MONGO_BOX_EVENTS_ID_FIELD: &str = "event_id";
-pub static MONGO_BOX_EVENTS_BOX_ID_FIELD: &str  = "box_id";
-pub static MONGO_BOX_EVENTS_EVENT_START_FIELD: &str  = "event_start_timestamp_ms";
-pub static MONGO_BOX_EVENTS_EVENT_END_FIELD: &str  = "event_end_timestamp_ms";
-//pub static MONGO_BOX_EVENTS_WINDOW_TS_FIELD: &str  = "window_timestamps_ms";
-pub static MONGO_BOX_EVENTS_LOCATION_FIELD: &str  = "location";
-pub static MONGO_BOX_EVENTS_FS_FIELD: &str  = "data_fs_filename";
-pub static MONGO_BOX_EVENTS_TYPE_FIELD: &str  = "type";
-pub static MONGO_BOX_EVENTS_TYPE_VALUE: &str  = "VOLTAGE_SAG";
-//Mongo events collection:
-pub static MONGO_EVENTS_COLLECTION: &str = "events";
-pub static MONGO_EVENTS_ID_FIELD: &str ="event_id";
-pub static MONGO_EVENTS_DESCRIPTION_FIELD: &str ="description";
-pub static MONGO_EVENTS_TRIGGERED_FIELD: &str ="boxes_triggered";
-pub static MONGO_EVENTS_RECEIVED_FIELD: &str ="boxes_received";
-//pub static MONGO_EVENTS_LATENCIES_FIELD: &str ="latencies_ms";
-pub static MONGO_EVENTS_START_FIELD: &str ="target_event_start_timestamp_ms";
-pub static MONGO_EVENTS_END_FIELD: &str ="target_event_end_timestamp_ms";
-
 pub static MONGO_LAHA_CONFIG_COLLECTION: &str = "laha_config";
 pub const MONGO_LAHA_CONFIG_MEASUREMENTS_TTL: &str = "ttls.measurements";
 pub const MONGO_LAHA_CONFIG_TRENDS_TTL: &str = "ttls.trends";
 pub const MONGO_LAHA_CONFIG_EVENTS_TTL: &str = "ttls.events";
 
+pub static ENVIRONMENT_SETTINGS_VAR: &str = "MAKAI_SETTINGS";
+pub static ZMQ_DATA_PREFIX: &str = "data_";

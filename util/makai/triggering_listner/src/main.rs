@@ -32,7 +32,8 @@ fn main() {
         }
         let result : Result<Measurement, ProtobufError> = parse_from_bytes(&parts[1]);
         if let Ok(measurement) = result {
-            print!("{:?}", measurement);
+
+            println!("{} : {}V", measurement.box_id, measurement.metrics["rms"].average);
         }
 
     }
