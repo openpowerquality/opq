@@ -181,7 +181,9 @@ class IncidentInspector extends React.Component {
 
     // Calculate current display range string
     const startRange = `${((currPaginationPage - 1) * this.PAGINATION_ROWS_PER_PAGE) + 1}`;
-    const endRange = currPaginationPage !== totalPages ? currPaginationPage * this.PAGINATION_ROWS_PER_PAGE : incidents.length;
+    const endRange = currPaginationPage !== totalPages
+        ? currPaginationPage * this.PAGINATION_ROWS_PER_PAGE
+        : incidents.length;
     const currentRange = incidents.length > this.PAGINATION_ROWS_PER_PAGE
         ? `${startRange} - ${endRange}`
         : `${incidents.length}`;
@@ -204,77 +206,78 @@ class IncidentInspector extends React.Component {
   }
 
     renderSortableTable() {
-        const { incidents, column, direction, currPaginationPage } = this.state;
+      const { incidents, column, direction, currPaginationPage } = this.state;
 
-        const paginatedIncidents = incidents.filter((incident, index) => (
-            index >= this.PAGINATION_ROWS_PER_PAGE * (currPaginationPage - 1)
-            && index < this.PAGINATION_ROWS_PER_PAGE * currPaginationPage
-        ));
+      const paginatedIncidents = incidents.filter((incident, index) => (
+          index >= this.PAGINATION_ROWS_PER_PAGE * (currPaginationPage - 1)
+          && index < this.PAGINATION_ROWS_PER_PAGE * currPaginationPage
+      ));
 
-        return paginatedIncidents.length ? (
-            <Table sortable celled fixed striped>
-                <Table.Header>
-                    <Table.Row>
-                        <Table.HeaderCell
-                            sorted={column === 'incident_id' ? direction : null}
-                            onClick={this.handleTableSort('incident_id')}
-                        >
-                            Incident ID
-                        </Table.HeaderCell>
-                        <Table.HeaderCell
-                            sorted={column === 'box_id' ? direction : null}
-                            onClick={this.handleTableSort('box_id')}
-                        >
-                          Box ID
-                        </Table.HeaderCell>
-                        <Table.HeaderCell
-                            sorted={column === 'classifications' ? direction : null}
-                            onClick={this.handleTableSort('classifications')}
-                        >
-                            Classifications
-                        </Table.HeaderCell>
-                        <Table.HeaderCell
-                            sorted={column === 'ieee_duration' ? direction : null}
-                            onClick={this.handleTableSort('ieee_duration')}
-                        >
-                          IEEE Duration
-                        </Table.HeaderCell>
-                        <Table.HeaderCell
-                            sorted={column === 'start_timestamp_ms' ? direction : null}
-                            onClick={this.handleTableSort('start_timestamp_ms')}
-                        >
-                            Start Time
-                        </Table.HeaderCell>
-                        <Table.HeaderCell
-                            sorted={column === 'duration' ? direction : null}
-                            onClick={this.handleTableSort('duration')}
-                        >
-                            Duration (ms)
-                        </Table.HeaderCell>
-                        <Table.HeaderCell>Details</Table.HeaderCell>
-                    </Table.Row>
-                </Table.Header>
-                <Table.Body>
-                    {paginatedIncidents.map(({ incident_id, classifications, ieee_duration, box_id, start_timestamp_ms, duration }) => (
-                        <Table.Row key={incident_id}>
-                            <Table.Cell>{incident_id}</Table.Cell>
-                            <Table.Cell>{box_id}</Table.Cell>
-                            <Table.Cell>{classifications}</Table.Cell>
-                            <Table.Cell>{ieee_duration}</Table.Cell>
-                            <Table.Cell>{Moment(start_timestamp_ms).format('YYYY-MM-DD HH:mm:ss.SSS')}</Table.Cell>
-                            <Table.Cell>{typeof duration === 'number' ? duration.toFixed(2) : duration}</Table.Cell>
-                            <Table.Cell>
-                                <Button color='blue'
-                                        as={Link}
-                                        to={{ pathname: `/inspector/incident/${incident_id}` }}>
-                                    Details
-                                </Button>
-                            </Table.Cell>
-                        </Table.Row>
-                    ))}
-                </Table.Body>
-            </Table>
-        ) : 'No Results';
+      return paginatedIncidents.length ? (
+          <Table sortable celled fixed striped>
+            <Table.Header>
+              <Table.Row>
+                <Table.HeaderCell
+                    sorted={column === 'incident_id' ? direction : null}
+                    onClick={this.handleTableSort('incident_id')}
+                >
+                  Incident ID
+                </Table.HeaderCell>
+                <Table.HeaderCell
+                    sorted={column === 'box_id' ? direction : null}
+                    onClick={this.handleTableSort('box_id')}
+                >
+                  Box ID
+                </Table.HeaderCell>
+                <Table.HeaderCell
+                    sorted={column === 'classifications' ? direction : null}
+                    onClick={this.handleTableSort('classifications')}
+                >
+                  Classifications
+                </Table.HeaderCell>
+                <Table.HeaderCell
+                    sorted={column === 'ieee_duration' ? direction : null}
+                    onClick={this.handleTableSort('ieee_duration')}
+                >
+                  IEEE Duration
+                </Table.HeaderCell>
+                <Table.HeaderCell
+                    sorted={column === 'start_timestamp_ms' ? direction : null}
+                    onClick={this.handleTableSort('start_timestamp_ms')}
+                >
+                  Start Time
+                </Table.HeaderCell>
+                <Table.HeaderCell
+                    sorted={column === 'duration' ? direction : null}
+                    onClick={this.handleTableSort('duration')}
+                >
+                  Duration (ms)
+                </Table.HeaderCell>
+                <Table.HeaderCell>Details</Table.HeaderCell>
+              </Table.Row>
+            </Table.Header>
+            <Table.Body>
+              {paginatedIncidents.map(({ incident_id, classifications, ieee_duration, box_id, start_timestamp_ms,
+                                         duration }) => (
+                <Table.Row key={incident_id}>
+                  <Table.Cell>{incident_id}</Table.Cell>
+                  <Table.Cell>{box_id}</Table.Cell>
+                  <Table.Cell>{classifications}</Table.Cell>
+                  <Table.Cell>{ieee_duration}</Table.Cell>
+                  <Table.Cell>{Moment(start_timestamp_ms).format('YYYY-MM-DD HH:mm:ss.SSS')}</Table.Cell>
+                  <Table.Cell>{typeof duration === 'number' ? duration.toFixed(2) : duration}</Table.Cell>
+                  <Table.Cell>
+                    <Button color='blue'
+                            as={Link}
+                            to={{ pathname: `/inspector/incident/${incident_id}` }}>
+                      Details
+                    </Button>
+                  </Table.Cell>
+                </Table.Row>
+              ))}
+            </Table.Body>
+          </Table>
+      ) : 'No Results';
     }
 
     /**
@@ -317,7 +320,8 @@ class IncidentInspector extends React.Component {
                       }
                     } else {
                       // Calculate and add a 'duration' property for each incident. This is because we want to be able
-                      // to sort on the duration field (otherwise we could've just calculated duration in the render method).
+                      // to sort on the duration field (otherwise we could've just calculated duration in the render
+                      // method).
                       const incidentsWithDuration = incidents.map(incident => {
                         // eslint-disable-next-line no-param-reassign
                         incident.duration = incident.end_timestamp_ms - incident.start_timestamp_ms;

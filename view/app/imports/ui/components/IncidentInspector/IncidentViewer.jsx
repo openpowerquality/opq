@@ -2,7 +2,8 @@ import { Meteor } from 'meteor/meteor';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { withTracker } from 'meteor/react-meteor-data';
-import { Grid, Loader, Message, Icon, Segment, Header, List, Tab, Container, Button, Popup, Table } from 'semantic-ui-react';
+import { Grid, Loader, Message, Icon, Segment, Header, List, Tab, Container, Button, Popup,
+          Table } from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
 import { Map, TileLayer, ZoomControl } from 'react-leaflet';
 import Moment from 'moment/moment';
@@ -130,15 +131,15 @@ class IncidentViewer extends React.Component {
 
     return incident ? (
         <Grid columns={4}>
-          <IncidentDetailsCard header='Classifications' subheader={incident.classifications} icon='lightning' color='yellow' withPopupHelperFunc={this.renderIncidentClassificationsTable} />
-          <IncidentDetailsCard header='IEEE Duration' subheader={incident.ieee_duration} icon='clock' color='green' withPopupHelperFunc={this.renderIEEEDurationTable} />
+          <IncidentDetailsCard header='Classifications' subheader={incident.classifications} icon='lightning'
+                               color='yellow' withPopupHelperFunc={this.renderIncidentClassificationsTable} />
+          <IncidentDetailsCard header='IEEE Duration' subheader={incident.ieee_duration} icon='clock'
+                               color='green' withPopupHelperFunc={this.renderIEEEDurationTable} />
           <IncidentDetailsCard header='Dev. from Nominal' subheader={devFromNominal} icon='chart line' color='teal' />
           <IncidentDetailsCard header='Duration' subheader={`${incidentDuration} ms`} icon='clock' color='blue' />
         </Grid>
     ) : null;
   }
-
-
 
   renderIncidentWaveform() {
     const { opqBoxes } = this.props;
@@ -170,6 +171,7 @@ class IncidentViewer extends React.Component {
                         gridfs_filename={originatingBox.boxEvent.data_fs_filename}
                         opqBoxDoc={originatingBox.opqBox}
                         startTimeMs={originatingBox.boxEvent.event_start_timestamp_ms}
+                        // eslint-disable-next-line max-len
                         title={`Source Event Waveform (Event #${originatingBox.boxEvent.event_id}, Box #${originatingBox.boxEvent.box_id})`}
                         displayOnLoad/>
     ) : null;
@@ -177,6 +179,7 @@ class IncidentViewer extends React.Component {
 
   renderSidePanel() {
     const panes = [
+      // eslint-disable-next-line max-len
       { menuItem: 'Incident Details', render: () => <Tab.Pane as={Container}>{this.renderIncidentDetailsList()}</Tab.Pane> },
       { menuItem: 'Metadata', render: () => <Tab.Pane as={Container}>{this.renderMetadataList()}</Tab.Pane> },
       { menuItem: 'Related', render: () => <Tab.Pane as={Container}>{this.renderRelatedInfo()}</Tab.Pane> },
@@ -229,7 +232,9 @@ class IncidentViewer extends React.Component {
 
     const startTime = incident ? Moment(incident.start_timestamp_ms).format('HH:mm:ss.SSS - YYYY-MM-DD') : null;
     const endTime = incident ? Moment(incident.end_timestamp_ms).format('HH:mm:ss.SSS - YYYY-MM-DD') : null;
-    const classifications = incident.classifications && incident.classifications.length ? incident.classifications : 'None';
+    const classifications = incident.classifications && incident.classifications.length
+        ? incident.classifications
+        : 'None';
     const annotations = incident.annotations && incident.annotations.length ? incident.annotations : 'None';
 
     const ListItem = ({ header, description, icon }) => (
@@ -332,7 +337,7 @@ class IncidentViewer extends React.Component {
           <Table.Cell>{description}</Table.Cell>
         </Table.Row>
     );
-
+    /* eslint-disable max-len */
     return (
         <Table size='small' compact striped celled>
           <Table.Header>
@@ -341,7 +346,6 @@ class IncidentViewer extends React.Component {
               <Table.HeaderCell>Description</Table.HeaderCell>
             </Table.Row>
           </Table.Header>
-
           <Table.Body>
             <TableRow classification='EXCESSIVE_THD' description='Exceeds IEEE 1159 recommendations for THD (5% over 200 ms windows)' />
             <TableRow classification='ITIC_PROHIBITED' description='Voltage observed in the ITIC prohibited region.' />
@@ -357,6 +361,7 @@ class IncidentViewer extends React.Component {
           </Table.Body>
         </Table>
     );
+    /* eslint-enable max-len */
   }
 
   renderIEEEDurationTable() {

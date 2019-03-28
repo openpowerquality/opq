@@ -27,8 +27,12 @@ export const getIncidentsInRange = new ValidatedMethod({
                 end_timestamp_ms: { $lte: endTime_ms },
             };
             if (boxIds && boxIds.length && boxIds.indexOf('ALL') === -1) query.box_id = { $in: boxIds };
-            if (classifications && classifications.length && classifications.indexOf('ALL') === -1) query.classifications = { $in: classifications };
-            if (ieee_durations && ieee_durations.length && ieee_durations.indexOf('ALL') === -1) query.ieee_duration = { $in: ieee_durations };
+            if (classifications && classifications.length && classifications.indexOf('ALL') === -1) {
+              query.classifications = { $in: classifications };
+            }
+            if (ieee_durations && ieee_durations.length && ieee_durations.indexOf('ALL') === -1) {
+              query.ieee_duration = { $in: ieee_durations };
+            }
             if (annotations && annotations.length) query.annotations = { $in: annotations };
 
             return Incidents.find(query).fetch();
@@ -49,7 +53,9 @@ export const getIncidentByIncidentID = new ValidatedMethod({
     run({ incident_id }) {
         if (Meteor.isServer) {
             const incident = Incidents.findOne({ incident_id });
-            if (!incident) throw new Meteor.Error('invalid-incident-id', `The incident ${incident_id} could not be found.`);
+            if (!incident) {
+              throw new Meteor.Error('invalid-incident-id', `The incident ${incident_id} could not be found.`);
+            }
             return incident;
         }
         return null;

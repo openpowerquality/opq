@@ -2,7 +2,8 @@ import { Meteor } from 'meteor/meteor';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { withTracker } from 'meteor/react-meteor-data';
-import {Grid, Loader, Message, Icon, Button} from 'semantic-ui-react';
+import { Link } from 'react-router-dom';
+import { Grid, Loader, Message, Icon, Button } from 'semantic-ui-react';
 import { Map, TileLayer, ZoomControl } from 'react-leaflet';
 import Moment from 'moment/moment';
 import LeafletMarkerManager from '../BoxMap/LeafletMarkerManager';
@@ -12,10 +13,10 @@ import BoxEventSummary from './BoxEventSummary';
 
 import { getBoxEvents } from '../../../api/box-events/BoxEventsCollection.methods';
 import { getEventByEventID } from '../../../api/events/EventsCollection.methods';
-import { getIncidentsFromEventID } from "../../../api/incidents/IncidentsCollection.methods";
+import { getIncidentsFromEventID } from '../../../api/incidents/IncidentsCollection.methods';
 import { OpqBoxes } from '../../../api/opq-boxes/OpqBoxesCollection';
 import { Locations } from '../../../api/locations/LocationsCollection';
-import {Link} from "react-router-dom";
+
 
 /** Displays event details, including the waveform at the time of the event. */
 class EventViewer extends React.Component {

@@ -3,8 +3,8 @@ import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import { CallPromiseMixin } from 'meteor/didericis:callpromise-mixin';
 import SimpleSchema from 'simpl-schema';
 import { Events } from './EventsCollection.js';
-import { BoxEvents } from "../box-events/BoxEventsCollection";
-import { OpqBoxes } from "../opq-boxes/OpqBoxesCollection";
+import { BoxEvents } from '../box-events/BoxEventsCollection';
+import { OpqBoxes } from '../opq-boxes/OpqBoxesCollection';
 
 /** Returns an array of events that were detected by specified boxes, in a specified range.
  * @param {String[]} boxIDs: List of box IDs to get data for
