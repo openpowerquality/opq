@@ -56,8 +56,8 @@ export const getIncidentByIncidentID = new ValidatedMethod({
     },
 });
 
-/** Returns all Incidents that originated from the same Event for the given incident_id.
- * @param {Number} event_id: The event_id of the event to retrieve
+/** Returns all Incidents that were derived from the same Event for the given incident_id.
+ * @param {Number} incident_id: The incident_id to retrieve related Incidents for
  */
 export const getIncidentsFromSameEvent = new ValidatedMethod({
   name: 'Incidents.getIncidentsFromSameEvent',
@@ -74,6 +74,23 @@ export const getIncidentsFromSameEvent = new ValidatedMethod({
           .fetch()
           .filter(incid => incid.incident_id !== incident_id);
       return incidents;
+    }
+    return null;
+  },
+});
+
+/** Returns all Incidents that were derived from the given event_id.
+ * @param {Number} event_id: The event_id to retrieve Incidents for
+ */
+export const getIncidentsFromEventID = new ValidatedMethod({
+  name: 'Incidents.getIncidentsFromEventID',
+  mixins: [CallPromiseMixin],
+  validate: new SimpleSchema({
+    event_id: { type: Number },
+  }).validator({ clean: true }),
+  run({ event_id }) {
+    if (Meteor.isServer) {
+      return Incidents.find({ event_id }).fetch();
     }
     return null;
   },
