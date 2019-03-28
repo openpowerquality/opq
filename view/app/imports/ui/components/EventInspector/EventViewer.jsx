@@ -18,7 +18,7 @@ import { Locations } from '../../../api/locations/LocationsCollection';
 import {Link} from "react-router-dom";
 
 /** Displays event details, including the waveform at the time of the event. */
-class EventOverview extends React.Component {
+class EventViewer extends React.Component {
   constructor(props) {
     super(props);
 
@@ -62,7 +62,7 @@ class EventOverview extends React.Component {
     return (
         <Grid container stackable>
           <Grid.Column width={16}>
-            <WidgetPanel title='Event Overview' helpText={this.helpText}>
+            <WidgetPanel title='Event Viewer' helpText={this.helpText}>
               <Grid container>
                 <Grid.Column width={12}>{this.renderEventSummary()}</Grid.Column>
                 <Grid.Column width={4}>{this.renderMap()}</Grid.Column>
@@ -347,7 +347,7 @@ class EventOverview extends React.Component {
   getMapDivRef = () => this.mapDivElem;
 }
 
-EventOverview.propTypes = {
+EventViewer.propTypes = {
   ready: PropTypes.bool.isRequired,
   event_id: PropTypes.number.isRequired,
   opqBoxes: PropTypes.array.isRequired,
@@ -365,4 +365,4 @@ export default withTracker((props) => {
     opqBoxes,
     locations: Locations.find().fetch(),
   };
-})(EventOverview);
+})(EventViewer);
