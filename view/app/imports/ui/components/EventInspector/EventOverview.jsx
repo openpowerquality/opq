@@ -24,7 +24,6 @@ class EventOverview extends React.Component {
       isLoading: false,
       event: null,
       boxEvents: [],
-      boxIdToWaveformDict: {},
       errorReason: null,
     };
   }
@@ -187,7 +186,10 @@ class EventOverview extends React.Component {
 
   createMarkerLabel = (locationDoc) => {
     const { opqBoxes } = this.props;
-    const opqBox = opqBoxes.find(box => box.location === locationDoc.slug);
+    const { event, boxEvents } = this.state;
+    const { triggeredBoxEvents, otherBoxEvents } = this.separateBoxEvents(event, boxEvents);
+    const boxEvent = (triggeredBoxEvents.length) ? triggeredBoxEvents[0] : otherBoxEvents[0];
+    const opqBox = opqBoxes.find(box => box.location === locationDoc.slug && boxEvent.box_id === box.box_id);
     return `
       <div>
         <b>${locationDoc.description}</b>
