@@ -19,8 +19,6 @@ pub struct Settings {
     pub mongo_host: String,
     ///Mongo port.
     pub mongo_port: u16,
-    ///How long the measurements live in mongo before they expire.
-    pub mongo_measurement_expiration_seconds: u64,
     ///Window width for the trend calculation.
     pub mongo_trends_update_interval_seconds: u64,
     ///How long the overlapping intervals structure keeps data.
