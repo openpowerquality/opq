@@ -38,7 +38,7 @@ impl Settings {
     /// Load the settings file from disk.
     pub fn load_from_file<P: AsRef<Path>>(path: P) -> Result<Settings, String> {
         let file = File::open(path).or(Err("No such file"))?;
-        let mut settings : Settings = from_reader(file).or(Err("Could not parse config file."))?;
+        let mut settings : Settings = from_reader(file).unwrap();
         if settings.identity.is_none(){
             settings.identity = Some(Uuid::new_v4().to_string());
         }
