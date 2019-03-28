@@ -156,9 +156,6 @@ class EventOverview extends React.Component {
           Box {event.boxes_triggered[0]} at {triggeredBoxEventLocation}</span>, with waveform data available
           for {event.boxes_received.filter(box_id => box_id !== event.boxes_triggered[0]).length} other boxes.
         </p>
-        <p style={pStyle}>
-          The event has been classified as a <span style={{ backgroundColor: '#fcf9a9' }}>{event.type}</span>
-        </p>
       </div>
     ) : '';
   }
