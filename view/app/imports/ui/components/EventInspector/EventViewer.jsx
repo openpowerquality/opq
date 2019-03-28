@@ -2,7 +2,8 @@ import { Meteor } from 'meteor/meteor';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { withTracker } from 'meteor/react-meteor-data';
-import { Grid, Loader, Message, Icon } from 'semantic-ui-react';
+import { Link } from 'react-router-dom';
+import { Grid, Loader, Message, Icon, Button } from 'semantic-ui-react';
 import { Map, TileLayer, ZoomControl } from 'react-leaflet';
 import Moment from 'moment/moment';
 import LeafletMarkerManager from '../BoxMap/LeafletMarkerManager';
@@ -12,11 +13,13 @@ import BoxEventSummary from './BoxEventSummary';
 
 import { getBoxEvents } from '../../../api/box-events/BoxEventsCollection.methods';
 import { getEventByEventID } from '../../../api/events/EventsCollection.methods';
+import { getIncidentsFromEventID } from '../../../api/incidents/IncidentsCollection.methods';
 import { OpqBoxes } from '../../../api/opq-boxes/OpqBoxesCollection';
 import { Locations } from '../../../api/locations/LocationsCollection';
 
+
 /** Displays event details, including the waveform at the time of the event. */
-class EventOverview extends React.Component {
+class EventViewer extends React.Component {
   constructor(props) {
     super(props);
 
@@ -24,7 +27,7 @@ class EventOverview extends React.Component {
       isLoading: false,
       event: null,
       boxEvents: [],
-      boxIdToWaveformDict: {},
+      derivedIncidents: [],
       errorReason: null,
     };
   }
@@ -60,7 +63,7 @@ class EventOverview extends React.Component {
     return (
         <Grid container stackable>
           <Grid.Column width={16}>
-            <WidgetPanel title='Event Overview' helpText={this.helpText}>
+            <WidgetPanel title='Event Viewer' helpText={this.helpText}>
               <Grid container>
                 <Grid.Column width={12}>{this.renderEventSummary()}</Grid.Column>
                 <Grid.Column width={4}>{this.renderMap()}</Grid.Column>
@@ -73,7 +76,7 @@ class EventOverview extends React.Component {
                                        calibrationConstant={this.getBoxCalibrationConstant(boxEvent.box_id)}
                                        mapZoomCallback={this.handleZoomButtonClick} />
                   ))}
-                  <h2>Other Boxes</h2>
+                  {otherBoxEvents.length ? <h2>Other Boxes</h2> : null}
                   {otherBoxEvents.map(boxEvent => (
                       <BoxEventSummary key={boxEvent.box_id}
                                        boxEventDoc={boxEvent}
@@ -131,7 +134,7 @@ class EventOverview extends React.Component {
   }
 
   renderEventSummary() {
-    const { event, boxEvents } = this.state;
+    const { event, boxEvents, derivedIncidents } = this.state;
     const date = event ? Moment(event.target_event_start_timestamp_ms).format('YYYY-MM-DD') : '';
     const time = event ? Moment(event.target_event_start_timestamp_ms).format('HH:mm:ss') : '';
     const duration_ms = event ? event.target_event_end_timestamp_ms - event.target_event_start_timestamp_ms : '';
@@ -143,6 +146,25 @@ class EventOverview extends React.Component {
     const triggeredBoxEventLocation = locationDoc ? locationDoc.description : 'UNAVAILABLE';
 
     const pStyle = { fontSize: '16px' };
+
+    const derivedIncidentsDisplay = derivedIncidents.length ? (
+        <div>
+          <p style={pStyle}>
+            This event generated {derivedIncidents.length} incidents:
+          </p>
+          <div style={{ marginTop: '5px' }}>
+            {derivedIncidents.map(inci => this.renderButtonLink({
+              key: inci.incident_id,
+              to: `/inspector/incident/${inci.incident_id}`,
+              text: `Incident #${inci.incident_id}`,
+            }))}
+          </div>
+        </div>
+    ) : (
+        <p style={pStyle}>
+          This event did not generate any Incidents
+        </p>
+    );
 
     return event ? (
       <div>
@@ -156,11 +178,24 @@ class EventOverview extends React.Component {
           Box {event.boxes_triggered[0]} at {triggeredBoxEventLocation}</span>, with waveform data available
           for {event.boxes_received.filter(box_id => box_id !== event.boxes_triggered[0]).length} other boxes.
         </p>
-        <p style={pStyle}>
-          The event has been classified as a <span style={{ backgroundColor: '#fcf9a9' }}>{event.type}</span>
-        </p>
+        {derivedIncidentsDisplay}
       </div>
     ) : '';
+  }
+
+  renderButtonLink({ key = null, to, text, color = 'green' }) {
+    return (
+        <Button
+            key={key}
+            style={{ marginBottom: '3px' }}
+            icon
+            color={color}
+            as={Link}
+            to={to}>
+          <Icon size='large' name='share' />
+          <span style={{ marginLeft: '3px', verticalAlign: 'middle' }}>{text}</span>
+        </Button>
+    );
   }
 
   renderError(errorMessage) {
@@ -190,7 +225,10 @@ class EventOverview extends React.Component {
 
   createMarkerLabel = (locationDoc) => {
     const { opqBoxes } = this.props;
-    const opqBox = opqBoxes.find(box => box.location === locationDoc.slug);
+    const { event, boxEvents } = this.state;
+    const { triggeredBoxEvents, otherBoxEvents } = this.separateBoxEvents(event, boxEvents);
+    const boxEvent = (triggeredBoxEvents.length) ? triggeredBoxEvents[0] : otherBoxEvents[0];
+    const opqBox = opqBoxes.find(box => box.location === locationDoc.slug && boxEvent.box_id === box.box_id);
     return `
       <div>
         <b>${locationDoc.description}</b>
@@ -227,6 +265,14 @@ class EventOverview extends React.Component {
           });
         }
       });
+    });
+
+    // Retrieve any derived Incidents. Note: No need to set isLoading for this, just do it in the background.
+    getIncidentsFromEventID.call({ event_id }, (error, incidents) => {
+      if (error) console.log(error);
+      else {
+        this.setState({ derivedIncidents: incidents });
+      }
     });
   }
 
@@ -302,7 +348,7 @@ class EventOverview extends React.Component {
   getMapDivRef = () => this.mapDivElem;
 }
 
-EventOverview.propTypes = {
+EventViewer.propTypes = {
   ready: PropTypes.bool.isRequired,
   event_id: PropTypes.number.isRequired,
   opqBoxes: PropTypes.array.isRequired,
@@ -320,4 +366,4 @@ export default withTracker((props) => {
     opqBoxes,
     locations: Locations.find().fetch(),
   };
-})(EventOverview);
+})(EventViewer);

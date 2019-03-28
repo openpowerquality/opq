@@ -24,8 +24,9 @@ import NewUserPage from '../pages/ManageUsers/NewUserPage';
 import EditUserPage from '../pages/ManageUsers/EditUserPage';
 import LiveDataManager from '../../ui/pages/LiveDataManager';
 import EventInspectorPage from '../pages/EventInspectorPage';
-import EventOverview from '../../ui/components/EventInspector/EventOverview';
+import EventViewer from '../components/EventInspector/EventViewer';
 import IncidentInspectorPage from '../pages/IncidentInspectorPage';
+import IncidentViewer from '../../ui/components/IncidentInspector/IncidentViewer';
 import MetricsPage from '../pages/MetricsPage';
 
 /** Top-level layout component for this application. Called in imports/startup/client/startup.jsx. */
@@ -53,8 +54,9 @@ class App extends React.Component {
               <ProtectedRoute path="/boxmap" component={BoxMapPage}/>
               <ProtectedRoute path="/signout" component={Signout} />
               <ProtectedRoute path="/livedata" component={LiveDataManager} />
-              <ProtectedRoute path="/inspector/event/:event_id" component={EventOverview}/>
+              <ProtectedRoute path="/inspector/event/:event_id" component={EventViewer}/>
               <ProtectedRoute path="/inspector/event" component={EventInspectorPage} />
+              <ProtectedRoute path="/inspector/incident/:incident_id" component={IncidentViewer} />
               <ProtectedRoute path="/inspector/incident" component={IncidentInspectorPage}/>
               <Route path="/signin" component={Signin} />
               <Route component={NotFound} />
