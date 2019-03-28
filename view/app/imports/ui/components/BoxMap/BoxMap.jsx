@@ -247,10 +247,24 @@ class BoxMap extends React.Component {
                             pathname: '/inspector/event',
                             search: `?boxes=${opqBox.box_id}`,
                           }}>
-                        <Icon size='large' name='lightning' />
+                        <Icon size='large' name='exclamation' />
                       </Button>
                     }
                     content='View box events'
+                />
+                <Popup
+                    trigger={
+                      <Button
+                          icon
+                          as={LinkWithContext}
+                          to={{
+                            pathname: '/inspector/incident',
+                            search: `?boxes=${opqBox.box_id}`,
+                          }}>
+                        <Icon size='large' name='lightning' />
+                      </Button>
+                    }
+                    content='View box incidents'
                 />
                 <Popup
                     trigger={
