@@ -18,7 +18,6 @@ pub mod config;
 pub mod plugin_manager;
 pub mod makai_plugin;
 pub mod event_requester;
-mod constants;
+pub mod constants;
 pub mod mongo_metric_storage;
-pub mod mongo_event_storage;
 //pub mod mongo;
