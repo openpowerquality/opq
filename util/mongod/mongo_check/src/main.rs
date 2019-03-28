@@ -9,7 +9,7 @@ use mongodb::{Client, ThreadedClient, ClientOptions};
 
 #[derive(Serialize)]
 struct resp {
-    up: bool,
+    ok: bool,
     name: String,
     timestamp: SystemTime
 }
@@ -20,7 +20,7 @@ fn main() {
         router!(request,
             (GET) (/) => {
                 let response = resp {
-                    up: mongo_is_up(),
+                    ok: mongo_is_up(),
                     name: String::from("mongo"),
                     timestamp: SystemTime::now()
                 };
