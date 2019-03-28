@@ -21,6 +21,9 @@ use std::thread;
 use chrono::{DateTime, Utc};
 use bson::TimeStamp;
 
+#[macro_use]
+extern crate serde_derive;
+
 #[derive(Default, Debug)]
 struct Config {
     interval: u64,
@@ -33,12 +36,20 @@ struct Service {
     url: String,
 }
 
+#[derive(Deserialize, Default)]
+pub struct HealthStatus {
+    name : String,
+    ok: bool,
+    timestamp : u64,
+    subcomponents: Vec<HealthStatus>
+}
+
 struct HealthDoc {
     service: String,
     serviceID: String,
     status: String,
     info: String,
-    timestamp: TimeStamp
+    timestamp: TimeStamp,
 }
 
 fn main() {
@@ -101,26 +112,42 @@ fn check_service(service: &Service) {
 
     let req_result = client.get(&(service.url)).send();
 
-    if is_error(&req_result) {
-        println!("{}: {} is DOWN", Utc::now(), service.name);
+    // Check for client/server errors
+    let req_error = http_send_err(&req_result);
+
+    if req_error != "" {
+        println!("{} {} is DOWN Error: {}", Utc::now(), service.name, req_error);
     } else {
-        let response = req_result.unwrap();
+        let mut response = req_result.unwrap();
         if response.status() == 200 {
-            println!("{}: {} is UP", Utc::now(), service.name);
+            println!("{} {} is UP", Utc::now(), service.name);
+            // println!("{:?}", response);
         } else {
-            println!("{}: {} is DOWN", Utc::now(), service.name);
+            println!("{} {} is DOWN Error: {}", Utc::now(), service.name, response.status());
         }
     }
 }
 
 // Response may be a non-http error e.g. connection timeout, refused, etc.
-fn is_error(response: &Result<Response, Error>) -> bool {
+// Why is it so hard to get the error?
+fn http_send_err(response: &Result<Response, Error>) -> &str {
+    let mut error = "";
     match response {
         Err(e) => {
-            // println!("{:?}", e);
-            true
+            // println!("{:?}", e.get_ref().unwrap());
+            match e.get_ref() {
+                Some(nested_e) => match nested_e.cause() {
+                    Some(nested_e) => {
+                        // println!("{:?}", nested_e.description());
+                        error = nested_e.description()
+                    }
+                    _ => error = "Unable to parse error"
+                },
+                _ => error = "Unable to parse error"
+            }
+            error
         }
-        Ok(_) => false
+        Ok(_) => ""
     }
 }
 
