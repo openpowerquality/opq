@@ -1,5 +1,6 @@
 {
   "mauka.debug": true,
+  "mauka.debug.plugins": ["MakaiEventPlugin", "StatusPlugin"],
   "mauka.startEventBroker": true,
   "mauka.startPubSubBroker": true,
   "mauka.startPlugins": true,
@@ -18,7 +19,7 @@
   "mongo.port": 27017,
   "mongo.db": "opq",
 
-  "plugins.base.heartbeatIntervalS": 15.0,
+  "plugins.base.heartbeatIntervalS": 60.0,
 
   "plugins.IticPlugin.segment.threshold.rms": 0.1,
 
@@ -49,5 +50,15 @@
 
   "plugins.StatusPlugin.port": 8911,
 
-  "plugins.SystemStatsPlugin.intervalS": 60
+  "plugins.SystemStatsPlugin.intervalS": 60,
+
+  "laha.config.default": {
+    "ttls": {
+      "box_samples": 900,
+      "measurements": 86400,
+      "trends": 604800,
+      "events": 2592000,
+      "incidents": 31536000
+    }
+  }
 }

@@ -223,7 +223,6 @@ class StatusPlugin(plugins.base_plugin.MaukaPlugin):
         if protobuf.util.is_heartbeat_message(mauka_message):
             health_state.update(mauka_message.source)
             self.debug(str(mauka_message))
-            self.debug(str(health_state))
         else:
             self.logger.error("Incorrect mauka message type [%s] for StatusPlugin",
                               protobuf.util.which_message_oneof(mauka_message))

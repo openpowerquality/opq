@@ -2,6 +2,7 @@
 This module contains classes and functions for querying and manipulating data within a mongo database.
 """
 
+import datetime
 import enum
 import typing
 
@@ -13,6 +14,7 @@ import numpy
 import pymongo
 
 import analysis
+import config
 import constants
 
 
@@ -23,6 +25,15 @@ def to_s16bit(data: bytes) -> numpy.ndarray:
     :return:
     """
     return numpy.frombuffer(data, numpy.int16)
+
+
+def utc_datetime_plus_s(seconds: int) -> datetime.datetime:
+    """
+    Returns a datetime which is the current time + some number of seconds.
+    :param seconds: The number of seconds to add to the datetime.
+    :return: A datetime which is the current time + some number of seconds.
+    """
+    return datetime.datetime.utcnow() + datetime.timedelta(seconds=seconds)
 
 
 class IEEEDuration(enum.Enum):
@@ -53,6 +64,11 @@ class Collection(enum.Enum):
     INCIDENTS = "incidents"
     HEALTH = "health"
     LAHA_STATS = "laha_stats"
+    TRENDS = "trends"
+    PHENOMENA = "phenomena"
+    GROUND_TRUTH = "ground_truth"
+    FS_FILES = "fs.files"
+    LAHA_CONFIG = "laha_config"
 
 
 class OpqMongoClient:
@@ -94,7 +110,17 @@ class OpqMongoClient:
 
         self.laha_stats_collection = self.get_collection(Collection.LAHA_STATS.value)
 
-    def get_collection(self, collection: str):
+        self.trends_collection = self.get_collection(Collection.TRENDS.value)
+
+        self.phenomena_collection = self.get_collection(Collection.PHENOMENA.value)
+
+        self.ground_truth_collection = self.get_collection(Collection.GROUND_TRUTH.value)
+
+        self.fs_files_collection = self.get_collection(Collection.FS_FILES.value)
+
+        self.laha_config_collection = self.get_collection(Collection.LAHA_CONFIG.value)
+
+    def get_collection(self, collection: str) -> pymongo.collection.Collection:
         """ Returns a mongo collection by name
 
         Parameters
@@ -108,6 +134,25 @@ class OpqMongoClient:
 
         """
         return self.database[collection]
+
+    def get_laha_config(self) -> typing.Optional[typing.Dict]:
+        """
+        Returns the Laha Config document.
+        :return: The Laha Config document.
+        """
+        return self.laha_config_collection.find_one()
+
+    def get_ttl(self, collection: str) -> int:
+        """
+        Returns the TTL for the provided collection.
+        :param collection: Collection to get TTL for.
+        :return: The TTL for the provided collection.
+        """
+        laha_config = self.get_laha_config()
+        if laha_config is None:
+            return -1
+        else:
+            return laha_config["ttls"][collection]
 
     def drop_collection(self, collection: str):
         """Drops a collection by name
@@ -134,6 +179,22 @@ class OpqMongoClient:
         """
         self.database[collection].drop_indexes()
 
+    def get_box_calibration_constant(self, box_id: str) -> float:
+        """
+        Returns the calibration constant associated with the provided box_id.
+        :param box_id: The box_id to get the calibration constant for.
+        :return: The calibration constant.
+        """
+        opq_box = self.opq_boxes_collection.find_one({"box_id": box_id},
+                                                     projection={'_id': False,
+                                                                 "calibration_constant": True,
+                                                                 "box_id": True})
+
+        if opq_box is None:
+            return 1.0
+        else:
+            return opq_box["calibration_constant"]
+
     def read_file(self, fid: str) -> bytes:
         """
         Loads a file from gridfs as an array of bytes
@@ -152,6 +213,16 @@ class OpqMongoClient:
         self.gridfs.put(payload, **{"filename": gridfs_filename,
                                     "metadata": {"incident_id": incident_id}})
 
+    def get_collection_size_bytes(self,
+                                  collection: Collection) -> int:
+        """
+        Returns the size of a collection in bytes including the size of the index.
+        :param collection: Collection to get size of.
+        :return: Size of collection in bytes.
+        """
+        stats = self.database.command("collstats", collection.value)
+        return stats["size"] + stats["totalIndexSize"]
+
 
 def get_waveform(mongo_client: OpqMongoClient, data_fs_filename: str) -> numpy.ndarray:
     """
@@ -166,7 +237,7 @@ def get_waveform(mongo_client: OpqMongoClient, data_fs_filename: str) -> numpy.n
 
 
 def get_box_calibration_constants(mongo_client: OpqMongoClient = None, defaults=None) -> \
-        typing.Dict[int, float]:
+        typing.Dict[str, float]:
     """
     Loads calibration constants from the mongo database a a dictionary from box id to calibration constant.
     Default values can be passed in if needed.
@@ -349,7 +420,8 @@ def store_incident(event_id: int,
         "classifications": list(map(lambda e: e.value, classifications)),
         "ieee_duration": ieee_duration,
         "annotations": annotations,
-        "metadata": metadata
+        "metadata": metadata,
+        "expire_at": utc_datetime_plus_s(mongo_client.get_ttl("incidents"))
     }
 
     mongo_client.incidents_collection.insert_one(incident)
@@ -390,7 +462,7 @@ def get_location(box_id: str, opq_mongo_client: OpqMongoClient) -> str:
     return box["location"]
 
 
-def get_calibration_constant(box_id: int) -> float:
+def get_calibration_constant(box_id: str) -> float:
     """
     Return the calibration constant for a specified box id.
     :param box_id: The box id to query
@@ -437,3 +509,15 @@ def object_id(oid: str) -> bson.objectid.ObjectId:
     :return: ObjectId from string
     """
     return bson.objectid.ObjectId(oid)
+
+
+def from_config(conf: config.MaukaConfig) -> OpqMongoClient:
+    """
+    Returns a OpqMongoClient given a MaukaConfig.
+    :param conf: MaukaConfig.
+    :return: An OpqMongoClient.
+    """
+    mongo_host = conf.get("mongo.host")
+    mongo_port = conf.get("mongo.port")
+    mongo_db = conf.get("mongo.db")
+    return OpqMongoClient(mongo_host, mongo_port, mongo_db)

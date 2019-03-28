@@ -29,16 +29,26 @@ function formatted(num = 0) {
 class SystemStatistics extends React.Component {
 
   helpText = `
-  <p>System Stats shows a summary of interesting statistics about this OPQ instance.</p>
+  <p>System Stats shows descriptive statistics about important entities in this OPQ Cloud instance.</p>
   
-  <p>Trends: Produced once per minute, trends indicate the high, low, and average values for 
+  <p>Measurements: Produced once a second by each OPQ Box, these provide instantaneous values for frequency, voltage, 
+  and THD.  Measurements are ephemeral and disappear from the database after a period specified as its TTL 
+   (Time To Live).</p>
+   
+   <p>Trends: Produced once per minute, trends indicate the high, low, and average values for 
   frequency, voltage, and THD observed by a single box over a given minute.</p>
   
-  <p>Events: Produced whenever a box measures frequency, voltage, or THD in excess of a default threshold
-  (currently +/- 5% of nominal value.</p>
+  <p>Events: Produced whenever an OPQ Box measures frequency, voltage, or THD in excess of a default threshold
+  (currently +/- 5% of nominal value.  The creation of an Event normally triggers a request to the OPQ Box to provide
+  high fidelity waveform data for the time at which the Event occurred. 
+  Events are ephemeral and disappear from the database after a period specified as its TTL (Time To Live).</p>
   
-  <p>Measurements: Produced six times a second, these provide instantaneous values for frequency, voltage, and THD. 
-  However, only the last 24 hours of Measurement data points are stored in the database. </p>
+  <p>Incidents: When OPQ Mauka judges that an event has potential significance, it creates an Incident.
+   Incidents are ephemeral as well, but typically persist in the database much longer than Events or 
+   Measurements.  The exact time is specified by its TTL value. </p>
+  
+  <p>Phenomena: Represent PQ behaviors that are hypothesized to be regular or predictable based upon lower level
+   data including Incidents and Event data.</p>
   `;
 
   /** If the subscription(s) have been received, render the page, otherwise show a loading icon. */
