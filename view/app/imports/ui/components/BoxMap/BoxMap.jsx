@@ -106,7 +106,7 @@ class BoxMap extends React.Component {
 
   createClusterCountSideLabel(clusterLocationSlugs) {
     const locationCount = clusterLocationSlugs.length;
-    return `<div><b>Location Count:</b><br />${locationCount}</div>`;
+    return `<div><b>Box Count:</b><br />${locationCount}</div>`;
   }
 
   /**
