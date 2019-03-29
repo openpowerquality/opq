@@ -55,9 +55,11 @@ pub static MONGO_OPQ_BOXES_LOCATION_FIELD: &str = "location";
 
 
 pub static MONGO_LAHA_CONFIG_COLLECTION: &str = "laha_config";
-pub const MONGO_LAHA_CONFIG_MEASUREMENTS_TTL: &str = "ttls.measurements";
-pub const MONGO_LAHA_CONFIG_TRENDS_TTL: &str = "ttls.trends";
-pub const MONGO_LAHA_CONFIG_EVENTS_TTL: &str = "ttls.events";
+pub const MONGO_LAHA_CONFIG_TTLS: &str = &"ttls";
+
+pub const MONGO_LAHA_CONFIG_MEASUREMENTS_TTL: &str = "measurements";
+pub const MONGO_LAHA_CONFIG_TRENDS_TTL: &str = "trends";
+pub const MONGO_LAHA_CONFIG_EVENTS_TTL: &str = "events";
 
 pub static ENVIRONMENT_SETTINGS_VAR: &str = "MAKAI_SETTINGS";
 pub static ZMQ_DATA_PREFIX: &str = "data_";

@@ -7,6 +7,7 @@ use mongodb::db::ThreadedDatabase;
 use mongodb::Client;
 use mongodb::ThreadedClient;
 
+#[inline]
 fn timestamp_s() -> u64 {
     let now = SystemTime::now();
     let since_epoch = now.duration_since(UNIX_EPOCH).expect("Time is hard");
@@ -58,17 +59,14 @@ impl CachedTtlProvider {
         }
     }
 
-    fn mongo_get_ttl(&self, collection: &str) -> u64 {
+    fn mongo_get_ttl(&self, ttl_key: &str) -> u64 {
         let laha_config_option = self
             .laha_config_coll
             .find_one(None, None)
             .expect("Error getting laha_config");
         let laha_config = laha_config_option.expect("laha_config is blank");
-        let ttl = laha_config
-            .get(collection)
-            .expect("Could not retrieve ttl value!")
-            .as_i64()
-            .expect("Could not retrieve ttl value!");
+        let ordered_doc = laha_config.get_document(MONGO_LAHA_CONFIG_TTLS).unwrap();
+        let ttl = ordered_doc.get_f64(ttl_key).unwrap();
         return ttl as u64;
     }
 
