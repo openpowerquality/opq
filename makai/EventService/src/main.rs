@@ -6,6 +6,7 @@ mod config;
 mod mongo_event_storage;
 mod proto;
 mod constants;
+mod mongo_ttl;
 
 use crate::mongo_event_storage::MongoStorageService;
 use crate::config::Settings;

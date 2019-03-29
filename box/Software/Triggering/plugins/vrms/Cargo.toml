@@ -6,8 +6,3 @@ authors = ["Serge <sin8@hawaii.edu>"]
 [dependencies]
 box_api = { path = "../../box_api" }
 
-[lib]
-name = "vrms_plugin"
-crate-type = [
-    "dylib"
-]

@@ -16,6 +16,7 @@ use protobuf::{parse_from_bytes, ProtobufError};
 
 use zmq;
 
+use crate::mongo_ttl;
 use crate::config::Settings;
 use crate::constants::*;
 use crate::proto::opqbox3::{Cycle, Response, Response_oneof_response};
@@ -26,6 +27,7 @@ pub struct MongoStorageService {
     acq_broker: zmq::Socket,
     event_broker: zmq::Socket,
     identity: String,
+    ttl : u64,
 }
 
 impl MongoStorageService {
@@ -35,6 +37,7 @@ impl MongoStorageService {
             acq_broker: ctx.socket(zmq::SUB).unwrap(),
             event_broker: ctx.socket(zmq::PUB).unwrap(),
             identity: settings.identity.clone().unwrap(),
+            ttl : settings.ttl_cache_ttl,
         };
         receiver
             .acq_broker
@@ -64,6 +67,9 @@ impl MongoStorageService {
         let fs = Store::with_db(self.client.db(MONGO_DATABASE).clone());
         let mut event_number = self.find_largest_event_number() + 1;
         println!("Starting from event number {}", event_number);
+
+        let mut ttl = mongo_ttl::CachedTtlProvider::new(self.ttl, &self.client);
+
         loop {
             let msg = self.acq_broker.recv_multipart(0).unwrap();
 
@@ -74,6 +80,7 @@ impl MongoStorageService {
             };
             let header = header_result.unwrap();
             if let Response_oneof_response::get_data_response(resp) = header.response.unwrap() {
+
                 let event = doc! {
                     MONGO_EVENTS_ID_FIELD : event_number,
                     MONGO_EVENTS_DESCRIPTION_FIELD: "Makai id ".to_string() + &self.identity.clone(),
@@ -81,7 +88,7 @@ impl MongoStorageService {
                     MONGO_EVENTS_RECEIVED_FIELD: [header.box_id.to_string()],
                     MONGO_EVENTS_START_FIELD:  resp.start_ts,
                     MONGO_EVENTS_END_FIELD: resp.end_ts,
-                    MONGO_BOX_EVENTS_TYPE_FIELD : MONGO_BOX_EVENTS_TYPE_VALUE,
+                    MONGO_EVENTS_EXPIRE_AT : ttl.get_events_ttl(),
                 };
                 match event_db.insert_one(event, None) {
                     Ok(_) => {}

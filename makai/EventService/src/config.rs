@@ -25,6 +25,8 @@ pub struct Settings {
     pub identity: Option<String>,
     ///Plugin specific settings.
     pub plugins: Vec<Value>,
+    //TTL cache.
+    pub ttl_cache_ttl: u64,
 }
 
 impl Settings {
