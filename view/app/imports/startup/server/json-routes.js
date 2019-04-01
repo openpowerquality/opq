@@ -3,6 +3,8 @@ import moment from 'moment';
 
 /**
  * Support the Health endpoint.
+ * http://hostname/health now returns the required Health JSON string.
+ * Note that the '#' in the route used by React Router is NOT present in this path.
  */
 
 JsonRoutes.add('get', '/health', function (req, res) {
