@@ -30,6 +30,7 @@ impl EventRequester {
     /// Sends a request for an event to the acquisition broker.
     pub fn trigger(&mut self, request: &mut Command) {
         request.identity = ZMQ_DATA_PREFIX.to_owned() + &self.identity;
+        println!("{:?}", request.identity);
         let serialized = request.write_to_bytes().unwrap();
         self.acq_broker.send(&serialized, 0).unwrap();
     }

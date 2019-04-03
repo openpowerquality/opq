@@ -45,7 +45,7 @@ impl MongoStorageService {
             .unwrap();
         receiver
             .acq_broker
-            .set_subscribe(ENVIRONMENT_SETTINGS_VAR.as_bytes())
+            .set_subscribe(ZMQ_DATA_PREFIX.as_bytes())
             .unwrap();
         receiver
             .event_broker
@@ -72,6 +72,7 @@ impl MongoStorageService {
 
         loop {
             let msg = self.acq_broker.recv_multipart(0).unwrap();
+
 
             let header_result: Result<Response, ProtobufError> = parse_from_bytes(&msg[1]);
             if let Err(_) = header_result {

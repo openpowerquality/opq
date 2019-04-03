@@ -1,0 +1,3 @@
+#!/bin/bash
+export ACQUISITION_BROKER_SETTINGS=`cat ../config/acquisition_broker.config.json`
+./build/AcquisitionBroker
