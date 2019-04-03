@@ -88,6 +88,10 @@ RUN sccache --start-server                                      && \
     cargo build --release                                       && \
     cd /build/makai/TriggeringService/plugins/threshold_trigger && \
     cargo build --release                                       && \
+
+# Triggering service and plugins
+RUN cd /build/makai/EventService                                && \
+    cargo build --release                                       && \
     sccache --stop-server
 
 # Organize makai binaries and configurations
@@ -96,6 +100,7 @@ RUN mkdir -p /build/bin                                                         
     cp /build/makai/AcquisitionBroker/build/AcquisitionBroker /build/bin                            && \
     cp /build/makai/TriggeringBroker/build/TriggeringBroker /build/bin                              && \
     cp /build/makai/TriggeringService/target/release/makai /build/bin                               && \
+    cp /build/makai/EventService/target/release/event_service /build/bin                            && \
     cp /build/makai/TriggeringService/plugins/health/target/release/libhealth_plugin.so /build/bin  && \
     cp /build/makai/TriggeringService/plugins/print/target/release/libprint_plugin.so /build/bin    && \
     cp /build/makai/TriggeringService/plugins/threshold_trigger/target/release/libthreshold_trigger_plugin.so /build/bin
