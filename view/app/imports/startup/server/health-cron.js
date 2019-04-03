@@ -45,7 +45,7 @@ function healthCron() {
   }
   if (!testMode && !disabled) {
     // Default the update interval to 60 seconds if not supplied in configuration file.
-    const updateIntervalSeconds = Meteor.settings.systemStats.updateIntervalSeconds || 60;
+    const updateIntervalSeconds = Meteor.settings.systemStats ? Meteor.settings.systemStats.updateIntervalSeconds : 60;
     const services = ['MAUKA', 'MAKAI', 'MONGO', 'HEALTH'];
     SyncedCron.add({
       name: 'Check Health collection for services that are down',
@@ -62,7 +62,7 @@ function healthCron() {
         _.map(services, service => serviceHealthStatus(healths, service, usersInterested));
       },
     });
-    console.log(`Starting cron job to check health status every ${updateIntervalSeconds}`);
+    console.log(`Starting cron job to check health status every ${updateIntervalSeconds} seconds`);
     SyncedCron.start();
   }
 }

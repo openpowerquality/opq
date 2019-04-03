@@ -54,3 +54,4 @@ meteortesting:mocha
 email@1.2.3
 meteorhacks:ssr
 littledata:synced-cron
+simple:json-routes

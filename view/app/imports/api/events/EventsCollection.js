@@ -17,7 +17,6 @@ class EventsCollection extends BaseCollection {
   constructor() {
     super('events', new SimpleSchema({
       event_id: Number,
-      type: String,
       description: String,
       boxes_triggered: [String],
       boxes_received: [String],
@@ -26,16 +25,6 @@ class EventsCollection extends BaseCollection {
       latencies_ms: { type: Array, optional: true },
       'latencies_ms.$': Number,
     }));
-
-    // Event Type classifications will eventually move to the Incident level.
-    this.FREQUENCY_SAG_TYPE = 'FREQUENCY_SAG';
-    this.FREQUENCY_SWELL_TYPE = 'FREQUENCY_SWELL';
-    this.VOLTAGE_SAG_TYPE = 'VOLTAGE_SAG';
-    this.VOLTAGE_SWELL_TYPE = 'VOLTAGE_SWELL';
-    this.THD_TYPE = 'THD';
-    this.OTHER_TYPE = 'OTHER';
-    this.eventTypes = [this.FREQUENCY_SAG_TYPE, this.FREQUENCY_SWELL_TYPE, this.VOLTAGE_SAG_TYPE,
-      this.VOLTAGE_SWELL_TYPE, this.THD_TYPE, this.OTHER_TYPE];
 
     this.publicationNames = {
       GET_EVENTS: 'get_events',
