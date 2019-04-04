@@ -71,37 +71,37 @@ impl CachedTtlProvider {
     }
 
     pub fn get_measurements_ttl(&mut self) -> u64 {
+        let ts = timestamp_s();
         match self.cache_get(&self.cached_measurements_ttl) {
-            Some(cached_value) => cached_value,
+            Some(cached_value) => ts + cached_value,
             None => {
                 let ttl = self.mongo_get_ttl(MONGO_LAHA_CONFIG_MEASUREMENTS_TTL);
-                let expire_at = timestamp_s() + ttl;
-                self.cached_measurements_ttl = Some(CachedTtlValue::from(ttl, expire_at));
-                expire_at
+                self.cached_measurements_ttl = Some(CachedTtlValue::from(ttl, ts + self.cache_for_seconds));
+                ts + ttl
             }
         }
     }
 
     pub fn get_trends_ttl(&mut self) -> u64 {
+        let ts = timestamp_s();
         match self.cache_get(&self.cached_trends_ttl) {
-            Some(cached_value) => cached_value,
+            Some(cached_value) => ts + cached_value,
             None => {
                 let ttl = self.mongo_get_ttl(MONGO_LAHA_CONFIG_TRENDS_TTL);
-                let expire_at = timestamp_s() + ttl;
-                self.cached_trends_ttl = Some(CachedTtlValue::from(ttl, expire_at));
-                expire_at
+                self.cached_trends_ttl = Some(CachedTtlValue::from(ttl, ts + self.cache_for_seconds));
+                ts + ttl
             }
         }
     }
 
     pub fn get_events_ttl(&mut self) -> u64 {
+        let ts = timestamp_s();
         match self.cache_get(&self.cached_events_ttl) {
-            Some(cached_value) => cached_value,
+            Some(cached_value) => ts + cached_value,
             None => {
                 let ttl = self.mongo_get_ttl(MONGO_LAHA_CONFIG_EVENTS_TTL);
-                let expire_at = timestamp_s() + ttl;
-                self.cached_events_ttl = Some(CachedTtlValue::from(ttl, expire_at));
-                expire_at
+                self.cached_events_ttl = Some(CachedTtlValue::from(ttl, ts + self.cache_for_seconds));
+                ts + ttl
             }
         }
     }
