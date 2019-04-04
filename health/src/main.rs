@@ -19,7 +19,15 @@ use serde_json::Value;
 use std::thread;
 
 use chrono::{DateTime, Utc};
+use bson::*;
+use bson::Document;
 use bson::TimeStamp;
+
+use mongodb;
+use mongodb::Client;
+use mongodb::ThreadedClient;
+use mongodb::ClientOptions;
+use mongodb::db::ThreadedDatabase;
 
 #[macro_use]
 extern crate serde_derive;
@@ -27,6 +35,7 @@ extern crate serde_derive;
 #[derive(Default, Debug)]
 struct Config {
     interval: u64,
+    mongodb: String,
     services: Vec<Service>,
 }
 
@@ -36,12 +45,12 @@ struct Service {
     url: String,
 }
 
-#[derive(Deserialize, Default)]
+#[derive(Deserialize, Default, Debug)]
 pub struct HealthStatus {
-    name : String,
+    name: String,
     ok: bool,
-    timestamp : u64,
-    subcomponents: Vec<HealthStatus>
+    timestamp: u64,
+    subcomponents: Vec<HealthStatus>,
 }
 
 struct HealthDoc {
@@ -57,7 +66,7 @@ fn main() {
 
     loop {
         for service in &config.services {
-            check_service(service);
+            check_service(service, &config.mongodb);
         }
         thread::sleep_ms((config.interval * 1000) as u32);
     }
@@ -71,6 +80,8 @@ fn parse_config_file(filepath: &str) -> Config {
 
     let interval = json["interval"].as_u64()
         .expect("Error parsing interval");
+
+    let mongodb = json["mongodb"].to_string();
 
     // This is an array of serde_json values
     let j_services = json["services"].as_array()
@@ -89,7 +100,7 @@ fn parse_config_file(filepath: &str) -> Config {
         services.push(service);
     }
 
-    return Config { interval, services };
+    return Config { interval, mongodb, services };
 }
 
 fn read_file(filepath: &str) -> String {
@@ -105,7 +116,7 @@ fn read_file(filepath: &str) -> String {
     contents
 }
 
-fn check_service(service: &Service) {
+fn check_service(service: &Service, mongodb: &str) {
     let client = reqwest::Client::builder()
         .timeout(Duration::from_secs(2))
         .build().expect("Unable to build client");
@@ -120,8 +131,11 @@ fn check_service(service: &Service) {
     } else {
         let mut response = req_result.unwrap();
         if response.status() == 200 {
-            println!("{} {} is UP", Utc::now(), service.name);
-            // println!("{:?}", response);
+            // println!("{} {} is UP", Utc::now(), service.name);
+            match response.json() {
+                Ok(status) => insert_health_doc(status, mongodb),
+                Err(_) => println!("Unable to parse response")
+            };
         } else {
             println!("{} {} is DOWN Error: {}", Utc::now(), service.name, response.status());
         }
@@ -148,6 +162,30 @@ fn http_send_err(response: &Result<Response, Error>) -> &str {
             error
         }
         Ok(_) => ""
+    }
+}
+
+fn insert_health_doc(status: HealthStatus, mongodb: &str) {
+    let mut options = ClientOptions::new();
+    options.server_selection_timeout_ms = 1000;
+    let client = Client::with_uri_and_options(mongodb, options)
+        .expect("Can't connect to mongo");
+    let coll = client.db("opq").collection("healthv2");
+    let mut doc = doc! {
+        "service": status.name,
+        "serviceID": "".to_string(),
+        "status": get_status(status.ok),
+        "info": "".to_string(),
+        "timestamp": Utc::now()
+        };
+    coll.insert_one(doc, None).unwrap();
+}
+
+fn get_status(up: bool) -> String {
+    if up {
+        return "UP".to_string()
+    } else {
+        return "DOWN".to_string()
     }
 }
 
