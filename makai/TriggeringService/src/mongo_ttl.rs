@@ -65,8 +65,8 @@ impl CachedTtlProvider {
             .find_one(None, None)
             .expect("Error getting laha_config");
         let laha_config = laha_config_option.expect("laha_config is blank");
-        let ordered_doc = laha_config.get_document(MONGO_LAHA_CONFIG_TTLS).unwrap();
-        let ttl = ordered_doc.get_f64(ttl_key).unwrap();
+        let ordered_doc = laha_config.get_document(MONGO_LAHA_CONFIG_TTLS).expect("Error getting ordered_doc");
+        let ttl = ordered_doc.get_i32(ttl_key).expect("Error getting ttl");
         return ttl as u64;
     }
 
