@@ -44,7 +44,7 @@ def simulate_waveform(freq: float=constants.CYCLES_PER_SECOND, vrms: float = 120
 class TransientPluginTests(unittest.TestCase):
 
     def setUp(self):
-        self.config = config.from_file("./config.json")
+        self.config = config.from_env(constants.CONFIG_ENV)
         self.noise_floor = float(self.config["plugins.TransientPlugin.noise.floor"])
         self.filter_order = int(self.config["plugins.MakaiEventPlugin.filterOrder"])
         self.cutoff_frequency = float(self.config["plugins.MakaiEventPlugin.cutoffFrequency"])

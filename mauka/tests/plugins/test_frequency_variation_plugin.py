@@ -12,7 +12,7 @@ class FrequencyVariationTests(unittest.TestCase):
 
     def setUp(self):
         self.freq_ref = constants.CYCLES_PER_SECOND
-        self.config = config.from_file("./config.json")
+        self.config = config.from_env(constants.CONFIG_ENV)
         self.freq_var_low = float(self.config["plugins.FrequencyVariationPlugin.frequency.variation.threshold.low"])
         self.freq_var_high = float(self.config["plugins.FrequencyVariationPlugin.frequency.variation.threshold.high"])
         self.freq_interruption = float(self.config["plugins.FrequencyVariationPlugin.frequency.interruption"])

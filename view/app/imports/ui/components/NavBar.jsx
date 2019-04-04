@@ -37,6 +37,7 @@ class NavBar extends React.Component {
                 <Dropdown text="Inspector" pointing="top left" style={divStyle}>
                   <Dropdown.Menu>
                     <Dropdown.Item key="EventInspectorPage" text="Events" as={NavLink} exact to="/inspector/event"/>
+                    <Dropdown.Item key="IncidentInspectorPage" text="Incidents" as={NavLink} exact to="/inspector/incident"/>
                   </Dropdown.Menu>
                 </Dropdown>
               </Menu.Item>
@@ -56,6 +57,7 @@ class NavBar extends React.Component {
                 <Dropdown.Item key="ManageLocationPage" text="Manage Locations" as={NavLink} exact to="/admin/manage/location"/>
                 <Dropdown.Item key="ManageRegionPage" text="Manage Regions" as={NavLink} exact to="/admin/manage/region"/>
                 <Dropdown.Item key="ManageUserPage" text="Manage Users" as={NavLink} exact to="/admin/manage/user"/>
+                <Dropdown.Item key="MetricsPage" text="Metrics" as={NavLink} exact to="/admin/metrics"/>
               </Dropdown.Menu>
             </Dropdown>
             </Menu.Item>

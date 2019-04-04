@@ -1,0 +1,3 @@
+#!/bin/bash
+export TRIGGERING_BROKER_SETTINGS=`cat ../config/triggering_broker.config.json`
+./build/TriggeringBroker

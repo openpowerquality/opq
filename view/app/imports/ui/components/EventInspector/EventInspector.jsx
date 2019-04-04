@@ -122,12 +122,6 @@ class EventInspector extends React.Component {
                 Event ID
               </Table.HeaderCell>
               <Table.HeaderCell
-                  sorted={column === 'type' ? direction : null}
-                  onClick={this.handleTableSort('type')}
-              >
-                Type
-              </Table.HeaderCell>
-              <Table.HeaderCell
                   sorted={column === 'boxes_triggered' ? direction : null}
                   onClick={this.handleTableSort('boxes_triggered')}
               >
@@ -155,15 +149,14 @@ class EventInspector extends React.Component {
             </Table.Row>
           </Table.Header>
           <Table.Body>
-            {events.map(({ event_id, type, boxes_triggered, boxes_received, target_event_start_timestamp_ms,
-                           target_event_end_timestamp_ms }) => (
+            {events.map(({ event_id, boxes_triggered, boxes_received, target_event_start_timestamp_ms,
+                           target_event_end_timestamp_ms, duration }) => (
                 <Table.Row key={event_id}>
                   <Table.Cell>{event_id}</Table.Cell>
-                  <Table.Cell>{type}</Table.Cell>
                   <Table.Cell>{boxes_triggered}</Table.Cell>
                   <Table.Cell>{Moment(target_event_start_timestamp_ms).format('YYYY-MM-DD HH:mm:ss.SSS')}</Table.Cell>
                   <Table.Cell>{Moment(target_event_end_timestamp_ms).format('YYYY-MM-DD HH:mm:ss.SSS')}</Table.Cell>
-                  <Table.Cell>{target_event_end_timestamp_ms - target_event_start_timestamp_ms}</Table.Cell>
+                  <Table.Cell>{duration}</Table.Cell>
                   <Table.Cell>
                     <Button disabled={boxes_received.length === 0}
                             color='blue'

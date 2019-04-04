@@ -21,7 +21,7 @@
 # class MakaiBridgeTests(unittest.TestCase):
 #     def setUp(self):
 #         print("setup")
-#         self.config = config.from_file("/home/anthony/Development/opq/mauka/config.json").config_dict
+#         self.config = config.from_file("/home/anthony/Development/opq/mauka/mauka.config.json").config_dict
 #         self.mauka_service = tests.test_utils.MaukaService(self.config, [])
 #         self.mauka_service.start_mauka_service()
 #         print("post-setup")

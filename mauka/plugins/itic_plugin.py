@@ -147,7 +147,7 @@ def itic_region(rms_voltage: float, duration_ms: float) -> IticRegion:
 
 
 def itic(mauka_message: protobuf.mauka_pb2.MaukaMessage, segment_threshold: float, logger=None,
-         opq_mongo_client: mongo.OpqMongoClient = None):
+         opq_mongo_client: mongo.OpqMongoClient = None) -> typing.List[int]:
     """
     Computes the ITIC region for a given waveform.
     :param mauka_message:
@@ -165,6 +165,7 @@ def itic(mauka_message: protobuf.mauka_pb2.MaukaMessage, segment_threshold: floa
     if logger is not None:
         logger.debug("Calculating ITIC with {} segments.".format(len(segments)))
 
+    incident_ids = []
     for segment in segments:
         start_idx = segment[0]
         end_idx = segment[1] + 1
@@ -183,7 +184,7 @@ def itic(mauka_message: protobuf.mauka_pb2.MaukaMessage, segment_threshold: floa
             else:
                 incident_classification = mongo.IncidentClassification.ITIC_NO_DAMAGE
 
-            mongo.store_incident(
+            incident_id = mongo.store_incident(
                 mauka_message.payload.event_id,
                 mauka_message.payload.box_id,
                 incident_start_timestamp_ms,
@@ -200,6 +201,10 @@ def itic(mauka_message: protobuf.mauka_pb2.MaukaMessage, segment_threshold: floa
                     itic_enum,
                     mauka_message.event_id,
                     mauka_message.box_id))
+
+            incident_ids.append(incident_id)
+
+    return incident_ids
 
 
 class IticPlugin(plugins.base_plugin.MaukaPlugin):
@@ -225,10 +230,16 @@ class IticPlugin(plugins.base_plugin.MaukaPlugin):
         """
         self.debug("on_message")
         if protobuf.util.is_payload(mauka_message, protobuf.mauka_pb2.VOLTAGE_RMS_WINDOWED):
-            itic(mauka_message,
-                 self.segment_threshold,
-                 self.logger,
-                 self.mongo_client)
+            incident_ids = itic(mauka_message,
+                                self.segment_threshold,
+                                self.logger,
+                                self.mongo_client)
+
+            for incident_id in incident_ids:
+                # Produce a message to the GC
+                self.produce("laha_gc", protobuf.util.build_gc_update(self.name,
+                                                                      protobuf.mauka_pb2.INCIDENTS,
+                                                                      incident_id))
         else:
             self.logger.error("Received incorrect mauka message [%s] at IticPlugin",
                               protobuf.util.which_message_oneof(mauka_message))

@@ -106,7 +106,7 @@ class BoxMap extends React.Component {
 
   createClusterCountSideLabel(clusterLocationSlugs) {
     const locationCount = clusterLocationSlugs.length;
-    return `<div><b>Location Count:</b><br />${locationCount}</div>`;
+    return `<div><b>Box Count:</b><br />${locationCount}</div>`;
   }
 
   /**
@@ -197,7 +197,6 @@ class BoxMap extends React.Component {
   renderOpqBoxLegendItem(opqBox) {
     const { expandedItemBoxId } = this.state;
     const boxLocationDoc = this.getOpqBoxLocationDoc(opqBox);
-    const h2classname = (opqBox.box_id.length > 1) ? 'small' : 'large';
     // Using a regular Semantic-UI Link component here triggers the following warning:
     // Warning: Failed context type: The context `router` is marked as required in `Link`, but its value is `undefined`.
     // The reason: The Link component normally inherits the 'router' context by just being a child of the Router
@@ -212,12 +211,14 @@ class BoxMap extends React.Component {
     const LinkWithContext = withContext(Link, this.context);
 
     const opqBoxItem = (
-        <Item key={opqBox.box_id}>
-          <div className='mapListingBoxId'><h2 className={h2classname}>{opqBox.box_id}</h2></div>
+        <Item style={{ paddingLeft: '20px' }} key={opqBox.box_id}>
           <Item.Content>
-            <Item.Header>{opqBox.name}</Item.Header>
+            <Item.Header className='mapListingBoxLabel' >{opqBox.name}</Item.Header>
             <Item.Description style={{ marginTop: '0px' }}>
               {boxLocationDoc ? boxLocationDoc.description : 'None'}
+            </Item.Description>
+            <Item.Description style={{ marginTop: '0px' }}>
+              Box ID: {opqBox.box_id}
             </Item.Description>
             <Item.Extra>
               <Button.Group basic size='tiny'>
@@ -246,10 +247,24 @@ class BoxMap extends React.Component {
                             pathname: '/inspector/event',
                             search: `?boxes=${opqBox.box_id}`,
                           }}>
-                        <Icon size='large' name='lightning' />
+                        <Icon size='large' name='exclamation' />
                       </Button>
                     }
                     content='View box events'
+                />
+                <Popup
+                    trigger={
+                      <Button
+                          icon
+                          as={LinkWithContext}
+                          to={{
+                            pathname: '/inspector/incident',
+                            search: `?boxes=${opqBox.box_id}`,
+                          }}>
+                        <Icon size='large' name='lightning' />
+                      </Button>
+                    }
+                    content='View box incidents'
                 />
                 <Popup
                     trigger={

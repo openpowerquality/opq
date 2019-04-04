@@ -37,19 +37,24 @@ function serviceHealthStatus(healths, service, usersInterested) {
 }
 
 function healthCron() {
-  // Only set up Cron Job when not in Test mode and enabled in settings file.
-  if (!Meteor.isTest && !Meteor.isAppTest && Meteor.settings.healthCron.enabled === true) {
+  // Set up cron job unless in testing mode or it's explicitly disabled in settings file.
+  const testMode = Meteor.isTest || Meteor.isAppTest;
+  const disabled = Meteor.settings.healthCron && !Meteor.settings.healthCron.enabled;
+  if (disabled) {
+    console.log('Health cron job disabled in view.config.json.');
+  }
+  if (!testMode && !disabled) {
     // Default the update interval to 60 seconds if not supplied in configuration file.
-    const updateIntervalSeconds = Meteor.settings.systemStats.updateIntervalSeconds || 60;
+    const updateIntervalSeconds = Meteor.settings.systemStats ? Meteor.settings.systemStats.updateIntervalSeconds : 60;
     const services = ['MAUKA', 'MAKAI', 'MONGO', 'HEALTH'];
-    // eslint-disable-next-line
-    const usersInterested = UserProfiles.find({ 'notification_preferences.notification_types': 'system service down' }).fetch();
     SyncedCron.add({
       name: 'Check Health collection for services that are down',
       schedule(parser) {
         return parser.text(`every ${updateIntervalSeconds} seconds`); // Parser is a later.js parse object.
       },
       job() {
+        const usersInterested = UserProfiles.find({ 'notification_preferences.notification_types':
+            'system service down' }).fetch();
         const healths = Healths.find(
             { timestamp: { $gt: new Date(Date.now() - (1000 * 62)) } },
             { sort: { timestamp: -1 } },
@@ -57,7 +62,7 @@ function healthCron() {
         _.map(services, service => serviceHealthStatus(healths, service, usersInterested));
       },
     });
-    console.log(`Starting cron job to check health status every ${updateIntervalSeconds}`);
+    console.log(`Starting cron job to check health status every ${updateIntervalSeconds} seconds`);
     SyncedCron.start();
   }
 }

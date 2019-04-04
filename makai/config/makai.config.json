@@ -1,0 +1,33 @@
+{
+  "zmq_trigger_endpoint" : "tcp://localhost:9881",
+  "zmq_acquisition_endpoint" : "tcp://localhost:9899",
+  "zmq_data_endpoint" : "tcp://localhost:9884",
+  "zmq_event_endpoint" : "tcp://*:10000",
+  "mongo_host" : "localhost",
+  "mongo_port": 27017,
+  "mongo_trends_update_interval_seconds" : 60,
+  "event_request_expiration_window_ms" : 1800000,
+  "ttl_cache_ttl": 60,
+  "plugins" : [
+    {
+      "path" : "/build/bin/libprint_plugin.so",
+      "print" : false
+    },
+    {
+      "path" : "/build/bin/libhealth_plugin.so",
+      "address" : "0.0.0.0:8080"
+    },
+    {
+      "path" : "/build/bin/libthreshold_trigger_plugin.so",
+      "reference_frequency": 60.0,
+      "frequency_threshold_percent_low": 0.05,
+      "frequency_threshold_percent_high": 0.05,
+      "reference_voltage": 120.0,
+      "voltage_threshold_percent_low": 0.05,
+      "voltage_threshold_percent_high": 0.05,
+      "thd_threshold_high": 0.05,
+      "debug": false,
+      "debug_devices": []
+    }
+  ]
+}

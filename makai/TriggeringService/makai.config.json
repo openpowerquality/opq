@@ -1,0 +1,21 @@
+{
+  "zmq_trigger_endpoint" : "tcp://localhost:9881",
+  "zmq_acquisition_endpoint" : "tcp://localhost:9884",
+  "zmq_data_endpoint" : "tcp://localhost:9899",
+  "zmq_event_endpoint" : "tcp://*:10000",
+  "mongo_host" : "localhost",
+  "mongo_port": 27017,
+  "mongo_trends_update_interval_seconds" : 60,
+  "event_request_expiration_window_ms" : 1800000,
+  "ttl_cache_ttl": 60,
+  "plugins" : [
+    {
+      "path" : "./libprint_plugin.so",
+      "print" : false
+    },
+    {
+      "path" : "./libhealth_plugin.so",
+      "address" : "0.0.0.0:8080"
+    }
+  ]
+}

@@ -20,20 +20,34 @@ use triggering_service::config::Settings;
 use triggering_service::trigger_receiver::TriggerReceiver;
 use triggering_service::plugin_manager::PluginManager;
 use triggering_service::proto::opqbox3::Measurement;
-use triggering_service::mongo_event_storage::MongoStorageService;
 use triggering_service::mongo_metric_storage::MongoMetricStorage;
-
+use triggering_service::constants;
 
 fn main() {
-    let args: Vec<String> = env::args().collect();
-    let config_path = match args.len() {
-        0...1 => "makai.json",
-        _ => &args[1],
-    };
-
-    let settings = match Settings::load_from_file(config_path) {
-        Ok(s) => {s},
-        Err(e) => {println!("Could not load a settings file {}: {}", config_path, e); return},
+    let settings = if env::args().len() > 1 {
+        let args : Vec<String> = env::args().collect();
+        match Settings::load_from_file(args[1].clone()) {
+            Ok(s) => s,
+            Err(e) => {
+                println!(
+                    "Could not load a settings file from the filesystem {}: {}",
+                    "MAKAI_SETTINGS", e
+                );
+                return;
+            }
+        }
+    }
+    else {
+        match Settings::load_from_env(constants::ENVIRONMENT_SETTINGS_VAR) {
+            Ok(s) => s,
+            Err(e) => {
+                println!(
+                    "Could not load a settings file from the environment {}: {}",
+                    constants::ENVIRONMENT_SETTINGS_VAR, e
+                );
+                return;
+            }
+        }
     };
 
 
@@ -41,17 +55,12 @@ fn main() {
 
     let channel: pub_sub::PubSub<Arc<Measurement>> = pub_sub::PubSub::new();
     let zmq_reader = TriggerReceiver::new(channel.clone(), &ctx, &settings);
-    let mut mongo_event_storage = MongoStorageService::new(&ctx, &settings);
-    let mongo_metric_storage = MongoMetricStorage::new(channel.subscribe(), &settings);
+    let mut mongo_metric_storage = MongoMetricStorage::new(channel.subscribe(), &settings);
     //let mongo = MongoMeasurements::new(&client, channel.subscribe(), &settings);
 
     let mut handles = vec![];
     handles.push(thread::spawn(move || {
         zmq_reader.run_loop();
-    }));
-
-    handles.push(thread::spawn(move || {
-        mongo_event_storage.run_loop();
     }));
 
     handles.push(thread::spawn(move || {

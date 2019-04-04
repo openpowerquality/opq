@@ -4,21 +4,17 @@
 #include <fstream>
 #include <stdexcept>
 
-using std::ifstream;
 using json = nlohmann::json;
 
-Config::Config(string fname) {
-    ifstream input;
-    try {
-        //open the json file.
-        input.open(fname);
+Config::Config(string var_name) {
+    auto contents = std::getenv(var_name.c_str());
+
+    if (contents == nullptr) {
+        throw std::runtime_error("Could not open settings from environment.");
     }
-    catch (std::ios_base::failure& e) {
-        throw std::runtime_error("Could not open the file");
-    }
-    json j;
+
     try {
-        input >> j;
+        auto j = json::parse(contents);
         public_certs = j["client_certs"].get<string>();
         private_cert = j["server_cert"].get<string>();
         box_interface_pub = j["box_pub"].get<string>();

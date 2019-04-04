@@ -145,12 +145,36 @@ class MaukaPlugin:
 
         self.mauka_debug = self.config.get("mauka.debug")
 
+        self.messages_received: int = 0
+        self.messages_published: int = 0
+        self.bytes_received: int = 0
+        self.bytes_published: int = 0
+
+    def update_received(self, bytes_received: int):
+        """
+        Update received statistics.
+        :param bytes_received: Number of bytes received.
+        """
+        self.messages_received += 1
+        self.bytes_received += bytes_received
+
+    def update_published(self, bytes_published: int):
+        """
+        Update published statistics.
+        :param bytes_published: Number of bytes published.
+        """
+        self.messages_published += 1
+        self.bytes_published += bytes_published
+
     # pylint: disable=R0201
     def get_status(self) -> str:
         """ Return the status of this plugin
         :return: The status of this plugin
         """
-        return "N/A"
+        return json.dumps({"messages_received": self.messages_received,
+                           "messages_published": self.messages_published,
+                           "bytes_received": self.bytes_received,
+                           "bytes_published": self.bytes_published})
 
     def get_mongo_client(self):
         """ Returns an OPQ mongo client
@@ -208,6 +232,8 @@ class MaukaPlugin:
         with self.producer_lock:
             self.zmq_producer.send_multipart((topic.encode(), serialized_mauka_message))
 
+        self.update_published(len(serialized_mauka_message))
+
     def is_self_message(self, topic: str) -> bool:
         """Determines if this is a message directed at this plugin. I.e. the topic is the name of the plugin.
 
@@ -229,7 +255,7 @@ class MaukaPlugin:
         Prints a debug message using this classes logger and formatted the plugin name.
         :param msg: Message to print to debug.
         """
-        if self.mauka_debug:
+        if self.config.debug_plugin(self.name):
             self.logger.debug("%s\n%s", self.name, msg)
 
     def run_plugin(self):
@@ -266,5 +292,6 @@ class MaukaPlugin:
                 self.last_received = protobuf.util.get_timestamp_ms()
                 mauka_message = protobuf.util.deserialize_mauka_message(message)
                 self.on_message(topic, mauka_message)
+                self.update_received(len(message))
 
         logger.info("Exiting Mauka plugin: %s", self.name)

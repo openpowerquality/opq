@@ -55,7 +55,7 @@ def viol_check(data, lvl):
     return violations
 
 
-def semi_violation(mongo_client, mauka_message):
+def semi_violation(mongo_client, mauka_message) -> typing.List[int]:
     """
     Calculate semi violations.
     :param mongo_client: Mongo client for DB access.
@@ -69,6 +69,7 @@ def semi_violation(mongo_client, mauka_message):
     # this will check if a violation ocurred or not
     time_datum = 200.0 * 1.0 / constants.SAMPLES_PER_MILLISECOND
     lvl = [5, 7, 8]
+    incident_ids = []
     for idx in range(3):
         possible_violations = viol_check(data, lvl[idx])
         if len(possible_violations) > 0:
@@ -76,7 +77,7 @@ def semi_violation(mongo_client, mauka_message):
             for _, violation in enumerate(possible_violations):
                 dev = max(abs(120.0 - numpy.max(data[violation[0], violation[1]])),
                           abs(120.0 - numpy.min(data[violation[0], violation[1]])))
-                mongo.store_incident(
+                incident_id = mongo.store_incident(
                     event_id,
                     box_id,
                     start_time_ms + violation[0] * time_datum,
@@ -87,6 +88,9 @@ def semi_violation(mongo_client, mauka_message):
                     [],
                     {},
                     mongo_client)
+
+                incident_ids.append(incident_id)
+    return incident_ids
 
 
 class SemiF47Plugin(plugins.base_plugin.MaukaPlugin):
@@ -99,7 +103,12 @@ class SemiF47Plugin(plugins.base_plugin.MaukaPlugin):
 
     def on_message(self, topic, mauka_message):
         if protobuf.util.is_payload(mauka_message, protobuf.mauka_pb2.VOLTAGE_RMS_WINDOWED):
-            semi_violation(self.mongo_client, mauka_message)
+            incident_ids = semi_violation(self.mongo_client, mauka_message)
+            for incident_id in incident_ids:
+                # Produce a message to the GC
+                self.produce("laha_gc", protobuf.util.build_gc_update(self.name,
+                                                                      protobuf.mauka_pb2.INCIDENTS,
+                                                                      incident_id))
 
 
 def rerun(mongo_client: mongo.OpqMongoClient, mauka_message):

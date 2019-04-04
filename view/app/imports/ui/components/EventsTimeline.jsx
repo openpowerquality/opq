@@ -35,6 +35,7 @@ class EventsTimeline extends React.Component {
   }
 
   renderPage() { // eslint-disable-line class-methods-use-this
+    // Note to future maintainer: Events no longer have a 'type' field.
     const numEvents = this.props.events.length;
     // Start with the list of event types:
     const eventTypes = Events.eventTypes;

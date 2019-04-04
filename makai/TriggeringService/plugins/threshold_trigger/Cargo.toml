@@ -1,7 +1,7 @@
 [package]
 name = "threshold_trigger_plugin"
 version = "0.1.0"
-authors = ["Anthony <sachriste@hawaii.edu>"]
+authors = ["Anthony <achriste@hawaii.edu>"]
 
 [dependencies]
 triggering_service = { path = "../../" }

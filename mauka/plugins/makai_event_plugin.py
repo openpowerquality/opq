@@ -157,7 +157,9 @@ ACQUIRE_DATA_TYPE = typing.Tuple[
     protobuf.mauka_pb2.MaukaMessage]
 
 
-def acquire_data(mongo_client: mongo.OpqMongoClient, event_id: int, box_id: str, name: str, filter_order: int,
+def acquire_data(mongo_client: mongo.OpqMongoClient,
+                 makai_event_plugin: 'MakaiEventPlugin',
+                 event_id: int, box_id: str, name: str, filter_order: int,
                  filter_cutoff_frequency: float, frequency_samples_per_window: int,
                  filter_down_sample_factor: int) -> ACQUIRE_DATA_TYPE:
     """
@@ -175,11 +177,23 @@ def acquire_data(mongo_client: mongo.OpqMongoClient, event_id: int, box_id: str,
     box_event = mongo_client.box_events_collection.find_one({"event_id": event_id,
                                                              "box_id": box_id})
     waveform = mongo.get_waveform(mongo_client, box_event["data_fs_filename"])
+
+    makai_event_plugin.debug("Loaded waveform for event_id=%s box_id=%s with len=%d" %
+                             (event_id, box_id, len(waveform)))
+
     box_id = box_event["box_id"]
-    waveform_calibrated = waveform / mongo.cached_calibration_constant(box_id)
+    makai_event_plugin.debug("box_id={} and type={}".format(box_id, type(box_id)))
+    calibration_constant = mongo_client.get_box_calibration_constant(box_id)
+    makai_event_plugin.debug("calibration_constant=%f" % calibration_constant)
+    waveform_calibrated = waveform / calibration_constant
+
+    makai_event_plugin.debug("Loaded calibrated waveform for event_id=%s box_id=%s with len=%d" %
+                             (event_id, box_id, len(waveform_calibrated)))
 
     start_timestamp = box_event["event_start_timestamp_ms"]
     end_timestamp = box_event["event_end_timestamp_ms"]
+
+    makai_event_plugin.debug("Extracted timestamps %d-%d" % (start_timestamp, end_timestamp))
 
     adc_samples = protobuf.util.build_payload(name,
                                               event_id,
@@ -189,6 +203,8 @@ def acquire_data(mongo_client: mongo.OpqMongoClient, event_id: int, box_id: str,
                                               start_timestamp,
                                               end_timestamp)
 
+    makai_event_plugin.debug("Got ADC samples")
+
     raw_voltage = protobuf.util.build_payload(name,
                                               event_id,
                                               box_id,
@@ -196,6 +212,8 @@ def acquire_data(mongo_client: mongo.OpqMongoClient, event_id: int, box_id: str,
                                               waveform_calibrated,
                                               start_timestamp,
                                               end_timestamp)
+
+    makai_event_plugin.debug("Got raw voltage")
 
     rms_windowed_voltage = protobuf.util.build_payload(name,
                                                        event_id,
@@ -205,6 +223,8 @@ def acquire_data(mongo_client: mongo.OpqMongoClient, event_id: int, box_id: str,
                                                                      int(constants.SAMPLES_PER_CYCLE)),
                                                        start_timestamp,
                                                        end_timestamp)
+
+    makai_event_plugin.debug("Got rms windowed voltage")
 
     frequency_windowed = protobuf.util.build_payload(name,
                                                      event_id,
@@ -217,6 +237,8 @@ def acquire_data(mongo_client: mongo.OpqMongoClient, event_id: int, box_id: str,
                                                                         filter_down_sample_factor),
                                                      start_timestamp,
                                                      end_timestamp)
+
+    makai_event_plugin.debug("Got windowed frequency")
 
     return adc_samples, raw_voltage, rms_windowed_voltage, frequency_windowed
 
@@ -244,9 +266,11 @@ class MakaiEventPlugin(plugins.base_plugin.MaukaPlugin):
         :param event_id: The event id to load raw data for.
         """
         box_events = self.mongo_client.box_events_collection.find({"event_id": event_id})
+        self.debug("Found %d box_events" % box_events.count())
         for box_event in box_events:
             box_id = box_event["box_id"]
             adc_samples, raw_voltage, rms_windowed_voltage, frequency_windowed = acquire_data(self.mongo_client,
+                                                                                              self,
                                                                                               event_id,
                                                                                               box_id,
                                                                                               self.name,
@@ -265,6 +289,9 @@ class MakaiEventPlugin(plugins.base_plugin.MaukaPlugin):
             timer = threading.Timer(self.get_data_after_s,
                                     function=self.acquire_and_produce,
                                     args=[mauka_message.makai_event.event_id])
+
+            # Produce a message to the GC
+            self.produce("laha_gc", protobuf.util.build_gc_update(self.name, protobuf.mauka_pb2.EVENTS, mauka_message.makai_event.event_id))
             timer.start()
         else:
             self.logger.error("Received incorrect mauka message [%s] for MakaiEventPlugin",
@@ -278,7 +305,7 @@ def rerun(event_id: int):
     """
     client = mongo.get_default_client()
     logger = logging.getLogger()
-    conf = config.from_file("./config.json")
+    conf = config.from_env(constants.CONFIG_ENV)
     filter_order = int(conf.get("plugins.MakaiEventPlugin.filterOrder"))
     cutoff_frequency = float(conf.get("plugins.MakaiEventPlugin.cutoffFrequency"))
     samples_per_window = int(constants.SAMPLES_PER_CYCLE) * int(
@@ -288,7 +315,9 @@ def rerun(event_id: int):
         box_events = client.box_events_collection.find({"event_id": event_id})
         for box_event in box_events:
             box_id = box_event["box_id"]
-            adc_samples, _, rms_windowed_voltage, frequency_windowed = acquire_data(client, event_id, box_id, "rerun",
+            adc_samples, _, rms_windowed_voltage, frequency_windowed = acquire_data(client,
+                                                                                    None,
+                                                                                    event_id, box_id, "rerun",
                                                                                     filter_order, cutoff_frequency,
                                                                                     samples_per_window,
                                                                                     down_sample_factor)

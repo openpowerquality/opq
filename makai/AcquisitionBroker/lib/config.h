@@ -19,7 +19,7 @@ static const float BOX_SAMPLING_RATE = 12000.0;
 
 //Configuration struct. All fields are loaded from json.
 struct Config {
-    Config(string fname = "/etc/opq/acquisition_broker_config.json");
+    Config(string var_name = "ACQUISITION_BROKER_SETTINGS");
 
     //folder with client public certificates.
     string public_certs;

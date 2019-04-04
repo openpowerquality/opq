@@ -7,10 +7,10 @@ import matplotlib.pyplot as plt
 import pandas
 import seaborn
 
+import config
 import plugins.makai_event_plugin as analysis
 import mongo
 import constants
-from opq_mauka import load_config
 
 
 class Incident:
@@ -42,12 +42,12 @@ class Incident:
         self.calibrated_waveform = mongo.get_waveform(opq_mongo_client,
                                                       self.gridfs_filename) / mongo.cached_calibration_constant(
             self.box_id)
-        self.config = load_config("./config.json")
-        self.filter_order = int(self.config["plugins.MakaiEventPlugin.filterOrder"])
-        self.cutoff_frequency = float(self.config["plugins.MakaiEventPlugin.cutoffFrequency"])
+        self.conf = config.from_env(constants.CONFIG_ENV)
+        self.filter_order = int(self.conf["plugins.MakaiEventPlugin.filterOrder"])
+        self.cutoff_frequency = float(self.conf["plugins.MakaiEventPlugin.cutoffFrequency"])
         self.samples_per_window = int(constants.SAMPLES_PER_CYCLE) * \
-                                  int(self.config["plugins.MakaiEventPlugin.frequencyWindowCycles"])
-        self.down_sample_factor = int(self.config["plugins.MakaiEventPlugin.frequencyDownSampleRate"])
+                                  int(self.conf["plugins.MakaiEventPlugin.frequencyWindowCycles"])
+        self.down_sample_factor = int(self.conf["plugins.MakaiEventPlugin.frequencyDownSampleRate"])
 
     def __str__(self):
         return pprint.pformat(self.__dict__)

@@ -15,6 +15,8 @@ use triggering_service::proto::opqbox3::Command;
 use triggering_service::proto::opqbox3::GetDataCommand;
 use triggering_service::proto::opqbox3::Measurement;
 
+
+
 fn timestamp_ms() -> u64 {
     let start = SystemTime::now();
     let since_the_epoch = start
@@ -153,7 +155,8 @@ struct ThresholdTriggerPluginSettings {
 
     pub thd_threshold_high: f32,
 
-    pub debug: bool
+    pub debug: bool,
+    pub debug_devices: Vec<u32>
 }
 
 #[derive(Debug, Default)]
@@ -190,26 +193,18 @@ impl ThresholdTriggerPlugin {
         threshold_high: f32,
     ) -> Option<Trigger> {
         let state_key = StateKey::from(measurement.box_id, trigger_type);
-        if self.settings.debug {
-            println!("Checking metric for {}", metric);
-        }
+        self.maybe_debug(measurement.box_id, &format!("Checking metric for {}", metric));
         match measurement.metrics.get(metric) {
             None => {
-                if self.settings.debug {
-                    println!("No metric found for {}", metric);
-                }
+                self.maybe_debug(measurement.box_id, &format!("No metric found for {}", metric));
                 return None;
             },
             Some(metric) => {
                 if metric.min < threshold_low || metric.max > threshold_high {
-                    if self.settings.debug {
-                        println!("Metrics are triggering metric min:{} metric max:{} threshold low:{} threshold high: {}", metric.min, metric.max, threshold_low, threshold_high);
-                    }
+                    self.maybe_debug(measurement.box_id, &format!("Metrics are triggering metric min:{} metric max:{} threshold low:{} threshold high: {}", metric.min, metric.max, threshold_low, threshold_high));
                     self.fsm.update(state_key.clone(), State::Triggering)
                 } else {
-                    if self.settings.debug {
-                        println!("Metrics are nominal metric min:{} metric max:{} threshold low:{} threshold high: {}", metric.min, metric.max, threshold_low, threshold_high);
-                    }
+                    self.maybe_debug(measurement.box_id, &format!("Metrics are nominal metric min:{} metric max:{} threshold low:{} threshold high: {}", metric.min, metric.max, threshold_low, threshold_high));
                     self.fsm.update(state_key.clone(), State::Nominal)
                 }
             }
@@ -264,10 +259,14 @@ impl ThresholdTriggerPlugin {
         cmd.set_identity(String::new());
         cmd.set_timestamp_ms(timestamp_ms());
         cmd.set_seq(0);
-        if self.settings.debug {
-            println!("Sending CMD {:?}", self.fsm)
-        }
+        self.maybe_debug(trigger.box_id, &format!("Sending CMD {:#?}", cmd));
         return cmd;
+    }
+
+    fn maybe_debug(&self, box_id: u32, msg: &str) {
+        if self.settings.debug && (self.settings.debug_devices.is_empty() || self.settings.debug_devices.contains(&box_id)) {
+            println!("{}", msg);
+        }
     }
 }
 
@@ -277,11 +276,8 @@ impl MakaiPlugin for ThresholdTriggerPlugin {
     }
 
     fn process_measurement(&mut self, measurement: Arc<Measurement>) -> Option<Vec<Command>> {
-        if self.settings.debug {
-            println!("{:#?}", measurement);
-            println!("{:#?}", self.fsm);
-        }
-
+        self.maybe_debug(measurement.box_id, &format!("{:#?}", measurement));
+        self.maybe_debug(measurement.box_id, &format!("{:#?}", self.fsm));
         let mut cmds = Vec::new();
 
         match self.check_frequency(&measurement) {

@@ -1,16 +1,112 @@
 """
 This module contains a plugin that reports and records the status of other plugins in the system
+
+OPQ Health requires a JSON response that has the format of:
+
+component = {
+    "name": str,
+    "ok": bool,
+    "timestamp": int,
+    "subcomponents": list[component]
+}
+
 """
 
-import json
 import http.server
 import multiprocessing
 import threading
 import time
+import typing
 
 import config
 import plugins.base_plugin
 import protobuf.util
+
+
+def fmt_list(values: typing.List) -> str:
+    """
+    Formats a list suitable for json.
+    :param l: List to format.
+    :return: A formatted list suitable for json.
+    """
+    return "[%s]" % ", ".join(values)
+
+
+def fmt_bool(boolean: bool) -> str:
+    """
+    Formats a bool suitable for json.
+    :param b: Bool to format.
+    :return: A formatted bool suitable for json.
+    """
+    return str(boolean).lower()
+
+
+def fmt_str(string: str) -> str:
+    """
+    Formats a str suitable for json.
+    :param s: String to format.
+    :return: A formatted string suitable for json.
+    """
+    return '"%s"' % string
+
+
+def timestamp_s() -> int:
+    """
+    Returns a timestamp as the number of seconds since the epoch.
+    :return: A timestamp as the number of seconds since the epoch.
+    """
+    return int(time.time())
+
+
+class StateComponent:
+    """
+    This class encapsulates the data required by OPQ Health.
+    """
+
+    def __init__(self,
+                 name: str,
+                 ok: bool = True,
+                 timestamp: int = timestamp_s()):
+        self.name: str = name
+        # pylint: disable=C0103
+        self.ok: bool = ok
+        self.timestamp = timestamp
+        self.subcomponents: typing.List['StateComponent'] = []
+
+    # pylint: disable=C0103
+    def update(self, ok: bool = True):
+        """
+        Updates the state component with the latest timestamp and status.
+        :param ok: An optional status (ok = True otherwise).
+        """
+        # pylint: disable=C0103
+        self.ok = ok
+        self.timestamp = timestamp_s()
+
+    def as_json(self) -> bytes:
+        """
+        Returns the recursive JSON representation of this object to feed to OPQ Health.
+        :return: The recursive JSON representation of this object to feed to OPQ Health.
+        """
+        def as_json_rec(state_component: 'StateComponent') -> str:
+            """
+            Recursive helper method for building JSON.
+            :param state_component: The state component to serialize.
+            :return: JSON representation of the state component.
+            """
+            if len(state_component.subcomponents) == 0:
+                return '{"name": %s, "ok": %s, "timestamp": %d, "subcomponents": []}' % (
+                    fmt_str(state_component.name),
+                    fmt_bool(state_component.ok),
+                    state_component.timestamp)
+
+            return '{"name": %s, "ok": %s, "timestamp": %d, "subcomponents": %s}' % (
+                fmt_str(state_component.name),
+                fmt_bool(state_component.ok),
+                state_component.timestamp,
+                fmt_list(list(map(as_json_rec, state_component.subcomponents))))
+
+        return as_json_rec(self).encode()
 
 
 class HealthState:
@@ -18,66 +114,81 @@ class HealthState:
 
     def __init__(self):
         self.lock = threading.RLock()
-        self.state = {}
+        self.state = StateComponent("mauka")
 
     def as_json(self) -> bytes:
         """
         :return: Thread safe method that returns the current state as encoded bytes.
         """
         with self.lock:
-            return json.dumps(self.state).encode()
+            return self.state.as_json()
 
-    def set_key(self, key, value):
+    # pylint: disable=C0103
+    def update(self, name: str, ok: bool = True):
         """
-        Thread safe message for setting a key-pair value within this class.
-        :param key: The key to set.
-        :param value: The value to set.
+        Updates the health for a plugin at name.
+        :param name: Name of the plugin.
+        :param ok: Plugin status.
         """
+
+        def subcomponent(name: str) -> typing.Optional[StateComponent]:
+            """
+            Returns a subcomponent in the first level of the state subcomponents.
+            :param name: Name of the plugin subcomponent.
+            :return: The subcomponent or None if it doesn't exist.
+            """
+            for comp in self.state.subcomponents:
+                if comp.name == name:
+                    return comp
+
+            return None
+
         with self.lock:
-            self.state[key] = value
+            self.state.update()
+            component = subcomponent(name)
+            if component is not None:
+                component.update(ok)
+            else:
+                self.state.subcomponents.append(StateComponent(name, ok))
+
+    def __str__(self):
+        return self.as_json().decode()
 
 
 # pylint: disable=C0103
-health_state = HealthState()
+health_state: HealthState = HealthState()
 
 
-def request_handler_factory():
+class HealthRequestHandler(http.server.BaseHTTPRequestHandler):
     """
-    Factory method for creating HTTP request handler.
-    :return:
+    Custom HTTP handler for Mauka's health requests.
     """
-    class HealthRequestHandler(http.server.BaseHTTPRequestHandler):
+
+    def _set_headers(self, resp: int):
         """
-        Custom HTTP handler for Mauka's health requests.
+        Custom header setting method.
+        :param resp:  The response type.
         """
+        self.send_response(resp)
+        self.send_header('Content-type', 'application/json')
+        self.end_headers()
 
-        def _set_headers(self, resp: int):
-            """
-            Custom heaser setting method.
-            :param resp:  The response type.
-            """
-            self.send_response(resp)
-            self.send_header('Content-type', 'application/json')
-            self.end_headers()
-
-        # noinspection PyPep8Naming
-        # pylint: disable=C0103
-        def do_GET(self):
-            """
-            Returns the health state as JSON to the requestee.
-            :return: The health state as JSON
-            """
-            # pylint: disable=W0603
-            global health_state
-            self._set_headers(200)
-            self.wfile.write(health_state.as_json())
-
-    return HealthRequestHandler
+    # noinspection PyPep8Naming
+    # pylint: disable=C0103
+    def do_GET(self):
+        """
+        Returns the health state as JSON to the requestee.
+        :return: The health state as JSON
+        """
+        # pylint: disable=W0603
+        global health_state
+        self._set_headers(200)
+        self.wfile.write(health_state.as_json())
 
 
 def start_health_sate_httpd_server(port: int):
     """Helper function to start HTTP server in separate thread"""
-    httpd = http.server.HTTPServer(("", port), request_handler_factory())
+    httpd = http.server.HTTPServer(("", port), HealthRequestHandler)
     httpd.serve_forever()
 
 
@@ -94,8 +205,8 @@ class StatusPlugin(plugins.base_plugin.MaukaPlugin):
         :param conf: Configuration dictionary
         """
         super().__init__(conf, ["heartbeat"], StatusPlugin.NAME, exit_event)
-        health_porth = int(conf.get("plugins.StatusPlugin.port"))
-        self.httpd_thread = threading.Thread(target=start_health_sate_httpd_server, args=(health_porth,))
+        health_port = int(conf.get("plugins.StatusPlugin.port"))
+        self.httpd_thread = threading.Thread(target=start_health_sate_httpd_server, args=(health_port,))
         self.httpd_thread.start()
 
     def on_message(self, topic, mauka_message):
@@ -110,8 +221,8 @@ class StatusPlugin(plugins.base_plugin.MaukaPlugin):
         """
 
         if protobuf.util.is_heartbeat_message(mauka_message):
+            health_state.update(mauka_message.source)
             self.debug(str(mauka_message))
-            health_state.set_key(mauka_message.source, time.time())
         else:
             self.logger.error("Incorrect mauka message type [%s] for StatusPlugin",
                               protobuf.util.which_message_oneof(mauka_message))

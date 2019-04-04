@@ -121,6 +121,13 @@ class UserProfilesCollection extends BaseCollection {
     throw new Meteor.Error(`Could not find profile corresponding to ${username}`);
   }
 
+  /**
+   * Returns true if this collection contains an admin user, false otherwise.
+   */
+  hasAdminUser() {
+    return this._collection.findOne({ role: ROLE.ADMIN });
+  }
+
 
   /**
    * Returns the profile document corresponding to id, or throws error if not found.

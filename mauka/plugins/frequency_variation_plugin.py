@@ -170,7 +170,7 @@ class FrequencyVariationPlugin(plugins.base_plugin.MaukaPlugin):
                                                       self.max_lull, logger=self.logger)
 
             for incident in incidents:
-                mongo.store_incident(
+                incident_id = mongo.store_incident(
                     incident["event_id"],
                     incident["box_id"],
                     incident["incident_start_ts"],
@@ -182,6 +182,11 @@ class FrequencyVariationPlugin(plugins.base_plugin.MaukaPlugin):
                     incident["metadata"],
                     self.mongo_client
                 )
+
+                # Produce a message to the GC
+                self.produce("laha_gc", protobuf.util.build_gc_update(self.name,
+                                                                      protobuf.mauka_pb2.INCIDENTS,
+                                                                      incident_id))
         else:
             self.logger.error("Received incorrect mauka message [%s] at FrequencyVariationPlugin",
                               protobuf.util.which_message_oneof(mauka_message))
