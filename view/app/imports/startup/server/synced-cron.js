@@ -11,18 +11,18 @@ SyncedCron.config({
 function startupSystemStatsCronjob() {
   // Only set up Cron Job when not in Test mode.
   if (!Meteor.isTest && !Meteor.isAppTest) {
-    // Default the update interval to 60 seconds if not supplied in configuration file.
-    const updateIntervalSeconds = Meteor.settings.systemStats ? Meteor.settings.systemStats.updateIntervalSeconds : 60;
+    // Default the update interval to 59 seconds if not supplied in configuration file.
+    const updateIntervalSeconds = Meteor.settings.systemStats ? Meteor.settings.systemStats.updateIntervalSeconds : 59;
     SyncedCron.add({
       name: 'Update the SystemStats collection with current collection counts',
       schedule(parser) {
-        return parser.text(`every ${updateIntervalSeconds} seconds`); // Parser is a later.js parse object.
+        return parser.text(`every ${updateIntervalSeconds} seconds`); // seconds must be between 1 and 59
       },
       job() {
         SystemStats.updateCounts();
       },
     });
-    console.log(`Starting SyncedCron to update System Stats every ${updateIntervalSeconds} seconds.`);
+    console.log(`Starting cron job to update system stats every ${updateIntervalSeconds} seconds.`);
     SyncedCron.start();
   }
 }
