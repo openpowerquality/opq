@@ -17,7 +17,6 @@ LAHA_ONEOF_TTL = "ttl"
 LAHA_ONEOF_GC_TRIGGER = "gc_trigger"
 LAHA_ONEOF_GC_UPDATE = "gc_update"
 
-
 # pylint: disable=C0103
 logger = log.get_logger(__name__)
 
@@ -290,7 +289,6 @@ def is_makai_trigger(mauka_message: mauka_pb2.MaukaMessage) -> bool:
     :return: True if this is a makai_trigger type, fasle otherwise
     """
     return which_message_oneof(mauka_message) == "makai_trigger"
-
 
 
 def is_measurement(mauka_message: mauka_pb2.MaukaMessage) -> bool:
