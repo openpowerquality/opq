@@ -2,6 +2,8 @@
 This module contains the plugin definition for classifying voltage incidents by the Semi F47 standard.
 """
 
+import typing
+
 import numpy
 
 import config

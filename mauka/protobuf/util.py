@@ -202,7 +202,7 @@ def build_ttl(source: str,
 
 
 def build_gc_trigger(source: str,
-                     gc_domains: typing.List[mauka_pb2.GcDomain]) -> mauka_pb2.MaukaMessage:
+                     gc_domains: typing.List) -> mauka_pb2.MaukaMessage:
     mauka_message = build_mauka_message(source)
     mauka_message.laha.gc_trigger.gc_domains[:] = gc_domains
     return mauka_message
