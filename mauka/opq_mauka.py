@@ -12,6 +12,7 @@ import constants
 import log
 import mongo
 import plugins.frequency_variation_plugin
+import plugins.laha_gc_plugin
 import plugins.transient_plugin
 import plugins.itic_plugin
 import plugins.makai_event_plugin
@@ -46,9 +47,10 @@ def bootstrap_db(conf: config.MaukaConfig):
         mongo_client.laha_config_collection.insert_one(conf.get("laha.config.default"))
 
     # Indexes
-    mongo_client.incidents_collection.create_index("expire_at", expireAfterSeconds=0)
-    mongo_client.fs_files_collection.create_index("expire_at", expireAfterSeconds=0)
-    mongo_client.fs_chunks_collection.create_index("expire_at", expireAfterSeconds=0)
+    mongo_client.measurements_collection.create_index("expire_at")
+    mongo_client.trends_collection.create_index("expire_at")
+    mongo_client.events_collection.create_index("expire_at")
+    mongo_client.incidents_collection.create_index("expire_at")
 
 
 def bootstrap(conf: config.MaukaConfig):
@@ -79,6 +81,7 @@ def main():
     plugin_manager.register_plugin(plugins.semi_f47_plugin.SemiF47Plugin)
     plugin_manager.register_plugin(plugins.outage_plugin.OutagePlugin)
     plugin_manager.register_plugin(plugins.system_stats_plugin.SystemStatsPlugin)
+    plugin_manager.register_plugin(plugins.laha_gc_plugin.LahaGcPlugin)
 
     broker_process = None
     makai_bridge_event_process = None
