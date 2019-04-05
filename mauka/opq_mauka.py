@@ -46,6 +46,12 @@ def bootstrap_db(conf: config.MaukaConfig):
         logger.info("laha_config DNE, inserting default from config...")
         mongo_client.laha_config_collection.insert_one(conf.get("laha.config.default"))
 
+    # Indexes
+    mongo_client.measurements_collection.create_index("expire_at")
+    mongo_client.trends_collection.create_index("expire_at")
+    mongo_client.events_collection.create_index("expire_at")
+    mongo_client.incidents_collection.create_index("expire_at")
+
 
 def bootstrap(conf: config.MaukaConfig):
     """
