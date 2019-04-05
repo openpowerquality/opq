@@ -172,8 +172,8 @@ class LahaGcPlugin(base_plugin.MaukaPlugin):
             self.debug("Received heartbeat, producing GC trigger message")
             # For now, GC is triggered on heartbeats
             self.produce("laha_gc", util_pb2.build_gc_trigger(self.name, [
-                mauka_pb2.MEASUREMENTS
-                # mauka_pb2.TRENDS,
+                mauka_pb2.MEASUREMENTS,
+                mauka_pb2.TRENDS
                 # mauka_pb2.EVENTS,
                 # mauka_pb2.INCIDENTS,
                 # mauka_pb2.PHENOMENA
