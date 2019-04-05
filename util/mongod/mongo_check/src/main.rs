@@ -11,7 +11,8 @@ use mongodb::{Client, ThreadedClient, ClientOptions};
 struct resp {
     ok: bool,
     name: String,
-    timestamp: u64
+    timestamp: u64,
+    subcomponents: Vec<resp>
 }
 
 fn main() {
@@ -22,7 +23,8 @@ fn main() {
                 let response = resp {
                     ok: mongo_is_up(),
                     name: String::from("mongo"),
-                    timestamp: SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs()
+                    timestamp: SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs(),
+                    subcomponents: Vec::new()
                 };
                 rouille::Response::json(&response)
             },
