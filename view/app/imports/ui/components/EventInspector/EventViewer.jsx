@@ -224,15 +224,14 @@ class EventViewer extends React.Component {
   };
 
   createMarkerLabel = (locationDoc) => {
-    const { opqBoxes } = this.props;
     const { event, boxEvents } = this.state;
     const { triggeredBoxEvents, otherBoxEvents } = this.separateBoxEvents(event, boxEvents);
     const boxEvent = (triggeredBoxEvents.length) ? triggeredBoxEvents[0] : otherBoxEvents[0];
-    const opqBox = opqBoxes.find(box => box.location === locationDoc.slug && boxEvent.box_id === box.box_id);
+    const boxIdStr = boxEvent && boxEvent.box_id ? `<b>Box ID ${boxEvent.box_id}</b>` : '';
     return `
       <div>
         <b>${locationDoc.description}</b>
-        <b>Box ID ${opqBox.box_id}</b>
+        ${boxIdStr}
       </div>
     `;
   };
