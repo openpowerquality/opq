@@ -168,7 +168,7 @@ fn http_send_err(response: &Result<Response, Error>) -> &str {
 fn insert_health_doc(status: HealthStatus, mongodb: &str) {
     let mut options = ClientOptions::new();
     options.server_selection_timeout_ms = 1000;
-    let client = Client::with_uri_and_options(mongodb, options)
+    let client = Client::with_uri_and_options("mongodb://localhost:27017", options)
         .expect("Can't connect to mongo");
     let coll = client.db("opq").collection("healthv2");
     let mut doc = doc! {
