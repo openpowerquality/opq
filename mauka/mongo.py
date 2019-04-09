@@ -255,9 +255,10 @@ class OpqMongoClient:
 
     def get_active_box_ids(self) -> typing.List[str]:
         one_min_ago = timestamp_ms() - 60000
-        query = self.measurements_collection.find({"timestamp_ms": {{"$gte": one_min_ago}}},
+        query = self.measurements_collection.find({"timestamp_ms": {"$gte": one_min_ago}},
                                                   projection={"timestamp_ms": True,
                                                               "box_id": True})
+
         return list(map(lambda measurement: measurement["box_id"], query))
 
 
