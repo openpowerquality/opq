@@ -32,7 +32,7 @@ class DescriptiveStatistic:
         self.start_timestamp_s = 0
         self.end_timestamp_s = 0
 
-    def update(self, value: int, timestamp_s: typing.Optional[int] = None):
+    def update(self, value: typing.Union[int, float], timestamp_s: typing.Optional[int] = None):
         ts = timestamp_s if timestamp_s is not None else timestamp()
 
         if len(self.values) == 0:
@@ -44,8 +44,8 @@ class DescriptiveStatistic:
     def get(self) -> typing.Dict:
         as_np = numpy.array(self.values)
         return {
-            "min": int(as_np.min()),
-            "max": int(as_np.max()),
+            "min": float(as_np.min()),
+            "max": float(as_np.max()),
             "mean": float(as_np.mean()),
             "var": float(as_np.var()),
             "cnt": len(as_np),
