@@ -172,7 +172,7 @@ class LahaGcPlugin(base_plugin.MaukaPlugin):
 
     def on_message(self, topic: str, mauka_message: mauka_pb2.MaukaMessage):
         self.debug("Received from %s %s" % (mauka_message.source, mauka_message))
-        if util_pb2.is_heartbeat_message(mauka_message):
+        if util_pb2.is_heartbeat_message(mauka_message) and mauka_message.source == self.NAME:
             self.debug("Received heartbeat, producing GC trigger message")
             # For now, GC is triggered on heartbeats
             self.produce("laha_gc", util_pb2.build_gc_trigger(self.name, [

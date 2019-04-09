@@ -44,10 +44,10 @@ class DescriptiveStatistic:
     def get(self) -> typing.Dict:
         as_np = numpy.array(self.values)
         return {
-            "min": as_np.min(),
-            "max": as_np.max(),
-            "mean": as_np.mean(),
-            "var": as_np.var(),
+            "min": int(as_np.min()),
+            "max": int(as_np.max()),
+            "mean": float(as_np.mean()),
+            "var": float(as_np.var()),
             "cnt": len(as_np),
             "start_timestamp_s": self.start_timestamp_s,
             "end_timestamp_s": self.end_timestamp_s
