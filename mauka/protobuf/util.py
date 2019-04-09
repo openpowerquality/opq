@@ -16,6 +16,7 @@ LAHA_TYPE = "laha_type"
 LAHA_ONEOF_TTL = "ttl"
 LAHA_ONEOF_GC_TRIGGER = "gc_trigger"
 LAHA_ONEOF_GC_UPDATE = "gc_update"
+LAHA_ONEOF_GC_STAT = "gc_stat"
 
 # pylint: disable=C0103
 logger = log.get_logger(__name__)
@@ -221,6 +222,15 @@ def build_gc_update(source: str,
     return mauka_message
 
 
+def build_gc_stat(source: str,
+                  gc_domain: mauka_pb2.GcDomain,
+                  gc_cnt: int) -> mauka_pb2.MaukaMessage:
+    mauka_message = build_mauka_message(source)
+    mauka_message.gc_stat.gc_domain = gc_domain
+    mauka_message.gc_stat.gc_cnt = gc_cnt
+    return mauka_message
+
+
 def serialize_mauka_message(mauka_message: mauka_pb2.MaukaMessage) -> bytes:
     """
     Serializes an instance of a MaukaMessage into bytes.
@@ -324,6 +334,10 @@ def is_gc_trigger(mauka_message: mauka_pb2.MaukaMessage) -> bool:
 
 def is_gc_update(mauka_message: mauka_pb2.MaukaMessage) -> bool:
     return is_laha(mauka_message) and mauka_message.laha.WhichOneof(LAHA_TYPE) == LAHA_ONEOF_GC_UPDATE
+
+
+def is_gc_stat(mauka_message: mauka_pb2.MaukaMessage) -> bool:
+    return is_laha(mauka_message) and mauka_message.laha.WhichOneof(LAHA_TYPE) == LAHA_ONEOF_GC_STAT
 
 
 def repeated_as_ndarray(repeated) -> numpy.ndarray:

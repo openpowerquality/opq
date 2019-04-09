@@ -36,9 +36,17 @@ class SystemStatsPlugin(plugins.base_plugin.MaukaPlugin):
         :param conf: Configuration dictionary
         :param exit_event: Exit event
         """
-        super().__init__(conf, ["heartbeat"], SystemStatsPlugin.NAME, exit_event)
+        super().__init__(conf, ["heartbeat", "gc_stat"], SystemStatsPlugin.NAME, exit_event)
         self.interval_s = conf.get("plugins.SystemStatsPlugin.intervalS")
         self.plugin_stats: typing.Dict[str, typing.Dict[str, int]] = {}
+        self.gc_stats: typing.Dict[protobuf.mauka_pb2.GcDomain, int] = {
+            protobuf.mauka_pb2.SAMPLES: 0,
+            protobuf.mauka_pb2.MEASUREMENTS: 0,
+            protobuf.mauka_pb2.TRENDS: 0,
+            protobuf.mauka_pb2.EVENTS: 0,
+            protobuf.mauka_pb2.INCIDENTS: 0,
+            protobuf.mauka_pb2.PHENOMENA: 0
+        }
 
         # Start stats collection
         timer = threading.Timer(self.interval_s, self.collect_stats, args=[self.interval_s])
@@ -118,6 +126,24 @@ class SystemStatsPlugin(plugins.base_plugin.MaukaPlugin):
         """
         return 0
 
+    def handle_gc_stat_message(self, mauka_message: protobuf.mauka_pb2.MaukaMessage):
+        gc_domain = mauka_message.laha.gc_stat.gc_domain
+        gc_cnt = mauka_message.laha.gc_stat.gc_cnt
+        if gc_domain == protobuf.mauka_pb2.SAMPLES:
+            self.gc_stats[protobuf.mauka_pb2.SAMPLES] += gc_cnt
+        elif gc_domain == protobuf.mauka_pb2.MEASUREMENTS:
+            self.gc_stats[protobuf.mauka_pb2.MEASUREMENTS] += gc_cnt
+        elif gc_domain == protobuf.mauka_pb2.TRENDS:
+            self.gc_stats[protobuf.mauka_pb2.TRENDS] += gc_cnt
+        elif gc_domain == protobuf.mauka_pb2.EVENTS:
+            self.gc_stats[protobuf.mauka_pb2.EVENTS] += gc_cnt
+        elif gc_domain == protobuf.mauka_pb2.INCIDENTS:
+            self.gc_stats[protobuf.mauka_pb2.INCIDENTS] += gc_cnt
+        elif gc_domain == protobuf.mauka_pb2.PHENOMENA:
+            self.gc_stats[protobuf.mauka_pb2.PHENOMENA] += gc_cnt
+        else:
+            self.logger.warn("Unknown domain %s" % gc_domain)
+
     def collect_stats(self, interval_s: int):
         """
         Collects statistics on a provided time interval.
@@ -176,6 +202,14 @@ class SystemStatsPlugin(plugins.base_plugin.MaukaPlugin):
                         "count": self.mongo_client.phenomena_collection.count(),
                         "size_bytes": self.phenomena_size_bytes()
                     }
+                },
+                "gc_stats": {
+                    "samples": self.gc_stats[protobuf.mauka_pb2.SAMPLES],
+                    "measurements": self.gc_stats[protobuf.mauka_pb2.MEASUREMENTS],
+                    "trends": self.gc_stats[protobuf.mauka_pb2.TRENDS],
+                    "events": self.gc_stats[protobuf.mauka_pb2.EVENTS],
+                    "incidents": self.gc_stats[protobuf.mauka_pb2.INCIDENTS],
+                    "phenomena:": self.gc_stats[protobuf.mauka_pb2.PHENOMENA]
                 }
             },
             "other_stats": {
@@ -198,6 +232,8 @@ class SystemStatsPlugin(plugins.base_plugin.MaukaPlugin):
         """
         if protobuf.util.is_heartbeat_message(mauka_message):
             self.plugin_stats[mauka_message.source] = json.loads(mauka_message.heartbeat.status)
+        elif protobuf.util.is_gc_stat(mauka_message):
+            self.handle_gc_stat_message(mauka_message)
         else:
             self.logger.error("Received incorrect mauka message [%s] at %s",
                               protobuf.util.which_message_oneof(mauka_message), SystemStatsPlugin.NAME)
