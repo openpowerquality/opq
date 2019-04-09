@@ -210,7 +210,8 @@ class SystemStatsPlugin(plugins.base_plugin.MaukaPlugin):
                     "events": self.gc_stats[protobuf.mauka_pb2.EVENTS],
                     "incidents": self.gc_stats[protobuf.mauka_pb2.INCIDENTS],
                     "phenomena:": self.gc_stats[protobuf.mauka_pb2.PHENOMENA]
-                }
+                },
+                "active_devices": len(self.mongo_client.get_active_box_ids())
             },
             "other_stats": {
                 "ground_truth": {

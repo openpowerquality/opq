@@ -4,6 +4,7 @@ This module contains classes and functions for querying and manipulating data wi
 
 import datetime
 import enum
+import time
 import typing
 
 import bson
@@ -16,6 +17,10 @@ import pymongo
 import analysis
 import config
 import constants
+
+
+def timestamp_ms() -> int:
+    return int(round(time.time() * 1000))
 
 
 def to_s16bit(data: bytes) -> numpy.ndarray:
@@ -247,6 +252,13 @@ class OpqMongoClient:
         """
         stats = self.database.command("collstats", collection.value)
         return stats["size"] + stats["totalIndexSize"]
+
+    def get_active_box_ids(self) -> typing.List[str]:
+        one_min_ago = timestamp_ms() - 60000
+        query = self.measurements_collection.find({"timestamp_ms": {{"$gte": one_min_ago}}},
+                                                  projection={"timestamp_ms": True,
+                                                              "box_id": True})
+        return list(map(lambda measurement: measurement["box_id"], query))
 
 
 def get_waveform(mongo_client: OpqMongoClient, data_fs_filename: str) -> numpy.ndarray:
