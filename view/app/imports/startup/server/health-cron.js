@@ -22,7 +22,7 @@ const serviceTracker = { mauka: false, makai: false, mongo: false, health: false
 function serviceHealthStatus(healths, service, usersInterested) {
   const serviceName = service.toLowerCase();
   const healthDoc = _.find(healths, health => health.service === service);
-  if (healthDoc.status === 'DOWN' && serviceTracker[serviceName] === false) {
+  if (healthDoc && (healthDoc.status === 'DOWN') && (serviceTracker[serviceName] === false)) {
     _.forEach(usersInterested, user => {
       const username = user.username;
       const type = 'system service down';
@@ -31,7 +31,7 @@ function serviceHealthStatus(healths, service, usersInterested) {
       serviceTracker[serviceName] = true;
     });
   }
-  if (healthDoc.status !== ('DOWN' || undefined) && serviceTracker[serviceName] === true) {
+  if (healthDoc && healthDoc.status !== ('DOWN' || undefined) && serviceTracker[serviceName] === true) {
     serviceTracker[serviceName] = false;
   }
 }
@@ -44,13 +44,13 @@ function healthCron() {
     console.log('Health cron job disabled in view.config.json.');
   }
   if (!testMode && !disabled) {
-    // Default the update interval to 60 seconds if not supplied in configuration file.
-    const updateIntervalSeconds = Meteor.settings.systemStats ? Meteor.settings.systemStats.updateIntervalSeconds : 60;
+    // Default the update interval to 10 seconds if not supplied in configuration file.
+    const updateIntervalSeconds = Meteor.settings.systemStats ? Meteor.settings.systemStats.updateIntervalSeconds : 10;
     const services = ['MAUKA', 'MAKAI', 'MONGO', 'HEALTH'];
     SyncedCron.add({
       name: 'Check Health collection for services that are down',
       schedule(parser) {
-        return parser.text(`every ${updateIntervalSeconds} seconds`); // Parser is a later.js parse object.
+        return parser.text(`every ${updateIntervalSeconds} seconds`); // Seconds must be between 0-59.
       },
       job() {
         const usersInterested = UserProfiles.find({ 'notification_preferences.notification_types':
@@ -62,7 +62,7 @@ function healthCron() {
         _.map(services, service => serviceHealthStatus(healths, service, usersInterested));
       },
     });
-    console.log(`Starting cron job to check health status every ${updateIntervalSeconds} seconds`);
+    console.log(`Starting cron job to update health status every ${updateIntervalSeconds} seconds.`);
     SyncedCron.start();
   }
 }
