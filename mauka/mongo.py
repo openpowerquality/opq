@@ -259,7 +259,7 @@ class OpqMongoClient:
                                                   projection={"timestamp_ms": True,
                                                               "box_id": True})
 
-        return list(map(lambda measurement: measurement["box_id"], query))
+        return list(set(map(lambda measurement: measurement["box_id"], query)))
 
 
 def get_waveform(mongo_client: OpqMongoClient, data_fs_filename: str) -> numpy.ndarray:
