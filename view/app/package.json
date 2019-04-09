@@ -3,6 +3,7 @@
   "private": true,
   "dependencies": {
     "@babel/runtime": "^7.3.1",
+    "@fortawesome/fontawesome-free": "^5.8.1",
     "bcrypt": "^1.0.3",
     "classnames": "^2.2.5",
     "create-react-class": "^15.5.1",

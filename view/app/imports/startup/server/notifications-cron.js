@@ -107,12 +107,17 @@ function removeOldNotifications() {
 }
 
 Meteor.startup(() => {
-  if (Meteor.isProduction) {
-    /**
-     * sets the MAIL_URL environment variable to enable emails
-     * MAIL_URL settings are only found in the settings.production.json file
-     * https://docs.meteor.com/api/email.html
-     */
+  const testMode = Meteor.isTest || Meteor.isAppTest;
+  const disabled = Meteor.settings.notificationCron && !Meteor.settings.notificationCron.enabled;
+  const mailUrl = Meteor.settings.env && Meteor.settings.env.MAIL_URL;
+  if (disabled) {
+    console.log('Notification cron job disabled in view.config.json.');
+  }
+  if (!disabled && !mailUrl) {
+    console.log('Notification cron job disabled due to missing Meteor.settings.env.MAIL_URL.');
+  }
+  if (!disabled && !testMode && mailUrl) {
+    /** Set the MAIL_URL environment variable to enable emails */
     process.env.MAIL_URL = Meteor.settings.env.MAIL_URL;
     startupHourlyNotifications();
     startupDailyNotifications();
