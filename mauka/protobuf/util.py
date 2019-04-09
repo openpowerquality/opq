@@ -226,8 +226,8 @@ def build_gc_stat(source: str,
                   gc_domain: mauka_pb2.GcDomain,
                   gc_cnt: int) -> mauka_pb2.MaukaMessage:
     mauka_message = build_mauka_message(source)
-    mauka_message.gc_stat.gc_domain = gc_domain
-    mauka_message.gc_stat.gc_cnt = gc_cnt
+    mauka_message.laha.gc_stat.gc_domain = gc_domain
+    mauka_message.laha.gc_stat.gc_cnt = gc_cnt
     return mauka_message
 
 

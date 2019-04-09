@@ -173,6 +173,7 @@ class SystemStatsPlugin(plugins.base_plugin.MaukaPlugin):
         return 0
 
     def handle_gc_stat_message(self, mauka_message: protobuf.mauka_pb2.MaukaMessage):
+        self.debug("handle_gc_stat_message")
         gc_domain = mauka_message.laha.gc_stat.gc_domain
         gc_cnt = mauka_message.laha.gc_stat.gc_cnt
         if gc_domain == protobuf.mauka_pb2.SAMPLES:
@@ -291,9 +292,12 @@ class SystemStatsPlugin(plugins.base_plugin.MaukaPlugin):
         :param topic: The topic that is producing the message
         :param mauka_message: The message that was produced
         """
+        self.debug("Received message %s" % str(mauka_message))
         if protobuf.util.is_heartbeat_message(mauka_message):
+            self.debug("Received heartbeat message, updating plugin stats.")
             self.plugin_stats[mauka_message.source] = json.loads(mauka_message.heartbeat.status)
         elif protobuf.util.is_gc_stat(mauka_message):
+            self.debug("Received gc_stat message")
             self.handle_gc_stat_message(mauka_message)
         else:
             self.logger.error("Received incorrect mauka message [%s] at %s",
