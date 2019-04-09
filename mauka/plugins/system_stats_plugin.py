@@ -1,12 +1,14 @@
 """
 This plugin calculates and stores statistics about mauka and the system,
 """
+import collections
 import json
 import multiprocessing.queues
 import threading
 import time
 import typing
 
+import numpy
 import psutil
 
 import config
@@ -21,7 +23,42 @@ def timestamp() -> int:
     Returns the current timestamp in seconds since the epoch.
     :return: The current timestamp in seconds since the epoch.
     """
-    return int(time.time())
+    return int(round(time.time()))
+
+
+class DescriptiveStatistic:
+    def __init__(self):
+        self.values = []
+        self.start_timestamp_s = 0
+        self.end_timestamp_s = 0
+
+    def update(self, value: int, timestamp_s: typing.Optional[int] = None):
+        ts = timestamp_s if timestamp_s is not None else timestamp()
+
+        if len(self.values) == 0:
+            self.start_timestamp_s = ts
+
+        self.values.append(value)
+        self.end_timestamp_s = ts
+
+    def get(self) -> typing.Dict:
+        as_np = numpy.array(self.values)
+        return {
+            "min": as_np.min(),
+            "max": as_np.max(),
+            "mean": as_np.mean(),
+            "var": as_np.var(),
+            "cnt": len(as_np),
+            "start_timestamp_s": self.start_timestamp_s,
+            "end_timestamp_s": self.end_timestamp_s
+        }
+
+    def clear(self):
+        self.values = []
+        self.start_timestamp_s = 0
+        self.end_timestamp_s = 0
+
+
 
 
 class SystemStatsPlugin(plugins.base_plugin.MaukaPlugin):
@@ -38,6 +75,7 @@ class SystemStatsPlugin(plugins.base_plugin.MaukaPlugin):
         """
         super().__init__(conf, ["heartbeat", "gc_stat"], SystemStatsPlugin.NAME, exit_event)
         self.interval_s = conf.get("plugins.SystemStatsPlugin.intervalS")
+        self.system_stats_interval_s = conf.get("plugins.SystemStatsPlugin.systemStatsIntervalS")
         self.plugin_stats: typing.Dict[str, typing.Dict[str, int]] = {}
         self.gc_stats: typing.Dict[protobuf.mauka_pb2.GcDomain, int] = {
             protobuf.mauka_pb2.SAMPLES: 0,
@@ -47,8 +85,15 @@ class SystemStatsPlugin(plugins.base_plugin.MaukaPlugin):
             protobuf.mauka_pb2.INCIDENTS: 0,
             protobuf.mauka_pb2.PHENOMENA: 0
         }
+        self.system_stats = collections.defaultdict(DescriptiveStatistic)
+        self.system_stats["cpu_load_percent"].update(self.cpu_load_percent())
+        self.system_stats["memory_use_bytes"].update(self.memory_use_bytes())
+        self.system_stats["disk_use_bytes"].update(self.disk_use_bytes())
 
         # Start stats collection
+        system_stats_timer = threading.Timer(self.system_stats_interval_s, self.update_system_stats,
+                                             args=[self.system_stats_interval_s])
+        system_stats_timer.start()
         timer = threading.Timer(self.interval_s, self.collect_stats, args=[self.interval_s])
         timer.start()
 
@@ -76,9 +121,9 @@ class SystemStatsPlugin(plugins.base_plugin.MaukaPlugin):
         fs_files_size_bytes = sum(map(lambda fs_file: fs_file["length"], only_events))
         self.debug("Done collecting event stats.")
         return (
-            events_collection_size_bytes +
-            box_events_collection_size_bytes +
-            fs_files_size_bytes
+                events_collection_size_bytes +
+                box_events_collection_size_bytes +
+                fs_files_size_bytes
         )
 
     def incidents_size_bytes(self) -> int:
@@ -101,8 +146,8 @@ class SystemStatsPlugin(plugins.base_plugin.MaukaPlugin):
         self.debug("Done collecting incident stats.")
 
         return (
-            incidents_collection_size_bytes +
-            fs_files_size_bytes
+                incidents_collection_size_bytes +
+                fs_files_size_bytes
         )
 
     def num_active_devices(self) -> int:
@@ -112,10 +157,11 @@ class SystemStatsPlugin(plugins.base_plugin.MaukaPlugin):
         Devices are considered active if they've send a measurement in the past 5 minutes.
         :return: The number of active OPQBoxes.
         """
-        measurements_last_minute = self.mongo_client.measurements_collection.find({"timestamp_ms": {"$gt": (timestamp() - 5) * 1000}},
-                                                                                  projection={"_id": False,
-                                                                                              "timestamp_ms": True,
-                                                                                              "box_id": True})
+        measurements_last_minute = self.mongo_client.measurements_collection.find(
+                {"timestamp_ms": {"$gt": (timestamp() - 5) * 1000}},
+                projection={"_id": False,
+                            "timestamp_ms": True,
+                            "box_id": True})
         box_ids = set(map(lambda measurement: measurement["box_id"], measurements_last_minute))
         return len(box_ids)
 
@@ -144,23 +190,36 @@ class SystemStatsPlugin(plugins.base_plugin.MaukaPlugin):
         else:
             self.logger.warn("Unknown domain %s" % gc_domain)
 
+    def update_system_stats(self, interval_s: int):
+        self.system_stats["cpu_load_percent"].update(self.cpu_load_percent())
+        self.system_stats["memory_use_bytes"].update(self.memory_use_bytes())
+        self.system_stats["disk_use_bytes"].update(self.disk_use_bytes())
+        timer = threading.Timer(interval_s, self.update_system_stats, args=[interval_s])
+        timer.start()
+
+    def cpu_load_percent(self):
+        return psutil.cpu_percent()
+
+    def memory_use_bytes(self) -> int:
+        mem_stats = psutil.virtual_memory()
+        return mem_stats.total - mem_stats.available
+
+    def disk_use_bytes(self) -> int:
+        return psutil.disk_usage("/").used
+
     def collect_stats(self, interval_s: int):
         """
         Collects statistics on a provided time interval.
         :param interval_s: The interval in seconds in which statistics should be collected.
         """
         self.debug("Collecting stats...")
-        mem_stats = psutil.virtual_memory()
-        # active_devices = self.num_active_devices()
-        # box_samples_ttl = self.mongo_client.get_ttl("box_samples")
-
         stats = {
             "timestamp_s": timestamp(),
             "plugin_stats": self.plugin_stats,
             "system_stats": {
-                "cpu_load_percent": psutil.cpu_percent(),
-                "memory_use_bytes": mem_stats.total - mem_stats.available,
-                "disk_use_bytes": psutil.disk_usage("/").used
+                "cpu_load_percent": self.system_stats["cpu_load_percent"].get(),
+                "memory_use_bytes": self.system_stats["memory_use_bytes"].get(),
+                "disk_use_bytes": self.system_stats["disk_use_bytes"].get()
             },
             "laha_stats": {
                 "instantaneous_measurements_stats": {
@@ -225,6 +284,7 @@ class SystemStatsPlugin(plugins.base_plugin.MaukaPlugin):
         timer = threading.Timer(interval_s, self.collect_stats, args=[interval_s])
         timer.start()
 
+
     def on_message(self, topic: str, mauka_message: protobuf.mauka_pb2.MaukaMessage):
         """
         Called async when a topic this plugin subscribes to produces a message
@@ -238,3 +298,8 @@ class SystemStatsPlugin(plugins.base_plugin.MaukaPlugin):
         else:
             self.logger.error("Received incorrect mauka message [%s] at %s",
                               protobuf.util.which_message_oneof(mauka_message), SystemStatsPlugin.NAME)
+
+
+if __name__ == "__main__":
+    ds = DescriptiveStatistic()
+    print(ds.get())
