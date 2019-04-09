@@ -192,6 +192,7 @@ class SystemStatsPlugin(plugins.base_plugin.MaukaPlugin):
             self.logger.warn("Unknown domain %s" % gc_domain)
 
     def update_system_stats(self, interval_s: int):
+        self.debug("Updating system stats")
         self.system_stats["cpu_load_percent"].update(self.cpu_load_percent())
         self.system_stats["memory_use_bytes"].update(self.memory_use_bytes())
         self.system_stats["disk_use_bytes"].update(self.disk_use_bytes())
@@ -208,12 +209,16 @@ class SystemStatsPlugin(plugins.base_plugin.MaukaPlugin):
     def disk_use_bytes(self) -> int:
         return psutil.disk_usage("/").used
 
+    def reset_system_stats(self):
+        for descriptive_stat in self.system_stats.values():
+            descriptive_stat.clear()
+
     def collect_stats(self, interval_s: int):
         """
         Collects statistics on a provided time interval.
         :param interval_s: The interval in seconds in which statistics should be collected.
         """
-        self.debug("Collecting stats...")
+        self.debug("Collecting stats")
         stats = {
             "timestamp_s": timestamp(),
             "plugin_stats": self.plugin_stats,
@@ -281,7 +286,8 @@ class SystemStatsPlugin(plugins.base_plugin.MaukaPlugin):
             }
         }
         self.mongo_client.laha_stats_collection.insert_one(stats)
-        self.debug("Stats stored.")
+        self.reset_system_stats()
+        self.debug("Stats stored")
         timer = threading.Timer(interval_s, self.collect_stats, args=[interval_s])
         timer.start()
 
