@@ -12,3 +12,4 @@ import '../../api/trends';
 import '../../api/users';
 import '../../api/email';
 import '../../api/incidents';
+import '../../api/laha-stats';
