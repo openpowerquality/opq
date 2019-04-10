@@ -63,3 +63,4 @@ pub const MONGO_LAHA_CONFIG_EVENTS_TTL: &str = "events";
 
 pub static ENVIRONMENT_SETTINGS_VAR: &str = "MAKAI_SETTINGS";
 pub static ZMQ_DATA_PREFIX: &str = "data_";
+pub static ZMQ_DATA_SEPARATOR: &str = "_";

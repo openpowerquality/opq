@@ -1,15 +1,13 @@
 use std::io::Write;
+use std::collections::HashMap;
+use std::time::{Instant};
 
 use mongodb::Client;
 use mongodb::ThreadedClient;
-
 use mongodb::db::ThreadedDatabase;
-
 use mongodb::gridfs::Store;
 use mongodb::gridfs::ThreadedStore;
-
 use mongodb::coll::options::FindOptions;
-
 use bson::*;
 
 use protobuf::{parse_from_bytes, ProtobufError};
@@ -21,13 +19,16 @@ use crate::config::Settings;
 use crate::constants::*;
 use crate::proto::opqbox3::{Cycle, Response, Response_oneof_response};
 
+
 pub struct MongoStorageService {
     client: mongodb::Client,
     ///ZMQ socket to the acquisition broker.
     acq_broker: zmq::Socket,
     event_broker: zmq::Socket,
+    id_to_event: HashMap<String, (i32, std::time::Instant)>,
     identity: String,
-    ttl : u64,
+    ttl: u64,
+    next_event_number: i32,
 }
 
 impl MongoStorageService {
@@ -37,7 +38,9 @@ impl MongoStorageService {
             acq_broker: ctx.socket(zmq::SUB).unwrap(),
             event_broker: ctx.socket(zmq::PUB).unwrap(),
             identity: settings.identity.clone().unwrap(),
-            ttl : settings.ttl_cache_ttl,
+            ttl: settings.ttl_cache_ttl,
+            id_to_event: HashMap::new(),
+            next_event_number: 0,
         };
         receiver
             .acq_broker
@@ -65,15 +68,17 @@ impl MongoStorageService {
             .db(MONGO_DATABASE)
             .collection(MONGO_EVENTS_COLLECTION);
         let fs = Store::with_db(self.client.db(MONGO_DATABASE).clone());
-        let mut event_number = self.find_largest_event_number() + 1;
-        println!("Starting from event number {}", event_number);
+        self.next_event_number = self.find_largest_event_number() + 1;
+        println!("Starting from event number {}", self.next_event_number);
 
         let mut ttl = mongo_ttl::CachedTtlProvider::new(self.ttl, &self.client);
 
         loop {
             let msg = self.acq_broker.recv_multipart(0).unwrap();
-
-
+            if msg.len() < 2{
+                continue;
+            }
+            let event_number = self.get_event_number(&String::from_utf8(msg[0].clone()).unwrap());
             let header_result: Result<Response, ProtobufError> = parse_from_bytes(&msg[1]);
             if let Err(_) = header_result {
                 println!("Could not parse a data message from the box.");
@@ -81,7 +86,6 @@ impl MongoStorageService {
             };
             let header = header_result.unwrap();
             if let Response_oneof_response::get_data_response(resp) = header.response.unwrap() {
-
                 let event = doc! {
                     MONGO_EVENTS_ID_FIELD : event_number,
                     MONGO_EVENTS_DESCRIPTION_FIELD: "Makai id ".to_string() + &self.identity.clone(),
@@ -142,11 +146,9 @@ impl MongoStorageService {
                         0,
                     )
                     .unwrap();
-                event_number += 1;
             }
         }
     }
-
     fn find_largest_event_number(&mut self) -> i32 {
         let event_db = self
             .client
@@ -201,4 +203,37 @@ impl MongoStorageService {
             Err(_) => String::new(),
         }
     }
+
+    fn get_event_number(&mut self, topic : &String) -> i32 {
+        let event_token = match parse_topic(&topic){
+            Ok((id, _)) =>{
+                id
+            }
+            Err(_) =>{
+                "".to_string()
+            }
+        };
+        let id = if self.id_to_event.contains_key(&event_token) {
+            let (id, _) = self.id_to_event.get(&event_token).unwrap();
+            id.clone()
+        } else{
+            let id = self.next_event_number;
+            self.next_event_number += 1;
+            self.id_to_event.insert(event_token, (id, Instant::now()));
+            id
+        };
+        self.id_to_event = self.id_to_event.clone().into_iter().filter(
+            |(ref _token, (_id, time))| { time.elapsed().as_secs() < EVENT_TOKEN_EXPIRE_SECONDS as u64 }
+        ).collect();
+
+        return id;
+    }
+}
+
+fn parse_topic(topic: &String) -> Result<(String, String), String> {
+    let pieces: Vec<&str> = topic.split(ZMQ_FIELD_SEPARATOR).collect();
+    if pieces.len() < 3 {
+        return Err("Could not parse topic".to_string());
+    }
+    Ok((pieces[1].to_string(), pieces[2].to_string()))
 }
