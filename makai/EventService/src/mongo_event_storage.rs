@@ -1,8 +1,9 @@
 use std::io::Write;
 use std::collections::HashMap;
-use std::time::{Instant};
+use std::time::Instant;
 
 use mongodb::Client;
+use mongodb::coll::Collection;
 use mongodb::ThreadedClient;
 use mongodb::db::ThreadedDatabase;
 use mongodb::gridfs::Store;
@@ -26,7 +27,6 @@ pub struct MongoStorageService {
     acq_broker: zmq::Socket,
     event_broker: zmq::Socket,
     id_to_event: HashMap<String, (i32, std::time::Instant)>,
-    identity: String,
     ttl: u64,
     next_event_number: i32,
 }
@@ -37,7 +37,6 @@ impl MongoStorageService {
             client: Client::connect(&settings.mongo_host, settings.mongo_port).unwrap(),
             acq_broker: ctx.socket(zmq::SUB).unwrap(),
             event_broker: ctx.socket(zmq::PUB).unwrap(),
-            identity: settings.identity.clone().unwrap(),
             ttl: settings.ttl_cache_ttl,
             id_to_event: HashMap::new(),
             next_event_number: 0,
@@ -75,10 +74,10 @@ impl MongoStorageService {
 
         loop {
             let msg = self.acq_broker.recv_multipart(0).unwrap();
-            if msg.len() < 2{
+            if msg.len() < 2 {
                 continue;
             }
-            let event_number = self.get_event_number(&String::from_utf8(msg[0].clone()).unwrap());
+            let (event_number, identity, update) = self.get_event_number(&String::from_utf8(msg[0].clone()).unwrap());
             let header_result: Result<Response, ProtobufError> = parse_from_bytes(&msg[1]);
             if let Err(_) = header_result {
                 println!("Could not parse a data message from the box.");
@@ -86,20 +85,32 @@ impl MongoStorageService {
             };
             let header = header_result.unwrap();
             if let Response_oneof_response::get_data_response(resp) = header.response.unwrap() {
-                let event = doc! {
+                if update {
+                    MongoStorageService::update_event(&event_db, event_number, header.box_id);
+                } else {
+                    let event = doc! {
                     MONGO_EVENTS_ID_FIELD : event_number,
-                    MONGO_EVENTS_DESCRIPTION_FIELD: "Makai id ".to_string() + &self.identity.clone(),
+                    MONGO_EVENTS_DESCRIPTION_FIELD: "Makai id ".to_string() + &identity.clone(),
                     MONGO_EVENTS_TRIGGERED_FIELD: [header.box_id.to_string()],
                     MONGO_EVENTS_RECEIVED_FIELD: [header.box_id.to_string()],
                     MONGO_EVENTS_START_FIELD:  resp.start_ts,
                     MONGO_EVENTS_END_FIELD: resp.end_ts,
                     MONGO_EVENTS_EXPIRE_AT : ttl.get_events_ttl(),
                 };
-                match event_db.insert_one(event, None) {
-                    Ok(_) => {}
-                    Err(e) => println!("Could not insert event {}.", e),
+                    match event_db.insert_one(event, None) {
+                        Ok(_) => {}
+                        Err(e) => println!("Could not insert event {}.", e),
+                    }
+                    self.event_broker
+                        .send_multipart(
+                            &[
+                                identity.as_bytes(),
+                                event_number.to_string().as_bytes(),
+                            ],
+                            0,
+                        )
+                        .unwrap();
                 }
-
                 let fs_name = "event_".to_string()
                     + &event_number.to_string()
                     + "_"
@@ -137,18 +148,37 @@ impl MongoStorageService {
                     }
                     data_file.write_all(&data_to_write).unwrap();
                 }
-                self.event_broker
-                    .send_multipart(
-                        &[
-                            self.identity.as_bytes(),
-                            event_number.to_string().as_bytes(),
-                        ],
-                        0,
-                    )
-                    .unwrap();
             }
         }
     }
+
+    fn update_event(event_db: &Collection, event_number: i32, box_id: i32) {
+        let event = doc! {
+                    MONGO_EVENTS_ID_FIELD : event_number,
+                };
+        let update = doc! {
+                    "$push" : doc!{
+                        MONGO_EVENTS_TRIGGERED_FIELD : box_id.to_string(),
+                    }
+        };
+        match event_db.update_one(event, update, None) {
+            Ok(_) => {}
+            Err(e) => println!("Could not update event {}.", e),
+        }
+        let event = doc! {
+                    MONGO_EVENTS_ID_FIELD : event_number,
+                };
+        let update = doc! {
+                    "$push" : doc!{
+                        MONGO_EVENTS_RECEIVED_FIELD : box_id.to_string(),
+                    }
+        };
+        match event_db.update_one(event, update, None) {
+            Ok(_) => {}
+            Err(e) => println!("Could not update event {}.", e),
+        }
+    }
+
     fn find_largest_event_number(&mut self) -> i32 {
         let event_db = self
             .client
@@ -204,29 +234,31 @@ impl MongoStorageService {
         }
     }
 
-    fn get_event_number(&mut self, topic : &String) -> i32 {
-        let event_token = match parse_topic(&topic){
-            Ok((id, _)) =>{
-                id
+
+    fn get_event_number(&mut self, topic: &String) -> (i32, String, bool) {
+        let (event_token, identity) = match parse_topic(&topic) {
+            Ok((id, identity)) => {
+                (id, identity)
             }
-            Err(_) =>{
-                "".to_string()
+            Err(_) => {
+                ("".to_string(), "".to_string())
             }
         };
-        let id = if self.id_to_event.contains_key(&event_token) {
+
+        let (id, update) = if self.id_to_event.contains_key(&event_token) {
             let (id, _) = self.id_to_event.get(&event_token).unwrap();
-            id.clone()
-        } else{
+            (id.clone(), true)
+        } else {
             let id = self.next_event_number;
             self.next_event_number += 1;
             self.id_to_event.insert(event_token, (id, Instant::now()));
-            id
+            (id, false)
         };
         self.id_to_event = self.id_to_event.clone().into_iter().filter(
             |(ref _token, (_id, time))| { time.elapsed().as_secs() < EVENT_TOKEN_EXPIRE_SECONDS as u64 }
         ).collect();
 
-        return id;
+        return (id, identity, update);
     }
 }
 
