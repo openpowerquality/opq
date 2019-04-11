@@ -206,7 +206,7 @@ fn insert_health_doc(status: &HealthStatus) {
     let client = Client::with_uri_and_options(&MONGODB_URI, options)
         .expect("Can't connect to mongo");
     let coll = client.db("opq").collection("healthv2");
-    // coll.insert_one(generate_health_doc(status), None).unwrap();
+    coll.insert_one(generate_health_doc(status), None).unwrap();
 }
 
 fn get_status(up: bool) -> String {
