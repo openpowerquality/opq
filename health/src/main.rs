@@ -154,7 +154,7 @@ fn http_send_err(response: &Result<Response, Error>) -> String {
 }
 
 fn check_status(status: &HealthStatus) {
-    println!("{:?}", status);
+    // println!("{:?}", status);
     insert_health_doc(status);
     match &status.subcomponents {
         Some(subcomponents) => {
@@ -200,13 +200,16 @@ fn generate_health_doc(status: &HealthStatus) -> Document {
 }
 
 fn insert_health_doc(status: &HealthStatus) {
-    println!("{:?}", status);
+    // println!("{:?}", status);
     let mut options = ClientOptions::new();
     options.server_selection_timeout_ms = 1000;
     let client = Client::with_uri_and_options(&MONGODB_URI, options)
         .expect("Can't connect to mongo");
-    let coll = client.db("opq").collection("healthv2");
-    coll.insert_one(generate_health_doc(status), None).unwrap();
+    let coll = client.db("opq").collection("health");
+    match coll.insert_one(generate_health_doc(status), None) {
+        Ok(_) => (),
+        Err(e) => println!("{:?}", e),
+    }
 }
 
 fn get_status(up: bool) -> String {
