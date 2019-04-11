@@ -7,6 +7,7 @@ import typing
 
 import numpy
 
+import log
 import protobuf.mauka_pb2 as mauka_pb2
 import protobuf.opq_pb2
 
@@ -15,6 +16,10 @@ LAHA_TYPE = "laha_type"
 LAHA_ONEOF_TTL = "ttl"
 LAHA_ONEOF_GC_TRIGGER = "gc_trigger"
 LAHA_ONEOF_GC_UPDATE = "gc_update"
+LAHA_ONEOF_GC_STAT = "gc_stat"
+
+# pylint: disable=C0103
+logger = log.get_logger(__name__)
 
 
 def decode_trigger_message(encoded_trigger_message):
@@ -202,7 +207,7 @@ def build_ttl(source: str,
 
 
 def build_gc_trigger(source: str,
-                     gc_domains: typing.List[mauka_pb2.GcDomain]) -> mauka_pb2.MaukaMessage:
+                     gc_domains: typing.List) -> mauka_pb2.MaukaMessage:
     mauka_message = build_mauka_message(source)
     mauka_message.laha.gc_trigger.gc_domains[:] = gc_domains
     return mauka_message
@@ -214,6 +219,15 @@ def build_gc_update(source: str,
     mauka_message = build_mauka_message(source)
     mauka_message.gc_update.from_domain = from_domain
     mauka_message.gc_update.id = _id
+    return mauka_message
+
+
+def build_gc_stat(source: str,
+                  gc_domain: mauka_pb2.GcDomain,
+                  gc_cnt: int) -> mauka_pb2.MaukaMessage:
+    mauka_message = build_mauka_message(source)
+    mauka_message.laha.gc_stat.gc_domain = gc_domain
+    mauka_message.laha.gc_stat.gc_cnt = gc_cnt
     return mauka_message
 
 
@@ -265,7 +279,8 @@ def is_heartbeat_message(mauka_message: mauka_pb2.MaukaMessage) -> bool:
     :param mauka_message: Mauka message to check the message type of.
     :return: True if this is a heartbeat type, fasle otherwise
     """
-    return which_message_oneof(mauka_message) == "heartbeat"
+    result = which_message_oneof(mauka_message) == "heartbeat"
+    return result
 
 
 def is_makai_event_message(mauka_message: mauka_pb2.MaukaMessage) -> bool:
@@ -310,15 +325,19 @@ def is_ttl(mauka_message: mauka_pb2.MaukaMessage) -> bool:
     :param mauka_message: Message to test.
     :return: True if this is a TTL message, False otherwise.
     """
-    return is_laha(mauka_message) and mauka_message.laha.WhichOneOf(LAHA_TYPE) == LAHA_ONEOF_GC_TRIGGER
+    return is_laha(mauka_message) and mauka_message.laha.WhichOneof(LAHA_TYPE) == LAHA_ONEOF_TTL
 
 
 def is_gc_trigger(mauka_message: mauka_pb2.MaukaMessage) -> bool:
-    return is_laha(mauka_message) and mauka_message.laha.WhichOneOf(LAHA_TYPE) == LAHA_ONEOF_GC_TRIGGER
+    return is_laha(mauka_message) and mauka_message.laha.WhichOneof(LAHA_TYPE) == LAHA_ONEOF_GC_TRIGGER
 
 
 def is_gc_update(mauka_message: mauka_pb2.MaukaMessage) -> bool:
-    return is_laha(mauka_message) and mauka_message.laha.WhichOneOf(LAHA_TYPE) == LAHA_ONEOF_GC_UPDATE
+    return is_laha(mauka_message) and mauka_message.laha.WhichOneof(LAHA_TYPE) == LAHA_ONEOF_GC_UPDATE
+
+
+def is_gc_stat(mauka_message: mauka_pb2.MaukaMessage) -> bool:
+    return is_laha(mauka_message) and mauka_message.laha.WhichOneof(LAHA_TYPE) == LAHA_ONEOF_GC_STAT
 
 
 def repeated_as_ndarray(repeated) -> numpy.ndarray:

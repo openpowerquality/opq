@@ -23,12 +23,14 @@ class LahaGcPlugin(base_plugin.MaukaPlugin):
         self.debug("gc_trigger measurements")
         now = timestamp_s()
         delete_result = self.mongo_client.measurements_collection.delete_many({"expire_at": {"$lt": now}})
+        self.produce("gc_stat", util_pb2.build_gc_stat(self.NAME, mauka_pb2.MEASUREMENTS, delete_result.deleted_count))
         self.debug("Garbage collected %d measurements" % delete_result.deleted_count)
 
     def handle_gc_trigger_trends(self):
         self.debug("gc_trigger trends")
         now = timestamp_s()
         delete_result = self.mongo_client.trends_collection.delete_many({"expire_at": {"$lt": now}})
+        self.produce("gc_stat", util_pb2.build_gc_stat(self.NAME, mauka_pb2.TRENDS, delete_result.deleted_count))
         self.debug("Garbage collected %d trends" % delete_result.deleted_count)
 
     def handle_gc_trigger_events(self):
@@ -63,6 +65,7 @@ class LahaGcPlugin(base_plugin.MaukaPlugin):
 
         # Cleanup events
         delete_result = self.mongo_client.events_collection.delete_many({"expire_at": {"$lt": now}})
+        self.produce("gc_stat", util_pb2.build_gc_stat(self.NAME, mauka_pb2.EVENTS, delete_result.deleted_count))
         self.debug("Garbage collected %d events" % delete_result.deleted_count)
 
     def handle_gc_trigger_incidents(self):
@@ -76,6 +79,7 @@ class LahaGcPlugin(base_plugin.MaukaPlugin):
             self.mongo_client.delete_gridfs(filename)
 
         delete_result = self.mongo_client.incidents_collection.delete_many({"expire_at": {"$lt": now}})
+        self.produce("gc_stat", util_pb2.build_gc_stat(self.NAME, mauka_pb2.INCIDENTS, delete_result.deleted_count))
         self.debug("Garbage collected %d incidents and associated gridfs data" % delete_result.deleted_count)
 
     def handle_gc_trigger_phenomena(self):
@@ -140,8 +144,8 @@ class LahaGcPlugin(base_plugin.MaukaPlugin):
         update_measurements_result = self.mongo_client.measurements_collection.update_many(query, update)
 
         self.debug("Updated expire_at=%d for %d trends and %d measurements" % (event["expire_at"],
-                                                                                update_trends_result.modified_count,
-                                                                                update_measurements_result.modified_count))
+                                                                               update_trends_result.modified_count,
+                                                                               update_measurements_result.modified_count))
 
     def handle_gc_update_from_trend(self, _id: str):
         self.debug("gc_update trends")
@@ -152,6 +156,7 @@ class LahaGcPlugin(base_plugin.MaukaPlugin):
         pass
 
     def handle_gc_update(self, gc_update: mauka_pb2.GcUpdate):
+        self.debug("Handling GC update")
         if gc_update.from_domain == mauka_pb2.PHENOMENA:
             self.handle_gc_update_from_phenomena(gc_update.id)
         elif gc_update.from_domain == mauka_pb2.INCIDENTS:
@@ -166,19 +171,22 @@ class LahaGcPlugin(base_plugin.MaukaPlugin):
             pass
 
     def on_message(self, topic: str, mauka_message: mauka_pb2.MaukaMessage):
-        self.debug("Received from %s" % mauka_message.source)
-        if util_pb2.is_heartbeat_message(mauka_message):
+        self.debug("Received from %s %s" % (mauka_message.source, mauka_message))
+        if util_pb2.is_heartbeat_message(mauka_message) and mauka_message.source == self.NAME:
+            self.debug("Received heartbeat, producing GC trigger message")
             # For now, GC is triggered on heartbeats
             self.produce("laha_gc", util_pb2.build_gc_trigger(self.name, [
                 mauka_pb2.MEASUREMENTS,
-                mauka_pb2.TRENDS,
-                mauka_pb2.EVENTS,
-                mauka_pb2.INCIDENTS,
-                mauka_pb2.PHENOMENA
+                mauka_pb2.TRENDS
+                # mauka_pb2.EVENTS,
+                # mauka_pb2.INCIDENTS,
+                # mauka_pb2.PHENOMENA
             ]))
         elif util_pb2.is_gc_trigger(mauka_message):
+            self.debug("Received GC trigger, calling trigger handler")
             self.handle_gc_trigger(mauka_message.laha.gc_trigger)
         elif util_pb2.is_gc_update(mauka_message):
+            self.debug("Received GC update, calling update handler")
             self.handle_gc_update(mauka_message.gc_update)
         else:
             self.logger.error("Received incorrect type of MaukaMessage")

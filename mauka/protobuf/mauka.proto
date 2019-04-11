@@ -79,6 +79,7 @@ message Laha {
         Ttl ttl = 1;
         GcTrigger gc_trigger = 2;
         GcUpdate gc_update = 3;
+        GcStat gc_stat = 4;
     }
 }
 
@@ -93,6 +94,7 @@ enum GcDomain {
     EVENTS = 2;
     INCIDENTS = 3;
     PHENOMENA = 4;
+    SAMPLES = 5;
 }
 
 message GcTrigger {
@@ -102,4 +104,9 @@ message GcTrigger {
 message GcUpdate {
     GcDomain from_domain = 1;
     uint32 id = 2;
+}
+
+message GcStat {
+    GcDomain gc_domain = 1;
+    uint64 gc_cnt = 2;
 }

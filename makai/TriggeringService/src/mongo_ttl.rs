@@ -65,43 +65,43 @@ impl CachedTtlProvider {
             .find_one(None, None)
             .expect("Error getting laha_config");
         let laha_config = laha_config_option.expect("laha_config is blank");
-        let ordered_doc = laha_config.get_document(MONGO_LAHA_CONFIG_TTLS).unwrap();
-        let ttl = ordered_doc.get_f64(ttl_key).unwrap();
+        let ordered_doc = laha_config.get_document(MONGO_LAHA_CONFIG_TTLS).expect("Error getting ordered_doc");
+        let ttl = ordered_doc.get_i32(ttl_key).expect("Error getting ttl");
         return ttl as u64;
     }
 
     pub fn get_measurements_ttl(&mut self) -> u64 {
+        let ts = timestamp_s();
         match self.cache_get(&self.cached_measurements_ttl) {
-            Some(cached_value) => cached_value,
+            Some(cached_value) => ts + cached_value,
             None => {
                 let ttl = self.mongo_get_ttl(MONGO_LAHA_CONFIG_MEASUREMENTS_TTL);
-                let expire_at = timestamp_s() + self.cache_for_seconds;
-                self.cached_measurements_ttl = Some(CachedTtlValue::from(ttl, expire_at));
-                expire_at
+                self.cached_measurements_ttl = Some(CachedTtlValue::from(ttl, ts + self.cache_for_seconds));
+                ts + ttl
             }
         }
     }
 
     pub fn get_trends_ttl(&mut self) -> u64 {
+        let ts = timestamp_s();
         match self.cache_get(&self.cached_trends_ttl) {
-            Some(cached_value) => cached_value,
+            Some(cached_value) => ts + cached_value,
             None => {
                 let ttl = self.mongo_get_ttl(MONGO_LAHA_CONFIG_TRENDS_TTL);
-                let expire_at = timestamp_s() + self.cache_for_seconds;
-                self.cached_trends_ttl = Some(CachedTtlValue::from(ttl, expire_at));
-                expire_at
+                self.cached_trends_ttl = Some(CachedTtlValue::from(ttl, ts + self.cache_for_seconds));
+                ts + ttl
             }
         }
     }
 
     pub fn get_events_ttl(&mut self) -> u64 {
+        let ts = timestamp_s();
         match self.cache_get(&self.cached_events_ttl) {
-            Some(cached_value) => cached_value,
+            Some(cached_value) => ts + cached_value,
             None => {
                 let ttl = self.mongo_get_ttl(MONGO_LAHA_CONFIG_EVENTS_TTL);
-                let expire_at = timestamp_s() + self.cache_for_seconds;
-                self.cached_events_ttl = Some(CachedTtlValue::from(ttl, expire_at));
-                expire_at
+                self.cached_events_ttl = Some(CachedTtlValue::from(ttl, ts + self.cache_for_seconds));
+                ts + ttl
             }
         }
     }
