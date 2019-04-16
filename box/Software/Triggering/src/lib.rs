@@ -16,6 +16,12 @@ extern crate crossbeam_channel;
 extern crate log;
 extern crate box_api;
 extern crate nix;
+extern crate base64;
+extern crate futures;
+extern crate hyper;
+extern crate tokio;
+#[macro_use] extern crate lazy_static;
+extern crate serde;
 
 extern crate thd_plugin;
 extern crate vrms_plugin;
@@ -28,3 +34,4 @@ pub mod measurement_filter;
 pub mod plugin_manager;
 pub mod util;
 pub mod window_db;
+pub mod sse;

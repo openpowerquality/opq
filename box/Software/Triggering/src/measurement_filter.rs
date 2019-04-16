@@ -9,6 +9,9 @@ use box_api::types::Window;
 use window_db::WindowDB;
 use zmq::{Context, Socket, PUB, SNDMORE};
 use util::unix_timestamp;
+use std::string::ToString;
+use crate::sse::Server;
+
 struct MeasurementStat {
     pub min: f32,
     pub max: f32,
@@ -109,8 +112,9 @@ pub fn run_filter(
     window_db: Arc<WindowDB>,
 ) -> thread::JoinHandle<()> {
     thread::spawn(move || {
-        let mut measurement_db = MeasurementDB::new();
+        let _sse_handle = SSE.spawn(state.settings.sse_interface.clone().parse().unwrap());
 
+        let mut measurement_db = MeasurementDB::new();
         let ctx = Context::default();
         let tx = create_pub_socket(&ctx, &state);
         loop {
@@ -125,11 +129,38 @@ pub fn run_filter(
                 measurement.box_id = state.settings.box_id;
                 measurement.timestamp_ms = unix_timestamp();
                 measurement_db.reset();
+                broadcast_measurements(&measurement);
                 tx.send(format!("{:004}", state.settings.box_id).as_bytes(), SNDMORE)
                     .unwrap();
                 tx.send(&measurement.write_to_bytes().unwrap(), 0).unwrap();
             }
             window_db.add_window(window);
+
         }
     })
+}
+
+
+//Broadcast measurements:
+lazy_static! {
+    static ref SSE: Server<u8> = Server::new();
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+struct SerializableMetric{
+    name : String,
+    value : f32
+}
+
+fn broadcast_measurements(measurement : &Measurement){
+    let mut broadcast_str = String::new();
+    for (name, metric)  in &measurement.metrics{
+        let sm = SerializableMetric{
+            name : name.clone(),
+            value : metric.average
+        };
+        broadcast_str += &serde_json::to_string(&sm).unwrap();
+    }
+    println!("{}", broadcast_str);
+    SSE.push(0, "update", &broadcast_str).ok();
 }

@@ -1,4 +1,3 @@
-#[macro_use]
 extern crate box_api;
 extern crate num;
 
@@ -89,7 +88,7 @@ impl box_api::plugin::TriggeringPlugin for Frequency {
         ret
     }
 
-    fn process_command(&mut self, cmd: &String) {}
+    fn process_command(&mut self, _cmd: &String) {}
 
     fn init(&mut self) {
         println!("loaded a frequency plugin!");

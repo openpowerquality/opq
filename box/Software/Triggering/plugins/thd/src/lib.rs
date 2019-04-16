@@ -1,4 +1,3 @@
-#[macro_use]
 extern crate box_api;
 extern crate rustfft;
 use rustfft::num_complex::Complex32;
@@ -28,7 +27,6 @@ macro_rules! map(
 pub struct THD {
     window_count: usize,
     current_count: usize,
-    fft_planer: FFTplanner<f32>,
     fft: Arc<FFT<f32>>,
     samples: Vec<Complex32>,
 }
@@ -36,11 +34,10 @@ pub struct THD {
 impl THD {
     pub fn new() -> THD {
         let mut planner = FFTplanner::new(false);
-        let mut fft = planner.plan_fft(DEFAULT_WINDOW_COUNT * SAMPLES_PER_CYCLE);
+        let fft = planner.plan_fft(DEFAULT_WINDOW_COUNT * SAMPLES_PER_CYCLE);
         THD {
             window_count: DEFAULT_WINDOW_COUNT,
             current_count: 0,
-            fft_planer: planner,
             fft: fft,
             samples: vec![],
         }
@@ -86,7 +83,7 @@ impl box_api::plugin::TriggeringPlugin for THD {
         ret
     }
 
-    fn process_command(&mut self, cmd: &String) {}
+    fn process_command(&mut self, _cmd: &String) {}
 
     fn init(&mut self) {
         println!("loaded a THD plugin!");

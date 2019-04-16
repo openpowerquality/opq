@@ -1,9 +1,6 @@
-#[macro_use]
 extern crate box_api;
-
 use box_api::types::Window;
 use std::collections::HashMap;
-use std::num;
 
 #[derive(Debug, Default)]
 pub struct VRMS{
@@ -35,7 +32,7 @@ impl box_api::plugin::TriggeringPlugin for VRMS {
         Some(ret)
     }
 
-    fn process_command(&mut self, cmd : &String){
+    fn process_command(&mut self, _cmd : &String){
 
     }
 

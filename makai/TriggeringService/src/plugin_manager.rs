@@ -80,7 +80,11 @@ impl PluginManager {
                 let msg = subscription.recv().unwrap();
                 if let Some(mut list) = plugin.process_measurement(msg) {
                     let token = generate_event_token();
+                    for item in &list{
+
+                    }
                     for item in &mut list {
+
                         trigger.lock().unwrap().trigger(&token,item)
                     }
                 };

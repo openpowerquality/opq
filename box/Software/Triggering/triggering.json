@@ -12,5 +12,7 @@
   "calibration" : 152.5,
   "windows_per_measurements" : 60,
   "windows_in_storage_buffer" : 3000,
-  "plugins" : []
+  "plugins" : [],
+
+  "sse_interface": "127.0.0.1:3012"
 }
