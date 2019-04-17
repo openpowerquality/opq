@@ -1,24 +1,28 @@
+import Moment from 'moment';
 import { Meteor } from 'meteor/meteor';
 import { SyncedCron } from 'meteor/littledata:synced-cron';
 import { Email } from 'meteor/email';
 import _ from 'lodash';
 import { SSR } from 'meteor/meteorhacks:ssr';
 import { Notifications } from '../../api/notifications/NotificationsCollection';
+import { Incidents } from '../../api/incidents/IncidentsCollection';
 import { UserProfiles } from '../../api/users/UserProfilesCollection';
 
 SSR.compileTemplate('htmlEmail', Assets.getText('email-format.html'));
+SSR.compileTemplate('notificationEmail', Assets.getText('notification-email-template.html'));
 
-function sendEmail(recipients, notifications, firstName, notificationNum) {
-  const bool = notificationNum > 3;
+function sendEmail(recipients, startTime, services, downServiceTotal, incidentTotal, incidentTypes, incidentLocations) {
   Email.send({
     to: recipients,
     from: 'Open Power Quality <postmaster@mail.openpowerquality.org>',
-    subject: 'You have new notifications',
-    html: SSR.render('htmlEmail', {
-      firstName: firstName,
-      notifications: notifications,
-      notificationNum: notificationNum,
-      extraNotifications: bool,
+    subject: 'New OPQ Notifications',
+    html: SSR.render('notificationEmail', {
+      startTime,
+      services: Array.toString(services),
+      downServiceTotal,
+      incidentTotal,
+      incidentTypes: Array.toString(incidentTypes),
+      incidentLocations: Array.toString(incidentLocations),
     }),
   });
 }
@@ -27,24 +31,19 @@ function sendEmail(recipients, notifications, firstName, notificationNum) {
  * Checks userProfiles for amount of times a user wants to be notified in a day
  * Sends out the emails
  * Updates the sent notification documents 'delivered' field to true
- * @param maxDeliveries
+ * @param maxDeliveries either 'once an hour' or 'once a day'
  */
 function findUsersAndSend(maxDeliveries) {
   const usersInterested = UserProfiles.find({ 'notification_preferences.max_per_day': maxDeliveries }).fetch();
+  const startTime = (maxDeliveries === 'once a day') ? Moment().subtract(1, 'day') : Moment().subtract(1, 'hour');
   _.forEach(usersInterested, user => {
     const notifications = Notifications.find({ username: user.username, delivered: false }).fetch();
+    const incidentReport = Incidents.getIncidentReport(startTime.valueOf());
     // only sends out an email if user has undelivered notifications
-    if (notifications.length !== 0) {
+    if ((notifications.length > 0) || (incidentReport.totalIncidents > 0)) {
       const recipients = UserProfiles.getRecipients(user._id);
-      const len = notifications.length;
-      const name = user.firstName;
-      // email displays last three notifications only
-      if (len > 3) {
-        const notificationsToSend = notifications.slice(-3);
-        const extraNotifications = len - 3;
-        sendEmail(recipients, notificationsToSend, name, extraNotifications);
-      } else {
-        sendEmail(recipients, notifications, name, 0);
+
+      sendEmail(recipients, startTime, services, downServiceTotal, incidentTotal, incidentTypes, incidentLocations);
       }
       Notifications.updateDeliveredStatus(notifications);
     }
