@@ -6,16 +6,14 @@ import Moment from 'moment/moment';
 import Dygraph from 'dygraphs';
 import { CSVLink } from 'react-csv';
 
-import { getEventData } from '../../api/fs-files/FSFilesCollection.methods';
-
 /** Displays a Waveform graph for the given GridFS filename */
-class WaveformViewer extends React.Component {
+class MetricTimeseriesViewer extends React.Component {
     constructor(props) {
         super(props);
 
         this.state = {
             isLoading: false,
-            waveformVisible: false,
+            waveformVisible: true,
             waveformRaw: [],
         };
     }
@@ -244,14 +242,18 @@ class WaveformViewer extends React.Component {
  * displayOnLoad - Enables automatic download and display of waveform graph once the component is mounted.
  * title - The title to display in the header segment. Defaults to 'Waveform Viewer'.
  */
-WaveformViewer.propTypes = {
-    gridfs_filename: PropTypes.string.isRequired,
-    opqBoxDoc: PropTypes.object.isRequired,
-    startTimeMs: PropTypes.number.isRequired,
-    displayOnLoad: PropTypes.bool,
-    title: PropTypes.string,
+MetricTimeSeriesViewer.propTypes = {
+    plotTitle: PropTypes.string.isRequired,
+    xAxisTitle: PropTypes.string.isRequired,
+    yAxisTitle: PropTypes.string.isRequired,
+    xValues: PropTypes.arrayOf(PropTypes.number).isRequired,
+    yValues: PropTypes.arrayOf(PropTypes.number).isRequired
+    // opqBoxDoc: PropTypes.object.isRequired,
+    // startTimeMs: PropTypes.number.isRequired,
+    // displayOnLoad: PropTypes.bool,
+    // title: PropTypes.string,
 };
 
 // Note: This component does not require withTracker(); all the data it requires should be passed in from the parent
 // component.
-export default WaveformViewer;
+export default MetricTimeseriesViewer;
