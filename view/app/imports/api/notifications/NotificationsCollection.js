@@ -16,6 +16,7 @@ class NotificationsCollection extends BaseCollection {
       timestamp: Date,
       data: Object,
       'data.summary': { type: String, optional: true },
+      'data.service': { type: String, optional: true },
       delivered: Boolean,
     }));
     this.notificationTypes = ['system service down', 'new incident'];

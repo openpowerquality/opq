@@ -11,9 +11,9 @@ import { UserProfiles } from '../../api/users/UserProfilesCollection';
 SSR.compileTemplate('htmlEmail', Assets.getText('email-format.html'));
 SSR.compileTemplate('notificationEmail', Assets.getText('notification-email-template.html'));
 
-function sendEmail(recipients, startTime, services, downServiceTotal, incidentTotal, incidentTypes, incidentLocations) {
+function sendEmail(contactEmails, startTime, services, downServiceTotal, incidentTotal, incidentTypes, incidentLocations) {
   Email.send({
-    to: recipients,
+    to: contactEmails,
     from: 'Open Power Quality <postmaster@mail.openpowerquality.org>',
     subject: 'New OPQ Notifications',
     html: SSR.render('notificationEmail', {
@@ -28,6 +28,15 @@ function sendEmail(recipients, startTime, services, downServiceTotal, incidentTo
 }
 
 /**
+ * Returns the list of services involved in the passed set of notifications.
+ * @param notifications A list of notifications.
+ * @returns {Array} An array of strings indicating the services.
+ */
+function extractServicesFromNotifications(notifications) {
+  return _.unique(_.map(notifications, notification => notification.data.service));
+}
+
+/**
  * Checks userProfiles for amount of times a user wants to be notified in a day
  * Sends out the emails
  * Updates the sent notification documents 'delivered' field to true
@@ -35,18 +44,25 @@ function sendEmail(recipients, startTime, services, downServiceTotal, incidentTo
  */
 function findUsersAndSend(maxDeliveries) {
   const usersInterested = UserProfiles.find({ 'notification_preferences.max_per_day': maxDeliveries }).fetch();
-  const startTime = (maxDeliveries === 'once a day') ? Moment().subtract(1, 'day') : Moment().subtract(1, 'hour');
+  const startTime = (maxDeliveries === 'once a day') ?
+    Moment().subtract(1, 'day').format('LLLL') :
+    Moment().subtract(1, 'hour').format('LLLL');
+
+  // Now loop through all users desiring notifications, and compose and send the email(s).
   _.forEach(usersInterested, user => {
     const notifications = Notifications.find({ username: user.username, delivered: false }).fetch();
     const incidentReport = Incidents.getIncidentReport(startTime.valueOf());
     // only sends out an email if user has undelivered notifications
     if ((notifications.length > 0) || (incidentReport.totalIncidents > 0)) {
-      const recipients = UserProfiles.getRecipients(user._id);
+      const contactEmails = UserProfiles.getContactEmails(user._id);
+      const services = extractServicesFromNotifications(notifications);
+      const downServiceTotal = notifications.length;
+      const incidentTotal = incidentReport.totalIncidents;
+      const incidentType = incidentReport.
 
-      sendEmail(recipients, startTime, services, downServiceTotal, incidentTotal, incidentTypes, incidentLocations);
-      }
+      sendEmail(contactEmails, startTime, services, downServiceTotal, incidentTotal, incidentTypes, incidentLocations);
       Notifications.updateDeliveredStatus(notifications);
-    }
+      }
   });
 }
 
