@@ -1,14 +1,9 @@
-import { Meteor } from 'meteor/meteor';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { withTracker } from 'meteor/react-meteor-data';
-import { Link } from 'react-router-dom';
-import { Grid, Loader, Message, Icon, Button } from 'semantic-ui-react';
-import Moment from 'moment/moment';
-
+import { Grid, Loader } from 'semantic-ui-react';
+import MetricTimeseriesViewer from './MetricTimeseriesViewer';
 import WidgetPanel from '../../layouts/WidgetPanel';
-import {Locations} from "../../../api/locations/LocationsCollection";
-import {OpqBoxes} from "../../../api/opq-boxes/OpqBoxesCollection";
 
 
 class MetricsInspector extends React.Component {
@@ -18,9 +13,9 @@ class MetricsInspector extends React.Component {
             isLoading: false,
             startTimestampS: 1555367548,
             endTimestampS: 1555453948,
-            errorReason: null
-        }
-    };
+            errorReason: null,
+        };
+    }
 
     componentDidMount() {
         const { startTimestampS, endTimestampS } = this.props;
@@ -48,7 +43,22 @@ class MetricsInspector extends React.Component {
                     <WidgetPanel title='Laha Metrics Viewer' helpText={this.helpText}>
                         <Grid container>
                             <Grid.Column width={12}>
-                                hello, worl
+                                <MetricTimeseriesViewer
+                                    plotTitle={'Test'}
+                                    xAxisTitle={'TestX'}
+                                    yAxisTitle={'TestY'}
+                                    data={[[0, 1], [1, 2]]}
+                                />
+                            </Grid.Column>
+                        </Grid>
+                        <Grid container>
+                            <Grid.Column width={12}>
+                                <MetricTimeseriesViewer
+                                    plotTitle={'Test'}
+                                    xAxisTitle={'TestX'}
+                                    yAxisTitle={'TestY'}
+                                    data={[[0, 1], [1, 2], [2, 3]]}
+                                />
                             </Grid.Column>
                         </Grid>
                     </WidgetPanel>
@@ -67,12 +77,12 @@ class MetricsInspector extends React.Component {
 
 MetricsInspector.propTypes = {
     ready: PropTypes.bool.isRequired,
-
+    metrics: PropTypes.arrayOf(PropTypes.object),
 };
 
 export default withTracker((props) => {
     return {
-        ready: true
+        ready: true,
         // event_id: Number(props.match.params.event_id),
         // opqBoxes,
         // locations: Locations.find().fetch(),
