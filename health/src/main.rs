@@ -2,6 +2,14 @@ extern crate reqwest;
 extern crate serde_json;
 extern crate chrono;
 extern crate bson;
+#[macro_use]
+extern crate log;
+extern crate log4rs;
+
+use log::LevelFilter;
+use log4rs::append::file::FileAppender;
+use log4rs::encode::pattern::PatternEncoder;
+use log4rs::config::{Appender, Config, Root};
 
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 use std::result::Result;
@@ -26,7 +34,7 @@ use mongodb::db::ThreadedDatabase;
 extern crate serde_derive;
 
 #[derive(Default, Debug)]
-struct Config {
+struct HealthConfig {
     interval: u64,
     mongodb: String,
     services: Vec<Service>,
@@ -59,18 +67,19 @@ struct HealthDoc {
 static MONGODB_URI: &str = "mongodb://localhost:27017";
 
 fn main() {
+    init_logging();
+
     let config = parse_config_file("src/services.json");
 
     loop {
         for service in &config.services {
             query_service(service);
         }
-        // IDE highlights error without extra set of parentheses
         thread::sleep(Duration::from_secs((config.interval)));
     }
 }
 
-fn parse_config_file(filepath: &str) -> Config {
+fn parse_config_file(filepath: &str) -> HealthConfig {
     let file = read_file(filepath);
 
     let json: Value = serde_json::from_str(&file)
@@ -98,7 +107,7 @@ fn parse_config_file(filepath: &str) -> Config {
         services.push(service);
     }
 
-    return Config { interval, mongodb, services };
+    return HealthConfig { interval, mongodb, services };
 }
 
 fn read_file(filepath: &str) -> String {
@@ -129,6 +138,7 @@ fn query_service(service: &Service) {
         return;
     }
 
+    // This is a safe unwrap - will not be an error here
     let mut response = req_result.unwrap();
     if response.status() == 200 {
         match response.json() {
@@ -154,7 +164,6 @@ fn http_send_err(response: &Result<Response, Error>) -> String {
 }
 
 fn check_status(status: &HealthStatus) {
-    // println!("{:?}", status);
     insert_health_doc(status);
     match &status.subcomponents {
         Some(subcomponents) => {
@@ -200,18 +209,24 @@ fn generate_health_doc(status: &HealthStatus) -> Document {
 }
 
 fn insert_health_doc(status: &HealthStatus) {
-    // println!("{:?}", status);
+    info!("{:?}", status);
     let mut options = ClientOptions::new();
     options.server_selection_timeout_ms = 1000;
-    let client = Client::with_uri_and_options(&MONGODB_URI, options)
-        .expect("Can't connect to mongo");
+    let client = match Client::with_uri_and_options(&MONGODB_URI, options) {
+        Ok(cl) => cl,
+        Err(e) => {
+            error!("{:?}", e);
+            return;
+        }
+    };
     let coll = client.db("opq").collection("health");
     match coll.insert_one(generate_health_doc(status), None) {
         Ok(_) => (),
-        Err(e) => println!("{:?}", e),
+        Err(e) => error!("{:?}", e),
     }
 }
 
+// TODO check timestamp
 fn get_status(up: bool) -> String {
     if up {
         return "UP".to_string();
@@ -232,3 +247,16 @@ fn generate_error_health_status(name: String, message: String) -> HealthStatus {
     status
 }
 
+fn init_logging() {
+    let logfile = FileAppender::builder()
+        .encoder(Box::new(PatternEncoder::new("{d(%Y-%m-%d %H:%M:%S %Z)(utc)}: {l} - {m}\n")))
+        .build("/tmp/opqhealth/health.log").unwrap();
+
+    let config = Config::builder()
+        .appender(Appender::builder().build("logfile", Box::new(logfile)))
+        .build(Root::builder()
+            .appender("logfile")
+            .build(LevelFilter::Info)).unwrap();
+
+    log4rs::init_config(config).unwrap();
+}
