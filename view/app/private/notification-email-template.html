@@ -1,0 +1,16 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta name="viewport" content="width=device-width"/>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <title>Notification Email</title>
+  <link href="styles.css" media="all" rel="stylesheet" type="text/css"/>
+</head>
+
+<body itemscope itemtype="http://schema.org/EmailMessage">
+<p>OPQ Notification Report (since {{startTime}})</p>
+
+<p>System services ({{services}}) went down a total of {{downServiceTotal}} times.</p>
+<p>{{incidentTotal}} incidents ({{incidentTypes}}) were generated at these locations: {{incidentLocations}}</p>
+
+</body>
+</html>

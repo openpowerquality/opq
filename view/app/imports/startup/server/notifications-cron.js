@@ -33,11 +33,11 @@ function findUsersAndSend(maxDeliveries) {
   const usersInterested = UserProfiles.find({ 'notification_preferences.max_per_day': maxDeliveries }).fetch();
   _.forEach(usersInterested, user => {
     const notifications = Notifications.find({ username: user.username, delivered: false }).fetch();
-    const name = user.firstName;
     // only sends out an email if user has undelivered notifications
     if (notifications.length !== 0) {
       const recipients = UserProfiles.getRecipients(user._id);
       const len = notifications.length;
+      const name = user.firstName;
       // email displays last three notifications only
       if (len > 3) {
         const notificationsToSend = notifications.slice(-3);

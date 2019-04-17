@@ -86,6 +86,17 @@ class IncidentsCollection extends BaseCollection {
             ieee_duration, annotations, metadata });
         return docID;
     }
+
+  /**
+   * Returns a JSON string providing statistics on the Incidents (if any) generated since startTime_ms
+   * @param startTime_ms
+   * @returns {{startTime_ms: *, totalIncidents: *}}
+   */
+  getIncidentReport(startTime_ms) {
+      const query = { start_timestamp_ms: { $gte: startTime_ms } };
+      const incidents = this._collection.find(query).fetch();
+      return { startTime_ms, totalIncidents: incidents.length };
+    }
 }
 
 /**
