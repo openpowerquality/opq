@@ -1,8 +1,9 @@
 import React from 'react';
-import { Container } from 'semantic-ui-react';
+import {Container, Grid} from 'semantic-ui-react';
 
 import { LahaStats } from '../../api/laha-stats/LahaStatsCollection';
 import { getLahaStatsInRange } from '../../api/laha-stats/LahaStatsCollection.methods';
+import MetricsInspector from "../components/MetricsInspector/MetricsInspector";
 
 getLahaStatsInRange.call(
     {startTimestampS: 0,
@@ -11,10 +12,12 @@ getLahaStatsInRange.call(
     console.log(error, lahaStats);
     });
 
-const Metrics = () => (
-    <Container text>
-      <p>This page will eventually contain metrics regarding OPQ Cloud.</p>
-    </Container>
+const MetricsPage = () => (
+    <Grid container stackable>
+        <Grid.Column width={16}>
+            <MetricsInspector />
+        </Grid.Column>
+    </Grid>
 );
 
-export default Metrics;
+export default MetricsPage;
