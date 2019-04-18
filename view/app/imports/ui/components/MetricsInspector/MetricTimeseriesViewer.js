@@ -68,7 +68,7 @@ class MetricTimeseriesViewer extends React.Component {
      */
 
     createDygraph() {
-        const { data, xAxisTitle, yAxisTitle, plotTitle } = this.props;
+        const { data, xAxisTitle, yAxisTitle, plotTitle, customDygraphOptions } = this.props;
 
         // Indicate to the user that their graph is currently being loaded. Dygraphs can take up to a few seconds to
         // load large datasets.
@@ -97,7 +97,7 @@ class MetricTimeseriesViewer extends React.Component {
         Meteor.defer(() => {
             // Note: There's no real need to store the Dygraph instance itself. It's simpler to allow render() to create
             // a new instance each time the graph visibility is set to true.
-            const dygraph = new Dygraph(dyDomElement, data, dyOptions);
+            const dygraph = new Dygraph(dyDomElement, data, { ...dyOptions, ...customDygraphOptions });
             dygraph.ready(() => this.setState({ isLoading: false }));
         });
     }
@@ -128,11 +128,8 @@ MetricTimeseriesViewer.propTypes = {
     plotTitle: PropTypes.string.isRequired,
     xAxisTitle: PropTypes.string.isRequired,
     yAxisTitle: PropTypes.string.isRequired,
-    data: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.number)).isRequired,
-    // opqBoxDoc: PropTypes.object.isRequired,
-    // startTimeMs: PropTypes.number.isRequired,
-    // displayOnLoad: PropTypes.bool,
-    // title: PropTypes.string,
+    data: PropTypes.array.isRequired,
+    customDygraphOptions: PropTypes.object.isRequired,
 };
 
 // Note: This component does not require withTracker(); all the data it requires should be passed in from the parent

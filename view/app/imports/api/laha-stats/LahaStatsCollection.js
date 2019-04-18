@@ -5,7 +5,7 @@ const PluginStatsSchemaInner = new SimpleSchema({
     messages_received: Number,
     messages_published: Number,
     bytes_received: Number,
-    bytes_published: Number
+    bytes_published: Number,
 });
 
 const PluginStatsSchema = new SimpleSchema({

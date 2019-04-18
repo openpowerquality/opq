@@ -15,7 +15,6 @@ class MetricsInspector extends React.Component {
             startTimestampS: props.startTimestampS,
             endTimestampS: props.endTimestampS,
             metrics: [],
-            activeDevices: [],
             errorReason: null,
         };
     }
@@ -47,12 +46,34 @@ class MetricsInspector extends React.Component {
                     <WidgetPanel title='Laha Metrics Viewer' helpText={this.helpText}>
                         <Grid container>
                             {this.state && this.state.loaded &&
-                            <Grid.Column width={12}>
+                            <Grid.Column width={16}>
                                 <MetricTimeseriesViewer
                                     plotTitle={'Active OPQ Boxes'}
                                     xAxisTitle={'UTC'}
-                                    yAxisTitle={'Active'}
+                                    yAxisTitle={'# Active'}
                                     data={this.parseActiveOpqBoxes(metrics)}
+                                    customDygraphOptions={{}}
+                                />
+                                <MetricTimeseriesViewer
+                                    plotTitle={'CPU Usage'}
+                                    xAxisTitle={'UTC'}
+                                    yAxisTitle={'% CPU'}
+                                    data={this.parseCpuPercent(metrics)}
+                                    customDygraphOptions={ { customBars: true } }
+                                />
+                                <MetricTimeseriesViewer
+                                    plotTitle={'Memory Usage'}
+                                    xAxisTitle={'UTC'}
+                                    yAxisTitle={'MB'}
+                                    data={this.parseMemoryMb(metrics)}
+                                    customDygraphOptions={ { customBars: true } }
+                                />
+                                <MetricTimeseriesViewer
+                                    plotTitle={'Disk Usage'}
+                                    xAxisTitle={'UTC'}
+                                    yAxisTitle={'MB'}
+                                    data={this.parseDiskMb(metrics)}
+                                    customDygraphOptions={ { customBars: true } }
                                 />
                             </Grid.Column>
                             }
@@ -78,7 +99,6 @@ class MetricsInspector extends React.Component {
                        loading: false,
                        loaded: true,
                        metrics: metrics,
-                       activeDevices: this.parseActiveOpqBoxes(metrics),
                    });
                },
                );
@@ -87,6 +107,18 @@ class MetricsInspector extends React.Component {
 
     parseActiveOpqBoxes(metrics) {
         return metrics.map(metric => [metric.timestamp_s, metric.laha_stats.active_devices]);
+    }
+
+    parseCpuPercent(metrics) {
+        return metrics.map(metric => [metric.timestamp_s, [metric.system_stats.cpu_load_percent.min, metric.system_stats.cpu_load_percent.mean, metric.system_stats.cpu_load_percent.max]]);
+    }
+
+    parseMemoryMb(metrics) {
+        return metrics.map(metric => [metric.timestamp_s, [metric.system_stats.memory_use_bytes.min / 1000000, metric.system_stats.memory_use_bytes.mean / 1000000, metric.system_stats.memory_use_bytes.max / 1000000]]);
+    }
+
+    parseDiskMb(metrics) {
+        return metrics.map(metric => [metric.timestamp_s, [metric.system_stats.disk_use_bytes.min / 1000000, metric.system_stats.disk_use_bytes.mean / 1000000, metric.system_stats.disk_use_bytes.max / 1000000]]);
     }
 }
 
