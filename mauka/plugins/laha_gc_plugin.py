@@ -119,7 +119,6 @@ class LahaGcPlugin(base_plugin.MaukaPlugin):
         GCs phenomena.
         """
         self.debug("gc_trigger phenomena")
-        pass
 
     def handle_gc_trigger(self, gc_trigger: mauka_pb2.GcTrigger):
         """
@@ -150,7 +149,6 @@ class LahaGcPlugin(base_plugin.MaukaPlugin):
         :param _id: The _id of the phenomena document.
         """
         self.debug("gc_update phenomena")
-        pass
 
     def handle_gc_update_from_incident(self, _id: str):
         """
@@ -204,7 +202,6 @@ class LahaGcPlugin(base_plugin.MaukaPlugin):
         :param _id: The _id of the created trend document.
         """
         self.debug("gc_update trends")
-        pass
 
     # pylint: disable=C0103
     def handle_gc_update_from_measurement(self, _id: str):
@@ -213,7 +210,6 @@ class LahaGcPlugin(base_plugin.MaukaPlugin):
         :param _id: The _id of the created measurement document.
         """
         self.debug("gc_update measurements")
-        pass
 
     def handle_gc_update(self, gc_update: mauka_pb2.GcUpdate):
         """
