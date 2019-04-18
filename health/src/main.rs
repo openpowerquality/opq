@@ -75,6 +75,8 @@ fn main() {
         for service in &config.services {
             query_service(service, &config);
         }
+        let health_health = generate_health_health();
+        insert_health_doc(&config.mongodb, &health_health);
         thread::sleep(Duration::from_secs((config.interval)));
     }
 }
@@ -261,4 +263,16 @@ fn init_logging() {
             .build(LevelFilter::Info)).unwrap();
 
     log4rs::init_config(config).unwrap();
+}
+
+// Automatically write an up status for this service
+fn generate_health_health()-> HealthStatus {
+    let status: HealthStatus = HealthStatus {
+        name: "HEALTH".to_string(),
+        ok: true,
+        timestamp: SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs(),
+        info: None,
+        subcomponents: None,
+    };
+    status
 }
