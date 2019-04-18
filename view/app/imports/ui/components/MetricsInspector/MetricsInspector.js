@@ -4,21 +4,22 @@ import { withTracker } from 'meteor/react-meteor-data';
 import { Grid, Loader } from 'semantic-ui-react';
 import MetricTimeseriesViewer from './MetricTimeseriesViewer';
 import WidgetPanel from '../../layouts/WidgetPanel';
-
+import { getLahaStatsInRange } from '../../../api/laha-stats/LahaStatsCollection.methods';
 
 class MetricsInspector extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
             isLoading: false,
-            startTimestampS: 1555367548,
-            endTimestampS: 1555453948,
+            startTimestampS: props.startTimestampS,
+            endTimestampS: props.endTimestampS,
+            metrics: [],
             errorReason: null,
         };
     }
 
     componentDidMount() {
-        const { startTimestampS, endTimestampS } = this.props;
+        const { startTimestampS, endTimestampS } = this.state;
         // Retrieve relevant Event and BoxEvents for the given event_id.
         this.retrieveInitialData(startTimestampS, endTimestampS);
     }
@@ -71,20 +72,33 @@ class MetricsInspector extends React.Component {
      * Helper Methods
      */
     retrieveInitialData(startTimestampS, endTimestampS) {
-
+        this.setState({loading: true}, () => {
+           getLahaStatsInRange.call(
+               {
+                   startTimestampS: startTimestampS,
+                   endTimestampS: endTimestampS,
+               },
+               (error, metrics) => {
+                   console.log(startTimestampS, endTimestampS, error, metrics);
+                   this.setState({
+                       loading: false,
+                       metrics: metrics,
+                   },
+                   () => {})
+               })
+        });
     }
 }
 
 MetricsInspector.propTypes = {
-    ready: PropTypes.bool.isRequired,
-    metrics: PropTypes.arrayOf(PropTypes.object),
+    startTimestampS: PropTypes.number.isRequired,
+    endTimestampS: PropTypes.number.isRequired
 };
 
 export default withTracker((props) => {
+    const { startTimestampS, endTimestampS } = props;
     return {
-        ready: true,
-        // event_id: Number(props.match.params.event_id),
-        // opqBoxes,
-        // locations: Locations.find().fetch(),
+        startTimestampS: startTimestampS,
+        endTimestampS: endTimestampS,
     };
 })(MetricsInspector);
