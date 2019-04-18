@@ -41,13 +41,13 @@ class DescriptiveStatistic:
         :param value: Value to update this statistic with.
         :param timestamp_s: An optional timestamp of when this value was added (will use current time if not supplied).
         """
-        ts = timestamp_s if timestamp_s is not None else timestamp()
+        ts_s = timestamp_s if timestamp_s is not None else timestamp()
 
         if len(self.values) == 0:
-            self.start_timestamp_s = ts
+            self.start_timestamp_s = ts_s
 
         self.values.append(value)
-        self.end_timestamp_s = ts
+        self.end_timestamp_s = ts_s
 
     def get(self) -> typing.Dict:
         """
@@ -134,9 +134,9 @@ class SystemStatsPlugin(plugins.base_plugin.MaukaPlugin):
         fs_files_size_bytes = sum(map(lambda fs_file: fs_file["length"], only_events))
         self.debug("Done collecting event stats.")
         return (
-                events_collection_size_bytes +
-                box_events_collection_size_bytes +
-                fs_files_size_bytes
+            events_collection_size_bytes +
+            box_events_collection_size_bytes +
+            fs_files_size_bytes
         )
 
     def incidents_size_bytes(self) -> int:
@@ -159,8 +159,8 @@ class SystemStatsPlugin(plugins.base_plugin.MaukaPlugin):
         self.debug("Done collecting incident stats.")
 
         return (
-                incidents_collection_size_bytes +
-                fs_files_size_bytes
+            incidents_collection_size_bytes +
+            fs_files_size_bytes
         )
 
     def num_active_devices(self) -> int:
@@ -206,7 +206,7 @@ class SystemStatsPlugin(plugins.base_plugin.MaukaPlugin):
         elif gc_domain == protobuf.mauka_pb2.PHENOMENA:
             self.gc_stats[protobuf.mauka_pb2.PHENOMENA] += gc_cnt
         else:
-            self.logger.warn("Unknown domain %s" % gc_domain)
+            self.logger.warning("Unknown domain %s", gc_domain)
 
     def update_system_stats(self, interval_s: int):
         """
