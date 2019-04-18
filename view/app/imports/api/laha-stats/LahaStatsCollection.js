@@ -49,7 +49,8 @@ const InstantaneousMeasurementStatsSchema = new SimpleSchema({
 });
 
 const AggregateMeasurementStatsSchema = new SimpleSchema({
-   measurements: LahaLevelStatsSchema,
+    measurements: LahaLevelStatsSchema,
+    trends: LahaLevelStatsSchema,
 });
 
 const DetectionsStatsSchema = new SimpleSchema({

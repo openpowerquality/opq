@@ -40,6 +40,7 @@ class MetricTimeseriesViewer extends React.Component {
     renderWaveformSegment() {
         // const { gridfs_filename } = this.props;
         const { waveformVisible, isLoading } = this.state;
+        const { height = '150px'} = this.props;
 
         return (
             <React.Fragment>
@@ -54,7 +55,7 @@ class MetricTimeseriesViewer extends React.Component {
                         {isLoading &&
                         <Loader active content='Loading waveform...'/>
                         }
-                        <div ref={this.setDygraphRef} style={{ width: '100%', height: '150px' }}></div>
+                        <div ref={this.setDygraphRef} style={{ width: '100%', height: height }}></div>
                     </Segment>
                 </React.Fragment>
                 }
@@ -130,6 +131,7 @@ MetricTimeseriesViewer.propTypes = {
     yAxisTitle: PropTypes.string.isRequired,
     data: PropTypes.array.isRequired,
     customDygraphOptions: PropTypes.object.isRequired,
+    height: PropTypes.object,
 };
 
 // Note: This component does not require withTracker(); all the data it requires should be passed in from the parent
