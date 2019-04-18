@@ -26,7 +26,7 @@ function serviceHealthStatus(healths, service, usersInterested) {
     _.forEach(usersInterested, user => {
       const username = user.username;
       const type = 'system service down';
-      const dataSummary = { summary: `${service} service went down` };
+      const dataSummary = { service: serviceName, summary: `${service} service went down` };
       Notifications.define({ username, type, data: dataSummary });
       serviceTracker[serviceName] = true;
     });

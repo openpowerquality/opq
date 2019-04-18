@@ -237,16 +237,16 @@ class UserProfilesCollection extends BaseCollection {
    * @param user {Object}
    * @returns {Array}
    */
-  getRecipients(docID) {
+  getContactEmails(docID) {
     const user = this._collection.findOne(docID);
-    const recipients = [];
+    const contactEmails = [];
     if (user.notification_preferences.text === true && user.phone !== undefined) {
-      recipients.push(user.phone);
+      contactEmails.push(user.phone);
     }
     if (user.notification_preferences.email === true) {
-      recipients.push(user.username);
+      contactEmails.push(user.username);
     }
-    return recipients;
+    return contactEmails;
   }
 }
 

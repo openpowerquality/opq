@@ -1,3 +1,7 @@
+"""
+This module contains a plugin and functions that perform GC and update TTLs for OPQ collections.
+"""
+
 import multiprocessing
 import time
 
@@ -8,10 +12,17 @@ import protobuf.mauka_pb2 as mauka_pb2
 
 
 def timestamp_s() -> int:
+    """
+    Returns the current timestamp as seconds since the epoch UTC.
+    :return: The current timestamp as seconds since the epoch UTC.
+    """
     return int(round(time.time()))
 
 
 class LahaGcPlugin(base_plugin.MaukaPlugin):
+    """
+    This class provides a plugin for performing GC and TTL updates on OPQ MongoDB collections.
+    """
     NAME = "LahaGcPlugin"
 
     def __init__(self,
@@ -20,6 +31,9 @@ class LahaGcPlugin(base_plugin.MaukaPlugin):
         super().__init__(conf, ["laha_gc", "heartbeat"], LahaGcPlugin.NAME, exit_event)
 
     def handle_gc_trigger_measurements(self):
+        """
+        GCs measurements by removing measurements older than their expire_at field.
+        """
         self.debug("gc_trigger measurements")
         now = timestamp_s()
         delete_result = self.mongo_client.measurements_collection.delete_many({"expire_at": {"$lt": now}})
@@ -27,6 +41,9 @@ class LahaGcPlugin(base_plugin.MaukaPlugin):
         self.debug("Garbage collected %d measurements" % delete_result.deleted_count)
 
     def handle_gc_trigger_trends(self):
+        """
+        GCs trends by removing trends older than their expire_at field.
+        """
         self.debug("gc_trigger trends")
         now = timestamp_s()
         delete_result = self.mongo_client.trends_collection.delete_many({"expire_at": {"$lt": now}})
@@ -34,6 +51,15 @@ class LahaGcPlugin(base_plugin.MaukaPlugin):
         self.debug("Garbage collected %d trends" % delete_result.deleted_count)
 
     def handle_gc_trigger_events(self):
+        """
+        GCs events.
+
+        First, find all events whose expire_at field is older than now.
+        Second, find corresponding box_events.
+        Third, from box_events, delete expired gridfs files
+        Fourth, delete all expired box_events
+        Fifth, delete all expired events
+        """
         self.debug("gc_trigger events")
         now = timestamp_s()
         events = self.mongo_client.events_collection.find({"expire_at": {"$lt": now}},
@@ -69,6 +95,12 @@ class LahaGcPlugin(base_plugin.MaukaPlugin):
         self.debug("Garbage collected %d events" % delete_result.deleted_count)
 
     def handle_gc_trigger_incidents(self):
+        """
+        GCs incidents.
+        First, find all expired incidents.
+        Second, use expired incidents to delete expired gridfs data.
+        Third, remove expired incidents.
+        """
         self.debug("gc_trigger incidents")
         now = timestamp_s()
         incidents = self.mongo_client.incidents_collection.find({"expire_at": {"$lt": now}},
@@ -83,10 +115,16 @@ class LahaGcPlugin(base_plugin.MaukaPlugin):
         self.debug("Garbage collected %d incidents and associated gridfs data" % delete_result.deleted_count)
 
     def handle_gc_trigger_phenomena(self):
+        """
+        GCs phenomena.
+        """
         self.debug("gc_trigger phenomena")
-        pass
 
     def handle_gc_trigger(self, gc_trigger: mauka_pb2.GcTrigger):
+        """
+        Handles a GcTrigger message by performing GC on the domains specified in the message.
+        :param gc_trigger: GcTrigger message.
+        """
         self.debug("Handling gc_trigger %s" % str(gc_trigger))
         domains = set(gc_trigger.gc_domains)
 
@@ -106,10 +144,17 @@ class LahaGcPlugin(base_plugin.MaukaPlugin):
             self.handle_gc_trigger_phenomena()
 
     def handle_gc_update_from_phenomena(self, _id: str):
+        """
+        Phenomena was created, update TTL for all levels under phenomena.
+        :param _id: The _id of the phenomena document.
+        """
         self.debug("gc_update phenomena")
-        pass
 
     def handle_gc_update_from_incident(self, _id: str):
+        """
+        Incident was created, update TTL for all levels under incident.
+        :param _id: The _id of the created incident document.
+        """
         self.debug("gc_update incidents")
         incident = self.mongo_client.incidents_collection.find_one({"incident_id": _id},
                                                                    projection={"_id": True,
@@ -124,6 +169,10 @@ class LahaGcPlugin(base_plugin.MaukaPlugin):
         self.handle_gc_update_from_event(event["event_id"])
 
     def handle_gc_update_from_event(self, _id: str):
+        """
+        Event was created, update TTL for all levels under event.
+        :param _id: The _id of the created event document.
+        """
         self.debug("gc_update event")
         event = self.mongo_client.events_collection.find_one({"event_id": _id},
                                                              prjection={"_id": True,
@@ -148,14 +197,25 @@ class LahaGcPlugin(base_plugin.MaukaPlugin):
                                                                                update_measurements_result.modified_count))
 
     def handle_gc_update_from_trend(self, _id: str):
+        """
+        Trend was created, update TTL for all levels under trend.
+        :param _id: The _id of the created trend document.
+        """
         self.debug("gc_update trends")
-        pass
 
+    # pylint: disable=C0103
     def handle_gc_update_from_measurement(self, _id: str):
+        """
+        Measurement was created, update TTL for all levels under measurement.
+        :param _id: The _id of the created measurement document.
+        """
         self.debug("gc_update measurements")
-        pass
 
     def handle_gc_update(self, gc_update: mauka_pb2.GcUpdate):
+        """
+        Handles a GC update message by calling the handler for the specified domain.
+        :param gc_update: GcUpdate message.
+        """
         self.debug("Handling GC update")
         if gc_update.from_domain == mauka_pb2.PHENOMENA:
             self.handle_gc_update_from_phenomena(gc_update.id)
@@ -171,17 +231,25 @@ class LahaGcPlugin(base_plugin.MaukaPlugin):
             pass
 
     def on_message(self, topic: str, mauka_message: mauka_pb2.MaukaMessage):
+        """
+        This method is called whenever this plugin receives a MaukaMessage.
+        :param topic: The topic of the message.
+        :param mauka_message: The MaukaMessage received.
+        """
         self.debug("Received from %s %s" % (mauka_message.source, mauka_message))
         if util_pb2.is_heartbeat_message(mauka_message) and mauka_message.source == self.NAME:
             self.debug("Received heartbeat, producing GC trigger message")
             # For now, GC is triggered on heartbeats
             self.produce("laha_gc", util_pb2.build_gc_trigger(self.name, [
                 mauka_pb2.MEASUREMENTS,
-                mauka_pb2.TRENDS
-                # mauka_pb2.EVENTS,
-                # mauka_pb2.INCIDENTS,
-                # mauka_pb2.PHENOMENA
+                mauka_pb2.TRENDS,
+                mauka_pb2.EVENTS,
+                mauka_pb2.INCIDENTS,
+                mauka_pb2.PHENOMENA
             ]))
+        elif util_pb2.is_heartbeat_message(mauka_message) and mauka_message.source != self.NAME:
+            # Ignore heartbeats from other plugins.
+            pass
         elif util_pb2.is_gc_trigger(mauka_message):
             self.debug("Received GC trigger, calling trigger handler")
             self.handle_gc_trigger(mauka_message.laha.gc_trigger)
