@@ -1,7 +1,8 @@
 use std::thread;
 use std::sync::{Arc, Mutex};
 use std::boxed::Box;
-
+use rand::{thread_rng, Rng};
+use rand::distributions::Alphanumeric;
 
 use pub_sub::Subscription;
 use libloading::{Library, Symbol};
@@ -78,8 +79,13 @@ impl PluginManager {
             loop {
                 let msg = subscription.recv().unwrap();
                 if let Some(mut list) = plugin.process_measurement(msg) {
+                    let token = generate_event_token();
+                    for item in &list{
+
+                    }
                     for item in &mut list {
-                        trigger.lock().unwrap().trigger(item)
+
+                        trigger.lock().unwrap().trigger(&token,item)
                     }
                 };
             }
@@ -87,4 +93,12 @@ impl PluginManager {
 
         Ok(())
     }
+}
+
+
+fn generate_event_token() -> String{
+    thread_rng()
+        .sample_iter(&Alphanumeric)
+        .take(30)
+        .collect()
 }

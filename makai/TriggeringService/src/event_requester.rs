@@ -1,9 +1,11 @@
 use protobuf::Message;
-use crate::proto::opqbox3::Command;
 use zmq;
 use std::sync::{Arc, Mutex};
+
 use crate::config::Settings;
-use crate::constants::ZMQ_DATA_PREFIX;
+use crate::constants::{ZMQ_DATA_PREFIX, ZMQ_DATA_SEPARATOR};
+use crate::proto::opqbox3::Command;
+
 ///A wrapped `EventRequester` type used for passing around threads.
 pub type SyncEventRequester = Arc<Mutex<EventRequester>>;
 
@@ -28,9 +30,8 @@ impl EventRequester {
     }
 
     /// Sends a request for an event to the acquisition broker.
-    pub fn trigger(&mut self, request: &mut Command) {
-        request.identity = ZMQ_DATA_PREFIX.to_owned() + &self.identity;
-        println!("{:?}", request.identity);
+    pub fn trigger(&mut self, token : &String, request: &mut Command) {
+        request.identity = ZMQ_DATA_PREFIX.to_owned() +token + ZMQ_DATA_SEPARATOR+ &self.identity;
         let serialized = request.write_to_bytes().unwrap();
         self.acq_broker.send(&serialized, 0).unwrap();
     }

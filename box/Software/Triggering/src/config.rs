@@ -94,6 +94,9 @@ pub struct Settings {
     pub windows_in_storage_buffer: usize,
     ///Plugin specific settings.
     pub plugins: Vec<String>,
+
+    //websocket interface
+    pub sse_interface: String,
 }
 
 impl Settings {

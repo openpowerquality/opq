@@ -51,6 +51,7 @@
   "plugins.StatusPlugin.port": 8911,
 
   "plugins.SystemStatsPlugin.intervalS": 60,
+  "plugins.SystemStatsPlugin.systemStatsIntervalS": 5,
 
   "laha.config.default": {
     "ttls": {
