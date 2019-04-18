@@ -51,7 +51,7 @@ class MetricsInspector extends React.Component {
                                 <MetricTimeseriesViewer
                                     plotTitle={'Active OPQ Boxes'}
                                     xAxisTitle={'UTC'}
-                                    yAxisTitle={'# Active OPQ Boxes'}
+                                    yAxisTitle={'Active'}
                                     data={this.parseActiveOpqBoxes(metrics)}
                                 />
                             </Grid.Column>

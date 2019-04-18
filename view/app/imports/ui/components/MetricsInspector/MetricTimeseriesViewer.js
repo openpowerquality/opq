@@ -3,6 +3,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Loader, Segment } from 'semantic-ui-react';
 import Dygraph from 'dygraphs';
+import Moment from 'moment/moment';
 
 /** Displays a Waveform graph for the given GridFS filename */
 class MetricTimeseriesViewer extends React.Component {
@@ -53,7 +54,7 @@ class MetricTimeseriesViewer extends React.Component {
                         {isLoading &&
                         <Loader active content='Loading waveform...'/>
                         }
-                        <div ref={this.setDygraphRef} style={{ width: '100%', height: '100px' }}></div>
+                        <div ref={this.setDygraphRef} style={{ width: '100%', height: '150px' }}></div>
                     </Segment>
                 </React.Fragment>
                 }
@@ -79,6 +80,15 @@ class MetricTimeseriesViewer extends React.Component {
             title: plotTitle,
             xlabel: xAxisTitle,
             ylabel: yAxisTitle,
+            labelsUTC: true,
+            axes: {
+                x: {
+                    axisLabelFormatter: function (timestamp) {
+                        const date = new Date(timestamp * 1000);
+                        return `${String(date.getUTCHours()).padStart(2, '0')} : ${String(date.getUTCMinutes()).padStart(2, '0')}`;
+                    },
+                },
+            },
         };
 
         const dyDomElement = this.getDygraphRef();
@@ -88,7 +98,6 @@ class MetricTimeseriesViewer extends React.Component {
             // Note: There's no real need to store the Dygraph instance itself. It's simpler to allow render() to create
             // a new instance each time the graph visibility is set to true.
             const dygraph = new Dygraph(dyDomElement, data, dyOptions);
-            console.log(data);
             dygraph.ready(() => this.setState({ isLoading: false }));
         });
     }
