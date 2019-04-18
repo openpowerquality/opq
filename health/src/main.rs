@@ -73,7 +73,7 @@ fn main() {
 
     loop {
         for service in &config.services {
-            query_service(service);
+            query_service(service, &config);
         }
         thread::sleep(Duration::from_secs((config.interval)));
     }
@@ -123,7 +123,7 @@ fn read_file(filepath: &str) -> String {
     contents
 }
 
-fn query_service(service: &Service) {
+fn query_service(service: &Service, config: &HealthConfig) {
     let client = reqwest::Client::builder()
         .timeout(Duration::from_secs(2))
         .build().expect("Unable to build client");
@@ -134,7 +134,7 @@ fn query_service(service: &Service) {
     let req_error = http_send_err(&req_result);
 
     if req_error != "" {
-        insert_health_doc(&generate_error_health_status(service.name.to_string(), req_error.to_string()));
+        insert_health_doc(&config.mongodb, &generate_error_health_status(service.name.to_string(), req_error.to_string()));
         return;
     }
 
@@ -144,14 +144,14 @@ fn query_service(service: &Service) {
         match response.json() {
             Ok(status) => {
                 let stat: HealthStatus = status;
-                check_status(&stat);
+                check_status(&stat, config);
             }
             Err(_) => {
-                insert_health_doc(&generate_error_health_status(service.name.to_string(), "Unable to parse response".to_string()));
+                insert_health_doc(&config.mongodb, &generate_error_health_status(service.name.to_string(), "Unable to parse response".to_string()));
             }
         };
     } else {
-        insert_health_doc(&generate_error_health_status(service.name.to_string(), response.status().to_string()));
+        insert_health_doc(&config.mongodb, &generate_error_health_status(service.name.to_string(), response.status().to_string()));
     }
 }
 
@@ -163,12 +163,12 @@ fn http_send_err(response: &Result<Response, Error>) -> String {
     }
 }
 
-fn check_status(status: &HealthStatus) {
-    insert_health_doc(status);
+fn check_status(status: &HealthStatus, config: &HealthConfig) {
+    insert_health_doc(&config.mongodb, status);
     match &status.subcomponents {
         Some(subcomponents) => {
             for component in subcomponents {
-                check_status(component);
+                check_status(component, config);
             }
         }
         None => ()
@@ -201,18 +201,20 @@ fn generate_health_doc(status: &HealthStatus) -> Document {
     let doc = doc! {
         "service": service.to_uppercase(),
         "serviceID": serviceID.to_uppercase(),
-        "status": get_status(status.ok).to_uppercase(),
+        "status": get_status(status.ok, status.timestamp).to_uppercase(),
         "info": info,
         "timestamp": Utc::now()
         };
     doc
 }
 
-fn insert_health_doc(status: &HealthStatus) {
+fn insert_health_doc(mongodb: &str, status: &HealthStatus) {
     info!("{:?}", status);
     let mut options = ClientOptions::new();
     options.server_selection_timeout_ms = 1000;
-    let client = match Client::with_uri_and_options(&MONGODB_URI, options) {
+    let mongo = String::from(mongodb);
+    // info!("{:?}", mongo);
+    let client = match Client::with_uri_and_options(&mongo, options) {
         Ok(cl) => cl,
         Err(e) => {
             error!("{:?}", e);
@@ -226,9 +228,9 @@ fn insert_health_doc(status: &HealthStatus) {
     }
 }
 
-// TODO check timestamp
-fn get_status(up: bool) -> String {
-    if up {
+fn get_status(up: bool, timestamp: u64) -> String {
+    let now = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs();
+    if up && (now - timestamp < 20){
         return "UP".to_string();
     } else {
         return "DOWN".to_string();
