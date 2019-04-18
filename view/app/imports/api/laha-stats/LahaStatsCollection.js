@@ -24,18 +24,22 @@ const PluginStatsSchema = new SimpleSchema({
 
 const DescriptiveStatisticSchema = new SimpleSchema({
     min: Number,
-    max : Number,
-    mean : Number,
-    var : Number,
-    cnt : Number,
-    start_timestamp_s : Number,
-    end_timestamp_s : Number
+    max: Number,
+    mean: Number,
+    var: Number,
+    cnt: Number,
+    start_timestamp_s: Number,
+    end_timestamp_s: Number,
 });
 
 const SystemStatsSchema = new SimpleSchema({
     cpu_load_percent: DescriptiveStatisticSchema,
     memory_use_bytes: DescriptiveStatisticSchema,
-    disk_use_bytes: DescriptiveStatisticSchema
+    disk_use_bytes: DescriptiveStatisticSchema,
+});
+
+const LahaStatsSchema = new SimpleSchema( {
+    active_devices: Number
 });
 
 const LahaLevelStatisticsSchema = new SimpleSchema({
@@ -52,6 +56,7 @@ class LahaStatsCollection extends BaseCollection {
             timestamp_s: Number,
             plugin_stats: PluginStatsSchema,
             system_stats: SystemStatsSchema,
+            laha_stats: LahaStatsSchema,
             // laha_stats : {
             //     instantaneous_measurements_stats : {
             //         box_samples : {

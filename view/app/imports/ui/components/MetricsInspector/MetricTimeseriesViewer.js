@@ -1,7 +1,7 @@
 import { Meteor } from 'meteor/meteor';
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Loader, Segment, Checkbox, Header } from 'semantic-ui-react';
+import { Loader, Segment } from 'semantic-ui-react';
 import Dygraph from 'dygraphs';
 
 /** Displays a Waveform graph for the given GridFS filename */
@@ -33,29 +33,6 @@ class MetricTimeseriesViewer extends React.Component {
             <Segment.Group>
                 {this.renderWaveformSegment()}
             </Segment.Group>
-        );
-    }
-
-    renderTopSegment() {
-        const { plotTitle } = this.props;
-        const { waveformVisible } = this.state;
-
-        return (
-            <Segment clearing>
-                <div style={{ float: 'right' }}>
-                    <p style={{
-                        display: 'inline-block',
-                        verticalAlign: 'top',
-                        marginBottom: '0px',
-                        marginRight: '10px' }}>
-                        <b>Toggle Waveform</b>
-                    </p>
-                    <Checkbox toggle checked={waveformVisible} onClick={this.toggleWaveform} />
-                </div>
-                <Header size='medium' floated='left'>
-                    {plotTitle}
-                </Header>
-            </Segment>
         );
     }
 
@@ -111,6 +88,7 @@ class MetricTimeseriesViewer extends React.Component {
             // Note: There's no real need to store the Dygraph instance itself. It's simpler to allow render() to create
             // a new instance each time the graph visibility is set to true.
             const dygraph = new Dygraph(dyDomElement, data, dyOptions);
+            console.log(data);
             dygraph.ready(() => this.setState({ isLoading: false }));
         });
     }

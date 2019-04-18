@@ -11,9 +11,11 @@ class MetricsInspector extends React.Component {
         super(props);
         this.state = {
             isLoading: false,
+            loaded: false,
             startTimestampS: props.startTimestampS,
             endTimestampS: props.endTimestampS,
             metrics: [],
+            activeDevices: [],
             errorReason: null,
         };
     }
@@ -34,33 +36,26 @@ class MetricsInspector extends React.Component {
 
     render() {
         if (this.state.errorReason) return this.renderError(this.state.errorReason);
-        return (this.props.ready && !this.state.isLoading) ? this.renderPage() : <Loader active content='Loading...'/>;
+        return (!this.state.isLoading) ? this.renderPage() : <Loader active content='Loading...'/>;
     }
 
     renderPage() {
+        const { metrics } = this.state;
         return (
             <Grid container stackable>
                 <Grid.Column width={16}>
                     <WidgetPanel title='Laha Metrics Viewer' helpText={this.helpText}>
                         <Grid container>
+                            {this.state && this.state.loaded &&
                             <Grid.Column width={12}>
                                 <MetricTimeseriesViewer
-                                    plotTitle={'Test'}
-                                    xAxisTitle={'TestX'}
-                                    yAxisTitle={'TestY'}
-                                    data={[[0, 1], [1, 2]]}
+                                    plotTitle={'Active OPQ Boxes'}
+                                    xAxisTitle={'UTC'}
+                                    yAxisTitle={'# Active OPQ Boxes'}
+                                    data={this.parseActiveOpqBoxes(metrics)}
                                 />
                             </Grid.Column>
-                        </Grid>
-                        <Grid container>
-                            <Grid.Column width={12}>
-                                <MetricTimeseriesViewer
-                                    plotTitle={'Test'}
-                                    xAxisTitle={'TestX'}
-                                    yAxisTitle={'TestY'}
-                                    data={[[0, 1], [1, 2], [2, 3]]}
-                                />
-                            </Grid.Column>
+                            }
                         </Grid>
                     </WidgetPanel>
                 </Grid.Column>
@@ -72,27 +67,32 @@ class MetricsInspector extends React.Component {
      * Helper Methods
      */
     retrieveInitialData(startTimestampS, endTimestampS) {
-        this.setState({loading: true}, () => {
+        this.setState({ loading: true }, () => {
            getLahaStatsInRange.call(
                {
                    startTimestampS: startTimestampS,
                    endTimestampS: endTimestampS,
                },
                (error, metrics) => {
-                   console.log(startTimestampS, endTimestampS, error, metrics);
                    this.setState({
                        loading: false,
+                       loaded: true,
                        metrics: metrics,
-                   },
-                   () => {})
-               })
+                       activeDevices: this.parseActiveOpqBoxes(metrics),
+                   });
+               },
+               );
         });
+    }
+
+    parseActiveOpqBoxes(metrics) {
+        return metrics.map(metric => [metric.timestamp_s, metric.laha_stats.active_devices]);
     }
 }
 
 MetricsInspector.propTypes = {
     startTimestampS: PropTypes.number.isRequired,
-    endTimestampS: PropTypes.number.isRequired
+    endTimestampS: PropTypes.number.isRequired,
 };
 
 export default withTracker((props) => {
