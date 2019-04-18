@@ -1,3 +1,7 @@
+"""
+This module contains a plugin and functions that perform GC and update TTLs for OPQ collections.
+"""
+
 import multiprocessing
 import time
 
@@ -8,10 +12,17 @@ import protobuf.mauka_pb2 as mauka_pb2
 
 
 def timestamp_s() -> int:
+    """
+    Returns the current timestamp as seconds since the epoch UTC.
+    :return: The current timestamp as seconds since the epoch UTC.
+    """
     return int(round(time.time()))
 
 
 class LahaGcPlugin(base_plugin.MaukaPlugin):
+    """
+    This class provides a plugin for performing GC and TTL updates on OPQ MongoDB collections.
+    """
     NAME = "LahaGcPlugin"
 
     def __init__(self,
@@ -20,6 +31,9 @@ class LahaGcPlugin(base_plugin.MaukaPlugin):
         super().__init__(conf, ["laha_gc", "heartbeat"], LahaGcPlugin.NAME, exit_event)
 
     def handle_gc_trigger_measurements(self):
+        """
+        GCs measurements by removing measurements older than their expire_at field.
+        """
         self.debug("gc_trigger measurements")
         now = timestamp_s()
         delete_result = self.mongo_client.measurements_collection.delete_many({"expire_at": {"$lt": now}})
@@ -27,6 +41,9 @@ class LahaGcPlugin(base_plugin.MaukaPlugin):
         self.debug("Garbage collected %d measurements" % delete_result.deleted_count)
 
     def handle_gc_trigger_trends(self):
+        """
+        GCs trends by removing trends older than their expire_at field.
+        """
         self.debug("gc_trigger trends")
         now = timestamp_s()
         delete_result = self.mongo_client.trends_collection.delete_many({"expire_at": {"$lt": now}})
@@ -34,6 +51,15 @@ class LahaGcPlugin(base_plugin.MaukaPlugin):
         self.debug("Garbage collected %d trends" % delete_result.deleted_count)
 
     def handle_gc_trigger_events(self):
+        """
+        GCs events.
+
+        First, find all events whose expire_at field is older than now.
+        Second, find corresponding box_events.
+        Third, from box_events, delete expired gridfs files
+        Fourth, delete all expired box_events
+        Fifth, delete all expired events
+        """
         self.debug("gc_trigger events")
         now = timestamp_s()
         events = self.mongo_client.events_collection.find({"expire_at": {"$lt": now}},
@@ -182,6 +208,8 @@ class LahaGcPlugin(base_plugin.MaukaPlugin):
                 mauka_pb2.INCIDENTS,
                 mauka_pb2.PHENOMENA
             ]))
+        elif util_pb2.is_heartbeat_message(mauka_message) and mauka_message.source != self.NAME:
+            pass
         elif util_pb2.is_gc_trigger(mauka_message):
             self.debug("Received GC trigger, calling trigger handler")
             self.handle_gc_trigger(mauka_message.laha.gc_trigger)
