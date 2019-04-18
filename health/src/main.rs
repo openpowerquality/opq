@@ -64,7 +64,7 @@ struct HealthDoc {
 }
 
 // TODO - set this from the config file
-static MONGODB_URI: &str = "mongodb://localhost:27017";
+static MONGODB_URI: &str = "mongodb://mongo:27017";
 
 fn main() {
     init_logging();
@@ -214,7 +214,7 @@ fn insert_health_doc(mongodb: &str, status: &HealthStatus) {
     options.server_selection_timeout_ms = 1000;
     let mongo = String::from(mongodb);
     // info!("{:?}", mongo);
-    let client = match Client::with_uri_and_options(&mongo, options) {
+    let client = match Client::with_uri_and_options(MONGODB_URI, options) {
         Ok(cl) => cl,
         Err(e) => {
             error!("{:?}", e);
@@ -252,7 +252,7 @@ fn generate_error_health_status(name: String, message: String) -> HealthStatus {
 fn init_logging() {
     let logfile = FileAppender::builder()
         .encoder(Box::new(PatternEncoder::new("{d(%Y-%m-%d %H:%M:%S %Z)(utc)}: {l} - {m}\n")))
-        .build("/tmp/opqhealth/health.log").unwrap();
+        .build("/var/log/health/health.log").unwrap();
 
     let config = Config::builder()
         .appender(Appender::builder().build("logfile", Box::new(logfile)))
