@@ -1,14 +1,17 @@
 import React from 'react';
 import {Grid} from 'semantic-ui-react';
 
-import MetricsInspector from "../components/MetricsInspector/MetricsInspector";
+import MetricsInspector from '../components/MetricsInspector/MetricsInspector';
+
+const endTimestampS = Math.fround((new Date()).getTime() / 1000);
+const startTimestampS = endTimestampS - 86400;
 
 const MetricsPage = () => (
     <Grid container stackable>
         <Grid.Column width={16}>
             <MetricsInspector
-                startTimestampS={1555113600}
-                endTimestampS={1555117200}
+                startTimestampS={startTimestampS}
+                endTimestampS={endTimestampS}
             />
         </Grid.Column>
     </Grid>
