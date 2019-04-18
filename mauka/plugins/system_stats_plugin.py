@@ -59,8 +59,6 @@ class DescriptiveStatistic:
         self.end_timestamp_s = 0
 
 
-
-
 class SystemStatsPlugin(plugins.base_plugin.MaukaPlugin):
     """
     Mauka plugin that retrieves and stores system and plugin stats
@@ -291,7 +289,6 @@ class SystemStatsPlugin(plugins.base_plugin.MaukaPlugin):
         timer = threading.Timer(interval_s, self.collect_stats, args=[interval_s])
         timer.start()
 
-
     def on_message(self, topic: str, mauka_message: protobuf.mauka_pb2.MaukaMessage):
         """
         Called async when a topic this plugin subscribes to produces a message
@@ -308,8 +305,3 @@ class SystemStatsPlugin(plugins.base_plugin.MaukaPlugin):
         else:
             self.logger.error("Received incorrect mauka message [%s] at %s",
                               protobuf.util.which_message_oneof(mauka_message), SystemStatsPlugin.NAME)
-
-
-if __name__ == "__main__":
-    ds = DescriptiveStatistic()
-    print(ds.get())
