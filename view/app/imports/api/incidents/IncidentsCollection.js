@@ -95,7 +95,10 @@ class IncidentsCollection extends BaseCollection {
   getIncidentReport(startTime_ms) {
       const query = { start_timestamp_ms: { $gte: startTime_ms } };
       const incidents = this._collection.find(query).fetch();
-      return { startTime_ms, totalIncidents: incidents.length };
+      const totalIncidents = incidents.length;
+      const classifications = _.unique(_.flatten(_.map(incidents, incident => incident.classifications)));
+      const locations = _.unique(_.map(incidents, incident => incident.location));
+      return { startTime_ms, totalIncidents, classifications, locations };
     }
 }
 

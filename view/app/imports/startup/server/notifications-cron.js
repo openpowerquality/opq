@@ -11,7 +11,7 @@ import { UserProfiles } from '../../api/users/UserProfilesCollection';
 SSR.compileTemplate('htmlEmail', Assets.getText('email-format.html'));
 SSR.compileTemplate('notificationEmail', Assets.getText('notification-email-template.html'));
 
-function sendEmail(contactEmails, startTime, services, downServiceTotal, incidentTotal, incidentTypes, incidentLocations) {
+function sendEmail(contactEmails, startTime, services, downTotal, incidentTotal, classifications, locations) {
   Email.send({
     to: contactEmails,
     from: 'Open Power Quality <postmaster@mail.openpowerquality.org>',
@@ -19,10 +19,10 @@ function sendEmail(contactEmails, startTime, services, downServiceTotal, inciden
     html: SSR.render('notificationEmail', {
       startTime,
       services: Array.toString(services),
-      downServiceTotal,
+      downServiceTotal: downTotal,
       incidentTotal,
-      incidentTypes: Array.toString(incidentTypes),
-      incidentLocations: Array.toString(incidentLocations),
+      classifications: Array.toString(classifications),
+      locations: Array.toString(locations),
     }),
   });
 }
@@ -56,11 +56,11 @@ function findUsersAndSend(maxDeliveries) {
     if ((notifications.length > 0) || (incidentReport.totalIncidents > 0)) {
       const contactEmails = UserProfiles.getContactEmails(user._id);
       const services = extractServicesFromNotifications(notifications);
-      const downServiceTotal = notifications.length;
+      const downTotal = notifications.length;
       const incidentTotal = incidentReport.totalIncidents;
-      const incidentType = incidentReport.
-
-      sendEmail(contactEmails, startTime, services, downServiceTotal, incidentTotal, incidentTypes, incidentLocations);
+      const classifications = incidentReport.classifications;
+      const locations = incidentReport.locations;
+      sendEmail(contactEmails, startTime, services, downTotal, incidentTotal, classifications, locations);
       Notifications.updateDeliveredStatus(notifications);
       }
   });
