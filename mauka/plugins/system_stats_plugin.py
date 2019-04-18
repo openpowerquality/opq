@@ -27,12 +27,20 @@ def timestamp() -> int:
 
 
 class DescriptiveStatistic:
+    """
+    This class encapsulates a descriptive statistic which contains the min, max, mean, variance, and count of values
+    """
     def __init__(self):
         self.values = []
         self.start_timestamp_s = 0
         self.end_timestamp_s = 0
 
     def update(self, value: typing.Union[int, float], timestamp_s: typing.Optional[int] = None):
+        """
+        Updates this statistic with the latest value.
+        :param value: Value to update this statistic with.
+        :param timestamp_s: An optional timestamp of when this value was added (will use current time if not supplied).
+        """
         ts = timestamp_s if timestamp_s is not None else timestamp()
 
         if len(self.values) == 0:
@@ -42,6 +50,10 @@ class DescriptiveStatistic:
         self.end_timestamp_s = ts
 
     def get(self) -> typing.Dict:
+        """
+        Returns the contents of this class as a dictionary for easy storage in MongoDB.
+        :return: The contents of this class as a dictionary for easy storage in MongoDB.
+        """
         as_np = numpy.array(self.values)
         return {
             "min": float(as_np.min()),
@@ -54,6 +66,9 @@ class DescriptiveStatistic:
         }
 
     def clear(self):
+        """
+        Clears this descriptive statistic.
+        """
         self.values = []
         self.start_timestamp_s = 0
         self.end_timestamp_s = 0
@@ -171,6 +186,10 @@ class SystemStatsPlugin(plugins.base_plugin.MaukaPlugin):
         return 0
 
     def handle_gc_stat_message(self, mauka_message: protobuf.mauka_pb2.MaukaMessage):
+        """
+        Handles a GcStatMessage and updates the number of gc counts for the provided domain.
+        :param mauka_message: A MaukaMessage contains a laha.gc_stat message.
+        """
         self.debug("handle_gc_stat_message")
         gc_domain = mauka_message.laha.gc_stat.gc_domain
         gc_cnt = mauka_message.laha.gc_stat.gc_cnt
@@ -190,6 +209,10 @@ class SystemStatsPlugin(plugins.base_plugin.MaukaPlugin):
             self.logger.warn("Unknown domain %s" % gc_domain)
 
     def update_system_stats(self, interval_s: int):
+        """
+        Update the system statistics.
+        :param interval_s: How often the statistics should be updated.
+        """
         self.debug("Updating system stats")
         self.system_stats["cpu_load_percent"].update(self.cpu_load_percent())
         self.system_stats["memory_use_bytes"].update(self.memory_use_bytes())
@@ -197,17 +220,32 @@ class SystemStatsPlugin(plugins.base_plugin.MaukaPlugin):
         timer = threading.Timer(interval_s, self.update_system_stats, args=[interval_s])
         timer.start()
 
-    def cpu_load_percent(self):
+    def cpu_load_percent(self) -> float:
+        """
+        Gets the CPU load as a percentage.
+        :return: The CPU load as a percentage.
+        """
         return psutil.cpu_percent()
 
     def memory_use_bytes(self) -> int:
+        """
+        Returns the memory usage in bytes.
+        :return: The memory usage in bytes.
+        """
         mem_stats = psutil.virtual_memory()
         return mem_stats.total - mem_stats.available
 
     def disk_use_bytes(self) -> int:
+        """
+        Return the disk usage in bytes.
+        :return: The disk usage in bytes.
+        """
         return psutil.disk_usage("/").used
 
     def reset_system_stats(self):
+        """
+        Resets the system statistics.
+        """
         for descriptive_stat in self.system_stats.values():
             descriptive_stat.clear()
 
