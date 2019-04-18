@@ -30,6 +30,7 @@ class DescriptiveStatistic:
     """
     This class encapsulates a descriptive statistic which contains the min, max, mean, variance, and count of values
     """
+
     def __init__(self):
         self.values = []
         self.start_timestamp_s = 0
@@ -171,10 +172,10 @@ class SystemStatsPlugin(plugins.base_plugin.MaukaPlugin):
         :return: The number of active OPQBoxes.
         """
         measurements_last_minute = self.mongo_client.measurements_collection.find(
-                {"timestamp_ms": {"$gt": (timestamp() - 5) * 1000}},
-                projection={"_id": False,
-                            "timestamp_ms": True,
-                            "box_id": True})
+            {"timestamp_ms": {"$gt": (timestamp() - 5) * 1000}},
+            projection={"_id": False,
+                        "timestamp_ms": True,
+                        "box_id": True})
         box_ids = set(map(lambda measurement: measurement["box_id"], measurements_last_minute))
         return len(box_ids)
 
