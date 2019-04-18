@@ -206,6 +206,7 @@ class LahaGcPlugin(base_plugin.MaukaPlugin):
         self.debug("gc_update trends")
         pass
 
+    # pylint: disable=C0103
     def handle_gc_update_from_measurement(self, _id: str):
         """
         Measurement was created, update TTL for all levels under measurement.

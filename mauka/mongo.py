@@ -20,6 +20,10 @@ import constants
 
 
 def timestamp_ms() -> int:
+    """
+    Returns the current timestamp as ms since the epoch UTC.
+    :return:
+    """
     return int(round(time.time() * 1000))
 
 
@@ -151,6 +155,10 @@ class OpqMongoClient:
         return self.laha_config_collection.find_one()
 
     def delete_gridfs(self, filename: str):
+        """
+        Deletes a file from gridfs.
+        :param filename: The filename of the file to delete.
+        """
         gridfs_document = self.fs_files_collection.find_one({"filename": filename},
                                                             projection={"_id": True,
                                                                         "filename": True})
@@ -254,6 +262,10 @@ class OpqMongoClient:
         return stats["size"] + stats["totalIndexSize"]
 
     def get_active_box_ids(self) -> typing.List[str]:
+        """
+        Returns a list of active box ids.
+        :return: A list of active box ids.
+        """
         one_min_ago = timestamp_ms() - 60000
         query = self.measurements_collection.find({"timestamp_ms": {"$gte": one_min_ago}},
                                                   projection={"timestamp_ms": True,
