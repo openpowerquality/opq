@@ -3,7 +3,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Loader, Segment } from 'semantic-ui-react';
 import Dygraph from 'dygraphs';
-import Moment from 'moment/moment';
 
 /** Displays a Waveform graph for the given GridFS filename */
 class MetricTimeseriesViewer extends React.Component {
@@ -100,6 +99,7 @@ class MetricTimeseriesViewer extends React.Component {
             // a new instance each time the graph visibility is set to true.
             const dygraph = new Dygraph(dyDomElement, data, { ...dyOptions, ...customDygraphOptions });
             dygraph.ready(() => this.setState({ isLoading: false }));
+            this.props.dygraphCreatedCallback(dygraph);
         });
     }
 
@@ -132,6 +132,7 @@ MetricTimeseriesViewer.propTypes = {
     data: PropTypes.array.isRequired,
     customDygraphOptions: PropTypes.object.isRequired,
     height: PropTypes.string,
+    dygraphCreatedCallback: PropTypes.func.isRequired,
 };
 
 // Note: This component does not require withTracker(); all the data it requires should be passed in from the parent

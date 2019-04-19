@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { withTracker } from 'meteor/react-meteor-data';
 import { Grid, Loader } from 'semantic-ui-react';
-import MetricTimeseriesViewer from './MetricTimeseriesViewer';
+import synchronize from './synchronizer';import MetricTimeseriesViewer from './MetricTimeseriesViewer';
 import WidgetPanel from '../../layouts/WidgetPanel';
 import { getLahaStatsInRange } from '../../../api/laha-stats/LahaStatsCollection.methods';
 
@@ -17,6 +17,7 @@ class MetricsInspector extends React.Component {
             metrics: [],
             errorReason: null,
         };
+        this.dygraphs = [];
     }
 
     componentDidMount() {
@@ -40,6 +41,12 @@ class MetricsInspector extends React.Component {
 
     renderPage() {
         const { metrics } = this.state;
+        const handleCallback = (dygraph) => {
+            this.dygraphs.push(dygraph);
+            if (this.dygraphs.length === 17) {
+                synchronize(...this.dygraphs);
+            }
+        };
         return (
             <Grid container stackable>
                 <Grid.Column width={16}>
@@ -52,6 +59,7 @@ class MetricsInspector extends React.Component {
                                     xAxisTitle={'UTC'}
                                     yAxisTitle={'# Active'}
                                     data={this.parseActiveOpqBoxes(metrics)}
+                                    dygraphCreatedCallback={handleCallback}
                                     customDygraphOptions={{}}
                                 />
                                 <MetricTimeseriesViewer
@@ -59,6 +67,7 @@ class MetricsInspector extends React.Component {
                                     xAxisTitle={'UTC'}
                                     yAxisTitle={'% CPU'}
                                     data={this.parseCpuPercent(metrics)}
+                                    dygraphCreatedCallback={handleCallback}
                                     customDygraphOptions={ { customBars: true } }
                                 />
                                 <MetricTimeseriesViewer
@@ -66,6 +75,7 @@ class MetricsInspector extends React.Component {
                                     xAxisTitle={'UTC'}
                                     yAxisTitle={'MB'}
                                     data={this.parseMemoryMb(metrics)}
+                                    dygraphCreatedCallback={handleCallback}
                                     customDygraphOptions={ { customBars: true } }
                                 />
                                 <MetricTimeseriesViewer
@@ -73,6 +83,7 @@ class MetricsInspector extends React.Component {
                                     xAxisTitle={'UTC'}
                                     yAxisTitle={'MB'}
                                     data={this.parseDiskMb(metrics)}
+                                    dygraphCreatedCallback={handleCallback}
                                     customDygraphOptions={ { customBars: true } }
                                 />
                                 <MetricTimeseriesViewer
@@ -80,6 +91,7 @@ class MetricsInspector extends React.Component {
                                     xAxisTitle={'UTC'}
                                     yAxisTitle={'# Messages'}
                                     data={this.parseMaukaPluginsMessagesReceived(metrics)}
+                                    dygraphCreatedCallback={handleCallback}
                                     customDygraphOptions={ {
                                         labels: [
                                             'UTC',
@@ -103,6 +115,7 @@ class MetricsInspector extends React.Component {
                                     xAxisTitle={'UTC'}
                                     yAxisTitle={'# Messages'}
                                     data={this.parseMaukaPluginsMessagesPublished(metrics)}
+                                    dygraphCreatedCallback={handleCallback}
                                     customDygraphOptions={ {
                                         labels: [
                                             'UTC',
@@ -126,6 +139,7 @@ class MetricsInspector extends React.Component {
                                     xAxisTitle={'UTC'}
                                     yAxisTitle={'MB'}
                                     data={this.parseMaukaPluginsMbReceived(metrics)}
+                                    dygraphCreatedCallback={handleCallback}
                                     customDygraphOptions={ {
                                         labels: [
                                             'UTC',
@@ -149,6 +163,7 @@ class MetricsInspector extends React.Component {
                                     xAxisTitle={'UTC'}
                                     yAxisTitle={'MB'}
                                     data={this.parseMaukaPluginsMbPublished(metrics)}
+                                    dygraphCreatedCallback={handleCallback}
                                     customDygraphOptions={ {
                                         labels: [
                                             'UTC',
@@ -172,6 +187,7 @@ class MetricsInspector extends React.Component {
                                     xAxisTitle={'UTC'}
                                     yAxisTitle={'# GC'}
                                     data={this.parseGcStats(metrics)}
+                                    dygraphCreatedCallback={handleCallback}
                                     customDygraphOptions={ {
                                         labels: [
                                             'UTC',
@@ -190,6 +206,7 @@ class MetricsInspector extends React.Component {
                                     xAxisTitle={'UTC'}
                                     yAxisTitle={'TTL'}
                                     data={this.parseTtl(metrics)}
+                                    dygraphCreatedCallback={handleCallback}
                                     customDygraphOptions={ {
                                         labels: [
                                             'UTC',
@@ -208,6 +225,7 @@ class MetricsInspector extends React.Component {
                                     xAxisTitle={'UTC'}
                                     yAxisTitle={'# Samples'}
                                     data={this.parseImlSamples(metrics)}
+                                    dygraphCreatedCallback={handleCallback}
                                     customDygraphOptions={ {
                                         labels: [
                                             'UTC',
@@ -228,6 +246,7 @@ class MetricsInspector extends React.Component {
                                     xAxisTitle={'UTC'}
                                     yAxisTitle={'# Measurements'}
                                     data={this.parseAmlMeasurements(metrics)}
+                                    dygraphCreatedCallback={handleCallback}
                                     customDygraphOptions={ {
                                         labels: [
                                             'UTC',
@@ -248,6 +267,7 @@ class MetricsInspector extends React.Component {
                                     xAxisTitle={'UTC'}
                                     yAxisTitle={'# Trends'}
                                     data={this.parseAmlTrends(metrics)}
+                                    dygraphCreatedCallback={handleCallback}
                                     customDygraphOptions={ {
                                         labels: [
                                             'UTC',
@@ -268,6 +288,7 @@ class MetricsInspector extends React.Component {
                                     xAxisTitle={'UTC'}
                                     yAxisTitle={'# Events'}
                                     data={this.parseDlEvents(metrics)}
+                                    dygraphCreatedCallback={handleCallback}
                                     customDygraphOptions={ {
                                         labels: [
                                             'UTC',
@@ -288,6 +309,7 @@ class MetricsInspector extends React.Component {
                                     xAxisTitle={'UTC'}
                                     yAxisTitle={'# Incidents'}
                                     data={this.parseIlIncidents(metrics)}
+                                    dygraphCreatedCallback={handleCallback}
                                     customDygraphOptions={ {
                                         labels: [
                                             'UTC',
@@ -308,6 +330,7 @@ class MetricsInspector extends React.Component {
                                     xAxisTitle={'UTC'}
                                     yAxisTitle={'# Phenomena'}
                                     data={this.parsePlPhenomena(metrics)}
+                                    dygraphCreatedCallback={handleCallback}
                                     customDygraphOptions={ {
                                         labels: [
                                             'UTC',
@@ -328,6 +351,7 @@ class MetricsInspector extends React.Component {
                                     xAxisTitle={'UTC'}
                                     yAxisTitle={'Count'}
                                     data={this.parseGroundTruth(metrics)}
+                                    dygraphCreatedCallback={handleCallback}
                                     customDygraphOptions={ {
                                         labels: [
                                             'UTC',
@@ -356,7 +380,7 @@ class MetricsInspector extends React.Component {
      * Helper Methods
      */
     retrieveInitialData(startTimestampS, endTimestampS) {
-        this.setState({ loading: true }, () => {
+        this.setState({ loading: true, loaded: false }, () => {
            getLahaStatsInRange.call(
                {
                    startTimestampS: startTimestampS,
