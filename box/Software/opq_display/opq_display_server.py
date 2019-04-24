@@ -8,9 +8,39 @@ import opq_display
 
 logger = logging.getLogger("opq_display_server")
 logging.basicConfig(
-    format="[%(levelname)s][%(asctime)s][{} %(filename)s:%(lineno)s - %(funcName)s() ] %(message)s".format(
-        os.getpid()))
+        format="[%(levelname)s][%(asctime)s][{} %(filename)s:%(lineno)s - %(funcName)s() ] %(message)s".format(
+                os.getpid()))
 logger.setLevel(logging.DEBUG)
+
+
+class OpqDisplayClient:
+
+    def __init__(self, port):
+        self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.addr = ("127.0.0.1", port)
+
+    def send_cmd(self, cmd):
+        if not display_types.is_display_type(cmd):
+            logger.error("Invalid cmd %s, valid commands are %s", cmd, display_types.DISPLAY_TYPES)
+            return
+
+        try:
+            bytes_sent = self.sock.sendto(bytes(cmd), self.addr)
+            logger.debug("Sent cmd %s with %d bytes to server at %s", cmd, bytes_sent, self.addr)
+        except Exception as e:
+            logger.error("Error sending command to server: %s", str(e))
+        finally:
+            self.sock.close()
+            logger.debug("Client connection closed.")
+
+    def send_display_splash_cmd(self):
+        self.send_cmd(display_types.DISPLAY_SPLASH)
+
+    def send_display_normal_cmd(self):
+        self.send_cmd(display_types.DISPLAY_NORMAL)
+
+    def send_display_ap_cmd(self):
+        self.send_cmd(display_types.DISPLAY_AP)
 
 
 def handle_cmd(opq_disp, cmd):
@@ -47,19 +77,6 @@ def start_server(port):
                          display_types.DISPLAY_TYPES)
 
 
-def send_cmd(port, cmd):
-    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    try:
-        print(type(port))
-        bytes_sent = sock.sendto(bytes(cmd), ("127.0.0.1", port))
-        logger.debug("Sent cmd %s with %d bytes to server at %d", cmd, bytes_sent, port)
-    except Exception as e:
-        logger.error("Error sending command to server: %s", str(e))
-    finally:
-        sock.close()
-        logger.debug("Client connection closed.")
-
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers()
@@ -78,10 +95,8 @@ if __name__ == "__main__":
     if "cmd" in args:
         port = args.port
         cmd = args.cmd
-        if display_types.is_display_type(cmd):
-            send_cmd(port, cmd)
-        else:
-            logger.error("Unknown display type %s, please choose one of %s", cmd, display_types.DISPLAY_TYPES)
+        client = OpqDisplayClient(port)
+        client.send_cmd(cmd)
     else:
         port = args.port
         start_server(port)

@@ -45,6 +45,7 @@ class DisplayNormalThread(threading.Thread):
             self.opq_disp.display_box_info()
             self.sleep(5)
             self.opq_disp.display_system_stats(5, self.stopped)
+            self.opq_disp.display_box_metrics(5, self.stopped)
 
 
 class OpqDisplay:
@@ -105,8 +106,8 @@ class OpqDisplay:
             opq_box_metric = live_box_data.get_live_box_data_single(url)
             self.clear_display()
             self.draw_text("Frequency: %f" % opq_box_metric.f)
-            self.draw_text("Vrms: %f" % opq_box_metric.rms)
-            self.draw_text("THD: %f" % opq_box_metric.thd)
+            self.draw_text("Vrms: %f" % opq_box_metric.rms, 1)
+            self.draw_text("THD: %f" % opq_box_metric.thd, 2)
             self.refresh()
             cnt += .1
             self.sleep(.1)
