@@ -21,7 +21,7 @@ def handle_cmd(opq_disp, cmd):
     if cmd == display_types.DISPLAY_SPLASH:
         opq_disp.display_opq_logo()
     elif cmd == display_types.DISPLAY_NORMAL:
-        pass
+        opq_disp.display_normal()
     elif cmd == display_types.DISPLAY_AP:
         opq_disp.display_ap_message()
     else:
