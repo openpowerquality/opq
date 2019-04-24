@@ -15,6 +15,8 @@ import Adafruit_SSD1306
 
 from PIL import Image, ImageDraw, ImageFont
 
+import live_box_data
+
 
 def init_display():
     """
@@ -87,11 +89,24 @@ class OpqDisplay:
             cmd = "df -h | awk '$NF==\"/\"{printf \"Disk: %d/%dGB %s\", $3,$2,$5}'"
             disk = subprocess.check_output(cmd, shell=True)
 
-            self.draw.text((0, -2),   "IP: " + str(ip),  font=self.font, fill=255)
-            self.draw.text((0, 6),     str(cpu), font=self.font, fill=255)
-            self.draw.text((0, 14),    str(mem_usage),  font=self.font, fill=255)
-            self.draw.text((0, 23),    str(disk), font=self.font, fill=255)
+            self.draw.text((0, -2), "IP: " + str(ip), font=self.font, fill=255)
+            self.draw.text((0, 6), str(cpu), font=self.font, fill=255)
+            self.draw.text((0, 14), str(mem_usage), font=self.font, fill=255)
+            self.draw.text((0, 23), str(disk), font=self.font, fill=255)
 
+            self.refresh()
+            cnt += .1
+            self.sleep(.1)
+
+    def display_box_metrics(self, for_seconds, stopped):
+        cnt = 0.0
+        url = "http://10.0.1.8:3012/push/0"
+        while cnt <= for_seconds and not stopped.is_set():
+            opq_box_metric = live_box_data.get_live_box_data_single(url)
+            self.clear_display()
+            self.draw_text("Frequency: %f" % opq_box_metric.f)
+            self.draw_text("Vrms: %f" % opq_box_metric.rms)
+            self.draw_text("THD: %f" % opq_box_metric.thd)
             self.refresh()
             cnt += .1
             self.sleep(.1)
