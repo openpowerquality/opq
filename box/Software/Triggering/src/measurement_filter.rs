@@ -146,21 +146,27 @@ lazy_static! {
     static ref SSE: Server<u8> = Server::new();
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize)]
 struct SerializableMetric{
     name : String,
     value : f32
 }
 
+#[derive(Debug, Serialize)]
+struct SerializableMetricArray{
+    pub metrics : Vec<SerializableMetric>,
+}
+
 fn broadcast_measurements(measurement : &Measurement){
-    let mut broadcast_str = String::new();
+    let mut arr = SerializableMetricArray{
+        metrics : vec![],
+    };
     for (name, metric)  in &measurement.metrics{
-        let sm = SerializableMetric{
+        arr.metrics.push(SerializableMetric{
             name : name.clone(),
             value : metric.average
-        };
-        broadcast_str += &serde_json::to_string(&sm).unwrap();
+        });
     }
-    println!("{}", broadcast_str);
+    let broadcast_str = serde_json::to_string(&arr).unwrap();
     SSE.push(0, "update", &broadcast_str).ok();
 }
