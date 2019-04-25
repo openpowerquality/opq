@@ -1,3 +1,4 @@
+/* eslint-disable */
 /**
  * NOTE!!!!!!! This was pulled from the dygraphs library because the functionality is not exported by default.
  * This approach was recommended by: https://github.com/danvk/dygraphs-es6/issues/1  If you update the dyrgaphs library
@@ -182,7 +183,7 @@ function attachZoomHandlers(gs, syncOpts, prevCallbacks) {
           }
 
           // Only redraw if there are new options
-          if (arraysAreEqual(opts.dateWindow, gs[j].getOption('dateWindow')) && 
+          if (arraysAreEqual(opts.dateWindow, gs[j].getOption('dateWindow')) &&
               arraysAreEqual(opts.valueRange, gs[j].getOption('valueRange'))) {
             continue;
           }
@@ -237,3 +238,5 @@ function attachSelectionHandlers(gs, prevCallbacks) {
     }, true /* no need to redraw */);
   }
 }
+/* eslint-enable */
+

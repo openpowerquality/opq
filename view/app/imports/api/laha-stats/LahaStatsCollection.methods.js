@@ -15,7 +15,7 @@ export const getLahaStatsInRange = new ValidatedMethod({
         if (Meteor.isServer) {
             const query = {
                 timestamp_s: { $gte: startTimestampS,
-                               $lte: endTimestampS}
+                               $lte: endTimestampS },
             };
 
             return LahaStats.find(query).fetch();

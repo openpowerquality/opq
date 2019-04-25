@@ -85,7 +85,8 @@ class MetricTimeseriesViewer extends React.Component {
                 x: {
                     axisLabelFormatter: function (timestamp) {
                         const date = new Date(timestamp * 1000);
-                        return `${String(date.getUTCHours()).padStart(2, '0')} : ${String(date.getUTCMinutes()).padStart(2, '0')}`;
+                        return `${String(date.getUTCHours()).padStart(2, '0')}\
+                         : ${String(date.getUTCMinutes()).padStart(2, '0')}`;
                     },
                 },
             },
