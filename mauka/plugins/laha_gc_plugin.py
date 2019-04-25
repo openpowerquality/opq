@@ -24,11 +24,12 @@ class LahaGcPlugin(base_plugin.MaukaPlugin):
     This class provides a plugin for performing GC and TTL updates on OPQ MongoDB collections.
     """
     NAME = "LahaGcPlugin"
+    LAHA_GC = "laha_gc"
 
     def __init__(self,
                  conf: config.MaukaConfig,
                  exit_event: multiprocessing.Event):
-        super().__init__(conf, ["laha_gc", "heartbeat"], LahaGcPlugin.NAME, exit_event)
+        super().__init__(conf, [LahaGcPlugin.LAHA_GC, "heartbeat"], LahaGcPlugin.NAME, exit_event)
 
     def handle_gc_trigger_measurements(self):
         """

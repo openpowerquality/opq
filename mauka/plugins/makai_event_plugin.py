@@ -19,6 +19,7 @@ import plugins.base_plugin
 import plugins.frequency_variation_plugin
 import plugins.ieee1159_voltage_plugin
 import plugins.itic_plugin
+import plugins.laha_gc_plugin
 import plugins.semi_f47_plugin
 import plugins.thd_plugin
 import protobuf.mauka_pb2
@@ -265,6 +266,7 @@ class MakaiEventPlugin(plugins.base_plugin.MaukaPlugin):
         processing pipeline.
         :param event_id: The event id to load raw data for.
         """
+        self.debug("in acquire_and_produce")
         box_events = self.mongo_client.box_events_collection.find({"event_id": event_id})
         self.debug("Found %d box_events" % box_events.count())
         for box_event in box_events:
@@ -291,8 +293,11 @@ class MakaiEventPlugin(plugins.base_plugin.MaukaPlugin):
                                     args=[mauka_message.makai_event.event_id])
 
             # Produce a message to the GC
-            self.produce("laha_gc", protobuf.util.build_gc_update(self.name, protobuf.mauka_pb2.EVENTS,
-                                                                  mauka_message.makai_event.event_id))
+            self.debug("Producing laha_gc update")
+            self.produce(plugins.laha_gc_plugin.LahaGcPlugin.LAHA_GC,
+                         protobuf.util.build_gc_update(self.name, protobuf.mauka_pb2.EVENTS,
+                                                       mauka_message.makai_event.event_id))
+            self.debug("laha_gc update produced")
             timer.start()
         else:
             self.logger.error("Received incorrect mauka message [%s] for MakaiEventPlugin",

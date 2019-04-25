@@ -230,8 +230,8 @@ def build_gc_update(source: str,
     :return: A GcUpdate message.
     """
     mauka_message = build_mauka_message(source)
-    mauka_message.gc_update.from_domain = from_domain
-    mauka_message.gc_update.id = _id
+    mauka_message.laha.gc_update.from_domain = from_domain
+    mauka_message.laha.gc_update.id = int(_id) if isinstance(_id, str) else _id
     return mauka_message
 
 
