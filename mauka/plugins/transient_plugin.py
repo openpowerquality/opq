@@ -434,7 +434,6 @@ class TransientPlugin(plugins.base_plugin.MaukaPlugin):
                                                       protobuf.util.repeated_as_ndarray(mauka_message.payload.data),
                                                       mauka_message.payload.start_timestamp_ms, self.configs)
 
-
             for incident in incidents:
                 incident_id = mongo.store_incident(
                     incident["event_id"],

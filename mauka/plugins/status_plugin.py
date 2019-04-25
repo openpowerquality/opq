@@ -98,12 +98,12 @@ class StateComponent:
                 return '{"name": %s, "ok": %s, "timestamp": %d, "subcomponents": []}' % (
                     fmt_str(state_component.name),
                     fmt_bool(state_component.ok),
-                    state_component.timestamp)
+                    timestamp_s())
 
             return '{"name": %s, "ok": %s, "timestamp": %d, "subcomponents": %s}' % (
                 fmt_str(state_component.name),
                 fmt_bool(state_component.ok),
-                state_component.timestamp,
+                timestamp_s(),
                 fmt_list(list(map(as_json_rec, state_component.subcomponents))))
 
         return as_json_rec(self).encode()

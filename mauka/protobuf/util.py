@@ -208,6 +208,12 @@ def build_ttl(source: str,
 
 def build_gc_trigger(source: str,
                      gc_domains: typing.List) -> mauka_pb2.MaukaMessage:
+    """
+    Builds a gc_trigger message.
+    :param source: Where this message was created.
+    :param gc_domains: List of GC domains to trigger.
+    :return: A GcTrigger message.
+    """
     mauka_message = build_mauka_message(source)
     mauka_message.laha.gc_trigger.gc_domains[:] = gc_domains
     return mauka_message
@@ -216,6 +222,13 @@ def build_gc_trigger(source: str,
 def build_gc_update(source: str,
                     from_domain: mauka_pb2.GcDomain,
                     _id: int) -> mauka_pb2.MaukaMessage:
+    """
+    Builds a gc_update message.
+    :param source: Where this message was created.
+    :param from_domain: The GC domain creating this update.
+    :param _id: The _id of the document creating this update.
+    :return: A GcUpdate message.
+    """
     mauka_message = build_mauka_message(source)
     mauka_message.gc_update.from_domain = from_domain
     mauka_message.gc_update.id = _id
@@ -225,6 +238,13 @@ def build_gc_update(source: str,
 def build_gc_stat(source: str,
                   gc_domain: mauka_pb2.GcDomain,
                   gc_cnt: int) -> mauka_pb2.MaukaMessage:
+    """
+    Builds a GcStat message.
+    :param source: Where this message was created.
+    :param gc_domain: The GC domain items were GC from.
+    :param gc_cnt: The count of items GCed.
+    :return: GcStat message.
+    """
     mauka_message = build_mauka_message(source)
     mauka_message.laha.gc_stat.gc_domain = gc_domain
     mauka_message.laha.gc_stat.gc_cnt = gc_cnt
@@ -329,14 +349,29 @@ def is_ttl(mauka_message: mauka_pb2.MaukaMessage) -> bool:
 
 
 def is_gc_trigger(mauka_message: mauka_pb2.MaukaMessage) -> bool:
+    """
+    Tests if the provided mauka_message is a GcTrigger message.
+    :param mauka_message: Message to test.
+    :return: True if it is, False otherwise.
+    """
     return is_laha(mauka_message) and mauka_message.laha.WhichOneof(LAHA_TYPE) == LAHA_ONEOF_GC_TRIGGER
 
 
 def is_gc_update(mauka_message: mauka_pb2.MaukaMessage) -> bool:
+    """
+    Tests if the provided mauka_message is a GcUpdate message.
+    :param mauka_message: Message to test.
+    :return: True if it is, False otherwise.
+    """
     return is_laha(mauka_message) and mauka_message.laha.WhichOneof(LAHA_TYPE) == LAHA_ONEOF_GC_UPDATE
 
 
 def is_gc_stat(mauka_message: mauka_pb2.MaukaMessage) -> bool:
+    """
+    Tests if the provided mauka_message is a GcStat message.
+    :param mauka_message: Message to test.
+    :return: True if it is, False otherwise.
+    """
     return is_laha(mauka_message) and mauka_message.laha.WhichOneof(LAHA_TYPE) == LAHA_ONEOF_GC_STAT
 
 

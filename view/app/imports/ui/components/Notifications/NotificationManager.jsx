@@ -125,7 +125,7 @@ class NotificationManager extends React.Component {
 
   /** Sends an email to user's updated recipients */
   messageTest = () => {
-    const recipients = UserProfiles.getRecipients(this.props.doc._id);
+    const recipients = UserProfiles.getContactEmails(this.props.doc._id);
     sendTestEmail.call({ recipients }, (error) => (error ?
         Bert.alert({ type: 'danger', style: 'growl-bottom-left', message: `Message send failed: ${error.message}` }) :
         Bert.alert({ type: 'success', style: 'growl-bottom-left', message: 'Message sent' })));

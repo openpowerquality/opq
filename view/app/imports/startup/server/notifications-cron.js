@@ -1,53 +1,68 @@
+import Moment from 'moment';
 import { Meteor } from 'meteor/meteor';
 import { SyncedCron } from 'meteor/littledata:synced-cron';
 import { Email } from 'meteor/email';
 import _ from 'lodash';
 import { SSR } from 'meteor/meteorhacks:ssr';
 import { Notifications } from '../../api/notifications/NotificationsCollection';
+import { Incidents } from '../../api/incidents/IncidentsCollection';
 import { UserProfiles } from '../../api/users/UserProfilesCollection';
 
 SSR.compileTemplate('htmlEmail', Assets.getText('email-format.html'));
+SSR.compileTemplate('notificationEmail', Assets.getText('notification-email-template.html'));
 
-function sendEmail(recipients, notifications, firstName, notificationNum) {
-  const bool = notificationNum > 3;
+function sendEmail(contactEmails, startTime, services, downTotal, incidentTotal, classifications, locations) {
   Email.send({
-    to: recipients,
+    to: contactEmails,
     from: 'Open Power Quality <postmaster@mail.openpowerquality.org>',
-    subject: 'You have new notifications',
-    html: SSR.render('htmlEmail', {
-      firstName: firstName,
-      notifications: notifications,
-      notificationNum: notificationNum,
-      extraNotifications: bool,
+    subject: 'New OPQ Notifications',
+    html: SSR.render('notificationEmail', {
+      startTime,
+      services: Array.toString(services),
+      downServiceTotal: downTotal,
+      incidentTotal,
+      classifications: Array.toString(classifications),
+      locations: Array.toString(locations),
     }),
   });
+}
+
+/**
+ * Returns the list of services involved in the passed set of notifications.
+ * @param notifications A list of notifications.
+ * @returns {Array} An array of strings indicating the services.
+ */
+function extractServicesFromNotifications(notifications) {
+  return _.unique(_.map(notifications, notification => notification.data.service));
 }
 
 /**
  * Checks userProfiles for amount of times a user wants to be notified in a day
  * Sends out the emails
  * Updates the sent notification documents 'delivered' field to true
- * @param maxDeliveries
+ * @param maxDeliveries either 'once an hour' or 'once a day'
  */
 function findUsersAndSend(maxDeliveries) {
   const usersInterested = UserProfiles.find({ 'notification_preferences.max_per_day': maxDeliveries }).fetch();
+  const startTime = (maxDeliveries === 'once a day') ?
+    Moment().subtract(1, 'day').format('LLLL') :
+    Moment().subtract(1, 'hour').format('LLLL');
+
+  // Now loop through all users desiring notifications, and compose and send the email(s).
   _.forEach(usersInterested, user => {
     const notifications = Notifications.find({ username: user.username, delivered: false }).fetch();
-    const name = user.firstName;
+    const incidentReport = Incidents.getIncidentReport(startTime.valueOf());
     // only sends out an email if user has undelivered notifications
-    if (notifications.length !== 0) {
-      const recipients = UserProfiles.getRecipients(user._id);
-      const len = notifications.length;
-      // email displays last three notifications only
-      if (len > 3) {
-        const notificationsToSend = notifications.slice(-3);
-        const extraNotifications = len - 3;
-        sendEmail(recipients, notificationsToSend, name, extraNotifications);
-      } else {
-        sendEmail(recipients, notifications, name, 0);
-      }
+    if ((notifications.length > 0) || (incidentReport.totalIncidents > 0)) {
+      const contactEmails = UserProfiles.getContactEmails(user._id);
+      const services = extractServicesFromNotifications(notifications);
+      const downTotal = notifications.length;
+      const incidentTotal = incidentReport.totalIncidents;
+      const classifications = incidentReport.classifications;
+      const locations = incidentReport.locations;
+      sendEmail(contactEmails, startTime, services, downTotal, incidentTotal, classifications, locations);
       Notifications.updateDeliveredStatus(notifications);
-    }
+      }
   });
 }
 
@@ -107,12 +122,17 @@ function removeOldNotifications() {
 }
 
 Meteor.startup(() => {
-  if (Meteor.isProduction) {
-    /**
-     * sets the MAIL_URL environment variable to enable emails
-     * MAIL_URL settings are only found in the settings.production.json file
-     * https://docs.meteor.com/api/email.html
-     */
+  const testMode = Meteor.isTest || Meteor.isAppTest;
+  const disabled = Meteor.settings.notificationCron && !Meteor.settings.notificationCron.enabled;
+  const mailUrl = Meteor.settings.env && Meteor.settings.env.MAIL_URL;
+  if (disabled) {
+    console.log('Notification cron job disabled in view.config.json.');
+  }
+  if (!disabled && !mailUrl) {
+    console.log('Notification cron job disabled due to missing Meteor.settings.env.MAIL_URL.');
+  }
+  if (!disabled && !testMode && mailUrl) {
+    /** Set the MAIL_URL environment variable to enable emails */
     process.env.MAIL_URL = Meteor.settings.env.MAIL_URL;
     startupHourlyNotifications();
     startupDailyNotifications();
