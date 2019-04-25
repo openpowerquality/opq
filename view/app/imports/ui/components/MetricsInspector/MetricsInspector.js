@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { withTracker } from 'meteor/react-meteor-data';
 import { Grid, Loader } from 'semantic-ui-react';
-import synchronize from './synchronizer'
+import synchronize from './synchronizer';
 import MetricTimeseriesViewer from './MetricTimeseriesViewer';
 import WidgetPanel from '../../layouts/WidgetPanel';
 import { getLahaStatsInRange } from '../../../api/laha-stats/LahaStatsCollection.methods';
