@@ -14,5 +14,5 @@
   "windows_in_storage_buffer" : 3000,
   "plugins" : [],
 
-  "sse_interface": "127.0.0.1:3012"
+  "sse_interface": "0.0.0.0:3012"
 }
