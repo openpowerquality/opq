@@ -1,49 +1,36 @@
 import logging
 import sched
-import subprocess
-# import sys
 import time
 import threading
 import typing
 
-# import conf
+import opq_display.opq_display_client as display_client
 import pify.nmoperations as nmoperations
-# import web.server
 
 logging.basicConfig(level=logging.DEBUG)
 
-def open_port_80_wlan0():
-    pass
-    # logging.info("Opening port 80 on wlan0")
-    # subprocess.run(["/sbin/iptables", "-D", "INPUT", "-p", "tcp", "-i", "wlan0", "--dport", "80", "-j",  "REJECT"])
 
-def close_port_80_wlan0():
-    pass
-    # logging.info("Closing port 80 on wlan0")
-    # subprocess.run(["/sbin/iptables", "-A", "INPUT", "-p", "tcp", "-i", "wlan0", "--dport", "80", "-j",  "REJECT"])
-
-def fsm_start(nm: nmoperations.NM):
+def fsm_start(nm: nmoperations.NM, disp_client: display_client.OpqDisplayClient):
     disable_ap(nm)
-    #nm.get_ssids()
-    fsm_is_conn_a(nm)
+    fsm_is_conn_a(nm, disp_client)
 
 
-def fsm_is_conn_a(nm: nmoperations.NM):
+def fsm_is_conn_a(nm: nmoperations.NM, disp_client: display_client.OpqDisplayClient):
     if nm.is_connected_to_internet():
         logging.info("is_conn_a: connected to internet, monitoring connection")
-        fsm_monitor_connection(nm)
+        fsm_monitor_connection(nm, disp_client)
     else:
         logging.info("is_conn_a: not connected to internet, attempting to connect to any open network")
         fsm_connect_any(nm)
 
 
-def fsm_is_conn_b(nm: nmoperations.NM):
+def fsm_is_conn_b(nm: nmoperations.NM, disp_client: display_client.OpqDisplayClient):
     if nm.is_connected_to_internet():
         logging.info("is_conn_b: connected to internet, monitoring connection")
-        fsm_monitor_connection(nm)
+        fsm_monitor_connection(nm, disp_client)
     else:
         logging.info("is_conn_b: not connected to internet, going into AP mode")
-        enable_ap(nm)
+        enable_ap(nm, disp_client)
 
 
 def fsm_connect_any(nm: nmoperations.NM):
@@ -54,29 +41,31 @@ def fsm_connect_any(nm: nmoperations.NM):
     wait_then_run(10, fsm_is_conn_b, [nm], True)
 
 
-def fsm_monitor_connection(nm: nmoperations.NM):
+def fsm_monitor_connection(nm: nmoperations.NM, disp_client: display_client.OpqDisplayClient):
     if nm.is_connected_to_internet():
         logging.info("monitor_connection: connected to internet")
+        # Update display to scroll through normal screens.
+        disp_client.send_display_normal_cmd()
         wait_then_run(60, fsm_monitor_connection, [nm], blocking=True)
     else:
         logging.info("monitor_connection: not connected to internet")
-        enable_ap(nm)
+        enable_ap(nm, disp_client)
 
 
-def fsm_monitor_ap(nm: nmoperations.NM):
+def fsm_monitor_ap(nm: nmoperations.NM, disp_client: display_client.OpqDisplayClient):
     logging.info("monitor_ap")
     disable_ap(nm)
-    #nm.get_ssids()
-    fsm_is_conn_a(nm)
+    fsm_is_conn_a(nm, disp_client)
 
 
-def enable_ap(nm: nmoperations.NM):
+def enable_ap(nm: nmoperations.NM, disp_client: display_client.OpqDisplayClient):
     while not nm.is_in_AP_mode():
         logging.info("Attempting to go into AP mode")
         nm.create_AP()
         time.sleep(1)
 
-    open_port_80_wlan0()
+    # AP mode enabled, update display status.
+    disp_client.send_display_ap_cmd()
     wait_then_run(60 * 10, fsm_monitor_ap, [nm])
 
 
@@ -86,7 +75,6 @@ def disable_ap(nm: nmoperations.NM):
         nm.disable_AP_mode()
         time.sleep(1)
 
-    close_port_80_wlan0()
     logging.info("AP mode disabled")
 
 
@@ -106,19 +94,19 @@ def connect_wpa(nm: nmoperations.NM, ssid: str, passwd: str):
     wait_then_run(5, fsm_monitor_connection, [nm])
 
 
-def refresh(nm: nmoperations.NM):
+def refresh(nm: nmoperations.NM, disp_client: display_client.OpqDisplayClient):
     logging.info("refresh")
     disable_ap(nm)
     time.sleep(5)
-    enable_ap(nm)
+    enable_ap(nm, disp_client)
     logging.info("refresh done")
 
 
-def forget_networks(nm: nmoperations.NM):
+def forget_networks(nm: nmoperations.NM, disp_client: display_client.OpqDisplayClient):
     logging.info("Forgetting all wireless networks")
     disable_ap(nm)
     nm.delete_all_connection()
-    enable_ap(nm)
+    enable_ap(nm, disp_client)
 
 
 def wait_then_run(sec: int, fn: typing.Callable, args: typing.List, blocking: bool = False):
@@ -128,37 +116,18 @@ def wait_then_run(sec: int, fn: typing.Callable, args: typing.List, blocking: bo
 
 
 class PifyFsmThread(threading.Thread):
-    def __init__(self, nm):
+    def __init__(self,
+                 nm: nmoperations.NM,
+                 disp_client: display_client.OpqDisplayClient):
         super().__init__()
         self.nm = nm
+        self.disp_client = disp_client
 
     def run(self):
-        fsm_start(self.nm)
+        fsm_start(self.nm, self.disp_client)
 
-    def nm(self):
+    def nm(self) -> nmoperations.NM:
         return self.nm
 
-
-# if __name__ == "__main__":
-#     logging.info("Starting pify")
-#
-#     # Check if config file is being passed at startup
-#     if len(sys.argv) == 2:
-#         path = sys.argv[1]
-#         logging.info("Loading configuration from {}".format(path))
-#         config = conf.PifyConfiguration(path)
-#     else:
-#         logging.info("Loading default configuration")
-#         config = conf.PifyConfiguration()
-#
-#     logging.debug("Configuration is:\n{}".format(str(config)))
-#
-#     # Grab an instance of the network manager, it is thread safe
-#     nm = nmoperations.NM(config)
-#
-#     logging.info("Starting pify FSM")
-#     fsm_thread = PifyFsmThread(nm)
-#     fsm_thread.start()
-#
-#     logging.info("Starting bottle server")
-#     web.server.run(config, nm)
+    def disp_client(self) -> display_client.OpqDisplayClient:
+        return self.disp_client

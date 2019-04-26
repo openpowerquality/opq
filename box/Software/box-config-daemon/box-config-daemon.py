@@ -6,18 +6,25 @@ import http_server
 import logging
 import time
 
+import opq_display.opq_display_client as display_client
 import pify.pify
 import pify.nmoperations
 
 logging.basicConfig(level=logging.DEBUG)
 
 if __name__ == "__main__":
-    time.sleep(20)
     import sys
+
+    # Start the display
+    display_client = display_client.OpqDisplayClient(10000)
+    display_client.send_display_splash_cmd()
 
     if len(sys.argv) != 3:
         logging.error("usage: python3 box-config-daemon.py config_file server_port")
         exit(1)
+
+    # Wait for services and network to come up
+    time.sleep(20)
 
     logging.info("Starting PiFy FSM")
     nm = pify.nmoperations.NM()
