@@ -1,7 +1,8 @@
 {
-  "client_certs": "/etc/opq/curve/public_keys",
   "server_cert": "/etc/opq/curve/private_keys/opqserver_secret",
   "interface": "tcp://*:9880",
   "backend" : "tcp://*:9881",
-  "white_list" : false
+  "metric_update_sec" : 10,
+  "mongo_host" : "localhost",
+  "mongo_port" : 27017
 }

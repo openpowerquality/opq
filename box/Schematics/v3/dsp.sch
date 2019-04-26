@@ -1,10 +1,6 @@
-EESchema Schematic File Version 2
-LIBS:opqbox3
-LIBS:device
-LIBS:power
-LIBS:conn
+EESchema Schematic File Version 4
 LIBS:opqbox3-cache
-EELAYER 25 0
+EELAYER 26 0
 EELAYER END
 $Descr A4 11693 8268
 encoding utf-8
@@ -19,7 +15,7 @@ Comment3 ""
 Comment4 ""
 $EndDescr
 $Comp
-L GND #PWR024
+L power:GND #PWR024
 U 1 1 5A82B565
 P 2500 3850
 F 0 "#PWR024" H 2500 3600 50  0001 C CNN
@@ -30,7 +26,7 @@ F 3 "" H 2500 3850 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L +3.3V #PWR025
+L power:+3.3V #PWR025
 U 1 1 5A82B58A
 P 2500 3350
 F 0 "#PWR025" H 2500 3200 50  0001 C CNN
@@ -41,7 +37,7 @@ F 3 "" H 2500 3350 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L C C14
+L opqbox3-rescue:C C14
 U 1 1 5A82B5B1
 P 2250 3600
 F 0 "C14" H 2275 3700 50  0000 L CNN
@@ -60,7 +56,7 @@ UART_RX
 Text HLabel 7550 3850 2    60   BiDi ~ 0
 PPS
 $Comp
-L GND #PWR026
+L power:GND #PWR026
 U 1 1 5A82E118
 P 5050 6000
 F 0 "#PWR026" H 5050 5750 50  0001 C CNN
@@ -73,7 +69,7 @@ $EndComp
 Text HLabel 5350 5850 3    60   Output ~ 0
 LED1
 $Comp
-L C C20
+L opqbox3-rescue:C C20
 U 1 1 5A82E38B
 P 6400 1650
 F 0 "C20" H 6425 1750 50  0000 L CNN
@@ -84,7 +80,7 @@ F 3 "" H 6400 1650 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L GND #PWR027
+L power:GND #PWR027
 U 1 1 5A82E58F
 P 6400 1800
 F 0 "#PWR027" H 6400 1550 50  0001 C CNN
@@ -97,7 +93,7 @@ $EndComp
 Text HLabel 6800 2000 2    60   Input ~ 0
 BOOT_MODE
 $Comp
-L C C15
+L opqbox3-rescue:C C15
 U 1 1 5A82EBD3
 P 4350 1250
 F 0 "C15" H 4375 1350 50  0000 L CNN
@@ -108,7 +104,7 @@ F 3 "" H 4350 1250 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L C C16
+L opqbox3-rescue:C C16
 U 1 1 5A82EC66
 P 4600 1250
 F 0 "C16" H 4625 1350 50  0000 L CNN
@@ -119,7 +115,7 @@ F 3 "" H 4600 1250 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L GND #PWR028
+L power:GND #PWR028
 U 1 1 5A82EC8F
 P 4350 1500
 F 0 "#PWR028" H 4350 1250 50  0001 C CNN
@@ -130,7 +126,7 @@ F 3 "" H 4350 1500 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L +3.3V #PWR029
+L power:+3.3V #PWR029
 U 1 1 5A82EF25
 P 4350 950
 F 0 "#PWR029" H 4350 800 50  0001 C CNN
@@ -141,7 +137,7 @@ F 3 "" H 4350 950 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L C C17
+L opqbox3-rescue:C C17
 U 1 1 5A82F121
 P 5100 1250
 F 0 "C17" H 5125 1350 50  0000 L CNN
@@ -152,7 +148,7 @@ F 3 "" H 5100 1250 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L C C18
+L opqbox3-rescue:C C18
 U 1 1 5A82F587
 P 5700 1200
 F 0 "C18" H 5725 1300 50  0000 L CNN
@@ -163,7 +159,7 @@ F 3 "" H 5700 1200 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L C C19
+L opqbox3-rescue:C C19
 U 1 1 5A82F58D
 P 5950 1200
 F 0 "C19" H 5975 1300 50  0000 L CNN
@@ -174,7 +170,7 @@ F 3 "" H 5950 1200 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L +3.3V #PWR030
+L power:+3.3V #PWR030
 U 1 1 5A82FBC9
 P 5100 950
 F 0 "#PWR030" H 5100 800 50  0001 C CNN
@@ -185,7 +181,7 @@ F 3 "" H 5100 950 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L +3.3V #PWR031
+L power:+3.3V #PWR031
 U 1 1 5A82FBEF
 P 5950 950
 F 0 "#PWR031" H 5950 800 50  0001 C CNN
@@ -244,7 +240,7 @@ JTAG_nRST
 Text HLabel 6150 2050 1    60   BiDi ~ 0
 JTAG_JTMS
 $Comp
-L FOX924B U2
+L opqbox3-rescue:FOX924B U2
 U 1 1 5A83A700
 P 2600 3550
 F 0 "U2" H 2800 3800 60  0000 L CNN
@@ -356,7 +352,7 @@ Connection ~ 4350 1050
 Wire Wire Line
 	5050 1750 5050 1850
 $Comp
-L +3.3V #PWR032
+L power:+3.3V #PWR032
 U 1 1 5A8304E4
 P 5050 1750
 F 0 "#PWR032" H 5050 1600 50  0001 C CNN
@@ -367,7 +363,7 @@ F 3 "" H 5050 1750 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L STM32F373CCT6 U5
+L opqbox3-rescue:STM32F373CCT6 U5
 U 1 1 5A835F5B
 P 3750 3350
 F 0 "U5" H 3900 3600 60  0000 R CNN

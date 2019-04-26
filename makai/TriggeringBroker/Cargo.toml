@@ -1,0 +1,13 @@
+[package]
+name = "tb"
+version = "0.1.0"
+authors = ["Serge <sin8@hawaii.edu>"]
+edition = "2018"
+
+[dependencies]
+serde_json = "1.0"
+serde_derive = "*"
+serde = "*"
+zmq = "0.8"
+regex = "1.1.6"
+mongodb = "0.3"

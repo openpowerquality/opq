@@ -44,4 +44,4 @@ pub static ENVIRONMENT_SETTINGS_VAR: &str = "MAKAI_SETTINGS";
 pub static ZMQ_DATA_PREFIX: &str = "data_";
 pub static ZMQ_FIELD_SEPARATOR: &str = "_";
 
-pub static EVENT_TOKEN_EXPIRE_SECONDS : u8 = 200;
+pub static EVENT_TOKEN_EXPIRE_SECONDS : u8 = 20;
