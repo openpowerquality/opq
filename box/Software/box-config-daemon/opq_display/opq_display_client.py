@@ -3,7 +3,7 @@ import logging
 import os
 import socket
 
-import display_types
+import opq_display.display_types as display_types
 
 logger = logging.getLogger("opq_display_client")
 logging.basicConfig(
