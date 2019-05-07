@@ -17,7 +17,7 @@ struct resp {
 
 fn main() {
 
-    rouille::start_server("localhost:28420", move |request| {
+    rouille::start_server("0.0.0.0:28420", move |request| {
         router!(request,
             (GET) (/) => {
                 let response = resp {
