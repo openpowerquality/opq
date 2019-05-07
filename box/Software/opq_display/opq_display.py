@@ -15,9 +15,11 @@ import Adafruit_SSD1306
 
 from PIL import Image, ImageDraw, ImageFont
 
+from error_wrapper import silence
 import live_box_data
 
 
+@silence
 def init_display():
     """
     Initializes the display.
@@ -40,6 +42,7 @@ class DisplayNormalThread(threading.Thread):
             time.sleep(.1)
             cnt += .1
 
+    @silence
     def run(self):
         while not self.stopped.is_set():
             self.opq_disp.display_box_info()
@@ -49,6 +52,7 @@ class DisplayNormalThread(threading.Thread):
 
 
 class OpqDisplay:
+    @silence
     def __init__(self):
         self.disp = init_display()
         self.image = Image.new('1', (self.disp.width, self.disp.height))
@@ -56,17 +60,21 @@ class OpqDisplay:
         self.font = ImageFont.load_default()
         self.normal_display_thread = None
 
+    @silence
     def refresh(self):
         self.disp.image(self.image)
         self.disp.display()
 
+    @silence
     def sleep(self, seconds):
         time.sleep(seconds)
 
+    @silence
     def draw_text(self, text, line=0, x=0):
         y = line * 8
         self.draw.text((x, y), text, font=self.font, fill=255)
 
+    @silence
     def display_box_info(self):
         with open("/etc/opq/opqbox_config.json") as json_in:
             self.clear_display()
@@ -76,6 +84,7 @@ class OpqDisplay:
             self.draw_text("Calib.: %f" % opqbox_config["calibration"], 2)
             self.refresh()
 
+    @silence
     def display_system_stats(self, for_seconds, stopped):
         cnt = 0.0
         while cnt <= for_seconds and not stopped.is_set():
@@ -99,6 +108,7 @@ class OpqDisplay:
             cnt += .1
             self.sleep(.1)
 
+    @silence
     def display_box_metrics(self, for_seconds, stopped):
         cnt = 0.0
         url = "http://10.0.1.8:3012/push/0"
@@ -112,6 +122,7 @@ class OpqDisplay:
             cnt += .1
             self.sleep(.1)
 
+    @silence
     def display_ap_message(self):
         """
         Displays a message informing the user that the box is in AP mode and provides instructions on how
@@ -124,6 +135,7 @@ class OpqDisplay:
         self.draw_text("http://10.42.0.1:8888", 2)
         self.refresh()
 
+    @silence
     def display_opq_logo(self):
         """
         Displays the OPQ logo and name.
@@ -134,18 +146,21 @@ class OpqDisplay:
         self.disp.image(image)
         self.disp.display()
 
+    @silence
     def display_normal(self):
         self.stop_normal_thread()
         display_normal_thread = DisplayNormalThread(self)
         self.normal_display_thread = display_normal_thread
         display_normal_thread.start()
 
+    @silence
     def stop_normal_thread(self):
         if self.normal_display_thread is not None:
             self.normal_display_thread.stopped.set()
             self.normal_display_thread.join()
             self.normal_display_thread = None
 
+    @silence
     def clear_display(self):
         """
         Clears the display.
