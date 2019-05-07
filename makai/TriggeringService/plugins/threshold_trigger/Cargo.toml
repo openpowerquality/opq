@@ -8,6 +8,8 @@ triggering_service = { path = "../../" }
 serde_json = "1.0"
 serde_derive = "1.0"
 serde = "1.0"
+mongodb = "0.3.12"
+bson = "0.13.0"
 
 [lib]
 name = "threshold_trigger_plugin"

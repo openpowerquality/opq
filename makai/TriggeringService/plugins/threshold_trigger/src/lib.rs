@@ -4,6 +4,10 @@ extern crate serde_derive;
 extern crate serde_json;
 #[macro_use]
 extern crate triggering_service;
+#[macro_use]
+extern crate bson;
+#[macro_use]
+extern crate mongodb;
 
 use std::collections::HashMap;
 use std::str;
@@ -15,13 +19,16 @@ use triggering_service::proto::opqbox3::Command;
 use triggering_service::proto::opqbox3::GetDataCommand;
 use triggering_service::proto::opqbox3::Measurement;
 
+pub mod mongo;
+pub mod thresholds;
+
+#[inline]
 fn timestamp_ms() -> u64 {
     let start = SystemTime::now();
     let since_the_epoch = start
         .duration_since(UNIX_EPOCH)
         .expect("Time went backwards");
-    return (since_the_epoch.as_secs() as u128 * 1000 + since_the_epoch.subsec_millis() as u128)
-        as u64;
+    since_the_epoch.as_millis() as u64
 }
 
 type StateMap = HashMap<StateKey, StateEntry>;
