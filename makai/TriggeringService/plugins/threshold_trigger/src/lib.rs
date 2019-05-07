@@ -15,8 +15,6 @@ use triggering_service::proto::opqbox3::Command;
 use triggering_service::proto::opqbox3::GetDataCommand;
 use triggering_service::proto::opqbox3::Measurement;
 
-
-
 fn timestamp_ms() -> u64 {
     let start = SystemTime::now();
     let since_the_epoch = start
@@ -156,7 +154,7 @@ struct ThresholdTriggerPluginSettings {
     pub thd_threshold_high: f32,
 
     pub debug: bool,
-    pub debug_devices: Vec<u32>
+    pub debug_devices: Vec<u32>,
 }
 
 #[derive(Debug, Default)]
@@ -193,12 +191,18 @@ impl ThresholdTriggerPlugin {
         threshold_high: f32,
     ) -> Option<Trigger> {
         let state_key = StateKey::from(measurement.box_id, trigger_type);
-        self.maybe_debug(measurement.box_id, &format!("Checking metric for {}", metric));
+        self.maybe_debug(
+            measurement.box_id,
+            &format!("Checking metric for {}", metric),
+        );
         match measurement.metrics.get(metric) {
             None => {
-                self.maybe_debug(measurement.box_id, &format!("No metric found for {}", metric));
+                self.maybe_debug(
+                    measurement.box_id,
+                    &format!("No metric found for {}", metric),
+                );
                 return None;
-            },
+            }
             Some(metric) => {
                 if metric.min < threshold_low || metric.max > threshold_high {
                     self.maybe_debug(measurement.box_id, &format!("Metrics are triggering metric min:{} metric max:{} threshold low:{} threshold high: {}", metric.min, metric.max, threshold_low, threshold_high));
@@ -264,7 +268,10 @@ impl ThresholdTriggerPlugin {
     }
 
     fn maybe_debug(&self, box_id: u32, msg: &str) {
-        if self.settings.debug && (self.settings.debug_devices.is_empty() || self.settings.debug_devices.contains(&box_id)) {
+        if self.settings.debug
+            && (self.settings.debug_devices.is_empty()
+                || self.settings.debug_devices.contains(&box_id))
+        {
             println!("{}", msg);
         }
     }
@@ -303,8 +310,7 @@ impl MakaiPlugin for ThresholdTriggerPlugin {
 
         if cmds.is_empty() {
             return None;
-        }
-        else {
+        } else {
             return Some(cmds);
         }
     }
@@ -342,20 +348,20 @@ declare_plugin!(ThresholdTriggerPlugin, ThresholdTriggerPlugin::new);
 
 #[cfg(test)]
 mod tests {
-    use Fsm;
-    use State;
-    use StateKey;
-    use TriggerType;
-    use triggering_service::proto::opqbox3::Command_oneof_command::send_command_to_plugin;
-    use triggering_service::proto::opqbox3::Measurement;
-    use timestamp_ms;
     use std::collections::HashMap;
-    use triggering_service::proto::opqbox3::Metric;
-    use ThresholdTriggerPlugin;
     use std::fs::File;
     use std::io::Read;
     use std::thread::sleep;
     use std::time::Duration;
+    use timestamp_ms;
+    use triggering_service::proto::opqbox3::Command_oneof_command::send_command_to_plugin;
+    use triggering_service::proto::opqbox3::Measurement;
+    use triggering_service::proto::opqbox3::Metric;
+    use Fsm;
+    use State;
+    use StateKey;
+    use ThresholdTriggerPlugin;
+    use TriggerType;
 
     #[test]
     fn test_fsm() {
@@ -374,4 +380,3 @@ mod tests {
         assert_eq!(fsm.is_triggering(&state_key).is_some(), true);
     }
 }
-
