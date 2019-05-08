@@ -4,9 +4,8 @@ extern crate serde_derive;
 extern crate serde_json;
 #[macro_use]
 extern crate triggering_service;
-#[macro_use]
 extern crate bson;
-#[macro_use]
+extern crate core;
 extern crate mongodb;
 
 use std::collections::HashMap;
@@ -14,13 +13,31 @@ use std::str;
 use std::sync::Arc;
 use std::time::{SystemTime, UNIX_EPOCH};
 
+use config::ThresholdTriggerPluginSettings;
+use serde_json::Error;
+use thresholds::{CachedThresholdProvider, Threshold};
 use triggering_service::makai_plugin::MakaiPlugin;
 use triggering_service::proto::opqbox3::Command;
 use triggering_service::proto::opqbox3::GetDataCommand;
 use triggering_service::proto::opqbox3::Measurement;
 
+pub mod config;
 pub mod mongo;
 pub mod thresholds;
+
+#[inline]
+fn minus_percent(reference: f64, percent: f64) -> f64 {
+    let as_percent = percent / 100.0;
+    let delta = reference * as_percent;
+    reference - delta
+}
+
+#[inline]
+fn plus_percent(reference: f64, percent: f64) -> f64 {
+    let as_percent = percent / 100.0;
+    let delta = reference * as_percent;
+    reference + delta
+}
 
 #[inline]
 fn timestamp_ms() -> u64 {
@@ -148,43 +165,19 @@ impl Fsm {
     }
 }
 
-#[derive(Serialize, Deserialize, Default, Debug, Clone)]
-struct ThresholdTriggerPluginSettings {
-    pub reference_frequency: f32,
-    pub frequency_threshold_percent_low: f32,
-    pub frequency_threshold_percent_high: f32,
-
-    pub reference_voltage: f32,
-    pub voltage_threshold_percent_low: f32,
-    pub voltage_threshold_percent_high: f32,
-
-    pub thd_threshold_high: f32,
-
-    pub debug: bool,
-    pub debug_devices: Vec<u32>,
-}
-
 #[derive(Debug, Default)]
 pub struct ThresholdTriggerPlugin {
-    settings: ThresholdTriggerPluginSettings,
-    frequency_threshold_low: f32,
-    frequency_threshold_high: f32,
-    voltage_threshold_low: f32,
-    voltage_threshold_high: f32,
-    thd_threshold_high: f32,
-
+    settings: config::ThresholdTriggerPluginSettings,
+    threshold_provider: CachedThresholdProvider,
     fsm: Fsm,
 }
 
 impl ThresholdTriggerPlugin {
     fn new() -> ThresholdTriggerPlugin {
+        let settings = config::ThresholdTriggerPluginSettings::default();
         ThresholdTriggerPlugin {
-            settings: ThresholdTriggerPluginSettings::default(),
-            frequency_threshold_low: 0.0,
-            frequency_threshold_high: 0.0,
-            voltage_threshold_low: 0.0,
-            voltage_threshold_high: 0.0,
-            thd_threshold_high: 0.0,
+            settings: settings.clone(),
+            threshold_provider: CachedThresholdProvider::new(settings),
             fsm: Fsm::new(),
         }
     }
@@ -223,39 +216,51 @@ impl ThresholdTriggerPlugin {
         self.fsm.is_triggering(&state_key)
     }
 
-    fn check_frequency(&mut self, measurement: &Arc<Measurement>) -> Option<Trigger> {
-        let threshold_low = self.frequency_threshold_low;
-        let threshold_high = self.frequency_threshold_high;
+    fn check_frequency(
+        &mut self,
+        measurement: &Arc<Measurement>,
+        threshold: &Threshold,
+    ) -> Option<Trigger> {
+        let threshold_low = minus_percent(threshold.ref_f, threshold.threshold_percent_f_low);
+        let threshold_high = plus_percent(threshold.ref_f, threshold.threshold_percent_f_high);
         self.check_metric(
             measurement,
             "f",
             TriggerType::Frequency,
-            threshold_low,
-            threshold_high,
+            threshold_low as f32,
+            threshold_high as f32,
         )
     }
 
-    fn check_voltage(&mut self, measurement: &Arc<Measurement>) -> Option<Trigger> {
-        let threshold_low = self.voltage_threshold_low;
-        let threshold_high = self.voltage_threshold_high;
+    fn check_voltage(
+        &mut self,
+        measurement: &Arc<Measurement>,
+        threshold: &Threshold,
+    ) -> Option<Trigger> {
+        let threshold_low = minus_percent(threshold.ref_v, threshold.threshold_percent_v_low);
+        let threshold_high = plus_percent(threshold.ref_v, threshold.threshold_percent_v_high);
         self.check_metric(
             measurement,
             "rms",
             TriggerType::Voltage,
-            threshold_low,
-            threshold_high,
+            threshold_low as f32,
+            threshold_high as f32,
         )
     }
 
-    fn check_thd(&mut self, measurement: &Arc<Measurement>) -> Option<Trigger> {
+    fn check_thd(
+        &mut self,
+        measurement: &Arc<Measurement>,
+        threshold: &Threshold,
+    ) -> Option<Trigger> {
         let threshold_low = -1.0;
-        let threshold_high = self.thd_threshold_high;
+        let threshold_high = threshold.threshold_percent_thd_high;
         self.check_metric(
             measurement,
             "thd",
             TriggerType::Thd,
             threshold_low,
-            threshold_high,
+            threshold_high as f32,
         )
     }
 
@@ -293,57 +298,39 @@ impl MakaiPlugin for ThresholdTriggerPlugin {
         self.maybe_debug(measurement.box_id, &format!("{:#?}", measurement));
         self.maybe_debug(measurement.box_id, &format!("{:#?}", self.fsm));
         let mut cmds = Vec::new();
+        let threshold = self.threshold_provider.get(&measurement.box_id.to_string());
 
-        match self.check_frequency(&measurement) {
-            None => {}
-            Some(trigger) => {
-                cmds.push(self.trigger_cmd(&trigger));
-            }
+        if let Some(trigger) = self.check_frequency(&measurement, &threshold) {
+            cmds.push(self.trigger_cmd(&trigger));
         }
 
-        match self.check_voltage(&measurement) {
-            None => {}
-            Some(trigger) => {
-                cmds.push(self.trigger_cmd(&trigger));
-            }
+        if let Some(trigger) = self.check_voltage(&measurement, &threshold) {
+            cmds.push(self.trigger_cmd(&trigger));
         }
 
-        match self.check_thd(&measurement) {
-            None => {}
-            Some(trigger) => {
-                cmds.push(self.trigger_cmd(&trigger));
-            }
+        if let Some(trigger) = self.check_thd(&measurement, &threshold) {
+            cmds.push(self.trigger_cmd(&trigger));
         }
 
         if cmds.is_empty() {
-            return None;
+            None
         } else {
-            return Some(cmds);
+            Some(cmds)
         }
     }
 
     fn on_plugin_load(&mut self, args: String) {
-        let set = serde_json::from_str(&args);
+        let set: Result<ThresholdTriggerPluginSettings, Error> = serde_json::from_str(&args);
         self.settings = match set {
-            Ok(s) => s,
+            Ok(s) => {
+                self.threshold_provider = CachedThresholdProvider::new(s.clone());
+                s
+            }
             Err(e) => {
                 println!("Bad setting found for plugin {}: {:#?}", self.name(), e);
-                ThresholdTriggerPluginSettings::default()
+                config::ThresholdTriggerPluginSettings::default()
             }
         };
-        self.frequency_threshold_low = self.settings.reference_frequency
-            - (self.settings.reference_frequency * self.settings.frequency_threshold_percent_low);
-
-        self.frequency_threshold_high = self.settings.reference_frequency
-            + (self.settings.reference_frequency * self.settings.frequency_threshold_percent_high);
-
-        self.voltage_threshold_low = self.settings.reference_voltage
-            - (self.settings.reference_voltage * self.settings.voltage_threshold_percent_low);
-
-        self.voltage_threshold_high = self.settings.reference_voltage
-            + (self.settings.reference_voltage * self.settings.voltage_threshold_percent_high);
-
-        self.thd_threshold_high = self.settings.thd_threshold_high
     }
 
     fn on_plugin_unload(&mut self) {
@@ -355,19 +342,9 @@ declare_plugin!(ThresholdTriggerPlugin, ThresholdTriggerPlugin::new);
 
 #[cfg(test)]
 mod tests {
-    use std::collections::HashMap;
-    use std::fs::File;
-    use std::io::Read;
-    use std::thread::sleep;
-    use std::time::Duration;
-    use timestamp_ms;
-    use triggering_service::proto::opqbox3::Command_oneof_command::send_command_to_plugin;
-    use triggering_service::proto::opqbox3::Measurement;
-    use triggering_service::proto::opqbox3::Metric;
     use Fsm;
     use State;
     use StateKey;
-    use ThresholdTriggerPlugin;
     use TriggerType;
 
     #[test]

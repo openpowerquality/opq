@@ -19,13 +19,8 @@
     },
     {
       "path" : "/build/bin/libthreshold_trigger_plugin.so",
-      "reference_frequency": 60.0,
-      "frequency_threshold_percent_low": 0.01,
-      "frequency_threshold_percent_high": 0.01,
-      "reference_voltage": 120.0,
-      "voltage_threshold_percent_low": 0.025,
-      "voltage_threshold_percent_high": 0.025,
-      "thd_threshold_high": 0.05,
+      "mongo_host": "localhost",
+      "mongo_port": 27017,
       "debug": false,
       "debug_devices": []
     }
