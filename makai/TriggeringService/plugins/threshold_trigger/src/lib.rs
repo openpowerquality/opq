@@ -8,13 +8,11 @@ extern crate bson;
 extern crate core;
 extern crate mongodb;
 
+use config::ThresholdTriggerPluginSettings;
+use serde_json::Error;
 use std::collections::HashMap;
 use std::str;
 use std::sync::Arc;
-use std::time::{SystemTime, UNIX_EPOCH};
-
-use config::ThresholdTriggerPluginSettings;
-use serde_json::Error;
 use thresholds::{CachedThresholdProvider, Threshold};
 use triggering_service::makai_plugin::MakaiPlugin;
 use triggering_service::proto::opqbox3::Command;
@@ -22,31 +20,9 @@ use triggering_service::proto::opqbox3::GetDataCommand;
 use triggering_service::proto::opqbox3::Measurement;
 
 pub mod config;
+pub mod datetime;
 pub mod mongo;
 pub mod thresholds;
-
-#[inline]
-fn minus_percent(reference: f64, percent: f64) -> f64 {
-    let as_percent = percent / 100.0;
-    let delta = reference * as_percent;
-    reference - delta
-}
-
-#[inline]
-fn plus_percent(reference: f64, percent: f64) -> f64 {
-    let as_percent = percent / 100.0;
-    let delta = reference * as_percent;
-    reference + delta
-}
-
-#[inline]
-fn timestamp_ms() -> u64 {
-    let start = SystemTime::now();
-    let since_the_epoch = start
-        .duration_since(UNIX_EPOCH)
-        .expect("Time went backwards");
-    since_the_epoch.as_millis() as u64
-}
 
 type StateMap = HashMap<StateKey, StateEntry>;
 
@@ -66,7 +42,7 @@ pub struct StateEntry {
 
 impl StateEntry {
     pub fn new(state: State) -> StateEntry {
-        let timestamp = timestamp_ms();
+        let timestamp = datetime::timestamp_ms();
         StateEntry {
             prev_state: state.clone(),
             prev_state_timestamp_ms: timestamp,
@@ -82,7 +58,7 @@ impl StateEntry {
             self.prev_state_timestamp_ms = self.latest_state_timestamp_ms;
         }
         self.latest_state = state;
-        self.latest_state_timestamp_ms = timestamp_ms();
+        self.latest_state_timestamp_ms = datetime::timestamp_ms();
     }
 }
 
@@ -172,6 +148,10 @@ pub struct ThresholdTriggerPlugin {
     fsm: Fsm,
 }
 
+const METRIC_F: &str = "f";
+const METRIC_V: &str = "rms";
+const METRIC_THD: &str = "thd";
+
 impl ThresholdTriggerPlugin {
     fn new() -> ThresholdTriggerPlugin {
         let settings = config::ThresholdTriggerPluginSettings::default();
@@ -221,14 +201,12 @@ impl ThresholdTriggerPlugin {
         measurement: &Arc<Measurement>,
         threshold: &Threshold,
     ) -> Option<Trigger> {
-        let threshold_low = minus_percent(threshold.ref_f, threshold.threshold_percent_f_low);
-        let threshold_high = plus_percent(threshold.ref_f, threshold.threshold_percent_f_high);
         self.check_metric(
             measurement,
-            "f",
+            METRIC_F,
             TriggerType::Frequency,
-            threshold_low as f32,
-            threshold_high as f32,
+            threshold.threshold_f_low as f32,
+            threshold.threshold_f_high as f32,
         )
     }
 
@@ -237,14 +215,12 @@ impl ThresholdTriggerPlugin {
         measurement: &Arc<Measurement>,
         threshold: &Threshold,
     ) -> Option<Trigger> {
-        let threshold_low = minus_percent(threshold.ref_v, threshold.threshold_percent_v_low);
-        let threshold_high = plus_percent(threshold.ref_v, threshold.threshold_percent_v_high);
         self.check_metric(
             measurement,
-            "rms",
+            METRIC_V,
             TriggerType::Voltage,
-            threshold_low as f32,
-            threshold_high as f32,
+            threshold.threshold_v_low as f32,
+            threshold.threshold_v_high as f32,
         )
     }
 
@@ -253,14 +229,12 @@ impl ThresholdTriggerPlugin {
         measurement: &Arc<Measurement>,
         threshold: &Threshold,
     ) -> Option<Trigger> {
-        let threshold_low = -1.0;
-        let threshold_high = threshold.threshold_percent_thd_high;
         self.check_metric(
             measurement,
-            "thd",
+            METRIC_THD,
             TriggerType::Thd,
-            threshold_low,
-            threshold_high as f32,
+            -1.0,
+            threshold.threshold_thd_high as f32,
         )
     }
 
@@ -273,7 +247,7 @@ impl ThresholdTriggerPlugin {
         cmd.set_box_id(trigger.box_id as i32);
         cmd.set_data_command(get_data_command);
         cmd.set_identity(String::new());
-        cmd.set_timestamp_ms(timestamp_ms());
+        cmd.set_timestamp_ms(datetime::timestamp_ms());
         cmd.set_seq(0);
         self.maybe_debug(trigger.box_id, &format!("Sending CMD {:#?}", cmd));
         return cmd;

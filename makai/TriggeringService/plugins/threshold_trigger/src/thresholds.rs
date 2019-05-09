@@ -1,39 +1,53 @@
 use config::ThresholdTriggerPluginSettings;
-use mongo;
 use mongo::{MakaiConfig, Triggering, TriggeringOverride};
 use std::collections::HashMap;
-use std::time::{SystemTime, UNIX_EPOCH};
+use {datetime, mongo};
+
+const ONE_MIN_IN_MS: u64 = 60000;
 
 #[inline]
-fn timestamp_ms() -> u64 {
-    let start = SystemTime::now();
-    let since_the_epoch = start
-        .duration_since(UNIX_EPOCH)
-        .expect("Time went backwards");
-    since_the_epoch.as_millis() as u64
+fn minus_percent(reference: f64, percent: f64) -> f64 {
+    let as_percent = percent / 100.0;
+    let delta = reference * as_percent;
+    reference - delta
+}
+
+#[inline]
+fn plus_percent(reference: f64, percent: f64) -> f64 {
+    let as_percent = percent / 100.0;
+    let delta = reference * as_percent;
+    reference + delta
 }
 
 #[derive(Clone, Debug)]
 pub struct Threshold {
-    pub ref_f: f64,
-    pub ref_v: f64,
-    pub threshold_percent_f_low: f64,
-    pub threshold_percent_f_high: f64,
-    pub threshold_percent_v_low: f64,
-    pub threshold_percent_v_high: f64,
-    pub threshold_percent_thd_high: f64,
+    pub threshold_f_low: f64,
+    pub threshold_f_high: f64,
+    pub threshold_v_low: f64,
+    pub threshold_v_high: f64,
+    pub threshold_thd_high: f64,
 }
 
 impl From<TriggeringOverride> for Threshold {
     fn from(triggering_override: TriggeringOverride) -> Self {
         Threshold {
-            ref_f: triggering_override.ref_f,
-            ref_v: triggering_override.ref_v,
-            threshold_percent_f_low: triggering_override.threshold_percent_f_low,
-            threshold_percent_f_high: triggering_override.threshold_percent_f_high,
-            threshold_percent_v_low: triggering_override.threshold_percent_v_low,
-            threshold_percent_v_high: triggering_override.threshold_percent_v_high,
-            threshold_percent_thd_high: triggering_override.threshold_percent_thd_high,
+            threshold_f_low: minus_percent(
+                triggering_override.ref_f,
+                triggering_override.threshold_percent_f_low,
+            ),
+            threshold_f_high: plus_percent(
+                triggering_override.ref_f,
+                triggering_override.threshold_percent_f_high,
+            ),
+            threshold_v_low: minus_percent(
+                triggering_override.ref_v,
+                triggering_override.threshold_percent_v_low,
+            ),
+            threshold_v_high: plus_percent(
+                triggering_override.ref_v,
+                triggering_override.threshold_percent_v_high,
+            ),
+            threshold_thd_high: triggering_override.threshold_percent_thd_high,
         }
     }
 }
@@ -41,13 +55,23 @@ impl From<TriggeringOverride> for Threshold {
 impl From<Triggering> for Threshold {
     fn from(triggering: Triggering) -> Self {
         Threshold {
-            ref_f: triggering.default_ref_f,
-            ref_v: triggering.default_ref_v,
-            threshold_percent_f_low: triggering.default_threshold_percent_f_low,
-            threshold_percent_f_high: triggering.default_threshold_percent_f_high,
-            threshold_percent_v_low: triggering.default_threshold_percent_v_low,
-            threshold_percent_v_high: triggering.default_threshold_percent_v_high,
-            threshold_percent_thd_high: triggering.default_threshold_percent_thd_high,
+            threshold_f_low: minus_percent(
+                triggering.default_ref_f,
+                triggering.default_threshold_percent_f_low,
+            ),
+            threshold_f_high: plus_percent(
+                triggering.default_ref_f,
+                triggering.default_threshold_percent_f_high,
+            ),
+            threshold_v_low: minus_percent(
+                triggering.default_ref_v,
+                triggering.default_threshold_percent_v_low,
+            ),
+            threshold_v_high: plus_percent(
+                triggering.default_ref_v,
+                triggering.default_threshold_percent_v_high,
+            ),
+            threshold_thd_high: triggering.default_threshold_percent_thd_high,
         }
     }
 }
@@ -67,7 +91,7 @@ impl CachedThresholdProvider {
         CachedThresholdProvider {
             threshold_cache: HashMap::new(),
             default_threshold: None,
-            last_update: timestamp_ms(),
+            last_update: datetime::timestamp_ms(),
             settings,
             makai_config,
         }
@@ -82,12 +106,12 @@ impl CachedThresholdProvider {
                 triggering_override.clone().into(),
             );
         }
-        self.last_update = timestamp_ms();
+        self.last_update = datetime::timestamp_ms();
     }
 
     pub fn get(&mut self, box_id: &str) -> Threshold {
-        let now = timestamp_ms();
-        if now - self.last_update > 60000 {
+        let now = datetime::timestamp_ms();
+        if now - self.last_update > ONE_MIN_IN_MS {
             self.update();
         }
         match self.threshold_cache.get(box_id) {
