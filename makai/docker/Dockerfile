@@ -67,7 +67,7 @@ RUN cd /build/makai/TriggeringService                           && \
     cd /build/makai/TriggeringService/plugins/print             && \
     cargo build --release                                       && \
     cd /build/makai/TriggeringService/plugins/threshold_trigger && \
-    cargo build --release                                       && \
+    cargo build --release
 
 # Triggering service and plugins
 RUN cd /build/makai/EventService                                && \
