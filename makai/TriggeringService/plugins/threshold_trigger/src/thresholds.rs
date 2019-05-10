@@ -120,3 +120,69 @@ impl CachedThresholdProvider {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn mock_plugin_settings() -> ThresholdTriggerPluginSettings {
+        unimplemented!()
+    }
+
+    fn mock_makai_config() -> MakaiConfig {
+        unimplemented!()
+    }
+
+    #[test]
+    fn test_plus_percent() {
+        assert_eq!(plus_percent(120.0, 10.0), 132.0)
+    }
+
+    #[test]
+    fn test_minus_percent() {
+        assert_eq!(minus_percent(120.0, 10.0), 108.0)
+    }
+
+    #[test]
+    fn test_threshold_from_triggering_override() {
+        let triggering_override = TriggeringOverride {
+            box_id: "test".to_string(),
+            ref_f: 60.0,
+            ref_v: 120.0,
+            threshold_percent_f_low: 1.0,
+            threshold_percent_f_high: 1.0,
+            threshold_percent_v_low: 5.0,
+            threshold_percent_v_high: 5.0,
+            threshold_percent_thd_high: 5.0,
+        };
+
+        let threshold: Threshold = triggering_override.into();
+        assert_eq!(threshold.threshold_f_low, 59.4);
+        assert_eq!(threshold.threshold_f_high, 60.6);
+        assert_eq!(threshold.threshold_v_low, 114.0);
+        assert_eq!(threshold.threshold_v_high, 126.0);
+        assert_eq!(threshold.threshold_thd_high, 5.0);
+    }
+
+    #[test]
+    fn test_threshold_from_triggering() {
+        let triggering = Triggering {
+            default_ref_f: 60.0,
+            default_ref_v: 120.0,
+            default_threshold_percent_f_low: 1.0,
+            default_threshold_percent_f_high: 1.0,
+            default_threshold_percent_v_low: 5.0,
+            default_threshold_percent_v_high: 5.0,
+            default_threshold_percent_thd_high: 5.0,
+            triggering_overrides: vec![],
+        };
+
+        let threshold: Threshold = triggering.into();
+        assert_eq!(threshold.threshold_f_low, 59.4);
+        assert_eq!(threshold.threshold_f_high, 60.6);
+        assert_eq!(threshold.threshold_v_low, 114.0);
+        assert_eq!(threshold.threshold_v_high, 126.0);
+        assert_eq!(threshold.threshold_thd_high, 5.0);
+    }
+
+}

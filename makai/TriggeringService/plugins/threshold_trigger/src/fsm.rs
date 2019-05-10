@@ -12,16 +12,16 @@ pub enum State {
 
 #[derive(Debug)]
 pub struct StateEntry {
-    prev_state: State,
-    prev_state_timestamp_ms: u64,
-    latest_state: State,
-    latest_state_timestamp_ms: u64,
+    pub prev_state: State,
+    pub prev_state_timestamp_ms: u64,
+    pub latest_state: State,
+    pub latest_state_timestamp_ms: u64,
 }
 
 #[derive(Debug, Hash, Eq, Clone)]
 pub struct StateKey {
-    box_id: u32,
-    trigger_type: TriggerType,
+    pub box_id: u32,
+    pub trigger_type: TriggerType,
 }
 
 impl StateEntry {
@@ -91,5 +91,30 @@ impl Fsm {
             }
             _ => None,
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use Fsm;
+    use State;
+    use StateKey;
+    use TriggerType;
+
+    #[test]
+    fn test_fsm() {
+        let mut fsm = Fsm::new();
+        let state_key = StateKey::from(1, TriggerType::Frequency);
+
+        fsm.update(state_key.clone(), State::Nominal);
+        assert_eq!(fsm.is_triggering(&state_key).is_some(), false);
+        fsm.update(state_key.clone(), State::Nominal);
+        assert_eq!(fsm.is_triggering(&state_key).is_some(), false);
+        fsm.update(state_key.clone(), State::Triggering);
+        assert_eq!(fsm.is_triggering(&state_key).is_some(), false);
+        fsm.update(state_key.clone(), State::Triggering);
+        assert_eq!(fsm.is_triggering(&state_key).is_some(), false);
+        fsm.update(state_key.clone(), State::Nominal);
+        assert_eq!(fsm.is_triggering(&state_key).is_some(), true);
     }
 }

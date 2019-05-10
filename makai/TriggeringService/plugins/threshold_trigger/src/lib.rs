@@ -43,7 +43,7 @@ impl Trigger {
 }
 
 #[derive(Debug, Hash, PartialEq, Eq, Clone)]
-enum TriggerType {
+pub enum TriggerType {
     Frequency,
     Thd,
     Voltage,
@@ -221,28 +221,3 @@ impl MakaiPlugin for ThresholdTriggerPlugin {
 }
 
 declare_plugin!(ThresholdTriggerPlugin, ThresholdTriggerPlugin::new);
-
-#[cfg(test)]
-mod tests {
-    use Fsm;
-    use State;
-    use StateKey;
-    use TriggerType;
-
-    #[test]
-    fn test_fsm() {
-        let mut fsm = Fsm::new();
-        let state_key = StateKey::from(1, TriggerType::Frequency);
-
-        fsm.update(state_key.clone(), State::Nominal);
-        assert_eq!(fsm.is_triggering(&state_key).is_some(), false);
-        fsm.update(state_key.clone(), State::Nominal);
-        assert_eq!(fsm.is_triggering(&state_key).is_some(), false);
-        fsm.update(state_key.clone(), State::Triggering);
-        assert_eq!(fsm.is_triggering(&state_key).is_some(), false);
-        fsm.update(state_key.clone(), State::Triggering);
-        assert_eq!(fsm.is_triggering(&state_key).is_some(), false);
-        fsm.update(state_key.clone(), State::Nominal);
-        assert_eq!(fsm.is_triggering(&state_key).is_some(), true);
-    }
-}
