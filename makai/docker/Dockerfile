@@ -35,50 +35,32 @@ RUN curl -L -O https://github.com/mozilla/sccache/releases/download/0.2.8/sccach
 
 ENV RUSTC_WRAPPER="sccache"
 
-# Mongo c driver
-#RUN curl -L -O https://github.com/mongodb/mongo-c-driver/archive/1.14.0.tar.gz                      && \
-#    tar xf 1.14.0.tar.gz                                                                            && \
-#    rm 1.14.0.tar.gz                                                                                && \
-#    echo "1.14.0" > mongo-c-driver-1.14.0/VERSION_CURRENT                                           && \
-#    cd mongo-c-driver-1.14.0/build                                                                  && \
-#    cmake -DENABLE_TESTS=OFF -DENABLE_AUTOMATIC_INIT_AND_CLEANUP=OFF -DCMAKE_BUILD_TYPE=Release ..  && \
-#    make -j 4 -C /build/mongo-c-driver-1.14.0/build                                                 && \
-#    make -C /build/mongo-c-driver-1.14.0/build install                                              && \
-#    rm -rf /build/mongo-c-driver-1.14.0
-
-
 # Add makai contents
-ADD sccache --start-server                                      && \
-    makai-build /build
+ADD makai-build /build
 
 # Acquisition broker
-RUN cd /build/makai/AcquisitionBroker/                          && \
-    cargo build --release
-
-# Triggering broker
-RUN cd /build/makai/TriggeringBroker/                           && \
-    cargo build --release
-
-# Triggering service and plugins
-RUN cd /build/makai/TriggeringService                           && \
+RUN sccache --start-server                                      && \
+    cd /build/makai/AcquisitionBroker/                          && \
+    cargo build --release                                       && \
+    cd /build/makai/TriggeringBroker/                           && \
+    cargo build --release                                       && \
+    cd /build/makai/TriggeringService                           && \
     cargo build --release                                       && \
     cd /build/makai/TriggeringService/plugins/health            && \
     cargo build --release                                       && \
     cd /build/makai/TriggeringService/plugins/print             && \
     cargo build --release                                       && \
     cd /build/makai/TriggeringService/plugins/threshold_trigger && \
-    cargo build --release
-
-# Triggering service and plugins
-RUN cd /build/makai/EventService                                && \
+    cargo build --release                                       && \
+    cd /build/makai/EventService                                && \
     cargo build --release                                       && \
     sccache --stop-server
 
 # Organize makai binaries and configurations
 RUN mkdir -p /build/bin                                                                             && \
     cp /build/makai/run-makai.sh /build/bin                                                         && \
-    cp /build/makai/AcquisitionBroker/build/target/release/ab /build/bin                            && \
-    cp /build/makai/TriggeringBroker/build/target/release/tb /build/bin                             && \
+    cp /build/makai/AcquisitionBroker/target/release/ab /build/bin                            && \
+    cp /build/makai/TriggeringBroker/target/release/tb /build/bin                             && \
     cp /build/makai/TriggeringService/target/release/makai /build/bin                               && \
     cp /build/makai/EventService/target/release/event_service /build/bin                            && \
     cp /build/makai/TriggeringService/plugins/health/target/release/libhealth_plugin.so /build/bin  && \
