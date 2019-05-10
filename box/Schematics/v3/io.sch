@@ -1,10 +1,6 @@
-EESchema Schematic File Version 2
-LIBS:opqbox3
-LIBS:device
-LIBS:power
-LIBS:conn
+EESchema Schematic File Version 4
 LIBS:opqbox3-cache
-EELAYER 25 0
+EELAYER 26 0
 EELAYER END
 $Descr A4 11693 8268
 encoding utf-8
@@ -21,7 +17,7 @@ $EndDescr
 Text Notes 1300 1700 0    60   ~ 0
 JTAG Header
 $Comp
-L Conn_02x04_Odd_Even J4
+L opqbox3-rescue:Conn_02x04_Odd_Even J4
 U 1 1 5A852B85
 P 1550 1200
 F 0 "J4" H 1600 1400 50  0000 C CNN
@@ -45,7 +41,7 @@ Text HLabel 1350 1200 0    60   BiDi ~ 0
 JTAG_JTMS
 NoConn ~ 1350 1100
 $Comp
-L GND #PWR035
+L power:GND #PWR035
 U 1 1 5A852BF5
 P 2050 950
 F 0 "#PWR035" H 2050 700 50  0001 C CNN
@@ -64,7 +60,7 @@ Wire Wire Line
 Wire Wire Line
 	2050 900  2050 950 
 $Comp
-L Conn_01x04 J5
+L opqbox3-rescue:Conn_01x04 J5
 U 1 1 5A857B11
 P 1950 2400
 F 0 "J5" H 1950 2600 50  0000 C CNN
@@ -75,7 +71,7 @@ F 3 "" H 1950 2400 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L GND #PWR036
+L power:GND #PWR036
 U 1 1 5A857B5F
 P 1650 2700
 F 0 "#PWR036" H 1650 2450 50  0001 C CNN
@@ -86,14 +82,14 @@ F 3 "" H 1650 2700 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	1650 2500 1650 2700
+	1650 2500 1650 2600
 Wire Wire Line
 	1750 2600 1650 2600
 Wire Wire Line
 	1650 2500 1750 2500
 Connection ~ 1650 2600
 $Comp
-L +5V #PWR037
+L power:+5V #PWR037
 U 1 1 5A857BAF
 P 1650 2250
 F 0 "#PWR037" H 1650 2100 50  0001 C CNN
@@ -112,7 +108,7 @@ PPS
 Text Notes 1400 3050 0    60   ~ 0
 4 Pos Header
 $Comp
-L LED D1
+L opqbox3-rescue:LED D1
 U 1 1 5A85F2BE
 P 3850 1150
 F 0 "D1" H 3850 1250 50  0000 C CNN
@@ -123,7 +119,7 @@ F 3 "" H 3850 1150 50  0001 C CNN
 	-1   0    0    1   
 $EndComp
 $Comp
-L LED D2
+L opqbox3-rescue:LED D2
 U 1 1 5A85F345
 P 3850 1450
 F 0 "D2" H 3850 1550 50  0000 C CNN
@@ -134,7 +130,7 @@ F 3 "" H 3850 1450 50  0001 C CNN
 	-1   0    0    1   
 $EndComp
 $Comp
-L LED D3
+L opqbox3-rescue:LED D3
 U 1 1 5A85F3E5
 P 3850 1750
 F 0 "D3" H 3850 1850 50  0000 C CNN
@@ -145,7 +141,7 @@ F 3 "" H 3850 1750 50  0001 C CNN
 	-1   0    0    1   
 $EndComp
 $Comp
-L R R11
+L opqbox3-rescue:R R11
 U 1 1 5A85F458
 P 3500 1150
 F 0 "R11" V 3580 1150 50  0000 C CNN
@@ -156,7 +152,7 @@ F 3 "" H 3500 1150 50  0001 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L R R12
+L opqbox3-rescue:R R12
 U 1 1 5A85F48B
 P 3500 1450
 F 0 "R12" V 3580 1450 50  0000 C CNN
@@ -167,7 +163,7 @@ F 3 "" H 3500 1450 50  0001 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L R R13
+L opqbox3-rescue:R R13
 U 1 1 5A85F4B8
 P 3500 1750
 F 0 "R13" V 3580 1750 50  0000 C CNN
@@ -178,7 +174,7 @@ F 3 "" H 3500 1750 50  0001 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L GND #PWR038
+L power:GND #PWR038
 U 1 1 5A85F4E9
 P 4100 1850
 F 0 "#PWR038" H 4100 1600 50  0001 C CNN
@@ -189,7 +185,7 @@ F 3 "" H 4100 1850 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	4100 1150 4100 1850
+	4100 1150 4100 1450
 Wire Wire Line
 	4100 1750 4000 1750
 Wire Wire Line
@@ -213,7 +209,7 @@ Wire Wire Line
 Wire Wire Line
 	3300 1450 3350 1450
 $Comp
-L +5V #PWR039
+L power:+5V #PWR039
 U 1 1 5A85F8C1
 P 3250 1100
 F 0 "#PWR039" H 3250 950 50  0001 C CNN
@@ -227,4 +223,10 @@ Wire Wire Line
 	3250 1100 3250 1150
 Wire Wire Line
 	3250 1150 3350 1150
+Wire Wire Line
+	1650 2600 1650 2700
+Wire Wire Line
+	4100 1750 4100 1850
+Wire Wire Line
+	4100 1450 4100 1750
 $EndSCHEMATC

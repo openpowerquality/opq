@@ -1,4 +1,4 @@
-update=Sat 03 Mar 2018 02:57:53 AM HST
+update=Tue 16 Apr 2019 05:03:45 PM HST
 version=1
 last_client=kicad
 [pcbnew]
@@ -27,9 +27,4 @@ NetIExt=net
 version=1
 [eeschema]
 version=1
-LibDir=../v3
-[eeschema/libraries]
-LibName1=opqbox3
-LibName2=device
-LibName3=power
-LibName4=conn
+LibDir=

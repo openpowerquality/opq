@@ -1,6 +1,6 @@
 #!/bin/bash
 
-/build/bin/AcquisitionBroker ACQUISITION_BROKER_SETTINGS &
-/build/bin/TriggeringBroker TRIGGERING_BROKER_SETTINGS &
+/build/bin/ab &
+/build/bin/tb &
 /build/bin/event_service &
 /build/bin/makai

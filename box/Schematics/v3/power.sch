@@ -1,10 +1,6 @@
-EESchema Schematic File Version 2
-LIBS:opqbox3
-LIBS:device
-LIBS:power
-LIBS:conn
+EESchema Schematic File Version 4
 LIBS:opqbox3-cache
-EELAYER 25 0
+EELAYER 26 0
 EELAYER END
 $Descr A4 11693 8268
 encoding utf-8
@@ -19,7 +15,7 @@ Comment3 ""
 Comment4 ""
 $EndDescr
 $Comp
-L Fuse F2
+L opqbox3-rescue:Fuse F2
 U 1 1 5A829FB4
 P 2300 1400
 F 0 "F2" V 2380 1400 50  0000 C CNN
@@ -30,7 +26,7 @@ F 3 "" H 2300 1400 50  0001 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L Varistor RV1
+L opqbox3-rescue:Varistor RV1
 U 1 1 5A829FB5
 P 2600 1650
 F 0 "RV1" V 2725 1650 50  0000 C CNN
@@ -41,7 +37,7 @@ F 3 "" H 2600 1650 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L GND #PWR03
+L power:GND #PWR03
 U 1 1 5A829FB7
 P 4300 1850
 F 0 "#PWR03" H 4300 1600 50  0001 C CNN
@@ -52,7 +48,7 @@ F 3 "" H 4300 1850 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L L L1
+L opqbox3-rescue:L L1
 U 1 1 5A829FBA
 P 4600 1350
 F 0 "L1" V 4550 1350 50  0000 C CNN
@@ -63,7 +59,7 @@ F 3 "" H 4600 1350 50  0001 C CNN
 	0    -1   -1   0   
 $EndComp
 $Comp
-L +5V #PWR04
+L power:+5V #PWR04
 U 1 1 5A829FBB
 P 4900 1300
 F 0 "#PWR04" H 4900 1150 50  0001 C CNN
@@ -76,7 +72,7 @@ $EndComp
 Text GLabel 2400 1050 0    60   Input ~ 0
 L_MEASURE
 $Comp
-L NEUT #PWR05
+L power:NEUT #PWR05
 U 1 1 5A829FBC
 P 2050 2000
 F 0 "#PWR05" H 2050 1850 50  0001 C CNN
@@ -87,7 +83,7 @@ F 3 "" H 2050 2000 50  0001 C CNN
 	-1   0    0    1   
 $EndComp
 $Comp
-L LINE #PWR06
+L power:LINE #PWR06
 U 1 1 5A829FBD
 P 2050 1450
 F 0 "#PWR06" H 2050 1300 50  0001 C CNN
@@ -98,7 +94,7 @@ F 3 "" H 2050 1450 50  0001 C CNN
 	-1   0    0    1   
 $EndComp
 $Comp
-L PWR_FLAG #FLG07
+L power:PWR_FLAG #FLG07
 U 1 1 5A829FC1
 P 2900 1350
 F 0 "#FLG07" H 2900 1425 50  0001 C CNN
@@ -109,7 +105,7 @@ F 3 "" H 2900 1350 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L PWR_FLAG #FLG08
+L power:PWR_FLAG #FLG08
 U 1 1 5A829FC2
 P 5200 1300
 F 0 "#FLG08" H 5200 1375 50  0001 C CNN
@@ -122,7 +118,7 @@ $EndComp
 Text GLabel 1650 3250 0    60   Input ~ 0
 L_MEASURE
 $Comp
-L AMC1100DWV U1
+L opqbox3-rescue:AMC1100DWV U1
 U 1 1 5A829FC5
 P 3050 3800
 F 0 "U1" H 3250 4050 60  0000 L CNN
@@ -133,7 +129,7 @@ F 3 "" H 3050 3800 60  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L Fuse F1
+L opqbox3-rescue:Fuse F1
 U 1 1 5A829FC6
 P 1900 3250
 F 0 "F1" V 1980 3250 50  0000 C CNN
@@ -144,7 +140,7 @@ F 3 "" H 1900 3250 50  0001 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L R R1
+L opqbox3-rescue:R R1
 U 1 1 5A829FC7
 P 2150 3600
 F 0 "R1" V 2230 3600 50  0000 C CNN
@@ -155,7 +151,7 @@ F 3 "" H 2150 3600 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L R R2
+L opqbox3-rescue:R R2
 U 1 1 5A829FC8
 P 2150 4150
 F 0 "R2" V 2230 4150 50  0000 C CNN
@@ -166,7 +162,7 @@ F 3 "" H 2150 4150 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L NEUT #PWR09
+L power:NEUT #PWR09
 U 1 1 5A829FC9
 P 2650 4700
 F 0 "#PWR09" H 2650 4550 50  0001 C CNN
@@ -177,7 +173,7 @@ F 3 "" H 2650 4700 50  0001 C CNN
 	-1   0    0    1   
 $EndComp
 $Comp
-L R R3
+L opqbox3-rescue:R R3
 U 1 1 5A829FCA
 P 2400 3900
 F 0 "R3" V 2480 3900 50  0000 C CNN
@@ -188,7 +184,7 @@ F 3 "" H 2400 3900 50  0001 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L R R4
+L opqbox3-rescue:R R4
 U 1 1 5A829FCB
 P 2400 4400
 F 0 "R4" V 2480 4400 50  0000 C CNN
@@ -199,7 +195,7 @@ F 3 "" H 2400 4400 50  0001 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L C C2
+L opqbox3-rescue:C C2
 U 1 1 5A829FCC
 P 2650 4150
 F 0 "C2" H 2675 4250 50  0000 L CNN
@@ -212,7 +208,7 @@ $EndComp
 Text GLabel 2500 3000 0    60   Input ~ 0
 5V_UNISOLATED
 $Comp
-L C C1
+L opqbox3-rescue:C C1
 U 1 1 5A829FCD
 P 2650 3300
 F 0 "C1" H 2675 3400 50  0000 L CNN
@@ -223,7 +219,7 @@ F 3 "" H 2650 3300 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L NEUT #PWR010
+L power:NEUT #PWR010
 U 1 1 5A829FCE
 P 2650 3600
 F 0 "#PWR010" H 2650 3450 50  0001 C CNN
@@ -236,7 +232,7 @@ $EndComp
 Text GLabel 2600 5300 0    60   Input ~ 0
 5V_UNISOLATED
 $Comp
-L C C3
+L opqbox3-rescue:C C3
 U 1 1 5A829FD0
 P 3050 5550
 F 0 "C3" H 3075 5650 50  0000 L CNN
@@ -247,7 +243,7 @@ F 3 "" H 3050 5550 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L NEUT #PWR011
+L power:NEUT #PWR011
 U 1 1 5A829FD1
 P 3050 5850
 F 0 "#PWR011" H 3050 5700 50  0001 C CNN
@@ -258,7 +254,7 @@ F 3 "" H 3050 5850 50  0001 C CNN
 	-1   0    0    1   
 $EndComp
 $Comp
-L R R5
+L opqbox3-rescue:R R5
 U 1 1 5A829FD2
 P 2400 6050
 F 0 "R5" V 2480 6050 50  0000 C CNN
@@ -269,7 +265,7 @@ F 3 "" H 2400 6050 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L R R6
+L opqbox3-rescue:R R6
 U 1 1 5A829FD3
 P 2400 6550
 F 0 "R6" V 2480 6550 50  0000 C CNN
@@ -280,7 +276,7 @@ F 3 "" H 2400 6550 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L NEUT #PWR012
+L power:NEUT #PWR012
 U 1 1 5A829FD4
 P 2400 6850
 F 0 "#PWR012" H 2400 6700 50  0001 C CNN
@@ -295,7 +291,7 @@ Isolated
 Text Notes 2900 5050 0    60   ~ 0
 NOT isolated
 $Comp
-L GND #PWR013
+L power:GND #PWR013
 U 1 1 5A829FD5
 P 4450 6850
 F 0 "#PWR013" H 4450 6600 50  0001 C CNN
@@ -306,7 +302,7 @@ F 3 "" H 4450 6850 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L R R7
+L opqbox3-rescue:R R7
 U 1 1 5A829FD6
 P 4450 6550
 F 0 "R7" V 4530 6550 50  0000 C CNN
@@ -317,7 +313,7 @@ F 3 "" H 4450 6550 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L +5V #PWR014
+L power:+5V #PWR014
 U 1 1 5A829FD7
 P 4450 5700
 F 0 "#PWR014" H 4450 5550 50  0001 C CNN
@@ -328,7 +324,7 @@ F 3 "" H 4450 5700 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L C C6
+L opqbox3-rescue:C C6
 U 1 1 5A829FD8
 P 4750 6550
 F 0 "C6" H 4775 6650 50  0000 L CNN
@@ -339,7 +335,7 @@ F 3 "" H 4750 6550 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L C C9
+L opqbox3-rescue:C C9
 U 1 1 5A829FD9
 P 5000 6550
 F 0 "C9" H 5025 6650 50  0000 L CNN
@@ -350,7 +346,7 @@ F 3 "" H 5000 6550 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L GND #PWR015
+L power:GND #PWR015
 U 1 1 5A829FDA
 P 4350 4300
 F 0 "#PWR015" H 4350 4050 50  0001 C CNN
@@ -361,7 +357,7 @@ F 3 "" H 4350 4300 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L +3.3V #PWR016
+L power:+3.3V #PWR016
 U 1 1 5A829FDB
 P 4650 3150
 F 0 "#PWR016" H 4650 3000 50  0001 C CNN
@@ -372,7 +368,7 @@ F 3 "" H 4650 3150 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L C C8
+L opqbox3-rescue:C C8
 U 1 1 5A829FDD
 P 4900 4050
 F 0 "C8" H 4925 4150 50  0000 L CNN
@@ -383,7 +379,7 @@ F 3 "" H 4900 4050 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L R R8
+L opqbox3-rescue:R R8
 U 1 1 5A829FDE
 P 4650 3900
 F 0 "R8" V 4730 3900 50  0000 C CNN
@@ -394,7 +390,7 @@ F 3 "" H 4650 3900 50  0001 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L R R9
+L opqbox3-rescue:R R9
 U 1 1 5A829FDF
 P 4650 4200
 F 0 "R9" V 4730 4200 50  0000 C CNN
@@ -405,7 +401,7 @@ F 3 "" H 4650 4200 50  0001 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L GND #PWR017
+L power:GND #PWR017
 U 1 1 5A829FE0
 P 4400 3600
 F 0 "#PWR017" H 4400 3350 50  0001 C CNN
@@ -424,7 +420,7 @@ LINE
 Text HLabel 1700 1950 0    60   Input ~ 0
 NEUTRAL
 $Comp
-L PWR_FLAG #FLG018
+L power:PWR_FLAG #FLG018
 U 1 1 5A83249D
 P 4900 1850
 F 0 "#FLG018" H 4900 1925 50  0001 C CNN
@@ -435,7 +431,7 @@ F 3 "" H 4900 1850 50  0001 C CNN
 	-1   0    0    1   
 $EndComp
 $Comp
-L C C5
+L opqbox3-rescue:C C5
 U 1 1 5A829FDC
 P 4400 3400
 F 0 "C5" H 4425 3500 50  0000 L CNN
@@ -446,7 +442,7 @@ F 3 "" H 4400 3400 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L ISL21010CFH333Z-TK U3
+L opqbox3-rescue:ISL21010CFH333Z-TK U3
 U 1 1 5A82BB9F
 P 6850 1500
 F 0 "U3" H 7050 1750 60  0000 L CNN
@@ -457,7 +453,7 @@ F 3 "" H 6850 1500 60  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L +5V #PWR019
+L power:+5V #PWR019
 U 1 1 5A82BC82
 P 6700 1150
 F 0 "#PWR019" H 6700 1000 50  0001 C CNN
@@ -468,7 +464,7 @@ F 3 "" H 6700 1150 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L C C12
+L opqbox3-rescue:C C12
 U 1 1 5A82BF29
 P 6700 1800
 F 0 "C12" H 6725 1900 50  0000 L CNN
@@ -479,7 +475,7 @@ F 3 "" H 6700 1800 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L C C13
+L opqbox3-rescue:C C13
 U 1 1 5A82BFB8
 P 8200 1800
 F 0 "C13" H 8225 1900 50  0000 L CNN
@@ -490,9 +486,9 @@ F 3 "" H 8200 1800 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	2600 1050 2600 1500
+	2600 1050 2600 1400
 Wire Wire Line
-	1700 1950 3100 1950
+	1700 1950 2050 1950
 Wire Wire Line
 	2600 1950 2600 1800
 Wire Wire Line
@@ -509,13 +505,13 @@ Wire Wire Line
 	2400 1050 2600 1050
 Connection ~ 2050 1950
 Wire Wire Line
-	4300 1700 4300 1850
+	4300 1700 4300 1750
 Wire Wire Line
-	4900 1700 4900 1850
+	4900 1700 4900 1750
 Wire Wire Line
-	1700 1400 2150 1400
+	1700 1400 2050 1400
 Wire Wire Line
-	2450 1400 3100 1400
+	2450 1400 2600 1400
 Wire Wire Line
 	2050 2000 2050 1950
 Wire Wire Line
@@ -528,18 +524,18 @@ Wire Wire Line
 Wire Wire Line
 	1650 3250 1750 3250
 Wire Wire Line
-	2150 4300 2150 4600
+	2150 4300 2150 4400
 Wire Wire Line
 	2150 3450 2150 3250
 Wire Wire Line
 	2150 3250 2050 3250
 Wire Wire Line
-	2550 3900 3050 3900
+	2550 3900 2650 3900
 Connection ~ 2150 3900
 Wire Wire Line
-	2150 4600 3000 4600
+	2150 4600 2650 4600
 Wire Wire Line
-	2550 4400 2950 4400
+	2550 4400 2650 4400
 Connection ~ 2150 4400
 Wire Wire Line
 	3050 4000 2950 4000
@@ -560,7 +556,7 @@ Wire Wire Line
 Wire Wire Line
 	2150 4400 2250 4400
 Wire Wire Line
-	2150 3750 2150 4000
+	2150 3750 2150 3900
 Wire Wire Line
 	2650 4700 2650 4600
 Connection ~ 2650 4600
@@ -569,14 +565,14 @@ Wire Wire Line
 Wire Wire Line
 	2950 3000 2950 3800
 Wire Wire Line
-	2500 3000 2950 3000
+	2500 3000 2650 3000
 Wire Wire Line
 	2650 3600 2650 3450
 Wire Wire Line
 	2650 3150 2650 3000
 Connection ~ 2650 3000
 Wire Wire Line
-	2600 5300 3050 5300
+	2600 5300 2750 5300
 Wire Wire Line
 	3050 5300 3050 5400
 Connection ~ 2750 5300
@@ -590,19 +586,19 @@ Wire Wire Line
 	2400 5750 2750 5750
 Connection ~ 2750 5750
 Wire Wire Line
-	2400 6200 2400 6400
+	2400 6200 2400 6300
 Wire Wire Line
-	2400 6700 2400 6850
+	2400 6700 2400 6800
 Wire Wire Line
 	2400 6300 3050 6300
 Connection ~ 2400 6300
 Wire Wire Line
-	2400 6800 3050 6800
+	2400 6800 3000 6800
 Connection ~ 2400 6800
 Wire Wire Line
 	3050 6400 3000 6400
 Wire Wire Line
-	3000 6400 3000 7100
+	3000 6400 3000 6500
 Wire Wire Line
 	3050 6700 3000 6700
 Connection ~ 3000 6700
@@ -615,9 +611,9 @@ Connection ~ 3000 6500
 Wire Wire Line
 	4250 6400 4300 6400
 Wire Wire Line
-	4300 6400 4300 7100
+	4300 6400 4300 6500
 Wire Wire Line
-	4450 6700 4450 6850
+	4450 6700 4450 6800
 Wire Wire Line
 	4300 6700 4250 6700
 Connection ~ 4300 6700
@@ -633,9 +629,9 @@ Connection ~ 4450 6800
 Wire Wire Line
 	4450 6200 4450 5700
 Wire Wire Line
-	4250 6200 5000 6200
+	4250 6200 4450 6200
 Wire Wire Line
-	4250 6800 5000 6800
+	4250 6800 4300 6800
 Wire Wire Line
 	4750 6200 4750 6400
 Wire Wire Line
@@ -650,7 +646,7 @@ Wire Wire Line
 	4250 6300 4450 6300
 Connection ~ 4750 6200
 Wire Wire Line
-	2750 5300 2750 6200
+	2750 5300 2750 5750
 Wire Wire Line
 	4150 4100 4350 4100
 Wire Wire Line
@@ -667,7 +663,6 @@ Wire Wire Line
 	4450 4200 4500 4200
 Connection ~ 4900 4200
 Connection ~ 4900 3900
-Connection ~ 5200 1350
 Wire Wire Line
 	2050 1450 2050 1400
 Connection ~ 2050 1400
@@ -675,12 +670,12 @@ Wire Notes Line
 	3600 7800 3600 500 
 Connection ~ 4300 1750
 Wire Wire Line
-	4100 1350 4450 1350
+	4100 1350 4300 1350
 Connection ~ 4900 1750
 Wire Wire Line
 	5200 1350 5200 1300
 Wire Wire Line
-	4900 1300 4900 1400
+	4900 1300 4900 1350
 Wire Wire Line
 	4200 3200 4200 3800
 Connection ~ 4400 3200
@@ -691,15 +686,15 @@ Wire Wire Line
 Wire Wire Line
 	4650 3200 4650 3150
 Wire Wire Line
-	4200 3200 4650 3200
+	4200 3200 4400 3200
 Wire Wire Line
-	6700 1150 6700 1650
+	6700 1150 6700 1500
 Wire Wire Line
 	6700 1950 6700 2200
 Wire Wire Line
-	6700 2200 8200 2200
+	6700 2200 7450 2200
 Wire Wire Line
-	7450 2100 7450 2300
+	7450 2100 7450 2200
 Wire Wire Line
 	8200 2200 8200 1950
 Connection ~ 7450 2200
@@ -707,14 +702,14 @@ Wire Wire Line
 	6850 1500 6700 1500
 Connection ~ 6700 1500
 Wire Wire Line
-	8050 1500 8300 1500
+	8050 1500 8200 1500
 Wire Wire Line
 	8200 1500 8200 1650
 Text HLabel 8300 1500 2    60   Output ~ 0
 3.3VREF
 Connection ~ 8200 1500
 $Comp
-L GND #PWR020
+L power:GND #PWR020
 U 1 1 5A82C977
 P 7450 2300
 F 0 "#PWR020" H 7450 2050 50  0001 C CNN
@@ -729,15 +724,15 @@ ADC_IN-
 Text HLabel 5100 3900 2    60   Output ~ 0
 ADC_IN+
 Wire Wire Line
-	4800 4200 5100 4200
+	4800 4200 4900 4200
 Wire Wire Line
-	4800 3900 5100 3900
+	4800 3900 4900 3900
 Wire Wire Line
-	4750 1350 5200 1350
+	4750 1350 4900 1350
 Wire Wire Line
-	4000 1750 4900 1750
+	4000 1750 4300 1750
 $Comp
-L C C4
+L opqbox3-rescue:C C4
 U 1 1 5A869EA9
 P 4300 1550
 F 0 "C4" H 4325 1650 50  0000 L CNN
@@ -748,7 +743,7 @@ F 3 "" H 4300 1550 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L C C7
+L opqbox3-rescue:C C7
 U 1 1 5A869F48
 P 4900 1550
 F 0 "C7" H 4925 1650 50  0000 L CNN
@@ -777,7 +772,7 @@ Wire Wire Line
 	4300 7100 4250 7100
 Connection ~ 4300 7000
 $Comp
-L ADUM5010ARSZ PSU2
+L opqbox3-rescue:ADUM5010ARSZ PSU2
 U 1 1 5A9A0F56
 P 3050 6200
 F 0 "PSU2" H 3250 6450 60  0000 L CNN
@@ -788,7 +783,7 @@ F 3 "" H 3050 6200 60  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L AP2120N-3.3TRG1 REG1
+L opqbox3-rescue:AP2120N-3.3TRG1 REG1
 U 1 1 5AC2DFBA
 P 6950 3800
 F 0 "REG1" H 7150 4050 60  0000 L CNN
@@ -799,7 +794,7 @@ F 3 "" H 6950 3800 60  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L C C10
+L opqbox3-rescue:C C10
 U 1 1 5AC2E23F
 P 6850 4200
 F 0 "C10" H 6875 4300 50  0000 L CNN
@@ -810,7 +805,7 @@ F 3 "" H 6850 4200 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L C C11
+L opqbox3-rescue:C C11
 U 1 1 5AC2E2AC
 P 8300 4200
 F 0 "C11" H 8325 4300 50  0000 L CNN
@@ -821,7 +816,7 @@ F 3 "" H 8300 4200 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L GND #PWR021
+L power:GND #PWR021
 U 1 1 5AC2E311
 P 7550 4550
 F 0 "#PWR021" H 7550 4300 50  0001 C CNN
@@ -834,22 +829,22 @@ $EndComp
 Wire Wire Line
 	6850 4350 6850 4450
 Wire Wire Line
-	6850 4450 8300 4450
+	6850 4450 7550 4450
 Wire Wire Line
-	7550 4400 7550 4550
+	7550 4400 7550 4450
 Connection ~ 7550 4450
 Wire Wire Line
 	8300 4450 8300 4350
 Wire Wire Line
 	6950 3800 6850 3800
 Wire Wire Line
-	6850 3550 6850 4050
+	6850 3550 6850 3800
 Wire Wire Line
 	8150 3800 8300 3800
 Wire Wire Line
-	8300 3550 8300 4050
+	8300 3550 8300 3800
 $Comp
-L +3V3 #PWR022
+L power:+3V3 #PWR022
 U 1 1 5AC2E6F2
 P 8300 3550
 F 0 "#PWR022" H 8300 3400 50  0001 C CNN
@@ -860,7 +855,7 @@ F 3 "" H 8300 3550 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L +5V #PWR023
+L power:+5V #PWR023
 U 1 1 5AC2E744
 P 6850 3550
 F 0 "#PWR023" H 6850 3400 50  0001 C CNN
@@ -873,7 +868,7 @@ $EndComp
 Connection ~ 6850 3800
 Connection ~ 8300 3800
 $Comp
-L IRM-15-5 PSU1
+L opqbox3-rescue:IRM-15-5 PSU1
 U 1 1 5ACB4D59
 P 3100 1650
 F 0 "PSU1" H 3300 1900 60  0000 L CNN
@@ -883,4 +878,108 @@ F 3 "" H 3100 1650 60  0001 C CNN
 	1    3100 1650
 	1    0    0    -1  
 $EndComp
+Wire Wire Line
+	2600 1400 2600 1500
+Wire Wire Line
+	2600 1400 2900 1400
+Wire Wire Line
+	2600 1950 3100 1950
+Wire Wire Line
+	4300 1350 4450 1350
+Wire Wire Line
+	4900 1350 4900 1400
+Wire Wire Line
+	4900 1350 5200 1350
+Wire Wire Line
+	2050 1950 2600 1950
+Wire Wire Line
+	2900 1400 3100 1400
+Wire Wire Line
+	2150 3900 2150 4000
+Wire Wire Line
+	2150 4400 2150 4600
+Wire Wire Line
+	2650 3900 3050 3900
+Wire Wire Line
+	2650 4400 2950 4400
+Wire Wire Line
+	2650 4600 3000 4600
+Wire Wire Line
+	2650 3000 2950 3000
+Wire Wire Line
+	2750 5300 3050 5300
+Wire Wire Line
+	2750 5750 2750 6200
+Wire Wire Line
+	2400 6300 2400 6400
+Wire Wire Line
+	2400 6800 2400 6850
+Wire Wire Line
+	3000 6700 3000 6800
+Wire Wire Line
+	3000 6600 3000 6700
+Wire Wire Line
+	3000 6500 3000 6600
+Wire Wire Line
+	4300 6700 4300 6800
+Wire Wire Line
+	4300 6600 4300 6700
+Wire Wire Line
+	4300 6500 4300 6600
+Wire Wire Line
+	4450 6800 4450 6850
+Wire Wire Line
+	4450 6800 4750 6800
+Wire Wire Line
+	4750 6800 5000 6800
+Wire Wire Line
+	4450 6200 4750 6200
+Wire Wire Line
+	4750 6200 5000 6200
+Wire Wire Line
+	4900 4200 5100 4200
+Wire Wire Line
+	4900 3900 5100 3900
+Wire Wire Line
+	2050 1400 2150 1400
+Wire Wire Line
+	4300 1750 4300 1850
+Wire Wire Line
+	4300 1750 4900 1750
+Wire Wire Line
+	4900 1750 4900 1850
+Wire Wire Line
+	4400 3200 4650 3200
+Wire Wire Line
+	7450 2200 8200 2200
+Wire Wire Line
+	7450 2200 7450 2300
+Wire Wire Line
+	6700 1500 6700 1650
+Wire Wire Line
+	8200 1500 8300 1500
+Wire Wire Line
+	3000 6800 3050 6800
+Wire Wire Line
+	3000 6800 3000 6900
+Wire Wire Line
+	3000 6900 3000 7000
+Wire Wire Line
+	3000 7000 3000 7100
+Wire Wire Line
+	4300 6800 4450 6800
+Wire Wire Line
+	4300 6800 4300 6900
+Wire Wire Line
+	4300 6900 4300 7000
+Wire Wire Line
+	4300 7000 4300 7100
+Wire Wire Line
+	7550 4450 8300 4450
+Wire Wire Line
+	7550 4450 7550 4550
+Wire Wire Line
+	6850 3800 6850 4050
+Wire Wire Line
+	8300 3800 8300 4050
 $EndSCHEMATC

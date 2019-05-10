@@ -1,10 +1,6 @@
-EESchema Schematic File Version 2
-LIBS:opqbox3
-LIBS:device
-LIBS:power
-LIBS:conn
+EESchema Schematic File Version 4
 LIBS:opqbox3-cache
-EELAYER 25 0
+EELAYER 26 0
 EELAYER END
 $Descr A4 11693 8268
 encoding utf-8
@@ -30,7 +26,7 @@ F5 "ADC_IN-" O R 3250 1400 60
 F6 "ADC_IN+" O R 3250 1300 60 
 $EndSheet
 $Comp
-L PWR_FLAG #FLG01
+L power:PWR_FLAG #FLG01
 U 1 1 5A82F319
 P 1900 1300
 F 0 "#FLG01" H 1900 1375 50  0001 C CNN
@@ -41,7 +37,7 @@ F 3 "" H 1900 1300 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L PWR_FLAG #FLG02
+L power:PWR_FLAG #FLG02
 U 1 1 5A82F35B
 P 1900 1700
 F 0 "#FLG02" H 1900 1775 50  0001 C CNN
@@ -85,9 +81,9 @@ $EndSheet
 Wire Notes Line
 	2700 500  2700 7750
 Wire Wire Line
-	1650 1350 2150 1350
+	1650 1350 1700 1350
 Wire Wire Line
-	1650 1750 2150 1750
+	1650 1750 1700 1750
 Wire Wire Line
 	1900 1700 1900 1750
 Connection ~ 1900 1750
@@ -120,7 +116,7 @@ Wire Wire Line
 	4750 3400 4950 3400
 NoConn ~ 3350 1850
 $Comp
-L Conn_01x02_Male J1
+L opqbox3-rescue:Conn_01x02_Male J1
 U 1 1 5A83BEC0
 P 1450 1250
 F 0 "J1" H 1450 1350 50  0000 C CNN
@@ -131,7 +127,7 @@ F 3 "" H 1450 1250 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L Conn_01x02_Male J2
+L opqbox3-rescue:Conn_01x02_Male J2
 U 1 1 5A83C177
 P 1450 1650
 F 0 "J2" H 1450 1750 50  0000 C CNN
@@ -192,7 +188,7 @@ Wire Wire Line
 Wire Wire Line
 	4750 2100 4950 2100
 Wire Wire Line
-	4750 2200 4950 2200
+	4750 2200 4850 2200
 Wire Wire Line
 	4750 3100 4950 3100
 Wire Wire Line
@@ -202,4 +198,14 @@ Wire Wire Line
 Wire Wire Line
 	4850 2600 4950 2600
 Connection ~ 4850 2200
+Wire Wire Line
+	1900 1750 2150 1750
+Wire Wire Line
+	1900 1350 2150 1350
+Wire Wire Line
+	1700 1350 1900 1350
+Wire Wire Line
+	1700 1750 1900 1750
+Wire Wire Line
+	4850 2200 4950 2200
 $EndSCHEMATC
