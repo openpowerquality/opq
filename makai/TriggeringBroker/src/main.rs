@@ -81,15 +81,21 @@ fn main() {
     let mut last_update = Instant::now();
     let mut accum_bytes: u32 = 0;
     loop {
-        let mut msg = zmq::Message::new().unwrap();
-        interface.recv(&mut msg, 0).unwrap();
-        backend.send(&msg, 0).unwrap();
+        let  msg = interface.recv_multipart(0).unwrap();
+        let mut array = vec![];
+        for p in msg.as_slice(){
+            let b: &[u8] = p;
+            array.push(b);
+        }
+        backend.send_multipart(&array, 0).unwrap();
 
 
         match &debug_metric {
             None => {}
             Some(dm) => {
-                accum_bytes += msg.len() as u32;
+                for part in msg.iter() {
+                    accum_bytes += part.len() as u32;
+                }
                 if last_update.elapsed().as_secs() > settings.metric_update_sec {
                     dm.store_metric_in_db(accum_bytes);
                     last_update = Instant::now();
