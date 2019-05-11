@@ -7,12 +7,14 @@ mkdir $timestamp
 # Build Docker Image #
 ######################
 
-IMAGE_NAME=healthv2
+IMAGE_NAME=health
 
 echo "=> Copying health source files into $timestamp"
 
-cp ../Cargo.toml ./$timestamp/
-cp -r ../src ./$timestamp/
+cp ../config.json ./$timestamp/
+cp ../health.py ./$timestamp/
+cp ../requirements.txt ./$timestamp/
+cp ../protobuf ./$timestamp/ -r
 cp ./Dockerfile ./$timestamp/
 
 cd $timestamp
