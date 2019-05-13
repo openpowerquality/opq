@@ -188,25 +188,30 @@ impl MakaiPlugin for ThresholdTriggerPlugin {
         self.maybe_debug(measurement.box_id, &format!("{:#?}", self.fsm));
 
         let mut cmds = Vec::new();
-        let provider = self.threshold_provider.as_mut().unwrap();
-        let threshold = provider.get(&measurement.box_id.to_string());
 
-        if let Some(trigger) = self.check_frequency(&measurement, &threshold) {
-            cmds.push(self.trigger_cmd(&trigger));
-        }
+        match self.threshold_provider.take() {
+            None => return None,
+            Some(mut provider) => {
+                let threshold = provider.get(&measurement.box_id.to_string());
 
-        if let Some(trigger) = self.check_voltage(&measurement, &threshold) {
-            cmds.push(self.trigger_cmd(&trigger));
-        }
+                if let Some(trigger) = self.check_frequency(&measurement, &threshold) {
+                    cmds.push(self.trigger_cmd(&trigger));
+                }
 
-        if let Some(trigger) = self.check_thd(&measurement, &threshold) {
-            cmds.push(self.trigger_cmd(&trigger));
-        }
+                if let Some(trigger) = self.check_voltage(&measurement, &threshold) {
+                    cmds.push(self.trigger_cmd(&trigger));
+                }
 
-        if cmds.is_empty() {
-            None
-        } else {
-            Some(cmds)
+                if let Some(trigger) = self.check_thd(&measurement, &threshold) {
+                    cmds.push(self.trigger_cmd(&trigger));
+                }
+
+                if cmds.is_empty() {
+                    None
+                } else {
+                    Some(cmds)
+                }
+            }
         }
     }
 
