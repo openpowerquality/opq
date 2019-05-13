@@ -184,14 +184,13 @@ impl MakaiPlugin for ThresholdTriggerPlugin {
             return None;
         }
 
-        self.maybe_debug(measurement.box_id, &format!("{:#?}", measurement));
-        self.maybe_debug(measurement.box_id, &format!("{:#?}", self.fsm));
-
-        let mut cmds = Vec::new();
-
         match self.threshold_provider.take() {
             None => return None,
             Some(mut provider) => {
+                self.maybe_debug(measurement.box_id, &format!("{:#?}", measurement));
+                self.maybe_debug(measurement.box_id, &format!("{:#?}", self.fsm));
+
+                let mut cmds = Vec::new();
                 let threshold = provider.get(&measurement.box_id.to_string());
 
                 if let Some(trigger) = self.check_frequency(&measurement, &threshold) {
