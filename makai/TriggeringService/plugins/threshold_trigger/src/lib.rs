@@ -186,7 +186,7 @@ impl MakaiPlugin for ThresholdTriggerPlugin {
     }
 
     fn process_measurement(&mut self, measurement: Arc<Measurement>) -> Option<Vec<Command>> {
-        if !self.loaded {
+        if !self.loaded || self.threshold_provider.is_none() {
             println!("Err: process_measurement in threshold plugin called before plugin is loaded");
             return None;
         }
