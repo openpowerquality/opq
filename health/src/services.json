@@ -1,0 +1,22 @@
+{
+  "interval": 20,
+  "mongodb": "mongodb://localhost:27017",
+  "services": [
+    {
+      "name": "mongo",
+      "url": "http://emilia.ics.hawaii.edu:28420"
+    },
+    {
+      "name": "view",
+      "url": "https://emilia.ics.hawaii.edu/health"
+    },
+    {
+      "name": "makai",
+      "url": "http://makai:8080"
+    },
+    {
+      "name": "mauka",
+      "url": "http://mauka:8911"
+    }
+  ]
+}

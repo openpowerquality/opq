@@ -1,0 +1,11 @@
+[package]
+name = "mongo_client"
+version = "0.1.0"
+authors = ["Evan Hataishi <evanhata@hawaii.edu>"]
+edition = "2018"
+
+[dependencies]
+mongodb = "0.3.12"
+rouille = "3.0.0"
+serde_derive = "1.0"
+serde = "1.0"
