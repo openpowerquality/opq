@@ -52,8 +52,9 @@ pub enum TriggerType {
 #[derive(Debug, Default)]
 pub struct ThresholdTriggerPlugin {
     settings: config::ThresholdTriggerPluginSettings,
-    threshold_provider: CachedThresholdProvider,
+    threshold_provider: Option<CachedThresholdProvider>,
     fsm: Fsm,
+    loaded: bool,
 }
 
 const METRIC_F: &str = "f";
@@ -65,8 +66,9 @@ impl ThresholdTriggerPlugin {
         let settings = config::ThresholdTriggerPluginSettings::default();
         ThresholdTriggerPlugin {
             settings: settings.clone(),
-            threshold_provider: CachedThresholdProvider::new(settings),
+            threshold_provider: None,
             fsm: Fsm::new(),
+            loaded: false,
         }
     }
 
@@ -177,10 +179,17 @@ impl MakaiPlugin for ThresholdTriggerPlugin {
     }
 
     fn process_measurement(&mut self, measurement: Arc<Measurement>) -> Option<Vec<Command>> {
+        if !self.loaded {
+            println!("Err: process_measurement in threshold plugin called before plugin is loaded");
+            return None;
+        }
+
         self.maybe_debug(measurement.box_id, &format!("{:#?}", measurement));
         self.maybe_debug(measurement.box_id, &format!("{:#?}", self.fsm));
+
         let mut cmds = Vec::new();
-        let threshold = self.threshold_provider.get(&measurement.box_id.to_string());
+        let provider = self.threshold_provider.as_mut().unwrap();
+        let threshold = provider.get(&measurement.box_id.to_string());
 
         if let Some(trigger) = self.check_frequency(&measurement, &threshold) {
             cmds.push(self.trigger_cmd(&trigger));
@@ -202,10 +211,13 @@ impl MakaiPlugin for ThresholdTriggerPlugin {
     }
 
     fn on_plugin_load(&mut self, args: String) {
+        println!("on_plugin_load");
         let set: Result<ThresholdTriggerPluginSettings, Error> = serde_json::from_str(&args);
         self.settings = match set {
             Ok(s) => {
-                self.threshold_provider = CachedThresholdProvider::new(s.clone());
+                println!("plugin loaded {:?}", s);
+                self.loaded = true;
+                self.threshold_provider = Some(CachedThresholdProvider::new(s.clone()));
                 s
             }
             Err(e) => {

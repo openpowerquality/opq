@@ -1,7 +1,7 @@
 use config::ThresholdTriggerPluginSettings;
 use mongodb;
 use mongodb::db::ThreadedDatabase;
-use mongodb::{Client, Document, ThreadedClient};
+use mongodb::{Document, ThreadedClient};
 
 const OPQ_DB: &str = "opq";
 const MAKAI_CONFIG_COLLECTION: &str = "makai_config";
@@ -36,9 +36,11 @@ pub struct TriggeringOverride {
 }
 
 pub fn makai_config(settings: &ThresholdTriggerPluginSettings) -> Result<MakaiConfig, String> {
-    let mut client = mongodb::Client::connect(&settings.mongo_host, settings.mongo_port)
+    println!("makai_config {:?}", settings);
+    let client = mongodb::Client::connect(&settings.mongo_host, settings.mongo_port)
         .expect("Could not create mongo client");
     let db: mongodb::db::Database = client.db(OPQ_DB);
+
     let coll: mongodb::coll::Collection = db.collection(MAKAI_CONFIG_COLLECTION);
     let makai_config_doc: Option<Document> = coll.find_one(None, None).unwrap_or(None);
 

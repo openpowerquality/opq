@@ -1,18 +1,18 @@
-use std::thread;
-use std::sync::{Arc, Mutex};
-use std::boxed::Box;
-use rand::{thread_rng, Rng};
 use rand::distributions::Alphanumeric;
+use rand::{thread_rng, Rng};
+use std::boxed::Box;
+use std::sync::{Arc, Mutex};
+use std::thread;
 
-use pub_sub::Subscription;
 use libloading::{Library, Symbol};
-use zmq;
+use pub_sub::Subscription;
 use serde_json;
+use zmq;
 
+use crate::config::Settings;
 use crate::event_requester::{EventRequester, SyncEventRequester};
 use crate::makai_plugin::MakaiPlugin;
 use crate::proto::opqbox3::Measurement;
-use crate::config::Settings;
 
 ///A structure used to keep track of dynamically loaded plugins.
 pub struct PluginManager {
@@ -47,7 +47,6 @@ impl PluginManager {
         &mut self,
         document: serde_json::Value,
         subscription: Subscription<Arc<Measurement>>,
-
     ) -> Result<(), String> {
         let filename = document.get("path").unwrap().as_str().unwrap().to_string();
         let filename_copy = filename.clone();
@@ -56,19 +55,26 @@ impl PluginManager {
         let trigger = self.trigger.clone();
 
         self.plugin_threads.push(thread::spawn(move || {
-
             // We need to keep the library around otherwise our plugin's vtable will
             // point to garbage. We do this little dance to make sure the library
             // doesn't end up getting moved.
-            let lib = match Library::new(filename){
-                Ok(l) => {l},
-                Err(e) => {println!("Could not load library plugin {}: {}", filename_copy, e); return;},
+            let lib = match Library::new(filename) {
+                Ok(l) => l,
+                Err(e) => {
+                    println!("Could not load library plugin {}: {}", filename_copy, e);
+                    return;
+                }
             };
 
-
-            let constructor: Symbol<PluginCreate> = match lib.get(b"_plugin_create"){
-                Ok(k) => {k},
-                Err(_) => {println!("Could not find the entry point into plugin {}", filename_copy); return},
+            let constructor: Symbol<PluginCreate> = match lib.get(b"_plugin_create") {
+                Ok(k) => k,
+                Err(_) => {
+                    println!(
+                        "Could not find the entry point into plugin {}",
+                        filename_copy
+                    );
+                    return;
+                }
             };
 
             let boxed_raw = constructor();
@@ -80,12 +86,8 @@ impl PluginManager {
                 let msg = subscription.recv().unwrap();
                 if let Some(mut list) = plugin.process_measurement(msg) {
                     let token = generate_event_token();
-                    for item in &list{
-
-                    }
                     for item in &mut list {
-
-                        trigger.lock().unwrap().trigger(&token,item)
+                        trigger.lock().unwrap().trigger(&token, item)
                     }
                 };
             }
@@ -95,10 +97,6 @@ impl PluginManager {
     }
 }
 
-
-fn generate_event_token() -> String{
-    thread_rng()
-        .sample_iter(&Alphanumeric)
-        .take(30)
-        .collect()
+fn generate_event_token() -> String {
+    thread_rng().sample_iter(&Alphanumeric).take(30).collect()
 }
