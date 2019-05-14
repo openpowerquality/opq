@@ -303,35 +303,3 @@ class MakaiEventPlugin(plugins.base_plugin.MaukaPlugin):
             self.logger.error("Received incorrect mauka message [%s] for MakaiEventPlugin",
                               protobuf.util.which_message_oneof(mauka_message))
 
-
-def rerun(event_id: int):
-    """
-    Rerun all makai events through the Mauka analysis pipeline.
-    :param event_id: The event id to rerun through the Mauka analysis pipeline.
-    """
-    client = mongo.get_default_client()
-    logger = logging.getLogger()
-    conf = config.from_env(constants.CONFIG_ENV)
-    filter_order = int(conf.get("plugins.MakaiEventPlugin.filterOrder"))
-    cutoff_frequency = float(conf.get("plugins.MakaiEventPlugin.cutoffFrequency"))
-    samples_per_window = int(constants.SAMPLES_PER_CYCLE) * int(
-        conf.get("plugins.MakaiEventPlugin.frequencyWindowCycles"))
-    down_sample_factor = int(conf.get("plugins.MakaiEventPlugin.frequencyDownSampleRate"))
-    try:
-        box_events = client.box_events_collection.find({"event_id": event_id})
-        for box_event in box_events:
-            box_id = box_event["box_id"]
-            adc_samples, _, rms_windowed_voltage, frequency_windowed = acquire_data(client,
-                                                                                    None,
-                                                                                    event_id, box_id, "rerun",
-                                                                                    filter_order, cutoff_frequency,
-                                                                                    samples_per_window,
-                                                                                    down_sample_factor)
-            plugins.frequency_variation_plugin.rerun(client, logger, frequency_windowed)
-            plugins.ieee1159_voltage_plugin.rerun(rms_windowed_voltage, logger, client)
-            plugins.itic_plugin.rerun(rms_windowed_voltage, 0.1, logger, client)
-            plugins.semi_f47_plugin.rerun(client, rms_windowed_voltage)
-            plugins.thd_plugin.rerun(adc_samples, logger, client)
-    # pylint: disable=W0703
-    except Exception as exception:
-        logger.error("Error re-running makai events through the Mauka analysis pipeline %s", str(exception))
