@@ -2,7 +2,6 @@
 This module provides a plugin and utilities for interacting and transforming raw data produced from Makai events.
 """
 
-import logging
 import math
 import multiprocessing
 import threading
@@ -302,4 +301,3 @@ class MakaiEventPlugin(plugins.base_plugin.MaukaPlugin):
         else:
             self.logger.error("Received incorrect mauka message [%s] for MakaiEventPlugin",
                               protobuf.util.which_message_oneof(mauka_message))
-
