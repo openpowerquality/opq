@@ -97,7 +97,7 @@ impl MeasurementDecimator {
     pub fn process_message(&mut self, msg: &Measurement) {
         for (proto_name, mongo_name) in MONGO_FIELD_REMAP.iter() {
             if msg.metrics.contains_key(&proto_name.to_string()) {
-                let new_metric = msg.metrics.get(&proto_name.to_string()).unwrap();
+                let new_metric = &msg.metrics[&proto_name.to_string()];
                 match self.measurements.get_mut(mongo_name.clone()) {
                     None => { self.measurements.insert(mongo_name.clone(), MetricStatistics::new(new_metric)); }
                     Some(value) => { value.update(new_metric); }
@@ -149,7 +149,7 @@ impl MongoMetricStorage {
         settings: &Settings,
     ) -> MongoMetricStorage {
         let client = Client::connect(&settings.mongo_host, settings.mongo_port).unwrap();
-        let ret = MongoMetricStorage {
+        MongoMetricStorage {
             sub_chan,
             live_coll: client
                 .db(MONGO_DATABASE)
@@ -162,9 +162,7 @@ impl MongoMetricStorage {
                 .collection(MONGO_LONG_TERM_MEASUREMENT_COLLECTION),
             trend_time_sec: settings.mongo_trends_update_interval_seconds,
             cached_ttl_provider: CachedTtlProvider::new(settings.ttl_cache_ttl, &client)
-        };
-
-        ret
+        }
     }
 
     ///Generate a new bson document for the live measurements.
@@ -208,7 +206,7 @@ impl MongoMetricStorage {
 
 
             let box_stat = map.entry(msg.box_id)
-                .or_insert(MeasurementDecimator::new());
+                .or_insert_with(MeasurementDecimator::new);
 
 
             box_stat.process_message(&msg);
@@ -240,7 +238,6 @@ impl MongoMetricStorage {
                 //Insert the long term measurement.
                 self.slow_coll
                     .insert_one(doc, None)
-                    .ok()
                     .expect("Could not insert");
             }
         }

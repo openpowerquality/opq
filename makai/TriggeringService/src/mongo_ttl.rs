@@ -11,7 +11,7 @@ use mongodb::ThreadedClient;
 fn timestamp_s() -> u64 {
     let now = SystemTime::now();
     let since_epoch = now.duration_since(UNIX_EPOCH).expect("Time is hard");
-    return since_epoch.as_secs();
+    since_epoch.as_secs()
 }
 
 struct CachedTtlValue {
@@ -67,7 +67,7 @@ impl CachedTtlProvider {
         let laha_config = laha_config_option.expect("laha_config is blank");
         let ordered_doc = laha_config.get_document(MONGO_LAHA_CONFIG_TTLS).expect("Error getting ordered_doc");
         let ttl = ordered_doc.get_i32(ttl_key).expect("Error getting ttl");
-        return ttl as u64;
+        ttl as u64
     }
 
     pub fn get_measurements_ttl(&mut self) -> u64 {

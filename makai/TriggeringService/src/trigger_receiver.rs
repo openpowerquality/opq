@@ -25,7 +25,7 @@ impl TriggerReceiver {
         config: &Settings,
     ) -> TriggerReceiver {
         let reciever = TriggerReceiver {
-            pub_chan: pub_chan,
+            pub_chan,
             trg_broker: ctx.socket(zmq::SUB).unwrap(),
         };
         reciever
