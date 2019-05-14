@@ -128,7 +128,8 @@ class ThdPlugin(plugins.base_plugin.MaukaPlugin):
             self.debug("on_message {}:{} len:{}".format(mauka_message.payload.event_id,
                                                         mauka_message.payload.box_id,
                                                         len(mauka_message.payload.data)))
-            self.debug("Running sliding_thd on %d samples" % len(protobuf.util.repeated_as_ndarray(mauka_message.payload.data)))
+            self.debug("Running sliding_thd on %d samples"
+                       % len(protobuf.util.repeated_as_ndarray(mauka_message.payload.data)))
             incident_ids = sliding_thd(self.mongo_client,
                                        self.threshold_percent,
                                        self.sliding_window_ms,
