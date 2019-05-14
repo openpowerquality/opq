@@ -224,11 +224,13 @@ impl MakaiPlugin for ThresholdTriggerPlugin {
         println!("on_plugin_load");
         let set: Result<ThresholdTriggerPluginSettings, Error> = serde_json::from_str(&args);
         self.settings = match set {
-            Ok(s) => {
-                println!("plugin loaded {:?}", s);
+            Ok(plugin_settings) => {
+                println!("plugin loaded {:?}", plugin_settings);
                 self.loaded = true;
-                self.threshold_provider = Some(CachedThresholdProvider::new(s.clone()));
-                s
+                let mut provider = CachedThresholdProvider::new(plugin_settings.clone());
+                provider.update();
+                self.threshold_provider = Some(provider);
+                plugin_settings
             }
             Err(e) => {
                 println!("Bad setting found for plugin {}: {:#?}", self.name(), e);
