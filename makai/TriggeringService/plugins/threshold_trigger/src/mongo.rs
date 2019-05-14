@@ -36,7 +36,6 @@ pub struct TriggeringOverride {
 }
 
 pub fn makai_config(settings: &ThresholdTriggerPluginSettings) -> Result<MakaiConfig, String> {
-    println!("makai_config {:?}", settings);
     let client = mongodb::Client::connect(&settings.mongo_host, settings.mongo_port)
         .expect("Could not create mongo client");
     let db: mongodb::db::Database = client.db(OPQ_DB);
