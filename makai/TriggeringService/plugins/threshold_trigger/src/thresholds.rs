@@ -88,13 +88,15 @@ pub struct CachedThresholdProvider {
 impl CachedThresholdProvider {
     pub fn new(settings: ThresholdTriggerPluginSettings) -> CachedThresholdProvider {
         let makai_config = mongo::makai_config(&settings).unwrap();
-        CachedThresholdProvider {
+        let mut provider = CachedThresholdProvider {
             threshold_cache: HashMap::new(),
             default_threshold: None,
             last_update: datetime::timestamp_ms(),
             settings,
             makai_config,
-        }
+        };
+        provider.update();
+        provider
     }
 
     fn update(&mut self) {
