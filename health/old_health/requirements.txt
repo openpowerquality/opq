@@ -1,4 +1,0 @@
-requests
-protobuf
-pymongo
-pyzmq
