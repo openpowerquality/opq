@@ -51,6 +51,10 @@ def sliding_thd(mongo_client, threshold_percent, sliding_window_ms, event_id: in
     """
     Calculates sliding THD over a waveform.
     High THD values are then stored as incidents to the database.
+    :param mongo_client: MongoDB client.
+    :param threshold_percent: Percent threshold for finding incidents.
+    :param sliding_window_ms: The size of the window in ms.
+    :param thd_plugin: An instance of the plugin.
     :param event_id: Event that this waveform came form.
     :param box_id: Box that this waveform came from.
     :param box_event_start_timestamp: Start timestamp of the provided waveform
@@ -150,26 +154,3 @@ class ThdPlugin(plugins.base_plugin.MaukaPlugin):
                               protobuf.util.which_message_oneof(mauka_message))
 
 
-def rerun(mauka_message: protobuf.mauka_pb2.MaukaMessage,
-          logger,
-          mongo_client: mongo.OpqMongoClient = None):
-    """
-    Rerun the THD plugin over a Makai box event.
-    :param mauka_message: The event message to rerun THD analysis over.
-    :param logger: The application logger
-    :param mongo_client: An optional instance of a mongo client.
-    :return:
-    """
-    client = mongo.get_default_client(mongo_client)
-
-    if protobuf.util.is_payload(mauka_message, protobuf.mauka_pb2.ADC_SAMPLES):
-        sliding_thd(client,
-                    5.0,
-                    200,
-                    mauka_message.payload.event_id,
-                    mauka_message.payload.box_id,
-                    mauka_message.payload.start_timestamp_ms,
-                    protobuf.util.repeated_as_ndarray(mauka_message.payload.data))
-    else:
-        logger.error("Received incorrect mauka message [%s] at ThdPlugin rerun",
-                     protobuf.util.which_message_oneof(mauka_message))
