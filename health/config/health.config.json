@@ -2,6 +2,7 @@
   "interval": 20,
   "mongo_host": "mongo",
   "mongo_port": 27017,
+  "mongo_service_checker_addr": "0.0.0.0:28420",
   "services": [
     {
       "name": "mongo",

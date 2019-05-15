@@ -7,6 +7,7 @@ extern crate serde_json;
 #[macro_use]
 extern crate log;
 extern crate env_logger;
+extern crate iron;
 
 use bson::*;
 use bson::{Document, TimeStamp};
@@ -17,6 +18,8 @@ use std::result::Result;
 use std::thread;
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
+pub mod mongo_service_checker;
+
 #[inline]
 fn now() -> u64 {
     SystemTime::now()
@@ -25,21 +28,22 @@ fn now() -> u64 {
         .as_secs()
 }
 
-#[derive(Default, Debug, Deserialize)]
-struct HealthConfig {
+#[derive(Default, Debug, Deserialize, Clone)]
+pub struct HealthConfig {
     interval: u64,
     mongo_host: String,
     mongo_port: u16,
+    mongo_service_checker_addr: String,
     services: Vec<Service>,
 }
 
-#[derive(Default, Debug, Deserialize)]
-struct Service {
+#[derive(Default, Debug, Deserialize, Clone)]
+pub struct Service {
     name: String,
     url: String,
 }
 
-#[derive(Deserialize, Default, Debug)]
+#[derive(Deserialize, Serialize, Default, Debug)]
 pub struct HealthStatus {
     name: String,
     ok: bool,
@@ -48,17 +52,31 @@ pub struct HealthStatus {
     subcomponents: Option<Vec<HealthStatus>>,
 }
 
+impl HealthStatus {
+    pub fn from_status(name: String, ok: bool) -> HealthStatus {
+        HealthStatus {
+            name,
+            ok,
+            timestamp: now(),
+            info: None,
+            subcomponents: None,
+        }
+    }
+}
+
 fn main() {
     env_logger::init();
 
     match parse_config_env() {
         Ok(config) => {
+            mongo_service_checker::start_mongo_service_checker(config.clone());
             let http_client = reqwest::Client::builder()
                 .timeout(Duration::from_secs(2))
                 .build()
                 .expect("Unable to build client");
-            let mongo_client = mongodb::Client::connect(&config.mongo_host, config.mongo_port)
-                .expect("Could not create mongo client");
+            let mongo_client: mongodb::Client =
+                mongodb::Client::connect(&config.mongo_host, config.mongo_port)
+                    .expect("Could not create mongo client");
             loop {
                 for service in &config.services {
                     query_service(&http_client, &mongo_client, service);
