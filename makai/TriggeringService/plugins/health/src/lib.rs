@@ -1,35 +1,36 @@
 #[macro_use]
 extern crate triggering_service;
 use std::str;
-use triggering_service::makai_plugin::MakaiPlugin;
-use triggering_service::proto::opqbox3::Measurement;
-use triggering_service::proto::opqbox3::Command;
-use triggering_service::proto::opqbox3::GetDataCommand;
-use triggering_service::proto::opqbox3::Command_oneof_command;
 use std::sync::Arc;
-use std::thread;
 use std::sync::Mutex;
+use std::thread;
+use triggering_service::makai_plugin::MakaiPlugin;
+use triggering_service::proto::opqbox3::Command;
+use triggering_service::proto::opqbox3::Command_oneof_command;
+use triggering_service::proto::opqbox3::GetDataCommand;
+use triggering_service::proto::opqbox3::Measurement;
 
-#[macro_use] extern crate serde_derive;
+#[macro_use]
+extern crate serde_derive;
+extern crate iron;
+extern crate router;
 extern crate serde;
 extern crate serde_json;
-#[macro_use] extern crate rouille;
 
-mod types;
 mod http_endpoint;
+mod types;
 
-use types::{HealthPluginSettings, Statistics, OpqBox};
+use types::{HealthPluginSettings, OpqBox, Statistics};
 
 #[derive(Default)]
-pub struct HealthPlugin{
-    settings : HealthPluginSettings,
-    stats : Arc<Mutex<Statistics>>,
-    http_thread : Option<thread::JoinHandle<()>>,
+pub struct HealthPlugin {
+    settings: HealthPluginSettings,
+    stats: Arc<Mutex<Statistics>>,
+    http_thread: Option<thread::JoinHandle<()>>,
 }
 
 impl MakaiPlugin for HealthPlugin {
-
-    fn name(&self) -> &'static str  {
+    fn name(&self) -> &'static str {
         "Health Plugin"
     }
 
@@ -37,14 +38,14 @@ impl MakaiPlugin for HealthPlugin {
         let mut stats = self.stats.lock().unwrap();
         let opq_box = OpqBox {
             name: msg.box_id.to_string(),
-            timestamp: msg.timestamp_ms/1000,
+            timestamp: msg.timestamp_ms / 1000,
             ok: true,
         };
-        stats.box_status.insert(msg.box_id, opq_box );
+        stats.box_status.insert(msg.box_id, opq_box);
         if stats.trigger_now {
             stats.trigger_now = false;
             let mut trg = Command::new();
-            trg.box_id  = msg.box_id as i32;
+            trg.box_id = msg.box_id as i32;
             trg.timestamp_ms = 0;
             let mut get_data = GetDataCommand::new();
             get_data.start_ms = msg.timestamp_ms - 1000;
@@ -57,11 +58,14 @@ impl MakaiPlugin for HealthPlugin {
         None
     }
 
-    fn on_plugin_load(&mut self, args : String) {
+    fn on_plugin_load(&mut self, args: String) {
         let set = serde_json::from_str(&args);
-        self.settings = match set{
-            Ok(s) => {s},
-            Err(e) => {println!("Bad setting file for plugin {}: {:?}", self.name(), e); HealthPluginSettings::default()},
+        self.settings = match set {
+            Ok(s) => s,
+            Err(e) => {
+                println!("Bad setting file for plugin {}: {:?}", self.name(), e);
+                HealthPluginSettings::default()
+            }
         };
 
         let stats = self.stats.clone();
@@ -70,7 +74,6 @@ impl MakaiPlugin for HealthPlugin {
         self.http_thread = Some(thread::spawn(move || {
             http_endpoint::start_server(stats, settings);
         }));
-
     }
 
     fn on_plugin_unload(&mut self) {

@@ -65,7 +65,9 @@ impl CachedTtlProvider {
             .find_one(None, None)
             .expect("Error getting laha_config");
         let laha_config = laha_config_option.expect("laha_config is blank");
-        let ordered_doc = laha_config.get_document(MONGO_LAHA_CONFIG_TTLS).expect("Error getting ordered_doc");
+        let ordered_doc = laha_config
+            .get_document(MONGO_LAHA_CONFIG_TTLS)
+            .expect("Error getting ordered_doc");
         let ttl = ordered_doc.get_i32(ttl_key).expect("Error getting ttl");
         ttl as u64
     }
@@ -76,7 +78,8 @@ impl CachedTtlProvider {
             Some(cached_value) => ts + cached_value,
             None => {
                 let ttl = self.mongo_get_ttl(MONGO_LAHA_CONFIG_MEASUREMENTS_TTL);
-                self.cached_measurements_ttl = Some(CachedTtlValue::from(ttl, ts + self.cache_for_seconds));
+                self.cached_measurements_ttl =
+                    Some(CachedTtlValue::from(ttl, ts + self.cache_for_seconds));
                 ts + ttl
             }
         }
@@ -88,7 +91,8 @@ impl CachedTtlProvider {
             Some(cached_value) => ts + cached_value,
             None => {
                 let ttl = self.mongo_get_ttl(MONGO_LAHA_CONFIG_TRENDS_TTL);
-                self.cached_trends_ttl = Some(CachedTtlValue::from(ttl, ts + self.cache_for_seconds));
+                self.cached_trends_ttl =
+                    Some(CachedTtlValue::from(ttl, ts + self.cache_for_seconds));
                 ts + ttl
             }
         }
@@ -100,7 +104,8 @@ impl CachedTtlProvider {
             Some(cached_value) => ts + cached_value,
             None => {
                 let ttl = self.mongo_get_ttl(MONGO_LAHA_CONFIG_EVENTS_TTL);
-                self.cached_events_ttl = Some(CachedTtlValue::from(ttl, ts + self.cache_for_seconds));
+                self.cached_events_ttl =
+                    Some(CachedTtlValue::from(ttl, ts + self.cache_for_seconds));
                 ts + ttl
             }
         }
