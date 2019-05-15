@@ -8,8 +8,8 @@ triggering_service = { path = "../../" }
 serde_json = "1.0"
 serde_derive = "1.0"
 serde = "1.0"
-rouille = "3.0"
-
+router="0.6.0"
+iron = "0.6.0"
 [lib]
 name = "health_plugin"
 crate-type = [

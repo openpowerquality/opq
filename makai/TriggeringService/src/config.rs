@@ -24,7 +24,7 @@ pub struct Settings {
     ///How long the overlapping intervals structure keeps data.
     pub event_request_expiration_window_ms: u64,
     ///Makai Instance Identity.
-    pub identity : Option<String>,
+    pub identity: Option<String>,
 
     pub ttl_cache_ttl: u64,
 
@@ -36,24 +36,28 @@ impl Settings {
     /// Load the settings file from disk.
     pub fn load_from_file<P: AsRef<Path>>(path: P) -> Result<Settings, String> {
         let file = File::open(path).or(Err("No such file"))?;
-        let mut settings : Settings = from_reader(file).unwrap();
-        if settings.identity.is_none(){
+        let mut settings: Settings = from_reader(file).unwrap();
+        if settings.identity.is_none() {
             settings.identity = Some(Uuid::new_v4().to_string());
         }
-        println!("Staring with identity: {}", settings.identity.clone().unwrap());
+        println!(
+            "Staring with identity: {}",
+            settings.identity.clone().unwrap()
+        );
         Ok(settings)
     }
 
     pub fn load_from_env(env: &str) -> Result<Settings, String> {
-        let contents = env::var(env)
-            .or(Err("Could not parse config from environment."))?;
-        let mut settings: Settings = from_reader(contents.as_bytes())
-            .or(Err("Could not parse config file."))?;
+        let contents = env::var(env).or(Err("Could not parse config from environment."))?;
+        let mut settings: Settings =
+            from_reader(contents.as_bytes()).or(Err("Could not parse config file."))?;
         if settings.identity.is_none() {
             settings.identity = Some(Uuid::new_v4().to_string());
         }
-        println!("Starting with identity: {}", settings.identity.clone().unwrap());
+        println!(
+            "Starting with identity: {}",
+            settings.identity.clone().unwrap()
+        );
         Ok(settings)
-
     }
 }

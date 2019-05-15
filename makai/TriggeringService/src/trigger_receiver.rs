@@ -1,10 +1,10 @@
-use zmq;
 use pub_sub::PubSub;
+use zmq;
 //use protobuf;
-use std::sync::Arc;
-use protobuf::{parse_from_bytes,ProtobufError};
-use crate::proto::opqbox3::Measurement;
 use crate::config::Settings;
+use crate::proto::opqbox3::Measurement;
+use protobuf::{parse_from_bytes, ProtobufError};
+use std::sync::Arc;
 
 /// This object is responsible for receiving triggering messages from the makai triggering broker.
 pub struct TriggerReceiver {
@@ -48,7 +48,6 @@ impl TriggerReceiver {
 
             match msg {
                 Ok(msg) => {
-
                     let trigger_message = Arc::new(msg);
                     self.pub_chan.send(trigger_message).unwrap();
                 }

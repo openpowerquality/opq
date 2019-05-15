@@ -10,19 +10,8 @@
   "ttl_cache_ttl": 60,
   "plugins" : [
     {
-      "path" : "./libprint_plugin.so",
-      "print" : false
-    },
-    {
       "path" : "./libhealth_plugin.so",
       "address" : "0.0.0.0:8080"
-    },
-    {
-      "path" : "/build/bin/libthreshold_trigger_plugin.so",
-      "mongo_host": "localhost",
-      "mongo_port": 27017,
-      "debug": false,
-      "debug_devices": []
     }
   ]
 }

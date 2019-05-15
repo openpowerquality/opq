@@ -1,31 +1,31 @@
 //! Makai is a event detection daemon used for identifying distributed events. Furthermore it will store triggering data to a mongo database.
-extern crate zmq;
 extern crate chrono;
 extern crate libloading;
 extern crate num;
 extern crate protobuf;
 extern crate pub_sub;
 extern crate serde;
+extern crate zmq;
 
+extern crate mongodb;
 extern crate serde_derive;
 extern crate serde_json;
 extern crate time;
-extern crate mongodb;
 
-use std::thread;
-use std::sync::Arc;
 use std::env;
+use std::sync::Arc;
+use std::thread;
 
 use triggering_service::config::Settings;
-use triggering_service::trigger_receiver::TriggerReceiver;
+use triggering_service::constants;
+use triggering_service::mongo_metric_storage::MongoMetricStorage;
 use triggering_service::plugin_manager::PluginManager;
 use triggering_service::proto::opqbox3::Measurement;
-use triggering_service::mongo_metric_storage::MongoMetricStorage;
-use triggering_service::constants;
+use triggering_service::trigger_receiver::TriggerReceiver;
 
 fn main() {
     let settings = if env::args().len() > 1 {
-        let args : Vec<String> = env::args().collect();
+        let args: Vec<String> = env::args().collect();
         match Settings::load_from_file(args[1].clone()) {
             Ok(s) => s,
             Err(e) => {
@@ -36,20 +36,19 @@ fn main() {
                 return;
             }
         }
-    }
-    else {
+    } else {
         match Settings::load_from_env(constants::ENVIRONMENT_SETTINGS_VAR) {
             Ok(s) => s,
             Err(e) => {
                 println!(
                     "Could not load a settings file from the environment {}: {}",
-                    constants::ENVIRONMENT_SETTINGS_VAR, e
+                    constants::ENVIRONMENT_SETTINGS_VAR,
+                    e
                 );
                 return;
             }
         }
     };
-
 
     let ctx = zmq::Context::new();
 
@@ -68,9 +67,12 @@ fn main() {
     }));
     let mut plugin_manager = PluginManager::new(&ctx, &settings);
     for document in settings.plugins {
-        let filename = match document.get("path"){
-            None => {println!("One of the plugins is missing a path field. How do I load it?"); continue},
-            Some(s) => {s.as_str().unwrap().to_string()},
+        let filename = match document.get("path") {
+            None => {
+                println!("One of the plugins is missing a path field. How do I load it?");
+                continue;
+            }
+            Some(s) => s.as_str().unwrap().to_string(),
         };
         unsafe {
             let res = plugin_manager.load_plugin(document, channel.subscribe());

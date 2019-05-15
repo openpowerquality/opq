@@ -1,13 +1,12 @@
-
-use crate::proto::opqbox3::Measurement;
 use crate::proto::opqbox3::Command;
-use std::sync::Arc;
+use crate::proto::opqbox3::Measurement;
 use std::any::Any;
+use std::sync::Arc;
 
-pub trait MakaiPlugin: Any{
+pub trait MakaiPlugin: Any {
     fn name(&self) -> &'static str;
-    fn process_measurement(&mut self, msg : Arc<Measurement>) -> Option<Vec<Command>>;
-    fn on_plugin_load(&mut self, json : String);
+    fn process_measurement(&mut self, msg: Arc<Measurement>) -> Option<Vec<Command>>;
+    fn on_plugin_load(&mut self, json: String);
     fn on_plugin_unload(&mut self);
 }
 
