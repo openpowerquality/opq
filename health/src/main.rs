@@ -77,8 +77,6 @@ fn main() {
 
 const ENV_VAR: &str = "HEALTH_SETTINGS";
 fn parse_config_env() -> Result<HealthConfig, String> {
-    println!("{:?}", std::env::var(ENV_VAR));
-    println!("{:?}", ENV_VAR);
     match std::env::var(ENV_VAR) {
         Ok(settings) => match serde_json::from_str(&settings) {
             Ok(health_config) => Ok(health_config),
