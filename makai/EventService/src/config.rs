@@ -40,8 +40,7 @@ impl Settings {
 
     pub fn load_from_env(env: &str) -> Result<Settings, String> {
         let contents = env::var(env).or(Err("Could not parse config from environment."))?;
-        let mut settings: Settings =
-            from_reader(contents.as_bytes()).unwrap();
+        let mut settings: Settings = from_reader(contents.as_bytes()).unwrap();
         if settings.identity.is_none() {
             settings.identity = Some(Uuid::new_v4().to_string());
         }

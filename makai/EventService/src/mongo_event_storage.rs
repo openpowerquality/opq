@@ -1,25 +1,24 @@
-use std::io::Write;
 use std::collections::HashMap;
+use std::io::Write;
 use std::time::Instant;
 
-use mongodb::Client;
+use bson::*;
+use mongodb::coll::options::FindOptions;
 use mongodb::coll::Collection;
-use mongodb::ThreadedClient;
 use mongodb::db::ThreadedDatabase;
 use mongodb::gridfs::Store;
 use mongodb::gridfs::ThreadedStore;
-use mongodb::coll::options::FindOptions;
-use bson::*;
+use mongodb::Client;
+use mongodb::ThreadedClient;
 
 use protobuf::{parse_from_bytes, ProtobufError};
 
 use zmq;
 
-use crate::mongo_ttl;
 use crate::config::Settings;
 use crate::constants::*;
+use crate::mongo_ttl;
 use crate::proto::opqbox3::{Cycle, Response, Response_oneof_response};
-
 
 pub struct MongoStorageService {
     client: mongodb::Client,
@@ -77,7 +76,8 @@ impl MongoStorageService {
             if msg.len() < 2 {
                 continue;
             }
-            let (event_number, identity, update) = self.get_event_number(&String::from_utf8(msg[0].clone()).unwrap());
+            let (event_number, identity, update) =
+                self.get_event_number(&String::from_utf8(msg[0].clone()).unwrap());
             let header_result: Result<Response, ProtobufError> = parse_from_bytes(&msg[1]);
             if let Err(_) = header_result {
                 println!("Could not parse a data message from the box.");
@@ -89,24 +89,21 @@ impl MongoStorageService {
                     MongoStorageService::update_event(&event_db, event_number, header.box_id);
                 } else {
                     let event = doc! {
-                    MONGO_EVENTS_ID_FIELD : event_number,
-                    MONGO_EVENTS_DESCRIPTION_FIELD: "Makai id ".to_string() + &identity.clone(),
-                    MONGO_EVENTS_TRIGGERED_FIELD: [header.box_id.to_string()],
-                    MONGO_EVENTS_RECEIVED_FIELD: [header.box_id.to_string()],
-                    MONGO_EVENTS_START_FIELD:  resp.start_ts,
-                    MONGO_EVENTS_END_FIELD: resp.end_ts,
-                    MONGO_EVENTS_EXPIRE_AT : ttl.get_events_ttl(),
-                };
+                        MONGO_EVENTS_ID_FIELD : event_number,
+                        MONGO_EVENTS_DESCRIPTION_FIELD: "Makai id ".to_string() + &identity.clone(),
+                        MONGO_EVENTS_TRIGGERED_FIELD: [header.box_id.to_string()],
+                        MONGO_EVENTS_RECEIVED_FIELD: [header.box_id.to_string()],
+                        MONGO_EVENTS_START_FIELD:  resp.start_ts,
+                        MONGO_EVENTS_END_FIELD: resp.end_ts,
+                        MONGO_EVENTS_EXPIRE_AT : ttl.get_events_ttl(),
+                    };
                     match event_db.insert_one(event, None) {
                         Ok(_) => {}
                         Err(e) => println!("Could not insert event {}.", e),
                     }
                     self.event_broker
                         .send_multipart(
-                            &[
-                                identity.as_bytes(),
-                                event_number.to_string().as_bytes(),
-                            ],
+                            &[identity.as_bytes(), event_number.to_string().as_bytes()],
                             0,
                         )
                         .unwrap();
@@ -154,8 +151,8 @@ impl MongoStorageService {
 
     fn update_event(event_db: &Collection, event_number: i32, box_id: i32) {
         let event = doc! {
-                    MONGO_EVENTS_ID_FIELD : event_number,
-                };
+            MONGO_EVENTS_ID_FIELD : event_number,
+        };
         let update = doc! {
                     "$push" : doc!{
                         MONGO_EVENTS_TRIGGERED_FIELD : box_id.to_string(),
@@ -166,8 +163,8 @@ impl MongoStorageService {
             Err(e) => println!("Could not update event {}.", e),
         }
         let event = doc! {
-                    MONGO_EVENTS_ID_FIELD : event_number,
-                };
+            MONGO_EVENTS_ID_FIELD : event_number,
+        };
         let update = doc! {
                     "$push" : doc!{
                         MONGO_EVENTS_RECEIVED_FIELD : box_id.to_string(),
@@ -234,15 +231,10 @@ impl MongoStorageService {
         }
     }
 
-
     fn get_event_number(&mut self, topic: &String) -> (i32, String, bool) {
         let (event_token, identity) = match parse_topic(&topic) {
-            Ok((id, identity)) => {
-                (id, identity)
-            }
-            Err(_) => {
-                ("".to_string(), "".to_string())
-            }
+            Ok((id, identity)) => (id, identity),
+            Err(_) => ("".to_string(), "".to_string()),
         };
 
         let (id, update) = if self.id_to_event.contains_key(&event_token) {
@@ -254,9 +246,14 @@ impl MongoStorageService {
             self.id_to_event.insert(event_token, (id, Instant::now()));
             (id, false)
         };
-        self.id_to_event = self.id_to_event.clone().into_iter().filter(
-            |(ref _token, (_id, time))| { time.elapsed().as_secs() < EVENT_TOKEN_EXPIRE_SECONDS as u64 }
-        ).collect();
+        self.id_to_event = self
+            .id_to_event
+            .clone()
+            .into_iter()
+            .filter(|(ref _token, (_id, time))| {
+                time.elapsed().as_secs() < EVENT_TOKEN_EXPIRE_SECONDS as u64
+            })
+            .collect();
 
         return (id, identity, update);
     }
