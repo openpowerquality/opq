@@ -1,6 +1,7 @@
 {
   "interval": 20,
-  "mongodb": "mongodb://localhost:27017",
+  "mongo_host": "mongo",
+  "mongo_port": 27017,
   "services": [
     {
       "name": "mongo",
