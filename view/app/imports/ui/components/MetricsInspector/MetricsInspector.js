@@ -1,20 +1,33 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { withTracker } from 'meteor/react-meteor-data';
-import { Grid, Loader } from 'semantic-ui-react';
+import { Button, Grid, Input, Loader, Popup } from 'semantic-ui-react';
 import synchronize from './synchronizer';
 import MetricTimeseriesViewer from './MetricTimeseriesViewer';
 import WidgetPanel from '../../layouts/WidgetPanel';
 import { getLahaStatsInRange } from '../../../api/laha-stats/LahaStatsCollection.methods';
+import Moment from 'moment';
+import Calendar from 'react-calendar';
+
+function asEpochS(date) {
+    return Math.round(date.getTime() / 1000);
+}
 
 class MetricsInspector extends React.Component {
     constructor(props) {
         super(props);
+
+        const endDate = new Date();
+        const startDate = new Date();
+        startDate.setDate(startDate.getDate() - 1); // One day before the end date
+
         this.state = {
             isLoading: false,
             loaded: false,
-            startTimestampS: props.startTimestampS,
-            endTimestampS: props.endTimestampS,
+            startDate: startDate,
+            endDate: endDate,
+            startTimestampS: asEpochS(startDate),
+            endTimestampS: asEpochS(endDate),
             metrics: [],
             errorReason: null,
         };
@@ -23,8 +36,7 @@ class MetricsInspector extends React.Component {
 
     componentDidMount() {
         const { startTimestampS, endTimestampS } = this.state;
-        // Retrieve relevant Event and BoxEvents for the given event_id.
-        this.retrieveInitialData(startTimestampS, endTimestampS);
+        this.retrieveData(startTimestampS, endTimestampS);
     }
 
     helpText = `
@@ -40,6 +52,34 @@ class MetricsInspector extends React.Component {
         return (!this.state.isLoading) ? this.renderPage() : <Loader active content='Loading...'/>;
     }
 
+    datePicker = () => (
+        <Grid.Row><Grid.Column><Grid stackable>
+            <Grid.Row>
+                <Grid.Column width={6}>
+                    <Popup on='focus'
+                           trigger={<Input fluid placeholder='Input a starting date' label='Start'
+                                           value={Moment(this.state.startDate).format('MM/DD/YYYY')}/>}
+                           content={<Calendar onChange={this.changeStartDate} value={this.state.startDate}/>}/>
+                </Grid.Column>
+                <Grid.Column width={6}>
+                    <Popup on='focus'
+                           trigger={<Input fluid placeholder='Input an ending date' label='End'
+                                           value={Moment(this.state.endDate).format('MM/DD/YYYY')}/>}
+                           content={<Calendar onChange={this.changeEndDate} value={this.state.endDate}/>}/>
+                </Grid.Column>
+                <Grid.Column width={4}>
+                    <Button content='Fetch Metrics'
+                            fluid
+                            onClick={() => this.retrieveData(this.state.startTimestampS, this.state.endTimestampS)}/>
+                </Grid.Column>
+            </Grid.Row>
+        </Grid></Grid.Column></Grid.Row>
+    );
+
+    changeStartDate = startDate => { this.setState({ startDate: startDate, startTimestampS: asEpochS(startDate) }); };
+    changeEndDate = endDate => { this.setState({ endDate: endDate, endTimestampS: asEpochS(endDate) }); };
+
+
     renderPage() {
         const { metrics } = this.state;
         const handleCallback = (dygraph) => {
@@ -53,6 +93,7 @@ class MetricsInspector extends React.Component {
                 <Grid.Column width={16}>
                     <WidgetPanel title='Laha Metrics Viewer' helpText={this.helpText}>
                         <Grid container>
+                            {this.datePicker()}
                             {this.state && this.state.loaded &&
                             <Grid.Column width={16}>
                                 <MetricTimeseriesViewer
@@ -380,7 +421,7 @@ class MetricsInspector extends React.Component {
     /**
      * Helper Methods
      */
-    retrieveInitialData(startTimestampS, endTimestampS) {
+    retrieveData(startTimestampS, endTimestampS) {
         this.setState({ loading: true, loaded: false }, () => {
            getLahaStatsInRange.call(
                {
@@ -574,15 +615,8 @@ class MetricsInspector extends React.Component {
     }
 }
 
-MetricsInspector.propTypes = {
-    startTimestampS: PropTypes.number.isRequired,
-    endTimestampS: PropTypes.number.isRequired,
-};
+MetricsInspector.propTypes = { };
 
 export default withTracker((props) => {
-    const { startTimestampS, endTimestampS } = props;
-    return {
-        startTimestampS: startTimestampS,
-        endTimestampS: endTimestampS,
-    };
+    return { };
 })(MetricsInspector);
