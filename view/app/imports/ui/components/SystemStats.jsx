@@ -34,8 +34,8 @@ function formatTtl(ttl, fmt = '') {
     const secondsInHour = 3600;
     const secondsInMinute = 60;
 
-    if(ttl === null || ttl === undefined) {
-        return "n/a";
+    if (ttl === null || ttl === undefined) {
+        return 'n/a';
     }
 
     if (ttl >= secondsInWeek) {
