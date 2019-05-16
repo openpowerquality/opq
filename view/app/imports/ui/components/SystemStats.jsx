@@ -8,11 +8,35 @@ import WidgetPanel from '../layouts/WidgetPanel';
 import { SystemStats } from '../../api/system-stats/SystemStatsCollection';
 import { LahaConfig } from '../../api/laha-config/LahaConfigCollection';
 
+/**
+ * Determines if the ttl values are available.
+ * @param props The props that should contain the lahaConfig and ttls values.
+ * @returns {boolean} True if the ttls are available, false otherwise.
+ */
+function hasTtls(props) {
+    if (props.lahaConfig === null || props.lahaConfig === undefined || props.lahaConfig.length === 0) {
+        return false;
+    }
+
+    const lahaConfig = props.lahaConfig[0];
+    return !(lahaConfig.ttls === null || lahaConfig.ttls === undefined);
+}
+
+/**
+ * A recursive function for formatting the TTL to be more human readable.
+ * @param ttl The ttl in seconds.
+ * @param fmt The already provided format string.
+ * @returns {string|(string|string|string)}
+ */
 function formatTtl(ttl, fmt = '') {
     const secondsInWeek = 604800;
     const secondsInDay = 86400;
     const secondsInHour = 3600;
     const secondsInMinute = 60;
+
+    if(ttl === null || ttl === undefined) {
+        return "n/a";
+    }
 
     if (ttl >= secondsInWeek) {
         return formatTtl(ttl % secondsInWeek, `${fmt}${Math.floor(ttl / secondsInWeek)}w`);
@@ -139,7 +163,11 @@ class SystemStatistics extends React.Component {
     /** Here's the system stats page. */
     renderPage() { // eslint-disable-line class-methods-use-this
         const stat = this.props.stats[0] || {};
-        const lahaConfig = this.props.lahaConfig[0];
+        const ttlsExist = hasTtls(this.props);
+        const incidentsTtl = ttlsExist ? formatTtl(this.props.lahaConfig[0].ttls.incidents) : 'n/a';
+        const eventsTtl = ttlsExist ? formatTtl(this.props.lahaConfig[0].ttls.events) : 'n/a';
+        const trendsTtl = ttlsExist ? formatTtl(this.props.lahaConfig[0].ttls.trends) : 'n/a';
+        const measurementsTtl = ttlsExist ? formatTtl(this.props.lahaConfig[0].ttls.measurements) : 'n/a';
         const footerStyle = { textAlign: 'center', paddingTop: '10px' };
         return (
             <WidgetPanel title="System Stats" helpText={this.helpText}>
@@ -148,25 +176,25 @@ class SystemStatistics extends React.Component {
                 {
                     this.renderEntity(
                         'INCIDENTS', stat.incidents_count_today, stat.incidents_count,
-                        formatTtl(lahaConfig.ttls.incidents),
+                        incidentsTtl,
                     )
                 }
                 {
                     this.renderEntity(
                         'EVENTS', stat.events_count_today, stat.events_count,
-                        formatTtl(lahaConfig.ttls.events),
+                        eventsTtl,
                     )
                 }
                 {
                     this.renderEntity(
                         'TRENDS', stat.trends_count_today, stat.trends_count,
-                        formatTtl(lahaConfig.ttls.trends),
+                        trendsTtl,
                     )
                 }
                 {
                     this.renderEntity(
                         'MEASUREMENTS', stat.measurements_count_today, stat.measurements_count,
-                        formatTtl(lahaConfig.ttls.measurements),
+                        measurementsTtl,
                     )
                 }
                 <p style={footerStyle}>Last update: {Moment(stat.timestamp).format('MMMM Do YYYY, h:mm:ss a')}</p>
