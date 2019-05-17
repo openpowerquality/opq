@@ -1,13 +1,12 @@
 import React from 'react';
-import PropTypes from 'prop-types';
-import { withTracker } from 'meteor/react-meteor-data';
+import Moment from 'moment';
+import Calendar from 'react-calendar';
 import { Button, Grid, Input, Loader, Popup } from 'semantic-ui-react';
 import synchronize from './synchronizer';
 import MetricTimeseriesViewer from './MetricTimeseriesViewer';
 import WidgetPanel from '../../layouts/WidgetPanel';
 import { getLahaStatsInRange } from '../../../api/laha-stats/LahaStatsCollection.methods';
-import Moment from 'moment';
-import Calendar from 'react-calendar';
+
 
 function asEpochS(date) {
     return Math.round(date.getTime() / 1000);
@@ -617,6 +616,4 @@ class MetricsInspector extends React.Component {
 
 MetricsInspector.propTypes = { };
 
-export default withTracker((props) => {
-    return { };
-})(MetricsInspector);
+export default MetricsInspector;
