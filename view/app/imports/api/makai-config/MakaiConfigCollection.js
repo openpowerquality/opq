@@ -1,3 +1,4 @@
+import { Meteor } from 'meteor/meteor';
 import SimpleSchema from 'simpl-schema';
 import BaseCollection from '../base/BaseCollection.js';
 
@@ -32,6 +33,61 @@ class MakaiConfigCollection extends BaseCollection {
         super('makai_config', new SimpleSchema({
             triggering: TriggeringSchema,
         }));
+    }
+
+    getMakaiConfig() {
+        const makaiConfig = this._collection.findOne();
+        if (makaiConfig) {
+            return makaiConfig;
+        }
+        throw new Meteor.Error('MakaiConfig not found.');
+    }
+
+    getTriggeringConfig() {
+        const makaiConfig = this.getMakaiConfig();
+        if (makaiConfig.triggering) {
+            return makaiConfig.triggering;
+        }
+        throw new Meteor.Error('MakaiConfig.triggering not found.');
+    }
+
+    getTriggeringOverrides() {
+        const triggering = this.getTriggeringConfig();
+        if (triggering.triggering_overrides) {
+            return triggering.triggering_overrides;
+        }
+        throw new Meteor.Error('MakaiConfig.triggering.triggering_overrides not found.');
+    }
+
+    getTriggeringOverrideOrDefault(box_id) {
+        const overrides = this.getTriggeringOverrides();
+        let foundOverride = null;
+        overrides.forEach(function(override) {
+            if (override.box_id === box_id) {
+                foundOverride = override;
+            }
+        });
+        if (foundOverride !== null) {
+           return {
+               ref_f: foundOverride.ref_f,
+               ref_v: foundOverride.ref_v,
+               threshold_percent_f_low: foundOverride.threshold_percent_f_low,
+               threshold_percent_f_high: foundOverride.threshold_percent_f_high,
+               threshold_percent_v_low: foundOverride.threshold_percent_v_low,
+               threshold_percent_v_high: foundOverride.threshold_percent_v_high,
+               threshold_percent_thd_high: foundOverride.threshold_percent_thd_high,
+           };
+        }
+        const triggering = this.getTriggeringConfig();
+        return {
+            ref_f: triggering.default_ref_f,
+            ref_v: triggering.default_ref_v,
+            threshold_percent_f_low: triggering.default_threshold_percent_f_low,
+            threshold_percent_f_high: triggering.default_threshold_percent_f_high,
+            threshold_percent_v_low: triggering.default_threshold_percent_v_low,
+            threshold_percent_v_high: triggering.default_threshold_percent_v_high,
+            threshold_percent_thd_high: triggering.default_threshold_percent_thd_high,
+        };
     }
 }
 

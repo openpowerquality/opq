@@ -1,1 +1,1 @@
-import './LahaConfigCollection.js';
+import './MakaiConfigCollection.js';
