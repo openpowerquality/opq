@@ -17,6 +17,7 @@ import { withTracker } from 'meteor/react-meteor-data';
 import SimpleSchema from 'simpl-schema';
 import { updateMethod } from '/imports/api/base/BaseCollection.methods';
 import WidgetPanel from '/imports/ui/layouts/WidgetPanel';
+import { MakaiConfig } from '../../../api/makai-config/MakaiConfigCollection';
 
 class EditBoxPage extends React.Component {
 
@@ -56,11 +57,19 @@ class EditBoxPage extends React.Component {
       'owners.$': { type: String, allowedValues: owners },
       unplugged: Boolean,
       calibration_constant: Number,
+      referenceFrequency: Number,
+      referenceVoltage: Number,
+      percentThresholdFrequencyLow: Number,
+      percentThresholdFrequencyHigh: Number,
+      percentThresholdVoltageLow: Number,
+      percentThresholdVoltageHigh: Number,
+      percentThresholdThdHigh: Number,
       locationDescription: { type: String, allowedValues: locationDescriptions, label: 'Location' },
     });
     // Update the Uniforms model with current values for locationDescription and Owners.
     this.props.doc.locationDescription = Locations.getDoc(this.props.doc.location).description;
     this.props.doc.owners = BoxOwners.findOwnersWithBoxId(this.props.doc.box_id);
+    console.log(this.props.doc);
     return (
       <Container>
         <WidgetPanel title="Edit Box" helpText={this.helpText} noPadding>
@@ -70,8 +79,13 @@ class EditBoxPage extends React.Component {
               <AutoField name='name'/>
               <AutoField name='description'/>
               <AutoField name='unplugged'/>
-              <AutoField name='calibration_constant'/>
               <AutoField name='locationDescription' />
+              <AutoField name='calibration_constant'/>
+              <AutoField name='percentThresholdFrequencyLow'/>
+              <AutoField name='percentThresholdFrequencyHigh'/>
+              <AutoField name='percentThresholdVoltageLow'/>
+              <AutoField name='percentThresholdVoltageHigh'/>
+              <AutoField name='percentThresholdThdHigh'/>
               <AutoField name='owners' />
               <SubmitField value='Submit'/>
               <ErrorsField/>
@@ -99,9 +113,11 @@ export default withTracker(({ match }) => {
   const locationsSubscription = Meteor.subscribe(Locations.getPublicationName());
   const userProfilesSubscription = Meteor.subscribe(UserProfiles.getPublicationName());
   const boxOwnersSubscription = Meteor.subscribe(BoxOwners.getPublicationName());
+  const makaiConfigSubscription = Meteor.subscribe(MakaiConfig.getPublicationName());
   return {
     ready: opqBoxesSubscription.ready() && locationsSubscription.ready() &&
-    userProfilesSubscription.ready() && boxOwnersSubscription.ready(),
+    userProfilesSubscription.ready() && boxOwnersSubscription.ready() &&
+    makaiConfigSubscription.ready(),
     doc: OpqBoxes.findBox(boxID),
   };
 })(withRouter(EditBoxPage));
