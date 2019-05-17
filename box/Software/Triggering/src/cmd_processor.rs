@@ -31,6 +31,7 @@ fn create_sub_socket(ctx: &Context, state: &Arc<State>) -> Socket {
     sub.set_curve_secretkey(&state.settings.box_secret_key.clone().unwrap())
         .unwrap();
     sub.connect(&state.settings.cmd_sub_ep).unwrap();
+    sub.set_rcvtimeo(1000).unwrap();
     sub
 }
 
@@ -88,12 +89,23 @@ pub fn start_cmd_processor(
 ) -> thread::JoinHandle<()> {
     thread::spawn(move || {
         let ctx = Context::default();
-        let rx = create_sub_socket(&ctx, &state);
-        let tx = create_push_socket(&ctx, &state);
+        let mut rx = create_sub_socket(&ctx, &state);
+        let mut tx = create_push_socket(&ctx, &state);
+        let mut cnt = 0;
         loop {
-            let msg = rx.recv_multipart(0).unwrap();
+            let msg = match rx.recv_multipart(0) {
+                Ok(msg) => msg,
+                Err(_) => {
+                    cnt += 1;
+                    if cnt > 2 * 60 {
+                        rx = create_sub_socket(&ctx, &state);
+                        tx = create_push_socket(&ctx, &state);
+                        cnt = 0;
+                    }
+                    continue;
+                }
+            };
             if msg.len() != 2 {
-                //TODO log
                 continue;
             }
 
