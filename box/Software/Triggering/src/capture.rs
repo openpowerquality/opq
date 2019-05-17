@@ -9,8 +9,8 @@ use std::slice;
 use std::sync::Arc;
 use std::thread;
 //Local dependencies
-use config::State;
 use box_api::types;
+use config::State;
 
 pub fn start_capture(tx: Sender<types::Window>, state: Arc<State>) -> thread::JoinHandle<()> {
     thread::spawn(move || {

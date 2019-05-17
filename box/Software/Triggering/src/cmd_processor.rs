@@ -4,15 +4,15 @@ use box_api::opqbox3::{
     Command, Command_oneof_command, GetDataResponseHeader, GetInfoResponse, Response,
     SendCommandToPlugin, SendCommandToPluginResponse, SetMeasurementRateResponse,
 };
+use config::{State, WINDOWS_PER_MEASUREMENT};
+use nix::ifaddrs;
 use protobuf::{parse_from_bytes, Message, ProtobufError};
 use std::sync::Arc;
 use std::thread;
-use nix::ifaddrs;
-use config::{State, WINDOWS_PER_MEASUREMENT};
 use std::time::{Duration, UNIX_EPOCH};
 use uptime_lib;
 use window_db::WindowDB;
-use zmq::{Context, Socket, PUSH, SUB, SNDMORE};
+use zmq::{Context, Socket, PUSH, SNDMORE, SUB};
 
 use util::{systemtime_to_unix_timestamp, unix_timestamp};
 
@@ -115,8 +115,11 @@ pub fn start_cmd_processor(
                         data_response.set_start_ts(0);
                         data_response.set_end_ts(0);
                     } else {
-                        data_response.set_start_ts(systemtime_to_unix_timestamp(&windows.first().unwrap().0));
-                        data_response.set_end_ts(systemtime_to_unix_timestamp(&windows.last().unwrap().0));
+                        data_response.set_start_ts(systemtime_to_unix_timestamp(
+                            &windows.first().unwrap().0,
+                        ));
+                        data_response
+                            .set_end_ts(systemtime_to_unix_timestamp(&windows.last().unwrap().0));
                     }
                     let mut resp = Response::new();
                     resp.set_get_data_response(data_response);
@@ -150,24 +153,24 @@ pub fn start_cmd_processor(
             response.set_seq(cmd.get_seq());
 
             response.timestamp_ms = unix_timestamp();
-            let res = match cmd.command.unwrap(){
-                Command_oneof_command::data_command(_) =>{
-                    if let Some(((time,window), rest)) = windows.split_last(){
-                        tx.send(&response.write_to_bytes().unwrap(), SNDMORE).unwrap();
-                        for (time, window) in rest{
-                            tx.send(&window.encode_to_cycle(&time).write_to_bytes().unwrap(), SNDMORE).unwrap();
+            let res = match cmd.command.unwrap() {
+                Command_oneof_command::data_command(_) => {
+                    if let Some(((time, window), rest)) = windows.split_last() {
+                        tx.send(&response.write_to_bytes().unwrap(), SNDMORE)
+                            .unwrap();
+                        for (time, window) in rest {
+                            tx.send(
+                                &window.encode_to_cycle(&time).write_to_bytes().unwrap(),
+                                SNDMORE,
+                            )
+                            .unwrap();
                         }
                         tx.send(&window.encode_to_cycle(&time).write_to_bytes().unwrap(), 0)
-
-                    }
-                    else {
-
+                    } else {
                         tx.send(&response.write_to_bytes().unwrap(), 0)
                     }
                 }
-                _ => {
-                    tx.send(&response.write_to_bytes().unwrap(), 0)
-                }
+                _ => tx.send(&response.write_to_bytes().unwrap(), 0),
             };
             match res {
                 Ok(_) => {}
@@ -175,7 +178,6 @@ pub fn start_cmd_processor(
                     warn!("Could not repond to command {:?}", e);
                 }
             }
-
         }
     })
 }

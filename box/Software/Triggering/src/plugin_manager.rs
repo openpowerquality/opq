@@ -6,13 +6,11 @@ use std::sync::Arc;
 use std::thread;
 use std::time::SystemTime;
 
-use config::State;
-use config::INTERNAL_PLUGINS;
 use box_api::opqbox3::SendCommandToPlugin;
 use box_api::plugin::TriggeringPlugin;
 use box_api::types;
-
-
+use config::State;
+use config::INTERNAL_PLUGINS;
 
 ///A structure used to keep track of dynamically loaded plugins.
 struct PluginManager {

@@ -1,11 +1,10 @@
-use config::State;
 use box_api::types::{RawWindow, Window};
+use config::State;
 
 use std::collections::VecDeque;
 use std::sync::Arc;
 use std::sync::Mutex;
 use std::time::SystemTime;
-
 
 #[derive(Default)]
 pub struct WindowDB {

@@ -14,24 +14,25 @@ extern crate uptime_lib;
 extern crate crossbeam_channel;
 #[macro_use]
 extern crate log;
-extern crate box_api;
-extern crate nix;
 extern crate base64;
+extern crate box_api;
 extern crate futures;
 extern crate hyper;
+extern crate nix;
 extern crate tokio;
-#[macro_use] extern crate lazy_static;
+#[macro_use]
+extern crate lazy_static;
 extern crate serde;
 
+extern crate frequency_plugin;
 extern crate thd_plugin;
 extern crate vrms_plugin;
-extern crate frequency_plugin;
 
 pub mod capture;
 pub mod cmd_processor;
 pub mod config;
 pub mod measurement_filter;
 pub mod plugin_manager;
+pub mod sse;
 pub mod util;
 pub mod window_db;
-pub mod sse;

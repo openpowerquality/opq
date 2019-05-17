@@ -1,4 +1,4 @@
-pub static DOWNSAMPLING_FILTER_TAPS: &'static [f64] = &[
+pub static DOWNSAMPLING_FILTER_TAPS: &'static [f32] = &[
     -0.0029035232693220584,
     0.0035345367952893886,
     0.0035907746457514884,
@@ -129,7 +129,7 @@ pub static DOWNSAMPLING_FILTER_TAPS: &'static [f64] = &[
     -0.002903523269322058,
 ];
 
-pub static LOW_PASS_FILTER_TAPS: &'static [f64] = &[
+pub static LOW_PASS_FILTER_TAPS: &'static [f32] = &[
     -0.000242972945201603,
     0.00931009681576234,
     0.012274256140224659,
