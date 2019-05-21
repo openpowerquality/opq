@@ -59,16 +59,19 @@ class EditBoxPage extends React.Component {
       calibration_constant: Number,
       referenceFrequency: Number,
       referenceVoltage: Number,
-      percentThresholdFrequencyLow: Number,
-      percentThresholdFrequencyHigh: Number,
-      percentThresholdVoltageLow: Number,
-      percentThresholdVoltageHigh: Number,
-      percentThresholdThdHigh: Number,
+      threshold_percent_f_low: Number,
+      threshold_percent_f_high: Number,
+      threshold_percent_v_low: Number,
+      threshold_percent_v_high: Number,
+      threshold_percent_thd_high: Number,
       locationDescription: { type: String, allowedValues: locationDescriptions, label: 'Location' },
     });
     // Update the Uniforms model with current values for locationDescription and Owners.
     this.props.doc.locationDescription = Locations.getDoc(this.props.doc.location).description;
     this.props.doc.owners = BoxOwners.findOwnersWithBoxId(this.props.doc.box_id);
+    // Merge the threshold document from the database with the current this.props.doc. This will insert all fields in
+    // the DB model into the doc model.
+    Object.assign(this.props.doc, MakaiConfig.getTriggeringOverrideOrDefault(this.props.doc.box_id));
     return (
       <Container>
         <WidgetPanel title="Edit Box" helpText={this.helpText} noPadding>
@@ -80,11 +83,11 @@ class EditBoxPage extends React.Component {
               <AutoField name='unplugged'/>
               <AutoField name='locationDescription' />
               <AutoField name='calibration_constant'/>
-              <AutoField name='percentThresholdFrequencyLow'/>
-              <AutoField name='percentThresholdFrequencyHigh'/>
-              <AutoField name='percentThresholdVoltageLow'/>
-              <AutoField name='percentThresholdVoltageHigh'/>
-              <AutoField name='percentThresholdThdHigh'/>
+              <AutoField name='threshold_percent_f_low'/>
+              <AutoField name='threshold_percent_f_high'/>
+              <AutoField name='threshold_percent_v_low'/>
+              <AutoField name='threshold_percent_v_high'/>
+              <AutoField name='threshold_percent_thd_high'/>
               <AutoField name='owners' />
               <SubmitField value='Submit'/>
               <ErrorsField/>
@@ -99,9 +102,9 @@ class EditBoxPage extends React.Component {
 
 /** Uniforms adds 'model' to the props, which we use. */
 EditBoxPage.propTypes = {
+  ready: PropTypes.bool.isRequired,
   doc: PropTypes.object,
   model: PropTypes.object,
-  ready: PropTypes.bool.isRequired,
 };
 
 /** withTracker connects Meteor data to React components. https://guide.meteor.com/react.html#using-withTracker */
@@ -114,10 +117,23 @@ export default withTracker(({ match }) => {
   const boxOwnersSubscription = Meteor.subscribe(BoxOwners.getPublicationName());
   const makaiConfigSubscription = Meteor.subscribe(MakaiConfig.getPublicationName());
 
+  // if (makaiConfigSubscription.ready() && opqBoxesSubscription.ready()) {
+  //   console.log(Object.assign(MakaiConfig.getTriggeringOverrideOrDefault(boxID), OpqBoxes.findBox(boxID)));
+  //   // const triggering = MakaiConfig.getTriggeringOverrideOrDefault(boxID);
+  // } else {
+  //   console.log("Collections aint be ready");
+  // }
+
+  const ready = opqBoxesSubscription.ready() && locationsSubscription.ready() &&
+      userProfilesSubscription.ready() && boxOwnersSubscription.ready() && makaiConfigSubscription.ready();
+
+  // const doc = ready ? Object.assign(OpqBoxes.findBox(boxID), MakaiConfig.getTriggeringOverrideOrDefault(boxID)) : OpqBoxes.findBox(boxID);
+
   return {
-    ready: opqBoxesSubscription.ready() && locationsSubscription.ready() &&
-    userProfilesSubscription.ready() && boxOwnersSubscription.ready() && makaiConfigSubscription.ready(),
-    doc: Object.assign(OpqBoxes.findBox(boxID), MakaiConfig.getTriggeringOverrideOrDefault(boxID)),
+    ready: ready,
+    // doc: doc,
+    doc: OpqBoxes.findBox(boxID),
+    // doc: Object.assign(OpqBoxes.findBox(boxID), MakaiConfig.getTriggeringOverrideOrDefault(boxID)),
     // doc: { ...OpqBoxes.findBox(boxID), ...MakaiConfig.getTriggeringOverrideOrDefault(boxID) },
   };
 })(withRouter(EditBoxPage));
