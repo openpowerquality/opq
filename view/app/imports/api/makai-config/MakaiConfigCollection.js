@@ -60,26 +60,29 @@ class MakaiConfigCollection extends BaseCollection {
     }
 
     getTriggeringOverrideOrDefault(box_id) {
+        const makaiConfigId = this.getMakaiConfig()._id;
         const overrides = this.getTriggeringOverrides();
         let foundOverride = null;
-        overrides.forEach(function(override) {
+        overrides.forEach(function (override) {
             if (override.box_id === box_id) {
                 foundOverride = override;
             }
         });
         if (foundOverride !== null) {
-           return {
-               ref_f: foundOverride.ref_f,
-               ref_v: foundOverride.ref_v,
-               threshold_percent_f_low: foundOverride.threshold_percent_f_low,
-               threshold_percent_f_high: foundOverride.threshold_percent_f_high,
-               threshold_percent_v_low: foundOverride.threshold_percent_v_low,
-               threshold_percent_v_high: foundOverride.threshold_percent_v_high,
-               threshold_percent_thd_high: foundOverride.threshold_percent_thd_high,
-           };
+            return {
+                makai_config_id: makaiConfigId,
+                ref_f: foundOverride.ref_f,
+                ref_v: foundOverride.ref_v,
+                threshold_percent_f_low: foundOverride.threshold_percent_f_low,
+                threshold_percent_f_high: foundOverride.threshold_percent_f_high,
+                threshold_percent_v_low: foundOverride.threshold_percent_v_low,
+                threshold_percent_v_high: foundOverride.threshold_percent_v_high,
+                threshold_percent_thd_high: foundOverride.threshold_percent_thd_high,
+            };
         }
         const triggering = this.getTriggeringConfig();
         return {
+            makai_config_id: makaiConfigId,
             ref_f: triggering.default_ref_f,
             ref_v: triggering.default_ref_v,
             threshold_percent_f_low: triggering.default_threshold_percent_f_low,
@@ -88,6 +91,49 @@ class MakaiConfigCollection extends BaseCollection {
             threshold_percent_v_high: triggering.default_threshold_percent_v_high,
             threshold_percent_thd_high: triggering.default_threshold_percent_thd_high,
         };
+    }
+
+    updateThresholds(
+        docId,
+        boxId,
+        thresholdPercentFrequencyLow,
+        thresholdPercentFrequencyHigh,
+        thresholdPercentVoltageLow,
+        thresholdPercentVoltageHigh,
+        thresholdPercentThdHigh,
+    ) {
+        if (Meteor.isServer) {
+            // First, let's compare these values do the defaults, if they are the same, there is no reason to update.
+            const triggering = this.getTriggeringConfig();
+            if (triggering.default_threshold_percent_f_low === thresholdPercentFrequencyLow
+                && triggering.default_threshold_percent_f_high === thresholdPercentFrequencyHigh
+                && triggering.default_threshold_percent_v_low === thresholdPercentVoltageLow
+                && triggering.default_threshold_percent_v_high === thresholdPercentVoltageHigh
+                && triggering.default_threshold_percent_thd_high === thresholdPercentThdHigh) {
+                return undefined;
+            }
+
+            // They are different, so either add a new override or update an existing one
+            const thresholds = {
+                ref_f: 60.0,
+                ref_v: 120.0,
+                threshold_percent_f_low: thresholdPercentFrequencyLow,
+                threshold_percent_f_high: thresholdPercentFrequencyHigh,
+                threshold_percent_v_low: thresholdPercentVoltageLow,
+                threshold_percent_v_high: thresholdPercentVoltageHigh,
+                threshold_percent_thd_high: thresholdPercentThdHigh,
+            };
+            return this._collection.update(
+                {
+                    _id: docId,
+                    'triggering.box_id': boxId,
+                },
+                {
+                    $set: { 'triggering.box_id.$': thresholds },
+                },
+            );
+        }
+        return undefined;
     }
 }
 
