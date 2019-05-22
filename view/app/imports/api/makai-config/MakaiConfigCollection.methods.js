@@ -8,13 +8,13 @@ export const updateThreshold = new ValidatedMethod({
     name: 'MakaiConfig.updateThreshold',
     mixins: [CallPromiseMixin],
     validate: new SimpleSchema({
-        docId: { type: String },
-        boxId: { type: String },
-        thresholdPercentFrequencyLow: { type: Number },
-        thresholdPercentFrequencyHigh: { type: Number },
-        thresholdPercentVoltageLow: { type: Number },
-        thresholdPercentVoltageHigh: { type: Number },
-        thresholdPercentThdHigh: { type: Number },
+        docId: { type: String, required: true },
+        boxId: { type: String, required: true },
+        thresholdPercentFrequencyLow: { type: Number, required: true },
+        thresholdPercentFrequencyHigh: { type: Number, required: true },
+        thresholdPercentVoltageLow: { type: Number, required: true },
+        thresholdPercentVoltageHigh: { type: Number, required: true },
+        thresholdPercentThdHigh: { type: Number, required: true },
     }).validator({ clean: true }),
     run({
             docId,
@@ -23,7 +23,7 @@ export const updateThreshold = new ValidatedMethod({
             thresholdPercentFrequencyHigh,
             thresholdPercentVoltageLow,
             thresholdPercentVoltageHigh,
-            thresholdPercentThdHigh
+            thresholdPercentThdHigh,
     }) {
         if (Meteor.isServer) {
             return MakaiConfig.updateThresholds(

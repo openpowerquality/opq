@@ -38,6 +38,7 @@ class EditBoxPage extends React.Component {
         //     Bert.alert({ type: 'success', style: 'growl-bottom-left', message: 'Update succeeded' })));
 
         // Update the makai config with threshold values.
+
         const {
             makai_config_id,
             box_id,
@@ -45,17 +46,20 @@ class EditBoxPage extends React.Component {
             threshold_percent_f_high,
             threshold_percent_v_low,
             threshold_percent_v_high,
-            threshold_percent_thd_high
-        } = data;
-        updateThreshold.call({
-            makai_config_id,
-            box_id,
-            threshold_percent_f_low,
-            threshold_percent_f_high,
-            threshold_percent_v_low,
-            threshold_percent_v_high,
             threshold_percent_thd_high,
-        }, (error) => (error ?
+        } = data;
+        const query = {
+            docId: makai_config_id._str,
+            boxId: box_id,
+            thresholdPercentFrequencyLow: threshold_percent_f_low,
+            thresholdPercentFrequencyHigh: threshold_percent_f_high,
+            thresholdPercentVoltageLow: threshold_percent_v_low,
+            thresholdPercentVoltageHigh: threshold_percent_v_high,
+            thresholdPercentThdHigh: threshold_percent_thd_high,
+        };
+
+        console.log(query);
+        updateThreshold.call(query, (error) => (error ?
             Bert.alert({ type: 'danger', style: 'growl-bottom-left', message: `Update failed: ${error.message}` }) :
             Bert.alert({ type: 'success', style: 'growl-bottom-left', message: 'Update succeeded' })));
     }
