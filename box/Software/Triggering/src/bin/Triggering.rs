@@ -1,3 +1,4 @@
+#[warn(non_snake_case)]
 extern crate protobuf;
 extern crate zmq;
 #[macro_use]
@@ -19,14 +20,13 @@ use triggering_v3::measurement_filter::run_filter;
 use triggering_v3::plugin_manager::run_plugins;
 use triggering_v3::window_db::WindowDB;
 
-
-
 fn main() {
     syslog::init(
         syslog::Facility::LOG_USER,
         log::LevelFilter::Info,
         Some("Triggering V3"),
-    ).expect("cannot initialize syslog");
+    )
+    .expect("cannot initialize syslog");
 
     let args: Vec<String> = env::args().collect();
     let config_path = match args.len() {
@@ -42,7 +42,8 @@ fn main() {
     };
     info!(
         "Box ID is {}, public key: {}",
-        config.settings.box_id, &config.settings.box_public_key.clone().unwrap()
+        config.settings.box_id,
+        &config.settings.box_public_key.clone().unwrap()
     );
 
     let window_db = WindowDB::new(Arc::clone(&config));

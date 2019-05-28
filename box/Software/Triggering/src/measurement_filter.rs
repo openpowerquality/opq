@@ -1,16 +1,16 @@
+use crate::sse::Server;
+use box_api::opqbox3::{Measurement, Metric};
+use box_api::types::Window;
 use config::{State, WINDOWS_PER_MEASUREMENT};
 use crossbeam_channel::Receiver;
-use box_api::opqbox3::{Measurement, Metric};
 use protobuf::Message;
 use std::collections::HashMap;
+use std::string::ToString;
 use std::sync::Arc;
 use std::thread;
-use box_api::types::Window;
+use util::unix_timestamp;
 use window_db::WindowDB;
 use zmq::{Context, Socket, PUB, SNDMORE};
-use util::unix_timestamp;
-use std::string::ToString;
-use crate::sse::Server;
 
 struct MeasurementStat {
     pub min: f32,
@@ -135,11 +135,9 @@ pub fn run_filter(
                 tx.send(&measurement.write_to_bytes().unwrap(), 0).unwrap();
             }
             window_db.add_window(window);
-
         }
     })
 }
-
 
 //Broadcast measurements:
 lazy_static! {
@@ -147,24 +145,22 @@ lazy_static! {
 }
 
 #[derive(Debug, Serialize)]
-struct SerializableMetric{
-    name : String,
-    value : f32
+struct SerializableMetric {
+    name: String,
+    value: f32,
 }
 
 #[derive(Debug, Serialize)]
-struct SerializableMetricArray{
-    pub metrics : Vec<SerializableMetric>,
+struct SerializableMetricArray {
+    pub metrics: Vec<SerializableMetric>,
 }
 
-fn broadcast_measurements(measurement : &Measurement){
-    let mut arr = SerializableMetricArray{
-        metrics : vec![],
-    };
-    for (name, metric)  in &measurement.metrics{
-        arr.metrics.push(SerializableMetric{
-            name : name.clone(),
-            value : metric.average
+fn broadcast_measurements(measurement: &Measurement) {
+    let mut arr = SerializableMetricArray { metrics: vec![] };
+    for (name, metric) in &measurement.metrics {
+        arr.metrics.push(SerializableMetric {
+            name: name.clone(),
+            value: metric.average,
         });
     }
     let broadcast_str = serde_json::to_string(&arr).unwrap();

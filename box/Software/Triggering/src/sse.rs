@@ -1,8 +1,8 @@
 use futures::future;
-use hyper::{Body, Chunk, Request, Response, StatusCode};
 use hyper::rt::{Future, Stream};
-use serde::Serialize;
+use hyper::{Body, Chunk, Request, Response, StatusCode};
 use serde::de::DeserializeOwned;
+use serde::Serialize;
 use std::collections::HashMap;
 use std::hash::Hash;
 use std::net::SocketAddr;
@@ -42,7 +42,6 @@ struct AuthToken<C> {
 impl<C: DeserializeOwned + Eq + Hash + FromStr + Send + Serialize> Server<C> {
     /// Create a new SSE push-server.
     pub fn new() -> Server<C> {
-
         Server {
             channels: Mutex::new(HashMap::new()),
             next_id: AtomicUsize::new(0),
@@ -55,7 +54,12 @@ impl<C: DeserializeOwned + Eq + Hash + FromStr + Send + Serialize> Server<C> {
     /// clients on the given channel, if any.
     ///
     /// Returns an error if the serialization fails.
-    pub fn push<S: Serialize>(&self, channel: C, event: &str, message: &S) -> Result<(), serde_json::error::Error> {
+    pub fn push<S: Serialize>(
+        &self,
+        channel: C,
+        event: &str,
+        message: &S,
+    ) -> Result<(), serde_json::error::Error> {
         let payload = serde_json::to_string(message)?;
         let message = format!("event: {}\ndata: {}\n\n", event, payload);
 
@@ -66,10 +70,12 @@ impl<C: DeserializeOwned + Eq + Hash + FromStr + Send + Serialize> Server<C> {
 
     /// Initiate a new SSE stream for the given request.
     pub fn create_stream(&self, request: &Request<Body>) -> Response<Body> {
-
         // Extract channel from uri path (last segment)
-        let channel = request.uri().path()
-            .rsplit('/').next()
+        let channel = request
+            .uri()
+            .path()
+            .rsplit('/')
+            .next()
             .and_then(|channel_str| C::from_str(channel_str).ok());
 
         // Check if the request contained a valid channel and token
@@ -83,7 +89,6 @@ impl<C: DeserializeOwned + Eq + Hash + FromStr + Send + Serialize> Server<C> {
             }
         };
 
-
         let (sender, body) = Body::channel();
         self.add_client(channel, sender);
 
@@ -95,7 +100,6 @@ impl<C: DeserializeOwned + Eq + Hash + FromStr + Send + Serialize> Server<C> {
             .body(body)
             .expect("Could not create response")
     }
-
 
     /// Send hearbeat to all clients on all channels.
     pub fn send_heartbeats(&self) {
@@ -131,9 +135,7 @@ impl<C: DeserializeOwned + Eq + Hash + FromStr + Send + Serialize> Server<C> {
     pub fn spawn(&'static self, listen: SocketAddr) -> JoinHandle<()> {
         use hyper::service::service_fn_ok;
 
-        let sse_handler = move |req: Request<Body>| {
-            self.create_stream(&req)
-        };
+        let sse_handler = move |req: Request<Body>| self.create_stream(&req);
 
         let http_server = hyper::Server::bind(&listen)
             .serve(move || service_fn_ok(sse_handler))
@@ -148,17 +150,14 @@ impl<C: DeserializeOwned + Eq + Hash + FromStr + Send + Serialize> Server<C> {
             .map_err(|e| panic!("Push maintenance failed: {}", e));
 
         thread::spawn(move || {
-            hyper::rt::run(
-                http_server
-                    .join(maintenance)
-                    .map(|_| ())
-            );
+            hyper::rt::run(http_server.join(maintenance).map(|_| ()));
         })
     }
 
     fn add_client(&self, channel: C, sender: hyper::body::Sender) {
         self.channels
-            .lock().unwrap()
+            .lock()
+            .unwrap()
             .entry(channel)
             .or_insert_with(Default::default)
             .push(Client {
