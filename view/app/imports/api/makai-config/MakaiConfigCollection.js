@@ -21,7 +21,7 @@ const TriggeringSchema = new SimpleSchema({
     default_threshold_percent_v_low: Number,
     default_threshold_percent_v_high: Number,
     default_threshold_percent_thd_high: Number,
-    triggering_overrides: TriggeringOverridesSchema,
+    triggering_overrides: [TriggeringOverridesSchema],
 });
 
 /**
@@ -115,6 +115,7 @@ class MakaiConfigCollection extends BaseCollection {
 
             // They are different, so either add a new override or update an existing one
             const thresholds = {
+                box_id: boxId,
                 ref_f: 60.0,
                 ref_v: 120.0,
                 threshold_percent_f_low: thresholdPercentFrequencyLow,
@@ -126,10 +127,10 @@ class MakaiConfigCollection extends BaseCollection {
             return this._collection.update(
                 {
                     _id: docId,
-                    'triggering.box_id': boxId,
+                    'triggering.triggering_overrides.box_id': boxId,
                 },
                 {
-                    $set: { 'triggering.box_id.$': thresholds },
+                    $set: { 'triggering.triggering_overrides.box_id.$': thresholds },
                 },
             );
         }

@@ -58,7 +58,6 @@ class EditBoxPage extends React.Component {
             thresholdPercentThdHigh: threshold_percent_thd_high,
         };
 
-        console.log(query);
         updateThreshold.call(query, (error) => (error ?
             Bert.alert({ type: 'danger', style: 'growl-bottom-left', message: `Update failed: ${error.message}` }) :
             Bert.alert({ type: 'success', style: 'growl-bottom-left', message: 'Update succeeded' })));
