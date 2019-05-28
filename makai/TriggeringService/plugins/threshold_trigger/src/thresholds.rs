@@ -1,8 +1,8 @@
 use config::ThresholdTriggerPluginSettings;
 use mongo::{MakaiConfig, Triggering, TriggeringOverride};
+use mongodb::{Client, ThreadedClient};
 use std::collections::HashMap;
 use {datetime, mongo};
-use mongodb::{Client, ThreadedClient};
 
 const ONE_MIN_IN_MS: u64 = 60000;
 
@@ -84,12 +84,12 @@ pub struct CachedThresholdProvider {
     pub last_update: u64,
     pub settings: ThresholdTriggerPluginSettings,
     pub makai_config: MakaiConfig,
-    pub mongo_client: Client,
+    pub mongo_client: Option<Client>,
 }
 
 impl CachedThresholdProvider {
     pub fn new(settings: ThresholdTriggerPluginSettings) -> CachedThresholdProvider {
-        let client = Client::connect(&settings.mongo_host, settings.mongo_port).unwrap();
+        let client: Client = Client::connect(&settings.mongo_host, settings.mongo_port).unwrap();
         let makai_config = mongo::makai_config(&client).unwrap();
         CachedThresholdProvider {
             threshold_cache: HashMap::new(),
@@ -97,12 +97,13 @@ impl CachedThresholdProvider {
             last_update: datetime::timestamp_ms(),
             settings,
             makai_config,
-            mongo_client: client,
+            mongo_client: Some(client),
         }
     }
 
     pub fn update(&mut self) {
-        self.makai_config = mongo::makai_config(&self.mongo_client).unwrap();
+        let makai_config = self.mongo_client.as_ref().unwrap();
+        self.makai_config = mongo::makai_config(makai_config).unwrap();
         self.default_threshold = Some(self.makai_config.triggering.clone().into());
         for triggering_override in &self.makai_config.triggering.triggering_overrides {
             self.threshold_cache.insert(
