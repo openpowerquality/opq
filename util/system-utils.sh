@@ -88,7 +88,7 @@ docker_delete_log() {
 
 # Displays the IP address for the docker short service name passed in.
 docker_ip() {
-  if [[ "$#" -ne 2 ]]; then
+  if [[ "$#" -ne 1 ]]; then
     echo "usage: docker_ip short_service_name"
     return 1
   fi
