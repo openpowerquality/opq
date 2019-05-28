@@ -12,20 +12,38 @@ SSR.compileTemplate('htmlEmail', Assets.getText('email-format.html'));
 SSR.compileTemplate('notificationEmail', Assets.getText('notification-email-template.html'));
 
 function sendEmail(contactEmails, startTime, services, downTotal, incidentTotal, classifications, locations) {
+  console.log('In SendEmail', contactEmails);
   Email.send({
     to: contactEmails,
     from: 'Open Power Quality <postmaster@mail.openpowerquality.org>',
     subject: 'New OPQ Notifications',
     html: SSR.render('notificationEmail', {
       startTime,
-      services: Array.toString(services),
+      services: services.toString(),
       downServiceTotal: downTotal,
       incidentTotal,
-      classifications: Array.toString(classifications),
-      locations: Array.toString(locations),
+      classifications: classifications.toString(),
+      locations: locations.toString(),
     }),
   });
 }
+
+// function sendTestEmail() {
+//   console.log('sending test email');
+//   Email.send({
+//     to: ['johnson@hawaii.edu'],
+//     from: 'Open Power Quality <postmaster@mail.openpowerquality.org>',
+//     subject: 'New OPQ Notifications',
+//     html: SSR.render('notificationEmail', {
+//       startTime: 'start time',
+//       services: ['service1', 'service2'].toString(),
+//       downServiceTotal: 'downTotal',
+//       incidentTotal: 'incidentTotal',
+//       classifications: ['classification1', 'classification2'].toString(),
+//       locations: ['location1', 'location2'].toString(),
+//     }),
+//   });
+// }
 
 /**
  * Returns the list of services involved in the passed set of notifications.
@@ -43,15 +61,20 @@ function extractServicesFromNotifications(notifications) {
  * @param maxDeliveries either 'once an hour' or 'once a day'
  */
 function findUsersAndSend(maxDeliveries) {
+  console.log('Starting findUsersAndSend');
   const usersInterested = UserProfiles.find({ 'notification_preferences.max_per_day': maxDeliveries }).fetch();
+  console.log('  Interested Users:', usersInterested);
   const startTime = (maxDeliveries === 'once a day') ?
     Moment().subtract(1, 'day').format('LLLL') :
     Moment().subtract(1, 'hour').format('LLLL');
 
   // Now loop through all users desiring notifications, and compose and send the email(s).
   _.forEach(usersInterested, user => {
+    console.log('  User:', user);
     const notifications = Notifications.find({ username: user.username, delivered: false }).fetch();
     const incidentReport = Incidents.getIncidentReport(startTime.valueOf());
+    console.log('  Notifications:', notifications);
+    console.log('  Incident Report:', incidentReport);
     // only sends out an email if user has undelivered notifications
     if ((notifications.length > 0) || (incidentReport.totalIncidents > 0)) {
       const contactEmails = UserProfiles.getContactEmails(user._id);
@@ -116,7 +139,7 @@ function removeOldNotifications() {
         Notifications.remove({ timestamp: { $lt: date } });
       },
     });
-    console.log('Starting Hourly Notification Cron to find notifications older than 48 hours');
+    console.log('Starting Hourly Notification Cron to remove notifications older than 8 days');
     SyncedCron.start();
   }
 }
