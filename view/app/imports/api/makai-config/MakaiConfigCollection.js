@@ -1,4 +1,5 @@
 import { Meteor } from 'meteor/meteor';
+import { Mongo } from 'meteor/mongo';
 import SimpleSchema from 'simpl-schema';
 import BaseCollection from '../base/BaseCollection.js';
 
@@ -103,17 +104,6 @@ class MakaiConfigCollection extends BaseCollection {
         thresholdPercentThdHigh,
     ) {
         if (Meteor.isServer) {
-            // First, let's compare these values do the defaults, if they are the same, there is no reason to update.
-            const triggering = this.getTriggeringConfig();
-            if (triggering.default_threshold_percent_f_low === thresholdPercentFrequencyLow
-                && triggering.default_threshold_percent_f_high === thresholdPercentFrequencyHigh
-                && triggering.default_threshold_percent_v_low === thresholdPercentVoltageLow
-                && triggering.default_threshold_percent_v_high === thresholdPercentVoltageHigh
-                && triggering.default_threshold_percent_thd_high === thresholdPercentThdHigh) {
-                return undefined;
-            }
-
-            // They are different, so either add a new override or update an existing one
             const thresholds = {
                 box_id: boxId,
                 ref_f: 60.0,
@@ -124,15 +114,30 @@ class MakaiConfigCollection extends BaseCollection {
                 threshold_percent_v_high: thresholdPercentVoltageHigh,
                 threshold_percent_thd_high: thresholdPercentThdHigh,
             };
-            return this._collection.update(
+            // First, try to update an existing override
+            const id = new Mongo.ObjectID(docId);
+            const updateResult = this._collection.update(
                 {
-                    _id: docId,
+                    _id: id,
                     'triggering.triggering_overrides.box_id': boxId,
                 },
                 {
-                    $set: { 'triggering.triggering_overrides.box_id.$': thresholds },
+                    $set: { 'triggering.triggering_overrides.$': thresholds },
                 },
             );
+            // If an existing override does not exist, insert a new override.
+            if (updateResult > 0) {
+                return updateResult;
+            }
+
+            const insertResult = this._collection.update(
+                id,
+                {
+                    $push: { 'triggering.triggering_overrides': thresholds },
+                },
+            );
+
+            return insertResult;
         }
         return undefined;
     }

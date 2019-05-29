@@ -18,7 +18,7 @@ import SimpleSchema from 'simpl-schema';
 import { updateMethod } from '/imports/api/base/BaseCollection.methods';
 import WidgetPanel from '/imports/ui/layouts/WidgetPanel';
 import { MakaiConfig } from '/imports/api/makai-config/MakaiConfigCollection';
-import { updateThreshold} from '../../../api/makai-config/MakaiConfigCollection.methods';
+import { updateThreshold } from '../../../api/makai-config/MakaiConfigCollection.methods';
 
 class EditBoxPage extends React.Component {
 
@@ -33,9 +33,10 @@ class EditBoxPage extends React.Component {
         const location = Locations.findSlugFromDescription(locationDescription);
         const collectionName = OpqBoxes.getCollectionName();
         const updateData = { id: _id, name, description, calibration_constant, unplugged, location, owners };
-        // updateMethod.call({ collectionName, updateData }, (error) => (error ?
-        //     Bert.alert({ type: 'danger', style: 'growl-bottom-left', message: `Update failed: ${error.message}` }) :
-        //     Bert.alert({ type: 'success', style: 'growl-bottom-left', message: 'Update succeeded' })));
+
+        updateMethod.call({ collectionName, updateData }, (error) => (error ?
+            Bert.alert({ type: 'danger', style: 'growl-bottom-left', message: `Box update failed: ${error.message}` }) :
+            Bert.alert({ type: 'success', style: 'growl-bottom-left', message: 'Box update succeeded' })));
 
         // Update the makai config with threshold values.
 
@@ -59,8 +60,11 @@ class EditBoxPage extends React.Component {
         };
 
         updateThreshold.call(query, (error) => (error ?
-            Bert.alert({ type: 'danger', style: 'growl-bottom-left', message: `Update failed: ${error.message}` }) :
-            Bert.alert({ type: 'success', style: 'growl-bottom-left', message: 'Update succeeded' })));
+            Bert.alert({
+                type: 'danger',
+                style: 'growl-bottom-left',
+                message: `Threshold update failed: ${error.message}` }) :
+            Bert.alert({ type: 'success', style: 'growl-bottom-left', message: 'Threshold update succeeded' })));
     }
 
     /** If the subscription(s) have been received, render the page, otherwise show a loading icon. */
