@@ -8,23 +8,21 @@ import { Notifications } from '../../api/notifications/NotificationsCollection';
 import { Incidents } from '../../api/incidents/IncidentsCollection';
 import { UserProfiles } from '../../api/users/UserProfilesCollection';
 
-SSR.compileTemplate('htmlEmail', Assets.getText('email-format.html'));
 SSR.compileTemplate('notificationEmail', Assets.getText('notification-email-template.html'));
 
 function sendEmail(contactEmails, startTime, services, downTotal, incidentTotal, classifications, locations) {
-  console.log('In SendEmail', contactEmails);
+  console.log('Starting to send emails', contactEmails);
+  const healthMessage = (downTotal > 0) ?
+  `System services (${services.toString()}) went down a total of ${downTotal} times` :
+    '';
+  const incidentMessage = (incidentTotal > 0) ?
+    `${incidentTotal} incidents (${classifications.toString()}) generated at these locations: ${locations.toString}` :
+    '';
   Email.send({
     to: contactEmails,
     from: 'Open Power Quality <postmaster@mail.openpowerquality.org>',
     subject: 'New OPQ Notifications',
-    html: SSR.render('notificationEmail', {
-      startTime,
-      services: services.toString(),
-      downServiceTotal: downTotal,
-      incidentTotal,
-      classifications: classifications.toString(),
-      locations: locations.toString(),
-    }),
+    html: SSR.render('notificationEmail', { startTime, healthMessage, incidentMessage }),
   });
 }
 
@@ -51,7 +49,7 @@ function sendEmail(contactEmails, startTime, services, downTotal, incidentTotal,
  * @returns {Array} An array of strings indicating the services.
  */
 function extractServicesFromNotifications(notifications) {
-  return _.unique(_.map(notifications, notification => notification.data.service));
+  return _.uniq(_.map(notifications, notification => notification.data.service));
 }
 
 /**
@@ -61,21 +59,19 @@ function extractServicesFromNotifications(notifications) {
  * @param maxDeliveries either 'once an hour' or 'once a day'
  */
 function findUsersAndSend(maxDeliveries) {
-  console.log('Starting findUsersAndSend');
+  console.log('Starting incident and health notification process.');
   const usersInterested = UserProfiles.find({ 'notification_preferences.max_per_day': maxDeliveries }).fetch();
-  console.log('  Interested Users:', usersInterested);
+  console.log('  Users requesting notification:', _.map(usersInterested, user => user.username));
   const startTime = (maxDeliveries === 'once a day') ?
     Moment().subtract(1, 'day').format('LLLL') :
     Moment().subtract(1, 'hour').format('LLLL');
 
   // Now loop through all users desiring notifications, and compose and send the email(s).
   _.forEach(usersInterested, user => {
-    console.log('  User:', user);
     const notifications = Notifications.find({ username: user.username, delivered: false }).fetch();
     const incidentReport = Incidents.getIncidentReport(startTime.valueOf());
-    console.log('  Notifications:', notifications);
-    console.log('  Incident Report:', incidentReport);
     // only sends out an email if user has undelivered notifications
+    console.log('User, Notifications, Incidents: ', user.username, notifications.length, incidentReport.totalIncidents);
     if ((notifications.length > 0) || (incidentReport.totalIncidents > 0)) {
       const contactEmails = UserProfiles.getContactEmails(user._id);
       const services = extractServicesFromNotifications(notifications);
@@ -93,16 +89,18 @@ function findUsersAndSend(maxDeliveries) {
 function startupHourlyNotifications() {
   // Only set up Cron Job when not in Test mode.
   if (!Meteor.isTest && !Meteor.isAppTest) {
+    const frequency = 'every hour';
     SyncedCron.add({
-      name: 'Send out email alerts once an hour',
+      name: `Check for notifications ${frequency}`,
       schedule(parser) {
-        return parser.text('every hour'); // Parser is a later.js parse object.
+        return parser.text(frequency); // Parser is a later.js parse object.
       },
       job() {
+        console.log(`Checking for notifications (${frequency})`);
         findUsersAndSend('once an hour');
       },
     });
-    console.log('Starting Hourly Notification Cron to check for undelivered notifications every hour');
+    console.log(`Starting cron job to check for notifications ${frequency}`);
     SyncedCron.start();
   }
 }
@@ -111,16 +109,18 @@ function startupHourlyNotifications() {
 function startupDailyNotifications() {
   // Only set up Cron Job when not in Test mode.
   if (!Meteor.isTest && !Meteor.isAppTest) {
+    const frequency = 'at 6:00 am';
     SyncedCron.add({
-      name: 'Send out email alerts once a day',
+      name: `Check for notifications ${frequency}`,
       schedule(parser) {
-        return parser.text('at 6:00 am'); // Parser is a later.js parse object.
+        return parser.text(frequency); // Parser is a later.js parse object.
       },
       job() {
+        console.log(`Checking for notifications ${frequency}`);
         findUsersAndSend('once a day');
       },
     });
-    console.log('Starting Daily Notification Cron to check for notifications every day at 6AM.');
+    console.log(`Starting cron job to check for notifications ${frequency}`);
     SyncedCron.start();
   }
 }
@@ -129,17 +129,19 @@ function startupDailyNotifications() {
 function removeOldNotifications() {
   // Only set up Cron Job when not in Test mode.
   if (!Meteor.isTest && !Meteor.isAppTest) {
+    const frequency = 'every hour';
     SyncedCron.add({
       name: 'Checks for notifications that are older than a week and removes them from db',
       schedule(parser) {
-        return parser.text('every hour'); // Parser is a later.js parse object.
+        return parser.text(frequency); // Parser is a later.js parse object.
       },
       job() {
+        console.log('Running job: removeOldNotifications');
         const date = new Date(Date.now() - (8 * 24 * 60 * 60 * 1000));
         Notifications.remove({ timestamp: { $lt: date } });
       },
     });
-    console.log('Starting Hourly Notification Cron to remove notifications older than 8 days');
+    console.log(`Starting cron job to remove old notifications ${frequency}`);
     SyncedCron.start();
   }
 }
