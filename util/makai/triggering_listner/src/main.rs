@@ -32,8 +32,24 @@ fn main() {
         }
         let result : Result<Measurement, ProtobufError> = parse_from_bytes(&parts[1]);
         if let Ok(measurement) = result {
-            //println!("{} : {} {} {}", measurement.box_id, measurement.metrics.get("rms").unwrap().average, measurement.metrics.get("f").unwrap().average, measurement.metrics.get("thd").unwrap().average);
-			println!("{} : {} {} {}", measurement.box_id, measurement.metrics.get("f").unwrap().min, measurement.metrics.get("f").unwrap().average, measurement.metrics.get("f").unwrap().max);
+            if measurement.metrics.contains_key("f") {
+              //  println!("{} : {} {} {}", measurement.box_id, measurement.metrics.get("f").unwrap().min, measurement.metrics.get("f").unwrap().average, measurement.metrics.get("f").unwrap().max);
+              //println!("{}", measurement.metrics.get("f").unwrap().average);
+            }
+            if measurement.metrics.contains_key("rms") {
+                ////println!("{} : {} {} {}", measurement.box_id, measurement.metrics.get("rms").unwrap().min, measurement.metrics.get("rms").unwrap().average, measurement.metrics.get("rms").unwrap().max);
+              //println!("{}", measurement.metrics.get("rms").unwrap().average);
+            }
+            if measurement.metrics.contains_key("thd") {
+                //println!("{} : {} {} {}", measurement.box_id, measurement.metrics.get("thd").unwrap().min, measurement.metrics.get("thd").unwrap().average, measurement.metrics.get("thd").unwrap().max);
+               // println!("{}", measurement.metrics.get("thd").unwrap().average);
+            }
+            if measurement.metrics.contains_key("trans") {
+                //println!("{} : {} {} {}", measurement.box_id, measurement.metrics.get("thd").unwrap().min, measurement.metrics.get("thd").unwrap().average, measurement.metrics.get("thd").unwrap().max);
+               println!("{}", measurement.metrics.get("trans").unwrap().average);
+            }
+
+
         }
 
     }

@@ -19,10 +19,11 @@ pub struct State {
 }
 
 //List of builtin compiled plugins.
-pub const INTERNAL_PLUGINS: [fn() -> Box<plugin::TriggeringPlugin>; 3] = [
+pub const INTERNAL_PLUGINS: [fn() -> Box<plugin::TriggeringPlugin>; 4] = [
     thd_plugin::THD::box_new,
     vrms_plugin::VRMS::box_new,
     frequency_plugin::Frequency::box_new,
+    transient_plugin::Transient::box_new
 ];
 
 impl State {

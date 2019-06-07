@@ -134,6 +134,7 @@ mod tests {
         let mut target_frequency = 60.1;
         let mut f = Frequency::new();
         let mut time: f64 = 0.0;
+        let phase = 15.7;
         for _ in 0..300 {
             let mut rw = RawWindow {
                 datapoints: [0; 200],
@@ -145,7 +146,7 @@ mod tests {
                 time += 1.0;
                 rw.datapoints[j] = (30000.0
                     * (2.0 * PI * time
-                        / (((CYCLES_PER_SEC * SAMPLES_PER_CYCLE) as f64) / target_frequency))
+                        / (((CYCLES_PER_SEC * SAMPLES_PER_CYCLE) as f64) / target_frequency) + phase)
                         .sin()) as i16;
             }
             let mut w = Window::new(rw, 100.0);
@@ -172,7 +173,7 @@ mod tests {
                 time += 1.0;
                 rw.datapoints[j] = (30000.0
                     * (2.0 * PI * time
-                        / (((CYCLES_PER_SEC * SAMPLES_PER_CYCLE) as f64) / target_frequency))
+                        / (((CYCLES_PER_SEC * SAMPLES_PER_CYCLE) as f64) / target_frequency) + phase)
                         .sin()) as i16;
             }
             let mut w = Window::new(rw, 100.0);
@@ -197,7 +198,7 @@ mod tests {
                 time += 1.0;
                 rw.datapoints[j] = (30000.0
                     * (2.0 * PI * time
-                    / (((CYCLES_PER_SEC * SAMPLES_PER_CYCLE) as f64) / target_frequency))
+                    / (((CYCLES_PER_SEC * SAMPLES_PER_CYCLE) as f64) / target_frequency) + phase)
                     .sin()) as i16;
             }
             let mut w = Window::new(rw, 100.0);

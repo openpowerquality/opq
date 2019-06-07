@@ -31,3 +31,4 @@ box_api = { path = "box_api" }
 frequency_plugin = { path = "plugins/frequency" }
 thd_plugin = {path = "plugins/thd"}
 vrms_plugin = {path = "plugins/vrms"}
+transient_plugin = {path="plugins/transient"}

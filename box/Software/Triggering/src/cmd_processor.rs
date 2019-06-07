@@ -62,15 +62,6 @@ fn process_info_command(state: &Arc<State>) -> Response {
     }
     info.set_mac_addr(macs);
     info.set_ip(ips);
-    /*
-    let manager = NetworkManager::new();
-    let mut ssids = String::new();
-
-    for conn in manager.get_active_connections().unwrap() {
-        ssids += conn.settings().ssid.as_str().unwrap();
-        ssids += "\n";
-    }
-    */
     let ssids = String::new();
     info.set_wifi_network(ssids);
     info.set_calibration_constant(0);
