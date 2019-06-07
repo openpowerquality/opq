@@ -73,13 +73,13 @@ class SystemHealth extends React.Component {
     const healthDoc = _.find(healths, health => (health.service === 'BOX' && health.serviceID === boxID));
     const boxDoc = _.find(this.props.boxes, doc => doc.box_id === boxID);
     const name = `Box ${boxID}`;
-    // If no record, return unknown (grey)
-    if (!healthDoc) {
-      return { name, color: 'grey', icon: 'question circle' };
-    }
     // If unplugged, return unplugged
     if (boxDoc && boxDoc.unplugged) {
       return { name, color: 'yellow', icon: 'plug' };
+    }
+    // If no record, return unknown (grey)
+    if (!healthDoc) {
+      return { name, color: 'grey', icon: 'question circle' };
     }
     // If up, return green.
     if (healthDoc.status === 'UP') {

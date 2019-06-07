@@ -14,3 +14,4 @@ import '../../api/email';
 import '../../api/incidents';
 import '../../api/laha-config';
 import '../../api/laha-stats';
+import '../../api/makai-config';

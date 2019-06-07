@@ -65,7 +65,7 @@ function startupIntegrityCheck() {
         console.log(`Integrity check: finished at ${moment().format('lll')}`);
       },
     });
-    console.log(`Starting SyncedCron to run integrity check ${parseText}`);
+    console.log(`Starting cron job to run integrity check ${parseText}`);
     SyncedCron.start();
   }
 }
