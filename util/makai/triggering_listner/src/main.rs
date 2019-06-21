@@ -11,6 +11,11 @@ use crate::proto::opqbox3::{Measurement};
 
 use crate::config::Settings;
 
+enum WhichBoxes{
+    ALL,
+    Only(u32)
+}
+
 fn main() {
     let args: Vec<String> = env::args().collect();
     let settings = match Settings::load_from_file(args[1].clone()) {
@@ -20,6 +25,11 @@ fn main() {
             return
         },
     };
+
+    let mut which = WhichBoxes::ALL;
+    if args.len() >= 3 {
+        which = WhichBoxes::Only(args[2].parse::<u32>().unwrap());
+    }
 
     let ctx = zmq::Context::new();
     let trg_broker =  ctx.socket(zmq::SUB).unwrap();
@@ -32,21 +42,23 @@ fn main() {
         }
         let result : Result<Measurement, ProtobufError> = parse_from_bytes(&parts[1]);
         if let Ok(measurement) = result {
+            if let WhichBoxes::Only(id) = which{
+                if id != measurement.box_id {
+                    continue;
+                }
+            }
+            println!("{}", measurement.box_id);
             if measurement.metrics.contains_key("f") {
-              //  println!("{} : {} {} {}", measurement.box_id, measurement.metrics.get("f").unwrap().min, measurement.metrics.get("f").unwrap().average, measurement.metrics.get("f").unwrap().max);
-              //println!("{}", measurement.metrics.get("f").unwrap().average);
+               println!("\tFrequency : {} {} {}", measurement.metrics.get("f").unwrap().min, measurement.metrics.get("f").unwrap().average, measurement.metrics.get("f").unwrap().max);
             }
             if measurement.metrics.contains_key("rms") {
-                ////println!("{} : {} {} {}", measurement.box_id, measurement.metrics.get("rms").unwrap().min, measurement.metrics.get("rms").unwrap().average, measurement.metrics.get("rms").unwrap().max);
-              //println!("{}", measurement.metrics.get("rms").unwrap().average);
+                println!("\tRMS : {} {} {}", measurement.metrics.get("rms").unwrap().min, measurement.metrics.get("rms").unwrap().average, measurement.metrics.get("rms").unwrap().max);
             }
             if measurement.metrics.contains_key("thd") {
-                //println!("{} : {} {} {}", measurement.box_id, measurement.metrics.get("thd").unwrap().min, measurement.metrics.get("thd").unwrap().average, measurement.metrics.get("thd").unwrap().max);
-               // println!("{}", measurement.metrics.get("thd").unwrap().average);
+                println!("\tTHD : {} {} {}", measurement.metrics.get("thd").unwrap().min, measurement.metrics.get("thd").unwrap().average, measurement.metrics.get("thd").unwrap().max);
             }
             if measurement.metrics.contains_key("trans") {
-                //println!("{} : {} {} {}", measurement.box_id, measurement.metrics.get("thd").unwrap().min, measurement.metrics.get("thd").unwrap().average, measurement.metrics.get("thd").unwrap().max);
-               println!("{}", measurement.metrics.get("trans").unwrap().average);
+                println!("\tTRANS : {} {} {}", measurement.metrics.get("trans").unwrap().min, measurement.metrics.get("trans").unwrap().average, measurement.metrics.get("trans").unwrap().max);
             }
 
 
