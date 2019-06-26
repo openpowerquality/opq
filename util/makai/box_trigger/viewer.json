@@ -1,0 +1,8 @@
+{
+  "zmq_trigger_endpoint" : "tcp://localhost:9881",
+  "zmq_acquisition_endpoint" : "tcp://localhost:9884",
+  "zmq_data_endpoint" : "tcp://localhost:9899",
+  "zmq_event_endpoint" : "tcp://*:10000",
+  "mongo_host" : "localhost",
+  "mongo_port" : 27017
+}
