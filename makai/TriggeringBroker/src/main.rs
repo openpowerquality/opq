@@ -4,8 +4,8 @@ extern crate serde_derive;
 extern crate mongodb;
 
 mod config;
-mod key_parser;
 mod constants;
+mod key_parser;
 mod mongo_debug_metric;
 
 use std::env;
@@ -37,14 +37,15 @@ fn main() {
             Err(e) => {
                 println!(
                     "Could not load a settings file from the environment {}: {}",
-                    constants::ENVIRONMENT_SETTINGS_VAR, e
+                    constants::ENVIRONMENT_SETTINGS_VAR,
+                    e
                 );
                 return;
             }
         }
     };
-    let contents = fs::read_to_string(&settings.server_cert)
-        .expect("Could not read server key file");
+    let contents =
+        fs::read_to_string(&settings.server_cert).expect("Could not read server key file");
     ;
     let (pub_key, sec_key) = parse_key_file(&contents);
     let pub_key = match pub_key {
@@ -81,14 +82,13 @@ fn main() {
     let mut last_update = Instant::now();
     let mut accum_bytes: u32 = 0;
     loop {
-        let  msg = interface.recv_multipart(0).unwrap();
+        let msg = interface.recv_multipart(0).unwrap();
         let mut array = vec![];
-        for p in msg.as_slice(){
+        for p in msg.as_slice() {
             let b: &[u8] = p;
             array.push(b);
         }
         backend.send_multipart(&array, 0).unwrap();
-
 
         match &debug_metric {
             None => {}

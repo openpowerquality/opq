@@ -1,4 +1,4 @@
-use serde_json::{from_reader};
+use serde_json::from_reader;
 use std::env;
 use std::fs::File;
 use std::path::Path;
@@ -9,9 +9,9 @@ pub struct Settings {
     pub server_cert: String,
     pub interface: String,
     pub backend: String,
-    pub metric_update_sec : u64,
-    pub mongo_host : String,
-    pub mongo_port : u16
+    pub metric_update_sec: u64,
+    pub mongo_host: String,
+    pub mongo_port: u16,
 }
 
 impl Settings {
@@ -24,8 +24,7 @@ impl Settings {
 
     pub fn load_from_env(env: &str) -> Result<Settings, String> {
         let contents = env::var(env).or(Err("Could not parse config from environment."))?;
-        let settings: Settings =
-            from_reader(contents.as_bytes()).unwrap();
+        let settings: Settings = from_reader(contents.as_bytes()).unwrap();
         Ok(settings)
     }
 }

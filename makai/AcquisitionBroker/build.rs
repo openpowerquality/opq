@@ -7,6 +7,6 @@ fn main() {
         out_dir: "src/proto",
         input: &["../../protocol/opqbox3.proto"],
         includes: &["../../protocol/"],
-    }).expect("protoc");
-
+    })
+    .expect("protoc");
 }

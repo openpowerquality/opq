@@ -1,7 +1,6 @@
 use regex::Regex;
 
-pub fn parse_key_file(key_file_contents :&String) -> (Option<String>, Option<String>){
-
+pub fn parse_key_file(key_file_contents: &String) -> (Option<String>, Option<String>) {
     let mut pub_key = None;
     let mut sec_key = None;
 
@@ -18,6 +17,5 @@ pub fn parse_key_file(key_file_contents :&String) -> (Option<String>, Option<Str
         break;
     }
 
-
-    (pub_key,sec_key)
+    (pub_key, sec_key)
 }
