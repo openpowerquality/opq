@@ -46,6 +46,7 @@ impl BoxResponse {
                 Response_oneof_response::message_rate_reponse(_) => {},
                 Response_oneof_response::get_data_response(data_header) => {
                     println!("Got a trigger responce : {}", response.box_id);
+                    println!("Chunks: {}", parts.len() -2 )
                 },
                 Response_oneof_response::command_to_plugin_response(_) => {},
             }

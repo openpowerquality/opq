@@ -1,5 +1,5 @@
 [package]
-name = "box_viewer"
+name = "box_trigger"
 version = "0.1.0"
 authors = ["Serge <sin8@hawaii.edu>"]
 edition = "2018"
