@@ -34,8 +34,8 @@ impl BoxCommand {
             CommandType::Trigger => {
                 let mut cmd_field = GetDataCommand::new();
                 cmd_field.wait = false;
-                cmd_field.start_ms = timestamp() - 2000;
-                cmd_field.start_ms = timestamp() - 1000;
+                cmd_field.start_ms = timestamp() - 4000;
+                cmd_field.end_ms = timestamp() - 3000;
                 Command_oneof_command::data_command(cmd_field)
             }
         });

@@ -19,19 +19,20 @@ pub fn box_to_app(ctx: Arc<zmq::Context>, settings : Settings){
     pub_sock.bind(&settings.backend_pub).unwrap();
 
     loop{
-        let mut msg = zmq::Message::new().unwrap();
-        pull_sock.recv(&mut msg, 0).unwrap();
-        let message_result: Result<Response, ProtobufError> = parse_from_bytes(&*msg);
+        let mut parts = pull_sock.recv_multipart(0).unwrap();
+        let message_result: Result<Response, ProtobufError> = parse_from_bytes(&parts[0]);
         let message = match message_result{
             Ok(m) => {m},
             Err(e) => {println!("{}", e); continue;},
         };
-
         let sequence = message.seq;
         let mut lock = ID_MAP.lock().unwrap();
 
         if settings.metric_update_sec > 0{
-            lock.recv += msg.len();
+            lock.recv = 0;
+            for i in 0..parts.len(){
+                lock.recv += parts[i].len();
+            }
             if lock.last_sent.elapsed().as_secs() > settings.metric_update_sec{
                 debug_metric.store_metric_in_db(lock.sent as u32, lock.recv as u32);
                 lock.recv = 0;
@@ -45,7 +46,9 @@ pub fn box_to_app(ctx: Arc<zmq::Context>, settings : Settings){
             Some((s,_)) => {s.clone()},
         };
         println!("New responce from box {}, to identity {}.", message.box_id, identity);
-        let msg = vec![identity.as_bytes(), &msg];
-        pub_sock.send_multipart(&msg, 0).unwrap();
+        parts.insert(0, identity.as_bytes().to_vec());
+        let fing_slices : Vec<&[u8]> = parts.iter().map(|x| x.as_slice()).collect();
+
+        pub_sock.send_multipart(&fing_slices, 0).unwrap();
     }
 }
