@@ -144,7 +144,7 @@ impl ThresholdTriggerPlugin {
             METRIC_THD,
             TriggerType::Thd,
             -1.0,
-            threshold.threshold_thd_high as f32,
+            threshold.threshold_thd_high as f32 / 100.0,
         )
     }
 
