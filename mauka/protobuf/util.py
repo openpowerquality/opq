@@ -9,7 +9,6 @@ import numpy
 
 import log
 import protobuf.mauka_pb2 as mauka_pb2
-import protobuf.opq_pb2
 
 LAHA = "laha"
 LAHA_TYPE = "laha_type"
@@ -20,37 +19,6 @@ LAHA_ONEOF_GC_STAT = "gc_stat"
 
 # pylint: disable=C0103
 logger = log.get_logger(__name__)
-
-
-def decode_trigger_message(encoded_trigger_message):
-    """ Decodes and returns a serialized triggering message
-
-    :param encoded_trigger_message: The protobuf encoded triggering message
-    :return: The decoded TriggerMessage object
-    """
-    trigger_message = protobuf.opq_pb2.TriggerMessage()
-    trigger_message.ParseFromString(encoded_trigger_message)
-    return trigger_message
-
-
-def encode_trigger_message(idd,
-                           timestamp,
-                           frequency,
-                           rms):
-    """
-    Encodes a Makai trigger message
-    :param idd: Id of the box
-    :param timestamp: Timestamp ms
-    :param frequency: The inst frequency
-    :param rms: The inst voltage RMS
-    :return: Serialized Makai trigger message
-    """
-    trigger_message = protobuf.opq_pb2.TriggerMessage()
-    trigger_message.id = idd
-    trigger_message.time = timestamp
-    trigger_message.frequency = frequency
-    trigger_message.rms = rms
-    return trigger_message.SerializeToString()
 
 
 def get_timestamp_ms() -> int:

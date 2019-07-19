@@ -8,7 +8,7 @@ import config
 import plugins.base_plugin
 
 def trigger_boxes() -> str:
-    #
+    pass
 
 class TriggerPlugin(plugins.base_plugin.MaukaPlugin):
     """
