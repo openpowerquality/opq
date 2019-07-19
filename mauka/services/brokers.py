@@ -89,7 +89,7 @@ def start_makai_event_bridge(mauka_config: config.MaukaConfig):
                 _logger.debug("recv event msg: %s", str(event_msg))
             event_id = int(event_msg[1])
             makai_event = protobuf.pb_util.build_makai_event("makai_event_bridge", event_id)
-            mauka_message_bytes = protobuf.pb_util.serialize_mauka_message(makai_event)
+            mauka_message_bytes = protobuf.pb_util.serialize_message(makai_event)
             zmq_pub_socket.send_multipart(("MakaiEvent".encode(), mauka_message_bytes))
 
         _logger.info("Exiting makai event bridge")

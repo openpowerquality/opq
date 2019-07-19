@@ -11,6 +11,7 @@ message MaukaMessage {
                     Measurement measurement = 6;
                     MakaiTrigger makai_trigger = 7;
                     Laha laha = 8;
+                    TriggerRequest trigger_request = 9;
     }
 }
 
@@ -115,5 +116,5 @@ message TriggerRequest {
     uint64 start_timestamp_ms = 1;
     uint64 end_timestamp_ms = 2;
     repeated string box_ids = 3;
-    string incident_id = 4;
+    uint64 incident_id = 4;
 }

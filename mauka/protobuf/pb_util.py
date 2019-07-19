@@ -9,6 +9,7 @@ import numpy
 
 import log
 import protobuf.mauka_pb2 as mauka_pb2
+import protobuf.opqbox3_pb2 as opqbox3_pb2
 
 LAHA = "laha"
 LAHA_TYPE = "laha_type"
@@ -16,6 +17,7 @@ LAHA_ONEOF_TTL = "ttl"
 LAHA_ONEOF_GC_TRIGGER = "gc_trigger"
 LAHA_ONEOF_GC_UPDATE = "gc_update"
 LAHA_ONEOF_GC_STAT = "gc_stat"
+TRIGGER_REQUEST = "trigger_request"
 
 # pylint: disable=C0103
 logger = log.get_logger(__name__)
@@ -219,13 +221,47 @@ def build_gc_stat(source: str,
     return mauka_message
 
 
-def serialize_mauka_message(mauka_message: mauka_pb2.MaukaMessage) -> bytes:
+def build_trigger_request(source: str,
+                          start_timestamp_ms: int,
+                          end_timestamp_ms: int,
+                          box_ids: typing.List[str],
+                          incident_id: int) -> mauka_pb2.MaukaMessage:
+    mauka_message = build_mauka_message(source)
+    mauka_message.trigger_request.start_timestamp_ms = start_timestamp_ms
+    mauka_message.trigger_request.end_timestamp_ms = end_timestamp_ms
+    mauka_message.trigger_request.box_ids[:] = box_ids
+    mauka_message.trigger_request.incident_id = incident_id
+    return mauka_message
+
+
+def build_makai_trigger_commands(start_timestamp_ms,
+                                 end_timestamp_ms,
+                                 box_ids: typing.List[str],
+                                 event_token: str,
+                                 uuid: str) -> typing.List[opqbox3_pb2.Command]:
+
+    identity = "data_%s_%s" % event_token, uuid
+
+    def _make_command(box_id: str) -> opqbox3_pb2.Command:
+        command = opqbox3_pb2.Command()
+        command.box_id = int(box_id)
+        command.timestamp_ms = get_timestamp_ms()
+        command.identity = identity
+        command.data_command.start_ms = start_timestamp_ms
+        command.data_command.end_ms = end_timestamp_ms
+        command.wait = False
+        return command
+
+    return list(map(_make_command, box_ids))
+
+
+def serialize_message(message: typing.Union[mauka_pb2.MaukaMessage, opqbox3_pb2.Command]) -> bytes:
     """
-    Serializes an instance of a MaukaMessage into bytes.
-    :param mauka_message: The MaukaMessage to serialize.
+    Serializes an instance of a protobuf into bytes.
+    :param message: The protobuf to serialize.
     :return: Serialized bytes.
     """
-    return mauka_message.SerializeToString()
+    return message.SerializeToString()
 
 
 def deserialize_mauka_message(mauka_message_bytes: bytes) -> mauka_pb2.MaukaMessage:
@@ -341,6 +377,10 @@ def is_gc_stat(mauka_message: mauka_pb2.MaukaMessage) -> bool:
     :return: True if it is, False otherwise.
     """
     return is_laha(mauka_message) and mauka_message.laha.WhichOneof(LAHA_TYPE) == LAHA_ONEOF_GC_STAT
+
+
+def is_trigger_request(mauka_message: mauka_pb2.MaukaMessage) -> bool:
+    return which_message_oneof(mauka_message) == TRIGGER_REQUEST
 
 
 def repeated_as_ndarray(repeated) -> numpy.ndarray:

@@ -228,7 +228,7 @@ class MaukaPlugin:
         :param topic: The topic to produce this message to
         :param mauka_message: The message to produce
         """
-        serialized_mauka_message = protobuf.pb_util.serialize_mauka_message(mauka_message)
+        serialized_mauka_message = protobuf.pb_util.serialize_message(mauka_message)
         with self.producer_lock:
             self.zmq_producer.send_multipart((topic.encode(), serialized_mauka_message))
 
