@@ -6,7 +6,7 @@ import multiprocessing
 import config
 import mongo
 import protobuf.mauka_pb2
-import protobuf.util
+import protobuf.pb_util
 from plugins.base_plugin import MaukaPlugin
 
 BOX_STATUS_UP = "UP"
@@ -50,7 +50,7 @@ class OutagePlugin(MaukaPlugin):
         self.prev_incident_ids = {}
 
     def on_message(self, topic: str, mauka_message: protobuf.mauka_pb2.MaukaMessage):
-        if protobuf.util.is_heartbeat_message(mauka_message):
+        if protobuf.pb_util.is_heartbeat_message(mauka_message):
             if OutagePlugin.NAME == mauka_message.source:
                 box_statuses = list(self.mongo_client.health_collection.find({"service": "BOX",
                                                                               "timestamp": {"$gt": self.last_update}},
@@ -103,5 +103,5 @@ class OutagePlugin(MaukaPlugin):
 
         else:
             self.logger.error("Received incorrect mauka message [%s] at %s",
-                              protobuf.util.which_message_oneof(mauka_message),
+                              protobuf.pb_util.which_message_oneof(mauka_message),
                               OutagePlugin.NAME)

@@ -7,7 +7,7 @@ import time
 
 import config
 import plugins.base_plugin as base_plugin
-import protobuf.util as util_pb2
+import protobuf.pb_util as util_pb2
 import protobuf.mauka_pb2 as mauka_pb2
 
 

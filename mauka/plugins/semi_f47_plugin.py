@@ -8,7 +8,7 @@ import numpy
 
 import config
 import plugins.base_plugin
-import protobuf.util
+import protobuf.pb_util
 import protobuf.mauka_pb2
 import constants
 import mongo
@@ -65,7 +65,7 @@ def semi_violation(mongo_client, mauka_message) -> typing.List[int]:
     """
     event_id = mauka_message.payload.event_id
     box_id = mauka_message.payload.box_id
-    data = protobuf.util.repeated_as_ndarray(mauka_message.payload.data)
+    data = protobuf.pb_util.repeated_as_ndarray(mauka_message.payload.data)
     start_time_ms = mauka_message.payload.start_timestamp_ms
 
     # this will check if a violation ocurred or not
@@ -104,13 +104,13 @@ class SemiF47Plugin(plugins.base_plugin.MaukaPlugin):
         super().__init__(conf, ["RmsWindowedVoltage"], "SemiF47Plugin", exit_event)
 
     def on_message(self, topic, mauka_message):
-        if protobuf.util.is_payload(mauka_message, protobuf.mauka_pb2.VOLTAGE_RMS_WINDOWED):
+        if protobuf.pb_util.is_payload(mauka_message, protobuf.mauka_pb2.VOLTAGE_RMS_WINDOWED):
             incident_ids = semi_violation(self.mongo_client, mauka_message)
             for incident_id in incident_ids:
                 # Produce a message to the GC
-                self.produce("laha_gc", protobuf.util.build_gc_update(self.name,
-                                                                      protobuf.mauka_pb2.INCIDENTS,
-                                                                      incident_id))
+                self.produce("laha_gc", protobuf.pb_util.build_gc_update(self.name,
+                                                                         protobuf.mauka_pb2.INCIDENTS,
+                                                                         incident_id))
 
 
 def rerun(mongo_client: mongo.OpqMongoClient, mauka_message):
@@ -119,6 +119,6 @@ def rerun(mongo_client: mongo.OpqMongoClient, mauka_message):
     :param mongo_client: Mongo client to perform DB queries.
     :param mauka_message: Mauka message to rerun this plugin over.
     """
-    if protobuf.util.is_payload(mauka_message, protobuf.mauka_pb2.VOLTAGE_RMS_WINDOWED):
+    if protobuf.pb_util.is_payload(mauka_message, protobuf.mauka_pb2.VOLTAGE_RMS_WINDOWED):
         client = mongo.get_default_client(mongo_client)
         semi_violation(client, mauka_message)

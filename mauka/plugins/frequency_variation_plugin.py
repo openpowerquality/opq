@@ -10,7 +10,7 @@ import config
 import constants
 import plugins.base_plugin
 import protobuf.mauka_pb2
-import protobuf.util
+import protobuf.pb_util
 import mongo
 
 
@@ -156,13 +156,13 @@ class FrequencyVariationPlugin(plugins.base_plugin.MaukaPlugin):
         :param mauka_message: The message that was produced
         """
         self.debug("{} on_message".format(topic))
-        if protobuf.util.is_payload(mauka_message, protobuf.mauka_pb2.FREQUENCY_WINDOWED):
+        if protobuf.pb_util.is_payload(mauka_message, protobuf.mauka_pb2.FREQUENCY_WINDOWED):
             self.debug("on_message {}:{} len:{}".format(mauka_message.payload.event_id,
                                                         mauka_message.payload.box_id,
                                                         len(mauka_message.payload.data)))
 
             incidents = frequency_incident_classifier(mauka_message.payload.event_id, mauka_message.payload.box_id,
-                                                      protobuf.util.repeated_as_ndarray(mauka_message.payload.data),
+                                                      protobuf.pb_util.repeated_as_ndarray(mauka_message.payload.data),
                                                       mauka_message.payload.start_timestamp_ms,
                                                       self.freq_ref, self.freq_var_high, self.freq_var_low,
                                                       self.freq_interruption,
@@ -184,12 +184,12 @@ class FrequencyVariationPlugin(plugins.base_plugin.MaukaPlugin):
                 )
 
                 # Produce a message to the GC
-                self.produce("laha_gc", protobuf.util.build_gc_update(self.name,
-                                                                      protobuf.mauka_pb2.INCIDENTS,
-                                                                      incident_id))
+                self.produce("laha_gc", protobuf.pb_util.build_gc_update(self.name,
+                                                                         protobuf.mauka_pb2.INCIDENTS,
+                                                                         incident_id))
         else:
             self.logger.error("Received incorrect mauka message [%s] at FrequencyVariationPlugin",
-                              protobuf.util.which_message_oneof(mauka_message))
+                              protobuf.pb_util.which_message_oneof(mauka_message))
 
 
 def rerun(mongo_client: mongo.OpqMongoClient, logger, mauka_message: protobuf.mauka_pb2.MaukaMessage):
@@ -199,10 +199,10 @@ def rerun(mongo_client: mongo.OpqMongoClient, logger, mauka_message: protobuf.ma
     :param logger: Application logger.
     :param mauka_message: The mauka message to rerrun the frequency variation plugin over.
     """
-    if protobuf.util.is_payload(mauka_message, protobuf.mauka_pb2.FREQUENCY_WINDOWED):
+    if protobuf.pb_util.is_payload(mauka_message, protobuf.mauka_pb2.FREQUENCY_WINDOWED):
         client = mongo.get_default_client(mongo_client)
         incidents = frequency_incident_classifier(mauka_message.payload.event_id, mauka_message.payload.box_id,
-                                                  protobuf.util.repeated_as_ndarray(mauka_message.payload.data),
+                                                  protobuf.pb_util.repeated_as_ndarray(mauka_message.payload.data),
                                                   mauka_message.payload.start_timestamp_ms,
                                                   60.0, 0.1, 0.1,
                                                   58.0,
@@ -224,4 +224,4 @@ def rerun(mongo_client: mongo.OpqMongoClient, logger, mauka_message: protobuf.ma
             )
     else:
         logger.error("Received incorrect mauka message [%s] at FrequencyVariationPlugin",
-                     protobuf.util.which_message_oneof(mauka_message))
+                     protobuf.pb_util.which_message_oneof(mauka_message))

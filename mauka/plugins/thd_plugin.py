@@ -12,7 +12,7 @@ import constants
 import mongo
 import plugins.base_plugin
 import protobuf.mauka_pb2
-import protobuf.util
+import protobuf.pb_util
 
 
 def rolling_window(array: numpy.ndarray, window_size: int) -> typing.List[numpy.ndarray]:
@@ -128,27 +128,27 @@ class ThdPlugin(plugins.base_plugin.MaukaPlugin):
         :param topic: Topic of the message.
         :param mauka_message: Contents of the message.
         """
-        if protobuf.util.is_payload(mauka_message, protobuf.mauka_pb2.ADC_SAMPLES):
+        if protobuf.pb_util.is_payload(mauka_message, protobuf.mauka_pb2.ADC_SAMPLES):
             self.debug("on_message {}:{} len:{}".format(mauka_message.payload.event_id,
                                                         mauka_message.payload.box_id,
                                                         len(mauka_message.payload.data)))
             self.debug("Running sliding_thd on %d samples"
-                       % len(protobuf.util.repeated_as_ndarray(mauka_message.payload.data)))
+                       % len(protobuf.pb_util.repeated_as_ndarray(mauka_message.payload.data)))
             incident_ids = sliding_thd(self.mongo_client,
                                        self.threshold_percent,
                                        self.sliding_window_ms,
                                        mauka_message.payload.event_id,
                                        mauka_message.payload.box_id,
                                        mauka_message.payload.start_timestamp_ms,
-                                       protobuf.util.repeated_as_ndarray(mauka_message.payload.data),
+                                       protobuf.pb_util.repeated_as_ndarray(mauka_message.payload.data),
                                        self)
             self.debug("Done running sliding_thd")
 
             for incident_id in incident_ids:
                 # Produce a message to the GC
-                self.produce("laha_gc", protobuf.util.build_gc_update(self.name,
-                                                                      protobuf.mauka_pb2.INCIDENTS,
-                                                                      incident_id))
+                self.produce("laha_gc", protobuf.pb_util.build_gc_update(self.name,
+                                                                         protobuf.mauka_pb2.INCIDENTS,
+                                                                         incident_id))
         else:
             self.logger.error("Received incorrect mauka message [%s] at ThdPlugin",
-                              protobuf.util.which_message_oneof(mauka_message))
+                              protobuf.pb_util.which_message_oneof(mauka_message))

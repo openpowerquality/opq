@@ -18,7 +18,7 @@ import config
 import log
 import mongo
 import protobuf.mauka_pb2
-import protobuf.util
+import protobuf.pb_util
 
 # pylint: disable=C0103
 logger = log.get_logger(__name__)
@@ -200,10 +200,10 @@ class MaukaPlugin:
             """
             Recursively produces a heartbeat message on a timer.
             """
-            heartbeat_message = protobuf.util.build_heartbeat(self.name,
-                                                              self.last_received,
-                                                              self.on_message_cnt,
-                                                              self.get_status())
+            heartbeat_message = protobuf.pb_util.build_heartbeat(self.name,
+                                                                 self.last_received,
+                                                                 self.on_message_cnt,
+                                                                 self.get_status())
             self.produce("heartbeat", heartbeat_message)
             timer = threading.Timer(self.heartbeat_interval_s, heartbeat)
             timer.start()
@@ -228,7 +228,7 @@ class MaukaPlugin:
         :param topic: The topic to produce this message to
         :param mauka_message: The message to produce
         """
-        serialized_mauka_message = protobuf.util.serialize_mauka_message(mauka_message)
+        serialized_mauka_message = protobuf.pb_util.serialize_mauka_message(mauka_message)
         with self.producer_lock:
             self.zmq_producer.send_multipart((topic.encode(), serialized_mauka_message))
 
@@ -289,8 +289,8 @@ class MaukaPlugin:
             else:
                 # Update statistics
                 self.on_message_cnt += 1
-                self.last_received = protobuf.util.get_timestamp_ms()
-                mauka_message = protobuf.util.deserialize_mauka_message(message)
+                self.last_received = protobuf.pb_util.get_timestamp_ms()
+                mauka_message = protobuf.pb_util.deserialize_mauka_message(message)
                 self.on_message(topic, mauka_message)
                 self.update_received(len(message))
 
