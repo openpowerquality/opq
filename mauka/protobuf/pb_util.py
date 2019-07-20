@@ -240,7 +240,7 @@ def build_makai_trigger_commands(start_timestamp_ms,
                                  event_token: str,
                                  uuid: str) -> typing.List[opqbox3_pb2.Command]:
 
-    identity = "data_%s_%s" % event_token, uuid
+    identity = "data_%s_%s" % (event_token, uuid)
 
     def _make_command(box_id: str) -> opqbox3_pb2.Command:
         command = opqbox3_pb2.Command()
@@ -249,7 +249,7 @@ def build_makai_trigger_commands(start_timestamp_ms,
         command.identity = identity
         command.data_command.start_ms = start_timestamp_ms
         command.data_command.end_ms = end_timestamp_ms
-        command.wait = False
+        command.data_command.wait = False
         return command
 
     return list(map(_make_command, box_ids))

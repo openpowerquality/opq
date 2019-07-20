@@ -4,17 +4,41 @@ This module contains a plugin that provides capabilities for triggering boxes th
 
 import multiprocessing
 import typing
+import uuid
+import zmq
 
 import config
 import plugins.base_plugin
 import protobuf.pb_util as pb_util
+import protobuf.opqbox3_pb2 as opqbox3_pb2
 
 
-def trigger_boxes(start_timestamp_ms: int,
-                  stop_timestamp_ms: int,
-                  box_ids: typing.List[str],
-                  incident_id: int) -> str:
+def trigger_boxes_future(conf: config.MaukaConfig, trigger_commands: typing.List[opqbox3_pb2]):
+    # Send commands to Makai acq broker
+    zmq_context = zmq.Context()
+    zmq_socket = zmq_context.socket(zmq.PUSH)
+    zmq_socket = conf.
+
+    # Receive results from acquisition broker
+
+    # Return results
     pass
+
+
+def trigger_boxes(conf: config.MaukaConfig,
+                  start_timestamp_ms: int,
+                  end_timestamp_ms: int,
+                  box_ids: typing.List[str],
+                  incident_id: int,
+                  source: str) -> str:
+    event_token = str(uuid.uuid4())
+    trigger_commands = pb_util.build_makai_trigger_commands(start_timestamp_ms,
+                                                            end_timestamp_ms,
+                                                            box_ids,
+                                                            event_token,
+                                                            source)
+
+    return event_token
 
 
 class TriggerPlugin(plugins.base_plugin.MaukaPlugin):
@@ -50,3 +74,5 @@ class TriggerPlugin(plugins.base_plugin.MaukaPlugin):
 
 if __name__ == "__main__":
     cmds = pb_util.build_makai_trigger_commands(0, 1, ["1", "2", "3"], "et", "uuid")
+    for cmd in cmds:
+        print(cmd)
