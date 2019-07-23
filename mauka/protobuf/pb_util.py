@@ -234,13 +234,16 @@ def build_trigger_request(source: str,
     return mauka_message
 
 
+def format_makai_triggering_identity(event_token: str, uuid: str) -> str:
+    return "data_%s_%s" % (event_token, uuid)
+
+
 def build_makai_trigger_commands(start_timestamp_ms,
                                  end_timestamp_ms,
                                  box_ids: typing.List[str],
                                  event_token: str,
                                  uuid: str) -> typing.List[opqbox3_pb2.Command]:
-
-    identity = "data_%s_%s" % (event_token, uuid)
+    identity = format_makai_triggering_identity(event_token, uuid)
 
     def _make_command(box_id: str) -> opqbox3_pb2.Command:
         command = opqbox3_pb2.Command()
