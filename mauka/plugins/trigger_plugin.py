@@ -4,6 +4,8 @@ This module contains a plugin that provides capabilities for triggering boxes th
 
 import concurrent.futures as futures
 import multiprocessing
+import threading
+import time
 import typing
 import uuid
 
@@ -13,6 +15,29 @@ import config
 import plugins.base_plugin
 import protobuf.pb_util as pb_util
 
+
+def timestamp_ms() -> int:
+    return int(round(time.time() * 1000.0))
+
+
+class MakaiDataSubscriber:
+    def __init__(self, zmq_data_interface: str):
+        self.zmq_context = zmq.Context()
+        self.zmq_socket = self.zmq_context.socket(zmq.SUB)
+        self.zmq_socket.connect(zmq_data_interface)
+
+    def run(self):
+        print("in thread")
+        while True:
+            print("waiting for data")
+            data = self.zmq_socket.recv_multipart()
+            print(data)
+        print("leaving thread")
+
+    def start_thread(self):
+        print("starting thread")
+        thread = threading.Thread(target=self.run)
+        thread.start()
 
 def on_data_recv(future: futures.Future):
     try:
@@ -36,20 +61,21 @@ def trigger_boxes(zmq_trigger_interface: str,
                   box_ids: typing.List[str],
                   incident_id: int,
                   source: str) -> str:
+    print("triggering boxes")
     event_token = str(uuid.uuid4())
     trigger_commands = pb_util.build_makai_trigger_commands(start_timestamp_ms,
                                                             end_timestamp_ms,
                                                             box_ids,
                                                             event_token,
                                                             source)
-
+    print("trigger commands constructed: %s" % str(trigger_commands))
     zmq_context = zmq.Context()
     zmq_socket = zmq_context.socket(zmq.PUSH)
     zmq_socket.connect(zmq_trigger_interface)
 
     for trigger_command in trigger_commands:
         zmq_socket.send(pb_util.serialize_message(trigger_command))
-
+    print("trigger messages sent")
     # Receive results from acquisition broker
 
     return event_token
@@ -88,6 +114,7 @@ class TriggerPlugin(plugins.base_plugin.MaukaPlugin):
         """
         super().__init__(conf, ["TriggerRequest"], TriggerPlugin.NAME, exit_event)
         self.zmq_trigger_interface: str = conf.get("zmq.trigger.interface")
+        self.zmq_data_interface: str = conf.get("zmq.data.interface")
         self.executor: futures.ThreadPoolExecutor = futures.ThreadPoolExecutor()
 
     def on_message(self, topic, mauka_message):
@@ -108,7 +135,14 @@ class TriggerPlugin(plugins.base_plugin.MaukaPlugin):
         else:
             self.logger.error("Received incorrect type of MaukaMessage :%s" % str(mauka_message))
 
-    if __name__ == "__main__":
-        cmds = pb_util.build_makai_trigger_commands(0, 1, ["1", "2", "3"], "et", "uuid")
-        for cmd in cmds:
-            print(cmd)
+if __name__ == "__main__":
+    now = timestamp_ms() - 1000
+    prev = now - 3000
+    makai_data_subscriber = MakaiDataSubscriber("tcp://localhost:9884")
+    makai_data_subscriber.start_thread()
+    trigger_boxes("tcp://localhost:9899",
+                  prev,
+                  now,
+                  ["1001"],
+                  0,
+                  "main")
