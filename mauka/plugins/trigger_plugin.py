@@ -39,20 +39,21 @@ class MakaiDataSubscriber:
         thread = threading.Thread(target=self.run)
         thread.start()
 
-def on_data_recv(future: futures.Future):
-    try:
-        exception = future.exception()
-        if exception is not None:
-            print("Error receiving data in trigger plugin: %s" % str(exception))
-            return
 
-        result = future.result()
-        print(result)
-
-    except futures.TimeoutError as e:
-        print("trigger plugin futures timeout error: %s" % str(e))
-    except futures.CancelledError as e:
-        print("trigger plugin futures canceled error: %s" % str(e))
+# def on_data_recv(future: futures.Future):
+#     try:
+#         exception = future.exception()
+#         if exception is not None:
+#             print("Error receiving data in trigger plugin: %s" % str(exception))
+#             return
+#
+#         result = future.result()
+#         print(result)
+#
+#     except futures.TimeoutError as e:
+#         print("trigger plugin futures timeout error: %s" % str(e))
+#     except futures.CancelledError as e:
+#         print("trigger plugin futures canceled error: %s" % str(e))
 
 
 def trigger_boxes(zmq_trigger_interface: str,
@@ -74,30 +75,34 @@ def trigger_boxes(zmq_trigger_interface: str,
     zmq_socket.connect(zmq_trigger_interface)
 
     for trigger_command in trigger_commands:
-        zmq_socket.send(pb_util.serialize_message(trigger_command))
+        try:
+            zmq_socket.send(pb_util.serialize_message(trigger_command))
+        except Exception as e:
+            print(e)
+
     print("trigger messages sent")
     # Receive results from acquisition broker
 
     return event_token
 
 
-def trigger_boxes_async(executor: futures.ThreadPoolExecutor,
-                        zmq_trigger_interface: str,
-                        start_timestamp_ms: int,
-                        end_timestamp_ms: int,
-                        box_ids: typing.List[str],
-                        incident_id: int,
-                        source: str,
-                        on_data_recv: typing.Callable[[str], None]):
-    future: futures.Future = executor.submit(trigger_boxes,
-                                             zmq_trigger_interface,
-                                             start_timestamp_ms,
-                                             end_timestamp_ms,
-                                             box_ids,
-                                             incident_id,
-                                             source)
-
-    future.add_done_callback(on_data_recv)
+# def trigger_boxes_async(executor: futures.ThreadPoolExecutor,
+#                         zmq_trigger_interface: str,
+#                         start_timestamp_ms: int,
+#                         end_timestamp_ms: int,
+#                         box_ids: typing.List[str],
+#                         incident_id: int,
+#                         source: str,
+#                         on_data_recv: typing.Callable[[str], None]):
+#     future: futures.Future = executor.submit(trigger_boxes,
+#                                              zmq_trigger_interface,
+#                                              start_timestamp_ms,
+#                                              end_timestamp_ms,
+#                                              box_ids,
+#                                              incident_id,
+#                                              source)
+#
+#     future.add_done_callback(on_data_recv)
 
 
 class TriggerPlugin(plugins.base_plugin.MaukaPlugin):
@@ -126,14 +131,16 @@ class TriggerPlugin(plugins.base_plugin.MaukaPlugin):
         :param mauka_message: The message
         """
         if pb_util.is_trigger_request(mauka_message):
-            trigger_boxes_async(self.zmq_trigger_interface,
-                                mauka_message.trigger_request.start_timestamp_ms,
-                                mauka_message.trigger_request.end_timestamp_ms,
-                                mauka_message.trigger_request.box_ids,
-                                mauka_message.trigger_request.incident_id,
-                                mauka_message.source)
+            # trigger_boxes_async(self.zmq_trigger_interface,
+            #                     mauka_message.trigger_request.start_timestamp_ms,
+            #                     mauka_message.trigger_request.end_timestamp_ms,
+            #                     mauka_message.trigger_request.box_ids,
+            #                     mauka_message.trigger_request.incident_id,
+            #                     mauka_message.source)
+            pass
         else:
             self.logger.error("Received incorrect type of MaukaMessage :%s" % str(mauka_message))
+
 
 if __name__ == "__main__":
     now = timestamp_ms() - 1000
@@ -143,6 +150,6 @@ if __name__ == "__main__":
     trigger_boxes("tcp://localhost:9899",
                   prev,
                   now,
-                  ["1001"],
+                  ["1007"],
                   0,
                   "main")

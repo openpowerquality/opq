@@ -235,7 +235,7 @@ def build_trigger_request(source: str,
 
 
 def format_makai_triggering_identity(event_token: str, uuid: str) -> str:
-    return "data_%s_%s" % (event_token, uuid)
+    return "%s_%s" % (event_token, uuid)
 
 
 def build_makai_trigger_commands(start_timestamp_ms,
