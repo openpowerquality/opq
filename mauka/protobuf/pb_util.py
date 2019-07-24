@@ -278,6 +278,12 @@ def deserialize_mauka_message(mauka_message_bytes: bytes) -> mauka_pb2.MaukaMess
     return mauka_message
 
 
+def deserialize_makai_response(makai_response_bytes: bytes) -> opqbox3_pb2.Response:
+    response = opqbox3_pb2.Response()
+    response.ParseFromString(makai_response_bytes)
+    return response
+
+
 def which_message_oneof(mauka_message: mauka_pb2.MaukaMessage) -> str:
     """
     Returns the one_of field type of the message field in the mauka_message.

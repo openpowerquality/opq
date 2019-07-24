@@ -25,13 +25,16 @@ class MakaiDataSubscriber:
         self.zmq_context = zmq.Context()
         self.zmq_socket = self.zmq_context.socket(zmq.SUB)
         self.zmq_socket.connect(zmq_data_interface)
+        self.zmq_socket.setsockopt(zmq.SUBSCRIBE, "".encode())
 
     def run(self):
         print("in thread")
         while True:
             print("waiting for data")
             data = self.zmq_socket.recv_multipart()
-            print(data)
+            identity = data[0]
+            response = pb_util.deserialize_makai_response(data[1])
+            
         print("leaving thread")
 
     def start_thread(self):
@@ -145,11 +148,11 @@ class TriggerPlugin(plugins.base_plugin.MaukaPlugin):
 if __name__ == "__main__":
     now = timestamp_ms() - 1000
     prev = now - 3000
-    makai_data_subscriber = MakaiDataSubscriber("tcp://localhost:9884")
+    makai_data_subscriber = MakaiDataSubscriber("tcp://localhost:9899")
     makai_data_subscriber.start_thread()
-    trigger_boxes("tcp://localhost:9899",
+    trigger_boxes("tcp://localhost:9884",
                   prev,
                   now,
-                  ["1007"],
+                  ["1001"],
                   0,
                   "main")
