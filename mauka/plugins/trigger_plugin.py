@@ -34,7 +34,8 @@ class MakaiDataSubscriber:
             data = self.zmq_socket.recv_multipart()
             identity = data[0]
             response = pb_util.deserialize_makai_response(data[1])
-            
+            data = list(map(pb_util.deserialize_makai_cycle, data[2:]))
+            print(identity, response, data)
         print("leaving thread")
 
     def start_thread(self):
