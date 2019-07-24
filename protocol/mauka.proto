@@ -12,6 +12,7 @@ message MaukaMessage {
                     MakaiTrigger makai_trigger = 7;
                     Laha laha = 8;
                     TriggerRequest trigger_request = 9;
+                    TriggeredEvent triggered_event = 10;
     }
 }
 
@@ -47,9 +48,17 @@ message Heartbeat {
 
 // This message informs Mauka that Makai has recorded a new event.
 // MakaiEvents are received from Makai in the Makai Event Bridge Broker and then produced by the broker into Mauka.
-// MakaiEvents are consumsed by MakaiEventPlugin.
+// MakaiEvents are consumed by MakaiEventPlugin.
 message MakaiEvent {
     uint32 event_id = 1; // The event number that Makai has recorded.
+}
+
+message TriggeredEvent {
+    repeated int32 data = 1;
+    int32 incident_id = 2;
+    string box_id = 3;
+    int64 start_timestamp_ms = 4;
+    int64 end_timestamp_ms = 5;
 }
 
 // This will need to be revised soon, so leaving it blank for now.

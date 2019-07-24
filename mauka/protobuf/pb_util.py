@@ -18,6 +18,13 @@ LAHA_ONEOF_GC_TRIGGER = "gc_trigger"
 LAHA_ONEOF_GC_UPDATE = "gc_update"
 LAHA_ONEOF_GC_STAT = "gc_stat"
 TRIGGER_REQUEST = "trigger_request"
+TRIGGERED_EVENT = "triggered_event"
+PAYLOAD = "payload"
+HEARTBEAT = "heartbeat"
+MAKAI_EVENT = "makai_event"
+MAKAI_TRIGGER = "makai_trigger"
+MEASUREMENT = "measurement"
+MESSAGE = "message"
 
 # pylint: disable=C0103
 logger = log.get_logger(__name__)
@@ -234,6 +241,21 @@ def build_trigger_request(source: str,
     return mauka_message
 
 
+def build_triggered_event(source: str,
+                          data: typing.List[int],
+                          incident_id: int,
+                          box_id: str,
+                          start_timestamp_ms: int,
+                          end_timestamp_ms: int):
+    mauka_message = build_mauka_message(source)
+    mauka_message.triggered_event.data[:] = data
+    mauka_message.triggered_event.incident_id = incident_id
+    mauka_message.triggered_event.box_id = box_id
+    mauka_message.triggered_event.start_timestamp_ms = start_timestamp_ms
+    mauka_message.triggered_event.end_timestamp_ms = end_timestamp_ms
+    return mauka_message
+
+
 def format_makai_triggering_identity(event_token: str, uuid: str) -> str:
     return "%s_%s" % (event_token, uuid)
 
@@ -296,7 +318,7 @@ def which_message_oneof(mauka_message: mauka_pb2.MaukaMessage) -> str:
     :param mauka_message: Mauka message to inspect.
     :return: The message type assigned in the one_of.
     """
-    return mauka_message.WhichOneof("message")
+    return mauka_message.WhichOneof(MESSAGE)
 
 
 def is_payload(mauka_message: mauka_pb2.MaukaMessage, payload_type: mauka_pb2.PayloadType = None) -> bool:
@@ -307,9 +329,9 @@ def is_payload(mauka_message: mauka_pb2.MaukaMessage, payload_type: mauka_pb2.Pa
     :return: True if the message and payload type match, false otherwise.
     """
     if payload_type is None:
-        return which_message_oneof(mauka_message) == "payload"
+        return which_message_oneof(mauka_message) == PAYLOAD
 
-    return which_message_oneof(mauka_message) == "payload" and mauka_message.payload.payload_type == payload_type
+    return which_message_oneof(mauka_message) == PAYLOAD and mauka_message.payload.payload_type == payload_type
 
 
 def is_heartbeat_message(mauka_message: mauka_pb2.MaukaMessage) -> bool:
@@ -318,7 +340,7 @@ def is_heartbeat_message(mauka_message: mauka_pb2.MaukaMessage) -> bool:
     :param mauka_message: Mauka message to check the message type of.
     :return: True if this is a heartbeat type, fasle otherwise
     """
-    result = which_message_oneof(mauka_message) == "heartbeat"
+    result = which_message_oneof(mauka_message) == HEARTBEAT
     return result
 
 
@@ -328,7 +350,7 @@ def is_makai_event_message(mauka_message: mauka_pb2.MaukaMessage) -> bool:
     :param mauka_message: Mauka message to check the message type of.
     :return: True if this is a makai_event type, fasle otherwise
     """
-    return which_message_oneof(mauka_message) == "makai_event"
+    return which_message_oneof(mauka_message) == MAKAI_EVENT
 
 
 def is_makai_trigger(mauka_message: mauka_pb2.MaukaMessage) -> bool:
@@ -337,7 +359,7 @@ def is_makai_trigger(mauka_message: mauka_pb2.MaukaMessage) -> bool:
     :param mauka_message: Mauka message to check the message type of.
     :return: True if this is a makai_trigger type, fasle otherwise
     """
-    return which_message_oneof(mauka_message) == "makai_trigger"
+    return which_message_oneof(mauka_message) == MAKAI_TRIGGER
 
 
 def is_measurement(mauka_message: mauka_pb2.MaukaMessage) -> bool:
@@ -346,7 +368,7 @@ def is_measurement(mauka_message: mauka_pb2.MaukaMessage) -> bool:
     :param mauka_message: Mauka message to check the message type of.
     :return: True if this is a measurement type, fasle otherwise
     """
-    return which_message_oneof(mauka_message) == "measurement"
+    return which_message_oneof(mauka_message) == MEASUREMENT
 
 
 def is_laha(mauka_message: mauka_pb2.MaukaMessage) -> bool:
@@ -396,6 +418,10 @@ def is_gc_stat(mauka_message: mauka_pb2.MaukaMessage) -> bool:
 
 def is_trigger_request(mauka_message: mauka_pb2.MaukaMessage) -> bool:
     return which_message_oneof(mauka_message) == TRIGGER_REQUEST
+
+
+def is_triggered_event(mauka_message: mauka_pb2.MaukaMessage) -> bool:
+    return which_message_oneof(mauka_message) == TRIGGERED_EVENT
 
 
 def repeated_as_ndarray(repeated) -> numpy.ndarray:
