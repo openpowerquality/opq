@@ -14,7 +14,7 @@ fn main() {
                 .build().unwrap();
 
             let url = format!("http://{}:{}/v1/filters", &conf.api_host, &conf.api_port);
-            let res = client.get(url).send().unwrap();
+            let res = client.get(&url).send().unwrap();
             println!("{:?}", res);
         },
         Err(err) => {
