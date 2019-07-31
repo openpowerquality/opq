@@ -1,0 +1,6 @@
+{
+  "api_user": "username",
+  "api_pass": "password",
+  "api_host": "http://1.2.3.4",
+  "api_port": 8888
+}
