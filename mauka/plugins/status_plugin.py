@@ -12,7 +12,9 @@ component = {
 
 """
 
+import enum
 import http.server
+import json
 import multiprocessing
 import threading
 import time
@@ -20,6 +22,7 @@ import typing
 
 import config
 import plugins.base_plugin
+import protobuf.mauka_pb2 as mauka_pb2
 import protobuf.util
 
 
@@ -88,6 +91,7 @@ class StateComponent:
         Returns the recursive JSON representation of this object to feed to OPQ Health.
         :return: The recursive JSON representation of this object to feed to OPQ Health.
         """
+
         def as_json_rec(state_component: 'StateComponent') -> str:
             """
             Recursive helper method for building JSON.
@@ -157,6 +161,52 @@ class HealthState:
 
 # pylint: disable=C0103
 health_state: HealthState = HealthState()
+
+
+class PluginState(enum.Enum):
+    IDLE = "IDLE"
+    BUSY = "BUSY"
+
+
+class PluginStatus:
+    def __init__(self, mauka_message: mauka_pb2.MaukaMessage):
+        self.plugin_name = mauka_message.source
+        self.messages_recv = mauka_message.heartbeat.on_message_count
+        self.bytes_recv = 0
+        self.last_recv = mauka_message.heartbeat.last_received_timestamp_ms
+        self.plugin_state = PluginState.IDLE
+
+    def as_json(self):
+        return json.dumps({
+            "plugin_name": self.plugin_name,
+            "messages_recv": self.messages_recv,
+            "bytes_recv": self.bytes_recv,
+            "last_recv": self.last_recv,
+            "plugin_state": self.plugin_state
+        })
+
+    def update(self, mauka_message: mauka_pb2.MaukaMessage):
+        self.messages_recv = mauka_message.heartbeat.on_message_count
+        self.bytes_recv = 0
+        self.last_recv = mauka_message.heartbeat.last_received_timestamp_ms
+        self.plugin_state = PluginState.IDLE
+
+
+class PluginStatuses:
+    def __init__(self):
+        self.plugin_name_to_plugin_status: typing.Dict[str, PluginStatus] = {}
+        self.lock = threading.RLock()
+
+    def update(self, mauka_message: mauka_pb2.MaukaMessage):
+        with self.lock:
+            plugin_name = mauka_message.source
+            if plugin_name not in self.plugin_name_to_plugin_status:
+                self.plugin_name_to_plugin_status[plugin_name] = PluginStatus(mauka_message)
+            else:
+                self.plugin_name_to_plugin_status[plugin_name].update(mauka_message)
+
+
+plugin_statuses: PluginStatuses = PluginStatuses()
 
 
 class HealthRequestHandler(http.server.BaseHTTPRequestHandler):
