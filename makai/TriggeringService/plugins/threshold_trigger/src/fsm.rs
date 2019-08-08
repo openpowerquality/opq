@@ -10,18 +10,18 @@ pub enum State {
     Triggering,
 }
 
+#[derive(Debug, Hash, Eq, Clone)]
+pub struct StateKey {
+    pub box_id: u32,
+    pub trigger_type: TriggerType,
+}
+
 #[derive(Debug)]
 pub struct StateEntry {
     pub prev_state: State,
     pub prev_state_timestamp_ms: u64,
     pub latest_state: State,
     pub latest_state_timestamp_ms: u64,
-}
-
-#[derive(Debug, Hash, Eq, Clone)]
-pub struct StateKey {
-    pub box_id: u32,
-    pub trigger_type: TriggerType,
 }
 
 impl StateEntry {

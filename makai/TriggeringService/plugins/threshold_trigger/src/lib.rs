@@ -24,6 +24,7 @@ pub mod datetime;
 pub mod fsm;
 pub mod mongo;
 pub mod thresholds;
+pub mod metrics;
 
 #[derive(Debug)]
 pub struct Trigger {

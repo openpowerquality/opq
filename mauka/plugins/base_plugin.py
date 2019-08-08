@@ -1,7 +1,7 @@
 """
 This module provides classes and base functionality for building OPQMauka plugins.
 """
-
+import enum
 import json
 import multiprocessing
 import signal
@@ -77,6 +77,11 @@ def to_json(obj: object) -> str:
     return json.dumps(obj, cls=JSONEncoder)
 
 
+class PluginState(enum.Enum):
+    IDLE = "IDLE"
+    BUSY = "BUSY"
+
+
 class MaukaPlugin:
     """
     This is the base MaukaPlugin class that provides easy access to the database and also provides publish/subscribe
@@ -149,6 +154,8 @@ class MaukaPlugin:
         self.messages_published: int = 0
         self.bytes_received: int = 0
         self.bytes_published: int = 0
+
+        self.plugin_state = PluginState.IDLE.name
 
     def update_received(self, bytes_received: int):
         """
@@ -250,6 +257,12 @@ class MaukaPlugin:
         if message == "EXIT":
             self.exit_event.set()
 
+    def set_plugin_state_idle(self):
+        self.plugin_state = PluginState.IDLE.name
+
+    def set_plugin_state_busy(self):
+        self.plugin_state = PluginState.BUSY.name
+
     def debug(self, msg: str):
         """
         Prints a debug message using this classes logger and formatted the plugin name.
@@ -273,7 +286,7 @@ class MaukaPlugin:
 
         while not self.exit_event.is_set():
             data = self.zmq_consumer.recv_multipart()
-
+            self.set_plugin_state_busy()
             if len(data) != 2:
                 logger.error("Malformed data from ZMQ. Data size should = 2, but instead is %s", str(len(data)))
                 for data_item in data:
@@ -293,5 +306,7 @@ class MaukaPlugin:
                 mauka_message = protobuf.util.deserialize_mauka_message(message)
                 self.on_message(topic, mauka_message)
                 self.update_received(len(message))
+
+            self.set_plugin_state_idle()
 
         logger.info("Exiting Mauka plugin: %s", self.name)
