@@ -1,0 +1,22 @@
+[mauka]
+ignore = protobuf/mauka_pb2.py, protobuf/opq_pb2.py, tests/**, profilers/**, incident_viewer.py
+files = **.py
+
+[mauka.spacing]
+bears = SpaceConsistencyBear
+use_spaces = True
+
+[mauka.pep8]
+bears = PEP8Bear
+max_line_length = 120
+
+[mauka.pylint]
+bears = PyLintBear
+pylint_disable = C0301, C1801, R, W0105, F0002
+
+[mauka.pyflakes]
+bears = PyFlakesBear
+
+[mauka.bandit]
+bears = BanditBear
+bandit_skipped_tests = B322

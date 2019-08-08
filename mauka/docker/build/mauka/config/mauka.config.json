@@ -1,0 +1,65 @@
+{
+  "mauka.debug": true,
+  "mauka.debug.plugins": ["MakaiEventPlugin", "StatusPlugin"],
+  "mauka.startEventBroker": true,
+  "mauka.startPubSubBroker": true,
+  "mauka.startPlugins": true,
+
+  "zmq.event.interface"           : "tcp://localhost:10000",
+  "zmq.trigger.interface"         : "tcp://localhost:9899",
+  "zmq.mauka.broker.pub.interface": "tcp://*:9883",
+  "zmq.mauka.broker.sub.interface": "tcp://*:9882",
+  "zmq.mauka.plugin.pub.interface": "tcp://localhost:9882",
+  "zmq.mauka.plugin.sub.interface": "tcp://localhost:9883",
+
+  "zmq.mauka.plugin.management.rep.interface": "tcp://*:12000",
+  "zmq.mauka.plugin.management.req.interface": "tcp://localhost:12000",
+
+  "mongo.host": "localhost",
+  "mongo.port": 27017,
+  "mongo.db": "opq",
+
+  "plugins.base.heartbeatIntervalS": 60.0,
+
+  "plugins.IticPlugin.segment.threshold.rms": 0.1,
+
+  "plugins.FrequencyVariationPlugin.frequency.ref": 60.0,
+  "plugins.FrequencyVariationPlugin.frequency.variation.threshold.low": 0.1,
+  "plugins.FrequencyVariationPlugin.frequency.variation.threshold.high": 0.1,
+  "plugins.FrequencyVariationPlugin.frequency.interruption": 58.0,
+  "plugins.FrequencyVariationPlugin.max.lull.windows": 3,
+
+  "plugins.TransientPlugin.noise.floor" : 6.0,
+  "plugins.TransientPlugin.oscillatory.min.cycles" : 3,
+  "plugins.TransientPlugin.oscillatory.low.freq.max.hz" : 5000.0,
+  "plugins.TransientPlugin.oscillatory.med.freq.max.hz" : 500000.0,
+  "plugins.TransientPlugin.oscillatory.high.freq.max.hz" : 5000000.0,
+  "plugins.TransientPlugin.arcing.zero.crossing.threshold" : 10,
+  "plugins.TransientPlugin.max.lull.ms" : 4.0,
+  "plugins.TransientPlugin.max.periodic.notching.std.dev" : 2.0,
+  "plugins.TransientPlugin.auto.corr.thresh.periodicity" : 0.4,
+
+  "plugins.MakaiEventPlugin.getDataAfterS": 10.0,
+  "plugins.MakaiEventPlugin.filterOrder":4,
+  "plugins.MakaiEventPlugin.cutoffFrequency": 500.0,
+  "plugins.MakaiEventPlugin.frequencyWindowCycles": 1,
+  "plugins.MakaiEventPlugin.frequencyDownSampleRate": 2,
+
+  "plugins.ThdPlugin.threshold.percent": 5.0,
+  "plugins.ThdPlugin.window.size.ms": 200,
+
+  "plugins.StatusPlugin.port": 8911,
+
+  "plugins.SystemStatsPlugin.intervalS": 60,
+  "plugins.SystemStatsPlugin.systemStatsIntervalS": 5,
+
+  "laha.config.default": {
+    "ttls": {
+      "box_samples": 900,
+      "measurements": 86400,
+      "trends": 604800,
+      "events": 2592000,
+      "incidents": 31536000
+    }
+  }
+}
