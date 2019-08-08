@@ -210,7 +210,8 @@ class MaukaPlugin:
             heartbeat_message = protobuf.util.build_heartbeat(self.name,
                                                               self.last_received,
                                                               self.on_message_cnt,
-                                                              self.get_status())
+                                                              self.get_status(),
+                                                              self.plugin_state)
             self.produce("heartbeat", heartbeat_message)
             timer = threading.Timer(self.heartbeat_interval_s, heartbeat)
             timer.start()

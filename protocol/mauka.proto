@@ -39,6 +39,7 @@ message Heartbeat {
     uint64 last_received_timestamp_ms = 1;  // Last time a plugin on_message was fired.
     uint32 on_message_count = 2;            // The amount of times on_message has been fired.
     string status = 3;                      // Custom status message that plugin can override.
+    string plugin_state = 4;
 }
 
 // This message informs Mauka that Makai has recorded a new event.

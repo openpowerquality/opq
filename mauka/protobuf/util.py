@@ -108,19 +108,21 @@ def build_payload(source: str,
 def build_heartbeat(source: str,
                     last_received_timestamp_ms: int,
                     on_message_count: int,
-                    status: str) -> mauka_pb2.MaukaMessage:
+                    status: str,
+                    plugin_state: str) -> mauka_pb2.MaukaMessage:
     """
     Instance of Heartbeat protobuf message
     :param source: Where this message is created from (plugin name or service name)
     :param last_received_timestamp_ms: Last time a plugin received a on_message
     :param on_message_count: Number of times a plugin's on_message has been fired
     :param status: Custom status message
-    :return: Insantiated MaukaMessage with message type heartbeat
+    :return: Instantiated MaukaMessage with message type heartbeat
     """
     mauka_message = build_mauka_message(source)
     mauka_message.heartbeat.last_received_timestamp_ms = last_received_timestamp_ms
     mauka_message.heartbeat.on_message_count = on_message_count
     mauka_message.heartbeat.status = status
+    mauka_message.heartbeat.plugin_state = plugin_state
 
     return mauka_message
 

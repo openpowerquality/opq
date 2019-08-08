@@ -174,7 +174,7 @@ class PluginStatus:
         self.messages_recv = mauka_message.heartbeat.on_message_count
         self.bytes_recv = 0
         self.last_recv = mauka_message.heartbeat.last_received_timestamp_ms
-        self.plugin_state = PluginState.IDLE
+        self.plugin_state = mauka_message.heartbeat.plugin_state
 
     def as_json(self):
         return json.dumps({
@@ -189,7 +189,7 @@ class PluginStatus:
         self.messages_recv = mauka_message.heartbeat.on_message_count
         self.bytes_recv = 0
         self.last_recv = mauka_message.heartbeat.last_received_timestamp_ms
-        self.plugin_state = PluginState.IDLE
+        self.plugin_state = mauka_message.heartbeat.plugin_state
 
 
 class PluginStatuses:
@@ -205,6 +205,8 @@ class PluginStatuses:
             else:
                 self.plugin_name_to_plugin_status[plugin_name].update(mauka_message)
 
+    def as_json(self) -> str:
+        return json.dumps(self.plugin_name_to_plugin_status)
 
 plugin_statuses: PluginStatuses = PluginStatuses()
 
@@ -230,10 +232,16 @@ class HealthRequestHandler(http.server.BaseHTTPRequestHandler):
         Returns the health state as JSON to the requestee.
         :return: The health state as JSON
         """
-        # pylint: disable=W0603
-        global health_state
-        self._set_headers(200)
-        self.wfile.write(health_state.as_json())
+        if self.path == "/status":
+            # pylint: disable=W0603
+            global plugin_statuses
+            self._set_headers(200)
+            self.wfile.write(plugin_statuses.as_json())
+        else:
+            # pylint: disable=W0603
+            global health_state
+            self._set_headers(200)
+            self.wfile.write(health_state.as_json())
 
 
 def start_health_sate_httpd_server(port: int):
