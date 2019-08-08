@@ -6,7 +6,7 @@ data from Makai in the Mauka environment.
 import multiprocessing
 
 import config
-import protobuf.util
+import protobuf.pb_util
 
 
 def start_mauka_pub_sub_broker(mauka_config: config.MaukaConfig):
@@ -88,8 +88,8 @@ def start_makai_event_bridge(mauka_config: config.MaukaConfig):
             if mauka_config.get("debug", False):
                 _logger.debug("recv event msg: %s", str(event_msg))
             event_id = int(event_msg[1])
-            makai_event = protobuf.util.build_makai_event("makai_event_bridge", event_id)
-            mauka_message_bytes = protobuf.util.serialize_mauka_message(makai_event)
+            makai_event = protobuf.pb_util.build_makai_event("makai_event_bridge", event_id)
+            mauka_message_bytes = protobuf.pb_util.serialize_message(makai_event)
             zmq_pub_socket.send_multipart(("MakaiEvent".encode(), mauka_message_bytes))
 
         _logger.info("Exiting makai event bridge")

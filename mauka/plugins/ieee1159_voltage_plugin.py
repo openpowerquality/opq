@@ -13,7 +13,7 @@ import constants
 import config
 import plugins.base_plugin
 import protobuf.mauka_pb2
-import protobuf.util
+import protobuf.pb_util
 
 # Pu signifying a current cycle has already been accounted for in an incident
 ALREADY_ACCOUNTED = -1
@@ -193,21 +193,21 @@ class Ieee1159VoltagePlugin(plugins.base_plugin.MaukaPlugin):
         :param mauka_message: The message that was produced
         """
         self.debug("on_message")
-        if protobuf.util.is_payload(mauka_message, protobuf.mauka_pb2.VOLTAGE_RMS_WINDOWED):
+        if protobuf.pb_util.is_payload(mauka_message, protobuf.mauka_pb2.VOLTAGE_RMS_WINDOWED):
             incident_ids = ieee1159_voltage(mauka_message,
-                                            protobuf.util.repeated_as_ndarray(
+                                            protobuf.pb_util.repeated_as_ndarray(
                                                 mauka_message.payload.data
                                             ),
                                             self.mongo_client)
             for incident_id in incident_ids:
                 # Produce a message to the GC
-                self.produce("laha_gc", protobuf.util.build_gc_update(self.name,
-                                                                      protobuf.mauka_pb2.INCIDENTS,
-                                                                      incident_id))
+                self.produce("laha_gc", protobuf.pb_util.build_gc_update(self.name,
+                                                                         protobuf.mauka_pb2.INCIDENTS,
+                                                                         incident_id))
 
         else:
             self.logger.error("Received incorrect mauka message [%s] at IticPlugin",
-                              protobuf.util.which_message_oneof(mauka_message))
+                              protobuf.pb_util.which_message_oneof(mauka_message))
 
 
 def rerun(mauka_message: protobuf.mauka_pb2.MaukaMessage,
@@ -221,12 +221,12 @@ def rerun(mauka_message: protobuf.mauka_pb2.MaukaMessage,
     """
     client = mongo.get_default_client(mongo_client)
 
-    if protobuf.util.is_payload(mauka_message, protobuf.mauka_pb2.VOLTAGE_RMS_WINDOWED):
+    if protobuf.pb_util.is_payload(mauka_message, protobuf.mauka_pb2.VOLTAGE_RMS_WINDOWED):
         ieee1159_voltage(mauka_message,
-                         protobuf.util.repeated_as_ndarray(
+                         protobuf.pb_util.repeated_as_ndarray(
                              mauka_message.payload.data
                          ),
                          client)
     else:
         logger.error("Received incorrect mauka message [%s] at VoltagePlugin rerun",
-                     protobuf.util.which_message_oneof(mauka_message))
+                     protobuf.pb_util.which_message_oneof(mauka_message))

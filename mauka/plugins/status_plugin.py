@@ -22,8 +22,8 @@ import typing
 
 import config
 import plugins.base_plugin
+import protobuf.pb_util
 import protobuf.mauka_pb2 as mauka_pb2
-import protobuf.util
 
 
 def fmt_list(values: typing.List) -> str:
@@ -279,10 +279,10 @@ class StatusPlugin(plugins.base_plugin.MaukaPlugin):
         :param message: The message
         """
 
-        if protobuf.util.is_heartbeat_message(mauka_message):
+        if protobuf.pb_util.is_heartbeat_message(mauka_message):
             health_state.update(mauka_message.source)
             plugin_statuses.update(mauka_message)
             self.debug(str(mauka_message))
         else:
             self.logger.error("Incorrect mauka message type [%s] for StatusPlugin",
-                              protobuf.util.which_message_oneof(mauka_message))
+                              protobuf.pb_util.which_message_oneof(mauka_message))

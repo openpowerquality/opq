@@ -22,7 +22,7 @@ import plugins.laha_gc_plugin
 import plugins.semi_f47_plugin
 import plugins.thd_plugin
 import protobuf.mauka_pb2
-import protobuf.util
+import protobuf.pb_util
 
 
 def smooth_waveform(sample: numpy.ndarray, filter_order: int = 2, cutoff_frequency: float = 500.0,
@@ -195,48 +195,48 @@ def acquire_data(mongo_client: mongo.OpqMongoClient,
 
     makai_event_plugin.debug("Extracted timestamps %d-%d" % (start_timestamp, end_timestamp))
 
-    adc_samples = protobuf.util.build_payload(name,
-                                              event_id,
-                                              box_id,
-                                              protobuf.mauka_pb2.ADC_SAMPLES,
-                                              waveform,
-                                              start_timestamp,
-                                              end_timestamp)
+    adc_samples = protobuf.pb_util.build_payload(name,
+                                                 event_id,
+                                                 box_id,
+                                                 protobuf.mauka_pb2.ADC_SAMPLES,
+                                                 waveform,
+                                                 start_timestamp,
+                                                 end_timestamp)
 
     makai_event_plugin.debug("Got ADC samples")
 
-    raw_voltage = protobuf.util.build_payload(name,
-                                              event_id,
-                                              box_id,
-                                              protobuf.mauka_pb2.VOLTAGE_RAW,
-                                              waveform_calibrated,
-                                              start_timestamp,
-                                              end_timestamp)
+    raw_voltage = protobuf.pb_util.build_payload(name,
+                                                 event_id,
+                                                 box_id,
+                                                 protobuf.mauka_pb2.VOLTAGE_RAW,
+                                                 waveform_calibrated,
+                                                 start_timestamp,
+                                                 end_timestamp)
 
     makai_event_plugin.debug("Got raw voltage")
 
-    rms_windowed_voltage = protobuf.util.build_payload(name,
-                                                       event_id,
-                                                       box_id,
-                                                       protobuf.mauka_pb2.VOLTAGE_RMS_WINDOWED,
-                                                       vrms_waveform(waveform_calibrated,
+    rms_windowed_voltage = protobuf.pb_util.build_payload(name,
+                                                          event_id,
+                                                          box_id,
+                                                          protobuf.mauka_pb2.VOLTAGE_RMS_WINDOWED,
+                                                          vrms_waveform(waveform_calibrated,
                                                                      int(constants.SAMPLES_PER_CYCLE)),
-                                                       start_timestamp,
-                                                       end_timestamp)
+                                                          start_timestamp,
+                                                          end_timestamp)
 
     makai_event_plugin.debug("Got rms windowed voltage")
 
-    frequency_windowed = protobuf.util.build_payload(name,
-                                                     event_id,
-                                                     box_id,
-                                                     protobuf.mauka_pb2.FREQUENCY_WINDOWED,
-                                                     frequency_waveform(waveform_calibrated,
+    frequency_windowed = protobuf.pb_util.build_payload(name,
+                                                        event_id,
+                                                        box_id,
+                                                        protobuf.mauka_pb2.FREQUENCY_WINDOWED,
+                                                        frequency_waveform(waveform_calibrated,
                                                                         frequency_samples_per_window,
                                                                         filter_order,
                                                                         filter_cutoff_frequency,
                                                                         filter_down_sample_factor),
-                                                     start_timestamp,
-                                                     end_timestamp)
+                                                        start_timestamp,
+                                                        end_timestamp)
 
     makai_event_plugin.debug("Got windowed frequency")
 
@@ -285,7 +285,7 @@ class MakaiEventPlugin(plugins.base_plugin.MaukaPlugin):
             self.produce("WindowedFrequency", frequency_windowed)
 
     def on_message(self, topic, mauka_message):
-        if protobuf.util.is_makai_event_message(mauka_message):
+        if protobuf.pb_util.is_makai_event_message(mauka_message):
             self.debug("on_message: {}".format(mauka_message))
             timer = threading.Timer(self.get_data_after_s,
                                     function=self.acquire_and_produce,
@@ -294,10 +294,10 @@ class MakaiEventPlugin(plugins.base_plugin.MaukaPlugin):
             # Produce a message to the GC
             self.debug("Producing laha_gc update")
             self.produce(plugins.laha_gc_plugin.LahaGcPlugin.LAHA_GC,
-                         protobuf.util.build_gc_update(self.name, protobuf.mauka_pb2.EVENTS,
-                                                       mauka_message.makai_event.event_id))
+                         protobuf.pb_util.build_gc_update(self.name, protobuf.mauka_pb2.EVENTS,
+                                                          mauka_message.makai_event.event_id))
             self.debug("laha_gc update produced")
             timer.start()
         else:
             self.logger.error("Received incorrect mauka message [%s] for MakaiEventPlugin",
-                              protobuf.util.which_message_oneof(mauka_message))
+                              protobuf.pb_util.which_message_oneof(mauka_message))

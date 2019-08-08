@@ -13,7 +13,7 @@ import config
 import constants
 import plugins.base_plugin
 import protobuf.mauka_pb2
-import protobuf.util
+import protobuf.pb_util
 import mongo
 
 
@@ -425,13 +425,13 @@ class TransientPlugin(plugins.base_plugin.MaukaPlugin):
         :param mauka_message: The message that was produced
         """
         self.debug("{} on_message".format(topic))
-        if protobuf.util.is_payload(mauka_message, protobuf.mauka_pb2.VOLTAGE_RAW):
+        if protobuf.pb_util.is_payload(mauka_message, protobuf.mauka_pb2.VOLTAGE_RAW):
             self.debug("on_message {}:{} len:{}".format(mauka_message.payload.event_id,
                                                         mauka_message.payload.box_id,
                                                         len(mauka_message.payload.data)))
 
             incidents = transient_incident_classifier(mauka_message.payload.event_id, mauka_message.payload.box_id,
-                                                      protobuf.util.repeated_as_ndarray(mauka_message.payload.data),
+                                                      protobuf.pb_util.repeated_as_ndarray(mauka_message.payload.data),
                                                       mauka_message.payload.start_timestamp_ms, self.configs)
 
             for incident in incidents:
@@ -448,10 +448,10 @@ class TransientPlugin(plugins.base_plugin.MaukaPlugin):
                     incident["mongo_client"]
                 )
                 # Produce a message to the GC
-                self.produce("laha_gc", protobuf.util.build_gc_update(self.name,
-                                                                      protobuf.mauka_pb2.INCIDENTS,
-                                                                      incident_id))
+                self.produce("laha_gc", protobuf.pb_util.build_gc_update(self.name,
+                                                                         protobuf.mauka_pb2.INCIDENTS,
+                                                                         incident_id))
 
         else:
             self.logger.error("Received incorrect mauka message [%s] at TransientPlugin",
-                              protobuf.util.which_message_oneof(mauka_message))
+                              protobuf.pb_util.which_message_oneof(mauka_message))

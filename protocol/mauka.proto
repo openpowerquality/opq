@@ -2,14 +2,17 @@ syntax = "proto3";
 
 // Parent type of all messages passed within Mauka.
 message MaukaMessage {
-    uint64 timestamp_ms = 1;                // Timestamp of message creation. Useful for load monitoring.
-    string source = 2;                      // Name of producer (most likely a plugin).
-    oneof message {                         // Contains one of the following...
-                                            Payload payload = 3;
-                                            Heartbeat heartbeat = 4;
-                                            MakaiEvent makai_event = 5;
-                                            Measurement measurement = 6;
-                                            MakaiTrigger makai_trigger = 7;
+    uint64 timestamp_ms = 1; // Timestamp of message creation. Useful for load monitoring.
+    string source = 2; // Name of producer (most likely a plugin).
+    oneof message { // Contains one of the following...
+                    Payload payload = 3;
+                    Heartbeat heartbeat = 4;
+                    MakaiEvent makai_event = 5;
+                    Measurement measurement = 6;
+                    MakaiTrigger makai_trigger = 7;
+                    Laha laha = 8;
+                    TriggerRequest trigger_request = 9;
+                    TriggeredEvent triggered_event = 10;
     }
 }
 
@@ -17,36 +20,45 @@ message MaukaMessage {
 // Payloads are produced by MakaiEventPlugin.
 // Payloads are consumed by ThdPlugin, IticPlugin, HighFidelityFrequencyPlugin.
 message Payload {
-    uint32 event_id = 1;            // Event that this payload originated form.
-    string box_id = 2;              // Box that this payload originated from.
-    repeated double data = 3;       // Data cast to double precision floats.
-    PayloadType payload_type = 4;   // Enumeration providing payload type information.
+    uint32 event_id = 1; // Event that this payload originated form.
+    string box_id = 2; // Box that this payload originated from.
+    repeated double data = 3; // Data cast to double precision floats.
+    PayloadType payload_type = 4; // Enumeration providing payload type information.
+    uint64 start_timestamp_ms = 5; // Start timestamp ms from epoch of first payload element
+    uint64 end_timestamp_ms = 6; // End timestamp ms from of epoch
 }
 
 // Types of payloads available within Mauka.
 enum PayloadType {
-    ADC_SAMPLES = 0;            // ADC waveform samples from the box.
-    VOLTAGE_RAW = 1;            // Raw voltage waveform obtained by dividiing ADC values by calibration constant.
-    VOLTAGE_RMS = 2;            // RMS waveform obtained by dividiing raw voltage by sqrt(2).
-    VOLTAGE_RMS_WINDOWED = 3;   // RMS extracted feature array.
-    FREQUENCY_WINDOWED = 4;     // Frequency extracted feature array.
+    ADC_SAMPLES = 0; // ADC waveform samples from the box.
+    VOLTAGE_RAW = 1; // Raw voltage waveform obtained by dividiing ADC values by calibration constant.
+    VOLTAGE_RMS = 2; // RMS waveform obtained by dividiing raw voltage by sqrt(2).
+    VOLTAGE_RMS_WINDOWED = 3; // RMS extracted feature array.
+    FREQUENCY_WINDOWED = 4; // Frequency extracted feature array.
 }
 
 // Every plugin produces a heartbeat.
 // Heartbeats are produced by all plugins.
 // Heartbeats are consumed by StatusPlugin.
 message Heartbeat {
-    uint64 last_received_timestamp_ms = 1;  // Last time a plugin on_message was fired.
-    uint32 on_message_count = 2;            // The amount of times on_message has been fired.
-    string status = 3;                      // Custom status message that plugin can override.
-    string plugin_state = 4;
+    uint64 last_received_timestamp_ms = 1; // Last time a plugin on_message was fired.
+    uint32 on_message_count = 2; // The ammount of times on_message has been fired.
+    string status = 3; // Custom status message that plugin can override.
 }
 
 // This message informs Mauka that Makai has recorded a new event.
 // MakaiEvents are received from Makai in the Makai Event Bridge Broker and then produced by the broker into Mauka.
-// MakaiEvents are consumsed by MakaiEventPlugin.
+// MakaiEvents are consumed by MakaiEventPlugin.
 message MakaiEvent {
     uint32 event_id = 1; // The event number that Makai has recorded.
+}
+
+message TriggeredEvent {
+    repeated int32 data = 1;
+    int32 incident_id = 2;
+    string box_id = 3;
+    int64 start_timestamp_ms = 4;
+    int64 end_timestamp_ms = 5;
 }
 
 // This will need to be revised soon, so leaving it blank for now.
@@ -70,4 +82,48 @@ message MakaiTrigger {
     string event_type = 3;
     double max_value = 4;
     string box_id = 5;
+}
+
+message Laha {
+    oneof laha_type {
+        Ttl ttl = 1;
+        GcTrigger gc_trigger = 2;
+        GcUpdate gc_update = 3;
+        GcStat gc_stat = 4;
+    }
+}
+
+message Ttl {
+    string collection = 1;
+    uint32 ttl_s = 2;
+}
+
+enum GcDomain {
+    MEASUREMENTS = 0;
+    TRENDS = 1;
+    EVENTS = 2;
+    INCIDENTS = 3;
+    PHENOMENA = 4;
+    SAMPLES = 5;
+}
+
+message GcTrigger {
+    repeated GcDomain gc_domains = 1;
+}
+
+message GcUpdate {
+    GcDomain from_domain = 1;
+    uint32 id = 2;
+}
+
+message GcStat {
+    GcDomain gc_domain = 1;
+    uint64 gc_cnt = 2;
+}
+
+message TriggerRequest {
+    uint64 start_timestamp_ms = 1;
+    uint64 end_timestamp_ms = 2;
+    repeated string box_ids = 3;
+    uint64 incident_id = 4;
 }

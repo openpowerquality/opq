@@ -15,7 +15,7 @@ import config
 import mongo
 import plugins.base_plugin
 import protobuf.mauka_pb2
-import protobuf.util
+import protobuf.pb_util
 
 
 def timestamp() -> int:
@@ -335,12 +335,12 @@ class SystemStatsPlugin(plugins.base_plugin.MaukaPlugin):
         :param mauka_message: The message that was produced
         """
         self.debug("Received message %s" % str(mauka_message))
-        if protobuf.util.is_heartbeat_message(mauka_message):
+        if protobuf.pb_util.is_heartbeat_message(mauka_message):
             self.debug("Received heartbeat message, updating plugin stats.")
             self.plugin_stats[mauka_message.source] = json.loads(mauka_message.heartbeat.status)
-        elif protobuf.util.is_gc_stat(mauka_message):
+        elif protobuf.pb_util.is_gc_stat(mauka_message):
             self.debug("Received gc_stat message")
             self.handle_gc_stat_message(mauka_message)
         else:
             self.logger.error("Received incorrect mauka message [%s] at %s",
-                              protobuf.util.which_message_oneof(mauka_message), SystemStatsPlugin.NAME)
+                              protobuf.pb_util.which_message_oneof(mauka_message), SystemStatsPlugin.NAME)

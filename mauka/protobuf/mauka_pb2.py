@@ -20,7 +20,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='',
   syntax='proto3',
   serialized_options=None,
-  serialized_pb=_b('\n\x0bmauka.proto\"\x85\x02\n\x0cMaukaMessage\x12\x14\n\x0ctimestamp_ms\x18\x01 \x01(\x04\x12\x0e\n\x06source\x18\x02 \x01(\t\x12\x1b\n\x07payload\x18\x03 \x01(\x0b\x32\x08.PayloadH\x00\x12\x1f\n\theartbeat\x18\x04 \x01(\x0b\x32\n.HeartbeatH\x00\x12\"\n\x0bmakai_event\x18\x05 \x01(\x0b\x32\x0b.MakaiEventH\x00\x12#\n\x0bmeasurement\x18\x06 \x01(\x0b\x32\x0c.MeasurementH\x00\x12&\n\rmakai_trigger\x18\x07 \x01(\x0b\x32\r.MakaiTriggerH\x00\x12\x15\n\x04laha\x18\x08 \x01(\x0b\x32\x05.LahaH\x00\x42\t\n\x07message\"\x93\x01\n\x07Payload\x12\x10\n\x08\x65vent_id\x18\x01 \x01(\r\x12\x0e\n\x06\x62ox_id\x18\x02 \x01(\t\x12\x0c\n\x04\x64\x61ta\x18\x03 \x03(\x01\x12\"\n\x0cpayload_type\x18\x04 \x01(\x0e\x32\x0c.PayloadType\x12\x1a\n\x12start_timestamp_ms\x18\x05 \x01(\x04\x12\x18\n\x10\x65nd_timestamp_ms\x18\x06 \x01(\x04\"Y\n\tHeartbeat\x12\"\n\x1alast_received_timestamp_ms\x18\x01 \x01(\x04\x12\x18\n\x10on_message_count\x18\x02 \x01(\r\x12\x0e\n\x06status\x18\x03 \x01(\t\"\x1e\n\nMakaiEvent\x12\x10\n\x08\x65vent_id\x18\x01 \x01(\r\"h\n\x0bMeasurement\x12\x0e\n\x06\x62ox_id\x18\x01 \x01(\t\x12\x14\n\x0ctimestamp_ms\x18\x02 \x01(\x04\x12\x11\n\tfrequency\x18\x03 \x01(\x01\x12\x13\n\x0bvoltage_rms\x18\x04 \x01(\x01\x12\x0b\n\x03thd\x18\x05 \x01(\x01\"\x87\x01\n\x0cMakaiTrigger\x12 \n\x18\x65vent_start_timestamp_ms\x18\x01 \x01(\x04\x12\x1e\n\x16\x65vent_end_timestamp_ms\x18\x02 \x01(\x04\x12\x12\n\nevent_type\x18\x03 \x01(\t\x12\x11\n\tmax_value\x18\x04 \x01(\x01\x12\x0e\n\x06\x62ox_id\x18\x05 \x01(\t\"\x86\x01\n\x04Laha\x12\x13\n\x03ttl\x18\x01 \x01(\x0b\x32\x04.TtlH\x00\x12 \n\ngc_trigger\x18\x02 \x01(\x0b\x32\n.GcTriggerH\x00\x12\x1e\n\tgc_update\x18\x03 \x01(\x0b\x32\t.GcUpdateH\x00\x12\x1a\n\x07gc_stat\x18\x04 \x01(\x0b\x32\x07.GcStatH\x00\x42\x0b\n\tlaha_type\"(\n\x03Ttl\x12\x12\n\ncollection\x18\x01 \x01(\t\x12\r\n\x05ttl_s\x18\x02 \x01(\r\"*\n\tGcTrigger\x12\x1d\n\ngc_domains\x18\x01 \x03(\x0e\x32\t.GcDomain\"6\n\x08GcUpdate\x12\x1e\n\x0b\x66rom_domain\x18\x01 \x01(\x0e\x32\t.GcDomain\x12\n\n\x02id\x18\x02 \x01(\r\"6\n\x06GcStat\x12\x1c\n\tgc_domain\x18\x01 \x01(\x0e\x32\t.GcDomain\x12\x0e\n\x06gc_cnt\x18\x02 \x01(\x04*r\n\x0bPayloadType\x12\x0f\n\x0b\x41\x44\x43_SAMPLES\x10\x00\x12\x0f\n\x0bVOLTAGE_RAW\x10\x01\x12\x0f\n\x0bVOLTAGE_RMS\x10\x02\x12\x18\n\x14VOLTAGE_RMS_WINDOWED\x10\x03\x12\x16\n\x12\x46REQUENCY_WINDOWED\x10\x04*_\n\x08GcDomain\x12\x10\n\x0cMEASUREMENTS\x10\x00\x12\n\n\x06TRENDS\x10\x01\x12\n\n\x06\x45VENTS\x10\x02\x12\r\n\tINCIDENTS\x10\x03\x12\r\n\tPHENOMENA\x10\x04\x12\x0b\n\x07SAMPLES\x10\x05\x62\x06proto3')
+  serialized_pb=_b('\n\x0bmauka.proto\"\xb1\x02\n\x0cMaukaMessage\x12\x14\n\x0ctimestamp_ms\x18\x01 \x01(\x04\x12\x0e\n\x06source\x18\x02 \x01(\t\x12\x1b\n\x07payload\x18\x03 \x01(\x0b\x32\x08.PayloadH\x00\x12\x1f\n\theartbeat\x18\x04 \x01(\x0b\x32\n.HeartbeatH\x00\x12\"\n\x0bmakai_event\x18\x05 \x01(\x0b\x32\x0b.MakaiEventH\x00\x12#\n\x0bmeasurement\x18\x06 \x01(\x0b\x32\x0c.MeasurementH\x00\x12&\n\rmakai_trigger\x18\x07 \x01(\x0b\x32\r.MakaiTriggerH\x00\x12\x15\n\x04laha\x18\x08 \x01(\x0b\x32\x05.LahaH\x00\x12*\n\x0ftrigger_request\x18\t \x01(\x0b\x32\x0f.TriggerRequestH\x00\x42\t\n\x07message\"\x93\x01\n\x07Payload\x12\x10\n\x08\x65vent_id\x18\x01 \x01(\r\x12\x0e\n\x06\x62ox_id\x18\x02 \x01(\t\x12\x0c\n\x04\x64\x61ta\x18\x03 \x03(\x01\x12\"\n\x0cpayload_type\x18\x04 \x01(\x0e\x32\x0c.PayloadType\x12\x1a\n\x12start_timestamp_ms\x18\x05 \x01(\x04\x12\x18\n\x10\x65nd_timestamp_ms\x18\x06 \x01(\x04\"Y\n\tHeartbeat\x12\"\n\x1alast_received_timestamp_ms\x18\x01 \x01(\x04\x12\x18\n\x10on_message_count\x18\x02 \x01(\r\x12\x0e\n\x06status\x18\x03 \x01(\t\"\x1e\n\nMakaiEvent\x12\x10\n\x08\x65vent_id\x18\x01 \x01(\r\"h\n\x0bMeasurement\x12\x0e\n\x06\x62ox_id\x18\x01 \x01(\t\x12\x14\n\x0ctimestamp_ms\x18\x02 \x01(\x04\x12\x11\n\tfrequency\x18\x03 \x01(\x01\x12\x13\n\x0bvoltage_rms\x18\x04 \x01(\x01\x12\x0b\n\x03thd\x18\x05 \x01(\x01\"\x87\x01\n\x0cMakaiTrigger\x12 \n\x18\x65vent_start_timestamp_ms\x18\x01 \x01(\x04\x12\x1e\n\x16\x65vent_end_timestamp_ms\x18\x02 \x01(\x04\x12\x12\n\nevent_type\x18\x03 \x01(\t\x12\x11\n\tmax_value\x18\x04 \x01(\x01\x12\x0e\n\x06\x62ox_id\x18\x05 \x01(\t\"\x86\x01\n\x04Laha\x12\x13\n\x03ttl\x18\x01 \x01(\x0b\x32\x04.TtlH\x00\x12 \n\ngc_trigger\x18\x02 \x01(\x0b\x32\n.GcTriggerH\x00\x12\x1e\n\tgc_update\x18\x03 \x01(\x0b\x32\t.GcUpdateH\x00\x12\x1a\n\x07gc_stat\x18\x04 \x01(\x0b\x32\x07.GcStatH\x00\x42\x0b\n\tlaha_type\"(\n\x03Ttl\x12\x12\n\ncollection\x18\x01 \x01(\t\x12\r\n\x05ttl_s\x18\x02 \x01(\r\"*\n\tGcTrigger\x12\x1d\n\ngc_domains\x18\x01 \x03(\x0e\x32\t.GcDomain\"6\n\x08GcUpdate\x12\x1e\n\x0b\x66rom_domain\x18\x01 \x01(\x0e\x32\t.GcDomain\x12\n\n\x02id\x18\x02 \x01(\r\"6\n\x06GcStat\x12\x1c\n\tgc_domain\x18\x01 \x01(\x0e\x32\t.GcDomain\x12\x0e\n\x06gc_cnt\x18\x02 \x01(\x04\"l\n\x0eTriggerRequest\x12\x1a\n\x12start_timestamp_ms\x18\x01 \x01(\x04\x12\x18\n\x10\x65nd_timestamp_ms\x18\x02 \x01(\x04\x12\x0f\n\x07\x62ox_ids\x18\x03 \x03(\t\x12\x13\n\x0bincident_id\x18\x04 \x01(\x04*r\n\x0bPayloadType\x12\x0f\n\x0b\x41\x44\x43_SAMPLES\x10\x00\x12\x0f\n\x0bVOLTAGE_RAW\x10\x01\x12\x0f\n\x0bVOLTAGE_RMS\x10\x02\x12\x18\n\x14VOLTAGE_RMS_WINDOWED\x10\x03\x12\x16\n\x12\x46REQUENCY_WINDOWED\x10\x04*_\n\x08GcDomain\x12\x10\n\x0cMEASUREMENTS\x10\x00\x12\n\n\x06TRENDS\x10\x01\x12\n\n\x06\x45VENTS\x10\x02\x12\r\n\tINCIDENTS\x10\x03\x12\r\n\tPHENOMENA\x10\x04\x12\x0b\n\x07SAMPLES\x10\x05\x62\x06proto3')
 )
 
 _PAYLOADTYPE = _descriptor.EnumDescriptor(
@@ -52,8 +52,8 @@ _PAYLOADTYPE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=1131,
-  serialized_end=1245,
+  serialized_start=1285,
+  serialized_end=1399,
 )
 _sym_db.RegisterEnumDescriptor(_PAYLOADTYPE)
 
@@ -91,8 +91,8 @@ _GCDOMAIN = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=1247,
-  serialized_end=1342,
+  serialized_start=1401,
+  serialized_end=1496,
 )
 _sym_db.RegisterEnumDescriptor(_GCDOMAIN)
 
@@ -174,6 +174,13 @@ _MAUKAMESSAGE = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='trigger_request', full_name='MaukaMessage.trigger_request', index=8,
+      number=9, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
@@ -190,7 +197,7 @@ _MAUKAMESSAGE = _descriptor.Descriptor(
       index=0, containing_type=None, fields=[]),
   ],
   serialized_start=16,
-  serialized_end=277,
+  serialized_end=321,
 )
 
 
@@ -255,8 +262,8 @@ _PAYLOAD = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=280,
-  serialized_end=427,
+  serialized_start=324,
+  serialized_end=471,
 )
 
 
@@ -300,8 +307,8 @@ _HEARTBEAT = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=429,
-  serialized_end=518,
+  serialized_start=473,
+  serialized_end=562,
 )
 
 
@@ -331,8 +338,8 @@ _MAKAIEVENT = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=520,
-  serialized_end=550,
+  serialized_start=564,
+  serialized_end=594,
 )
 
 
@@ -390,8 +397,8 @@ _MEASUREMENT = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=552,
-  serialized_end=656,
+  serialized_start=596,
+  serialized_end=700,
 )
 
 
@@ -449,8 +456,8 @@ _MAKAITRIGGER = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=659,
-  serialized_end=794,
+  serialized_start=703,
+  serialized_end=838,
 )
 
 
@@ -504,8 +511,8 @@ _LAHA = _descriptor.Descriptor(
       name='laha_type', full_name='Laha.laha_type',
       index=0, containing_type=None, fields=[]),
   ],
-  serialized_start=797,
-  serialized_end=931,
+  serialized_start=841,
+  serialized_end=975,
 )
 
 
@@ -542,8 +549,8 @@ _TTL = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=933,
-  serialized_end=973,
+  serialized_start=977,
+  serialized_end=1017,
 )
 
 
@@ -573,8 +580,8 @@ _GCTRIGGER = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=975,
-  serialized_end=1017,
+  serialized_start=1019,
+  serialized_end=1061,
 )
 
 
@@ -611,8 +618,8 @@ _GCUPDATE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1019,
-  serialized_end=1073,
+  serialized_start=1063,
+  serialized_end=1117,
 )
 
 
@@ -649,8 +656,60 @@ _GCSTAT = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1075,
-  serialized_end=1129,
+  serialized_start=1119,
+  serialized_end=1173,
+)
+
+
+_TRIGGERREQUEST = _descriptor.Descriptor(
+  name='TriggerRequest',
+  full_name='TriggerRequest',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='start_timestamp_ms', full_name='TriggerRequest.start_timestamp_ms', index=0,
+      number=1, type=4, cpp_type=4, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='end_timestamp_ms', full_name='TriggerRequest.end_timestamp_ms', index=1,
+      number=2, type=4, cpp_type=4, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='box_ids', full_name='TriggerRequest.box_ids', index=2,
+      number=3, type=9, cpp_type=9, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='incident_id', full_name='TriggerRequest.incident_id', index=3,
+      number=4, type=4, cpp_type=4, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=1175,
+  serialized_end=1283,
 )
 
 _MAUKAMESSAGE.fields_by_name['payload'].message_type = _PAYLOAD
@@ -659,6 +718,7 @@ _MAUKAMESSAGE.fields_by_name['makai_event'].message_type = _MAKAIEVENT
 _MAUKAMESSAGE.fields_by_name['measurement'].message_type = _MEASUREMENT
 _MAUKAMESSAGE.fields_by_name['makai_trigger'].message_type = _MAKAITRIGGER
 _MAUKAMESSAGE.fields_by_name['laha'].message_type = _LAHA
+_MAUKAMESSAGE.fields_by_name['trigger_request'].message_type = _TRIGGERREQUEST
 _MAUKAMESSAGE.oneofs_by_name['message'].fields.append(
   _MAUKAMESSAGE.fields_by_name['payload'])
 _MAUKAMESSAGE.fields_by_name['payload'].containing_oneof = _MAUKAMESSAGE.oneofs_by_name['message']
@@ -677,6 +737,9 @@ _MAUKAMESSAGE.fields_by_name['makai_trigger'].containing_oneof = _MAUKAMESSAGE.o
 _MAUKAMESSAGE.oneofs_by_name['message'].fields.append(
   _MAUKAMESSAGE.fields_by_name['laha'])
 _MAUKAMESSAGE.fields_by_name['laha'].containing_oneof = _MAUKAMESSAGE.oneofs_by_name['message']
+_MAUKAMESSAGE.oneofs_by_name['message'].fields.append(
+  _MAUKAMESSAGE.fields_by_name['trigger_request'])
+_MAUKAMESSAGE.fields_by_name['trigger_request'].containing_oneof = _MAUKAMESSAGE.oneofs_by_name['message']
 _PAYLOAD.fields_by_name['payload_type'].enum_type = _PAYLOADTYPE
 _LAHA.fields_by_name['ttl'].message_type = _TTL
 _LAHA.fields_by_name['gc_trigger'].message_type = _GCTRIGGER
@@ -708,6 +771,7 @@ DESCRIPTOR.message_types_by_name['Ttl'] = _TTL
 DESCRIPTOR.message_types_by_name['GcTrigger'] = _GCTRIGGER
 DESCRIPTOR.message_types_by_name['GcUpdate'] = _GCUPDATE
 DESCRIPTOR.message_types_by_name['GcStat'] = _GCSTAT
+DESCRIPTOR.message_types_by_name['TriggerRequest'] = _TRIGGERREQUEST
 DESCRIPTOR.enum_types_by_name['PayloadType'] = _PAYLOADTYPE
 DESCRIPTOR.enum_types_by_name['GcDomain'] = _GCDOMAIN
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
@@ -788,6 +852,13 @@ GcStat = _reflection.GeneratedProtocolMessageType('GcStat', (_message.Message,),
   # @@protoc_insertion_point(class_scope:GcStat)
   ))
 _sym_db.RegisterMessage(GcStat)
+
+TriggerRequest = _reflection.GeneratedProtocolMessageType('TriggerRequest', (_message.Message,), dict(
+  DESCRIPTOR = _TRIGGERREQUEST,
+  __module__ = 'mauka_pb2'
+  # @@protoc_insertion_point(class_scope:TriggerRequest)
+  ))
+_sym_db.RegisterMessage(TriggerRequest)
 
 
 # @@protoc_insertion_point(module_scope)
