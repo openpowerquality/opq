@@ -206,7 +206,11 @@ class PluginStatuses:
                 self.plugin_name_to_plugin_status[plugin_name].update(mauka_message)
 
     def as_json(self) -> str:
-        return json.dumps(self.plugin_name_to_plugin_status)
+        statuses = list(map(PluginStatus.as_json, self.plugin_name_to_plugin_status.values()))
+        print(statuses)
+        j = json.dumps(statuses)
+        print(j)
+        return j
 
 
 plugin_statuses: PluginStatuses = PluginStatuses()
@@ -243,6 +247,9 @@ class HealthRequestHandler(http.server.BaseHTTPRequestHandler):
             global health_state
             self._set_headers(200)
             self.wfile.write(health_state.as_json())
+
+    def log_message(self, format, *args):
+        return
 
 
 def start_health_sate_httpd_server(port: int):

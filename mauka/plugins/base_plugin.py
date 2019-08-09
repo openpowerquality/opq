@@ -155,7 +155,7 @@ class MaukaPlugin:
         self.bytes_received: int = 0
         self.bytes_published: int = 0
 
-        self.plugin_state = PluginState.IDLE.name
+        self.plugin_state: str = PluginState.IDLE.name
 
     def update_received(self, bytes_received: int):
         """

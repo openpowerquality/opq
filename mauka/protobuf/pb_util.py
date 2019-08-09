@@ -89,6 +89,7 @@ def build_heartbeat(source: str,
                     plugin_state: str) -> mauka_pb2.MaukaMessage:
     """
     Instance of Heartbeat protobuf message
+    :param plugin_state: The state of the plugin either as a string either IDLE or BUSY
     :param source: Where this message is created from (plugin name or service name)
     :param last_received_timestamp_ms: Last time a plugin received a on_message
     :param on_message_count: Number of times a plugin's on_message has been fired
