@@ -50,7 +50,7 @@ impl ScrapeRequestParams {
 pub fn scrape_data(
     client: &Client,
     credentials: &Credentials,
-    resource_id: String,
+    feature_id: String,
     start_ts_s: u64,
     end_ts_s: u64,
 ) -> Result<String, String> {
@@ -58,10 +58,12 @@ pub fn scrape_data(
         credentials.connection_id.clone(),
         start_ts_s,
         end_ts_s,
-        resource_id,
+        feature_id,
     );
     let mut res = client.get("https://energydata.hawaii.edu/api/reports/GetAnalyticsGraphAndGridData/GetAnalyticsGraphAndGridData")
         .header("__RequestVerificationToken", credentials.request_verification_token.clone())
+        .header("Connection-Timeout", "10000")
+        .header("Socket-Timeout", "10000")
         .query(&req)
         .send()
         .map_err(|e| format!("Error sending data scrape req to server: {:?}", e))?;
@@ -83,7 +85,7 @@ pub fn scrape_data(
 }
 
 #[inline]
-fn ts_s() -> u64 {
+pub fn ts_s() -> u64 {
     let start = SystemTime::now();
     let since_the_epoch = start
         .duration_since(UNIX_EPOCH)
