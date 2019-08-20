@@ -1,6 +1,5 @@
 use log;
 use reqwest::Client;
-use std::collections::HashSet;
 
 pub mod auth;
 pub mod conf;
