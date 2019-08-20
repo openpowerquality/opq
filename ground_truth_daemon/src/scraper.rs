@@ -162,6 +162,8 @@ pub struct GraphPoint {
 
 #[derive(Deserialize, Serialize, Debug)]
 pub struct DataPoint {
+    #[serde(rename = "_id")]
+    pub id: bson::oid::ObjectId,
     #[serde(rename = "meter-name")]
     pub meter_name: String,
     #[serde(rename = "sample-type")]
@@ -178,6 +180,7 @@ pub struct DataPoint {
 impl From<GraphPoint> for DataPoint {
     fn from(graph_point: GraphPoint) -> Self {
         DataPoint {
+            id: bson::oid::ObjectId::new().unwrap(),
             meter_name: graph_point.entity_name,
             sample_type: graph_point.tag_name,
             ts_s: to_ts(&graph_point.full_date_time_utc),
@@ -187,6 +190,17 @@ impl From<GraphPoint> for DataPoint {
             avg: graph_point.mean,
             stddev: graph_point.std_dev,
         }
+    }
+}
+
+impl From<Graph> for Vec<DataPoint> {
+    fn from(graph: Graph) -> Self {
+        let mut data_points: Vec<DataPoint> = Vec::new();
+        for graph_point in graph.graph {
+            let data_point: DataPoint = graph_point.into();
+            data_points.push(data_point);
+        }
+        data_points
     }
 }
 

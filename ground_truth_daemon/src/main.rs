@@ -1,8 +1,12 @@
 use log;
+use mongodb;
+use mongodb::db::ThreadedDatabase;
+use mongodb::ThreadedClient;
 use reqwest::Client;
 
 pub mod auth;
 pub mod conf;
+pub mod mongo;
 pub mod resources;
 pub mod scraper;
 
@@ -18,6 +22,9 @@ fn main() -> Result<(), String> {
 
     let feature_ids = meters.feature_ids(&config.features);
     log::info!("Feature Ids loaded.");
+
+    let mongo_client: mongodb::Client = mongodb::Client::connect("localhost", 27017).unwrap();
+    let ground_truth_coll = mongo_client.db("opq").collection("ground_truth");
 
     let client = Client::builder()
         .cookie_store(true)
@@ -43,22 +50,14 @@ fn main() -> Result<(), String> {
         ) {
             Ok(data) => {
                 let graph: scraper::Graph = serde_json::from_str(&data).unwrap();
-                for graph_point in graph.graph {
-                    let data_point: scraper::DataPoint = graph_point.into();
-                    println!("{:?}", data_point);
+                let data_points: Vec<scraper::DataPoint> = graph.into();
+                if let Err(e) = mongo::store_data_points(&ground_truth_coll, &data_points) {
+                    log::error!("Error storing data: {}", e);
                 }
             }
             Err(err) => log::error!("Error scraping data for feature_id={}: {}", feature_id, err),
         }
     }
-    //    let scrape_res = scraper::scrape_data(
-    //        &client,
-    //        &credentials,
-    //        "87891b60-1d7e-4fdf-964e-0cfaa4a9842e".to_string(),
-    //        1566262840,
-    //        1566263325,
-    //    )?;
-    //    println!("{}", scrape_res);
 
     log::info!("Finished data scrape.");
 
