@@ -42,7 +42,13 @@ fn main() -> Result<(), String> {
             start_ts_s,
             end_ts_s,
         ) {
-            Ok(data) => println!("{:?}\n\n", data),
+            Ok(data) => {
+                let graph: scraper::Graph = serde_json::from_str(&data).unwrap();
+                for graph_point in graph.graph {
+                    let data_point: scraper::DataPoint = graph_point.into();
+                    println!("{:?}", data_point);
+                }
+            }
             Err(err) => log::error!("Error scraping data for feature_id={}: {}", feature_id, err),
         }
     }

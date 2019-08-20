@@ -1,9 +1,9 @@
 use crate::auth::Credentials;
-use reqwest::{Client, StatusCode};
+use reqwest::Client;
 
 use chrono;
 use chrono::{Datelike, TimeZone, Timelike};
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use std::time::{SystemTime, UNIX_EPOCH};
 
 #[derive(Serialize)]
@@ -106,4 +106,92 @@ fn format_time(ts_s: u64) -> String {
         "|{}/{}/{} {}:{:02} {}",
         month, day, year, hour12, min, am_pm
     )
+}
+
+#[derive(Deserialize, Debug)]
+pub struct Graph {
+    #[serde(rename = "Graph")]
+    pub graph: Vec<GraphPoint>,
+}
+
+#[derive(Deserialize, Debug)]
+pub struct GraphPoint {
+    #[serde(rename = "Endpoint")]
+    pub endpoint: String,
+    #[serde(rename = "DataType")]
+    pub data_type: String,
+    #[serde(rename = "EntityId")]
+    pub entity_id: String,
+    #[serde(rename = "EntityName")]
+    pub entity_name: String,
+    #[serde(rename = "TagId")]
+    pub tag_id: String,
+    #[serde(rename = "TagName")]
+    pub tag_name: String,
+    #[serde(rename = "TagLogId")]
+    pub tag_log_id: i64,
+    #[serde(rename = "Mean")]
+    pub mean: f64,
+    #[serde(rename = "Min")]
+    pub min: f64,
+    #[serde(rename = "Max")]
+    pub max: f64,
+    #[serde(rename = "Median")]
+    pub median: f64,
+    #[serde(rename = "Actual")]
+    pub actual: f64,
+    #[serde(rename = "StDev")]
+    pub std_dev: f64,
+    #[serde(rename = "SampleSize")]
+    pub sample_size: i64,
+    #[serde(rename = "Quality")]
+    pub quality: i64,
+    #[serde(rename = "FullDateTimeUTC")]
+    pub full_date_time_utc: String,
+    #[serde(rename = "FullDateTimeServer")]
+    pub full_date_time_server: String,
+    #[serde(rename = "FullDateTimeClient")]
+    pub full_date_time_client: String,
+    #[serde(rename = "DeviceId")]
+    pub device_id: String,
+    #[serde(rename = "DeviceName")]
+    pub device_name: String,
+    #[serde(rename = "FullDateTime")]
+    pub full_date_time: String,
+}
+
+#[derive(Deserialize, Serialize, Debug)]
+pub struct DataPoint {
+    #[serde(rename = "meter-name")]
+    pub meter_name: String,
+    #[serde(rename = "sample-type")]
+    pub sample_type: String,
+    #[serde(rename = "ts-s")]
+    pub ts_s: i64,
+    pub actual: f64,
+    pub min: f64,
+    pub max: f64,
+    pub avg: f64,
+    pub stddev: f64,
+}
+
+impl From<GraphPoint> for DataPoint {
+    fn from(graph_point: GraphPoint) -> Self {
+        DataPoint {
+            meter_name: graph_point.entity_name,
+            sample_type: graph_point.tag_name,
+            ts_s: to_ts(&graph_point.full_date_time_utc),
+            actual: graph_point.actual,
+            min: graph_point.min,
+            max: graph_point.max,
+            avg: graph_point.mean,
+            stddev: graph_point.std_dev,
+        }
+    }
+}
+
+fn to_ts(dt: &str) -> i64 {
+    chrono::NaiveDateTime::parse_from_str(dt, "%Y-%m-%dT%H:%M:%S")
+        .unwrap()
+        .timestamp()
 }
