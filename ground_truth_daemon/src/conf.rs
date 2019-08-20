@@ -1,5 +1,6 @@
 use serde::Deserialize;
 use serde_json;
+use std::collections::HashSet;
 
 const SETTINGS_KEY: &str = "GROUND_TRUTH_DAEMON_SETTINGS";
 
@@ -7,8 +8,9 @@ const SETTINGS_KEY: &str = "GROUND_TRUTH_DAEMON_SETTINGS";
 pub struct GroundTruthDaemonConfig {
     pub username: String,
     pub password: String,
-    pub features: Vec<String>,
+    pub features: HashSet<String>,
     pub collect_last_s: usize,
+    pub features_db: String,
 }
 
 impl GroundTruthDaemonConfig {

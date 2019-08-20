@@ -11,14 +11,21 @@ fn main() -> Result<(), String> {
     log::info!("Starting ground_truth_daemon.");
 
     let config = conf::GroundTruthDaemonConfig::from_env()?;
+    log::info!("Configuration loaded.");
+
+    let meters = resources::Meters::from_file(&config.features_db)?;
+    log::info!("Meters DB loaded.");
+
     let client = Client::builder()
         .cookie_store(true)
         .build()
         .map_err(|e| format!("Error obtaining HTTP client: {:?}", e))?;
 
-    let meters = resources::Meters::from_file("resources.json")?;
+    log::info!("HTTP client constructed.");
 
     let credentials = auth::post_login(&client, &config.username, &config.password)?;
+
+    log::info!("Acquired credentials.");
 
     let scrape_res = scrape::scrape_data(
         &client,

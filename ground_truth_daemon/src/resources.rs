@@ -1,5 +1,6 @@
 use serde::Deserialize;
 use serde_json;
+use std::collections::HashSet;
 
 #[derive(Deserialize, Debug)]
 pub struct Meters {
@@ -12,6 +13,12 @@ impl Meters {
             .map_err(|e| format!("Error loading meters from file {}: {:?}", path, e))?;
         serde_json::from_reader(file)
             .map_err(|e| format!("Error parsing meters from file {}: {:?}", path, e))
+    }
+
+    pub fn feature_ids(&self, features: &HashSet<String>) -> Vec<String> {
+        for meter in &self.meters {
+            for feature in &meter.features {}
+        }
     }
 }
 
