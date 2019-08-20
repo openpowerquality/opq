@@ -8,9 +8,18 @@ pub fn post_login(client: &Client, user: &str, pass: &str) -> Result<Credentials
         .post("https://energydata.hawaii.edu/Auth/Login")
         .form(&LoginForm::new(user.to_owned(), pass.to_owned()))
         .send()
-        .map_err(|e| e.to_string())?;
+        .map_err(|e| format!("Error sending auth req to server: {:?}", e))?;
 
-    let body = res.text().map_err(|e| e.to_string())?;
+    if !res.status().is_success() {
+        return Err(format!(
+            "Response code for data scrape is not OK: {:?}",
+            res.status()
+        ));
+    }
+
+    let body = res
+        .text()
+        .map_err(|e| format!("Error getting body from auth resp: {:?}", e))?;
     let clean_body = prepare_body(&body);
     extract_credentials(&clean_body)
 }
@@ -71,7 +80,7 @@ fn extract_request_verification_token(body: &Vec<String>) -> Result<String, Stri
         .iter()
         .find(|line| line.contains("__RequestVerificationToken"))
     {
-        None => Err("Error extracting request verification token.".to_owned()),
+        None => Err("Error extracting request verification token. No value __RequestVerificationToken found.".to_owned()),
         Some(line) => {
             let fragment = Html::parse_fragment(&line);
             let selector = Selector::parse(r#"input[name="__RequestVerificationToken"]"#).unwrap();

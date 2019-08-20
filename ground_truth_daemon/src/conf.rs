@@ -16,9 +16,9 @@ impl GroundTruthDaemonConfig {
         match std::env::var(SETTINGS_KEY) {
             Ok(val) => match serde_json::from_str(&val) {
                 Ok(res) => Ok(res),
-                Err(err) => Err(err.to_string()),
+                Err(err) => Err(format!("Error loading config from env: {:?}", err)),
             },
-            Err(err) => Err(err.to_string()),
+            Err(err) => Err(format!("Error loading config from env: {:?}", err)),
         }
     }
 }

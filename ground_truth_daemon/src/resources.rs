@@ -7,9 +7,11 @@ pub struct Meters {
 }
 
 impl Meters {
-    pub fn from_file(path: &str) -> Meters {
-        let file = std::fs::File::open(path).unwrap();
-        return serde_json::from_reader(file).unwrap();
+    pub fn from_file(path: &str) -> Result<Meters, String> {
+        let file = std::fs::File::open(path)
+            .map_err(|e| format!("Error loading meters from file {}: {:?}", path, e))?;
+        serde_json::from_reader(file)
+            .map_err(|e| format!("Error parsing meters from file {}: {:?}", path, e))
     }
 }
 

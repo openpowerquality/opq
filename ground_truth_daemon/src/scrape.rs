@@ -1,5 +1,5 @@
 use crate::auth::Credentials;
-use reqwest::Client;
+use reqwest::{Client, StatusCode};
 
 use chrono;
 use chrono::{Datelike, TimeZone, Timelike};
@@ -53,7 +53,7 @@ pub fn scrape_data(
     resource_id: String,
     start_ts_s: u64,
     end_ts_s: u64,
-) {
+) -> Result<String, String> {
     let req = ScrapeRequestParams::new(
         credentials.connection_id.clone(),
         start_ts_s,
@@ -63,9 +63,23 @@ pub fn scrape_data(
     let mut res = client.get("https://energydata.hawaii.edu/api/reports/GetAnalyticsGraphAndGridData/GetAnalyticsGraphAndGridData")
         .header("__RequestVerificationToken", credentials.request_verification_token.clone())
         .query(&req)
-        .send().unwrap();
-    println!("{:?}", &res);
-    println!("{:?}", &res.text());
+        .send()
+        .map_err(|e| format!("Error sending data scrape req to server: {:?}", e))?;
+
+    if !res.status().is_success() {
+        return Err(format!(
+            "Response code for data scrape is not OK: {:?}",
+            res.status()
+        ));
+    }
+
+    match res.text() {
+        Ok(txt) => Ok(txt),
+        Err(err) => Err(format!(
+            "Error getting body from data scrape response: {:?}",
+            err
+        )),
+    }
 }
 
 #[inline]
