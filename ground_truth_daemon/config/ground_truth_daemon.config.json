@@ -1,0 +1,23 @@
+{
+  "username": "",
+  "password": "",
+  "features": [
+    "AVG_CURRENT_THD",
+    "AVG_VOLTAGE_THD",
+    "CURRENT_A_THD",
+    "CURRENT_B_THD",
+    "CURRENT_C_THD",
+    "Frequency",
+    "VAB",
+    "VAN",
+    "VBC",
+    "VBN",
+    "VCA",
+    "VCN",
+    "VOLAGE_CN_THD",
+    "VOLTAGE_AN_THD",
+    "VOLTAGE_BN_THD",
+    "VOLTAGE_CN_THD"
+  ],
+  "collect_last_s": 3600
+}
