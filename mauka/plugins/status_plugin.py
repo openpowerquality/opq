@@ -177,13 +177,16 @@ class PluginStatus:
         self.plugin_state = mauka_message.heartbeat.plugin_state
 
     def as_json(self):
-        return json.dumps({
+        return json.dumps(self.as_dict())
+
+    def as_dict(self) -> typing.Dict:
+        return {
             "plugin_name": self.plugin_name,
             "messages_recv": self.messages_recv,
             "bytes_recv": self.bytes_recv,
             "last_recv": self.last_recv,
             "plugin_state": self.plugin_state
-        })
+        }
 
     def update(self, mauka_message: mauka_pb2.MaukaMessage):
         self.messages_recv = mauka_message.heartbeat.on_message_count
@@ -206,11 +209,9 @@ class PluginStatuses:
                 self.plugin_name_to_plugin_status[plugin_name].update(mauka_message)
 
     def as_json(self) -> str:
-        statuses = list(map(PluginStatus.as_json, self.plugin_name_to_plugin_status.values()))
-        print(statuses)
+        statuses = list(map(PluginStatus.as_dict, self.plugin_name_to_plugin_status.values()))
         j = json.dumps(statuses)
-        print(j)
-        return j
+        return j.encode()
 
 
 plugin_statuses: PluginStatuses = PluginStatuses()
@@ -278,6 +279,8 @@ class StatusPlugin(plugins.base_plugin.MaukaPlugin):
     def on_message(self, topic, mauka_message):
         # pylint: disable=W0603
         global health_state
+        # pylint: disable=W0603
+        global plugin_statuses
         """Subscribed messages occur async
 
         Messages are printed to stdout
@@ -293,3 +296,4 @@ class StatusPlugin(plugins.base_plugin.MaukaPlugin):
         else:
             self.logger.error("Incorrect mauka message type [%s] for StatusPlugin",
                               protobuf.pb_util.which_message_oneof(mauka_message))
+
