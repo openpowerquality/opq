@@ -72,6 +72,12 @@ pub fn scrape_data(
         .send()
         .map_err(|e| format!("Error sending data scrape req to server: {:?}", e))?;
 
+    log::debug!(
+        "Data scrape response : \n{:?}\n{:?}\n",
+        &res.headers(),
+        &res.status(),
+    );
+
     if !res.status().is_success() {
         return Err(format!(
             "Response code for data scrape is not OK: {:?}",
@@ -80,7 +86,10 @@ pub fn scrape_data(
     }
 
     match res.text() {
-        Ok(txt) => Ok(txt),
+        Ok(txt) => {
+            log::debug!("Data scrape response text: \n{}\n", &txt);
+            Ok(txt)
+        }
         Err(err) => Err(format!(
             "Error getting body from data scrape response: {:?}",
             err
