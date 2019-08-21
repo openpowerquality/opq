@@ -17,8 +17,8 @@ fn main() -> Result<(), String> {
     let meters = resources::Meters::from_file(&config.features_db)?;
     log::info!("Meters DB loaded.");
 
-    let feature_ids = meters.feature_ids(&config.features);
-    log::info!("{} feature ids loaded.", feature_ids.len());
+    //    let feature_ids = meters.feature_ids(&config.features);
+    //    log::info!("{} feature ids loaded.", feature_ids.len());
 
     let (_mongo_client, ground_truth_coll) = mongo::init(&config)?;
     log::info!("MongoClient loaded.");
@@ -33,25 +33,26 @@ fn main() -> Result<(), String> {
     log::info!("Acquired credentials.");
 
     log::info!("Beginning data scrape.");
-    let end_ts_s = scraper::ts_s();
-    let start_ts_s = end_ts_s - (config.collect_last_s as u64);
-    for feature_id in feature_ids {
-        log::info!("Scraping data for feature_id={}", &feature_id);
-        match scraper::scrape_data(
-            &client,
-            &credentials,
-            feature_id.clone(),
-            start_ts_s,
-            end_ts_s,
-        ) {
+    for feature in &config.features {
+        let feature_ids = meters.feature_ids(feature);
+
+        let end_ts_s = scraper::ts_s();
+        let start_ts_s = end_ts_s - (config.collect_last_s as u64);
+        log::info!(
+            "Scraping data for feature={} feature_ids={:?}",
+            feature,
+            &feature_ids
+        );
+        match scraper::scrape_data(&client, &credentials, feature_ids, start_ts_s, end_ts_s) {
             Ok(data) => {
                 let graph: scraper::Graph = serde_json::from_str(&data).unwrap();
                 let data_points: Vec<scraper::DataPoint> = graph.into();
-                if let Err(e) = mongo::store_data_points(&ground_truth_coll, &data_points) {
-                    log::error!("Error storing data for feature_id={}: {}", &feature_id, e);
-                }
+                //                println!("{:?}", data_points);
+                //                if let Err(e) = mongo::store_data_points(&ground_truth_coll, &data_points) {
+                //                    log::error!("Error storing data for feature_id={}: {}", &feature_id, e);
+                //                }
             }
-            Err(err) => log::error!("Error scraping data for feature_id={}: {}", feature_id, err),
+            Err(err) => log::error!("Error scraping data: {}", err),
         }
     }
 

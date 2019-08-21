@@ -15,11 +15,11 @@ impl Meters {
             .map_err(|e| format!("Error parsing meters from file {}: {:?}", path, e))
     }
 
-    pub fn feature_ids(&self, features: &HashSet<String>) -> Vec<String> {
+    pub fn feature_ids(&self, feature_str: &String) -> Vec<String> {
         let mut resource_ids: Vec<String> = Vec::new();
         for meter in &self.meters {
             for feature in &meter.features {
-                if features.contains(&feature.name) {
+                if feature.name == *feature_str {
                     resource_ids.push(feature.tag_id.clone());
                 }
             }

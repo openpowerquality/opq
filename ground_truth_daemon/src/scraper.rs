@@ -30,8 +30,12 @@ impl ScrapeRequestParams {
         connection_id: String,
         start_ts_s: u64,
         end_ts_s: u64,
-        feature_id: String,
+        feature_ids: Vec<String>,
     ) -> ScrapeRequestParams {
+        let feature_ids: Vec<String> = feature_ids
+            .iter()
+            .map(|fid| format!("BLUEPILLAR|{}", fid))
+            .collect();
         ScrapeRequestParams {
             connection_id,
             stored_proc_name: "GetLogMinuteDataForTagIds".to_string(),
@@ -41,7 +45,7 @@ impl ScrapeRequestParams {
             parameter2: format_time(end_ts_s),
             parameter3: "|-600".to_string(),
             parameter4: "|client".to_string(),
-            parameter5: format!("BLUEPILLAR|{}", feature_id),
+            parameter5: feature_ids.join(","),
             underscore: (ts_s() * 1000).to_string(),
         }
     }
@@ -50,7 +54,7 @@ impl ScrapeRequestParams {
 pub fn scrape_data(
     client: &Client,
     credentials: &Credentials,
-    feature_id: String,
+    feature_ids: Vec<String>,
     start_ts_s: u64,
     end_ts_s: u64,
 ) -> Result<String, String> {
@@ -58,7 +62,7 @@ pub fn scrape_data(
         credentials.connection_id.clone(),
         start_ts_s,
         end_ts_s,
-        feature_id,
+        feature_ids,
     );
     let mut res = client.get("https://energydata.hawaii.edu/api/reports/GetAnalyticsGraphAndGridData/GetAnalyticsGraphAndGridData")
         .header("__RequestVerificationToken", credentials.request_verification_token.clone())
