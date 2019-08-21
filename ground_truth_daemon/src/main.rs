@@ -1,7 +1,4 @@
 use log;
-use mongodb;
-use mongodb::db::ThreadedDatabase;
-use mongodb::ThreadedClient;
 use reqwest::Client;
 
 pub mod auth;
@@ -15,32 +12,31 @@ fn main() -> Result<(), String> {
     log::info!("Starting ground_truth_daemon.");
 
     let config = conf::GroundTruthDaemonConfig::from_env()?;
-    log::info!("Configuration loaded.");
+    log::info!("Configuration loaded:\n{:?}", &config);
 
     let meters = resources::Meters::from_file(&config.features_db)?;
     log::info!("Meters DB loaded.");
 
     let feature_ids = meters.feature_ids(&config.features);
-    log::info!("Feature Ids loaded.");
+    log::info!("{} feature ids loaded.", feature_ids.len());
 
-    let mongo_client: mongodb::Client = mongodb::Client::connect("localhost", 27017).unwrap();
-    let ground_truth_coll = mongo_client.db("opq").collection("ground_truth");
+    let (mongo_client, ground_truth_coll) = mongo::init()?;
+    log::info!("MongoClient loaded.");
 
     let client = Client::builder()
         .cookie_store(true)
         .build()
         .map_err(|e| format!("Error obtaining HTTP client: {:?}", e))?;
-
-    log::info!("HTTP client constructed.");
+    log::info!("HTTP client loaded.");
 
     let credentials = auth::post_login(&client, &config.username, &config.password)?;
-
     log::info!("Acquired credentials.");
 
     log::info!("Beginning data scrape.");
     let end_ts_s = scraper::ts_s();
     let start_ts_s = end_ts_s - (config.collect_last_s as u64);
     for feature_id in feature_ids {
+        log::info!("Scraping data for feature_id={}", &feature_id);
         match scraper::scrape_data(
             &client,
             &credentials,
@@ -52,7 +48,7 @@ fn main() -> Result<(), String> {
                 let graph: scraper::Graph = serde_json::from_str(&data).unwrap();
                 let data_points: Vec<scraper::DataPoint> = graph.into();
                 if let Err(e) = mongo::store_data_points(&ground_truth_coll, &data_points) {
-                    log::error!("Error storing data: {}", e);
+                    log::error!("Error storing data for feature_id={}: {}", &feature_id, e);
                 }
             }
             Err(err) => log::error!("Error scraping data for feature_id={}: {}", feature_id, err),
