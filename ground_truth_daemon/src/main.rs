@@ -47,10 +47,10 @@ fn main() -> Result<(), String> {
             Ok(data) => {
                 let graph: scraper::Graph = serde_json::from_str(&data).unwrap();
                 let data_points: Vec<scraper::DataPoint> = graph.into();
-                //                println!("{:?}", data_points);
-                //                if let Err(e) = mongo::store_data_points(&ground_truth_coll, &data_points) {
-                //                    log::error!("Error storing data for feature_id={}: {}", &feature_id, e);
-                //                }
+
+                if let Err(e) = mongo::store_data_points(&ground_truth_coll, &data_points) {
+                    log::error!("Error storing data}: {}", e);
+                }
             }
             Err(err) => log::error!("Error scraping data: {}", err),
         }
