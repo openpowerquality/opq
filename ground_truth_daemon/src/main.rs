@@ -20,7 +20,7 @@ fn main() -> Result<(), String> {
     let feature_ids = meters.feature_ids(&config.features);
     log::info!("{} feature ids loaded.", feature_ids.len());
 
-    let (mongo_client, ground_truth_coll) = mongo::init()?;
+    let (_mongo_client, ground_truth_coll) = mongo::init(&config)?;
     log::info!("MongoClient loaded.");
 
     let client = Client::builder()

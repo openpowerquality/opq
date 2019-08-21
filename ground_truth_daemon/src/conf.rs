@@ -11,6 +11,8 @@ pub struct GroundTruthDaemonConfig {
     pub features: HashSet<String>,
     pub collect_last_s: usize,
     pub features_db: String,
+    pub mongo_host: String,
+    pub mongo_port: u16,
 }
 
 impl GroundTruthDaemonConfig {

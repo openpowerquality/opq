@@ -20,5 +20,7 @@
     "VOLTAGE_CN_THD"
   ],
   "collect_last_s": 3600,
-  "features_db": "resources.json"
+  "features_db": "resources.json",
+  "mongo_host": "localhost",
+  "mongo_port": 27017
 }

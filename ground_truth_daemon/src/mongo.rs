@@ -1,10 +1,14 @@
+use crate::conf::GroundTruthDaemonConfig;
 use crate::scraper::DataPoint;
 use bson::Document;
 use mongodb::{coll::Collection, db::ThreadedDatabase, ThreadedClient};
 
-pub fn init() -> Result<(mongodb::Client, mongodb::coll::Collection), String> {
-    let mongo_client: mongodb::Client = mongodb::Client::connect("localhost", 27017)
-        .map_err(|e| format!("Error getting Mongo client: {:?}", e))?;
+pub fn init(
+    config: &GroundTruthDaemonConfig,
+) -> Result<(mongodb::Client, mongodb::coll::Collection), String> {
+    let mongo_client: mongodb::Client =
+        mongodb::Client::connect(&config.mongo_host, config.mongo_port)
+            .map_err(|e| format!("Error getting Mongo client: {:?}", e))?;
     let ground_truth_coll = mongo_client.db("opq").collection("ground_truth");
 
     Ok((mongo_client, ground_truth_coll))
