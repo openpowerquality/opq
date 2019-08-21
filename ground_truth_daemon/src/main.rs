@@ -49,7 +49,7 @@ fn main() -> Result<(), String> {
                 let data_points: Vec<scraper::DataPoint> = graph.into();
 
                 if let Err(e) = mongo::store_data_points(&ground_truth_coll, &data_points) {
-                    log::error!("Error storing data}: {}", e);
+                    log::error!("Error storing data: {}", e);
                 }
             }
             Err(err) => log::error!("Error scraping data: {}", err),
