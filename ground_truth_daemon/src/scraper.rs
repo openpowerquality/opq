@@ -169,7 +169,7 @@ pub struct DataPoint {
     #[serde(rename = "sample-type")]
     pub sample_type: String,
     #[serde(rename = "ts-s")]
-    pub ts_s: i64,
+    pub ts_s: i32,
     pub actual: f64,
     pub min: f64,
     pub max: f64,
@@ -183,7 +183,7 @@ impl From<GraphPoint> for DataPoint {
             id: bson::oid::ObjectId::new().unwrap(),
             meter_name: graph_point.entity_name,
             sample_type: graph_point.tag_name,
-            ts_s: to_ts(&graph_point.full_date_time_utc),
+            ts_s: to_ts(&graph_point.full_date_time_utc) as i32,
             actual: graph_point.actual,
             min: graph_point.min,
             max: graph_point.max,
