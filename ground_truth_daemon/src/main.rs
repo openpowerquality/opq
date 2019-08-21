@@ -45,11 +45,18 @@ fn main() -> Result<(), String> {
         );
         match scraper::scrape_data(&client, &credentials, feature_ids, start_ts_s, end_ts_s) {
             Ok(data) => {
-                let graph: scraper::Graph = serde_json::from_str(&data).unwrap();
-                let data_points: Vec<scraper::DataPoint> = graph.into();
+                let maybe_graph: Result<scraper::Graph, serde_json::error::Error> =
+                    serde_json::from_str(&data);
 
-                if let Err(e) = mongo::store_data_points(&ground_truth_coll, &data_points) {
-                    log::error!("Error storing data: {}", e);
+                match maybe_graph {
+                    Ok(graph) => {
+                        let data_points: Vec<scraper::DataPoint> = graph.into();
+
+                        if let Err(e) = mongo::store_data_points(&ground_truth_coll, &data_points) {
+                            log::error!("Error storing data: {}", e);
+                        }
+                    }
+                    Err(err) => log::error!("Could not parse data from {}: {:?}", data, err),
                 }
             }
             Err(err) => log::error!("Error scraping data: {}", err),

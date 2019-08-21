@@ -1,6 +1,5 @@
 use serde::Deserialize;
 use serde_json;
-use std::collections::HashSet;
 
 #[derive(Deserialize, Debug)]
 pub struct Meters {
