@@ -251,6 +251,7 @@ class HealthRequestHandler(http.server.BaseHTTPRequestHandler):
     Custom HTTP handler for Mauka's health requests.
     """
 
+    # pylint: disable=W0603
     def _set_headers(self, resp: int):
         """
         Custom header setting method.
@@ -268,12 +269,10 @@ class HealthRequestHandler(http.server.BaseHTTPRequestHandler):
         :return: The health state as JSON
         """
         if self.path == "/status":
-            # pylint: disable=W0603
             global plugin_statuses
             self._set_headers(200)
             self.wfile.write(plugin_statuses.as_json())
         else:
-            # pylint: disable=W0603
             global health_state
             self._set_headers(200)
             self.wfile.write(health_state.as_json())

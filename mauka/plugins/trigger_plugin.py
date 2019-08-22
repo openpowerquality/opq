@@ -89,7 +89,7 @@ def trigger_boxes(zmq_trigger_interface: str,
             zmq_socket.send(pb_util.serialize_message(trigger_command))
         except Exception as exception:  # pylint: disable=W0703
             print(exception)
-
+    print(incident_id)
     return event_token
 
 
