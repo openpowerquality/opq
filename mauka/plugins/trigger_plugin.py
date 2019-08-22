@@ -17,47 +17,43 @@ import protobuf.pb_util as pb_util
 
 
 def timestamp_ms() -> int:
+    """
+    :return: The current timestamp as milliseconds since the epoch.
+    """
     return int(round(time.time() * 1000.0))
 
 
 class MakaiDataSubscriber:
+    """
+    This class handles receiving triggered data back from Makai. This class is ran in a separate thread.
+    """
+
+    # pylint: disable=E1101
     def __init__(self, zmq_data_interface: str):
         self.zmq_context = zmq.Context()
+        # noinspection PyUnresolvedReferences
         self.zmq_socket = self.zmq_context.socket(zmq.SUB)
         self.zmq_socket.connect(zmq_data_interface)
+        # noinspection PyUnresolvedReferences
         self.zmq_socket.setsockopt(zmq.SUBSCRIBE, "".encode())
 
     def run(self):
-        print("in thread")
+        """
+        Run loop which continuously attempts to receive triggered data from Makai.
+        """
         while True:
-            print("waiting for data")
             data = self.zmq_socket.recv_multipart()
             identity = data[0]
             response = pb_util.deserialize_makai_response(data[1])
             data = list(map(pb_util.deserialize_makai_cycle, data[2:]))
             print(identity, response, data)
-        print("leaving thread")
 
     def start_thread(self):
-        print("starting thread")
+        """
+        Starts the data recv thread.
+        """
         thread = threading.Thread(target=self.run)
         thread.start()
-
-
-# def on_data_recv(future: futures.Future):
-#     try:
-#         exception = future.exception()
-#         if exception is not None:
-#             print("Error receiving data in trigger plugin: %s" % str(exception))
-#             return
-#
-#         result = future.result()
-#         print(result)
-#
-#     except futures.TimeoutError as e:
-#         print("trigger plugin futures timeout error: %s" % str(e))
-#     except futures.CancelledError as e:
-#         print("trigger plugin futures canceled error: %s" % str(e))
 
 
 def trigger_boxes(zmq_trigger_interface: str,
@@ -66,47 +62,35 @@ def trigger_boxes(zmq_trigger_interface: str,
                   box_ids: typing.List[str],
                   incident_id: int,
                   source: str) -> str:
-    print("triggering boxes")
+    """
+    This function triggers boxes through Makai.
+    :param zmq_trigger_interface: Makai interface.
+    :param start_timestamp_ms: Start of the requested data time window.
+    :param end_timestamp_ms: End of the requested data time window.
+    :param box_ids: A list of box ids to trigger.
+    :param incident_id: The associated incident id.
+    :param source: The source of the trigger (generally a plugin).
+    :return: The event token.
+    """
     event_token = str(uuid.uuid4())
     trigger_commands = pb_util.build_makai_trigger_commands(start_timestamp_ms,
                                                             end_timestamp_ms,
                                                             box_ids,
                                                             event_token,
                                                             source)
-    print("trigger commands constructed: %s" % str(trigger_commands))
     zmq_context = zmq.Context()
+    # pylint: disable=E1101
+    # noinspection PyUnresolvedReferences
     zmq_socket = zmq_context.socket(zmq.PUSH)
     zmq_socket.connect(zmq_trigger_interface)
 
     for trigger_command in trigger_commands:
         try:
             zmq_socket.send(pb_util.serialize_message(trigger_command))
-        except Exception as e:
-            print(e)
-
-    print("trigger messages sent")
-    # Receive results from acquisition broker
+        except Exception as exception:  # pylint: disable=W0703
+            print(exception)
 
     return event_token
-
-
-# def trigger_boxes_async(executor: futures.ThreadPoolExecutor,
-#                         zmq_trigger_interface: str,
-#                         start_timestamp_ms: int,
-#                         end_timestamp_ms: int,
-#                         box_ids: typing.List[str],
-#                         incident_id: int,
-#                         source: str,
-#                         on_data_recv: typing.Callable[[str], None]):
-#     future: futures.Future = executor.submit(trigger_boxes,
-#                                              zmq_trigger_interface,
-#                                              start_timestamp_ms,
-#                                              end_timestamp_ms,
-#                                              box_ids,
-#                                              incident_id,
-#                                              source)
-#
-#     future.add_done_callback(on_data_recv)
 
 
 class TriggerPlugin(plugins.base_plugin.MaukaPlugin):
@@ -135,25 +119,6 @@ class TriggerPlugin(plugins.base_plugin.MaukaPlugin):
         :param mauka_message: The message
         """
         if pb_util.is_trigger_request(mauka_message):
-            # trigger_boxes_async(self.zmq_trigger_interface,
-            #                     mauka_message.trigger_request.start_timestamp_ms,
-            #                     mauka_message.trigger_request.end_timestamp_ms,
-            #                     mauka_message.trigger_request.box_ids,
-            #                     mauka_message.trigger_request.incident_id,
-            #                     mauka_message.source)
             pass
         else:
-            self.logger.error("Received incorrect type of MaukaMessage :%s" % str(mauka_message))
-
-
-if __name__ == "__main__":
-    now = timestamp_ms() - 1000
-    prev = now - 3000
-    makai_data_subscriber = MakaiDataSubscriber("tcp://localhost:9899")
-    makai_data_subscriber.start_thread()
-    trigger_boxes("tcp://localhost:9884",
-                  prev,
-                  now,
-                  ["1001"],
-                  0,
-                  "main")
+            self.logger.error("Received incorrect type of MaukaMessage :%s", str(mauka_message))

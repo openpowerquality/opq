@@ -236,6 +236,15 @@ def build_trigger_request(source: str,
                           end_timestamp_ms: int,
                           box_ids: typing.List[str],
                           incident_id: int) -> mauka_pb2.MaukaMessage:
+    """
+    Builds a trigger request.
+    :param source: The source of the request.
+    :param start_timestamp_ms: Start of the request time window.
+    :param end_timestamp_ms: End of the request time window.
+    :param box_ids: Boxes to request data from.
+    :param incident_id: Associated incident id.
+    :return: A serialized trigger request.
+    """
     mauka_message = build_mauka_message(source)
     mauka_message.trigger_request.start_timestamp_ms = start_timestamp_ms
     mauka_message.trigger_request.end_timestamp_ms = end_timestamp_ms
@@ -250,6 +259,16 @@ def build_triggered_event(source: str,
                           box_id: str,
                           start_timestamp_ms: int,
                           end_timestamp_ms: int):
+    """
+    Creates a triggered event.
+    :param source: Source of the event.
+    :param data: Event data.
+    :param incident_id: Associated incident id.
+    :param box_id: Box id.
+    :param start_timestamp_ms: Start of data window.
+    :param end_timestamp_ms: End of data window.
+    :return: A serialized triggered event.
+    """
     mauka_message = build_mauka_message(source)
     mauka_message.triggered_event.data[:] = data
     mauka_message.triggered_event.incident_id = incident_id
@@ -260,6 +279,12 @@ def build_triggered_event(source: str,
 
 
 def format_makai_triggering_identity(event_token: str, uuid: str) -> str:
+    """
+    Format required for Makai's triggering service.
+    :param event_token: The event token.
+    :param uuid: The UUID.
+    :return: Formatted triggering identity.
+    """
     return "%s_%s" % (event_token, uuid)
 
 
@@ -268,6 +293,15 @@ def build_makai_trigger_commands(start_timestamp_ms,
                                  box_ids: typing.List[str],
                                  event_token: str,
                                  uuid: str) -> typing.List[opqbox3_pb2.Command]:
+    """
+    Creates a makai trigger command message.
+    :param start_timestamp_ms: Start of the data window.
+    :param end_timestamp_ms: End of the data window.
+    :param box_ids: List of box ids to trigger.
+    :param event_token: The event token.
+    :param uuid: The UUID.
+    :return: A serialized makai trigger command.
+    """
     identity = format_makai_triggering_identity(event_token, uuid)
 
     def _make_command(box_id: str) -> opqbox3_pb2.Command:
@@ -304,12 +338,22 @@ def deserialize_mauka_message(mauka_message_bytes: bytes) -> mauka_pb2.MaukaMess
 
 
 def deserialize_makai_response(makai_response_bytes: bytes) -> opqbox3_pb2.Response:
+    """
+    Deserializes a makai response.
+    :param makai_response_bytes: Bytes making up the serialized makai response.
+    :return: Deserialized Makai response.
+    """
     response = opqbox3_pb2.Response()
     response.ParseFromString(makai_response_bytes)
     return response
 
 
 def deserialize_makai_cycle(cycle_bytes: bytes) -> opqbox3_pb2.Cycle:
+    """
+    Deserializes a makai cycle.
+    :param cycle_bytes: Serialized makai cycle.
+    :return: Deserialized makai cycle.
+    """
     cycle = opqbox3_pb2.Cycle()
     cycle.ParseFromString(cycle_bytes)
     return cycle
@@ -420,10 +464,20 @@ def is_gc_stat(mauka_message: mauka_pb2.MaukaMessage) -> bool:
 
 
 def is_trigger_request(mauka_message: mauka_pb2.MaukaMessage) -> bool:
+    """
+    Tests if this is a trigger request.
+    :param mauka_message: The message to test.
+    :return: True if it is, False otherwise.
+    """
     return which_message_oneof(mauka_message) == TRIGGER_REQUEST
 
 
 def is_triggered_event(mauka_message: mauka_pb2.MaukaMessage) -> bool:
+    """
+    Tests if this is a triggered event.
+    :param mauka_message: The message to test.
+    :return: True if it is, False otherwise.
+    """
     return which_message_oneof(mauka_message) == TRIGGERED_EVENT
 
 

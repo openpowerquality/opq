@@ -164,11 +164,18 @@ health_state: HealthState = HealthState()
 
 
 class PluginState(enum.Enum):
+    """
+    Enumeration of possible plugin states.
+    """
     IDLE = "IDLE"
     BUSY = "BUSY"
 
 
 class PluginStatus:
+    """
+    This class tracks the status of each Mauka plugin.
+    """
+
     def __init__(self, mauka_message: mauka_pb2.MaukaMessage):
         self.plugin_name = mauka_message.source
         self.messages_recv = mauka_message.heartbeat.on_message_count
@@ -177,9 +184,15 @@ class PluginStatus:
         self.plugin_state = mauka_message.heartbeat.plugin_state
 
     def as_json(self):
+        """
+        :return: A JSON serialized instance of this class.
+        """
         return json.dumps(self.as_dict())
 
     def as_dict(self) -> typing.Dict:
+        """
+        :return: Attributes of this class as a dictionary.
+        """
         return {
             "plugin_name": self.plugin_name,
             "messages_recv": self.messages_recv,
@@ -189,6 +202,10 @@ class PluginStatus:
         }
 
     def update(self, mauka_message: mauka_pb2.MaukaMessage):
+        """
+        Updates this plugin's status.
+        :param mauka_message: Mauka message with status metrics.
+        """
         self.messages_recv = mauka_message.heartbeat.on_message_count
         self.bytes_recv = 0
         self.last_recv = mauka_message.heartbeat.last_received_timestamp_ms
@@ -196,11 +213,19 @@ class PluginStatus:
 
 
 class PluginStatuses:
+    """
+    This class encapsulates the status of all plugins.
+    """
+
     def __init__(self):
         self.plugin_name_to_plugin_status: typing.Dict[str, PluginStatus] = {}
         self.lock = threading.RLock()
 
     def update(self, mauka_message: mauka_pb2.MaukaMessage):
+        """
+        Updates the plugin status.
+        :param mauka_message: Mauka message to get metrics from.
+        """
         with self.lock:
             plugin_name = mauka_message.source
             if plugin_name not in self.plugin_name_to_plugin_status:
@@ -209,11 +234,15 @@ class PluginStatuses:
                 self.plugin_name_to_plugin_status[plugin_name].update(mauka_message)
 
     def as_json(self) -> str:
+        """
+        :return: PluginStatuses serialized as JSON.
+        """
         statuses = list(map(PluginStatus.as_dict, self.plugin_name_to_plugin_status.values()))
         j = json.dumps(statuses)
         return j.encode()
 
 
+# pylint: disable=C0103
 plugin_statuses: PluginStatuses = PluginStatuses()
 
 
@@ -249,7 +278,15 @@ class HealthRequestHandler(http.server.BaseHTTPRequestHandler):
             self._set_headers(200)
             self.wfile.write(health_state.as_json())
 
+    # pylint: disable=W0622
     def log_message(self, format, *args):
+        """
+        This overrides the default HTTP logging so it doesn't produce a log message everytime health the server is
+        queried.
+        :param format: Format.
+        :param args: Args.
+        :return: Nothing
+        """
         return
 
 

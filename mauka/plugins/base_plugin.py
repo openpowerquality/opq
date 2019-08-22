@@ -78,6 +78,9 @@ def to_json(obj: object) -> str:
 
 
 class PluginState(enum.Enum):
+    """
+    Enum for specifying plugin state.
+    """
     IDLE = "IDLE"
     BUSY = "BUSY"
 
@@ -259,9 +262,15 @@ class MaukaPlugin:
             self.exit_event.set()
 
     def set_plugin_state_idle(self):
+        """
+        Sets the plugin state to IDLE.
+        """
         self.plugin_state = PluginState.IDLE.name
 
     def set_plugin_state_busy(self):
+        """
+        Sets the plugin state to BUSY.
+        """
         self.plugin_state = PluginState.BUSY.name
 
     def debug(self, msg: str):
