@@ -3,6 +3,7 @@ This module contains a plugin that provides capabilities for triggering boxes th
 """
 
 import concurrent.futures as futures
+import itertools
 import multiprocessing
 import threading
 import time
@@ -21,6 +22,11 @@ def timestamp_ms() -> int:
     :return: The current timestamp as milliseconds since the epoch.
     """
     return int(round(time.time() * 1000.0))
+
+
+def cycles_to_data(cycles: typing.List[pb_util.opqbox3_pb2.Cycle]) -> typing.List[int]:
+    data_points: typing.List[typing.List[int]] = list(map(lambda cycle: cycle.datapoints, cycles))
+    return list(itertools.chain(*data_points))
 
 
 class MakaiDataSubscriber:
@@ -46,6 +52,7 @@ class MakaiDataSubscriber:
             identity = data[0]
             response = pb_util.deserialize_makai_response(data[1])
             data = list(map(pb_util.deserialize_makai_cycle, data[2:]))
+
             print(identity, response, data)
 
     def start_thread(self):
@@ -54,6 +61,10 @@ class MakaiDataSubscriber:
         """
         thread = threading.Thread(target=self.run)
         thread.start()
+
+    def produce_triggered_event(self):
+        triggered_event = pb_util.build_triggered_event("trigger_plugin",
+                                                        )
 
 
 def trigger_boxes(zmq_trigger_interface: str,
