@@ -220,7 +220,7 @@ def acquire_data(mongo_client: mongo.OpqMongoClient,
                                                           box_id,
                                                           protobuf.mauka_pb2.VOLTAGE_RMS_WINDOWED,
                                                           vrms_waveform(waveform_calibrated,
-                                                                     int(constants.SAMPLES_PER_CYCLE)),
+                                                                        int(constants.SAMPLES_PER_CYCLE)),
                                                           start_timestamp,
                                                           end_timestamp)
 
@@ -231,10 +231,10 @@ def acquire_data(mongo_client: mongo.OpqMongoClient,
                                                         box_id,
                                                         protobuf.mauka_pb2.FREQUENCY_WINDOWED,
                                                         frequency_waveform(waveform_calibrated,
-                                                                        frequency_samples_per_window,
-                                                                        filter_order,
-                                                                        filter_cutoff_frequency,
-                                                                        filter_down_sample_factor),
+                                                                           frequency_samples_per_window,
+                                                                           filter_order,
+                                                                           filter_cutoff_frequency,
+                                                                           filter_down_sample_factor),
                                                         start_timestamp,
                                                         end_timestamp)
 
@@ -256,7 +256,7 @@ class MakaiEventPlugin(plugins.base_plugin.MaukaPlugin):
         self.filter_order = int(self.config.get("plugins.MakaiEventPlugin.filterOrder"))
         self.cutoff_frequency = float(self.config.get("plugins.MakaiEventPlugin.cutoffFrequency"))
         self.samples_per_window = int(constants.SAMPLES_PER_CYCLE) * int(self.config.get(
-            "plugins.MakaiEventPlugin.frequencyWindowCycles"))
+                "plugins.MakaiEventPlugin.frequencyWindowCycles"))
         self.down_sample_factor = int(self.config.get("plugins.MakaiEventPlugin.frequencyDownSampleRate"))
 
     def acquire_and_produce(self, event_id: int):

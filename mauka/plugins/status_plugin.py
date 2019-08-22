@@ -296,4 +296,3 @@ class StatusPlugin(plugins.base_plugin.MaukaPlugin):
         else:
             self.logger.error("Incorrect mauka message type [%s] for StatusPlugin",
                               protobuf.pb_util.which_message_oneof(mauka_message))
-
