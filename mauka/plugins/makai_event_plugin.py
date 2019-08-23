@@ -298,6 +298,8 @@ class MakaiEventPlugin(plugins.base_plugin.MaukaPlugin):
                                                           mauka_message.makai_event.event_id))
             self.debug("laha_gc update produced")
             timer.start()
+        elif protobuf.pb_util.is_triggered_event(mauka_message):
+            pass
         else:
             self.logger.error("Received incorrect mauka message [%s] for MakaiEventPlugin",
                               protobuf.pb_util.which_message_oneof(mauka_message))

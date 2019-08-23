@@ -49,7 +49,8 @@ class MakaiDataSubscriber:
     # pylint: disable=E1101
     def __init__(self,
                  zmq_data_interface: str,
-                 zmq_producer_interface: str):
+                 zmq_producer_interface: str,
+                 logger):
         self.zmq_context = zmq.Context()
         # noinspection PyUnresolvedReferences
         self.zmq_socket = self.zmq_context.socket(zmq.SUB)
@@ -75,12 +76,31 @@ class MakaiDataSubscriber:
 
             self.produce_triggered_event(box_id, start_ts, end_ts, samples)
 
-    def start_thread(self):
+    def start_thread(self) -> threading.Thread:
         """
         Starts the data recv thread.
         """
         thread = threading.Thread(target=self.run)
         thread.start()
+        return thread
+
+    def store_triggered_event(self,
+                              incident_id: str,
+                              box_id: str,
+                              start_timestamp_ms: int,
+                              end_timestamp_ms: int,
+                              samples: typing.List[int]):
+        """
+        Stores the event data to the database.
+        :param incident_id:
+        :param box_id:
+        :param start_timestamp_ms:
+        :param end_timestamp_ms:
+        :param samples:
+        :return:
+        """
+        # TODO: Create box_event, update event, store box data to grid fs
+        pass
 
     def produce_triggered_event(self,
                                 box_id: str,
@@ -97,40 +117,40 @@ class MakaiDataSubscriber:
         self.zmq_producer.send_multipart(("TriggeredMakaiEvent", triggered_event))
 
 
-def trigger_boxes(zmq_trigger_interface: str,
+def trigger_boxes(zmq_trigger_socket,
                   start_timestamp_ms: int,
                   end_timestamp_ms: int,
                   box_ids: typing.List[str],
                   incident_id: int,
-                  source: str) -> str:
+                  source: str,
+                  logger) -> str:
     """
     This function triggers boxes through Makai.
-    :param zmq_trigger_interface: Makai interface.
+    :param zmq_trigger_socket: Makai interface.
     :param start_timestamp_ms: Start of the requested data time window.
     :param end_timestamp_ms: End of the requested data time window.
     :param box_ids: A list of box ids to trigger.
     :param incident_id: The associated incident id.
     :param source: The source of the trigger (generally a plugin).
+    :param logger: The logger from the base plugin.
     :return: The event token.
     """
+    # TODO: Create event document with description for Mauka
+
     event_token = str(uuid.uuid4())
     trigger_commands = pb_util.build_makai_trigger_commands(start_timestamp_ms,
                                                             end_timestamp_ms,
                                                             box_ids,
                                                             event_token,
                                                             source)
-    zmq_context = zmq.Context()
-    # pylint: disable=E1101
-    # noinspection PyUnresolvedReferences
-    zmq_socket = zmq_context.socket(zmq.PUSH)
-    zmq_socket.connect(zmq_trigger_interface)
 
     for trigger_command in trigger_commands:
+        logger.debug("Sending trigger command %s", str(trigger_command))
         try:
-            zmq_socket.send(pb_util.serialize_message(trigger_command))
+            zmq_trigger_socket.send(pb_util.serialize_message(trigger_command))
         except Exception as exception:  # pylint: disable=W0703
-            print(exception)
-    print(incident_id)
+            logger.error(str(exception))
+
     return event_token
 
 
@@ -147,9 +167,21 @@ class TriggerPlugin(plugins.base_plugin.MaukaPlugin):
         :param conf: Configuration dictionary
         """
         super().__init__(conf, ["TriggerRequest"], TriggerPlugin.NAME, exit_event)
+        # Setup ZMQ
         self.zmq_trigger_interface: str = conf.get("zmq.trigger.interface")
         self.zmq_data_interface: str = conf.get("zmq.data.interface")
         self.zmq_producer_interface: str = conf.get("zmq.mauka.plugin.pub.interface")
+        zmq_context = zmq.Context()
+        # pylint: disable=E1101
+        # noinspection PyUnresolvedReferences
+        self.zmq_trigger_socket = zmq_context.socket(zmq.PUSH)
+        self.zmq_trigger_socket.connect(self.zmq_trigger_interface)
+
+        # Start MakaiDataSubscriber thread
+        makai_data_subscriber = MakaiDataSubscriber(self.zmq_data_interface,
+                                                    self.zmq_producer_interface,
+                                                    self.logger)
+        self.makai_data_subscriber_thread = makai_data_subscriber.start_thread()
 
     def on_message(self, topic, mauka_message):
         """Subscribed messages occur async
@@ -160,6 +192,13 @@ class TriggerPlugin(plugins.base_plugin.MaukaPlugin):
         :param mauka_message: The message
         """
         if pb_util.is_trigger_request(mauka_message):
-            pass
+            self.debug("Recv trigger request %s" % str(mauka_message))
+            trigger_boxes(self.zmq_trigger_socket,
+                          mauka_message.trigger_request.start_timestamp_ms,
+                          mauka_message.trigger_request.end_timestamp_ms,
+                          mauka_message.trigger_request.box_ids[:],
+                          mauka_message.trigger_request.incident_id,
+                          mauka_message.source,
+                          self.logger)
         else:
             self.logger.error("Received incorrect type of MaukaMessage :%s", str(mauka_message))
