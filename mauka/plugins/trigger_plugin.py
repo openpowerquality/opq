@@ -2,7 +2,6 @@
 This module contains a plugin that provides capabilities for triggering boxes through Makai.
 """
 
-import concurrent.futures as futures
 import itertools
 import multiprocessing
 import threading
@@ -25,8 +24,21 @@ def timestamp_ms() -> int:
 
 
 def cycles_to_data(cycles: typing.List[pb_util.opqbox3_pb2.Cycle]) -> typing.List[int]:
-    data_points: typing.List[typing.List[int]] = list(map(lambda cycle: cycle.datapoints, cycles))
-    return list(itertools.chain(*data_points))
+    """
+    Extracts all samples from the passed in cycles.
+    :param cycles: Makai cycles.
+    :return: A list of samples from the Makai cycles.
+    """
+    return list(itertools.chain(*map(lambda cycle: cycle.datapoints, cycles)))
+
+
+def extract_timestamps(cycles: typing.List[pb_util.opqbox3_pb2.Cycle]) -> typing.Tuple[int, int]:
+    """
+    Extracts the first and last timestamps of the received cycles.
+    :param cycles: Cycles to extract timestamps
+    :return: A tuple containing the first and last timestamps from the cycles.
+    """
+    return cycles[0].timestamp_ms, cycles[-1].timestamp_ms
 
 
 class MakaiDataSubscriber:
@@ -35,13 +47,18 @@ class MakaiDataSubscriber:
     """
 
     # pylint: disable=E1101
-    def __init__(self, zmq_data_interface: str):
+    def __init__(self,
+                 zmq_data_interface: str,
+                 zmq_producer_interface: str):
         self.zmq_context = zmq.Context()
         # noinspection PyUnresolvedReferences
         self.zmq_socket = self.zmq_context.socket(zmq.SUB)
         self.zmq_socket.connect(zmq_data_interface)
         # noinspection PyUnresolvedReferences
         self.zmq_socket.setsockopt(zmq.SUBSCRIBE, "".encode())
+        # noinspection PyUnresolvedReferences
+        self.zmq_producer = self.zmq_context.socket(zmq.PUB)
+        self.zmq_producer.connect(zmq_producer_interface)
 
     def run(self):
         """
@@ -51,9 +68,12 @@ class MakaiDataSubscriber:
             data = self.zmq_socket.recv_multipart()
             identity = data[0]
             response = pb_util.deserialize_makai_response(data[1])
-            data = list(map(pb_util.deserialize_makai_cycle, data[2:]))
+            box_id = str(response.box_id)
+            cycles = list(map(pb_util.deserialize_makai_cycle, data[2:]))
+            start_ts, end_ts = extract_timestamps(cycles)
+            samples = cycles_to_data(cycles)
 
-            print(identity, response, data)
+            self.produce_triggered_event(box_id, start_ts, end_ts, samples)
 
     def start_thread(self):
         """
@@ -62,9 +82,19 @@ class MakaiDataSubscriber:
         thread = threading.Thread(target=self.run)
         thread.start()
 
-    def produce_triggered_event(self):
+    def produce_triggered_event(self,
+                                box_id: str,
+                                start_timestamp_ms: int,
+                                end_timestamp_ms: int,
+                                samples: typing.List[int]):
         triggered_event = pb_util.build_triggered_event("trigger_plugin",
-                                                        )
+                                                        samples,
+                                                        0,
+                                                        box_id,
+                                                        start_timestamp_ms,
+                                                        end_timestamp_ms)
+
+        self.zmq_producer.send_multipart(("TriggeredMakaiEvent", triggered_event))
 
 
 def trigger_boxes(zmq_trigger_interface: str,
@@ -119,7 +149,7 @@ class TriggerPlugin(plugins.base_plugin.MaukaPlugin):
         super().__init__(conf, ["TriggerRequest"], TriggerPlugin.NAME, exit_event)
         self.zmq_trigger_interface: str = conf.get("zmq.trigger.interface")
         self.zmq_data_interface: str = conf.get("zmq.data.interface")
-        self.executor: futures.ThreadPoolExecutor = futures.ThreadPoolExecutor()
+        self.zmq_producer_interface: str = conf.get("zmq.mauka.plugin.pub.interface")
 
     def on_message(self, topic, mauka_message):
         """Subscribed messages occur async

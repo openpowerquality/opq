@@ -251,7 +251,7 @@ class MakaiEventPlugin(plugins.base_plugin.MaukaPlugin):
     NAME = "MakaiEventPlugin"
 
     def __init__(self, conf: config.MaukaConfig, exit_event: multiprocessing.Event):
-        super().__init__(conf, ["MakaiEvent"], MakaiEventPlugin.NAME, exit_event)
+        super().__init__(conf, ["MakaiEvent", "TriggeredMakaiEvent"], MakaiEventPlugin.NAME, exit_event)
         self.get_data_after_s = float(self.config["plugins.MakaiEventPlugin.getDataAfterS"])
         self.filter_order = int(self.config.get("plugins.MakaiEventPlugin.filterOrder"))
         self.cutoff_frequency = float(self.config.get("plugins.MakaiEventPlugin.cutoffFrequency"))
