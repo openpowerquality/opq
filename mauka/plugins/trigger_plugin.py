@@ -57,6 +57,8 @@ class MakaiDataSubscriber(threading.Thread):
         self.zmq_context = zmq.Context()
         # noinspection PyUnresolvedReferences
         self.zmq_socket = self.zmq_context.socket(zmq.SUB)
+        self.zmq_socket.setsockopt(zmq.SUBSCRIBE, "mauka_".encode())
+
         self.zmq_socket.connect(zmq_data_interface)
         # noinspection PyUnresolvedReferences
         self.zmq_socket.setsockopt(zmq.SUBSCRIBE, "".encode())
@@ -70,16 +72,15 @@ class MakaiDataSubscriber(threading.Thread):
         """
         logger.info("MakaiDataSubscriber thread started")
         while True:
-            logger.debug("polling")
             data = self.zmq_socket.recv_multipart()
-            identity = data[0]
+            identity = data[0].decode()
+            topic, event_id, event_uuid = identity.split("_")
             response = pb_util.deserialize_makai_response(data[1])
             box_id = str(response.box_id)
             cycles = list(map(pb_util.deserialize_makai_cycle, data[2:]))
             start_ts, end_ts = extract_timestamps(cycles)
             samples = cycles_to_data(cycles)
-            logger.info(response)
-            # self.produce_triggered_event(box_id, start_ts, end_ts, samples)
+            logger.info("%s, %s, %s, %s", identity, topic, event_id, event_uuid)
 
 
 def trigger_boxes(zmq_trigger_socket,
@@ -100,8 +101,6 @@ def trigger_boxes(zmq_trigger_socket,
     :param logger: The logger from the base plugin.
     :return: The event token.
     """
-    # TODO: Create event document with description for Mauka
-
     event_token = str(uuid.uuid4())
     trigger_commands = pb_util.build_makai_trigger_commands(start_timestamp_ms,
                                                             end_timestamp_ms,
@@ -110,13 +109,10 @@ def trigger_boxes(zmq_trigger_socket,
                                                             source)
 
     for trigger_command in trigger_commands:
-        logger.debug("Sending trigger command %s", str(trigger_command))
         try:
             zmq_trigger_socket.send(pb_util.serialize_message(trigger_command))
         except Exception as exception:  # pylint: disable=W0703
             logger.error(str(exception))
-
-    logger.info("%d trigger commands sent", len(trigger_commands))
 
     return event_token
 
@@ -186,6 +182,7 @@ if __name__ == "__main__":
     zmq_trigger_socket = zmq_context.socket(zmq.PUSH)
     zmq_trigger_socket.connect(trigger_interface)
 
+
     makai_data_subscriber = MakaiDataSubscriber(data_interface,
                                                 None,
                                                 logger)
@@ -193,8 +190,6 @@ if __name__ == "__main__":
 
     end = timestamp_ms() - 2_000
     start = end - 10_000
-
-    logger.info("Data prepped, sending trigger messages")
 
     trigger_boxes(zmq_trigger_socket,
                   start,

@@ -285,7 +285,7 @@ def format_makai_triggering_identity(event_token: str, uuid: str) -> str:
     :param uuid: The UUID.
     :return: Formatted triggering identity.
     """
-    return "%s_%s" % (event_token, uuid)
+    return "mauka_%s_%s" % (event_token, uuid)
 
 
 def build_makai_trigger_commands(start_timestamp_ms,
