@@ -116,6 +116,8 @@ def trigger_boxes(zmq_trigger_socket,
         except Exception as exception:  # pylint: disable=W0703
             logger.error(str(exception))
 
+    logger.info("%d trigger commands sent", len(trigger_commands))
+
     return event_token
 
 
@@ -177,8 +179,8 @@ if __name__ == "__main__":
 
     logger.info("Starting test")
 
-    trigger_interface = "tcp://localhost:9899"
-    data_interface = "tcp://localhost:9884"
+    trigger_interface = "tcp://127.0.0.1:9884"
+    data_interface = "tcp://127.0.0.1:9899"
 
     zmq_context = zmq.Context()
     zmq_trigger_socket = zmq_context.socket(zmq.PUSH)
@@ -190,7 +192,7 @@ if __name__ == "__main__":
     makai_data_subscriber.start()
 
     end = timestamp_ms() - 2_000
-    start = timestamp_ms() - 10_000
+    start = end - 10_000
 
     logger.info("Data prepped, sending trigger messages")
 
