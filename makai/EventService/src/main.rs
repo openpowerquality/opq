@@ -5,6 +5,7 @@ use std::env;
 
 mod config;
 mod constants;
+mod event_ids;
 mod mongo_event_storage;
 mod mongo_ttl;
 mod proto;
