@@ -41,16 +41,19 @@ def extract_timestamps(cycles: typing.List[pb_util.opqbox3_pb2.Cycle]) -> typing
     return cycles[0].timestamp_ms, cycles[-1].timestamp_ms
 
 
-class MakaiDataSubscriber:
+class TriggerRecord:
+    def __init__(self):
+        pass
+
+
+class MakaiDataSubscriber(threading.Thread):
     """
     This class handles receiving triggered data back from Makai. This class is ran in a separate thread.
     """
 
     # pylint: disable=E1101
-    def __init__(self,
-                 zmq_data_interface: str,
-                 zmq_producer_interface: str,
-                 logger):
+    def __init__(self, zmq_data_interface: str, zmq_producer_interface: str, logger):
+        super().__init__()
         self.zmq_context = zmq.Context()
         # noinspection PyUnresolvedReferences
         self.zmq_socket = self.zmq_context.socket(zmq.SUB)
@@ -58,14 +61,16 @@ class MakaiDataSubscriber:
         # noinspection PyUnresolvedReferences
         self.zmq_socket.setsockopt(zmq.SUBSCRIBE, "".encode())
         # noinspection PyUnresolvedReferences
-        self.zmq_producer = self.zmq_context.socket(zmq.PUB)
-        self.zmq_producer.connect(zmq_producer_interface)
+        # self.zmq_producer = self.zmq_context.socket(zmq.PUB)
+        # self.zmq_producer.connect(zmq_producer_interface)
 
     def run(self):
         """
         Run loop which continuously attempts to receive triggered data from Makai.
         """
+        logger.info("MakaiDataSubscriber thread started")
         while True:
+            logger.debug("polling")
             data = self.zmq_socket.recv_multipart()
             identity = data[0]
             response = pb_util.deserialize_makai_response(data[1])
@@ -73,48 +78,8 @@ class MakaiDataSubscriber:
             cycles = list(map(pb_util.deserialize_makai_cycle, data[2:]))
             start_ts, end_ts = extract_timestamps(cycles)
             samples = cycles_to_data(cycles)
-
-            self.produce_triggered_event(box_id, start_ts, end_ts, samples)
-
-    def start_thread(self) -> threading.Thread:
-        """
-        Starts the data recv thread.
-        """
-        thread = threading.Thread(target=self.run)
-        thread.start()
-        return thread
-
-    def store_triggered_event(self,
-                              incident_id: str,
-                              box_id: str,
-                              start_timestamp_ms: int,
-                              end_timestamp_ms: int,
-                              samples: typing.List[int]):
-        """
-        Stores the event data to the database.
-        :param incident_id:
-        :param box_id:
-        :param start_timestamp_ms:
-        :param end_timestamp_ms:
-        :param samples:
-        :return:
-        """
-        # TODO: Create box_event, update event, store box data to grid fs
-        pass
-
-    def produce_triggered_event(self,
-                                box_id: str,
-                                start_timestamp_ms: int,
-                                end_timestamp_ms: int,
-                                samples: typing.List[int]):
-        triggered_event = pb_util.build_triggered_event("trigger_plugin",
-                                                        samples,
-                                                        0,
-                                                        box_id,
-                                                        start_timestamp_ms,
-                                                        end_timestamp_ms)
-
-        self.zmq_producer.send_multipart(("TriggeredMakaiEvent", triggered_event))
+            logger.info(response)
+            # self.produce_triggered_event(box_id, start_ts, end_ts, samples)
 
 
 def trigger_boxes(zmq_trigger_socket,
@@ -202,3 +167,37 @@ class TriggerPlugin(plugins.base_plugin.MaukaPlugin):
                           self.logger)
         else:
             self.logger.error("Received incorrect type of MaukaMessage :%s", str(mauka_message))
+
+
+if __name__ == "__main__":
+    import logging
+
+    logger = logging.getLogger()
+    logger.setLevel(logging.DEBUG)
+
+    logger.info("Starting test")
+
+    trigger_interface = "tcp://localhost:9899"
+    data_interface = "tcp://localhost:9884"
+
+    zmq_context = zmq.Context()
+    zmq_trigger_socket = zmq_context.socket(zmq.PUSH)
+    zmq_trigger_socket.connect(trigger_interface)
+
+    makai_data_subscriber = MakaiDataSubscriber(data_interface,
+                                                None,
+                                                logger)
+    makai_data_subscriber.start()
+
+    end = timestamp_ms() - 2_000
+    start = timestamp_ms() - 10_000
+
+    logger.info("Data prepped, sending trigger messages")
+
+    trigger_boxes(zmq_trigger_socket,
+                  start,
+                  end,
+                  ["1001"],
+                  0,
+                  "test",
+                  logger)
