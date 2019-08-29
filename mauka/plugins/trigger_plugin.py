@@ -61,8 +61,6 @@ class MakaiDataSubscriber(threading.Thread):
 
         self.zmq_socket.connect(zmq_data_interface)
         # noinspection PyUnresolvedReferences
-        self.zmq_socket.setsockopt(zmq.SUBSCRIBE, "".encode())
-        # noinspection PyUnresolvedReferences
         # self.zmq_producer = self.zmq_context.socket(zmq.PUB)
         # self.zmq_producer.connect(zmq_producer_interface)
 
@@ -81,6 +79,12 @@ class MakaiDataSubscriber(threading.Thread):
             start_ts, end_ts = extract_timestamps(cycles)
             samples = cycles_to_data(cycles)
             logger.info("%s, %s, %s, %s", identity, topic, event_id, event_uuid)
+
+            # Store box_event
+
+            # Create grid_fs files
+
+            # Update event
 
 
 def trigger_boxes(zmq_trigger_socket,
@@ -107,6 +111,9 @@ def trigger_boxes(zmq_trigger_socket,
                                                             box_ids,
                                                             event_token,
                                                             source)
+
+    # Create a new event
+
 
     for trigger_command in trigger_commands:
         try:

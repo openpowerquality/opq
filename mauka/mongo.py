@@ -397,6 +397,10 @@ def next_available_incident_id(opq_mongo_client: OpqMongoClient) -> int:
     return 1
 
 
+def store_event(opq_mongo_client: typing.Optional[OpqMongoClient] = None):
+    mongo_client = get_default_client(opq_mongo_client)
+
+
 def store_incident(event_id: int,
                    box_id: str,
                    start_timestamp_ms: int,
@@ -449,7 +453,7 @@ def store_incident(event_id: int,
         incident_end_idx = int(min(len(event_adc_samples),
                                    round(analysis.ms_to_samples(delta_end_ms)) + constants.SAMPLES_PER_MILLISECOND))
         incident_adc_samples_bytes = event_adc_samples[incident_start_idx:incident_end_idx].astype(
-            numpy.int16).tobytes()
+                numpy.int16).tobytes()
 
         gridfs_filename = "incident_{}".format(incident_id)
         mongo_client.write_incident_waveform(incident_id, gridfs_filename, incident_adc_samples_bytes, expire_at)
