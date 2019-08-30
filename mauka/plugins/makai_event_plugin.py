@@ -165,6 +165,7 @@ def acquire_data(mongo_client: mongo.OpqMongoClient,
     """
     Given an event_id, acquire the raw data for each box associated with the given event. Perform feature
     extraction of the raw data and publish those features for downstream plugins.
+    :param makai_event_plugin: An instance of the plugin.
     :param box_id: The box id.
     :param mongo_client: The mongo client to use to make this request.
     :param event_id: The event id to acquire data for.
@@ -251,7 +252,7 @@ class MakaiEventPlugin(plugins.base_plugin.MaukaPlugin):
     NAME = "MakaiEventPlugin"
 
     def __init__(self, conf: config.MaukaConfig, exit_event: multiprocessing.Event):
-        super().__init__(conf, ["MakaiEvent", "TriggeredMakaiEvent"], MakaiEventPlugin.NAME, exit_event)
+        super().__init__(conf, ["MakaiEvent"], MakaiEventPlugin.NAME, exit_event)
         self.get_data_after_s = float(self.config["plugins.MakaiEventPlugin.getDataAfterS"])
         self.filter_order = int(self.config.get("plugins.MakaiEventPlugin.filterOrder"))
         self.cutoff_frequency = float(self.config.get("plugins.MakaiEventPlugin.cutoffFrequency"))
