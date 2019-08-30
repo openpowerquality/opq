@@ -343,7 +343,7 @@ def trigger_boxes(zmq_trigger_socket: zmq.Socket,
 
 class TriggerPlugin(plugins.base_plugin.MaukaPlugin):
     """
-    This class contains a plugin that prints every message
+    This plugin handles triggering of OPQ Boxes.
     """
 
     NAME = "TriggerPlugin"
