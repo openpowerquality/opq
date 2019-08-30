@@ -291,24 +291,21 @@ def format_makai_triggering_identity(event_token: str, uuid: str) -> str:
 def build_makai_trigger_commands(start_timestamp_ms,
                                  end_timestamp_ms,
                                  box_ids: typing.List[str],
-                                 event_token: str,
-                                 uuid: str) -> typing.List[opqbox3_pb2.Command]:
+                                 event_token: str) -> typing.List[opqbox3_pb2.Command]:
     """
     Creates a makai trigger command message.
     :param start_timestamp_ms: Start of the data window.
     :param end_timestamp_ms: End of the data window.
     :param box_ids: List of box ids to trigger.
     :param event_token: The event token.
-    :param uuid: The UUID.
     :return: A serialized makai trigger command.
     """
-    identity = format_makai_triggering_identity(event_token, uuid)
 
     def _make_command(box_id: str) -> opqbox3_pb2.Command:
         command = opqbox3_pb2.Command()
         command.box_id = int(box_id)
         command.timestamp_ms = get_timestamp_ms()
-        command.identity = identity
+        command.identity = format_makai_triggering_identity(event_token, box_id)
         command.data_command.start_ms = start_timestamp_ms
         command.data_command.end_ms = end_timestamp_ms
         command.data_command.wait = False

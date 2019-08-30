@@ -230,26 +230,28 @@ class OpqMongoClient:
     def write_incident_waveform(self,
                                 incident_id: int,
                                 gridfs_filename: str,
-                                payload: bytes,
-                                expire_at: datetime.datetime):
+                                payload: bytes):
         """
         Write incident waveform to database.
-        :param expire_at: When the incident waveform should expire.
         :param incident_id: The id of the incident we are storing a waveform for.
         :param gridfs_filename: The filename to store the waveform to.
         :param payload: The bytes of the waveform.
         """
         self.gridfs.put(payload, **{"filename": gridfs_filename,
-                                    "expire_at": expire_at,
                                     "metadata": {"incident_id": incident_id}})
 
-        # Lookup chunks and set TTL on chunks as well
-        fs_file = self.gridfs.find_one({"filename": gridfs_filename},
-                                       projection={"_id": True,
-                                                   "filename": True})
-        fs_file_id = fs_file["_id"]
-        self.fs_chunks_collection.update_many({"files_id": fs_file_id},
-                                              {"$set": {"expire_at": expire_at}})
+    def write_event_waveform(self,
+                             event_id: int,
+                             payload: typing.List[int]) -> str:
+        """
+        Write event waveform to database.
+        :param event_id:
+        :param payload: The bytes of the waveform.
+        """
+        payload_bytes = numpy.array(payload, numpy.int16).tobytes()
+        filename = "event_%d" % event_id
+        self.gridfs.put(payload_bytes, **{"filename": filename})
+        return filename
 
     def get_collection_size_bytes(self,
                                   collection: Collection) -> int:
@@ -397,8 +399,55 @@ def next_available_incident_id(opq_mongo_client: OpqMongoClient) -> int:
     return 1
 
 
-def store_event(opq_mongo_client: typing.Optional[OpqMongoClient] = None):
+def store_event(event_id: int,
+                description: str,
+                boxes_triggered: typing.List[str],
+                start_ts_ms: int,
+                end_ts_ms: int,
+                opq_mongo_client: typing.Optional[OpqMongoClient] = None) -> str:
     mongo_client = get_default_client(opq_mongo_client)
+
+    event = {
+        "event_id": event_id,
+        "description": description,
+        "boxes_triggered": boxes_triggered,
+        "boxes_received": [],
+        "target_event_start_timestamp_ms": start_ts_ms,
+        "target_event_end_timestamp_ms": end_ts_ms,
+        "expire_at": utc_datetime_plus_s(mongo_client.get_ttl("events"))
+    }
+
+    return mongo_client.events_collection.insert_one(event).inserted_id
+
+
+def update_event(event_id: int,
+                 box_received: str,
+                 opq_mongo_client: typing.Optional[OpqMongoClient] = None):
+    mongo_client = get_default_client(opq_mongo_client)
+    filter_doc = {"event_id": event_id}
+    update_doc = {"$push": {"boxes_received": box_received}}
+    mongo_client.events_collection.update_one(filter_doc, update_doc)
+
+
+def store_box_event(event_id: int,
+                    box_id: str,
+                    start_timestamp_ms: int,
+                    end_timestamp_ms: int,
+                    payload: typing.List[int],
+                    opq_mongo_client: typing.Optional[OpqMongoClient] = None) -> str:
+    mongo_client = get_default_client(opq_mongo_client)
+    data_fs_filename = mongo_client.write_event_waveform(event_id, payload)
+
+    box_event = {
+        "event_id": event_id,
+        "box_id": box_id,
+        "event_start_timestamp_ms": start_timestamp_ms,
+        "event_end_timestamp_ms": end_timestamp_ms,
+        "data_fs_filename": data_fs_filename,
+        "location": get_location(box_id, mongo_client)
+    }
+
+    return mongo_client.box_events_collection.insert_one(box_event).inserted_id
 
 
 def store_incident(event_id: int,
@@ -456,7 +505,7 @@ def store_incident(event_id: int,
                 numpy.int16).tobytes()
 
         gridfs_filename = "incident_{}".format(incident_id)
-        mongo_client.write_incident_waveform(incident_id, gridfs_filename, incident_adc_samples_bytes, expire_at)
+        mongo_client.write_incident_waveform(incident_id, gridfs_filename, incident_adc_samples_bytes)
     else:
         measurements = []
         gridfs_filename = ""
