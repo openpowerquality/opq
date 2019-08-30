@@ -83,7 +83,7 @@ def main():
     plugin_manager.register_plugin(plugins.outage_plugin.OutagePlugin)
     plugin_manager.register_plugin(plugins.system_stats_plugin.SystemStatsPlugin)
     plugin_manager.register_plugin(plugins.laha_gc_plugin.LahaGcPlugin)
-    plugin_manager.register_plugin(plugins.trigger_plugin)
+    plugin_manager.register_plugin(plugins.trigger_plugin.TriggerPlugin)
 
     broker_process = None
     makai_bridge_event_process = None
