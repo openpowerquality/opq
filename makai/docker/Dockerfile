@@ -20,9 +20,11 @@ RUN apt-get update &&   \
         libmongoc-dev
 
 # Rust
-RUN curl -s https://sh.rustup.rs -sSf | sh -s -- -y && \
-    $HOME/.cargo/bin/rustup install nightly         && \
-    $HOME/.cargo/bin/rustup default nightly
+#RUN curl -s https://sh.rustup.rs -sSf | sh -s -- -y && \
+#    $HOME/.cargo/bin/rustup install nightly         && \
+#    $HOME/.cargo/bin/rustup default nightly
+
+RUN curl -s https://sh.rustup.rs -sSf | sh -s -- -y
 
 ENV PATH="/root/.cargo/bin:$PATH"
 
@@ -101,6 +103,8 @@ EXPOSE 8196
 EXPOSE 8194
 
 EXPOSE 9881
+
+EXPOSE 10001
 
 # Start Makai
 CMD ["/bin/bash", "/build/bin/run-makai.sh"]

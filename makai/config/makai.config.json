@@ -3,6 +3,7 @@
   "zmq_acquisition_endpoint" : "tcp://localhost:9899",
   "zmq_data_endpoint" : "tcp://localhost:9884",
   "zmq_event_endpoint" : "tcp://*:10000",
+  "zmq_event_id_endpoint": "tcp://*:10001",
   "mongo_host" : "localhost",
   "mongo_port": 27017,
   "mongo_trends_update_interval_seconds" : 60,

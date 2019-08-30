@@ -5,12 +5,14 @@ use std::path::Path;
 use uuid::Uuid;
 
 ///Representation of the configuration file's required fields.
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Default)]
 pub struct Settings {
     ///zmq endpoint for the acquisition broker.
     pub zmq_data_endpoint: String,
     ///zmq endpoint for event
     pub zmq_event_endpoint: String,
+    ///zmq endpoint for event ids
+    pub zmq_event_id_endpoint: String,
     ///Mongo endpoint.
     pub mongo_host: String,
     ///Mongo port.

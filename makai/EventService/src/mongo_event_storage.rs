@@ -17,8 +17,10 @@ use zmq;
 
 use crate::config::Settings;
 use crate::constants::*;
+use crate::event_ids::EventIdService;
 use crate::mongo_ttl;
 use crate::proto::opqbox3::{Cycle, Response, Response_oneof_response};
+use std::sync::Arc;
 
 pub struct MongoStorageService {
     client: mongodb::Client,
@@ -27,18 +29,22 @@ pub struct MongoStorageService {
     event_broker: zmq::Socket,
     id_to_event: HashMap<String, (i32, std::time::Instant)>,
     ttl: u64,
-    next_event_number: i32,
+    event_id_service: Arc<EventIdService>,
 }
 
 impl MongoStorageService {
-    pub fn new(ctx: &zmq::Context, settings: &Settings) -> MongoStorageService {
+    pub fn new(
+        ctx: &zmq::Context,
+        settings: &Settings,
+        event_id_service: Arc<EventIdService>,
+    ) -> MongoStorageService {
         let receiver = MongoStorageService {
             client: Client::connect(&settings.mongo_host, settings.mongo_port).unwrap(),
             acq_broker: ctx.socket(zmq::SUB).unwrap(),
             event_broker: ctx.socket(zmq::PUB).unwrap(),
             ttl: settings.ttl_cache_ttl,
             id_to_event: HashMap::new(),
-            next_event_number: 0,
+            event_id_service,
         };
         receiver
             .acq_broker
@@ -66,8 +72,8 @@ impl MongoStorageService {
             .db(MONGO_DATABASE)
             .collection(MONGO_EVENTS_COLLECTION);
         let fs = Store::with_db(self.client.db(MONGO_DATABASE).clone());
-        self.next_event_number = self.find_largest_event_number() + 1;
-        println!("Starting from event number {}", self.next_event_number);
+        //        self.next_event_number = self.event_id_service.inc_and_get();
+        println!("Current highest event_id {}", self.event_id_service.peak());
 
         let mut ttl = mongo_ttl::CachedTtlProvider::new(self.ttl, &self.client);
 
@@ -176,32 +182,32 @@ impl MongoStorageService {
         }
     }
 
-    fn find_largest_event_number(&mut self) -> i32 {
-        let event_db = self
-            .client
-            .db(MONGO_DATABASE)
-            .collection(MONGO_EVENTS_COLLECTION);
-
-        let sort = doc!(
-            MONGO_BOX_EVENTS_ID_FIELD : -1,
-        );
-        let filter = doc! {
-            MONGO_BOX_EVENTS_ID_FIELD : 1
-        };
-        let mut opt = FindOptions::new();
-        opt.sort = Some(sort);
-        opt.projection = Some(filter);
-
-        let query_result = event_db.find_one(None, Some(opt));
-        match query_result {
-            Ok(Some(doc)) => match doc.get(MONGO_EVENTS_ID_FIELD) {
-                Some(&Bson::I32(ref num)) => num.clone() as i32,
-                _ => 0 as i32,
-            },
-            Ok(None) => 0 as i32,
-            Err(_) => 0 as i32,
-        }
-    }
+    //    fn find_largest_event_number(&mut self) -> i32 {
+    //        let event_db = self
+    //            .client
+    //            .db(MONGO_DATABASE)
+    //            .collection(MONGO_EVENTS_COLLECTION);
+    //
+    //        let sort = doc!(
+    //            MONGO_BOX_EVENTS_ID_FIELD : -1,
+    //        );
+    //        let filter = doc! {
+    //            MONGO_BOX_EVENTS_ID_FIELD : 1
+    //        };
+    //        let mut opt = FindOptions::new();
+    //        opt.sort = Some(sort);
+    //        opt.projection = Some(filter);
+    //
+    //        let query_result = event_db.find_one(None, Some(opt));
+    //        match query_result {
+    //            Ok(Some(doc)) => match doc.get(MONGO_EVENTS_ID_FIELD) {
+    //                Some(&Bson::I32(ref num)) => num.clone() as i32,
+    //                _ => 0 as i32,
+    //            },
+    //            Ok(None) => 0 as i32,
+    //            Err(_) => 0 as i32,
+    //        }
+    //    }
 
     fn find_latest_location(&mut self, box_id: u32) -> String {
         let box_col = self
@@ -241,8 +247,8 @@ impl MongoStorageService {
             let (id, _) = self.id_to_event.get(&event_token).unwrap();
             (id.clone(), true)
         } else {
-            let id = self.next_event_number;
-            self.next_event_number += 1;
+            let id = self.event_id_service.inc_and_get();
+            //            self.next_event_number += 1;
             self.id_to_event.insert(event_token, (id, Instant::now()));
             (id, false)
         };
