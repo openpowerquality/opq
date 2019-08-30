@@ -13,6 +13,7 @@ message MaukaMessage {
                     Laha laha = 8;
                     TriggerRequest trigger_request = 9;
                     TriggeredEvent triggered_event = 10;
+                    ThresholdOptimizationRequest threshold_optimization_request = 11;
     }
 }
 
@@ -127,4 +128,22 @@ message TriggerRequest {
     uint64 end_timestamp_ms = 2;
     repeated string box_ids = 3;
     uint64 incident_id = 4;
+}
+
+message ThresholdOptimizationRequest {
+    double default_ref_f = 1;
+    double default_ref_v = 2;
+    double default_threshold_percent_f_low = 3;
+    double default_threshold_percent_f_high = 4;
+    double default_threshold_percent_v_low = 5;
+    double default_threshold_percent_v_high = 6;
+    double default_threshold_percent_thd_high = 7;
+    string override_box_id = 8;
+    double override_ref_f = 9;
+    double override_ref_v = 10;
+    double override_threshold_percent_f_low = 11;
+    double override_threshold_percent_f_high = 12;
+    double override_threshold_percent_v_low = 13;
+    double override_threshold_percent_v_high = 14;
+    double override_threshold_percent_thd_high = 15;
 }
