@@ -17,12 +17,18 @@ import mongo
 import plugins.base_plugin
 import protobuf.pb_util as pb_util
 
-def debug_write_waveform_data(filename: str, payload: typing.List[int]):
-    with open(filename, "w") as fout:
-        for v in payload:
-            fout.write("%d\n" % v)
+
+def produce_makai_event_id(pub_socket: zmq.Socket, event_id: int):
+    makai_event = pb_util.build_makai_event("TriggerPlugin", event_id)
+    serialized_makai_event = pb_util.serialize_message(makai_event)
+    pub_socket.send_multipart(("MakaiEvent".encode(), serialized_makai_event))
 
 def next_event_id(event_id_socket: zmq.Socket) -> int:
+    """
+    Atomically returns the next event_id by requesting the event_id from Makai's EventIdService.
+    :param event_id_socket: Makai's EventIdServiceBroker
+    :return: The next available event_id.
+    """
     event_id_socket.send_string("")
     return int(event_id_socket.recv_string())
 
@@ -53,6 +59,12 @@ def extract_timestamps(cycles: typing.List[pb_util.opqbox3_pb2.Cycle]) -> typing
 
 
 class TriggerRecords:
+    """
+    This class provides a thread safe mapping between an event_token and all of event_id, incident_id, timestamp_ms,
+    and triggered Boxes. When records are inserted, they are inserted with a timestamp so that old records for Boxes we
+    may not have received from can be garbage collected. Records are garbage collected after ten minutes.
+    """
+
     def __init__(self):
         self.event_token_to_event_id: typing.Dict[str, int] = {}
         self.event_token_to_incident_id: typing.Dict[str, int] = {}
@@ -65,6 +77,13 @@ class TriggerRecords:
                         event_id: int,
                         incident_id: int,
                         box_ids: typing.Set[str]):
+        """
+        Inserts a new record. This method is NOT thread safe.
+        :param event_token: The event token.
+        :param event_id: The event id.
+        :param incident_id: The incident id.
+        :param box_ids: The box ids.
+        """
         self.event_token_to_event_id[event_token] = event_id
         self.event_token_to_incident_id[event_token] = incident_id
         self.event_token_to_timestamp_ms[event_token] = timestamp_ms()
@@ -75,10 +94,21 @@ class TriggerRecords:
                       event_id: int,
                       incident_id: int,
                       box_ids: typing.Set[str]):
+        """
+        Inserts a new record. Thread-safe wrapper around __insert_record.
+        :param event_token: The event token.
+        :param event_id: The event id.
+        :param incident_id: The incident id.
+        :param box_ids: The box ids.
+        """
         with self.lock:
             self.__insert_record(event_token, event_id, incident_id, box_ids)
 
     def __remove_record(self, event_token: str):
+        """
+        Removes a record attached to an event token. This method is NOT thread safe.
+        :param event_token: The event token.
+        """
         if event_token in self.event_token_to_event_id:
             del self.event_token_to_event_id[event_token]
 
@@ -92,34 +122,62 @@ class TriggerRecords:
             del self.event_token_to_triggered_boxes[event_token]
 
     def remove_record(self, event_token: str):
+        """
+        Removes a record attached to an event token. This is a thread-safe wrapper around __remove_record.
+        :param event_token: The event token.
+        """
         with self.lock:
             self.__remove_record(event_token)
 
-    def __prune(self) -> int:
-        records_pruned = 0
+    def __prune(self) -> typing.List[int]:
+        """
+        Garbage collects records where Boxes were not received in over 10 minutes. This method is NOT thread safe.
+        :return: A list of pruned event_ids.
+        """
+        pruned_event_ids = []
         now = timestamp_ms()
         for event_token, ts_ms in self.event_token_to_timestamp_ms.items():
-            if now - ts_ms > 1_000 * 3_600:  # 1 hour
+            if now - ts_ms > 1_000 * 60 * 10:  # 10 minutes
+                pruned_event_ids.append(self.event_token_to_event_id[event_token])
                 self.__remove_record(event_token)
-                records_pruned += 1
-        return records_pruned
+        return pruned_event_ids
 
-    def prune(self) -> int:
+    def prune(self) -> typing.List[int]:
+        """
+        Garbage collects records where Boxes were not received in over 10 minutes. Thread-safe wrapper around __prune.
+        :return: A list of pruned event_ids.
+        """
         with self.lock:
             return self.__prune()
 
     def event_id(self, event_token: str) -> int:
+        """
+        Returns the event_id associated with an event_token. This method is thread safe.
+        :param event_token: The event token.
+        :return: The event_id associated with the event_token.
+        """
         with self.lock:
             if event_token in self.event_token_to_event_id:
                 return self.event_token_to_event_id[event_token]
 
     def remove_box_id(self, event_token: str, box_id: str):
+        """
+        Removes a triggered_box id from the record once that box has been received. This method is thread safe.
+        :param event_token:
+        :param box_id:
+        :return:
+        """
         with self.lock:
             if event_token in self.event_token_to_triggered_boxes:
                 if box_id in self.event_token_to_triggered_boxes[event_token]:
                     self.event_token_to_triggered_boxes[event_token].remove(box_id)
 
     def box_ids_for_token(self, event_token: str) -> typing.Set[str]:
+        """
+        Returns the remaining box_ids for a given token. This method is thread safe.
+        :param event_token: The event_token.
+        :return: Remaining box_ids associated with this token.
+        """
         with self.lock:
             if event_token in self.event_token_to_triggered_boxes:
                 return self.event_token_to_triggered_boxes[event_token]
@@ -134,24 +192,31 @@ class MakaiDataSubscriber(threading.Thread):
     """
 
     # pylint: disable=E1101
+    # noinspection PyUnresolvedReferences
     def __init__(self,
                  zmq_data_interface: str,
                  zmq_producer_interface: str,
                  trigger_records: TriggerRecords,
                  logger: logging.Logger,
                  opq_mongo_client: typing.Optional[mongo.OpqMongoClient] = None):
+
         super().__init__()
+
+        # ZMQ
         self.zmq_context = zmq.Context()
-        # noinspection PyUnresolvedReferences
         self.zmq_socket = self.zmq_context.socket(zmq.SUB)
         self.zmq_socket.setsockopt(zmq.SUBSCRIBE, "mauka_".encode())
-
         self.zmq_socket.connect(zmq_data_interface)
-        # noinspection PyUnresolvedReferences
-        # self.zmq_producer = self.zmq_context.socket(zmq.PUB)
-        # self.zmq_producer.connect(zmq_producer_interface)
-        self.trigger_records = trigger_records
+        self.zmq_producer = self.zmq_context.socket(zmq.PUB)
+        self.zmq_producer.connect(zmq_producer_interface)
+
+        # MongoDB client
         self.mongo_client = mongo.get_default_client(opq_mongo_client)
+
+        # Thead-safe trigger records
+        self.trigger_records = trigger_records
+
+        # Logging
         self.logger = logger
 
     def run(self):
@@ -160,6 +225,7 @@ class MakaiDataSubscriber(threading.Thread):
         """
         self.logger.info("MakaiDataSubscriber thread started")
         while True:
+            # Receive data and extract parameters
             data = self.zmq_socket.recv_multipart()
             identity = data[0].decode()
             topic, event_token, box_id = identity.split("_")
@@ -171,7 +237,6 @@ class MakaiDataSubscriber(threading.Thread):
             event_id = self.trigger_records.event_id(event_token)
 
             self.logger.debug("Recv data with event_token %s, event_id %d, and box_id %s", event_token, event_id, box_id)
-            debug_write_waveform_data("waveform_debug_%s_%s.txt" % (event_id, box_id), samples)
 
             # Update event
             mongo.update_event(event_id, box_id, self.mongo_client)
@@ -190,15 +255,20 @@ class MakaiDataSubscriber(threading.Thread):
             # Cleanup
             self.trigger_records.remove_box_id(event_token, box_id)
             self.logger.debug("Removed box_id from record with event_token %s and box_id %s", event_token, box_id)
+
+            # If this was the last box we were waiting on, we can not produce an event_id to MakaiEventPlugin for
+            # analysis. We'll also remove the record since we're not longer waiting on any boxes.
             if len(self.trigger_records.box_ids_for_token(event_token)) == 0:
+                produce_makai_event_id(self.zmq_producer, event_id)
                 self.logger.debug("Removing record for event_token %s", event_token)
                 self.trigger_records.remove_record(event_token)
 
             # Prune any old records that might still be hanging around
-            records_pruned = self.trigger_records.prune()
-            if records_pruned > 0:
-                self.logger.debug("%d records pruned")
-
+            # This occurs when we never received data from a triggered box.
+            # We should produce an event message to ensure we process any other boxes we might have recieved from.
+            pruned_event_ids = self.trigger_records.prune()
+            for pruned_event_id in pruned_event_ids:
+                produce_makai_event_id(self.zmq_producer, pruned_event_id)
 
 
 
