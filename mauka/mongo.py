@@ -405,6 +405,16 @@ def store_event(event_id: int,
                 start_ts_ms: int,
                 end_ts_ms: int,
                 opq_mongo_client: typing.Optional[OpqMongoClient] = None) -> str:
+    """
+    Creates and stores a new event to the db.
+    :param event_id: The event_id.
+    :param description: A description of the event.
+    :param boxes_triggered: The boxes that were originally triggered for the event.
+    :param start_ts_ms: The start of the event.
+    :param end_ts_ms: The end of the event.
+    :param opq_mongo_client: An OpqMongo client.
+    :return: The inserted _id.
+    """
     mongo_client = get_default_client(opq_mongo_client)
 
     event = {
@@ -423,6 +433,12 @@ def store_event(event_id: int,
 def update_event(event_id: int,
                  box_received: str,
                  opq_mongo_client: typing.Optional[OpqMongoClient] = None):
+    """
+    Updates a stored event with new boxes that have been received.
+    :param event_id: The event_id to update.
+    :param box_received: The box that was received.
+    :param opq_mongo_client: An OpqMongoClient.
+    """
     mongo_client = get_default_client(opq_mongo_client)
     filter_doc = {"event_id": event_id}
     update_doc = {"$push": {"boxes_received": box_received}}
@@ -435,7 +451,20 @@ def store_box_event(event_id: int,
                     end_timestamp_ms: int,
                     payload: typing.List[int],
                     opq_mongo_client: typing.Optional[OpqMongoClient] = None) -> str:
+    """
+    Stores a new box_event. This also handles writing converting the payload for storage in grid_fs and then stores
+    the converted data into grid_fs.
+    :param event_id: The event_id.
+    :param box_id: The box_id.
+    :param start_timestamp_ms: The start time of this data.
+    :param end_timestamp_ms: The end time of this data.
+    :param payload: The waveform payload to write to grid_fs.
+    :param opq_mongo_client: An OpqMongoClient.
+    :return: The inserted _id.
+    """
     mongo_client = get_default_client(opq_mongo_client)
+
+    # Write the waveform and get the grid_fs filename.
     data_fs_filename = mongo_client.write_event_waveform(event_id, payload)
 
     box_event = {
