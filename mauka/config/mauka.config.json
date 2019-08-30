@@ -6,6 +6,7 @@
   "mauka.startPlugins": true,
 
   "zmq.event.interface"           : "tcp://localhost:10000",
+  "zmq.event_id.interface"        : "tcp://localhost:10001",
   "zmq.trigger.interface"         : "tcp://localhost:9884",
   "zmq.data.interface"            : "tcp://localhost:9899",
   "zmq.mauka.broker.pub.interface": "tcp://*:9883",

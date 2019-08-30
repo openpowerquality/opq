@@ -87,7 +87,7 @@ class MakaiDataSubscriber(threading.Thread):
             # Update event
 
 
-def trigger_boxes(zmq_trigger_socket,
+def trigger_boxes(zmq_trigger_socket: zmq.socket.Socket,
                   start_timestamp_ms: int,
                   end_timestamp_ms: int,
                   box_ids: typing.List[str],
@@ -151,7 +151,7 @@ class TriggerPlugin(plugins.base_plugin.MaukaPlugin):
         makai_data_subscriber = MakaiDataSubscriber(self.zmq_data_interface,
                                                     self.zmq_producer_interface,
                                                     self.logger)
-        self.makai_data_subscriber_thread = makai_data_subscriber.start_thread()
+        makai_data_subscriber.start()
 
     def on_message(self, topic, mauka_message):
         """Subscribed messages occur async
@@ -184,24 +184,31 @@ if __name__ == "__main__":
 
     trigger_interface = "tcp://127.0.0.1:9884"
     data_interface = "tcp://127.0.0.1:9899"
+    event_id_interface = "tcp://127.0.0.1:10001"
 
     zmq_context = zmq.Context()
     zmq_trigger_socket = zmq_context.socket(zmq.PUSH)
     zmq_trigger_socket.connect(trigger_interface)
 
+    zmq_event_id_socket = zmq_context.socket(zmq.REQ)
+    zmq_event_id_socket.connect(event_id_interface)
 
-    makai_data_subscriber = MakaiDataSubscriber(data_interface,
-                                                None,
-                                                logger)
-    makai_data_subscriber.start()
+    zmq_event_id_socket.send_string("")
 
-    end = timestamp_ms() - 2_000
-    start = end - 10_000
+    print(zmq_event_id_socket.recv_string())
 
-    trigger_boxes(zmq_trigger_socket,
-                  start,
-                  end,
-                  ["1001"],
-                  0,
-                  "test",
-                  logger)
+    # makai_data_subscriber = MakaiDataSubscriber(data_interface,
+    #                                             None,
+    #                                             logger)
+    # makai_data_subscriber.start()
+    #
+    # end = timestamp_ms() - 2_000
+    # start = end - 10_000
+    #
+    # trigger_boxes(zmq_trigger_socket,
+    #               start,
+    #               end,
+    #               ["1001"],
+    #               0,
+    #               "test",
+    #               logger)
