@@ -17,6 +17,10 @@ import mongo
 import plugins.base_plugin
 import protobuf.pb_util as pb_util
 
+def debug_write_waveform_data(filename: str, payload: typing.List[int]):
+    with open(filename, "w") as fout:
+        for v in payload:
+            fout.write("%d\n" % v)
 
 def next_event_id(event_id_socket: zmq.Socket) -> int:
     event_id_socket.send_string("")
@@ -54,7 +58,7 @@ class TriggerRecords:
         self.event_token_to_incident_id: typing.Dict[str, int] = {}
         self.event_token_to_timestamp_ms: typing.Dict[str, int] = {}
         self.event_token_to_triggered_boxes: typing.Dict[str, typing.Set[str]] = {}
-        self.lock = multiprocessing.RLock()
+        self.lock = multiprocessing.Lock()
 
     def __insert_record(self,
                         event_token: str,
@@ -91,15 +95,18 @@ class TriggerRecords:
         with self.lock:
             self.__remove_record(event_token)
 
-    def __prune(self):
+    def __prune(self) -> int:
+        records_pruned = 0
         now = timestamp_ms()
         for event_token, ts_ms in self.event_token_to_timestamp_ms.items():
             if now - ts_ms > 1_000 * 3_600:  # 1 hour
                 self.__remove_record(event_token)
+                records_pruned += 1
+        return records_pruned
 
-    def prune(self):
+    def prune(self) -> int:
         with self.lock:
-            self.__prune()
+            return self.__prune()
 
     def event_id(self, event_token: str) -> int:
         with self.lock:
@@ -116,6 +123,8 @@ class TriggerRecords:
         with self.lock:
             if event_token in self.event_token_to_triggered_boxes:
                 return self.event_token_to_triggered_boxes[event_token]
+            else:
+                return set()
 
 
 
@@ -143,12 +152,13 @@ class MakaiDataSubscriber(threading.Thread):
         # self.zmq_producer.connect(zmq_producer_interface)
         self.trigger_records = trigger_records
         self.mongo_client = mongo.get_default_client(opq_mongo_client)
+        self.logger = logger
 
     def run(self):
         """
         Run loop which continuously attempts to receive triggered data from Makai.
         """
-        logger.info("MakaiDataSubscriber thread started")
+        self.logger.info("MakaiDataSubscriber thread started")
         while True:
             data = self.zmq_socket.recv_multipart()
             identity = data[0].decode()
@@ -160,9 +170,13 @@ class MakaiDataSubscriber(threading.Thread):
             samples = cycles_to_data(cycles)
             event_id = self.trigger_records.event_id(event_token)
 
+            self.logger.debug("Recv data with event_token %s, event_id %d, and box_id %s", event_token, event_id, box_id)
+            debug_write_waveform_data("waveform_debug_%s_%s.txt" % (event_id, box_id), samples)
+
             # Update event
             mongo.update_event(event_id, box_id, self.mongo_client)
             self.trigger_records.remove_record(event_token)
+            self.logger.debug("Event with event_id %d updated", event_id)
 
             # Store box_event
             mongo.store_box_event(event_id,
@@ -171,14 +185,19 @@ class MakaiDataSubscriber(threading.Thread):
                                   end_ts,
                                   samples,
                                   self.mongo_client)
+            self.logger.debug("box_event stored for event_id %d and box_id %s", event_id, box_id)
 
             # Cleanup
             self.trigger_records.remove_box_id(event_token, box_id)
+            self.logger.debug("Removed box_id from record with event_token %s and box_id %s", event_token, box_id)
             if len(self.trigger_records.box_ids_for_token(event_token)) == 0:
+                self.logger.debug("Removing record for event_token %s", event_token)
                 self.trigger_records.remove_record(event_token)
 
             # Prune any old records that might still be hanging around
-            self.trigger_records.prune()
+            records_pruned = self.trigger_records.prune()
+            if records_pruned > 0:
+                self.logger.debug("%d records pruned")
 
 
 
@@ -189,8 +208,6 @@ def trigger_boxes(zmq_trigger_socket: zmq.Socket,
                   start_timestamp_ms: int,
                   end_timestamp_ms: int,
                   box_ids: typing.List[str],
-                  incident_id: int,
-                  source: str,
                   logger: logging.Logger,
                   opq_mongo_client: typing.Optional[mongo.OpqMongoClient] = None) -> str:
     """
@@ -210,6 +227,8 @@ def trigger_boxes(zmq_trigger_socket: zmq.Socket,
                                                             box_ids,
                                                             event_token)
 
+    logger.debug("%d trigger commands built.", len(trigger_commands))
+
     mongo_client = mongo.get_default_client(opq_mongo_client)
     event_id = next_event_id(zmq_event_id_socket)
 
@@ -219,6 +238,8 @@ def trigger_boxes(zmq_trigger_socket: zmq.Socket,
                                   0,
                                   set(box_ids))
 
+    logger.debug("Trigger record inserted for event_token %s and event_id %d", event_token, event_id)
+
     # Create a new event
     mongo.store_event(event_id,
                       "Mauka %s" % event_token,
@@ -227,12 +248,16 @@ def trigger_boxes(zmq_trigger_socket: zmq.Socket,
                       end_timestamp_ms,
                       mongo_client)
 
+    logger.debug("MongoDB event created with event_id %d", event_id)
+
     # Trigger the boxes
     for trigger_command in trigger_commands:
         try:
             zmq_trigger_socket.send(pb_util.serialize_message(trigger_command))
         except Exception as exception:  # pylint: disable=W0703
             logger.error(str(exception))
+
+    logger.debug("%d boxes triggered", len(box_ids))
 
     return event_token
 
@@ -291,49 +316,54 @@ class TriggerPlugin(plugins.base_plugin.MaukaPlugin):
                           mauka_message.trigger_request.start_timestamp_ms,
                           mauka_message.trigger_request.end_timestamp_ms,
                           mauka_message.trigger_request.box_ids[:],
-                          mauka_message.trigger_request.incident_id,
-                          mauka_message.source,
                           self.logger,
                           self.mongo_client)
         else:
             self.logger.error("Received incorrect type of MaukaMessage :%s", str(mauka_message))
 
 
-if __name__ == "__main__":
-    import logging
-
-    logger = logging.getLogger()
-    logger.setLevel(logging.DEBUG)
-
-    logger.info("Starting test")
-
-    trigger_interface = "tcp://127.0.0.1:9884"
-    data_interface = "tcp://127.0.0.1:9899"
-    event_id_interface = "tcp://127.0.0.1:10001"
-
-    zmq_context = zmq.Context()
-    zmq_trigger_socket = zmq_context.socket(zmq.PUSH)
-    zmq_trigger_socket.connect(trigger_interface)
-
-    zmq_event_id_socket = zmq_context.socket(zmq.REQ)
-    zmq_event_id_socket.connect(event_id_interface)
-
-    zmq_event_id_socket.send_string("")
-
-    print(zmq_event_id_socket.recv_string())
-
-    # makai_data_subscriber = MakaiDataSubscriber(data_interface,
-    #                                             None,
-    #                                             logger)
-    # makai_data_subscriber.start()
+# if __name__ == "__main__":
+#
+#
+    # import logging
     #
-    # end = timestamp_ms() - 2_000
-    # start = end - 10_000
+    # logger = logging.getLogger()
+    # logger.setLevel(logging.DEBUG)
     #
-    # trigger_boxes(zmq_trigger_socket,
-    #               start,
-    #               end,
-    #               ["1001"],
-    #               0,
-    #               "test",
-    #               logger)
+    # logger.info("Starting test")
+    #
+    # trigger_interface = "tcp://127.0.0.1:9884"
+    # data_interface = "tcp://127.0.0.1:9899"
+    # event_id_interface = "tcp://127.0.0.1:10001"
+    #
+    # zmq_context = zmq.Context()
+    #
+    # zmq_trigger_socket = zmq_context.socket(zmq.PUSH)
+    # zmq_trigger_socket.connect(trigger_interface)
+    #
+    # zmq_event_id_socket = zmq_context.socket(zmq.REQ)
+    # zmq_event_id_socket.connect(event_id_interface)
+    #
+    # trigger_records = TriggerRecords()
+    #
+    # end_ts = timestamp_ms() - 2000
+    # start_ts = end_ts - 7000
+    #
+    # makai_data_subscripter = MakaiDataSubscriber(data_interface,
+    #                                              "",
+    #                                              trigger_records,
+    #                                              logger,
+    #                                              None)
+    #
+    # makai_data_subscripter.start()
+    #
+    # event_token = trigger_boxes(zmq_trigger_socket,
+    #                             zmq_event_id_socket,
+    #                             trigger_records,
+    #                             start_ts,
+    #                             end_ts,
+    #                             ["1001"],
+    #                             logger,
+    #                             None)
+    #
+    # logger.debug("event_token from triggered boxes %s", event_token)
