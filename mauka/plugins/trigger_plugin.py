@@ -19,6 +19,11 @@ import protobuf.pb_util as pb_util
 
 
 def produce_makai_event_id(pub_socket: zmq.Socket, event_id: int):
+    """
+    Produces a makai event_id to the MakaiEventPlugin.
+    :param pub_socket: Publish socket.
+    :param event_id: The event_id to publish.
+    """
     makai_event = pb_util.build_makai_event("TriggerPlugin", event_id)
     serialized_makai_event = pb_util.serialize_message(makai_event)
     pub_socket.send_multipart(("MakaiEvent".encode(), serialized_makai_event))
@@ -236,7 +241,10 @@ class MakaiDataSubscriber(threading.Thread):
             samples = cycles_to_data(cycles)
             event_id = self.trigger_records.event_id(event_token)
 
-            self.logger.debug("Recv data with event_token %s, event_id %d, and box_id %s", event_token, event_id,
+            self.logger.debug("Recv data with topic %s, event_token %s, event_id %d, and box_id %s",
+                              topic,
+                              event_token,
+                              event_id,
                               box_id)
 
             # Update event

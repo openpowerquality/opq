@@ -22,6 +22,7 @@ import plugins.thd_plugin
 import plugins.ieee1159_voltage_plugin
 import plugins.semi_f47_plugin
 import plugins.system_stats_plugin
+import plugins.trigger_plugin
 import services.brokers
 import services.plugin_manager
 
@@ -82,6 +83,7 @@ def main():
     plugin_manager.register_plugin(plugins.outage_plugin.OutagePlugin)
     plugin_manager.register_plugin(plugins.system_stats_plugin.SystemStatsPlugin)
     plugin_manager.register_plugin(plugins.laha_gc_plugin.LahaGcPlugin)
+    plugin_manager.register_plugin(plugins.trigger_plugin)
 
     broker_process = None
     makai_bridge_event_process = None
