@@ -1,4 +1,3 @@
-import mongo
 import multiprocessing
 import plugins.base_plugin
 import protobuf.pb_util as pb_util
@@ -32,8 +31,6 @@ DEFAULT_THRESHOLD_PERCENT_F_HIGH = "default_threshold_percent_f_high"
 DEFAULT_THRESHOLD_PERCENT_V_LOW = "default_threshold_percent_v_low"
 DEFAULT_THRESHOLD_PERCENT_V_HIGH = "default_threshold_percent_v_high"
 DEFAULT_THRESHOLD_PERCENT_THD_HIGH = "default_threshold_percent_thd_high"
-
-
 
 
 class TriggeringOverride:
@@ -87,6 +84,7 @@ def _default_override(makai_config: 'MakaiConfig', box_id: str) -> TriggeringOve
         THRESHOLD_PERCENT_V_HIGH: makai_config.default_threshold_percent_v_high,
         THRESHOLD_PERCENT_THD_HIGH: makai_config.default_threshold_percent_thd_high,
     })
+
 
 class MakaiConfig:
     def __init__(self, makai_config_dict: MakaiConfigType):
@@ -164,6 +162,13 @@ class ThresholdOptimizationPlugin(plugins.base_plugin.MaukaPlugin):
         """
         super().__init__(conf, ["ThresholdOptimizationRequest"], TriggerPlugin.NAME, exit_event)
 
+    def modify_thresholds(self, threshold_optimization_request: pb_util.mauka_pb2.ThresholdOptimizationRequest):
+        makai_config_doc = self.mongo_client.makai_config_collection.find_one()
+        makai_config = MakaiConfig(makai_config_doc)
+        makai_config.modify_thresholds(threshold_optimization_request)
+        updated_config = makai_config.as_dict()
+        self.mongo_client.makai_config_collection.replace_one({ID: updated_config[ID]}, updated_config)
+
     def on_message(self, topic: str, mauka_message: pb_util.mauka_pb2.MaukaMessage):
         """
         Called when this plugin receives a message.
@@ -172,6 +177,7 @@ class ThresholdOptimizationPlugin(plugins.base_plugin.MaukaPlugin):
         """
         if pb_util.is_threshold_optimization_request(mauka_message):
             self.debug("Recv threshold optimization request request %s" % str(mauka_message))
+            self.modify_thresholds(mauka_message.threshold_optimization_request)
         else:
             self.logger.error("Received incorrect type of MaukaMessage :%s", str(mauka_message))
 
