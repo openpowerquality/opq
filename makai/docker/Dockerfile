@@ -54,20 +54,23 @@ RUN sccache --start-server                                      && \
     cargo build --release                                       && \
     cd /build/makai/TriggeringService/plugins/threshold_trigger && \
     cargo build --release                                       && \
+    cd /build/makai/TriggeringService/plugins/napali_trigger    && \
+    cargo build --release                                       && \
     cd /build/makai/EventService                                && \
     cargo build --release                                       && \
     sccache --stop-server
 
 # Organize makai binaries and configurations
-RUN mkdir -p /build/bin                                                                             && \
-    cp /build/makai/run-makai.sh /build/bin                                                         && \
-    cp /build/makai/AcquisitionBroker/target/release/ab /build/bin                            && \
-    cp /build/makai/TriggeringBroker/target/release/tb /build/bin                             && \
-    cp /build/makai/TriggeringService/target/release/makai /build/bin                               && \
-    cp /build/makai/EventService/target/release/event_service /build/bin                            && \
-    cp /build/makai/TriggeringService/plugins/health/target/release/libhealth_plugin.so /build/bin  && \
-    cp /build/makai/TriggeringService/plugins/print/target/release/libprint_plugin.so /build/bin    && \
-    cp /build/makai/TriggeringService/plugins/threshold_trigger/target/release/libthreshold_trigger_plugin.so /build/bin
+RUN mkdir -p /build/bin                                                                                                     && \
+    cp /build/makai/run-makai.sh /build/bin                                                                                 && \
+    cp /build/makai/AcquisitionBroker/target/release/ab /build/bin                                                          && \
+    cp /build/makai/TriggeringBroker/target/release/tb /build/bin                                                           && \
+    cp /build/makai/TriggeringService/target/release/makai /build/bin                                                       && \
+    cp /build/makai/EventService/target/release/event_service /build/bin                                                    && \
+    cp /build/makai/TriggeringService/plugins/health/target/release/libhealth_plugin.so /build/bin                          && \
+    cp /build/makai/TriggeringService/plugins/print/target/release/libprint_plugin.so /build/bin                            && \
+    cp /build/makai/TriggeringService/plugins/threshold_trigger/target/release/libthreshold_trigger_plugin.so /build/bin    && \
+    cp /build/makai/TriggeringService/plugins/napali_trigger/target/release/libnapali_plugin.so /build/bin
 
 # Cleanup
 RUN rm -rf /build/makai     && \
