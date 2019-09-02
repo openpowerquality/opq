@@ -1,0 +1,19 @@
+[package]
+name = "napali_plugin"
+version = "0.1.0"
+authors = ["Serge <sin8@hawaii.edu>"]
+
+[dependencies]
+triggering_service = { path = "../../" }
+serde_json = "1.0"
+serde_derive = "1.0"
+serde = "1.0"
+arraydeque = "0.4"
+nalgebra = "0.18"
+rand = "0.7"
+
+[lib]
+name = "napali_plugin"
+crate-type = [
+    "dylib"
+]
