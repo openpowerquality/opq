@@ -47,7 +47,7 @@ fn main() {
                     continue;
                 }
             }
-            println!("{}", measurement.box_id);
+            println!("{:?}", measurement.box_id); 
             if measurement.metrics.contains_key("f") {
                println!("\tFrequency : {} {} {}", measurement.metrics.get("f").unwrap().min, measurement.metrics.get("f").unwrap().average, measurement.metrics.get("f").unwrap().max);
             }
@@ -60,7 +60,6 @@ fn main() {
             if measurement.metrics.contains_key("trans") {
                 println!("\tTRANS : {} {} {}", measurement.metrics.get("trans").unwrap().min, measurement.metrics.get("trans").unwrap().average, measurement.metrics.get("trans").unwrap().max);
             }
-
 
         }
 
