@@ -37,7 +37,7 @@ impl MetricBuffer {
     }
 
     pub fn std_dev(&self) -> f32 {
-        let var = self.mean_sq - self.mean.powi(2);
+        let var = (self.mean_sq - self.mean.powi(2)).abs();
         var.sqrt()
     }
 }

@@ -19,6 +19,18 @@
       "address" : "0.0.0.0:8080"
     },
     {
+      "path" : "/build/bin/libnapali_plugin.so",
+      "alpha": 0.5,
+      "f_min": 59.9,
+      "f_max": 60.1,
+      "rms_min": 115.0,
+      "rms_max": 125.0,
+      "thd_max": 0.05,
+      "trans_max": 7.0,
+      "grace_time_ms": 5000,
+      "trigger_local": false
+    },
+    {
       "path" : "/build/bin/libthreshold_trigger_plugin.so",
       "reference_frequency": 60.0,
       "frequency_threshold_percent_low": 0.05,

@@ -167,11 +167,14 @@ declare_plugin!(NapaliPlugin, NapaliPlugin::new);
 mod tests {
     // Note this useful idiom: importing names from outer (for mod tests) scope.
     use super::*;
+    extern crate rand;
+
+    use tests::rand::Rng;
 
     fn gen_napali(local : bool) -> NapaliPlugin{
         let mut plg = NapaliPlugin::new();
         let settings = NapaliPluginSettings{
-            alpha: 0.05,
+            alpha: 0.5,
             f_min: 59.9,
             f_max: 60.1,
             rms_min: 115.0,
@@ -189,12 +192,13 @@ mod tests {
         let mut m = Measurement::new();
         m.timestamp_ms = ts;
         m.box_id = id;
+        let mut rng = rand::thread_rng();
 
         let mut me  = triggering_service::proto::opqbox3::Metric::new();
-        me.min = 59.99;
-        me.max = 60.01;
-        me.average = 60.00;
-
+        me.min = 59.99 + rng.gen_range(-0.01, 0.01);
+        me.max = 60.01 +rng.gen_range(-0.01, 0.01);
+        me.average = 60.00 + rng.gen_range(-0.01, 0.01);
+        print!("{}, ", me.average);
         m.metrics.insert("f".to_string(), me);
         m
     }
@@ -205,10 +209,10 @@ mod tests {
         m.box_id = id;
 
         let mut me  = triggering_service::proto::opqbox3::Metric::new();
-        me.min = 50.80;
-        me.max = 55.00;
-        me.average = 53.9;
-
+        me.min = 59.6;
+        me.max = 59.9;
+        me.average = 59.7;
+        print!("{}, ", me.average);
         m.metrics.insert("f".to_string(), me);
         m
     }
@@ -220,15 +224,15 @@ mod tests {
             napali.process_measurement(Arc::new(gen_good_f(1000*i, 1)));
         }
         for i in 2000..2020{
-            println!("{:?}", napali.process_measurement(Arc::new(gen_good_f(1000*i, 1))));
+            napali.process_measurement(Arc::new(gen_good_f(1000*i, 1)));
         }
         let mut i = 2020;
-        println!("{:?}", napali.process_measurement(Arc::new(gen_bad_f(1000*i, 1))));
+        napali.process_measurement(Arc::new(gen_bad_f(1000*i, 1)));
         i+=1;
-        println!("{:?}", napali.process_measurement(Arc::new(gen_bad_f(1000*i, 1))));
+        napali.process_measurement(Arc::new(gen_bad_f(1000*i, 1)));
 
-        for i in i+1..i+1+20{
-            println!("{:?}", napali.process_measurement(Arc::new(gen_good_f(1000*i, 1))));
+        for i in i+1..i+1+70{
+            napali.process_measurement(Arc::new(gen_good_f(1000*i, 1)));
 
         }
 

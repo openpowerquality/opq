@@ -42,9 +42,10 @@ impl BoxMetric for FMetric {
             .entry(box_id)
             .or_insert_with(|| MetricBuffer::new(alpha))
             .add_measurement(metric.average);
+
         let mean = self.boxes.get(&box_id).unwrap().mean;
         let std = self.boxes.get(&box_id).unwrap().std_dev();
-        //println!("{:?}, {:?}", metric.max, metric.min);
+        println!("{:?}, {:?}", mean, std);
         if metric.max > self.limit.max || metric.min < self.limit.min {
             MetricResult {
                 status: MetricStatus::AboveThreshold,
