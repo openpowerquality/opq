@@ -8,45 +8,144 @@ import config
 
 import bson
 
+# Types used when discussing type unsafe data (essentially mongo docs as dicts)
+TriggeringOverrideType = typing.Dict[str, typing.Union[str, float]]
+TriggeringType = typing.Dict[str, typing.Union[float, typing.List[TriggeringOverrideType]]]
+MakaiConfigType = typing.Dict[str, typing.Union[bson.ObjectId, TriggeringType]]
 
-def maybe_update_default(defaults: typing.Dict[str, float],
-                         threshold_optimization_request: pb_util.mauka_pb2.ThresholdOptimizationRequest,
-                         attribute_name: str):
-    val = getattr(threshold_optimization_request, attribute_name)
-    if val > 0.0:
-        defaults[attribute_name] = val
+# Constants used when converting data between type safe and type unsafe formats
+ID = "_id"
+TRIGGERING = "triggering"
+TRIGGERING_OVERRIDES = "triggering_overrides"
+BOX_ID = "box_id"
+REF_F = "ref_f"
+REF_V = "ref_v"
+THRESHOLD_PERCENT_F_LOW = "threshold_percent_f_low"
+THRESHOLD_PERCENT_F_HIGH = "threshold_percent_f_high"
+THRESHOLD_PERCENT_V_LOW = "threshold_percent_v_low"
+THRESHOLD_PERCENT_V_HIGH = "threshold_percent_v_high"
+THRESHOLD_PERCENT_THD_HIGH = "threshold_percent_thd_high"
+DEFAULT_REF_F = "default_ref_f"
+DEFAULT_REF_V = "default_ref_v"
+DEFAULT_THRESHOLD_PERCENT_F_LOW = "default_threshold_percent_f_low"
+DEFAULT_THRESHOLD_PERCENT_F_HIGH = "default_threshold_percent_f_high"
+DEFAULT_THRESHOLD_PERCENT_V_LOW = "default_threshold_percent_v_low"
+DEFAULT_THRESHOLD_PERCENT_V_HIGH = "default_threshold_percent_v_high"
+DEFAULT_THRESHOLD_PERCENT_THD_HIGH = "default_threshold_percent_thd_high"
 
 
-def modify_thresholds(threshold_optimization_request: pb_util.mauka_pb2.ThresholdOptimizationRequest,
-                      opq_mongo_client: typing.Optional[mongo.OpqMongoClient] = None):
-    """
-    Given a threshold optimization request, modify dynamic thresholds with new values.
-    :param threshold_optimization_request: A ThresholdOptimizationRequest.
-    :param opq_mongo_client: An OpqMongoClient.
-    """
-    mongo_client = mongo.get_default_client(opq_mongo_client)
 
-    doc_id = mongo_client.makai_config_collection.find_one(projection={"_id": True})["_id"]
 
-    # First, setup updates for default values
-    defaults = {}
-    default_attributes = ["default_ref_f",
-                          "default_ref_v",
-                          "default_threshold_percent_f_low",
-                          "default_threshold_percent_f_high",
-                          "default_threshold_percent_v_low",
-                          "default_threshold_percent_v_high",
-                          "default_threshold_percent_thd_high"]
+class TriggeringOverride:
+    def __init__(self,
+                 trigger_override_dict: typing.Optional[TriggeringOverrideType]):
+        self.box_id = trigger_override_dict[BOX_ID]
+        self.ref_f = trigger_override_dict[REF_F]
+        self.ref_v = trigger_override_dict[REF_V]
+        self.threshold_percent_f_low = trigger_override_dict[THRESHOLD_PERCENT_F_LOW]
+        self.threshold_percent_f_high = trigger_override_dict[THRESHOLD_PERCENT_F_HIGH]
+        self.threshold_percent_v_low = trigger_override_dict[THRESHOLD_PERCENT_V_LOW]
+        self.threshold_percent_v_high = trigger_override_dict[THRESHOLD_PERCENT_V_HIGH]
+        self.threshold_percent_thd_high = trigger_override_dict[THRESHOLD_PERCENT_THD_HIGH]
 
-    for default_attribute in default_attributes:
-        maybe_update_default(defaults, threshold_optimization_request, default_attribute)
+    def __modify_threshold(self,
+                           field_name: str,
+                           threshold_optimization_request: pb_util.mauka_pb2.ThresholdOptimizationRequest):
+        if threshold_optimization_request.HasField(field_name):
+            setattr(self, field_name, getattr(threshold_optimization_request, field_name))
 
-    # Next, setup updates for override values
+    def modify_thresholds(self, threshold_optimization_request: pb_util.mauka_pb2.ThresholdOptimizationRequest):
+        self.__modify_threshold(REF_F, threshold_optimization_request)
+        self.__modify_threshold(REF_V, threshold_optimization_request)
+        self.__modify_threshold(THRESHOLD_PERCENT_F_LOW, threshold_optimization_request)
+        self.__modify_threshold(THRESHOLD_PERCENT_F_HIGH, threshold_optimization_request)
+        self.__modify_threshold(THRESHOLD_PERCENT_V_LOW, threshold_optimization_request)
+        self.__modify_threshold(THRESHOLD_PERCENT_V_HIGH, threshold_optimization_request)
+        self.__modify_threshold(THRESHOLD_PERCENT_THD_HIGH, threshold_optimization_request)
 
-    filter_doc = {"_id": bson.objectid.ObjectId(doc_id)}
-    update_doc = {"$set": defaults}
+    def as_dict(self) -> TriggeringOverrideType:
+        return {
+            BOX_ID: self.box_id,
+            REF_F: self.ref_f,
+            REF_V: self.ref_v,
+            THRESHOLD_PERCENT_F_LOW: self.threshold_percent_f_low,
+            THRESHOLD_PERCENT_F_HIGH: self.threshold_percent_f_high,
+            THRESHOLD_PERCENT_V_LOW: self.threshold_percent_v_low,
+            THRESHOLD_PERCENT_V_HIGH: self.threshold_percent_v_high,
+            THRESHOLD_PERCENT_THD_HIGH: self.threshold_percent_thd_high
+        }
 
-    mongo_client.makai_config_collection.update_one(filter_doc, update_doc)
+
+def _default_override(makai_config: 'MakaiConfig', box_id: str) -> TriggeringOverride:
+    return TriggeringOverride({
+        BOX_ID: box_id,
+        REF_F: makai_config.default_ref_f,
+        REF_V: makai_config.default_ref_v,
+        THRESHOLD_PERCENT_F_LOW: makai_config.default_threshold_percent_f_low,
+        THRESHOLD_PERCENT_F_HIGH: makai_config.default_threshold_percent_f_high,
+        THRESHOLD_PERCENT_V_LOW: makai_config.default_threshold_percent_v_low,
+        THRESHOLD_PERCENT_V_HIGH: makai_config.default_threshold_percent_v_high,
+        THRESHOLD_PERCENT_THD_HIGH: makai_config.default_threshold_percent_thd_high,
+    })
+
+class MakaiConfig:
+    def __init__(self, makai_config_dict: MakaiConfigType):
+        self.id = makai_config_dict[ID]
+        self.default_ref_f = makai_config_dict[TRIGGERING]["default_ref_f"]
+        self.default_ref_v = makai_config_dict[TRIGGERING]["default_ref_v"]
+        self.default_threshold_percent_f_low = makai_config_dict[TRIGGERING]["default_threshold_percent_f_low"]
+        self.default_threshold_percent_f_high = makai_config_dict[TRIGGERING]["default_threshold_percent_f_high"]
+        self.default_threshold_percent_v_low = makai_config_dict[TRIGGERING]["default_threshold_percent_v_low"]
+        self.default_threshold_percent_v_high = makai_config_dict[TRIGGERING]["default_threshold_percent_v_high"]
+        self.default_threshold_percent_thd_high = makai_config_dict[TRIGGERING]["default_threshold_percent_thd_high"]
+        self.box_id_to_triggering_override = {}
+
+        for override in makai_config_dict[TRIGGERING][TRIGGERING_OVERRIDES]:
+            self.box_id_to_triggering_override[override[BOX_ID]] = TriggeringOverride(override)
+
+    def __modify_default_value(self,
+                               field_name: str,
+                               threshold_optimization_request: pb_util.mauka_pb2.ThresholdOptimizationRequest):
+        if threshold_optimization_request.HasField(field_name):
+            setattr(self, field_name, getattr(threshold_optimization_request, field_name))
+
+    def __modify_default_thresholds(self,
+                                    threshold_optimization_request: pb_util.mauka_pb2.ThresholdOptimizationRequest):
+        self.__modify_default_value(DEFAULT_REF_F, threshold_optimization_request)
+        self.__modify_default_value(DEFAULT_REF_V, threshold_optimization_request)
+        self.__modify_default_value(DEFAULT_THRESHOLD_PERCENT_F_LOW, threshold_optimization_request)
+        self.__modify_default_value(DEFAULT_THRESHOLD_PERCENT_F_HIGH, threshold_optimization_request)
+        self.__modify_default_value(DEFAULT_THRESHOLD_PERCENT_V_LOW, threshold_optimization_request)
+        self.__modify_default_value(DEFAULT_THRESHOLD_PERCENT_V_HIGH, threshold_optimization_request)
+        self.__modify_default_value(DEFAULT_THRESHOLD_PERCENT_THD_HIGH, threshold_optimization_request)
+
+    def __modify_override_thresholds(self,
+                                     threshold_optimization_request: pb_util.mauka_pb2.ThresholdOptimizationRequest):
+        # If an override doesn't already exist, we need to create one based off of defaults
+        box_id = threshold_optimization_request.box_id
+        if box_id not in self.box_id_to_triggering_override:
+            self.box_id_to_triggering_override[box_id] = _default_override(self, box_id)
+        self.box_id_to_triggering_override[box_id].modify_thresholds(threshold_optimization_request)
+
+    def modify_thresholds(self, threshold_optimization_request: pb_util.mauka_pb2.ThresholdOptimizationRequest):
+        self.__modify_default_thresholds(threshold_optimization_request)
+        self.__modify_override_thresholds(threshold_optimization_request)
+
+    def as_dict(self) -> MakaiConfigType:
+        return {
+            ID: bson.ObjectId(self.id),
+            TRIGGERING: {
+                DEFAULT_REF_F: self.default_ref_f,
+                DEFAULT_REF_V: self.default_ref_v,
+                DEFAULT_THRESHOLD_PERCENT_F_LOW: self.default_threshold_percent_f_low,
+                DEFAULT_THRESHOLD_PERCENT_F_HIGH: self.default_threshold_percent_f_high,
+                DEFAULT_THRESHOLD_PERCENT_V_LOW: self.default_threshold_percent_v_low,
+                DEFAULT_THRESHOLD_PERCENT_V_HIGH: self.default_threshold_percent_v_high,
+                DEFAULT_THRESHOLD_PERCENT_THD_HIGH: self.default_threshold_percent_thd_high,
+                TRIGGERING_OVERRIDES: list(
+                    map(TriggeringOverride.as_dict, self.box_id_to_triggering_override.values()))
+            }
+        }
 
 
 class ThresholdOptimizationPlugin(plugins.base_plugin.MaukaPlugin):
@@ -73,18 +172,9 @@ class ThresholdOptimizationPlugin(plugins.base_plugin.MaukaPlugin):
         """
         if pb_util.is_threshold_optimization_request(mauka_message):
             self.debug("Recv threshold optimization request request %s" % str(mauka_message))
-            modify_thresholds(mauka_message.threshold_optimization_request, self.mongo_client)
         else:
             self.logger.error("Received incorrect type of MaukaMessage :%s", str(mauka_message))
 
 
 if __name__ == "__main__":
-    defaults = {}
-    threshold_optimization_request = pb_util.mauka_pb2.ThresholdOptimizationRequest()
-    threshold_optimization_request.default_ref_f = 60.0
-    maybe_update_default(defaults, threshold_optimization_request, "default_ref_f")
-    maybe_update_default(defaults, threshold_optimization_request, "default_ref_v")
-    print(defaults)
-    threshold_optimization_request.default_ref_v = 120.0
-    maybe_update_default(defaults, threshold_optimization_request, "default_ref_v")
-    print(defaults)
+    pass

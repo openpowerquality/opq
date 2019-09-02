@@ -138,12 +138,12 @@ message ThresholdOptimizationRequest {
     double default_threshold_percent_v_low = 5;
     double default_threshold_percent_v_high = 6;
     double default_threshold_percent_thd_high = 7;
-    string override_box_id = 8;
-    double override_ref_f = 9;
-    double override_ref_v = 10;
-    double override_threshold_percent_f_low = 11;
-    double override_threshold_percent_f_high = 12;
-    double override_threshold_percent_v_low = 13;
-    double override_threshold_percent_v_high = 14;
-    double override_threshold_percent_thd_high = 15;
+    string box_id = 8;
+    double ref_f = 9;
+    double ref_v = 10;
+    double threshold_percent_f_low = 11;
+    double threshold_percent_f_high = 12;
+    double threshold_percent_v_low = 13;
+    double threshold_percent_v_high = 14;
+    double threshold_percent_thd_high = 15;
 }
