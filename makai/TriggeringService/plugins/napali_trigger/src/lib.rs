@@ -138,6 +138,9 @@ impl MakaiPlugin for NapaliPlugin {
             }
         }
         self.state = new_state;
+        if self.settings.debug == true{
+            println!("{:?} : {:?}", self.state, vector);
+        }
         ret
     }
 
@@ -182,7 +185,8 @@ mod tests {
             thd_max: 5.0,
             trans_max: 7.0,
             grace_time_ms: 5000,
-            trigger_local: local
+            trigger_local: local,
+            debug : true
         };
         plg.on_plugin_load(serde_json::to_string(&settings).unwrap());
         plg

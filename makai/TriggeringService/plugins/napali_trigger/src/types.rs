@@ -17,7 +17,7 @@ pub struct MetricResult {
     pub derivative: f32,
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct MetricVector {
     pub status: MetricStatus,
     pub id: u32,
@@ -60,6 +60,8 @@ pub struct NapaliPluginSettings {
     pub grace_time_ms : u64,
     //trigger_local
     pub trigger_local : bool,
+    //debug
+    pub debug : bool,
 }
 
 #[derive(Debug)]

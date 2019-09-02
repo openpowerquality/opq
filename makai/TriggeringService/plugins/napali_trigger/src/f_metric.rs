@@ -45,7 +45,6 @@ impl BoxMetric for FMetric {
 
         let mean = self.boxes.get(&box_id).unwrap().mean;
         let std = self.boxes.get(&box_id).unwrap().std_dev();
-        println!("{:?}, {:?}", mean, std);
         if metric.max > self.limit.max || metric.min < self.limit.min {
             MetricResult {
                 status: MetricStatus::AboveThreshold,
