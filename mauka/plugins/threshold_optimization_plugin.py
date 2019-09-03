@@ -87,6 +87,18 @@ def _default_override(makai_config: 'MakaiConfig', box_id: str) -> TriggeringOve
     })
 
 
+def _override_has_modifications(threshold_optimization_request: pb_util.mauka_pb2.ThresholdOptimizationRequest) -> bool:
+    vals = {threshold_optimization_request.ref_f,
+            threshold_optimization_request.ref_v,
+            threshold_optimization_request.threshold_percent_f_low,
+            threshold_optimization_request.threshold_percent_f_high,
+            threshold_optimization_request.threshold_percent_v_low,
+            threshold_optimization_request.threshold_percent_v_high,
+            threshold_optimization_request.threshold_percent_thd_high}
+
+    return len(set(filter(lambda val: val > 0.0, vals))) > 0
+
+
 class MakaiConfig:
     def __init__(self, makai_config_dict: MakaiConfigType):
         self.id = makai_config_dict[ID]
@@ -122,10 +134,11 @@ class MakaiConfig:
     def __modify_override_thresholds(self,
                                      threshold_optimization_request: pb_util.mauka_pb2.ThresholdOptimizationRequest):
         # If an override doesn't already exist, we need to create one based off of defaults
-        box_id = threshold_optimization_request.box_id
-        if box_id not in self.box_id_to_triggering_override:
-            self.box_id_to_triggering_override[box_id] = _default_override(self, box_id)
-        self.box_id_to_triggering_override[box_id].modify_thresholds(threshold_optimization_request)
+        if _override_has_modifications(threshold_optimization_request):
+            box_id = threshold_optimization_request.box_id
+            if box_id not in self.box_id_to_triggering_override:
+                self.box_id_to_triggering_override[box_id] = _default_override(self, box_id)
+            self.box_id_to_triggering_override[box_id].modify_thresholds(threshold_optimization_request)
 
     def modify_thresholds(self, threshold_optimization_request: pb_util.mauka_pb2.ThresholdOptimizationRequest):
         self.__modify_default_thresholds(threshold_optimization_request)
