@@ -35,7 +35,7 @@ DEFAULT_THRESHOLD_PERCENT_THD_HIGH = "default_threshold_percent_thd_high"
 
 class TriggeringOverride:
     def __init__(self,
-                 trigger_override_dict: typing.Optional[TriggeringOverrideType]):
+                 trigger_override_dict: TriggeringOverrideType):
         self.box_id = trigger_override_dict[BOX_ID]
         self.ref_f = trigger_override_dict[REF_F]
         self.ref_v = trigger_override_dict[REF_V]
@@ -48,8 +48,9 @@ class TriggeringOverride:
     def __modify_threshold(self,
                            field_name: str,
                            threshold_optimization_request: pb_util.mauka_pb2.ThresholdOptimizationRequest):
-        if threshold_optimization_request.HasField(field_name):
-            setattr(self, field_name, getattr(threshold_optimization_request, field_name))
+        val = getattr(threshold_optimization_request, field_name)
+        if val > 0.0:
+            setattr(self, field_name, val)
 
     def modify_thresholds(self, threshold_optimization_request: pb_util.mauka_pb2.ThresholdOptimizationRequest):
         self.__modify_threshold(REF_F, threshold_optimization_request)
@@ -104,8 +105,9 @@ class MakaiConfig:
     def __modify_default_value(self,
                                field_name: str,
                                threshold_optimization_request: pb_util.mauka_pb2.ThresholdOptimizationRequest):
-        if threshold_optimization_request.HasField(field_name):
-            setattr(self, field_name, getattr(threshold_optimization_request, field_name))
+        val = getattr(threshold_optimization_request, field_name)
+        if val > 0.0:
+            setattr(self, field_name, val)
 
     def __modify_default_thresholds(self,
                                     threshold_optimization_request: pb_util.mauka_pb2.ThresholdOptimizationRequest):

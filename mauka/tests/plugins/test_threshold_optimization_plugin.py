@@ -69,4 +69,50 @@ class ThresholdOptimizationPluginTests(unittest.TestCase):
 
     def test_trigger_override_single(self):
         override = threshold_optimization_plugin._default_override(self.makai_config, "5000")
-        threshold_req = pb_util.build_threshold_optimization_request("test", ref_f=61)
+        threshold_req = pb_util.build_threshold_optimization_request("test", ref_f=61).threshold_optimization_request
+        override.modify_thresholds(threshold_req)
+        self.assertEqual(override.as_dict(),
+                         {
+                             "box_id": "5000",
+                             "ref_f": 61,
+                             "ref_v": 120,
+                             "threshold_percent_f_low": 0.5,
+                             "threshold_percent_f_high": 0.5,
+                             "threshold_percent_v_low": 2.5,
+                             "threshold_percent_v_high": 2.5,
+                             "threshold_percent_thd_high": 3
+                         })
+
+    def test_trigger_override_none(self):
+        override = threshold_optimization_plugin._default_override(self.makai_config, "5000")
+        threshold_req = pb_util.build_threshold_optimization_request("test").threshold_optimization_request
+        override.modify_thresholds(threshold_req)
+        self.assertEqual(override.as_dict(),
+                         {
+                             "box_id": "5000",
+                             "ref_f": 60,
+                             "ref_v": 120,
+                             "threshold_percent_f_low": 0.5,
+                             "threshold_percent_f_high": 0.5,
+                             "threshold_percent_v_low": 2.5,
+                             "threshold_percent_v_high": 2.5,
+                             "threshold_percent_thd_high": 3
+                         })
+
+    def test_trigger_override_multi(self):
+        override = threshold_optimization_plugin._default_override(self.makai_config, "5000")
+        threshold_req = pb_util.build_threshold_optimization_request("test",
+                                                                     ref_v=121,
+                                                                     threshold_percent_f_low=20.5).threshold_optimization_request
+        override.modify_thresholds(threshold_req)
+        self.assertEqual(override.as_dict(),
+                         {
+                             "box_id": "5000",
+                             "ref_f": 60,
+                             "ref_v": 121,
+                             "threshold_percent_f_low": 20.5,
+                             "threshold_percent_f_high": 0.5,
+                             "threshold_percent_v_low": 2.5,
+                             "threshold_percent_v_high": 2.5,
+                             "threshold_percent_thd_high": 3
+                         })
