@@ -239,7 +239,7 @@ class ThresholdOptimizationPlugin(plugins.base_plugin.MaukaPlugin):
 
         :param conf: Configuration dictionary
         """
-        super().__init__(conf, ["ThresholdOptimizationRequest"], TriggerPlugin.NAME, exit_event)
+        super().__init__(conf, ["ThresholdOptimizationRequest"], ThresholdOptimizationPlugin.NAME, exit_event)
 
     def modify_thresholds(self, threshold_optimization_request: pb_util.mauka_pb2.ThresholdOptimizationRequest):
         """
@@ -264,4 +264,3 @@ class ThresholdOptimizationPlugin(plugins.base_plugin.MaukaPlugin):
             self.modify_thresholds(mauka_message.threshold_optimization_request)
         else:
             self.logger.error("Received incorrect type of MaukaMessage :%s", str(mauka_message))
-
