@@ -67,13 +67,14 @@ impl CachedTtlProvider {
     }
 
     pub fn get_events_ttl(&mut self) -> u64 {
+        let ts = timestamp_s();
         match self.cache_get(&self.cached_events_ttl) {
-            Some(cached_value) => cached_value,
+            Some(cached_value) => ts + cached_value,
             None => {
                 let ttl = self.mongo_get_ttl(MONGO_LAHA_CONFIG_EVENTS_TTL);
-                let expire_at = timestamp_s() + self.cache_for_seconds;
-                self.cached_events_ttl = Some(CachedTtlValue::from(ttl, expire_at));
-                expire_at
+                self.cached_events_ttl =
+                    Some(CachedTtlValue::from(ttl, ts + self.cache_for_seconds));
+                ts + ttl
             }
         }
     }
