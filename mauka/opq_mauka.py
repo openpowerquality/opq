@@ -22,6 +22,7 @@ import plugins.thd_plugin
 import plugins.ieee1159_voltage_plugin
 import plugins.semi_f47_plugin
 import plugins.system_stats_plugin
+import plugins.threshold_optimization_plugin
 import plugins.trigger_plugin
 import services.brokers
 import services.plugin_manager
@@ -72,17 +73,18 @@ def main():
     bootstrap(conf)
 
     plugin_manager = services.plugin_manager.PluginManager(conf)
-    plugin_manager.register_plugin(plugins.makai_event_plugin.MakaiEventPlugin)
-    plugin_manager.register_plugin(plugins.status_plugin.StatusPlugin)
-    plugin_manager.register_plugin(plugins.thd_plugin.ThdPlugin)
-    plugin_manager.register_plugin(plugins.itic_plugin.IticPlugin)
     plugin_manager.register_plugin(plugins.frequency_variation_plugin.FrequencyVariationPlugin)
-    plugin_manager.register_plugin(plugins.transient_plugin.TransientPlugin)
     plugin_manager.register_plugin(plugins.ieee1159_voltage_plugin.Ieee1159VoltagePlugin)
-    plugin_manager.register_plugin(plugins.semi_f47_plugin.SemiF47Plugin)
-    plugin_manager.register_plugin(plugins.outage_plugin.OutagePlugin)
-    plugin_manager.register_plugin(plugins.system_stats_plugin.SystemStatsPlugin)
+    plugin_manager.register_plugin(plugins.itic_plugin.IticPlugin)
     plugin_manager.register_plugin(plugins.laha_gc_plugin.LahaGcPlugin)
+    plugin_manager.register_plugin(plugins.makai_event_plugin.MakaiEventPlugin)
+    plugin_manager.register_plugin(plugins.outage_plugin.OutagePlugin)
+    plugin_manager.register_plugin(plugins.semi_f47_plugin.SemiF47Plugin)
+    plugin_manager.register_plugin(plugins.status_plugin.StatusPlugin)
+    plugin_manager.register_plugin(plugins.system_stats_plugin.SystemStatsPlugin)
+    plugin_manager.register_plugin(plugins.thd_plugin.ThdPlugin)
+    plugin_manager.register_plugin(plugins.threshold_optimization_plugin.ThresholdOptimizationPlugin)
+    plugin_manager.register_plugin(plugins.transient_plugin.TransientPlugin)
     plugin_manager.register_plugin(plugins.trigger_plugin.TriggerPlugin)
 
     broker_process = None
