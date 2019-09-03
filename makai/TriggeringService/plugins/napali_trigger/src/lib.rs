@@ -139,7 +139,7 @@ impl MakaiPlugin for NapaliPlugin {
         }
         self.state = new_state;
         if self.settings.debug == true{
-            println!("{:?} : {:?}", self.state, vector);
+            println!("{:?} : {:?}, {:?}, {:?}, {:?}", self.state, f_res, rms_res, thd_res, trans_res);
         }
         ret
     }
