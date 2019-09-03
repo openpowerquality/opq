@@ -323,14 +323,14 @@ def build_threshold_optimization_request(source: str,
                                          default_threshold_percent_v_low: float = 0.0,
                                          default_threshold_percent_v_high: float = 0.0,
                                          default_threshold_percent_thd_high: float = 0.0,
-                                         override_box_id: str = "",
-                                         override_ref_f: float = 0.0,
-                                         override_ref_v: float = 0.0,
-                                         override_threshold_percent_f_low: float = 0.0,
-                                         override_threshold_percent_f_high: float = 0.0,
-                                         override_threshold_percent_v_low: float = 0.0,
-                                         override_threshold_percent_v_high: float = 0.0,
-                                         override_threshold_percent_thd_high: float = 0.0) -> mauka_pb2.MakaiTrigger:
+                                         box_id: str = "",
+                                         ref_f: float = 0.0,
+                                         ref_v: float = 0.0,
+                                         threshold_percent_f_low: float = 0.0,
+                                         threshold_percent_f_high: float = 0.0,
+                                         threshold_percent_v_low: float = 0.0,
+                                         threshold_percent_v_high: float = 0.0,
+                                         threshold_percent_thd_high: float = 0.0) -> mauka_pb2.MakaiTrigger:
     """
     Builds a type safe ThresholdOptimizationRequest
     :param source: The source of the request.
@@ -341,14 +341,14 @@ def build_threshold_optimization_request(source: str,
     :param default_threshold_percent_v_low: Default low voltage threshold.
     :param default_threshold_percent_v_high: Default high voltage threshold.
     :param default_threshold_percent_thd_high: Default high THD threshold.
-    :param override_box_id: box_id for thresholds to be overwritten for a box.
-    :param override_ref_f: Override reference frequency.
-    :param override_ref_v: Override reference voltage.
-    :param override_threshold_percent_f_low: Override low frequency threshold.
-    :param override_threshold_percent_f_high: Override high frequency threshold.
-    :param override_threshold_percent_v_low: Override low voltage threshold.
-    :param override_threshold_percent_v_high: Override high voltage threshold.
-    :param override_threshold_percent_thd_high: Override high THD threshold.
+    :param box_id: box_id for thresholds to be overwritten for a box.
+    :param ref_f: Override reference frequency.
+    :param ref_v: Override reference voltage.
+    :param threshold_percent_f_low: Override low frequency threshold.
+    :param threshold_percent_f_high: Override high frequency threshold.
+    :param threshold_percent_v_low: Override low voltage threshold.
+    :param threshold_percent_v_high: Override high voltage threshold.
+    :param threshold_percent_thd_high: Override high THD threshold.
     :return: An instance of a MaukaMessage.
     """
     mauka_message = build_mauka_message(source)
@@ -361,14 +361,14 @@ def build_threshold_optimization_request(source: str,
     mauka_message.threshold_optimization_request.default_threshold_percent_v_high = default_threshold_percent_v_high
     mauka_message.threshold_optimization_request.default_threshold_percent_thd_high = default_threshold_percent_thd_high
 
-    mauka_message.threshold_optimization_request.override_box_id = override_box_id
-    mauka_message.threshold_optimization_request.override_ref_f = override_ref_f
-    mauka_message.threshold_optimization_request.override_ref_v = override_ref_v
-    mauka_message.threshold_optimization_request.override_threshold_percent_f_low = override_threshold_percent_f_low
-    mauka_message.threshold_optimization_request.override_threshold_percent_f_high = override_threshold_percent_f_high
-    mauka_message.threshold_optimization_request.override_threshold_percent_v_low = override_threshold_percent_v_low
-    mauka_message.threshold_optimization_request.override_threshold_percent_v_high = override_threshold_percent_v_high
-    mauka_message.threshold_optimization_request.override_threshold_percent_thd_high = override_threshold_percent_thd_high
+    mauka_message.threshold_optimization_request.box_id = box_id
+    mauka_message.threshold_optimization_request.ref_f = ref_f
+    mauka_message.threshold_optimization_request.ref_v = ref_v
+    mauka_message.threshold_optimization_request.threshold_percent_f_low = threshold_percent_f_low
+    mauka_message.threshold_optimization_request.threshold_percent_f_high = threshold_percent_f_high
+    mauka_message.threshold_optimization_request.threshold_percent_v_low = threshold_percent_v_low
+    mauka_message.threshold_optimization_request.threshold_percent_v_high = threshold_percent_v_high
+    mauka_message.threshold_optimization_request.threshold_percent_thd_high = threshold_percent_thd_high
 
     return mauka_message
 

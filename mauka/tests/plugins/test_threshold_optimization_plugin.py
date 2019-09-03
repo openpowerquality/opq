@@ -69,4 +69,4 @@ class ThresholdOptimizationPluginTests(unittest.TestCase):
 
     def test_trigger_override_single(self):
         override = threshold_optimization_plugin._default_override(self.makai_config, "5000")
-        threshold_req = pb_util.build_threshold_optimization_request("test", ref)
+        threshold_req = pb_util.build_threshold_optimization_request("test", ref_f=61)
