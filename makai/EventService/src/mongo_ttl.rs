@@ -8,7 +8,7 @@ use mongodb::Client;
 use mongodb::ThreadedClient;
 
 #[inline]
-fn timestamp_s() -> u64 {
+pub fn timestamp_s() -> u64 {
     let now = SystemTime::now();
     let since_epoch = now.duration_since(UNIX_EPOCH).expect("Time is hard");
     return since_epoch.as_secs();
