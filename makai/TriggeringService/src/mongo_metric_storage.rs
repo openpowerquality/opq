@@ -19,7 +19,6 @@ use crate::proto::opqbox3::{Measurement, Metric};
 
 use crate::config::Settings;
 use crate::mongo_ttl::CachedTtlProvider;
-use crate::mongo_ttl::timestamp_s;
 use crate::mongodb::coll::options::WriteModel;
 
 struct MetricStatistics {
@@ -174,7 +173,7 @@ impl MongoMetricStorage {
         let mut doc = doc! {
             MONGO_BOX_ID_FIELD : msg.box_id.to_string(),
             MONGO_TIMESTAMP_FIELD : msg.timestamp_ms as u64,
-            MONGO_EXPIRE_FIELD : timestamp_s() + self.cached_ttl_provider.get_measurements_ttl()
+            MONGO_EXPIRE_FIELD : self.cached_ttl_provider.get_measurements_ttl()
         };
         for (proto_name, mongo_name) in MONGO_FIELD_REMAP.iter() {
             if let Some(metric) = msg.metrics.get(proto_name.clone()) {
@@ -210,7 +209,7 @@ impl MongoMetricStorage {
             if box_stat.last_insert + Duration::seconds(self.trend_time_sec as i64) < Utc::now() {
                 //Build the long term measurement header
                 let mut doc =
-                    box_stat.generate_document_and_reset(timestamp_s() + self.cached_ttl_provider.get_trends_ttl());
+                    box_stat.generate_document_and_reset(self.cached_ttl_provider.get_trends_ttl());
                 doc.insert(MONGO_BOX_ID_FIELD, msg.box_id.to_string());
                 doc.insert(MONGO_TIMESTAMP_FIELD, msg.timestamp_ms);
 

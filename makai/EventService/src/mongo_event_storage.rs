@@ -101,7 +101,7 @@ impl MongoStorageService {
                         MONGO_EVENTS_RECEIVED_FIELD: [header.box_id.to_string()],
                         MONGO_EVENTS_START_FIELD:  resp.start_ts,
                         MONGO_EVENTS_END_FIELD: resp.end_ts,
-                        MONGO_EVENTS_EXPIRE_AT : mongo_ttl::timestamp_s() + ttl.get_events_ttl(),
+                        MONGO_EVENTS_EXPIRE_AT : ttl.get_events_ttl(),
                     };
                     match event_db.insert_one(event, None) {
                         Ok(_) => {}
