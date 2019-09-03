@@ -3,17 +3,20 @@ This module provides methods for modifying thresholds dynamically.
 """
 
 import multiprocessing
-import plugins.base_plugin
-import protobuf.pb_util as pb_util
 import typing
-
-import config
 
 import bson
 
+import config
+import plugins.base_plugin
+import protobuf.pb_util as pb_util
+
 # Types used when discussing type unsafe data (essentially mongo docs as dicts)
+# pylint: disable=C0103
 TriggeringOverrideType = typing.Dict[str, typing.Union[str, float]]
+# pylint: disable=C0103
 TriggeringType = typing.Dict[str, typing.Union[float, typing.List[TriggeringOverrideType]]]
+# pylint: disable=C0103
 MakaiConfigType = typing.Dict[str, typing.Union[bson.ObjectId, TriggeringType]]
 
 # Constants used when converting data between type safe and type unsafe formats
@@ -144,7 +147,7 @@ class MakaiConfig:
         Initializes this object from non-type-safe data.
         :param makai_config_dict: Non-type-safe data.
         """
-        self.id = makai_config_dict[ID]
+        self.doc_id = makai_config_dict[ID]
         self.default_ref_f = makai_config_dict[TRIGGERING][DEFAULT_REF_F]
         self.default_ref_v = makai_config_dict[TRIGGERING][DEFAULT_REF_V]
         self.default_threshold_percent_f_low = makai_config_dict[TRIGGERING][DEFAULT_THRESHOLD_PERCENT_F_LOW]
@@ -210,7 +213,7 @@ class MakaiConfig:
         :return: This classes attributes as a dictionary for MongoDB consumption.
         """
         return {
-            ID: bson.ObjectId(self.id),
+            ID: bson.ObjectId(self.doc_id),
             TRIGGERING: {
                 DEFAULT_REF_F: self.default_ref_f,
                 DEFAULT_REF_V: self.default_ref_v,
