@@ -28,7 +28,8 @@
       "thd_max": 0.05,
       "trans_max": 7.0,
       "grace_time_ms": 5000,
-      "trigger_local": false
+      "trigger_local": false,
+      "debug" : true
     },
     {
       "path" : "/build/bin/libthreshold_trigger_plugin.so",
