@@ -11,12 +11,6 @@ pub enum MetricStatus {
     Empty = 0,
 }
 
-#[derive(Debug)]
-pub struct MetricResult {
-    pub status: MetricStatus,
-    pub derivative: f32,
-}
-
 #[derive(Clone, Debug)]
 pub struct MetricVector {
     pub status: MetricStatus,
@@ -71,7 +65,7 @@ pub struct ThresholdLimit {
 }
 
 pub trait BoxMetric {
-    fn new_metric(&mut self, measurement: Arc<Measurement>) -> MetricResult;
+    fn new_metric(&mut self, measurement: Arc<Measurement>) -> MetricStatus;
 }
 
 

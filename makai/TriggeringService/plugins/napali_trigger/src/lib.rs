@@ -69,10 +69,10 @@ impl MakaiPlugin for NapaliPlugin {
         let thd_res = self.thd.as_mut().unwrap().new_metric(msg.clone());
         let trans_res = self.trans.as_mut().unwrap().new_metric(msg.clone());
         let status = vec![
-            f_res.status,
-            rms_res.status,
-            thd_res.status,
-            trans_res.status,
+            f_res,
+            rms_res,
+            thd_res,
+            trans_res
         ]
             .iter()
             .max()
@@ -202,7 +202,6 @@ mod tests {
         me.min = 59.99 + rng.gen_range(-0.01, 0.01);
         me.max = 60.01 +rng.gen_range(-0.01, 0.01);
         me.average = 60.00 + rng.gen_range(-0.01, 0.01);
-        print!("{}, ", me.average);
         m.metrics.insert("f".to_string(), me);
         m
     }
