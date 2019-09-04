@@ -25,6 +25,7 @@ MAKAI_EVENT = "makai_event"
 MAKAI_TRIGGER = "makai_trigger"
 MEASUREMENT = "measurement"
 MESSAGE = "message"
+THRESHOLD_OPTIMIZATION_REQUEST = "threshold_optimization_request"
 
 # pylint: disable=C0103
 logger = log.get_logger(__name__)
@@ -314,6 +315,64 @@ def build_makai_trigger_commands(start_timestamp_ms,
     return list(map(_make_command, box_ids))
 
 
+def build_threshold_optimization_request(source: str,
+                                         default_ref_f: float = 0.0,
+                                         default_ref_v: float = 0.0,
+                                         default_threshold_percent_f_low: float = 0.0,
+                                         default_threshold_percent_f_high: float = 0.0,
+                                         default_threshold_percent_v_low: float = 0.0,
+                                         default_threshold_percent_v_high: float = 0.0,
+                                         default_threshold_percent_thd_high: float = 0.0,
+                                         box_id: str = "",
+                                         ref_f: float = 0.0,
+                                         ref_v: float = 0.0,
+                                         threshold_percent_f_low: float = 0.0,
+                                         threshold_percent_f_high: float = 0.0,
+                                         threshold_percent_v_low: float = 0.0,
+                                         threshold_percent_v_high: float = 0.0,
+                                         threshold_percent_thd_high: float = 0.0) -> mauka_pb2.MakaiTrigger:
+    """
+    Builds a type safe ThresholdOptimizationRequest
+    :param source: The source of the request.
+    :param default_ref_f: Default reference frequency.
+    :param default_ref_v: Default reference voltage.
+    :param default_threshold_percent_f_low: Default low frequency threshold.
+    :param default_threshold_percent_f_high: Default high frequency threshold.
+    :param default_threshold_percent_v_low: Default low voltage threshold.
+    :param default_threshold_percent_v_high: Default high voltage threshold.
+    :param default_threshold_percent_thd_high: Default high THD threshold.
+    :param box_id: box_id for thresholds to be overwritten for a box.
+    :param ref_f: Override reference frequency.
+    :param ref_v: Override reference voltage.
+    :param threshold_percent_f_low: Override low frequency threshold.
+    :param threshold_percent_f_high: Override high frequency threshold.
+    :param threshold_percent_v_low: Override low voltage threshold.
+    :param threshold_percent_v_high: Override high voltage threshold.
+    :param threshold_percent_thd_high: Override high THD threshold.
+    :return: An instance of a MaukaMessage.
+    """
+    mauka_message = build_mauka_message(source)
+
+    mauka_message.threshold_optimization_request.default_ref_f = default_ref_f
+    mauka_message.threshold_optimization_request.default_ref_v = default_ref_v
+    mauka_message.threshold_optimization_request.default_threshold_percent_f_low = default_threshold_percent_f_low
+    mauka_message.threshold_optimization_request.default_threshold_percent_f_high = default_threshold_percent_f_high
+    mauka_message.threshold_optimization_request.default_threshold_percent_v_low = default_threshold_percent_v_low
+    mauka_message.threshold_optimization_request.default_threshold_percent_v_high = default_threshold_percent_v_high
+    mauka_message.threshold_optimization_request.default_threshold_percent_thd_high = default_threshold_percent_thd_high
+
+    mauka_message.threshold_optimization_request.box_id = box_id
+    mauka_message.threshold_optimization_request.ref_f = ref_f
+    mauka_message.threshold_optimization_request.ref_v = ref_v
+    mauka_message.threshold_optimization_request.threshold_percent_f_low = threshold_percent_f_low
+    mauka_message.threshold_optimization_request.threshold_percent_f_high = threshold_percent_f_high
+    mauka_message.threshold_optimization_request.threshold_percent_v_low = threshold_percent_v_low
+    mauka_message.threshold_optimization_request.threshold_percent_v_high = threshold_percent_v_high
+    mauka_message.threshold_optimization_request.threshold_percent_thd_high = threshold_percent_thd_high
+
+    return mauka_message
+
+
 def serialize_message(message: typing.Union[mauka_pb2.MaukaMessage, opqbox3_pb2.Command]) -> bytes:
     """
     Serializes an instance of a protobuf into bytes.
@@ -476,6 +535,15 @@ def is_triggered_event(mauka_message: mauka_pb2.MaukaMessage) -> bool:
     :return: True if it is, False otherwise.
     """
     return which_message_oneof(mauka_message) == TRIGGERED_EVENT
+
+
+def is_threshold_optimization_request(mauka_message: mauka_pb2.MaukaMessage) -> bool:
+    """
+    Tests if this is a threshold optimization request.
+    :param mauka_message: The message to test.
+    :return: True if it is, False otherwise.
+    """
+    return which_message_oneof(mauka_message) == THRESHOLD_OPTIMIZATION_REQUEST
 
 
 def repeated_as_ndarray(repeated) -> numpy.ndarray:

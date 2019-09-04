@@ -79,6 +79,7 @@ class Collection(enum.Enum):
     FS_FILES = "fs.files"
     FS_CHUNKS = "fs.chunks"
     LAHA_CONFIG = "laha_config"
+    MAKAI_CONFIG = "makai_config"
 
 
 class OpqMongoClient:
@@ -131,6 +132,8 @@ class OpqMongoClient:
         self.laha_config_collection = self.get_collection(Collection.LAHA_CONFIG.value)
 
         self.fs_chunks_collection = self.get_collection(Collection.FS_CHUNKS.value)
+
+        self.makai_config_collection = self.get_collection(Collection.MAKAI_CONFIG.value)
 
     def get_collection(self, collection: str) -> pymongo.collection.Collection:
         """ Returns a mongo collection by name
