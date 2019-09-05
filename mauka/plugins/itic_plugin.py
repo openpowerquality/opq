@@ -239,7 +239,7 @@ class IticPlugin(plugins.base_plugin.MaukaPlugin):
             self.debug("Recv RmwWindowedVoltage")
             incident_ids = itic(mauka_message,
                                 self.segment_threshold,
-                                self.logger,
+                                self,
                                 self.mongo_client)
 
             for incident_id in incident_ids:

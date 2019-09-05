@@ -27,6 +27,14 @@ def timestamp_ms() -> int:
     return int(round(time.time() * 1000))
 
 
+def timestamp_s() -> int:
+    return int(round(time.time()))
+
+
+def timestamp_s_plus_s(seconds: int) -> int:
+    return timestamp_s() + seconds
+
+
 def to_s16bit(data: bytes) -> numpy.ndarray:
     """
     Converts raw bytes into an array of 16 bit integers.
@@ -427,7 +435,7 @@ def store_event(event_id: int,
         "boxes_received": [],
         "target_event_start_timestamp_ms": start_ts_ms,
         "target_event_end_timestamp_ms": end_ts_ms,
-        "expire_at": utc_datetime_plus_s(mongo_client.get_ttl("events"))
+        "expire_at": timestamp_s_plus_s(mongo_client.get_ttl("events"))
     }
 
     return mongo_client.events_collection.insert_one(event).inserted_id
@@ -512,7 +520,7 @@ def store_incident(event_id: int,
     incident_id = next_available_incident_id(mongo_client)
     location = get_location(box_id, mongo_client)
     ieee_duration = get_ieee_duration(end_timestamp_ms - start_timestamp_ms).value
-    expire_at = utc_datetime_plus_s(mongo_client.get_ttl("incidents"))
+    expire_at = timestamp_s_plus_s(mongo_client.get_ttl("incidents"))
 
     if copy_data:
         box_event = mongo_client.box_events_collection.find_one({"event_id": event_id,
