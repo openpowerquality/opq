@@ -132,10 +132,10 @@ def frequency_incident_classifier(event_id: int,
         maybe_debug(
             frequency_variation_plugin,
             "Found Frequency incident [{}] from event {} and box {}".format(
-            running_incident,
-            event_id,
-            box_id
-        ))
+                running_incident,
+                event_id,
+                box_id
+            ))
         incidents.append({"event_id": event_id, "box_id": box_id, "incident_start_ts": incident_start_ts,
                           "incident_end_ts": incident_end_ts,
                           "incident_type": mongo.IncidentMeasurementType.FREQUENCY,
