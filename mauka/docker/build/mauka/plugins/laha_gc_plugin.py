@@ -176,11 +176,11 @@ class LahaGcPlugin(base_plugin.MaukaPlugin):
         """
         self.debug("gc_update event")
         event = self.mongo_client.events_collection.find_one({"event_id": _id},
-                                                             projection={"_id": True,
-                                                                         "event_id": True,
-                                                                         "expire_at": True,
-                                                                         "target_event_start_timestamp_ms": True,
-                                                                         "target_event_end_timestamp_ms": True})
+                                                             prjection={"_id": True,
+                                                                        "event_id": True,
+                                                                        "expire_at": True,
+                                                                        "target_event_start_timestamp_ms": True,
+                                                                        "target_event_end_timestamp_ms": True})
 
         query = {"timestamp_ms": {"$gte": event["target_event_start_timestamp_ms"],
                                   "$lte": event["target_event_end_timestamp_ms"]}}
