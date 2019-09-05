@@ -176,11 +176,11 @@ class LahaGcPlugin(base_plugin.MaukaPlugin):
         """
         self.debug("gc_update event")
         event = self.mongo_client.events_collection.find_one({"event_id": _id},
-                                                             prjection={"_id": True,
-                                                                        "event_id": True,
-                                                                        "expire_at": True,
-                                                                        "target_event_start_timestamp_ms": True,
-                                                                        "target_event_end_timestamp_ms": True})
+                                                             projection={"_id": True,
+                                                                         "event_id": True,
+                                                                         "expire_at": True,
+                                                                         "target_event_start_timestamp_ms": True,
+                                                                         "target_event_end_timestamp_ms": True})
 
         query = {"timestamp_ms": {"$gte": event["target_event_start_timestamp_ms"],
                                   "$lte": event["target_event_end_timestamp_ms"]}}
@@ -237,7 +237,7 @@ class LahaGcPlugin(base_plugin.MaukaPlugin):
         :param topic: The topic of the message.
         :param mauka_message: The MaukaMessage received.
         """
-        self.debug("Received from %s %s" % (mauka_message.source, mauka_message))
+        # self.debug("Received from %s %s" % (mauka_message.source, mauka_message))
         if util_pb2.is_heartbeat_message(mauka_message) and mauka_message.source == self.NAME:
             self.debug("Received heartbeat, producing GC trigger message")
             # For now, GC is triggered on heartbeats
