@@ -17,6 +17,11 @@ import mongo
 
 def maybe_debug(frequency_variation_plugin: typing.Optional['FrequencyVariationPlugin'],
                 msg: str):
+    """
+    Only debug information if this plugin is registered for debugging.
+    :param frequency_variation_plugin: An instance of the FrequencyVariationPlugin.
+    :param msg: The debug message.
+    """
     if frequency_variation_plugin is not None:
         frequency_variation_plugin.debug(msg)
 

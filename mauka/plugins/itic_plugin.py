@@ -148,6 +148,11 @@ def itic_region(rms_voltage: float, duration_ms: float) -> IticRegion:
 
 def maybe_debug(itic_plugin: typing.Optional['IticPlugin'],
                 msg: str):
+    """
+    Only debug information if this plugin is registered for debugging.
+    :param itic_plugin: An instance of the IticPlugin.
+    :param msg: The debug message.
+    """
     if itic_plugin is not None:
         itic_plugin.debug(msg)
 

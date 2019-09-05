@@ -22,16 +22,25 @@ import constants
 def timestamp_ms() -> int:
     """
     Returns the current timestamp as ms since the epoch UTC.
-    :return:
+    :return: The current timestamp as ms since the epoch UTC.
     """
     return int(round(time.time() * 1000))
 
 
 def timestamp_s() -> int:
+    """
+    Returns the current timestamp as s since the epoch UTC.
+    :return: The current timestamp as s since the epoch UTC.
+    """
     return int(round(time.time()))
 
 
 def timestamp_s_plus_s(seconds: int) -> int:
+    """
+    Returns the current timestamp in s plus another amount of seconds.
+    :param seconds: Seconds to add to current timestamp.
+    :return: The current timestamp in s plus another amount of seconds. 
+    """
     return timestamp_s() + seconds
 
 
