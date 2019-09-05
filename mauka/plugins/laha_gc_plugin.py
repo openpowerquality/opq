@@ -88,7 +88,7 @@ class LahaGcPlugin(base_plugin.MaukaPlugin):
             self.mongo_client.delete_gridfs(box_event["data_fs_filename"])
             self.mongo_client.box_events_collection.delete_one({"_id": box_event["_id"]})
 
-        self.debug("Garbage collected %d box_events and corresponding gridfs data")
+        self.debug("Garbage collected %d box_events and corresponding gridfs data" % len(box_events))
 
         # Cleanup events
         delete_result = self.mongo_client.events_collection.delete_many({"expire_at": {"$lt": now}})
@@ -194,13 +194,17 @@ class LahaGcPlugin(base_plugin.MaukaPlugin):
                                                                          "event_id": True,
                                                                          "expire_at": True,
                                                                          "target_event_start_timestamp_ms": True,
-                                                                         "target_event_end_timestamp_ms": True})
+                                                                         "target_event_end_timestamp_ms": True,
+                                                                         "boxes_received": True})
 
         if event is None:
             self.logger.error("gc_update event event with event_id=%s is None", str(_id))
 
+        boxes_received = event["boxes_received"]
+
         query = {"timestamp_ms": {"$gte": event["target_event_start_timestamp_ms"],
-                                  "$lte": event["target_event_end_timestamp_ms"]}}
+                                  "$lte": event["target_event_end_timestamp_ms"]},
+                 "box_id": {"$in": boxes_received}}
 
         update = {"$set": {"expire_at": event["expire_at"]}}
 
@@ -267,12 +271,13 @@ class LahaGcPlugin(base_plugin.MaukaPlugin):
             ]))
         elif util_pb2.is_heartbeat_message(mauka_message) and mauka_message.source != self.NAME:
             # Ignore heartbeats from other plugins.
-            self.debug("Ignoring non gc heartbeat")
+            # self.debug("Ignoring non gc heartbeat")
+            pass
         elif util_pb2.is_gc_trigger(mauka_message):
             self.debug("Received GC trigger, calling trigger handler")
             self.handle_gc_trigger(mauka_message.laha.gc_trigger)
         elif util_pb2.is_gc_update(mauka_message):
-            self.debug("Received GC update, calling update handler")
+            self.debug("Received GC update, calling update handler. %s" % str(mauka_message.laha.gc_update))
             self.handle_gc_update(mauka_message.laha.gc_update)
         else:
             self.logger.error("Received incorrect type of MaukaMessage")
