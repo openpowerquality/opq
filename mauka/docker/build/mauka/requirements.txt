@@ -1,9 +1,0 @@
-lz4         # lz4 compression
-matplotlib  # Plotting and point-in-polygon algorithms
-numpy       # numpy
-pymongo     # mongo db
-protobuf    # protocol buffers
-scipy       # Scientific python
-zmq         # ZeroMQ
-pandas      # Data Wrangling in profilers
-psutil      # System stats, memory, disk, network, etc
