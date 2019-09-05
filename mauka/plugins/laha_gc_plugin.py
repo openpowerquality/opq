@@ -229,7 +229,7 @@ class LahaGcPlugin(base_plugin.MaukaPlugin):
         elif gc_update.from_domain == mauka_pb2.MEASUREMENTS:
             self.handle_gc_update_from_measurement(gc_update.id)
         else:
-            pass
+            self.debug("gc_update unknown domain: %s" % str(gc_update.from_domain))
 
     def on_message(self, topic: str, mauka_message: mauka_pb2.MaukaMessage):
         """
