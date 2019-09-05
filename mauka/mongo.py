@@ -39,7 +39,7 @@ def timestamp_s_plus_s(seconds: int) -> int:
     """
     Returns the current timestamp in s plus another amount of seconds.
     :param seconds: Seconds to add to current timestamp.
-    :return: The current timestamp in s plus another amount of seconds. 
+    :return: The current timestamp in s plus another amount of seconds.
     """
     return timestamp_s() + seconds
 
