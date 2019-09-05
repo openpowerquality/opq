@@ -146,8 +146,21 @@ def itic_region(rms_voltage: float, duration_ms: float) -> IticRegion:
     return IticRegion.NO_INTERRUPTION
 
 
-def itic(mauka_message: protobuf.mauka_pb2.MaukaMessage, segment_threshold: float, logger=None,
-         opq_mongo_client: mongo.OpqMongoClient = None) -> typing.List[int]:
+def maybe_debug(itic_plugin: typing.Optional['IticPlugin'],
+                msg: str):
+    """
+    Only debug information if this plugin is registered for debugging.
+    :param itic_plugin: An instance of the IticPlugin.
+    :param msg: The debug message.
+    """
+    if itic_plugin is not None:
+        itic_plugin.debug(msg)
+
+
+def itic(mauka_message: protobuf.mauka_pb2.MaukaMessage,
+         segment_threshold: float,
+         itic_plugin: typing.Optional['IticPlugin'] = None,
+         opq_mongo_client: typing.Optional[mongo.OpqMongoClient] = None) -> typing.List[int]:
     """
     Computes the ITIC region for a given waveform.
     :param mauka_message:
@@ -158,12 +171,11 @@ def itic(mauka_message: protobuf.mauka_pb2.MaukaMessage, segment_threshold: floa
     """
     mongo_client = mongo.get_default_client(opq_mongo_client)
     if len(mauka_message.payload.data) < 0.01:
-        return
+        maybe_debug(itic_plugin, "Bad payload data length: %d" % len(mauka_message.payload.data))
 
     segments = analysis.segment(mauka_message.payload.data, segment_threshold)
 
-    if logger is not None:
-        logger.debug("Calculating ITIC with {} segments.".format(len(segments)))
+    maybe_debug(itic_plugin, "Calculating ITIC with {} segments.".format(len(segments)))
 
     incident_ids = []
     for segment in segments:
@@ -196,11 +208,11 @@ def itic(mauka_message: protobuf.mauka_pb2.MaukaMessage, segment_threshold: floa
                 {},
                 mongo_client)
 
-            if logger is not None:
-                logger.debug("Found ITIC incident [{}] from event {} and box {}".format(
-                    itic_enum,
-                    mauka_message.event_id,
-                    mauka_message.box_id))
+            maybe_debug(itic_plugin,
+                        "Found ITIC incident [{}] from event {} and box {}".format(
+                            itic_enum,
+                            mauka_message.event_id,
+                            mauka_message.box_id))
 
             incident_ids.append(incident_id)
 
@@ -228,11 +240,11 @@ class IticPlugin(plugins.base_plugin.MaukaPlugin):
         :param topic: The topic that is producing the message
         :param mauka_message: The message that was produced
         """
-        self.debug("on_message")
         if protobuf.pb_util.is_payload(mauka_message, protobuf.mauka_pb2.VOLTAGE_RMS_WINDOWED):
+            self.debug("Recv RmwWindowedVoltage")
             incident_ids = itic(mauka_message,
                                 self.segment_threshold,
-                                self.logger,
+                                self,
                                 self.mongo_client)
 
             for incident_id in incident_ids:

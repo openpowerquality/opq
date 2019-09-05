@@ -3,6 +3,7 @@ This plugin detects, classifies, and stores frequency variation incidents.
 Frequency variations are classified as +/-0.10hz as specified by IEEE standards
 """
 import multiprocessing
+import typing
 
 import numpy
 
@@ -12,6 +13,17 @@ import plugins.base_plugin
 import protobuf.mauka_pb2
 import protobuf.pb_util
 import mongo
+
+
+def maybe_debug(frequency_variation_plugin: typing.Optional['FrequencyVariationPlugin'],
+                msg: str):
+    """
+    Only debug information if this plugin is registered for debugging.
+    :param frequency_variation_plugin: An instance of the FrequencyVariationPlugin.
+    :param msg: The debug message.
+    """
+    if frequency_variation_plugin is not None:
+        frequency_variation_plugin.debug(msg)
 
 
 def frequency_variation(frequency: float, freq_ref: float, freq_var_high: float,
@@ -38,10 +50,18 @@ def frequency_variation(frequency: float, freq_ref: float, freq_var_high: float,
     return variation_type, frequency - freq_ref
 
 
-def frequency_incident_classifier(event_id: int, box_id: str, windowed_frequencies: numpy.ndarray,
-                                  box_event_start_ts: int, freq_ref: float, freq_var_high: float, freq_var_low: float,
-                                  freq_interruption: float, window_size: int, max_lull: int,
-                                  opq_mongo_client: mongo.OpqMongoClient = None, logger=None):
+def frequency_incident_classifier(event_id: int,
+                                  box_id: str,
+                                  windowed_frequencies: numpy.ndarray,
+                                  box_event_start_ts: int,
+                                  freq_ref: float,
+                                  freq_var_high: float,
+                                  freq_var_low: float,
+                                  freq_interruption: float,
+                                  window_size: int,
+                                  max_lull: int,
+                                  opq_mongo_client: typing.Optional[mongo.OpqMongoClient] = None,
+                                  frequency_variation_plugin: typing.Optional['FrequencyVariationPlugin'] = None):
     """
     Classifies a frequency incident as a Sag, Swell, or Interruption. Creates a Mongo Incident document
     :param event_id: Makai Event ID
@@ -55,7 +75,7 @@ def frequency_incident_classifier(event_id: int, box_id: str, windowed_frequenci
     :param window_size: The number of samples per window
     :param max_lull:
     :param opq_mongo_client:
-    :param logger:
+    :param frequency_variation_plugin:
     """
 
     mongo_client = mongo.get_default_client(opq_mongo_client)
@@ -68,9 +88,8 @@ def frequency_incident_classifier(event_id: int, box_id: str, windowed_frequenci
     lull_incidents = []
     lull_count = 0
 
-    if logger is not None:
-        logger.debug("Calculating frequency with {} segments.".format(len(windowed_frequencies)))
-        logger.debug("window_duration_ms: {}".format(window_duration_ms))
+    maybe_debug(frequency_variation_plugin, "Calculating frequency with {} segments.".format(len(windowed_frequencies)))
+    maybe_debug(frequency_variation_plugin, "window_duration_ms: {}".format(window_duration_ms))
 
     for idx, freq in enumerate(windowed_frequencies):
         # check whether there is a frequency variation and if so what type
@@ -80,8 +99,10 @@ def frequency_incident_classifier(event_id: int, box_id: str, windowed_frequenci
             if lull_count == max_lull or running_incident is False:  # start of new incident and or end of incident
                 if running_incident:  # make and store incident doc if end of incident
                     incident_end_ts = (idx - max_lull) * window_duration_ms + box_event_start_ts
-                    if logger is not None:
-                        logger.debug("Found Frequency incident [{}] from event {} and box {}".format(
+
+                    maybe_debug(
+                        frequency_variation_plugin,
+                        "Found Frequency incident [{}] from event {} and box {}".format(
                             running_incident,
                             event_id,
                             box_id
@@ -113,8 +134,9 @@ def frequency_incident_classifier(event_id: int, box_id: str, windowed_frequenci
     # ensure if there is any frequency variation at the end of the event then it is still saved
     if running_incident:  # make and store incident doc
         incident_end_ts = len(windowed_frequencies - lull_count) * window_duration_ms + box_event_start_ts
-        if logger is not None:
-            logger.debug("Found Frequency incident [{}] from event {} and box {}".format(
+        maybe_debug(
+            frequency_variation_plugin,
+            "Found Frequency incident [{}] from event {} and box {}".format(
                 running_incident,
                 event_id,
                 box_id
@@ -161,13 +183,18 @@ class FrequencyVariationPlugin(plugins.base_plugin.MaukaPlugin):
                                                         mauka_message.payload.box_id,
                                                         len(mauka_message.payload.data)))
 
-            incidents = frequency_incident_classifier(mauka_message.payload.event_id, mauka_message.payload.box_id,
+            incidents = frequency_incident_classifier(mauka_message.payload.event_id,
+                                                      mauka_message.payload.box_id,
                                                       protobuf.pb_util.repeated_as_ndarray(mauka_message.payload.data),
                                                       mauka_message.payload.start_timestamp_ms,
-                                                      self.freq_ref, self.freq_var_high, self.freq_var_low,
+                                                      self.freq_ref,
+                                                      self.freq_var_high,
+                                                      self.freq_var_low,
                                                       self.freq_interruption,
                                                       self.frequency_window_cycles * constants.SAMPLES_PER_CYCLE,
-                                                      self.max_lull, logger=self.logger)
+                                                      self.max_lull,
+                                                      self.mongo_client,
+                                                      self)
 
             for incident in incidents:
                 incident_id = mongo.store_incident(
@@ -207,7 +234,8 @@ def rerun(mongo_client: mongo.OpqMongoClient, logger, mauka_message: protobuf.ma
                                                   60.0, 0.1, 0.1,
                                                   58.0,
                                                   1 * constants.SAMPLES_PER_CYCLE,
-                                                  3, logger=logger)
+                                                  3,
+                                                  None)
 
         for incident in incidents:
             mongo.store_incident(

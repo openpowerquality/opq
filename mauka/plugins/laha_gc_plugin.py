@@ -88,7 +88,7 @@ class LahaGcPlugin(base_plugin.MaukaPlugin):
             self.mongo_client.delete_gridfs(box_event["data_fs_filename"])
             self.mongo_client.box_events_collection.delete_one({"_id": box_event["_id"]})
 
-        self.debug("Garbage collected %d box_events and corresponding gridfs data")
+        self.debug("Garbage collected %d box_events and corresponding gridfs data" % len(box_events))
 
         # Cleanup events
         delete_result = self.mongo_client.events_collection.delete_many({"expire_at": {"$lt": now}})
@@ -162,11 +162,25 @@ class LahaGcPlugin(base_plugin.MaukaPlugin):
                                                                                "incident_id": True,
                                                                                "event_id": True,
                                                                                "expire_at": True})
+
+        if incident is None:
+            self.logger.error("gc_update incidents, incident with id=%s not found", str(_id))
+
         event = self.mongo_client.events_collection.find_one({"event_id": incident["event_id"]},
                                                              projection={"_id": True,
                                                                          "event_id": True})
-        self.mongo_client.events_collection.update_one({"event_id": event["event_id"]},
-                                                       {"$set": {"expire_at": incident["expire_at"]}})
+
+        if event is None:
+            self.logger.error("gc_update incidents, event with id=%s not found", str(incident["event_id"]))
+
+        update_result = self.mongo_client.events_collection.update_one({"event_id": event["event_id"]},
+                                                                       {"$set": {"expire_at": incident["expire_at"]}})
+
+        if update_result.modified_count != 1:
+            self.logger.error("gc_update incidents event expire_not set")
+
+        self.debug("gc_update incidents updated one event expire_at=%s" % str(incident["expire_at"]))
+
         self.handle_gc_update_from_event(event["event_id"])
 
     def handle_gc_update_from_event(self, _id: str):
@@ -180,22 +194,30 @@ class LahaGcPlugin(base_plugin.MaukaPlugin):
                                                                          "event_id": True,
                                                                          "expire_at": True,
                                                                          "target_event_start_timestamp_ms": True,
-                                                                         "target_event_end_timestamp_ms": True})
+                                                                         "target_event_end_timestamp_ms": True,
+                                                                         "boxes_received": True})
+
+        if event is None:
+            self.logger.error("gc_update event event with event_id=%s is None", str(_id))
+
+        boxes_received = event["boxes_received"]
 
         query = {"timestamp_ms": {"$gte": event["target_event_start_timestamp_ms"],
-                                  "$lte": event["target_event_end_timestamp_ms"]}}
+                                  "$lte": event["target_event_end_timestamp_ms"]},
+                 "box_id": {"$in": boxes_received}}
 
         update = {"$set": {"expire_at": event["expire_at"]}}
 
         # Update trends
         update_trends_result = self.mongo_client.trends_collection.update_many(query, update)
+        self.debug("Updated expire_at=%d %d trends" % (event["expire_at"],
+                                                       update_trends_result.modified_count))
 
         # Update measurements
         update_measurements_result = self.mongo_client.measurements_collection.update_many(query, update)
 
-        self.debug("Updated expire_at=%d for %d trends and %d measurements" % (event["expire_at"],
-                                                                               update_trends_result.modified_count,
-                                                                               update_measurements_result.modified_count))
+        self.debug("Updated expire_at=%d for %d measurements" % (event["expire_at"],
+                                                                 update_measurements_result.modified_count))
 
     def handle_gc_update_from_trend(self, _id: str):
         """
@@ -229,7 +251,7 @@ class LahaGcPlugin(base_plugin.MaukaPlugin):
         elif gc_update.from_domain == mauka_pb2.MEASUREMENTS:
             self.handle_gc_update_from_measurement(gc_update.id)
         else:
-            pass
+            self.debug("gc_update unknown domain: %s" % str(gc_update.from_domain))
 
     def on_message(self, topic: str, mauka_message: mauka_pb2.MaukaMessage):
         """
@@ -237,7 +259,6 @@ class LahaGcPlugin(base_plugin.MaukaPlugin):
         :param topic: The topic of the message.
         :param mauka_message: The MaukaMessage received.
         """
-        # self.debug("Received from %s %s" % (mauka_message.source, mauka_message))
         if util_pb2.is_heartbeat_message(mauka_message) and mauka_message.source == self.NAME:
             self.debug("Received heartbeat, producing GC trigger message")
             # For now, GC is triggered on heartbeats
@@ -250,12 +271,13 @@ class LahaGcPlugin(base_plugin.MaukaPlugin):
             ]))
         elif util_pb2.is_heartbeat_message(mauka_message) and mauka_message.source != self.NAME:
             # Ignore heartbeats from other plugins.
+            # self.debug("Ignoring non gc heartbeat")
             pass
         elif util_pb2.is_gc_trigger(mauka_message):
             self.debug("Received GC trigger, calling trigger handler")
             self.handle_gc_trigger(mauka_message.laha.gc_trigger)
         elif util_pb2.is_gc_update(mauka_message):
-            self.debug("Received GC update, calling update handler")
-            self.handle_gc_update(mauka_message.gc_update)
+            self.debug("Received GC update, calling update handler. %s" % str(mauka_message.laha.gc_update))
+            self.handle_gc_update(mauka_message.laha.gc_update)
         else:
             self.logger.error("Received incorrect type of MaukaMessage")
