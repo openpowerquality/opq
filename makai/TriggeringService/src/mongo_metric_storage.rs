@@ -115,8 +115,7 @@ impl MeasurementDecimator {
                 doc! {
                     MONGO_LONG_TERM_MEASUREMENTS_MIN_FIELD : statistic.min,
                     MONGO_LONG_TERM_MEASUREMENTS_MAX_FIELD : statistic.max,
-                    MONGO_LONG_TERM_MEASUREMENTS_FILTERED_FIELD : statistic.get_average(),
-                    MONGO_EXPIRE_FIELD : expire_at
+                    MONGO_LONG_TERM_MEASUREMENTS_FILTERED_FIELD : statistic.get_average()
                 },
             );
         }
@@ -212,6 +211,10 @@ impl MongoMetricStorage {
                     box_stat.generate_document_and_reset(self.cached_ttl_provider.get_trends_ttl());
                 doc.insert(MONGO_BOX_ID_FIELD, msg.box_id.to_string());
                 doc.insert(MONGO_TIMESTAMP_FIELD, msg.timestamp_ms);
+                doc.insert(
+                    MONGO_EXPIRE_FIELD,
+                    self.cached_ttl_provider.get_trends_ttl(),
+                );
 
                 //Query mongo for box location
                 let query = doc! {
