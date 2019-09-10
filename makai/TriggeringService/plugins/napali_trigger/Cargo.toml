@@ -10,6 +10,9 @@ serde_derive = "1.0"
 serde = "1.0"
 arraydeque = "0.4"
 nalgebra = "0.18"
+
+[dev-dependencies]
+itertools = "0.8.0"
 rand = "0.7"
 
 [lib]

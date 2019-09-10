@@ -34,13 +34,15 @@ impl BoxMetric for TransMetric {
         let alpha = self.alpha;
         self.boxes
             .entry(box_id)
-            .or_insert_with(|| MetricBuffer::new(alpha))
-            .add_measurement(metric.average, metric.min, metric.max);
+            .or_insert_with(|| MetricBuffer::new(alpha));
 
-        if metric.max.abs() > self.limit {
+
+        let ret = if metric.max.abs() > self.limit {
             AboveThreshold
         } else {
             self.boxes.get(&box_id).unwrap().is_outside_3std(metric.average, metric.max, None)
-        }
+        };
+        self.boxes.entry(box_id).or_insert_with(|| MetricBuffer::new(alpha)).add_measurement(metric.average, metric.min, metric.max);
+        ret
     }
 }

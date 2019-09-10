@@ -138,6 +138,7 @@ impl MakaiPlugin for NapaliPlugin {
             }
         }
         self.state = new_state;
+
         if self.settings.debug == true{
             println!("{:?} : {:?}, {:?}, {:?}, {:?}", self.state, f_res, rms_res, thd_res, trans_res);
         }
@@ -172,12 +173,17 @@ mod tests {
     use super::*;
     extern crate rand;
 
+    extern crate itertools;
     use tests::rand::Rng;
+    use self::itertools::izip;
+    use std::fs::File;
+    use std::io::{BufReader, BufRead};
+    use std::path::PathBuf;
 
     fn gen_napali(local : bool) -> NapaliPlugin{
         let mut plg = NapaliPlugin::new();
         let settings = NapaliPluginSettings{
-            alpha: 0.5,
+            alpha: 0.001,
             f_min: 59.9,
             f_max: 60.1,
             rms_min: 115.0,
@@ -186,7 +192,7 @@ mod tests {
             trans_max: 7.0,
             grace_time_ms: 5000,
             trigger_local: local,
-            debug : true
+            debug : false
         };
         plg.on_plugin_load(serde_json::to_string(&settings).unwrap());
         plg
@@ -220,8 +226,9 @@ mod tests {
         m
     }
 
-    #[test]
+   // #[test]
     fn test_single() {
+
         let mut napali = gen_napali(true);
         for i in 0..2000{
             napali.process_measurement(Arc::new(gen_good_f(1000*i, 1)));
@@ -238,6 +245,52 @@ mod tests {
             napali.process_measurement(Arc::new(gen_good_f(1000*i, 1)));
 
         }
+    }
+
+    fn split(s : &String) -> (f32,f32){
+        let mut split = s.trim().split(",").collect::<Vec<&str>>();
+        let t : f32 = split[0].parse().unwrap();
+        let v : f32 = split[1].parse().unwrap();
+        (t, v)
+    }
+
+    #[test]
+    fn test_from_device(){
+        let mut napali = gen_napali(true);
+        let mut d = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        d.push("test_data");
+        let mut f = BufReader::new(File::open("./test_data/f_filtered").unwrap());
+        let mut t = BufReader::new(File::open("./test_data/t_filtered").unwrap());
+        let mut v = BufReader::new(File::open("./test_data/v_filtered").unwrap());
+        let box_id = 666;
+        for (fs, ts, vs) in izip!(f.lines(), t.lines(), v.lines()){
+            let mut m = Measurement::new();
+            let (t, fv) = split(&fs.unwrap());
+            let (_, tv) = split(&ts.unwrap());
+            let (_, vv) = split(&vs.unwrap());
+            let mut rng = rand::thread_rng();
+            let mut m = Measurement::new();
+            m.timestamp_ms = (t*1000.0) as u64;
+            m.box_id = box_id;
+            let mut me  = triggering_service::proto::opqbox3::Metric::new();
+            me.min = fv - 0.01;
+            me.max = fv + 0.01;
+            me.average = fv;
+            m.metrics.insert("f".to_string(), me);
+
+            let mut me  = triggering_service::proto::opqbox3::Metric::new();
+            me.min = tv - 0.01;
+            me.max = tv + 0.01;
+            me.average = tv;
+            m.metrics.insert("thd".to_string(), me);
+            let mut me  = triggering_service::proto::opqbox3::Metric::new();
+            me.min = vv - 1.0;
+            me.max = vv + 1.0;
+            me.average = vv;
+            m.metrics.insert("rms".to_string(), me);
+            napali.process_measurement(Arc::new(m));
+        }
 
     }
+
 }

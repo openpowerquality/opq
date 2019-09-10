@@ -34,13 +34,14 @@ impl BoxMetric for THDMetric {
         self
             .boxes
             .entry(box_id)
-            .or_insert_with(|| MetricBuffer::new(alpha))
-            .add_measurement(metric.average, metric.min, metric.max);
+            .or_insert_with(|| MetricBuffer::new(alpha));
 
-        if metric.max > self.limit {
+        let ret = if metric.max > self.limit {
             AboveThreshold
         } else {
             self.boxes.get(&box_id).unwrap().is_outside_3std(metric.average, metric.max, None)
-        }
+        };
+        self.boxes.entry(box_id).or_insert_with(|| MetricBuffer::new(alpha)).add_measurement(metric.average, metric.min, metric.max);
+        ret
     }
 }

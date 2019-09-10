@@ -2,7 +2,7 @@ use arraydeque::{ArrayDeque, Wrapping};
 use crate::types::MetricStatus;
 
 #[derive(Debug)]
-struct MetricUnitaryBuffer {
+pub struct MetricUnitaryBuffer {
     pub history: ArrayDeque<[f64; 32], Wrapping>,
     pub last: f64,
     pub mean: f64,
@@ -43,7 +43,7 @@ impl MetricUnitaryBuffer {
 pub struct MetricBuffer{
     min : MetricUnitaryBuffer,
     max : MetricUnitaryBuffer,
-    mean : MetricUnitaryBuffer,
+    pub mean : MetricUnitaryBuffer,
 }
 
 impl MetricBuffer {

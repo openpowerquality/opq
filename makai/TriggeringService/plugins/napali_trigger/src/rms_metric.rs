@@ -39,10 +39,12 @@ impl BoxMetric for RmsMetric {
             .entry(box_id)
             .or_insert_with(|| MetricBuffer::new(alpha))
             .add_measurement(metric.average, metric.min, metric.max);
-        if metric.max > self.limit.max || metric.min < self.limit.min {
+        let ret = if metric.max > self.limit.max || metric.min < self.limit.min {
                 AboveThreshold
         } else {
             self.boxes.get(&box_id).unwrap().is_outside_3std(metric.average, metric.max, Some(metric.min))
-        }
+        };
+        self.boxes.entry(box_id).or_insert_with(|| MetricBuffer::new(alpha)).add_measurement(metric.average, metric.min, metric.max);
+        ret
     }
 }
