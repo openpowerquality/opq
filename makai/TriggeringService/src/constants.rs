@@ -9,7 +9,7 @@ lazy_static! {
         m.insert("rms", "voltage");
         m.insert("f", "frequency");
         m.insert("thd", "thd");
-        m.insert("tran", "transient");
+        m.insert("trans", "transient");
         m
     };
 }
