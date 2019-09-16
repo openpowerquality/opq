@@ -4,6 +4,7 @@ Utility methods for interacting with protobuf messages from Makai and/or Mauka.
 
 import time
 import typing
+import uuid
 
 import numpy
 
@@ -314,6 +315,33 @@ def build_makai_trigger_commands(start_timestamp_ms,
         return command
 
     return list(map(_make_command, box_ids))
+
+
+def build_makai_rate_change_commands(box_ids: typing.List[str],
+                                     measurement_window_cycles: int) -> typing.List[
+    typing.Tuple[opqbox3_pb2.Command, str]]:
+    cmds = []
+    uid = str(uuid.uuid4())
+    for (i, box_id) in enumerate(box_ids):
+        identity = "mauka_%s_%d" % (uid, i)
+        command = opqbox3_pb2.Command()
+        command.box_id = int(box_id)
+        command.timestamp_ms = get_timestamp_ms()
+        command.identity = identity
+        command.sampling_rate_command.measurement_window_cycles = measurement_window_cycles
+        cmds.append((command, identity))
+
+    return cmds
+
+
+def build_makai_get_info_cmd(box_id: str) -> typing.Tuple[opqbox3_pb2.Command, str]:
+    command = opqbox3_pb2.Command()
+    command.box_id = int(box_id)
+    command.timestamp_ms = get_timestamp_ms()
+    identity = "mauka_%s_info" % str(uuid.uuid4())
+    command.identity = identity
+    command.info_command.SetInParent()
+    return command, identity
 
 
 def build_threshold_optimization_request(source: str,
