@@ -323,7 +323,7 @@ def build_makai_rate_change_commands(box_ids: typing.List[str],
     cmds = []
     uid = str(uuid.uuid4())
     for (i, box_id) in enumerate(box_ids):
-        identity = "mauka_%s_%d" % (uid, i)
+        identity = "maukarate_%s_%d" % (uid, i)
         command = opqbox3_pb2.Command()
         command.box_id = int(box_id)
         command.timestamp_ms = get_timestamp_ms()
@@ -338,7 +338,7 @@ def build_makai_get_info_cmd(box_id: str) -> typing.Tuple[opqbox3_pb2.Command, s
     command = opqbox3_pb2.Command()
     command.box_id = int(box_id)
     command.timestamp_ms = get_timestamp_ms()
-    identity = "mauka_%s_info" % str(uuid.uuid4())
+    identity = "maukainfo_%s_info" % str(uuid.uuid4())
     command.identity = identity
     command.info_command.SetInParent()
     return command, identity
