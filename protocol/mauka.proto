@@ -147,3 +147,8 @@ message ThresholdOptimizationRequest {
     double threshold_percent_v_high = 14;
     double threshold_percent_thd_high = 15;
 }
+
+message BoxOptimizationRequest {
+    repeated string box_ids = 1;
+    uint32 measurement_window_cycles = 2;
+}

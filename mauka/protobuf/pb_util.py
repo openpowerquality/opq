@@ -26,6 +26,7 @@ MAKAI_TRIGGER = "makai_trigger"
 MEASUREMENT = "measurement"
 MESSAGE = "message"
 THRESHOLD_OPTIMIZATION_REQUEST = "threshold_optimization_request"
+BOX_OPTIMIZATION_REQUEST = "box_optimization_request"
 
 # pylint: disable=C0103
 logger = log.get_logger(__name__)
@@ -373,6 +374,15 @@ def build_threshold_optimization_request(source: str,
     return mauka_message
 
 
+def build_box_optimization_request(source: str,
+                                   box_ids: typing.List[str],
+                                   measurement_window_cycles: int) -> mauka_pb2.MaukaMessage:
+    mauka_message = build_mauka_message(source)
+    mauka_message.box_optimization_request.box_ids[:] = box_ids
+    mauka_message.box_optimization_request.measurement_window_cycles = measurement_window_cycles
+    return mauka_message
+
+
 def serialize_message(message: typing.Union[mauka_pb2.MaukaMessage, opqbox3_pb2.Command]) -> bytes:
     """
     Serializes an instance of a protobuf into bytes.
@@ -544,6 +554,10 @@ def is_threshold_optimization_request(mauka_message: mauka_pb2.MaukaMessage) -> 
     :return: True if it is, False otherwise.
     """
     return which_message_oneof(mauka_message) == THRESHOLD_OPTIMIZATION_REQUEST
+
+
+def is_box_optimization_request(mauka_message: mauka_pb2.MaukaMessage) -> bool:
+    return which_message_oneof(mauka_message) == BOX_OPTIMIZATION_REQUEST
 
 
 def repeated_as_ndarray(repeated) -> numpy.ndarray:
