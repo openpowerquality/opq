@@ -146,6 +146,7 @@ class MakaiOptimizationResultSubscriber(threading.Thread):
     """
 
     # noinspection PyUnresolvedReferences
+    # pylint: disable=E1101
     def __init__(self,
                  makai_recv_interface: str,
                  box_optimization_records: BoxOptimizationRecords,
