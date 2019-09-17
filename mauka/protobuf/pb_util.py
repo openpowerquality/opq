@@ -319,7 +319,7 @@ def build_makai_trigger_commands(start_timestamp_ms,
 
 def build_makai_rate_change_commands(box_ids: typing.List[str],
                                      measurement_window_cycles: int) -> typing.List[
-    typing.Tuple[opqbox3_pb2.Command, str]]:
+        typing.Tuple[opqbox3_pb2.Command, str]]:
     """
     Builds commands for OPQ Boxes to change the measurement rate.
     :param box_ids: The box ids to change the measurement rate for.
