@@ -286,14 +286,14 @@ def build_triggered_event(source: str,
     return mauka_message
 
 
-def format_makai_triggering_identity(event_token: str, uuid: str) -> str:
+def format_makai_triggering_identity(event_token: str, uid: str) -> str:
     """
     Format required for Makai's triggering service.
     :param event_token: The event token.
-    :param uuid: The UUID.
+    :param uid: The UUID.
     :return: Formatted triggering identity.
     """
-    return "mauka_%s_%s" % (event_token, uuid)
+    return "mauka_%s_%s" % (event_token, uid)
 
 
 def build_makai_trigger_commands(start_timestamp_ms,
@@ -324,7 +324,7 @@ def build_makai_trigger_commands(start_timestamp_ms,
 
 def build_makai_rate_change_commands(box_ids: typing.List[str],
                                      measurement_window_cycles: int) -> typing.List[
-        typing.Tuple[opqbox3_pb2.Command, str]]:
+                                         typing.Tuple[opqbox3_pb2.Command, str]]:
     """
     Builds commands for OPQ Boxes to change the measurement rate.
     :param box_ids: The box ids to change the measurement rate for.

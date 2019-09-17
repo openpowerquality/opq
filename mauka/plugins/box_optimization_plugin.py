@@ -268,36 +268,36 @@ class BoxOptimizationPlugin(plugins.base_plugin.MaukaPlugin):
             self.box_optimization_logger.error("Received incorrect type of MaukaMessage :%s" % str(mauka_message))
 
 
-if __name__ == "__main__":
-    import logging
-
-    logger = logging.getLogger()
-    logger.setLevel(logging.DEBUG)
-
-    logger.info("Starting test")
-
-    trigger_interface = "tcp://127.0.0.1:9884"
-    data_interface = "tcp://127.0.0.1:9899"
-
-    zmq_context = zmq.Context()
-
-    zmq_trigger_socket = zmq_context.socket(zmq.PUSH)
-    zmq_trigger_socket.connect(trigger_interface)
-
-    cmd_socket = zmq_context.socket(zmq.SUB)
-    cmd_socket.setsockopt(zmq.SUBSCRIBE, "maukainfo_".encode())
-    cmd_socket.connect(data_interface)
-
-    opt_logger = BoxOptimizationPluginLogger(logger)
-    box_optimization_records = BoxOptimizationRecords(opt_logger)
-    makai_data_subscriber = MakaiOptimizationResultSubscriber(data_interface,
-                                                              box_optimization_records,
-                                                              opt_logger)
-
-    makai_data_subscriber.start()
-
-    modify_measurement_window_cycles(zmq_trigger_socket,
-                                     ["1004", "1006"],
-                                     60,
-                                     box_optimization_records,
-                                     opt_logger)
+# if __name__ == "__main__":
+#     import logging
+#
+#     logger = logging.getLogger()
+#     logger.setLevel(logging.DEBUG)
+#
+#     logger.info("Starting test")
+#
+#     trigger_interface = "tcp://127.0.0.1:9884"
+#     data_interface = "tcp://127.0.0.1:9899"
+#
+#     zmq_context = zmq.Context()
+#
+#     zmq_trigger_socket = zmq_context.socket(zmq.PUSH)
+#     zmq_trigger_socket.connect(trigger_interface)
+#
+#     cmd_socket = zmq_context.socket(zmq.SUB)
+#     cmd_socket.setsockopt(zmq.SUBSCRIBE, "maukainfo_".encode())
+#     cmd_socket.connect(data_interface)
+#
+#     opt_logger = BoxOptimizationPluginLogger(logger)
+#     box_optimization_records = BoxOptimizationRecords(opt_logger)
+#     makai_data_subscriber = MakaiOptimizationResultSubscriber(data_interface,
+#                                                               box_optimization_records,
+#                                                               opt_logger)
+#
+#     makai_data_subscriber.start()
+#
+#     modify_measurement_window_cycles(zmq_trigger_socket,
+#                                      ["1004", "1006"],
+#                                      60,
+#                                      box_optimization_records,
+#                                      opt_logger)
