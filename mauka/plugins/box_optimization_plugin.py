@@ -177,10 +177,12 @@ class MakaiOptimizationResultSubscriber(threading.Thread):
             self.logger.debug("Recv optimization resp.")
             data = self.zmq_socket.recv_multipart()
             identity = data[0].decode()
-            response = pb_util.opqbox3_pb2.Response()
-            response.ParseFromString(data[1])
-            self.logger.debug("Recv optimization response %s" % str(response))
-            self.box_optimization_records.check_record(identity)
+            response = pb_util.deserialize_makai_response(data[1])
+            if pb_util.is_makai_info_response(response):
+                self.logger.debug("Recv optimization response %s" % str(response))
+                self.box_optimization_records.check_record(identity)
+            else:
+                self.logger.error("Recv incorrect resp type")
 
 
 def modify_measurement_window_cycles(makai_send_socket: zmq.Socket,

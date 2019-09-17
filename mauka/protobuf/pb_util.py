@@ -28,6 +28,8 @@ MEASUREMENT = "measurement"
 MESSAGE = "message"
 THRESHOLD_OPTIMIZATION_REQUEST = "threshold_optimization_request"
 BOX_OPTIMIZATION_REQUEST = "box_optimization_request"
+MAKAI_RESPONSE = "response"
+MAKAI_INFO_RESPONSE = "info_response"
 
 # pylint: disable=C0103
 logger = log.get_logger(__name__)
@@ -319,7 +321,7 @@ def build_makai_trigger_commands(start_timestamp_ms,
 
 def build_makai_rate_change_commands(box_ids: typing.List[str],
                                      measurement_window_cycles: int) -> typing.List[
-        typing.Tuple[opqbox3_pb2.Command, str]]:
+    typing.Tuple[opqbox3_pb2.Command, str]]:
     """
     Builds commands for OPQ Boxes to change the measurement rate.
     :param box_ids: The box ids to change the measurement rate for.
@@ -480,6 +482,10 @@ def which_message_oneof(mauka_message: mauka_pb2.MaukaMessage) -> str:
     return mauka_message.WhichOneof(MESSAGE)
 
 
+def which_response_oneof(response: opqbox3_pb2.Response) -> str:
+    return response.WhichOneof(MAKAI_RESPONSE)
+
+
 def is_payload(mauka_message: mauka_pb2.MaukaMessage, payload_type: mauka_pb2.PayloadType = None) -> bool:
     """
     Determine if message type is payload and optionally checks payload type if provided.
@@ -609,6 +615,10 @@ def is_box_optimization_request(mauka_message: mauka_pb2.MaukaMessage) -> bool:
     :return: True if it is, False otherwise.
     """
     return which_message_oneof(mauka_message) == BOX_OPTIMIZATION_REQUEST
+
+
+def is_makai_info_response(makai_response: opqbox3_pb2.Response) -> bool:
+    return which_response_oneof(makai_response) == MAKAI_INFO_RESPONSE
 
 
 def repeated_as_ndarray(repeated) -> numpy.ndarray:
