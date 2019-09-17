@@ -11,6 +11,7 @@ import config
 import constants
 import log
 import mongo
+import plugins.box_optimization_plugin
 import plugins.frequency_variation_plugin
 import plugins.laha_gc_plugin
 import plugins.transient_plugin
@@ -73,6 +74,7 @@ def main():
     bootstrap(conf)
 
     plugin_manager = services.plugin_manager.PluginManager(conf)
+    plugin_manager.register_plugin(plugins.box_optimization_plugin.BoxOptimizationPlugin)
     plugin_manager.register_plugin(plugins.frequency_variation_plugin.FrequencyVariationPlugin)
     plugin_manager.register_plugin(plugins.ieee1159_voltage_plugin.Ieee1159VoltagePlugin)
     plugin_manager.register_plugin(plugins.itic_plugin.IticPlugin)
