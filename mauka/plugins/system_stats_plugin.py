@@ -30,7 +30,8 @@ def timestamp() -> int:
 
 
 def box_triggering_thresholds(box_ids: typing.Set[str],
-                              opq_mongo_client: typing.Optional[mongo.OpqMongoClient] = None) -> typing.List[typing.Dict[str, float]]:
+                              opq_mongo_client: typing.Optional[mongo.OpqMongoClient] = None) -> typing.List[
+    typing.Dict[str, float]]:
     mongo_client = mongo.get_default_client(opq_mongo_client)
     triggering_thresholds: TriggeringType = mongo_client.makai_config_collection.find_one()["triggering"]
     triggering_overrides: typing.Dict[str, TriggeringOverrideType] = {}
@@ -209,10 +210,10 @@ class SystemStatsPlugin(plugins.base_plugin.MaukaPlugin):
 
     def active_devices(self) -> typing.Set[str]:
         measurements_last_minute = self.mongo_client.measurements_collection.find(
-                {"timestamp_ms": {"$gt": (timestamp() - 5) * 1000}},
-                projection={"_id": False,
-                            "timestamp_ms": True,
-                            "box_id": True})
+            {"timestamp_ms": {"$gt": (timestamp() - 5) * 1000}},
+            projection={"_id": False,
+                        "timestamp_ms": True,
+                        "box_id": True})
         return set(map(lambda measurement: measurement["box_id"], measurements_last_minute))
 
     def num_active_devices(self) -> int:
@@ -254,17 +255,9 @@ class SystemStatsPlugin(plugins.base_plugin.MaukaPlugin):
         else:
             self.logger.warning("Unknown domain %s", gc_domain)
 
-    def handle_box_measurement_rates_message(self, mauka_message: protobuf.mauka_pb2.MaukaMessage):
-        self.box_measurement_rates.clear()
-        box_measurement_rates = mauka_message.box_measurement_rates
-        box_ids_len = len(box_measurement_rates.box_ids)
-        if box_ids_len > 0 and box_ids_len == len(box_measurement_rates.measurement_rates):
-            for i in range(box_ids_len):
-                box_id = box_measurement_rates.box_ids[i]
-                measurement_rate = box_measurement_rates.measurement_rates[i]
-                self.box_measurement_rates
-        else:
-            self.logger.warn("Error: Contents of box_measurement_rates message does not have equal len or is size 0")
+    def handle_box_measurement_rate_response(self, mauka_message: protobuf.mauka_pb2.MaukaMessage):
+        box_measurement_rate_request = mauka_message.box_measurement_rate_request
+        self.box_measurement_rates[box_measurement_rate_request.box_id] = box_measurement_rate_request.measurement_rate
 
     def update_system_stats(self, interval_s: int):
         """
@@ -372,7 +365,8 @@ class SystemStatsPlugin(plugins.base_plugin.MaukaPlugin):
                 },
                 "active_devices": len(self.mongo_client.get_active_box_ids()),
                 "box_triggering_thresholds": box_triggering_thresholds(self.active_devices(), self.mongo_client),
-                "box_measurement_rates": [{box_id: measurement_rate} for box_id, measurement_rate in self.box_measurement_rates.items()]
+                "box_measurement_rates": [{box_id: measurement_rate} for box_id, measurement_rate in
+                                          self.box_measurement_rates.items()]
             },
             "other_stats": {
                 "ground_truth": {
@@ -402,11 +396,10 @@ class SystemStatsPlugin(plugins.base_plugin.MaukaPlugin):
             self.handle_gc_stat_message(mauka_message)
         elif protobuf.pb_util.is_box_measurement_rate_request(mauka_message):
             self.debug("Received box_measurement_rates message")
-            pass
+            self.handle_box_measurement_rate_response(mauka_message)
         else:
             self.logger.error("Received incorrect mauka message [%s] at %s",
                               protobuf.pb_util.which_message_oneof(mauka_message), SystemStatsPlugin.NAME)
-
 
 # if __name__ == "__main__":
 #     print(box_triggering_thresholds({"1003", "1004", "1005"}))

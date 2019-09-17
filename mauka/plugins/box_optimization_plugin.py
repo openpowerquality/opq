@@ -15,7 +15,7 @@ import plugins.base_plugin
 import protobuf.pb_util as pb_util
 
 PLUGIN_NAME = "BoxOptimizationPlugin"
-SUBSCRIBED_TOPICS = ["BoxOptimizationRequest"]
+SUBSCRIBED_TOPICS = ["BoxOptimizationRequest", "BoxInfoRequest"]
 
 
 def timestamp_ms() -> int:
@@ -265,6 +265,8 @@ class BoxOptimizationPlugin(plugins.base_plugin.MaukaPlugin):
                                              box_optimization_request.measurement_window_cycles,
                                              self.box_optimization_records,
                                              self.logger)
+        if pb_util.is_box_measurement_rate_request(mauka_message):
+            pass
         else:
             self.box_optimization_logger.error("Received incorrect type of MaukaMessage :%s" % str(mauka_message))
 
