@@ -30,6 +30,9 @@ THRESHOLD_OPTIMIZATION_REQUEST = "threshold_optimization_request"
 BOX_OPTIMIZATION_REQUEST = "box_optimization_request"
 MAKAI_RESPONSE = "response"
 MAKAI_INFO_RESPONSE = "info_response"
+MAKAI_MESSAGE_RATE_RESPONSE = "message_rate_reponse"
+MAKAI_DATA_RESPONSE = "get_data_response"
+MAKAI_COMMAND_TO_PLUGIN_RESPONSE = "command_to_plugin_response"
 
 # pylint: disable=C0103
 logger = log.get_logger(__name__)
@@ -342,7 +345,7 @@ def build_makai_rate_change_commands(box_ids: typing.List[str],
     return cmds
 
 
-def build_makai_get_info_cmd(box_id: str) -> typing.Tuple[opqbox3_pb2.Command, str]:
+def build_makai_get_info_command(box_id: str) -> typing.Tuple[opqbox3_pb2.Command, str]:
     """
     Builds a command for Makai for getting info from Boxes.
     :param box_id: The Box id to get info for.
@@ -351,7 +354,7 @@ def build_makai_get_info_cmd(box_id: str) -> typing.Tuple[opqbox3_pb2.Command, s
     command = opqbox3_pb2.Command()
     command.box_id = int(box_id)
     command.timestamp_ms = get_timestamp_ms()
-    identity = "maukainfo_%s_info" % str(uuid.uuid4())
+    identity = "maukainfo_%s_0" % str(uuid.uuid4())
     command.identity = identity
     command.info_command.SetInParent()
     return command, identity
@@ -483,6 +486,11 @@ def which_message_oneof(mauka_message: mauka_pb2.MaukaMessage) -> str:
 
 
 def which_response_oneof(response: opqbox3_pb2.Response) -> str:
+    """
+    Returns the field type of the response field in Makai responses.
+    :param response: A deserialized response.
+    :return: The response type.
+    """
     return response.WhichOneof(MAKAI_RESPONSE)
 
 
@@ -618,7 +626,39 @@ def is_box_optimization_request(mauka_message: mauka_pb2.MaukaMessage) -> bool:
 
 
 def is_makai_info_response(makai_response: opqbox3_pb2.Response) -> bool:
+    """
+    Tests if this makai info response.
+    :param makai_response: The message to test.
+    :return: True if it is, False otherwise.
+    """
     return which_response_oneof(makai_response) == MAKAI_INFO_RESPONSE
+
+
+def is_makai_data_response(makai_response: opqbox3_pb2.Response) -> bool:
+    """
+    Tests if this makai data response.
+    :param makai_response: The message to test.
+    :return: True if it is, False otherwise.
+    """
+    return which_response_oneof(makai_response) == MAKAI_DATA_RESPONSE
+
+
+def is_makai_message_rate_response(makai_response: opqbox3_pb2.Response) -> bool:
+    """
+    Tests if this makai message rate response.
+    :param makai_response: The message to test.
+    :return: True if it is, False otherwise.
+    """
+    return which_response_oneof(makai_response) == MAKAI_MESSAGE_RATE_RESPONSE
+
+
+def is_makai_command_to_plugin_response(makai_response: opqbox3_pb2.Response) -> bool:
+    """
+    Tests if this makai command to plugin response.
+    :param makai_response: The message to test.
+    :return: True if it is, False otherwise.
+    """
+    return which_response_oneof(makai_response) == MAKAI_COMMAND_TO_PLUGIN_RESPONSE
 
 
 def repeated_as_ndarray(repeated) -> numpy.ndarray:

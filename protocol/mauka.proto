@@ -14,6 +14,7 @@ message MaukaMessage {
                     TriggerRequest trigger_request = 9;
                     TriggeredEvent triggered_event = 10;
                     ThresholdOptimizationRequest threshold_optimization_request = 11;
+                    BoxOptimizationRequest box_optimization_request = 12;
     }
 }
 
