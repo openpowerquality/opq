@@ -129,7 +129,11 @@ class SystemStatsPlugin(plugins.base_plugin.MaukaPlugin):
         :param conf: Configuration dictionary
         :param exit_event: Exit event
         """
-        super().__init__(conf, ["heartbeat", "gc_stat"], SystemStatsPlugin.NAME, exit_event)
+        super().__init__(conf,
+                         [self.routes.heartbeat,
+                          self.routes.gc_stat,
+                          self.routes.box_measurement_rate_response],
+                         SystemStatsPlugin.NAME, exit_event)
         self.interval_s = conf.get("plugins.SystemStatsPlugin.intervalS")
         self.system_stats_interval_s = conf.get("plugins.SystemStatsPlugin.systemStatsIntervalS")
         self.plugin_stats: typing.Dict[str, typing.Dict[str, int]] = {}
@@ -210,10 +214,10 @@ class SystemStatsPlugin(plugins.base_plugin.MaukaPlugin):
 
     def active_devices(self) -> typing.Set[str]:
         measurements_last_minute = self.mongo_client.measurements_collection.find(
-            {"timestamp_ms": {"$gt": (timestamp() - 5) * 1000}},
-            projection={"_id": False,
-                        "timestamp_ms": True,
-                        "box_id": True})
+                {"timestamp_ms": {"$gt": (timestamp() - 5) * 1000}},
+                projection={"_id": False,
+                            "timestamp_ms": True,
+                            "box_id": True})
         return set(map(lambda measurement: measurement["box_id"], measurements_last_minute))
 
     def num_active_devices(self) -> int:
@@ -256,8 +260,8 @@ class SystemStatsPlugin(plugins.base_plugin.MaukaPlugin):
             self.logger.warning("Unknown domain %s", gc_domain)
 
     def handle_box_measurement_rate_response(self, mauka_message: protobuf.mauka_pb2.MaukaMessage):
-        box_measurement_rate_request = mauka_message.box_measurement_rate_request
-        self.box_measurement_rates[box_measurement_rate_request.box_id] = box_measurement_rate_request.measurement_rate
+        box_measurement_rate_response = mauka_message.box_measurement_rate_response
+        self.box_measurement_rates[box_measurement_rate_response.box_id] = box_measurement_rate_response.measurement_rate
 
     def update_system_stats(self, interval_s: int):
         """
@@ -394,7 +398,7 @@ class SystemStatsPlugin(plugins.base_plugin.MaukaPlugin):
         elif protobuf.pb_util.is_gc_stat(mauka_message):
             self.debug("Received gc_stat message")
             self.handle_gc_stat_message(mauka_message)
-        elif protobuf.pb_util.is_box_measurement_rate_request(mauka_message):
+        elif protobuf.pb_util.is_box_measurement_rate_response(mauka_message):
             self.debug("Received box_measurement_rates message")
             self.handle_box_measurement_rate_response(mauka_message)
         else:

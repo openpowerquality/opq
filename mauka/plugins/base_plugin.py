@@ -17,6 +17,7 @@ import zmq
 import config
 import log
 import mongo
+import plugins.routes as routes
 import protobuf.mauka_pb2
 import protobuf.pb_util
 
@@ -159,6 +160,8 @@ class MaukaPlugin:
         self.bytes_published: int = 0
 
         self.plugin_state: str = PluginState.IDLE.name
+
+        self.routes = routes.Routes()
 
     def update_received(self, bytes_received: int):
         """

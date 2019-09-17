@@ -13,9 +13,10 @@ import zmq
 import config
 import plugins.base_plugin
 import protobuf.pb_util as pb_util
+import plugins.routes as routes
 
 PLUGIN_NAME = "BoxOptimizationPlugin"
-SUBSCRIBED_TOPICS = ["BoxOptimizationRequest", "BoxInfoRequest"]
+SUBSCRIBED_TOPICS = ["BoxOptimizationRequest", "BoxInfoRequest", routes.Routes().box_measurement_rate_request]
 
 
 def timestamp_ms() -> int:
