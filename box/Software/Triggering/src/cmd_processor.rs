@@ -67,6 +67,11 @@ fn process_info_command(state: &Arc<State>) -> Response {
     info.set_calibration_constant(0);
     info.set_pub_key(state.settings.box_public_key.clone().unwrap());
     info.set_uptime(uptime_lib::get().unwrap().num_seconds() as u64);
+    info.set_measurement_rate(
+        state
+            .get_state(&WINDOWS_PER_MEASUREMENT.to_string())
+            .unwrap() as u32,
+    );
 
     let mut resp = Response::new();
     resp.set_info_response(info);
