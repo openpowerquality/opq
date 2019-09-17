@@ -18,7 +18,7 @@ class MetricsInspector extends React.Component {
 
         const endDate = new Date();
         const startDate = new Date();
-        startDate.setDate(startDate.getDate() - 1); // One day before the end date
+        startDate.setHours(endDate.getHours() - 0.5); // One day before the end date
 
         this.state = {
             isLoading: false,
@@ -408,6 +408,17 @@ class MetricsInspector extends React.Component {
                                     } }
                                     height={ '200px' }
                                 />
+                                <MetricTimeseriesViewer
+                                    plotTitle={'Box Triggering Thresholds'}
+                                    xAxisTitle={'UTC'}
+                                    yAxisTitle={'Thresholds'}
+                                    data={this.parseThresholdTriggeringMetrics(metrics)}
+                                    dygraphCreatedCallback={handleCallback}
+                                    customDygraphOptions={ {
+                                        labels: this.parseThresholdTriggeringLabels(metrics),
+                                    } }
+                                    height={ '200px' }
+                                />
                             </Grid.Column>
                             }
                         </Grid>
@@ -436,6 +447,78 @@ class MetricsInspector extends React.Component {
                },
                );
         });
+    }
+
+    boxSet(metrics) {
+        let boxes = new Set();
+        for(let i = 0; i < metrics.length; i++) {
+            const box_metrics = metrics[i].laha_stats.box_triggering_thresholds;
+            for (let j = 0; j < box_metrics.length; j++) {
+                boxes.add(box_metrics[j].box_id)
+            }
+        }
+        return boxes
+    }
+
+    parseThresholdTriggeringMetrics(metrics) {
+        function intoSingleSeries(metric, boxes) {
+            let series = [];
+            const box_metrics = metric.laha_stats.box_triggering_thresholds;
+            const boxes_array = Array.from(boxes);
+            series.push(metric.timestamp_s);
+            for (let i = 0; i < boxes_array.length; i++) {
+                const box = boxes_array[i];
+                let found = false;
+                for(let j = 0; j < box_metrics.length; j++) {
+                    const box_metric = box_metrics[j];
+                    if (box_metric.box_id === box) {
+                        found = true;
+                        series.push(box_metric.ref_f);
+                        series.push(box_metric.ref_v);
+                        series.push(box_metric.threshold_percent_f_low);
+                        series.push(box_metric.threshold_percent_f_high);
+                        series.push(box_metric.threshold_percent_v_low);
+                        series.push(box_metric.threshold_percent_v_high);
+                        series.push(box_metric.threshold_percent_thd_high);
+                    }
+                }
+                if(!found) {
+                    series.push(null);
+                    series.push(null);
+                    series.push(null);
+                    series.push(null);
+                    series.push(null);
+                    series.push(null);
+                    series.push(null);
+                }
+            }
+            return series;
+        }
+
+        function intoSeries(data, boxes) {
+            return data.map(function(metric) {
+                return intoSingleSeries(metric, boxes);
+            });
+        }
+
+        let boxes = this.boxSet(metrics);
+        return intoSeries(metrics, boxes);
+    }
+
+    parseThresholdTriggeringLabels(metrics) {
+        let boxes = this.boxSet(metrics);
+        let graph_labels = [];
+        graph_labels.push("timestamp");
+        for(const box of boxes) {
+            graph_labels.push(box + " " + "rF");
+            graph_labels.push(box + " " + "rV");
+            graph_labels.push(box + " " + "%Fl");
+            graph_labels.push(box + " " + "%Fh");
+            graph_labels.push(box + " " + "%Vl");
+            graph_labels.push(box + " " + "%Vh");
+            graph_labels.push(box + " " + "%THDh");
+        }
+        return graph_labels;
     }
 
     parseActiveOpqBoxes(metrics) {

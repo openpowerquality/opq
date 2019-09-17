@@ -8,6 +8,17 @@ const PluginStatsSchemaInner = new SimpleSchema({
     bytes_published: Number,
 });
 
+const BoxTriggeringThresholdSchema = new SimpleSchema({
+    box_id: String,
+    ref_f: Number,
+    ref_v: Number,
+    threshold_percent_f_low: Number,
+    threshold_percent_f_high: Number,
+    threshold_percent_v_low: Number,
+    threshold_percent_v_high: Number,
+    threshold_percent_thd_high: Number,
+});
+
 const PluginStatsSchema = new SimpleSchema({
     MakaiEventPlugin: PluginStatsSchemaInner,
     ThdPlugin: PluginStatsSchemaInner,
@@ -82,6 +93,7 @@ const LahaStatsSchema = new SimpleSchema({
     incidents_stats: IncidentsStatsSchema,
     phenomena_stats: PhenomenaStatsSchema,
     gc_stats: GcStatsSchema,
+    box_triggering_thresholds: [BoxTriggeringThresholdSchema],
 });
 
 const GroundTruthSchema = new SimpleSchema({
