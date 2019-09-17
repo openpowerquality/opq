@@ -83,7 +83,7 @@ class MetricsInspector extends React.Component {
         const { metrics } = this.state;
         const handleCallback = (dygraph) => {
             this.dygraphs.push(dygraph);
-            if (this.dygraphs.length === 17) {
+            if (this.dygraphs.length === 18) {
                 synchronize(...this.dygraphs);
             }
         };
