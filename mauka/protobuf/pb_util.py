@@ -33,7 +33,8 @@ MAKAI_INFO_RESPONSE = "info_response"
 MAKAI_MESSAGE_RATE_RESPONSE = "message_rate_reponse"
 MAKAI_DATA_RESPONSE = "get_data_response"
 MAKAI_COMMAND_TO_PLUGIN_RESPONSE = "command_to_plugin_response"
-BOX_MEASUREMENT_RATES = "box_measurement_rates"
+BOX_MEASUREMENT_RATE_REQUEST = "box_measurement_rate_request"
+BOX_MEASUREMENT_RATE_RESPONSE = "box_measurement_rate_response"
 
 # pylint: disable=C0103
 logger = log.get_logger(__name__)
@@ -435,21 +436,29 @@ def build_box_optimization_request(source: str,
     return mauka_message
 
 
-def build_box_measurement_rates(source: str, measurement_rates: typing.Dict[str, int]) -> mauka_pb2.MaukaMessage:
+def build_box_measurement_rate_request(source: str, box_ids: typing.List[str]) -> mauka_pb2.MaukaMessage:
     """
     Builds a box measurement rates message.
+    :param box_ids: Box ids to request measurement rates from.
     :param source: The source of this message.
-    :param measurement_rates: A key-value mapping from box_id to its measurement rate.
     :return: A BoxMeasurementRates message.
     """
     mauka_message = build_mauka_message(source)
-    box_ids = []
-    rates = []
-    for box_id, measurement_rate in measurement_rates.items():
-        box_ids.append(box_id)
-        rates.append(measurement_rate)
-    mauka_message.box_measurement_rates.box_ids[:] = box_ids
-    mauka_message.box_measurement_rates.measurement_rates[:] = rates
+    mauka_message.box_measurement_rate_request.box_ids[:] = box_ids
+    return mauka_message
+
+
+def build_box_measurement_rate_response(source: str, box_id: str, measurement_rate: int) -> mauka_pb2.MaukaMessage:
+    """
+    Builds a measurement rate response.
+    :param source: The source.
+    :param box_id: The box id.
+    :param measurement_rate: The measurement rate.
+    :return: A measurement rate response.
+    """
+    mauka_message = build_mauka_message(source)
+    mauka_message.box_measurement_rate_response.box_id = box_id
+    mauka_message.box_measurement_rate_response.measurement_rate = measurement_rate
     return mauka_message
 
 
@@ -680,13 +689,22 @@ def is_makai_command_to_plugin_response(makai_response: opqbox3_pb2.Response) ->
     return which_response_oneof(makai_response) == MAKAI_COMMAND_TO_PLUGIN_RESPONSE
 
 
-def is_box_measurement_rates(mauka_message: mauka_pb2.MaukaMessage) -> bool:
+def is_box_measurement_rate_request(mauka_message: mauka_pb2.MaukaMessage) -> bool:
     """
     Tests if this is a box measurement rate.
     :param mauka_message: The message to test.
     :return: True if it is, False otherwise.
     """
-    return which_message_oneof(mauka_message) == BOX_MEASUREMENT_RATES
+    return which_message_oneof(mauka_message) == BOX_MEASUREMENT_RATE_REQUEST
+
+
+def is_box_measurement_rate_response(mauka_message: mauka_pb2.MaukaMessage) -> bool:
+    """
+    Tests if this is a box measurement rate.
+    :param mauka_message: The message to test.
+    :return: True if it is, False otherwise.
+    """
+    return which_message_oneof(mauka_message) == BOX_MEASUREMENT_RATE_RESPONSE
 
 
 def repeated_as_ndarray(repeated) -> numpy.ndarray:
