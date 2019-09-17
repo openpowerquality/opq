@@ -30,7 +30,7 @@ def timestamp() -> int:
 
 
 def box_triggering_thresholds(box_ids: typing.Set[str],
-                              opq_mongo_client: typing.Optional[mongo.OpqMongoClient] = None) -> typing.Dict[str, typing.Dict[str, float]]:
+                              opq_mongo_client: typing.Optional[mongo.OpqMongoClient] = None) -> typing.List[typing.Dict[str, float]]:
     mongo_client = mongo.get_default_client(opq_mongo_client)
     triggering_thresholds: TriggeringType = mongo_client.makai_config_collection.find_one()["triggering"]
     triggering_overrides: typing.Dict[str, TriggeringOverrideType] = {}
@@ -38,11 +38,12 @@ def box_triggering_thresholds(box_ids: typing.Set[str],
     for override in triggering_thresholds["triggering_overrides"]:
         triggering_overrides[override["box_id"]] = override
 
-    thresholds = {}
+    thresholds = []
 
     for box_id in box_ids:
         if box_id not in triggering_overrides:
-            thresholds[box_id] = {
+            thresholds.append({
+                "box_id": box_id,
                 "ref_f": triggering_thresholds["default_ref_f"],
                 "ref_v": triggering_thresholds["default_ref_v"],
                 "threshold_percent_f_low": triggering_thresholds["default_threshold_percent_f_low"],
@@ -50,10 +51,11 @@ def box_triggering_thresholds(box_ids: typing.Set[str],
                 "threshold_percent_v_low": triggering_thresholds["default_threshold_percent_v_low"],
                 "threshold_percent_v_high": triggering_thresholds["default_threshold_percent_v_high"],
                 "threshold_percent_thd_high": triggering_thresholds["default_threshold_percent_thd_high"],
-            }
+            })
         else:
             triggering_override = triggering_overrides[box_id]
-            thresholds[box_id] = {
+            thresholds.append({
+                "box_id": box_id,
                 "ref_f": triggering_override["ref_f"],
                 "ref_v": triggering_override["ref_v"],
                 "threshold_percent_f_low": triggering_override["threshold_percent_f_low"],
@@ -61,7 +63,7 @@ def box_triggering_thresholds(box_ids: typing.Set[str],
                 "threshold_percent_v_low": triggering_override["threshold_percent_v_low"],
                 "threshold_percent_v_high": triggering_override["threshold_percent_v_high"],
                 "threshold_percent_thd_high": triggering_override["threshold_percent_thd_high"],
-            }
+            })
     return thresholds
 
 
@@ -389,5 +391,5 @@ class SystemStatsPlugin(plugins.base_plugin.MaukaPlugin):
                               protobuf.pb_util.which_message_oneof(mauka_message), SystemStatsPlugin.NAME)
 
 
-if __name__ == "__main__":
-    print(box_triggering_thresholds({"1003", "1004", "1005"}))
+# if __name__ == "__main__":
+#     print(box_triggering_thresholds({"1003", "1004", "1005"}))
