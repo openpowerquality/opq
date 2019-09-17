@@ -17,6 +17,9 @@ import plugins.base_plugin
 import protobuf.mauka_pb2
 import protobuf.pb_util
 
+TriggeringOverrideType = typing.Dict[str, typing.Union[str, float]]
+TriggeringType = typing.Dict[str, typing.Union[float, typing.List[TriggeringOverrideType]]]
+
 
 def timestamp() -> int:
     """
@@ -24,6 +27,42 @@ def timestamp() -> int:
     :return: The current timestamp in seconds since the epoch.
     """
     return int(round(time.time()))
+
+
+def box_triggering_thresholds(box_ids: typing.Set[str],
+                              opq_mongo_client: typing.Optional[mongo.OpqMongoClient] = None) -> typing.Dict[str, typing.Dict[str, float]]:
+    mongo_client = mongo.get_default_client(opq_mongo_client)
+    triggering_thresholds: TriggeringType = mongo_client.makai_config_collection.find_one()["triggering"]
+    triggering_overrides: typing.Dict[str, TriggeringOverrideType] = {}
+
+    for override in triggering_thresholds["triggering_overrides"]:
+        triggering_overrides[override["box_id"]] = override
+
+    thresholds = {}
+
+    for box_id in box_ids:
+        if box_id not in triggering_overrides:
+            thresholds[box_id] = {
+                "ref_f": triggering_thresholds["default_ref_f"],
+                "ref_v": triggering_thresholds["default_ref_v"],
+                "threshold_percent_f_low": triggering_thresholds["default_threshold_percent_f_low"],
+                "threshold_percent_f_high": triggering_thresholds["default_threshold_percent_f_high"],
+                "threshold_percent_v_low": triggering_thresholds["default_threshold_percent_v_low"],
+                "threshold_percent_v_high": triggering_thresholds["default_threshold_percent_v_high"],
+                "threshold_percent_thd_high": triggering_thresholds["default_threshold_percent_thd_high"],
+            }
+        else:
+            triggering_override = triggering_overrides[box_id]
+            thresholds[box_id] = {
+                "ref_f": triggering_override["ref_f"],
+                "ref_v": triggering_override["ref_v"],
+                "threshold_percent_f_low": triggering_override["threshold_percent_f_low"],
+                "threshold_percent_f_high": triggering_override["threshold_percent_f_high"],
+                "threshold_percent_v_low": triggering_override["threshold_percent_v_low"],
+                "threshold_percent_v_high": triggering_override["threshold_percent_v_high"],
+                "threshold_percent_thd_high": triggering_override["threshold_percent_thd_high"],
+            }
+    return thresholds
 
 
 class DescriptiveStatistic:
@@ -135,9 +174,9 @@ class SystemStatsPlugin(plugins.base_plugin.MaukaPlugin):
         fs_files_size_bytes = sum(map(lambda fs_file: fs_file["length"], only_events))
         self.debug("Done collecting event stats.")
         return (
-            events_collection_size_bytes +
-            box_events_collection_size_bytes +
-            fs_files_size_bytes
+                events_collection_size_bytes +
+                box_events_collection_size_bytes +
+                fs_files_size_bytes
         )
 
     def incidents_size_bytes(self) -> int:
@@ -160,9 +199,17 @@ class SystemStatsPlugin(plugins.base_plugin.MaukaPlugin):
         self.debug("Done collecting incident stats.")
 
         return (
-            incidents_collection_size_bytes +
-            fs_files_size_bytes
+                incidents_collection_size_bytes +
+                fs_files_size_bytes
         )
+
+    def active_devices(self) -> typing.Set[str]:
+        measurements_last_minute = self.mongo_client.measurements_collection.find(
+                {"timestamp_ms": {"$gt": (timestamp() - 5) * 1000}},
+                projection={"_id": False,
+                            "timestamp_ms": True,
+                            "box_id": True})
+        return set(map(lambda measurement: measurement["box_id"], measurements_last_minute))
 
     def num_active_devices(self) -> int:
         """
@@ -171,13 +218,7 @@ class SystemStatsPlugin(plugins.base_plugin.MaukaPlugin):
         Devices are considered active if they've send a measurement in the past 5 minutes.
         :return: The number of active OPQBoxes.
         """
-        measurements_last_minute = self.mongo_client.measurements_collection.find(
-            {"timestamp_ms": {"$gt": (timestamp() - 5) * 1000}},
-            projection={"_id": False,
-                        "timestamp_ms": True,
-                        "box_id": True})
-        box_ids = set(map(lambda measurement: measurement["box_id"], measurements_last_minute))
-        return len(box_ids)
+        return len(self.active_devices())
 
     def phenomena_size_bytes(self) -> int:
         """
@@ -313,7 +354,9 @@ class SystemStatsPlugin(plugins.base_plugin.MaukaPlugin):
                     "incidents": self.gc_stats[protobuf.mauka_pb2.INCIDENTS],
                     "phenomena:": self.gc_stats[protobuf.mauka_pb2.PHENOMENA]
                 },
-                "active_devices": len(self.mongo_client.get_active_box_ids())
+                "active_devices": len(self.mongo_client.get_active_box_ids()),
+                "box_triggering_thresholds": box_triggering_thresholds(self.active_devices(), self.mongo_client),
+                "box_measurement_rates": {}
             },
             "other_stats": {
                 "ground_truth": {
@@ -344,3 +387,7 @@ class SystemStatsPlugin(plugins.base_plugin.MaukaPlugin):
         else:
             self.logger.error("Received incorrect mauka message [%s] at %s",
                               protobuf.pb_util.which_message_oneof(mauka_message), SystemStatsPlugin.NAME)
+
+
+if __name__ == "__main__":
+    print(box_triggering_thresholds({"1003", "1004", "1005"}))

@@ -337,7 +337,11 @@ def get_default_client(mongo_client: OpqMongoClient = None) -> OpqMongoClient:
     :param mongo_client: Mongo client
     :return: Mongo client
     """
-    return mongo_client if mongo_client is not None else OpqMongoClient()
+    if mongo_client is not None and isinstance(mongo_client, OpqMongoClient):
+        return mongo_client
+
+    return OpqMongoClient()
+
 
 
 class IncidentMeasurementType(enum.Enum):
