@@ -145,6 +145,8 @@ class SystemStatsPlugin(plugins.base_plugin.MaukaPlugin):
         self.system_stats["memory_use_bytes"].update(self.memory_use_bytes())
         self.system_stats["disk_use_bytes"].update(self.disk_use_bytes())
 
+        self.box_measurement_rates: typing.Dict[str, int] = {}
+
         # Start stats collection
         system_stats_timer = threading.Timer(self.system_stats_interval_s, self.update_system_stats,
                                              args=[self.system_stats_interval_s])

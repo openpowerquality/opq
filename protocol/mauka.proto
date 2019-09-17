@@ -15,6 +15,7 @@ message MaukaMessage {
                     TriggeredEvent triggered_event = 10;
                     ThresholdOptimizationRequest threshold_optimization_request = 11;
                     BoxOptimizationRequest box_optimization_request = 12;
+                    BoxMeasurementRates box_measurement_rates = 13;
     }
 }
 
@@ -152,4 +153,9 @@ message ThresholdOptimizationRequest {
 message BoxOptimizationRequest {
     repeated string box_ids = 1;
     uint32 measurement_window_cycles = 2;
+}
+
+message BoxMeasurementRates {
+    repeated string box_ids = 1;
+    repeated uint32 measurement_rates = 2;
 }

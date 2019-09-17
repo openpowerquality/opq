@@ -306,6 +306,15 @@ class PbUtilsTests(unittest.TestCase):
         self.assertEqual(mauka_message.threshold_optimization_request.threshold_percent_v_high, 13.0)
         self.assertEqual(mauka_message.threshold_optimization_request.threshold_percent_thd_high, 14.0)
 
+    def test_build_box_measurement_rates(self):
+        mauka_message = pb_util.build_box_measurement_rates("test", {"1": 20,
+                                                                     "2": 30})
+        self.assertTrue(isinstance(mauka_message, pb_util.mauka_pb2.MaukaMessage))
+        self.assertTrue(pb_util.is_box_measurement_rates(mauka_message))
+        self.assertEqual(mauka_message.source, "test")
+        self.assertEqual(mauka_message.box_measurement_rates.box_ids, ["1", "2"])
+        self.assertEqual(mauka_message.box_measurement_rates.measurement_rates, [20, 30])
+
     def test_build_box_optimization_request(self):
         mauka_message = pb_util.build_box_optimization_request("test",
                                                                ["1", "2"],
@@ -534,6 +543,10 @@ class PbUtilsTests(unittest.TestCase):
         message_rate_response.message_rate_reponse.old_rate_cycles = 60
 
         self.assertTrue(pb_util.is_makai_message_rate_response(message_rate_response))
+
+    def test_is_box_measurement_rates(self):
+        mauka_message = pb_util.build_box_measurement_rates("", {})
+        self.assertTrue(pb_util.is_box_measurement_rates(mauka_message))
 
     def test_is_makai_command_to_plugin_response(self):
         def _build_response() -> pb_util.opqbox3_pb2.Response:
