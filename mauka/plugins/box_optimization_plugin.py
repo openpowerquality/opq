@@ -1,5 +1,5 @@
 """
-This module provides methods for modifying thresholds dynamically.
+This module provides methods for modifying Box measurement send rate dynamically.
 """
 
 import logging
@@ -26,10 +26,17 @@ def timestamp_ms() -> int:
 
 
 class BoxOptimizationPluginLogger:
+    """
+    This class represents a generic logger than can work with either Mauka plugins, a logger, or send data to stdout.
+    """
+
     def __init__(self,
                  loggable: typing.Optional[typing.Union['BoxOptimizationPlugin', logging.Logger]] = None):
-        self.log_interface = None
-        self.plugin_interface = None
+        """
+        :param loggable: Either an optional instance of the BoxOptimizationPlugin or an optional instance of a logger.
+        """
+        self.log_interface: typing.Optional[logging.Logger] = None
+        self.plugin_interface: typing.Optional['BoxOptimizationPlugin'] = None
 
         if loggable is not None:
             if isinstance(loggable, BoxOptimizationPlugin):
@@ -39,9 +46,17 @@ class BoxOptimizationPluginLogger:
                 self.log_interface = loggable
 
     def _default(self, msg: str):
+        """
+        If not logger or plugin instance exists, then write the output to stdout.
+        :param msg: The message to write to stdout.
+        """
         print(msg)
 
     def debug(self, msg: str):
+        """
+        Log a debug message.
+        :param msg: The message to log.
+        """
         if self.plugin_interface is not None:
             self.plugin_interface.debug(msg)
         elif self.log_interface is not None:
@@ -50,31 +65,50 @@ class BoxOptimizationPluginLogger:
             self._default(msg)
 
     def info(self, msg: str):
+        """
+        Log an info message.
+        :param msg: The message to log.
+        """
         if self.log_interface is not None:
             self.log_interface.info(msg)
         else:
-            self._default(msg)
+            self._default("info: " + msg)
 
     def warn(self, msg: str):
+        """
+        Log a warn message.
+        :param msg: The message to log.
+        """
         if self.log_interface is not None:
             self.log_interface.warning(msg)
         else:
-            self._default(msg)
+            self._default("warn: " + msg)
 
     def error(self, msg: str):
+        """
+        Log an error message.
+        :param msg: The message to log.
+        """
         if self.log_interface is not None:
             self.log_interface.error(msg)
         else:
-            self._default(msg)
+            self._default("error: " + msg)
 
 
 class BoxOptimizationRecords:
+    """
+    This class provides thread safe access to optimization request and response records.
+    """
+
     def __init__(self, logger: BoxOptimizationPluginLogger):
         self.records: typing.Dict[str, int] = dict()
         self.lock = multiprocessing.RLock()
         self.logger = logger
 
     def __prune(self):
+        """
+        Prunes any old records that have not received a response in over 10 minutes.
+        """
         now = timestamp_ms()
         self.logger.debug("Pruning records.")
         for record, timestamp in self.records.items():
@@ -83,12 +117,20 @@ class BoxOptimizationRecords:
                 del self.records[record]
 
     def add_record(self, record_id: str):
+        """
+        Adds a new record to the record set.
+        :param record_id: The record id to add.
+        """
         self.logger.debug("Adding record %s" % record_id)
         with self.lock:
             self.records[record_id] = timestamp_ms()
             self.__prune()
 
     def check_record(self, record_id: str):
+        """
+        Checks an existing record in the record set.
+        :param record_id: The record to check.
+        """
         with self.lock:
             if record_id not in self.records:
                 self.logger.error("Box optimization record with id %s not found" % record_id)
@@ -146,6 +188,14 @@ def modify_measurement_window_cycles(makai_send_socket: zmq.Socket,
                                      measurement_window_cycles: int,
                                      box_optimization_records: BoxOptimizationRecords,
                                      logger: BoxOptimizationPluginLogger):
+    """
+    Dynamically modifies the measurement rate of boxes.
+    :param makai_send_socket: The ZMQ socket to send modification requests to.
+    :param box_ids: A list of box ids to modify.
+    :param measurement_window_cycles: Number of cycles in a measurement.
+    :param box_optimization_records: Thread safe req/resp of records.
+    :param logger: The logger.
+    """
 
     if measurement_window_cycles <= 0:
         logger.error("measurement_window_cycles must be strictly larger than 0")
@@ -245,7 +295,7 @@ if __name__ == "__main__":
     makai_data_subscriber.start()
 
     modify_measurement_window_cycles(zmq_trigger_socket,
-                                     ["1006"],
+                                     ["1004", "1006"],
                                      60,
                                      box_optimization_records,
                                      opt_logger)
