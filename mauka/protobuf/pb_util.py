@@ -320,6 +320,12 @@ def build_makai_trigger_commands(start_timestamp_ms,
 def build_makai_rate_change_commands(box_ids: typing.List[str],
                                      measurement_window_cycles: int) -> typing.List[
     typing.Tuple[opqbox3_pb2.Command, str]]:
+    """
+    Builds commands for OPQ Boxes to change the measurement rate.
+    :param box_ids: The box ids to change the measurement rate for.
+    :param measurement_window_cycles: The new measurement rate.
+    :return: A list of tuples containing the command and the identity for that command.
+    """
     cmds = []
     uid = str(uuid.uuid4())
     for (i, box_id) in enumerate(box_ids):
@@ -335,6 +341,11 @@ def build_makai_rate_change_commands(box_ids: typing.List[str],
 
 
 def build_makai_get_info_cmd(box_id: str) -> typing.Tuple[opqbox3_pb2.Command, str]:
+    """
+    Builds a command for Makai for getting info from Boxes.
+    :param box_id: The Box id to get info for.
+    :return: A tuple containing the command and the identity generated for the command.
+    """
     command = opqbox3_pb2.Command()
     command.box_id = int(box_id)
     command.timestamp_ms = get_timestamp_ms()
@@ -405,6 +416,13 @@ def build_threshold_optimization_request(source: str,
 def build_box_optimization_request(source: str,
                                    box_ids: typing.List[str],
                                    measurement_window_cycles: int) -> mauka_pb2.MaukaMessage:
+    """
+    Builds a box optimization request.
+    :param source: The source of this build.
+    :param box_ids: A list of box ids.
+    :param measurement_window_cycles: The new number of cycles per window.
+    :return: An instance of a BoxOptimizationRequest.
+    """
     mauka_message = build_mauka_message(source)
     mauka_message.box_optimization_request.box_ids[:] = box_ids
     mauka_message.box_optimization_request.measurement_window_cycles = measurement_window_cycles
@@ -585,6 +603,11 @@ def is_threshold_optimization_request(mauka_message: mauka_pb2.MaukaMessage) -> 
 
 
 def is_box_optimization_request(mauka_message: mauka_pb2.MaukaMessage) -> bool:
+    """
+    Tests if this is a box optimization request.
+    :param mauka_message: The message to test.
+    :return: True if it is, False otherwise.
+    """
     return which_message_oneof(mauka_message) == BOX_OPTIMIZATION_REQUEST
 
 
