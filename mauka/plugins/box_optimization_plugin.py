@@ -178,8 +178,8 @@ class MakaiOptimizationResultSubscriber(threading.Thread):
             data = self.zmq_socket.recv_multipart()
             identity = data[0].decode()
             response = pb_util.deserialize_makai_response(data[1])
-            if pb_util.is_makai_info_response(response):
-                self.logger.debug("Recv optimization response %s" % str(response))
+            if pb_util.is_makai_message_rate_response(response):
+                self.logger.debug("Recv makai message rate response %s" % str(response))
                 self.box_optimization_records.check_record(identity)
             else:
                 self.logger.error("Recv incorrect resp type")

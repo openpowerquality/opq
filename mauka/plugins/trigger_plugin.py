@@ -235,49 +235,52 @@ class MakaiDataSubscriber(threading.Thread):
             identity = data[0].decode()
             topic, event_token, box_id = identity.split("_")
             response = pb_util.deserialize_makai_response(data[1])
-            box_id = str(response.box_id)
-            cycles = list(map(pb_util.deserialize_makai_cycle, data[2:]))
-            start_ts, end_ts = extract_timestamps(cycles)
-            samples = cycles_to_data(cycles)
-            event_id = self.trigger_records.event_id(event_token)
+            if pb_util.is_makai_data_response(response):
+                box_id = str(response.box_id)
+                cycles = list(map(pb_util.deserialize_makai_cycle, data[2:]))
+                start_ts, end_ts = extract_timestamps(cycles)
+                samples = cycles_to_data(cycles)
+                event_id = self.trigger_records.event_id(event_token)
 
-            self.logger.debug("Recv data with topic %s, event_token %s, event_id %d, and box_id %s",
-                              topic,
-                              event_token,
-                              event_id,
-                              box_id)
+                self.logger.debug("Recv data with topic %s, event_token %s, event_id %d, and box_id %s",
+                                  topic,
+                                  event_token,
+                                  event_id,
+                                  box_id)
 
-            # Update event
-            mongo.update_event(event_id, box_id, self.mongo_client)
-            self.trigger_records.remove_record(event_token)
-            self.logger.debug("Event with event_id %d updated", event_id)
-
-            # Store box_event
-            mongo.store_box_event(event_id,
-                                  box_id,
-                                  start_ts,
-                                  end_ts,
-                                  samples,
-                                  self.mongo_client)
-            self.logger.debug("box_event stored for event_id %d and box_id %s", event_id, box_id)
-
-            # Cleanup
-            self.trigger_records.remove_box_id(event_token, box_id)
-            self.logger.debug("Removed box_id from record with event_token %s and box_id %s", event_token, box_id)
-
-            # If this was the last box we were waiting on, we can not produce an event_id to MakaiEventPlugin for
-            # analysis. We'll also remove the record since we're not longer waiting on any boxes.
-            if len(self.trigger_records.box_ids_for_token(event_token)) == 0:
-                produce_makai_event_id(self.zmq_producer, event_id)
-                self.logger.debug("Removing record for event_token %s", event_token)
+                # Update event
+                mongo.update_event(event_id, box_id, self.mongo_client)
                 self.trigger_records.remove_record(event_token)
+                self.logger.debug("Event with event_id %d updated", event_id)
 
-            # Prune any old records that might still be hanging around
-            # This occurs when we never received data from a triggered box.
-            # We should produce an event message to ensure we process any other boxes we might have recieved from.
-            pruned_event_ids = self.trigger_records.prune()
-            for pruned_event_id in pruned_event_ids:
-                produce_makai_event_id(self.zmq_producer, pruned_event_id)
+                # Store box_event
+                mongo.store_box_event(event_id,
+                                      box_id,
+                                      start_ts,
+                                      end_ts,
+                                      samples,
+                                      self.mongo_client)
+                self.logger.debug("box_event stored for event_id %d and box_id %s", event_id, box_id)
+
+                # Cleanup
+                self.trigger_records.remove_box_id(event_token, box_id)
+                self.logger.debug("Removed box_id from record with event_token %s and box_id %s", event_token, box_id)
+
+                # If this was the last box we were waiting on, we can not produce an event_id to MakaiEventPlugin for
+                # analysis. We'll also remove the record since we're not longer waiting on any boxes.
+                if len(self.trigger_records.box_ids_for_token(event_token)) == 0:
+                    produce_makai_event_id(self.zmq_producer, event_id)
+                    self.logger.debug("Removing record for event_token %s", event_token)
+                    self.trigger_records.remove_record(event_token)
+
+                # Prune any old records that might still be hanging around
+                # This occurs when we never received data from a triggered box.
+                # We should produce an event message to ensure we process any other boxes we might have recieved from.
+                pruned_event_ids = self.trigger_records.prune()
+                for pruned_event_id in pruned_event_ids:
+                    produce_makai_event_id(self.zmq_producer, pruned_event_id)
+            else:
+                self.logger.error("Received incorrect response type from Makai")
 
 
 def trigger_boxes(zmq_trigger_socket: zmq.Socket,
