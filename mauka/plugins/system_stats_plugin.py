@@ -14,6 +14,7 @@ import psutil
 import config
 import mongo
 import plugins.base_plugin
+import plugins.routes as routes
 import protobuf.mauka_pb2
 import protobuf.pb_util
 
@@ -117,6 +118,9 @@ class DescriptiveStatistic:
         self.end_timestamp_s = 0
 
 
+ROUTES = routes.Routes()
+
+
 class SystemStatsPlugin(plugins.base_plugin.MaukaPlugin):
     """
     Mauka plugin that retrieves and stores system and plugin stats
@@ -130,9 +134,9 @@ class SystemStatsPlugin(plugins.base_plugin.MaukaPlugin):
         :param exit_event: Exit event
         """
         super().__init__(conf,
-                         [super().routes.heartbeat,
-                          super().routes.gc_stat,
-                          super().routes.box_measurement_rate_response],
+                         [ROUTES.heartbeat,
+                          ROUTES.gc_stat,
+                          ROUTES.box_measurement_rate_response],
                          SystemStatsPlugin.NAME, exit_event)
         self.interval_s = conf.get("plugins.SystemStatsPlugin.intervalS")
         self.system_stats_interval_s = conf.get("plugins.SystemStatsPlugin.systemStatsIntervalS")
@@ -261,7 +265,8 @@ class SystemStatsPlugin(plugins.base_plugin.MaukaPlugin):
 
     def handle_box_measurement_rate_response(self, mauka_message: protobuf.mauka_pb2.MaukaMessage):
         box_measurement_rate_response = mauka_message.box_measurement_rate_response
-        self.box_measurement_rates[box_measurement_rate_response.box_id] = box_measurement_rate_response.measurement_rate
+        self.box_measurement_rates[
+            box_measurement_rate_response.box_id] = box_measurement_rate_response.measurement_rate
 
     def update_system_stats(self, interval_s: int):
         """
@@ -396,7 +401,8 @@ class SystemStatsPlugin(plugins.base_plugin.MaukaPlugin):
             self.debug("Received heartbeat message, updating plugin stats.")
             self.plugin_stats[mauka_message.source] = json.loads(mauka_message.heartbeat.status)
             box_measurement_rate_request = protobuf.pb_util.build_box_measurement_rate_request("system_stats_plugin",
-                                                                                               list(self.active_devices()))
+                                                                                               list(
+                                                                                                   self.active_devices()))
             self.produce(self.routes.box_measurement_rate_request, box_measurement_rate_request)
         elif protobuf.pb_util.is_gc_stat(mauka_message):
             self.debug("Received gc_stat message")
