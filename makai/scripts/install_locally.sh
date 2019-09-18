@@ -10,6 +10,6 @@ cp TriggeringBroker/target/release/tb                                           
 cp TriggeringService/target/release/makai                                                       ${MAKAI_BIN}/. && \
 cp TriggeringService/plugins/health/target/release/libhealth_plugin.so                          ${MAKAI_BIN}/. && \
 cp TriggeringService/plugins/napali_trigger/target/release/libnapali_plugin.so                  ${MAKAI_BIN}/. && \
-cp TriggeringService/plugins/print/target/release/libnprint_plugin.so                           ${MAKAI_BIN}/. && \
+cp TriggeringService/plugins/print/target/release/libprint_plugin.so                            ${MAKAI_BIN}/. && \
 cp TriggeringService/plugins/threshold_trigger/target/release/libthreshold_trigger_plugin.so    ${MAKAI_BIN}/.
 
