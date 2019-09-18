@@ -373,7 +373,8 @@ class SystemStatsPlugin(plugins.base_plugin.MaukaPlugin):
                 },
                 "active_devices": len(self.mongo_client.get_active_box_ids()),
                 "box_triggering_thresholds": box_triggering_thresholds(self.active_devices(), self.mongo_client),
-                "box_measurement_rates": [{box_id: measurement_rate} for box_id, measurement_rate in
+                "box_measurement_rates": [{"box_id": box_id,
+                                           "measurement_rate": measurement_rate} for box_id, measurement_rate in
                                           self.box_measurement_rates.items()]
             },
             "other_stats": {
