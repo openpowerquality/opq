@@ -306,7 +306,7 @@ class BoxOptimizationPlugin(plugins.base_plugin.MaukaPlugin):
         if pb_util.is_box_measurement_rate_request(mauka_message):
             self.box_optimization_logger.debug("Recv box measurement rate request: %s" % str(mauka_message))
             send_box_info_cmds(self.makai_send_socket,
-                               mauka_message.box_measuremet_rate_request.box_ids,
+                               mauka_message.box_measurement_rate_request.box_ids,
                                self.box_optimization_records,
                                self.logger)
         else:
