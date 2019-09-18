@@ -283,7 +283,7 @@ class BoxOptimizationPlugin(plugins.base_plugin.MaukaPlugin):
         # Start up the subscription thread
         self.makai_optimization_results_subscriber = MakaiOptimizationResultSubscriber(self.makai_recv_interface,
                                                                                        self.box_optimization_records,
-                                                                                       self.logger,
+                                                                                       self.box_optimization_logger,
                                                                                        self)
 
         self.makai_optimization_results_subscriber.start()
