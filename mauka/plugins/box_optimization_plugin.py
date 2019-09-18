@@ -182,7 +182,7 @@ class MakaiOptimizationResultSubscriber(threading.Thread):
         self.logger.info("MakaiDataSubscriber thread started")
         while True:
             # Receive data and extract parameters
-            self.logger.debug("Recv optimization resp.")
+            self.logger.debug("Recv resp.")
             data = self.zmq_socket.recv_multipart()
             identity = data[0].decode()
             response = pb_util.deserialize_makai_response(data[1])
@@ -285,7 +285,8 @@ class BoxOptimizationPlugin(plugins.base_plugin.MaukaPlugin):
         # Start up the subscription thread
         self.makai_optimization_results_subscriber = MakaiOptimizationResultSubscriber(self.makai_recv_interface,
                                                                                        self.box_optimization_records,
-                                                                                       self.logger)
+                                                                                       self.logger,
+                                                                                       self)
 
         self.makai_optimization_results_subscriber.start()
 
