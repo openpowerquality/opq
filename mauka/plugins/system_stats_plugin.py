@@ -403,7 +403,7 @@ class SystemStatsPlugin(plugins.base_plugin.MaukaPlugin):
             box_measurement_rate_request = protobuf.pb_util.build_box_measurement_rate_request("system_stats_plugin",
                                                                                                list(
                                                                                                    self.active_devices()))
-            self.produce(self.routes.box_measurement_rate_request, box_measurement_rate_request)
+            self.produce(ROUTES.box_measurement_rate_request, box_measurement_rate_request)
         elif protobuf.pb_util.is_gc_stat(mauka_message):
             self.debug("Received gc_stat message")
             self.handle_gc_stat_message(mauka_message)
