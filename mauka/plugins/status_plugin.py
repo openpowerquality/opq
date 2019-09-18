@@ -25,6 +25,8 @@ import plugins.base_plugin
 import protobuf.pb_util
 import protobuf.mauka_pb2 as mauka_pb2
 
+from plugins.routes import Routes
+
 
 def fmt_list(values: typing.List) -> str:
     """
@@ -307,7 +309,7 @@ class StatusPlugin(plugins.base_plugin.MaukaPlugin):
 
         :param conf: Configuration dictionary
         """
-        super().__init__(conf, ["heartbeat"], StatusPlugin.NAME, exit_event)
+        super().__init__(conf, [Routes.heartbeat], StatusPlugin.NAME, exit_event)
         health_port = int(conf.get("plugins.StatusPlugin.port"))
         self.httpd_thread = threading.Thread(target=start_health_sate_httpd_server, args=(health_port,))
         self.httpd_thread.start()

@@ -13,12 +13,10 @@ import zmq
 import config
 import plugins.base_plugin
 import protobuf.pb_util as pb_util
-import plugins.routes as routes
-
+from plugins.routes import Routes
 PLUGIN_NAME = "BoxOptimizationPlugin"
-ROUTES = routes.Routes()
-SUBSCRIBED_TOPICS = [ROUTES.box_optimization_request,
-                     ROUTES.box_measurement_rate_request]
+SUBSCRIBED_TOPICS = [Routes.box_optimization_request,
+                     Routes.box_measurement_rate_request]
 
 
 def timestamp_ms() -> int:
@@ -198,7 +196,7 @@ class MakaiOptimizationResultSubscriber(threading.Thread):
                         "box_optimization_plugin",
                         str(response.box_id),
                         info_response.measurement_rate)
-                    self.box_optimization_plugin.produce(ROUTES.box_measurement_rate_response,
+                    self.box_optimization_plugin.produce(Routes.box_measurement_rate_response,
                                                          box_measurement_rate_response)
             else:
                 self.logger.error("Recv incorrect resp type")

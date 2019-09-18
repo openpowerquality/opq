@@ -24,6 +24,8 @@ import plugins.thd_plugin
 import protobuf.mauka_pb2
 import protobuf.pb_util
 
+from plugins.routes import Routes
+
 
 def smooth_waveform(sample: numpy.ndarray, filter_order: int = 2, cutoff_frequency: float = 500.0,
                     downsample_factor: int = 4) -> numpy.ndarray:
@@ -252,7 +254,7 @@ class MakaiEventPlugin(plugins.base_plugin.MaukaPlugin):
     NAME = "MakaiEventPlugin"
 
     def __init__(self, conf: config.MaukaConfig, exit_event: multiprocessing.Event):
-        super().__init__(conf, ["MakaiEvent"], MakaiEventPlugin.NAME, exit_event)
+        super().__init__(conf, [Routes.makai_event], MakaiEventPlugin.NAME, exit_event)
         self.get_data_after_s = float(self.config["plugins.MakaiEventPlugin.getDataAfterS"])
         self.filter_order = int(self.config.get("plugins.MakaiEventPlugin.filterOrder"))
         self.cutoff_frequency = float(self.config.get("plugins.MakaiEventPlugin.cutoffFrequency"))
@@ -280,10 +282,10 @@ class MakaiEventPlugin(plugins.base_plugin.MaukaPlugin):
                                                                                               self.cutoff_frequency,
                                                                                               self.samples_per_window,
                                                                                               self.down_sample_factor)
-            self.produce("AdcSamples", adc_samples)
-            self.produce("RawVoltage", raw_voltage)
-            self.produce("RmsWindowedVoltage", rms_windowed_voltage)
-            self.produce("WindowedFrequency", frequency_windowed)
+            self.produce(Routes.adc_samples, adc_samples)
+            self.produce(Routes.raw_voltage, raw_voltage)
+            self.produce(Routes.rms_windowed_voltage, rms_windowed_voltage)
+            self.produce(Routes.windowed_frequency, frequency_windowed)
 
     def on_message(self, topic, mauka_message):
         if protobuf.pb_util.is_makai_event_message(mauka_message):
@@ -294,13 +296,11 @@ class MakaiEventPlugin(plugins.base_plugin.MaukaPlugin):
 
             # Produce a message to the GC
             self.debug("Producing laha_gc update")
-            self.produce(plugins.laha_gc_plugin.LahaGcPlugin.LAHA_GC,
+            self.produce(Routes.laha_gc,
                          protobuf.pb_util.build_gc_update(self.name, protobuf.mauka_pb2.EVENTS,
                                                           mauka_message.makai_event.event_id))
             self.debug("laha_gc update produced")
             timer.start()
-        elif protobuf.pb_util.is_triggered_event(mauka_message):
-            pass
         else:
             self.logger.error("Received incorrect mauka message [%s] for MakaiEventPlugin",
                               protobuf.pb_util.which_message_oneof(mauka_message))

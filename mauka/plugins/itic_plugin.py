@@ -15,6 +15,8 @@ import plugins.base_plugin
 import protobuf.mauka_pb2
 import protobuf.pb_util
 
+from plugins.routes import Routes
+
 
 class IticRegion(enum.Enum):
     """
@@ -197,22 +199,22 @@ def itic(mauka_message: protobuf.mauka_pb2.MaukaMessage,
                 incident_classification = mongo.IncidentClassification.ITIC_NO_DAMAGE
 
             incident_id = mongo.store_incident(
-                mauka_message.payload.event_id,
-                mauka_message.payload.box_id,
-                incident_start_timestamp_ms,
-                incident_end_timestamp_ms,
-                mongo.IncidentMeasurementType.VOLTAGE,
-                mean_rms - 120.0,
-                [incident_classification],
-                [],
-                {},
-                mongo_client)
+                    mauka_message.payload.event_id,
+                    mauka_message.payload.box_id,
+                    incident_start_timestamp_ms,
+                    incident_end_timestamp_ms,
+                    mongo.IncidentMeasurementType.VOLTAGE,
+                    mean_rms - 120.0,
+                    [incident_classification],
+                    [],
+                    {},
+                    mongo_client)
 
             maybe_debug(itic_plugin,
                         "Found ITIC incident [{}] from event {} and box {}".format(
-                            itic_enum,
-                            mauka_message.event_id,
-                            mauka_message.box_id))
+                                itic_enum,
+                                mauka_message.event_id,
+                                mauka_message.box_id))
 
             incident_ids.append(incident_id)
 
@@ -231,7 +233,7 @@ class IticPlugin(plugins.base_plugin.MaukaPlugin):
         :param conf: Configuration dictionary
         :param exit_event: Exit event
         """
-        super().__init__(conf, ["RmsWindowedVoltage"], IticPlugin.NAME, exit_event)
+        super().__init__(conf, [Routes.rms_windowed_voltage], IticPlugin.NAME, exit_event)
         self.segment_threshold = self.config.get("plugins.IticPlugin.segment.threshold.rms")
 
     def on_message(self, topic, mauka_message):
@@ -249,9 +251,9 @@ class IticPlugin(plugins.base_plugin.MaukaPlugin):
 
             for incident_id in incident_ids:
                 # Produce a message to the GC
-                self.produce("laha_gc", protobuf.pb_util.build_gc_update(self.name,
-                                                                         protobuf.mauka_pb2.INCIDENTS,
-                                                                         incident_id))
+                self.produce(Routes.laha_gc, protobuf.pb_util.build_gc_update(self.name,
+                                                                              protobuf.mauka_pb2.INCIDENTS,
+                                                                              incident_id))
         else:
             self.logger.error("Received incorrect mauka message [%s] at IticPlugin",
                               protobuf.pb_util.which_message_oneof(mauka_message))

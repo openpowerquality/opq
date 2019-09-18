@@ -13,6 +13,8 @@ import protobuf.mauka_pb2
 import constants
 import mongo
 
+from plugins.routes import Routes
+
 PU = 120.0
 
 
@@ -80,16 +82,16 @@ def semi_violation(mongo_client, mauka_message) -> typing.List[int]:
                 dev = max(abs(120.0 - numpy.max(data[violation[0], violation[1]])),
                           abs(120.0 - numpy.min(data[violation[0], violation[1]])))
                 incident_id = mongo.store_incident(
-                    event_id,
-                    box_id,
-                    start_time_ms + violation[0] * time_datum,
-                    start_time_ms + (violation[1] + 1) * time_datum,
-                    mongo.IncidentMeasurementType.VOLTAGE,
-                    dev,
-                    [mongo.IncidentClassification.SEMI_F47_VIOLATION],
-                    [],
-                    {},
-                    mongo_client)
+                        event_id,
+                        box_id,
+                        start_time_ms + violation[0] * time_datum,
+                        start_time_ms + (violation[1] + 1) * time_datum,
+                        mongo.IncidentMeasurementType.VOLTAGE,
+                        dev,
+                        [mongo.IncidentClassification.SEMI_F47_VIOLATION],
+                        [],
+                        {},
+                        mongo_client)
 
                 incident_ids.append(incident_id)
     return incident_ids
@@ -101,16 +103,16 @@ class SemiF47Plugin(plugins.base_plugin.MaukaPlugin):
     """
 
     def __init__(self, conf: config.MaukaConfig, exit_event):
-        super().__init__(conf, ["RmsWindowedVoltage"], "SemiF47Plugin", exit_event)
+        super().__init__(conf, [Routes.rms_windowed_voltage], "SemiF47Plugin", exit_event)
 
     def on_message(self, topic, mauka_message):
         if protobuf.pb_util.is_payload(mauka_message, protobuf.mauka_pb2.VOLTAGE_RMS_WINDOWED):
             incident_ids = semi_violation(self.mongo_client, mauka_message)
             for incident_id in incident_ids:
                 # Produce a message to the GC
-                self.produce("laha_gc", protobuf.pb_util.build_gc_update(self.name,
-                                                                         protobuf.mauka_pb2.INCIDENTS,
-                                                                         incident_id))
+                self.produce(Routes.laha_gc, protobuf.pb_util.build_gc_update(self.name,
+                                                                              protobuf.mauka_pb2.INCIDENTS,
+                                                                              incident_id))
 
 
 def rerun(mongo_client: mongo.OpqMongoClient, mauka_message):

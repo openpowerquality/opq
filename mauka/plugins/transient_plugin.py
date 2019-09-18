@@ -16,6 +16,8 @@ import protobuf.mauka_pb2
 import protobuf.pb_util
 import mongo
 
+from plugins.routes import Routes
+
 
 def transient_sliding_window(filtered_waveform: numpy.ndarray, noise_floor: float, max_lull_ms: float) -> list:
     """
@@ -271,7 +273,7 @@ def periodic_notching_classifier(filtered_waveform: numpy.ndarray, fundamental_w
         return False, {}
     else:
         average_amplitude = numpy.average(
-            transient_abs[signal.find_peaks(transient_abs)[0]]) + configs['noise_floor']
+                transient_abs[signal.find_peaks(transient_abs)[0]]) + configs['noise_floor']
         average_period = numpy.average(periods) / constants.SAMPLE_RATE_HZ
         return True, {'amplitude': average_amplitude, 'period': average_period}
 
@@ -401,7 +403,7 @@ class TransientPlugin(plugins.base_plugin.MaukaPlugin):
         :param conf: Mauka configuration
         :param exit_event: Exit event that can disable this plugin from parent process
         """
-        super().__init__(conf, ["RawVoltage"], TransientPlugin.NAME, exit_event)
+        super().__init__(conf, [Routes.raw_voltage], TransientPlugin.NAME, exit_event)
         self.configs = {
             "noise_floor": float(self.config.get("plugins.TransientPlugin.noise.floor")),
             "filter_cutoff_frequency": float(self.config.get("plugins.MakaiEventPlugin.cutoffFrequency")),
@@ -413,10 +415,10 @@ class TransientPlugin(plugins.base_plugin.MaukaPlugin):
             "arc_zero_xing_threshold": int(self.config.get("plugins.TransientPlugin.arcing.zero.crossing.threshold")),
             "max_lull_ms": float(self.config.get("plugins.TransientPlugin.max.lull.ms")),
             "max_std_periodic_notching": float(self.config.get(
-                "plugins.TransientPlugin.max.periodic.notching.std.dev")),
+                    "plugins.TransientPlugin.max.periodic.notching.std.dev")),
             "auto_corr_thresh_periodicity": float(
-                self.config.get("plugins.TransientPlugin.auto.corr.thresh.periodicity"))
-            }
+                    self.config.get("plugins.TransientPlugin.auto.corr.thresh.periodicity"))
+        }
 
     def on_message(self, topic, mauka_message):
         """
@@ -436,21 +438,21 @@ class TransientPlugin(plugins.base_plugin.MaukaPlugin):
 
             for incident in incidents:
                 incident_id = mongo.store_incident(
-                    incident["event_id"],
-                    incident["box_id"],
-                    incident["incident_start_ts"],
-                    incident["incident_end_ts"],
-                    incident["incident_type"],
-                    incident["max_deviation"],
-                    incident["incident_classifications"],
-                    incident["annotations"],
-                    incident["metadata"],
-                    incident["mongo_client"]
+                        incident["event_id"],
+                        incident["box_id"],
+                        incident["incident_start_ts"],
+                        incident["incident_end_ts"],
+                        incident["incident_type"],
+                        incident["max_deviation"],
+                        incident["incident_classifications"],
+                        incident["annotations"],
+                        incident["metadata"],
+                        incident["mongo_client"]
                 )
                 # Produce a message to the GC
-                self.produce("laha_gc", protobuf.pb_util.build_gc_update(self.name,
-                                                                         protobuf.mauka_pb2.INCIDENTS,
-                                                                         incident_id))
+                self.produce(Routes.laha_gc, protobuf.pb_util.build_gc_update(self.name,
+                                                                              protobuf.mauka_pb2.INCIDENTS,
+                                                                              incident_id))
 
         else:
             self.logger.error("Received incorrect mauka message [%s] at TransientPlugin",

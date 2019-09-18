@@ -18,6 +18,8 @@ import plugins.routes as routes
 import protobuf.mauka_pb2
 import protobuf.pb_util
 
+from plugins.routes import Routes
+
 TriggeringOverrideType = typing.Dict[str, typing.Union[str, float]]
 TriggeringType = typing.Dict[str, typing.Union[float, typing.List[TriggeringOverrideType]]]
 
@@ -118,9 +120,6 @@ class DescriptiveStatistic:
         self.end_timestamp_s = 0
 
 
-ROUTES = routes.Routes()
-
-
 class SystemStatsPlugin(plugins.base_plugin.MaukaPlugin):
     """
     Mauka plugin that retrieves and stores system and plugin stats
@@ -134,9 +133,9 @@ class SystemStatsPlugin(plugins.base_plugin.MaukaPlugin):
         :param exit_event: Exit event
         """
         super().__init__(conf,
-                         [ROUTES.heartbeat,
-                          ROUTES.gc_stat,
-                          ROUTES.box_measurement_rate_response],
+                         [Routes.heartbeat,
+                          Routes.gc_stat,
+                          Routes.box_measurement_rate_response],
                          SystemStatsPlugin.NAME, exit_event)
         self.interval_s = conf.get("plugins.SystemStatsPlugin.intervalS")
         self.system_stats_interval_s = conf.get("plugins.SystemStatsPlugin.systemStatsIntervalS")
@@ -404,7 +403,7 @@ class SystemStatsPlugin(plugins.base_plugin.MaukaPlugin):
                 box_measurement_rate_request = protobuf.pb_util.build_box_measurement_rate_request("system_stats_plugin",
                                                                                                    list(
                                                                                                        self.active_devices()))
-                self.produce(ROUTES.box_measurement_rate_request, box_measurement_rate_request)
+                self.produce(Routes.box_measurement_rate_request, box_measurement_rate_request)
         elif protobuf.pb_util.is_gc_stat(mauka_message):
             self.debug("Received gc_stat message")
             self.handle_gc_stat_message(mauka_message)

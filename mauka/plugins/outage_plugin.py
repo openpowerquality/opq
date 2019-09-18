@@ -9,6 +9,8 @@ import protobuf.mauka_pb2
 import protobuf.pb_util
 from plugins.base_plugin import MaukaPlugin
 
+from plugins.routes import Routes
+
 BOX_STATUS_UP = "UP"
 BOX_STATUS_DOWN = "DOWN"
 
@@ -45,7 +47,7 @@ class OutagePlugin(MaukaPlugin):
 
     def __init__(self, conf: config.MaukaConfig,
                  exit_event: multiprocessing.Event):
-        super().__init__(conf, ["heartbeat"], OutagePlugin.NAME, exit_event)
+        super().__init__(conf, [Routes.heartbeat], OutagePlugin.NAME, exit_event)
         self.last_update = datetime.datetime.utcnow()
         self.prev_incident_ids = {}
 

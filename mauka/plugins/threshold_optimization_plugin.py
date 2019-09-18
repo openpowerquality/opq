@@ -11,6 +11,8 @@ import config
 import plugins.base_plugin
 import protobuf.pb_util as pb_util
 
+from plugins.routes import Routes
+
 # Types used when discussing type unsafe data (essentially mongo docs as dicts)
 # pylint: disable=C0103
 TriggeringOverrideType = typing.Dict[str, typing.Union[str, float]]
@@ -242,7 +244,7 @@ class ThresholdOptimizationPlugin(plugins.base_plugin.MaukaPlugin):
 
         :param conf: Configuration dictionary
         """
-        super().__init__(conf, ["ThresholdOptimizationRequest"], ThresholdOptimizationPlugin.NAME, exit_event)
+        super().__init__(conf, [Routes.threshold_optimization_request], ThresholdOptimizationPlugin.NAME, exit_event)
 
     def modify_thresholds(self, threshold_optimization_request: pb_util.mauka_pb2.ThresholdOptimizationRequest):
         """

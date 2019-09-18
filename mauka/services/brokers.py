@@ -8,6 +8,7 @@ import multiprocessing
 import config
 import protobuf.pb_util
 
+from plugins.routes import Routes
 
 def start_mauka_pub_sub_broker(mauka_config: config.MaukaConfig):
     """
@@ -90,7 +91,7 @@ def start_makai_event_bridge(mauka_config: config.MaukaConfig):
             event_id = int(event_msg[1])
             makai_event = protobuf.pb_util.build_makai_event("makai_event_bridge", event_id)
             mauka_message_bytes = protobuf.pb_util.serialize_message(makai_event)
-            zmq_pub_socket.send_multipart(("MakaiEvent".encode(), mauka_message_bytes))
+            zmq_pub_socket.send_multipart((Routes.makai_event.encode(), mauka_message_bytes))
 
         _logger.info("Exiting makai event bridge")
 

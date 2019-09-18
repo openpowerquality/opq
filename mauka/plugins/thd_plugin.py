@@ -14,6 +14,8 @@ import plugins.base_plugin
 import protobuf.mauka_pb2
 import protobuf.pb_util
 
+from plugins.routes import Routes
+
 
 def rolling_window(array: numpy.ndarray, window_size: int) -> typing.List[numpy.ndarray]:
     """
@@ -117,7 +119,7 @@ class ThdPlugin(plugins.base_plugin.MaukaPlugin):
         :param conf: Mauka configuration
         :param exit_event: Exit event that can disable this plugin from parent process
         """
-        super().__init__(conf, ["AdcSamples", "ThdRequestEvent"], ThdPlugin.NAME, exit_event)
+        super().__init__(conf, [Routes.adc_samples, Routes.thd_request_event], ThdPlugin.NAME, exit_event)
         self.threshold_percent = float(self.config.get("plugins.ThdPlugin.threshold.percent"))
         self.sliding_window_ms = float(self.config.get("plugins.ThdPlugin.window.size.ms"))
 
@@ -146,9 +148,9 @@ class ThdPlugin(plugins.base_plugin.MaukaPlugin):
 
             for incident_id in incident_ids:
                 # Produce a message to the GC
-                self.produce("laha_gc", protobuf.pb_util.build_gc_update(self.name,
-                                                                         protobuf.mauka_pb2.INCIDENTS,
-                                                                         incident_id))
+                self.produce(Routes.laha_gc, protobuf.pb_util.build_gc_update(self.name,
+                                                                              protobuf.mauka_pb2.INCIDENTS,
+                                                                              incident_id))
         else:
             self.logger.error("Received incorrect mauka message [%s] at ThdPlugin",
                               protobuf.pb_util.which_message_oneof(mauka_message))

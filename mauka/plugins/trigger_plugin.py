@@ -17,6 +17,8 @@ import mongo
 import plugins.base_plugin
 import protobuf.pb_util as pb_util
 
+from plugins.routes import Routes
+
 
 def produce_makai_event_id(pub_socket: zmq.Socket, event_id: int):
     """
@@ -26,7 +28,7 @@ def produce_makai_event_id(pub_socket: zmq.Socket, event_id: int):
     """
     makai_event = pb_util.build_makai_event("TriggerPlugin", event_id)
     serialized_makai_event = pb_util.serialize_message(makai_event)
-    pub_socket.send_multipart(("MakaiEvent".encode(), serialized_makai_event))
+    pub_socket.send_multipart((Routes.makai_event.encode(), serialized_makai_event))
 
 
 def next_event_id(event_id_socket: zmq.Socket) -> int:
@@ -358,7 +360,7 @@ class TriggerPlugin(plugins.base_plugin.MaukaPlugin):
 
         :param conf: Configuration dictionary
         """
-        super().__init__(conf, ["TriggerRequest"], TriggerPlugin.NAME, exit_event)
+        super().__init__(conf, [Routes.trigger_request], TriggerPlugin.NAME, exit_event)
         # Setup ZMQ
         zmq_context = zmq.Context()
         self.zmq_trigger_interface: str = conf.get("zmq.trigger.interface")
