@@ -130,9 +130,9 @@ class SystemStatsPlugin(plugins.base_plugin.MaukaPlugin):
         :param exit_event: Exit event
         """
         super().__init__(conf,
-                         [self.routes.heartbeat,
-                          self.routes.gc_stat,
-                          self.routes.box_measurement_rate_response],
+                         [super().routes.heartbeat,
+                          super().routes.gc_stat,
+                          super().routes.box_measurement_rate_response],
                          SystemStatsPlugin.NAME, exit_event)
         self.interval_s = conf.get("plugins.SystemStatsPlugin.intervalS")
         self.system_stats_interval_s = conf.get("plugins.SystemStatsPlugin.systemStatsIntervalS")
