@@ -180,10 +180,10 @@ class MakaiOptimizationResultSubscriber(threading.Thread):
         self.logger.info("MakaiDataSubscriber thread started")
         while True:
             # Receive data and extract parameters
-            self.logger.debug("Recv resp.")
             data = self.zmq_socket.recv_multipart()
             identity = data[0].decode()
             response = pb_util.deserialize_makai_response(data[1])
+            self.logger.debug("Recv resp %s" % str(response))
             if pb_util.is_makai_message_rate_response(response):
                 self.logger.debug("Recv makai message rate response %s" % str(response))
                 self.box_optimization_records.check_record(identity)
@@ -311,36 +311,36 @@ class BoxOptimizationPlugin(plugins.base_plugin.MaukaPlugin):
         else:
             self.box_optimization_logger.error("Received incorrect type of MaukaMessage :%s" % str(mauka_message))
 
-# if __name__ == "__main__":
-#     import logging
-#
-#     logger = logging.getLogger()
-#     logger.setLevel(logging.DEBUG)
-#
-#     logger.info("Starting test")
-#
-#     trigger_interface = "tcp://127.0.0.1:9884"
-#     data_interface = "tcp://127.0.0.1:9899"
-#
-#     zmq_context = zmq.Context()
-#
-#     zmq_trigger_socket = zmq_context.socket(zmq.PUSH)
-#     zmq_trigger_socket.connect(trigger_interface)
-#
-#     cmd_socket = zmq_context.socket(zmq.SUB)
-#     cmd_socket.setsockopt(zmq.SUBSCRIBE, "maukainfo_".encode())
-#     cmd_socket.connect(data_interface)
-#
-#     opt_logger = BoxOptimizationPluginLogger(logger)
-#     box_optimization_records = BoxOptimizationRecords(opt_logger)
-#     makai_data_subscriber = MakaiOptimizationResultSubscriber(data_interface,
-#                                                               box_optimization_records,
-#                                                               opt_logger)
-#
-#     makai_data_subscriber.start()
-#
-#     modify_measurement_window_cycles(zmq_trigger_socket,
-#                                      ["1004", "1006"],
-#                                      60,
-#                                      box_optimization_records,
-#                                      opt_logger)
+if __name__ == "__main__":
+    import logging
+
+    logger = logging.getLogger()
+    logger.setLevel(logging.DEBUG)
+
+    logger.info("Starting test")
+
+    trigger_interface = "tcp://127.0.0.1:9884"
+    data_interface = "tcp://127.0.0.1:9899"
+
+    zmq_context = zmq.Context()
+
+    zmq_trigger_socket = zmq_context.socket(zmq.PUSH)
+    zmq_trigger_socket.connect(trigger_interface)
+
+    cmd_socket = zmq_context.socket(zmq.SUB)
+    cmd_socket.setsockopt(zmq.SUBSCRIBE, "maukainfo_".encode())
+    cmd_socket.connect(data_interface)
+
+    opt_logger = BoxOptimizationPluginLogger(logger)
+    box_optimization_records = BoxOptimizationRecords(opt_logger)
+    makai_data_subscriber = MakaiOptimizationResultSubscriber(data_interface,
+                                                              box_optimization_records,
+                                                              opt_logger,
+                                                              None)
+
+    makai_data_subscriber.start()
+
+    send_box_info_cmds(zmq_trigger_socket,
+                       ["1000"],
+                       box_optimization_records,
+                       opt_logger)
