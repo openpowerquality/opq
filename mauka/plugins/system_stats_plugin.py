@@ -400,10 +400,11 @@ class SystemStatsPlugin(plugins.base_plugin.MaukaPlugin):
         if protobuf.pb_util.is_heartbeat_message(mauka_message):
             self.debug("Received heartbeat message, updating plugin stats.")
             self.plugin_stats[mauka_message.source] = json.loads(mauka_message.heartbeat.status)
-            box_measurement_rate_request = protobuf.pb_util.build_box_measurement_rate_request("system_stats_plugin",
-                                                                                               list(
-                                                                                                   self.active_devices()))
-            self.produce(ROUTES.box_measurement_rate_request, box_measurement_rate_request)
+            if mauka_message.source == SystemStatsPlugin.NAME:
+                box_measurement_rate_request = protobuf.pb_util.build_box_measurement_rate_request("system_stats_plugin",
+                                                                                                   list(
+                                                                                                       self.active_devices()))
+                self.produce(ROUTES.box_measurement_rate_request, box_measurement_rate_request)
         elif protobuf.pb_util.is_gc_stat(mauka_message):
             self.debug("Received gc_stat message")
             self.handle_gc_stat_message(mauka_message)
