@@ -9,3 +9,4 @@ _book
 util/docker-utils/*.gz
 Cargo.lock
 **/target/*
+**/*.so
