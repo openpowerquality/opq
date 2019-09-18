@@ -16,7 +16,9 @@ import protobuf.pb_util as pb_util
 import plugins.routes as routes
 
 PLUGIN_NAME = "BoxOptimizationPlugin"
-SUBSCRIBED_TOPICS = ["BoxOptimizationRequest", "BoxInfoRequest", routes.Routes().box_measurement_rate_request]
+ROUTES = routes.Routes()
+SUBSCRIBED_TOPICS = [ROUTES.box_optimization_request,
+                     ROUTES.box_measurement_rate_request]
 
 
 def timestamp_ms() -> int:
@@ -151,7 +153,8 @@ class MakaiOptimizationResultSubscriber(threading.Thread):
     def __init__(self,
                  makai_recv_interface: str,
                  box_optimization_records: BoxOptimizationRecords,
-                 logger: BoxOptimizationPluginLogger):
+                 logger: BoxOptimizationPluginLogger,
+                 box_optimization_plugin: typing.Optional['BoxOptimizationPlugin'] = None):
 
         super().__init__()
 
@@ -159,6 +162,7 @@ class MakaiOptimizationResultSubscriber(threading.Thread):
         self.zmq_context = zmq.Context()
         self.zmq_socket = self.zmq_context.socket(zmq.SUB)
         self.zmq_socket.setsockopt(zmq.SUBSCRIBE, "maukarate_".encode())
+        self.zmq_socket.setsockopt(zmq.SUBSCRIBE, "maukainfo_".encode())
         self.zmq_socket.connect(makai_recv_interface)
 
         # Thead-safe box optimization records
@@ -166,6 +170,8 @@ class MakaiOptimizationResultSubscriber(threading.Thread):
 
         # Logging
         self.logger = logger
+
+        self.box_optimization_plugin = box_optimization_plugin
 
     # pylint: disable=E1101
     # noinspection PyUnresolvedReferences
@@ -183,6 +189,15 @@ class MakaiOptimizationResultSubscriber(threading.Thread):
             if pb_util.is_makai_message_rate_response(response):
                 self.logger.debug("Recv makai message rate response %s" % str(response))
                 self.box_optimization_records.check_record(identity)
+            elif pb_util.is_makai_info_response(response) and self.box_optimization_plugin is not None:
+                self.logger.debug("Recv box info response")
+                self.box_optimization_records.check_record(identity)
+                info_response = response.info_response
+                if info_response.measurement_rate > 0:
+                    box_measurement_rate_response = pb_util.build_box_measurement_rate_response("box_optimization_plugin",
+                                                                                                str(response.box_id),
+                                                                                                info_response.measurement_rate)
+                    self.box_optimization_plugin.produce(ROUTES.box_measurement_rate_response, box_measurement_rate_response)
             else:
                 self.logger.error("Recv incorrect resp type")
 
@@ -214,6 +229,19 @@ def modify_measurement_window_cycles(makai_send_socket: zmq.Socket,
         makai_send_socket.send(serialized_box_command)
         box_optimization_records.add_record(identity)
         logger.debug("Sent optimization request command with identity=%s" % identity)
+
+def send_box_info_cmds(makai_send_socket: zmq.Socket,
+                       box_ids: typing.List[str],
+                       box_optimization_records: BoxOptimizationRecords,
+                       logger: BoxOptimizationPluginLogger):
+
+    for box_id in box_ids:
+        cmd, identity = pb_util.build_makai_get_info_command(box_id)
+        box_optimization_records.add_record(identity)
+        serialized_cmd = pb_util.serialize_message(cmd)
+        makai_send_socket.send(serialized_cmd)
+        logger.debug("Sent box info command %s" % str(cmd))
+
 
 
 class BoxOptimizationPlugin(plugins.base_plugin.MaukaPlugin):
@@ -267,7 +295,11 @@ class BoxOptimizationPlugin(plugins.base_plugin.MaukaPlugin):
                                              self.box_optimization_records,
                                              self.logger)
         if pb_util.is_box_measurement_rate_request(mauka_message):
-            pass
+            self.box_optimization_logger.debug("Recv box measurement rate request")
+            send_box_info_cmds(self.makai_send_socket,
+                               mauka_message.box_measuremet_rate_request.box_ids,
+                               self.box_optimization_records,
+                               self.logger)
         else:
             self.box_optimization_logger.error("Received incorrect type of MaukaMessage :%s" % str(mauka_message))
 
