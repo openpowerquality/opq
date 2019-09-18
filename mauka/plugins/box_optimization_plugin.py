@@ -301,13 +301,13 @@ class BoxOptimizationPlugin(plugins.base_plugin.MaukaPlugin):
                                              box_optimization_request.box_ids,
                                              box_optimization_request.measurement_window_cycles,
                                              self.box_optimization_records,
-                                             self.logger)
+                                             self.box_optimization_logger)
         if pb_util.is_box_measurement_rate_request(mauka_message):
             self.box_optimization_logger.debug("Recv box measurement rate request: %s" % str(mauka_message))
             send_box_info_cmds(self.makai_send_socket,
                                mauka_message.box_measurement_rate_request.box_ids,
                                self.box_optimization_records,
-                               self.logger)
+                               self.box_optimization_logger)
         else:
             self.box_optimization_logger.error("Received incorrect type of MaukaMessage :%s" % str(mauka_message))
 
