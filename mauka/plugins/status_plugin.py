@@ -22,16 +22,16 @@ import typing
 
 import config
 import plugins.base_plugin
+from plugins.routes import Routes
 import protobuf.pb_util
 import protobuf.mauka_pb2 as mauka_pb2
 
-from plugins.routes import Routes
 
 
 def fmt_list(values: typing.List) -> str:
     """
     Formats a list suitable for json.
-    :param l: List to format.
+    :param values: The values to format.
     :return: A formatted list suitable for json.
     """
     return "[%s]" % ", ".join(values)
@@ -40,7 +40,7 @@ def fmt_list(values: typing.List) -> str:
 def fmt_bool(boolean: bool) -> str:
     """
     Formats a bool suitable for json.
-    :param b: Bool to format.
+    :param boolean: Bool to format.
     :return: A formatted bool suitable for json.
     """
     return str(boolean).lower()
@@ -49,7 +49,7 @@ def fmt_bool(boolean: bool) -> str:
 def fmt_str(string: str) -> str:
     """
     Formats a str suitable for json.
-    :param s: String to format.
+    :param string: String to format.
     :return: A formatted string suitable for json.
     """
     return '"%s"' % string
@@ -100,7 +100,7 @@ class StateComponent:
             :param state_component: The state component to serialize.
             :return: JSON representation of the state component.
             """
-            if len(state_component.subcomponents) == 0:
+            if not state_component.subcomponents:
                 return '{"name": %s, "ok": %s, "timestamp": %d, "subcomponents": []}' % (
                     fmt_str(state_component.name),
                     fmt_bool(state_component.ok),

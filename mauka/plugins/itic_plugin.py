@@ -12,10 +12,10 @@ import analysis
 import config
 import mongo
 import plugins.base_plugin
+from plugins.routes import Routes
 import protobuf.mauka_pb2
 import protobuf.pb_util
 
-from plugins.routes import Routes
 
 
 class IticRegion(enum.Enum):
@@ -165,9 +165,9 @@ def itic(mauka_message: protobuf.mauka_pb2.MaukaMessage,
          opq_mongo_client: typing.Optional[mongo.OpqMongoClient] = None) -> typing.List[int]:
     """
     Computes the ITIC region for a given waveform.
-    :param mauka_message:
+    :param itic_plugin: An instance of this plugin.
+    :param mauka_message: A mauka message.
     :param segment_threshold: Threshold for segmentation
-    :param logger: Optional logger to use to print information
     :param opq_mongo_client:  Optional DB client to re-use (otherwise new one will be created)
     :return: ITIC region.
     """
@@ -199,22 +199,22 @@ def itic(mauka_message: protobuf.mauka_pb2.MaukaMessage,
                 incident_classification = mongo.IncidentClassification.ITIC_NO_DAMAGE
 
             incident_id = mongo.store_incident(
-                    mauka_message.payload.event_id,
-                    mauka_message.payload.box_id,
-                    incident_start_timestamp_ms,
-                    incident_end_timestamp_ms,
-                    mongo.IncidentMeasurementType.VOLTAGE,
-                    mean_rms - 120.0,
-                    [incident_classification],
-                    [],
-                    {},
-                    mongo_client)
+                mauka_message.payload.event_id,
+                mauka_message.payload.box_id,
+                incident_start_timestamp_ms,
+                incident_end_timestamp_ms,
+                mongo.IncidentMeasurementType.VOLTAGE,
+                mean_rms - 120.0,
+                [incident_classification],
+                [],
+                {},
+                mongo_client)
 
             maybe_debug(itic_plugin,
                         "Found ITIC incident [{}] from event {} and box {}".format(
-                                itic_enum,
-                                mauka_message.event_id,
-                                mauka_message.box_id))
+                            itic_enum,
+                            mauka_message.event_id,
+                            mauka_message.box_id))
 
             incident_ids.append(incident_id)
 

@@ -14,11 +14,10 @@ import psutil
 import config
 import mongo
 import plugins.base_plugin
-import plugins.routes as routes
+from plugins.routes import Routes
 import protobuf.mauka_pb2
 import protobuf.pb_util
 
-from plugins.routes import Routes
 
 TriggeringOverrideType = typing.Dict[str, typing.Union[str, float]]
 TriggeringType = typing.Dict[str, typing.Union[float, typing.List[TriggeringOverrideType]]]
@@ -34,7 +33,13 @@ def timestamp() -> int:
 
 def box_triggering_thresholds(box_ids: typing.Set[str],
                               opq_mongo_client: typing.Optional[mongo.OpqMongoClient] = None) -> typing.List[
-        typing.Dict[str, float]]:
+                                  typing.Dict[str, float]]:
+    """
+    Gets the box triggering thresholds for the provided boxes. Will use the override if found, otherwise detault.
+    :param box_ids: The box ids to get triggering thresholds for.
+    :param opq_mongo_client: An optional opq ongo client.
+    :return: A list of thresholds for each box.
+    """
     mongo_client = mongo.get_default_client(opq_mongo_client)
     triggering_thresholds: TriggeringType = mongo_client.makai_config_collection.find_one()["triggering"]
     triggering_overrides: typing.Dict[str, TriggeringOverrideType] = {}
@@ -89,12 +94,13 @@ class DescriptiveStatistic:
         """
         ts_s = timestamp_s if timestamp_s is not None else timestamp()
 
-        if len(self.values) == 0:
+        if not self.values:
             self.start_timestamp_s = ts_s
 
         self.values.append(value)
         self.end_timestamp_s = ts_s
 
+    # noinspection PyArgumentList
     def get(self) -> typing.Dict:
         """
         Returns the contents of this class as a dictionary for easy storage in MongoDB.
@@ -186,9 +192,9 @@ class SystemStatsPlugin(plugins.base_plugin.MaukaPlugin):
         fs_files_size_bytes = sum(map(lambda fs_file: fs_file["length"], only_events))
         self.debug("Done collecting event stats.")
         return (
-                events_collection_size_bytes +
-                box_events_collection_size_bytes +
-                fs_files_size_bytes
+            events_collection_size_bytes +
+            box_events_collection_size_bytes +
+            fs_files_size_bytes
         )
 
     def incidents_size_bytes(self) -> int:
@@ -211,16 +217,20 @@ class SystemStatsPlugin(plugins.base_plugin.MaukaPlugin):
         self.debug("Done collecting incident stats.")
 
         return (
-                incidents_collection_size_bytes +
-                fs_files_size_bytes
+            incidents_collection_size_bytes +
+            fs_files_size_bytes
         )
 
     def active_devices(self) -> typing.Set[str]:
+        """
+        Returns the set of active device ids.
+        :return: The set of active device ids.
+        """
         measurements_last_minute = self.mongo_client.measurements_collection.find(
-                {"timestamp_ms": {"$gt": (timestamp() - 5) * 1000}},
-                projection={"_id": False,
-                            "timestamp_ms": True,
-                            "box_id": True})
+            {"timestamp_ms": {"$gt": (timestamp() - 5) * 1000}},
+            projection={"_id": False,
+                        "timestamp_ms": True,
+                        "box_id": True})
         return set(map(lambda measurement: measurement["box_id"], measurements_last_minute))
 
     def num_active_devices(self) -> int:
@@ -232,7 +242,8 @@ class SystemStatsPlugin(plugins.base_plugin.MaukaPlugin):
         """
         return len(self.active_devices())
 
-    def phenomena_size_bytes(self) -> int:
+    @staticmethod
+    def phenomena_size_bytes() -> int:
         """
         Returns the size of phenomena content.
         :return: The size of phenomena content.
@@ -263,6 +274,10 @@ class SystemStatsPlugin(plugins.base_plugin.MaukaPlugin):
             self.logger.warning("Unknown domain %s", gc_domain)
 
     def handle_box_measurement_rate_response(self, mauka_message: protobuf.mauka_pb2.MaukaMessage):
+        """
+        Handles a box measurement rate response.
+        :param mauka_message: Mauke message containing the response.
+        """
         box_measurement_rate_response = mauka_message.box_measurement_rate_response
         self.box_measurement_rates[
             box_measurement_rate_response.box_id] = box_measurement_rate_response.measurement_rate
@@ -279,14 +294,16 @@ class SystemStatsPlugin(plugins.base_plugin.MaukaPlugin):
         timer = threading.Timer(interval_s, self.update_system_stats, args=[interval_s])
         timer.start()
 
-    def cpu_load_percent(self) -> float:
+    @staticmethod
+    def cpu_load_percent() -> float:
         """
         Gets the CPU load as a percentage.
         :return: The CPU load as a percentage.
         """
         return psutil.cpu_percent()
 
-    def memory_use_bytes(self) -> int:
+    @staticmethod
+    def memory_use_bytes() -> int:
         """
         Returns the memory usage in bytes.
         :return: The memory usage in bytes.
@@ -294,7 +311,8 @@ class SystemStatsPlugin(plugins.base_plugin.MaukaPlugin):
         mem_stats = psutil.virtual_memory()
         return mem_stats.total - mem_stats.available
 
-    def disk_use_bytes(self) -> int:
+    @staticmethod
+    def disk_use_bytes() -> int:
         """
         Return the disk usage in bytes.
         :return: The disk usage in bytes.
@@ -401,9 +419,9 @@ class SystemStatsPlugin(plugins.base_plugin.MaukaPlugin):
             self.debug("Received heartbeat message, updating plugin stats.")
             self.plugin_stats[mauka_message.source] = json.loads(mauka_message.heartbeat.status)
             if mauka_message.source == SystemStatsPlugin.NAME:
-                box_measurement_rate_request = protobuf.pb_util.build_box_measurement_rate_request("system_stats_plugin",
-                                                                                                   list(
-                                                                                                       self.active_devices()))
+                box_measurement_rate_request = protobuf.pb_util.build_box_measurement_rate_request(
+                    "system_stats_plugin", list(self.active_devices())
+                )
                 self.produce(Routes.box_measurement_rate_request, box_measurement_rate_request)
         elif protobuf.pb_util.is_gc_stat(mauka_message):
             self.debug("Received gc_stat message")
@@ -414,6 +432,3 @@ class SystemStatsPlugin(plugins.base_plugin.MaukaPlugin):
         else:
             self.logger.error("Received incorrect mauka message [%s] at %s",
                               protobuf.pb_util.which_message_oneof(mauka_message), SystemStatsPlugin.NAME)
-
-# if __name__ == "__main__":
-#     print(box_triggering_thresholds({"1003", "1004", "1005"}))

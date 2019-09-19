@@ -15,16 +15,11 @@ import config
 import constants
 import mongo
 import plugins.base_plugin
-import plugins.frequency_variation_plugin
-import plugins.ieee1159_voltage_plugin
-import plugins.itic_plugin
-import plugins.laha_gc_plugin
-import plugins.semi_f47_plugin
+from plugins.routes import Routes
 import plugins.thd_plugin
 import protobuf.mauka_pb2
 import protobuf.pb_util
 
-from plugins.routes import Routes
 
 
 def smooth_waveform(sample: numpy.ndarray, filter_order: int = 2, cutoff_frequency: float = 500.0,
@@ -84,6 +79,7 @@ def vrms_waveform(waveform: numpy.ndarray, window_size: int = constants.SAMPLES_
         waveform = waveform[window_size:]
         rms_voltages.append(vrms(samples))
 
+    # pylint: disable=len-as-condition
     if len(waveform) > 0:
         rms_voltages.append(vrms(waveform))
 
@@ -146,13 +142,14 @@ def frequency_waveform(waveform: numpy.ndarray, window_size: int, filter_order: 
         filtered_waveform = filtered_waveform[window_size:]
         frequencies.append(frequency(samples, down_sample_factor))
 
+    # pylint: disable=len-as-condition
     if len(filtered_waveform) > 0:
         frequencies.append(frequency(filtered_waveform, down_sample_factor))
 
     return numpy.array(frequencies)
 
 
-ACQUIRE_DATA_TYPE = typing.Tuple[
+AcquireDataType = typing.Tuple[
     protobuf.mauka_pb2.MaukaMessage,
     protobuf.mauka_pb2.MaukaMessage,
     protobuf.mauka_pb2.MaukaMessage,
@@ -163,7 +160,7 @@ def acquire_data(mongo_client: mongo.OpqMongoClient,
                  makai_event_plugin: 'MakaiEventPlugin',
                  event_id: int, box_id: str, name: str, filter_order: int,
                  filter_cutoff_frequency: float, frequency_samples_per_window: int,
-                 filter_down_sample_factor: int) -> ACQUIRE_DATA_TYPE:
+                 filter_down_sample_factor: int) -> AcquireDataType:
     """
     Given an event_id, acquire the raw data for each box associated with the given event. Perform feature
     extraction of the raw data and publish those features for downstream plugins.

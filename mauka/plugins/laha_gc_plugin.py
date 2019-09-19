@@ -7,10 +7,10 @@ import time
 
 import config
 import plugins.base_plugin as base_plugin
+from plugins.routes import Routes
 import protobuf.pb_util as util_pb2
 import protobuf.mauka_pb2 as mauka_pb2
 
-from plugins.routes import Routes
 
 
 def timestamp_s() -> int:

@@ -12,10 +12,10 @@ import constants
 
 import config
 import plugins.base_plugin
+from plugins.routes import Routes
 import protobuf.mauka_pb2
 import protobuf.pb_util
 
-from plugins.routes import Routes
 
 # Pu signifying a current cycle has already been accounted for in an incident
 ALREADY_ACCOUNTED = -1

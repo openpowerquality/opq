@@ -10,11 +10,11 @@ import numpy
 import config
 import constants
 import plugins.base_plugin
+from plugins.routes import Routes
 import protobuf.mauka_pb2
 import protobuf.pb_util
 import mongo
 
-from plugins.routes import Routes
 
 
 def maybe_debug(frequency_variation_plugin: typing.Optional['FrequencyVariationPlugin'],
@@ -103,12 +103,12 @@ def frequency_incident_classifier(event_id: int,
                     incident_end_ts = (idx - max_lull) * window_duration_ms + box_event_start_ts
 
                     maybe_debug(
-                            frequency_variation_plugin,
-                            "Found Frequency incident [{}] from event {} and box {}".format(
-                                    running_incident,
-                                    event_id,
-                                    box_id
-                            ))
+                        frequency_variation_plugin,
+                        "Found Frequency incident [{}] from event {} and box {}".format(
+                            running_incident,
+                            event_id,
+                            box_id
+                        ))
                     incidents.append({"event_id": event_id, "box_id": box_id, "incident_start_ts": incident_start_ts,
                                       "incident_end_ts": incident_end_ts,
                                       "incident_type": mongo.IncidentMeasurementType.FREQUENCY,
@@ -137,12 +137,12 @@ def frequency_incident_classifier(event_id: int,
     if running_incident:  # make and store incident doc
         incident_end_ts = len(windowed_frequencies - lull_count) * window_duration_ms + box_event_start_ts
         maybe_debug(
-                frequency_variation_plugin,
-                "Found Frequency incident [{}] from event {} and box {}".format(
-                        running_incident,
-                        event_id,
-                        box_id
-                ))
+            frequency_variation_plugin,
+            "Found Frequency incident [{}] from event {} and box {}".format(
+                running_incident,
+                event_id,
+                box_id
+            ))
         incidents.append({"event_id": event_id, "box_id": box_id, "incident_start_ts": incident_start_ts,
                           "incident_end_ts": incident_end_ts,
                           "incident_type": mongo.IncidentMeasurementType.FREQUENCY,
@@ -168,7 +168,7 @@ class FrequencyVariationPlugin(plugins.base_plugin.MaukaPlugin):
         self.freq_ref = float(self.config.get("plugins.FrequencyVariationPlugin.frequency.ref"))
         self.freq_var_low = float(self.config.get("plugins.FrequencyVariationPlugin.frequency.variation.threshold.low"))
         self.freq_var_high = float(self.config.get(
-                "plugins.FrequencyVariationPlugin.frequency.variation.threshold.high"))
+            "plugins.FrequencyVariationPlugin.frequency.variation.threshold.high"))
         self.freq_interruption = float(self.config.get("plugins.FrequencyVariationPlugin.frequency.interruption"))
         self.frequency_window_cycles = int(self.config.get("plugins.MakaiEventPlugin.frequencyWindowCycles"))
         self.max_lull = int(self.config.get("plugins.FrequencyVariationPlugin.max.lull.windows"))
@@ -200,16 +200,16 @@ class FrequencyVariationPlugin(plugins.base_plugin.MaukaPlugin):
 
             for incident in incidents:
                 incident_id = mongo.store_incident(
-                        incident["event_id"],
-                        incident["box_id"],
-                        incident["incident_start_ts"],
-                        incident["incident_end_ts"],
-                        incident["incident_type"],
-                        incident["avg_deviation"],
-                        incident["incident_classifications"],
-                        incident["annotations"],
-                        incident["metadata"],
-                        self.mongo_client
+                    incident["event_id"],
+                    incident["box_id"],
+                    incident["incident_start_ts"],
+                    incident["incident_end_ts"],
+                    incident["incident_type"],
+                    incident["avg_deviation"],
+                    incident["incident_classifications"],
+                    incident["annotations"],
+                    incident["metadata"],
+                    self.mongo_client
                 )
 
                 # Produce a message to the GC
@@ -241,16 +241,16 @@ def rerun(mongo_client: mongo.OpqMongoClient, logger, mauka_message: protobuf.ma
 
         for incident in incidents:
             mongo.store_incident(
-                    incident["event_id"],
-                    incident["box_id"],
-                    incident["incident_start_ts"],
-                    incident["incident_end_ts"],
-                    incident["incident_type"],
-                    incident["avg_deviation"],
-                    incident["incident_classifications"],
-                    incident["annotations"],
-                    incident["metadata"],
-                    client
+                incident["event_id"],
+                incident["box_id"],
+                incident["incident_start_ts"],
+                incident["incident_end_ts"],
+                incident["incident_type"],
+                incident["avg_deviation"],
+                incident["incident_classifications"],
+                incident["annotations"],
+                incident["metadata"],
+                client
             )
     else:
         logger.error("Received incorrect mauka message [%s] at FrequencyVariationPlugin",

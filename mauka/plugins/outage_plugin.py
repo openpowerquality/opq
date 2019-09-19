@@ -35,6 +35,7 @@ def is_unplugged(mongo_client: mongo.OpqMongoClient, box_id: str) -> bool:
     :return: Whether or not the box is unplugged. If a box can't be found or a value is not there then defaults True.
     """
     opq_box = mongo_client.opq_boxes_collection.find_one({"box_id": box_id}, {"_id": False, "unplugged": True})
+    # pylint: disable=len-as-condition
     if opq_box is None or len(opq_box) == 0:
         return True
     else:

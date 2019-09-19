@@ -11,10 +11,10 @@ import config
 import constants
 import mongo
 import plugins.base_plugin
+from plugins.routes import Routes
 import protobuf.mauka_pb2
 import protobuf.pb_util
 
-from plugins.routes import Routes
 
 
 def rolling_window(array: numpy.ndarray, window_size: int) -> typing.List[numpy.ndarray]:

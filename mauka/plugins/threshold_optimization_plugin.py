@@ -9,9 +9,9 @@ import bson
 
 import config
 import plugins.base_plugin
+from plugins.routes import Routes
 import protobuf.pb_util as pb_util
 
-from plugins.routes import Routes
 
 # Types used when discussing type unsafe data (essentially mongo docs as dicts)
 # pylint: disable=C0103

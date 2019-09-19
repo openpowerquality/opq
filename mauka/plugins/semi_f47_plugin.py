@@ -8,12 +8,12 @@ import numpy
 
 import config
 import plugins.base_plugin
+from plugins.routes import Routes
 import protobuf.pb_util
 import protobuf.mauka_pb2
 import constants
 import mongo
 
-from plugins.routes import Routes
 
 PU = 120.0
 
@@ -76,7 +76,7 @@ def semi_violation(mongo_client, mauka_message) -> typing.List[int]:
     incident_ids = []
     for idx in range(3):
         possible_violations = viol_check(data, lvl[idx])
-        if len(possible_violations) > 0:
+        if possible_violations:
             # there are violations
             for _, violation in enumerate(possible_violations):
                 dev = max(abs(120.0 - numpy.max(data[violation[0], violation[1]])),

@@ -15,9 +15,9 @@ import zmq
 import config
 import mongo
 import plugins.base_plugin
+from plugins.routes import Routes
 import protobuf.pb_util as pb_util
 
-from plugins.routes import Routes
 
 
 def produce_makai_event_id(pub_socket: zmq.Socket, event_id: int):
@@ -270,7 +270,7 @@ class MakaiDataSubscriber(threading.Thread):
 
                 # If this was the last box we were waiting on, we can not produce an event_id to MakaiEventPlugin for
                 # analysis. We'll also remove the record since we're not longer waiting on any boxes.
-                if len(self.trigger_records.box_ids_for_token(event_token)) == 0:
+                if not self.trigger_records.box_ids_for_token(event_token):
                     produce_makai_event_id(self.zmq_producer, event_id)
                     self.logger.debug("Removing record for event_token %s", event_token)
                     self.trigger_records.remove_record(event_token)

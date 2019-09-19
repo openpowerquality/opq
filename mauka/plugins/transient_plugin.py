@@ -12,11 +12,11 @@ from scipy import signal
 import config
 import constants
 import plugins.base_plugin
+from plugins.routes import Routes
 import protobuf.mauka_pb2
 import protobuf.pb_util
 import mongo
 
-from plugins.routes import Routes
 
 
 def transient_sliding_window(filtered_waveform: numpy.ndarray, noise_floor: float, max_lull_ms: float) -> list:
@@ -92,6 +92,7 @@ def waveform_filter(raw_waveform: numpy.ndarray, filter_order: int, transient_cu
     # First, design the Butterworth filter
     # Cutoff frequencies in half-cycles / sample
     cutoff_frequency_nyquist = transient_cutoff_frequency * 2 / constants.SAMPLE_RATE_HZ
+    # noinspection PyTupleAssignmentBalance
     numerator, denominator = signal.butter(filter_order, cutoff_frequency_nyquist, output='ba')
 
     fundamental_waveform = signal.filtfilt(numerator, denominator, raw_waveform)
@@ -229,6 +230,7 @@ def arcing_classifier(filtered_waveform: numpy.ndarray, configs: dict) -> (bool,
     num_cycles = transient_zero_xings.sum()
 
     if num_cycles >= 10:
+        # noinspection PyArgumentList
         if numpy.unique(numpy.diff(numpy.where(transient_zero_xings)), return_counts=True)[1].max() > 2:
             return True, {'Num_Cycles': num_cycles}
 
@@ -273,7 +275,7 @@ def periodic_notching_classifier(filtered_waveform: numpy.ndarray, fundamental_w
         return False, {}
     else:
         average_amplitude = numpy.average(
-                transient_abs[signal.find_peaks(transient_abs)[0]]) + configs['noise_floor']
+            transient_abs[signal.find_peaks(transient_abs)[0]]) + configs['noise_floor']
         average_period = numpy.average(periods) / constants.SAMPLE_RATE_HZ
         return True, {'amplitude': average_amplitude, 'period': average_period}
 
@@ -415,9 +417,9 @@ class TransientPlugin(plugins.base_plugin.MaukaPlugin):
             "arc_zero_xing_threshold": int(self.config.get("plugins.TransientPlugin.arcing.zero.crossing.threshold")),
             "max_lull_ms": float(self.config.get("plugins.TransientPlugin.max.lull.ms")),
             "max_std_periodic_notching": float(self.config.get(
-                    "plugins.TransientPlugin.max.periodic.notching.std.dev")),
+                "plugins.TransientPlugin.max.periodic.notching.std.dev")),
             "auto_corr_thresh_periodicity": float(
-                    self.config.get("plugins.TransientPlugin.auto.corr.thresh.periodicity"))
+                self.config.get("plugins.TransientPlugin.auto.corr.thresh.periodicity"))
         }
 
     def on_message(self, topic, mauka_message):
@@ -438,16 +440,16 @@ class TransientPlugin(plugins.base_plugin.MaukaPlugin):
 
             for incident in incidents:
                 incident_id = mongo.store_incident(
-                        incident["event_id"],
-                        incident["box_id"],
-                        incident["incident_start_ts"],
-                        incident["incident_end_ts"],
-                        incident["incident_type"],
-                        incident["max_deviation"],
-                        incident["incident_classifications"],
-                        incident["annotations"],
-                        incident["metadata"],
-                        incident["mongo_client"]
+                    incident["event_id"],
+                    incident["box_id"],
+                    incident["incident_start_ts"],
+                    incident["incident_end_ts"],
+                    incident["incident_type"],
+                    incident["max_deviation"],
+                    incident["incident_classifications"],
+                    incident["annotations"],
+                    incident["metadata"],
+                    incident["mongo_client"]
                 )
                 # Produce a message to the GC
                 self.produce(Routes.laha_gc, protobuf.pb_util.build_gc_update(self.name,
