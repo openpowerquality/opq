@@ -99,7 +99,7 @@ const LahaStatsSchema = new SimpleSchema({
     phenomena_stats: PhenomenaStatsSchema,
     gc_stats: GcStatsSchema,
     box_triggering_thresholds: [BoxTriggeringThresholdSchema],
-    box_measurement_rates: [MeasurementRateSchema]
+    box_measurement_rates: [MeasurementRateSchema],
 });
 
 const GroundTruthSchema = new SimpleSchema({
