@@ -8,8 +8,8 @@ import typing
 
 import log
 
-CONFIG_VALUE_TYPE = typing.Union[str, int, float, bool, typing.Dict, typing.List]
-CONFIG_TYPE = typing.Dict[str, CONFIG_VALUE_TYPE]
+ConfigValueType = typing.Union[str, int, float, bool, typing.Dict, typing.List]
+ConfigType = typing.Dict[str, ConfigValueType]
 
 # pylint: disable=C0103
 logger = log.get_logger(__name__)
@@ -20,12 +20,12 @@ class MaukaConfig:
     An instance of a Mauka config that will throw when a key doesn't exist (unless a default is provided)
     """
 
-    def __init__(self, config_dict: CONFIG_TYPE):
-        self.config_dict: CONFIG_TYPE = self.replace_env(config_dict)
+    def __init__(self, config_dict: ConfigType):
+        self.config_dict: ConfigType = self.replace_env(config_dict)
         self.debug: bool = self.get("mauka.debug")
         self.debug_plugins: typing.Set[str] = set(self.get("mauka.debug.plugins"))
 
-    def replace_env(self, config_dict: CONFIG_TYPE) -> CONFIG_TYPE:
+    def replace_env(self, config_dict: ConfigType) -> ConfigType:
         """
         This function parses values from the config that are strings and start with a question mark "?" and replaces
         them with the value set in the environment using the name of everything after the question mark.
@@ -51,7 +51,7 @@ class MaukaConfig:
 
         return replacement_dict
 
-    def get(self, key: str, default: CONFIG_VALUE_TYPE = None) -> CONFIG_VALUE_TYPE:
+    def get(self, key: str, default: ConfigValueType = None) -> ConfigValueType:
         """
         Returns the value in the configuration associated with this key.
         :param key: The key to search for.
@@ -91,7 +91,7 @@ def from_file(path: str) -> MaukaConfig:
         raise FileNotFoundError("Error opening config at path {}".format(path))
 
 
-def from_dict(config_dict: CONFIG_TYPE) -> MaukaConfig:
+def from_dict(config_dict: ConfigType) -> MaukaConfig:
     """
     Create an instance of a MaukaConfig from a dictionary.
     :param config_dict: Dictionary of config values.
@@ -107,7 +107,7 @@ def from_env(environment_variable: str) -> MaukaConfig:
     :return: An instance of a MaukaConfig.
     """
     json_contents = os.environ.get(environment_variable)
-    if json_contents is None or len(json_contents) == 0:
+    if json_contents is None or not json_contents:
         logger.warning("No configuration found at env var = %s", environment_variable)
         raise RuntimeError("No configuration found at env var = %s" % environment_variable)
     return from_dict(json.loads(json_contents))

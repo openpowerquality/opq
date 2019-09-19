@@ -55,6 +55,7 @@ def segment(array: numpy.ndarray, delta: float) -> typing.List[numpy.ndarray]:
     if array is None or delta is None:
         return []
 
+    # pylint: disable=len-as-condition
     if len(array) == 0:
         return []
 
@@ -73,7 +74,7 @@ def segment(array: numpy.ndarray, delta: float) -> typing.List[numpy.ndarray]:
     stable_segments = []
     for i, is_stable in enumerate(stable):
         if is_stable:
-            if len(stable_segments) == 0:
+            if not stable_segments:
                 stable_segments.append([i, i + 1])
             else:
                 last = stable_segments[len(stable_segments) - 1]
