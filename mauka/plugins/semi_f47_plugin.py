@@ -82,16 +82,16 @@ def semi_violation(mongo_client, mauka_message) -> typing.List[int]:
                 dev = max(abs(120.0 - numpy.max(data[violation[0], violation[1]])),
                           abs(120.0 - numpy.min(data[violation[0], violation[1]])))
                 incident_id = mongo.store_incident(
-                        event_id,
-                        box_id,
-                        start_time_ms + violation[0] * time_datum,
-                        start_time_ms + (violation[1] + 1) * time_datum,
-                        mongo.IncidentMeasurementType.VOLTAGE,
-                        dev,
-                        [mongo.IncidentClassification.SEMI_F47_VIOLATION],
-                        [],
-                        {},
-                        mongo_client)
+                    event_id,
+                    box_id,
+                    start_time_ms + violation[0] * time_datum,
+                    start_time_ms + (violation[1] + 1) * time_datum,
+                    mongo.IncidentMeasurementType.VOLTAGE,
+                    dev,
+                    [mongo.IncidentClassification.SEMI_F47_VIOLATION],
+                    [],
+                    {},
+                    mongo_client)
 
                 incident_ids.append(incident_id)
     return incident_ids

@@ -157,16 +157,16 @@ def ieee1159_voltage(mauka_message: protobuf.mauka_pb2.MaukaMessage, rms_feature
             max_deviation = -max_deviation_neg
 
         incident_id = mongo.store_incident(
-                mauka_message.payload.event_id,
-                mauka_message.payload.box_id,
-                mauka_message.payload.start_timestamp_ms + analysis.c_to_ms(start_idx),
-                mauka_message.payload.start_timestamp_ms + analysis.c_to_ms(end_idx),
-                mongo.IncidentMeasurementType.VOLTAGE,
-                max_deviation,
-                [incident],
-                [],
-                {},
-                opq_mongo_client
+            mauka_message.payload.event_id,
+            mauka_message.payload.box_id,
+            mauka_message.payload.start_timestamp_ms + analysis.c_to_ms(start_idx),
+            mauka_message.payload.start_timestamp_ms + analysis.c_to_ms(end_idx),
+            mongo.IncidentMeasurementType.VOLTAGE,
+            max_deviation,
+            [incident],
+            [],
+            {},
+            opq_mongo_client
         )
 
         incident_ids.append(incident_id)
@@ -198,7 +198,7 @@ class Ieee1159VoltagePlugin(plugins.base_plugin.MaukaPlugin):
         if protobuf.pb_util.is_payload(mauka_message, protobuf.mauka_pb2.VOLTAGE_RMS_WINDOWED):
             incident_ids = ieee1159_voltage(mauka_message,
                                             protobuf.pb_util.repeated_as_ndarray(
-                                                    mauka_message.payload.data
+                                                mauka_message.payload.data
                                             ),
                                             self.mongo_client)
             for incident_id in incident_ids:
@@ -226,7 +226,7 @@ def rerun(mauka_message: protobuf.mauka_pb2.MaukaMessage,
     if protobuf.pb_util.is_payload(mauka_message, protobuf.mauka_pb2.VOLTAGE_RMS_WINDOWED):
         ieee1159_voltage(mauka_message,
                          protobuf.pb_util.repeated_as_ndarray(
-                                 mauka_message.payload.data
+                             mauka_message.payload.data
                          ),
                          client)
     else:

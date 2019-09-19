@@ -1,4 +1,12 @@
+"""
+This module provides "type-safe" routes for passing messages around ZMQ.
+"""
+
+
 class Routes:
+    """
+    This class provides "type-safe" routes for passing messages around ZMQ.
+    """
     box_measurement_rate_request = "BoxMeasurementRateRequest"
     box_measurement_rate_response = "BoxMeasurementRateResponse"
     heartbeat = "heartbeat"
