@@ -34,7 +34,7 @@ def timestamp() -> int:
 
 def box_triggering_thresholds(box_ids: typing.Set[str],
                               opq_mongo_client: typing.Optional[mongo.OpqMongoClient] = None) -> typing.List[
-    typing.Dict[str, float]]:
+        typing.Dict[str, float]]:
     mongo_client = mongo.get_default_client(opq_mongo_client)
     triggering_thresholds: TriggeringType = mongo_client.makai_config_collection.find_one()["triggering"]
     triggering_overrides: typing.Dict[str, TriggeringOverrideType] = {}

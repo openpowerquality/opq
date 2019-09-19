@@ -40,7 +40,8 @@ class LahaGcPlugin(base_plugin.MaukaPlugin):
         self.debug("gc_trigger measurements")
         now = timestamp_s()
         delete_result = self.mongo_client.measurements_collection.delete_many({"expire_at": {"$lt": now}})
-        self.produce(Routes.gc_stat, util_pb2.build_gc_stat(self.NAME, mauka_pb2.MEASUREMENTS, delete_result.deleted_count))
+        self.produce(Routes.gc_stat, util_pb2.build_gc_stat(
+            self.NAME, mauka_pb2.MEASUREMENTS, delete_result.deleted_count))
         self.debug("Garbage collected %d measurements" % delete_result.deleted_count)
 
     def handle_gc_trigger_trends(self):
@@ -114,7 +115,8 @@ class LahaGcPlugin(base_plugin.MaukaPlugin):
             self.mongo_client.delete_gridfs(filename)
 
         delete_result = self.mongo_client.incidents_collection.delete_many({"expire_at": {"$lt": now}})
-        self.produce(Routes.gc_stat, util_pb2.build_gc_stat(self.NAME, mauka_pb2.INCIDENTS, delete_result.deleted_count))
+        self.produce(Routes.gc_stat, util_pb2.build_gc_stat(
+            self.NAME, mauka_pb2.INCIDENTS, delete_result.deleted_count))
         self.debug("Garbage collected %d incidents and associated gridfs data" % delete_result.deleted_count)
 
     def handle_gc_trigger_phenomena(self):

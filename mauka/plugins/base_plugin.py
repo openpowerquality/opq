@@ -160,7 +160,6 @@ class MaukaPlugin:
 
         self.plugin_state: str = PluginState.IDLE.name
 
-
     def update_received(self, bytes_received: int):
         """
         Update received statistics.

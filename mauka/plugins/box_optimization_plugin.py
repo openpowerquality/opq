@@ -311,6 +311,7 @@ class BoxOptimizationPlugin(plugins.base_plugin.MaukaPlugin):
         else:
             self.box_optimization_logger.error("Received incorrect type of MaukaMessage :%s" % str(mauka_message))
 
+
 if __name__ == "__main__":
     import logging
 

@@ -343,7 +343,6 @@ def get_default_client(mongo_client: OpqMongoClient = None) -> OpqMongoClient:
     return OpqMongoClient()
 
 
-
 class IncidentMeasurementType(enum.Enum):
     """Incident Feature Extracted Measurement Types"""
     VOLTAGE = "VOLTAGE"

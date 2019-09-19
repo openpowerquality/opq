@@ -10,6 +10,7 @@ import protobuf.pb_util
 
 from plugins.routes import Routes
 
+
 def start_mauka_pub_sub_broker(mauka_config: config.MaukaConfig):
     """
     Starts an instance of a mauka pub/sub broker in a separate process
