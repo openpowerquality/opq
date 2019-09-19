@@ -7,7 +7,7 @@ extension-pkg-whitelist=
 
 # Add files or directories to the blacklist. They should be base names, not
 # paths.
-ignore=tests,profilers,mauka_pb2,opqbox3_pb2,rustproto_pb2
+ignore=tests,profilers,mauka_pb2.py,opqbox3_pb2.py,rustproto_pb2.py
 
 # Add files or directories matching the regex patterns to the blacklist. The
 # regex matches against base names, not paths.
