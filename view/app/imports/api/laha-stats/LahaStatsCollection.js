@@ -19,6 +19,11 @@ const BoxTriggeringThresholdSchema = new SimpleSchema({
     threshold_percent_thd_high: Number,
 });
 
+const MeasurementRateSchema = new SimpleSchema({
+    box_id: String,
+    measurement_rate: Number,
+});
+
 const PluginStatsSchema = new SimpleSchema({
     MakaiEventPlugin: PluginStatsSchemaInner,
     ThdPlugin: PluginStatsSchemaInner,
@@ -94,6 +99,7 @@ const LahaStatsSchema = new SimpleSchema({
     phenomena_stats: PhenomenaStatsSchema,
     gc_stats: GcStatsSchema,
     box_triggering_thresholds: [BoxTriggeringThresholdSchema],
+    box_measurement_rates: [MeasurementRateSchema]
 });
 
 const GroundTruthSchema = new SimpleSchema({

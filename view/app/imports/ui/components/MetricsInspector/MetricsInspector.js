@@ -18,7 +18,7 @@ class MetricsInspector extends React.Component {
 
         const endDate = new Date();
         const startDate = new Date();
-        startDate.setHours(endDate.getHours() - 0.5); // One day before the end date
+        startDate.setDate(endDate.getDate() - 1); // One day before the end date
 
         this.state = {
             isLoading: false,
@@ -419,6 +419,17 @@ class MetricsInspector extends React.Component {
                                     } }
                                     height={ '200px' }
                                 />
+                                <MetricTimeseriesViewer
+                                    plotTitle={'Box Measurement Rates'}
+                                    xAxisTitle={'UTC'}
+                                    yAxisTitle={'Cycles/Measurement'}
+                                    data={this.parseMeasurementRateMetrics(metrics)}
+                                    dygraphCreatedCallback={handleCallback}
+                                    customDygraphOptions={ {
+                                        labels: this.parseMeasurementRateLabels(metrics),
+                                    } }
+                                    height={ '200px' }
+                                />
                             </Grid.Column>
                             }
                         </Grid>
@@ -449,12 +460,23 @@ class MetricsInspector extends React.Component {
         });
     }
 
-    boxSet(metrics) {
+    triggeringThresholdsBoxSet(metrics) {
         let boxes = new Set();
         for(let i = 0; i < metrics.length; i++) {
             const box_metrics = metrics[i].laha_stats.box_triggering_thresholds;
             for (let j = 0; j < box_metrics.length; j++) {
                 boxes.add(box_metrics[j].box_id)
+            }
+        }
+        return boxes
+    }
+
+    measurementRatesBoxSet(metrics) {
+        let boxes = new Set();
+        for(let i = 0; i < metrics.length; i++) {
+            const measurementRates = metrics[i].laha_stats.box_measurement_rates;
+            for (let j = 0; j < measurementRates.length; j++) {
+                boxes.add(measurementRates[j]["box_id"])
             }
         }
         return boxes
@@ -501,12 +523,12 @@ class MetricsInspector extends React.Component {
             });
         }
 
-        let boxes = this.boxSet(metrics);
+        let boxes = this.triggeringThresholdsBoxSet(metrics);
         return intoSeries(metrics, boxes);
     }
 
     parseThresholdTriggeringLabels(metrics) {
-        let boxes = this.boxSet(metrics);
+        const boxes = this.triggeringThresholdsBoxSet(metrics);
         let graph_labels = [];
         graph_labels.push("timestamp");
         for(const box of boxes) {
@@ -517,6 +539,49 @@ class MetricsInspector extends React.Component {
             graph_labels.push(box + " " + "%Vl");
             graph_labels.push(box + " " + "%Vh");
             graph_labels.push(box + " " + "%THDh");
+        }
+        return graph_labels;
+    }
+
+    parseMeasurementRateMetrics(metrics) {
+        function intoSingleSeries(metric, boxes) {
+            let series = [];
+            const box_measurement_rates = metric.laha_stats.box_measurement_rates;
+            const boxes_array = Array.from(boxes);
+            series.push(metric.timestamp_s);
+            for (let i = 0; i < boxes_array.length; i++) {
+                const box = boxes_array[i];
+                let found = false;
+                for(let j = 0; j < box_measurement_rates.length; j++) {
+                    let box_measurement_rate = box_measurement_rates[j];
+                    if (box_measurement_rate.box_id === box) {
+                        found = true;
+                        series.push(box_measurement_rate.measurement_rate);
+                    }
+                }
+                if(!found) {
+                    series.push(null);
+                }
+            }
+            return series;
+        }
+
+        function intoSeries(data, boxes) {
+            return data.map(function(metric) {
+                return intoSingleSeries(metric, boxes);
+            });
+        }
+
+        let boxes = this.measurementRatesBoxSet(metrics);
+        return intoSeries(metrics, boxes);
+    }
+
+    parseMeasurementRateLabels(metrics) {
+        const boxes = this.measurementRatesBoxSet(metrics);
+        let graph_labels = [];
+        graph_labels.push("timestamp");
+        for(const box of boxes) {
+            graph_labels.push(box);
         }
         return graph_labels;
     }
