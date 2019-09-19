@@ -94,8 +94,6 @@ def start_makai_event_bridge(mauka_config: config.MaukaConfig):
             mauka_message_bytes = protobuf.pb_util.serialize_message(makai_event)
             zmq_pub_socket.send_multipart((Routes.makai_event.encode(), mauka_message_bytes))
 
-        _logger.info("Exiting makai event bridge")
-
     process = multiprocessing.Process(target=_run, args=(mauka_config,))
     process.start()
     return process

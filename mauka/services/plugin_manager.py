@@ -32,7 +32,7 @@ def ok(msg: str = "") -> str:
 
     :return: An ok response
     """
-    return OK if len(msg) == 0 else "{}. {}".format(OK, msg)
+    return OK if not msg else "{}. {}".format(OK, msg)
 
 
 def error(msg: str = "N/A") -> str:
@@ -57,8 +57,6 @@ class ArgumentParseError(Exception):
     """
     Creates a runtime exception with a custom name.
     """
-
-    pass
 
 
 class ThrowingArgumentParser(argparse.ArgumentParser):
@@ -375,7 +373,7 @@ class PluginManager:
     def cli_disable_plugin(self, args) -> str:
         """Disables the given plugin
 
-        :param plugin_name: Name of the plugin to disable
+        :param args: Name of the plugin to disable
         :return: Server response
         """
         plugin_name = args.plugin_name
@@ -388,7 +386,7 @@ class PluginManager:
     def cli_enable_plugin(self, args) -> str:
         """Enables the given plugin
 
-        :param plugin_name: Name of the plugin to enable
+        :param args: Name of the plugin to enable
         :return: Server response
         """
         plugin_name = args.plugin_name
@@ -401,7 +399,7 @@ class PluginManager:
     def cli_kill_plugin(self, args) -> str:
         """Kills the named plugin
 
-        :param plugin_name: The plugin to kill
+        :param args: The plugin to kill
         :return: Server response
         """
 
@@ -441,7 +439,7 @@ class PluginManager:
         The plugin must reside in a class with the same name as its module within the plugins directory.
         If the plugin is already in the namespace, we will reload the module. Otherwise, we load it fresh.
 
-        :param plugin_name: Name of the plugin to load
+        :param args: Name of the plugin to load
         :return: Server response
         """
         plugin_name = args.plugin_name
@@ -484,7 +482,7 @@ class PluginManager:
     def cli_start_plugin(self, args) -> str:
         """Starts the given plugin if loaded and enabled
 
-        :param plugin_name: Name of the plugin to start
+        :param args: Name of the plugin to start
         :return: Server response
         """
         plugin_name = args.plugin_name
@@ -500,7 +498,7 @@ class PluginManager:
     def cli_stop_plugin(self, args) -> str:
         """Stops the given plugin
 
-        :param plugin_name: Name of the plugin to stop
+        :param args: Name of the plugin to stop
         :return: Server response
         """
         plugin_name = args.plugin_name
@@ -526,7 +524,7 @@ class PluginManager:
     def cli_restart_plugin(self, args) -> str:
         """Restarts the given plugin
 
-        :param plugin_name: Name of the plugin to restart
+        :param args: Name of the plugin to restart
         :return: Server response
         """
         plugin_name = args.plugin_name
@@ -543,7 +541,7 @@ class PluginManager:
     def cli_unload_plugin(self, args) -> str:
         """Unload the given plugin
 
-        :param plugin_name: Plugin name to unload
+        :param args: Plugin name to unload
         :return: Server response
         """
         plugin_name = args.plugin_name
@@ -584,6 +582,7 @@ def make_completer(vocabulary):
         # A space is added to the completion since the Python readline doesn't
         # do this on its own. When a word is fully completed we want to mimic
         # the default readline library behavior of adding a space after it.
+        # noinspection PyTypeChecker
         return results[state] + " "
 
     return custom_complete
@@ -638,5 +637,5 @@ if __name__ == "__main__":
         exit(0)
 
     config_path = sys.argv[1]
-    config = config.from_env(constants.CONFIG_ENV)
-    run_cli(config)
+    configuration = config.from_env(constants.CONFIG_ENV)
+    run_cli(configuration)
