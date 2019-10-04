@@ -36,8 +36,18 @@ fn main() -> Result<(), String> {
     for feature in &config.features {
         let feature_ids = meters.feature_ids(feature);
 
-        let end_ts_s = scraper::ts_s();
-        let start_ts_s = end_ts_s - (config.collect_last_s as u64);
+        let end_ts_s = if config.is_ranged() {
+            config.end_range_s()
+        } else {
+            scraper::ts_s()
+        };
+
+        let start_ts_s = if config.is_ranged() {
+            config.start_range_s()
+        } else {
+            end_ts_s - (config.collect_last_s as u64)
+        };
+
         log::info!(
             "Scraping data for feature={} feature_ids={:?}",
             feature,
