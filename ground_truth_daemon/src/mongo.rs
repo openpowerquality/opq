@@ -9,7 +9,7 @@ pub fn init(
     let mongo_client: mongodb::Client =
         mongodb::Client::connect(&config.mongo_host, config.mongo_port)
             .map_err(|e| format!("Error getting Mongo client: {:?}", e))?;
-    let ground_truth_coll = mongo_client.db("opq").collection("ground_truth");
+    let ground_truth_coll = mongo_client.db("opq2").collection("ground_truth");
 
     Ok((mongo_client, ground_truth_coll))
 }
