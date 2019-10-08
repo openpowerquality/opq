@@ -1,4 +1,4 @@
-#![feature(mpsc_select)]
+//#![feature(mpsc_select)]
 
 extern crate protobuf;
 extern crate zmq;
