@@ -118,8 +118,8 @@ impl MakaiPlugin for NapaliPlugin {
                 let trg_lst = self.history.get_trigger_list();
                 //command payload
                 let mut payload = <GetDataCommand>::new();
-                payload.start_ms = self.history.start;
-                payload.end_ms = self.history.end + 1000;
+                payload.start_ms = self.history.start - 500;
+                payload.end_ms = self.history.end - 500;
                 payload.wait = false;
                 //command list to devices.
                 let mut cmd_lst = vec![];
