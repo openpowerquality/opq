@@ -93,11 +93,14 @@ impl MakaiPlugin for NapaliPlugin {
                 }
             },
             Triggering(last_ts) => {
-                if vector.status > MetricStatus::BelowThreshold{
+                if vector.status == MetricStatus::AboveThreshold{
                     self.history.insert(vector.clone());
                     TriggeringState::Triggering(vector.ts)
                 }
                 else {
+                    if vector.status == MetricStatus::Outside3STD{
+                        self.history.insert(vector.clone());
+                    }
                     if last_ts + self.settings.grace_time_ms > vector.ts {
                         TriggeringState::Triggering(last_ts)
                     }
