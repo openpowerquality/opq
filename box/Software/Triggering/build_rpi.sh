@@ -30,4 +30,4 @@ export PKG_CONFIG_ALLOW_CROSS=true
 #export PKG_CONFIG_ALL_STATIC=true
 export RUSTFLAGS="-L${PWD}/sysroot/lib/ -L/usr/local/arm-bcm2708/arm-linux-gnueabihf/arm-linux-gnueabihf/sysroot/usr/lib -L/usr/local/arm-bcm2708/arm-linux-gnueabihf/arm-linux-gnueabihf/sysroot/lib/ -lsodium -lc"
 
-cargo build --target=arm-unknown-linux-gnueabihf --release
+cargo +nightly build --target=arm-unknown-linux-gnueabihf --release

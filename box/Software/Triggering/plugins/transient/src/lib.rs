@@ -50,7 +50,7 @@ impl Transient {
         let mut max = data[0];
         for i in 1..data.len(){
             if max < data[i].abs() {
-                max = data[i];
+                max = data[i].abs();
             }
         }
         max

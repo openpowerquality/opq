@@ -93,11 +93,14 @@ impl MakaiPlugin for NapaliPlugin {
                 }
             },
             Triggering(last_ts) => {
-                if vector.status > MetricStatus::BelowThreshold{
+                if vector.status == MetricStatus::AboveThreshold{
                     self.history.insert(vector.clone());
                     TriggeringState::Triggering(vector.ts)
                 }
                 else {
+                    if vector.status == MetricStatus::Outside3STD{
+                        self.history.insert(vector.clone());
+                    }
                     if last_ts + self.settings.grace_time_ms > vector.ts {
                         TriggeringState::Triggering(last_ts)
                     }
@@ -115,8 +118,8 @@ impl MakaiPlugin for NapaliPlugin {
                 let trg_lst = self.history.get_trigger_list();
                 //command payload
                 let mut payload = <GetDataCommand>::new();
-                payload.start_ms = self.history.start;
-                payload.end_ms = self.history.end + 1000;
+                payload.start_ms = self.history.start - 500;
+                payload.end_ms = self.history.end - 500;
                 payload.wait = false;
                 //command list to devices.
                 let mut cmd_lst = vec![];
