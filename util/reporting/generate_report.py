@@ -339,6 +339,36 @@ def plot_incidents(start_time_s: int,
     return fig_name
 
 
+def make_table(data: typing.List[typing.List]) -> str:
+    column_to_max_len: typing.Dict[int, int] = {}
+
+    for r in range(len(data)):
+        for c in range(len(data[0])):
+            if c not in column_to_max_len:
+                column_to_max_len[c] = 0
+            if len(str(data[r][c])) > column_to_max_len[c]:
+                column_to_max_len[c] = len(str(data[r][c]))
+
+    # Header
+    s = "|"
+    for c in range(len(data[0])):
+        s += str(data[0][c]).ljust(column_to_max_len[c]) + "|"
+    s += "\n"
+    s += "|"
+    for c in range(len(data[0])):
+        s += "".ljust(column_to_max_len[c], "-") + "|"
+    s += "\n"
+
+    # Body
+    for r in range(1, len(data)):
+        s += "|"
+        for c in range(len(data[r])):
+            s += str(data[r][c]).ljust(column_to_max_len[c]) + "|"
+        s += "\n"
+
+    return s
+
+
 def create_report(start_time_s: int,
                   end_time_s: int):
     mongo_client = pymongo.MongoClient()
@@ -405,10 +435,10 @@ def create_report(start_time_s: int,
 
         fout.write('The following table shows Events generated per Box.\n\n')
 
-        fout.write('|OPQ Box|Location|Events Generated|\n')
-        fout.write('|-------|--------|----------------|\n')
+        events_table = [["OPQ Box", "Location", "Events Generated"]]
         for box, events in e_stats["events_per_box"].items():
-            fout.write('|%s|%s|%d|\n' % (box, box_to_location[box], events))
+            events_table.append([box, box_to_location[box], events])
+        fout.write(make_table(events_table))
         fout.write('\n')
 
         fout.write('The following figure shows Events per Box per day.\n\n')
@@ -424,32 +454,28 @@ def create_report(start_time_s: int,
         fout.write("A total of %d Incidents were processed.\n\n" % i_stats["total_incidents"])
 
         fout.write('A breakdown of Incidents by there type is provided in the following table.\n\n')
-        fout.write('|Incident Type|Total|\n')
-        fout.write('|-------------|-----|\n')
+        incidents_table = [["Incident Type", "Total"]]
         for itype, n in i_stats["incident_types"].items():
-            fout.write('|%s|%d|\n' % (itype, n))
-        fout.write('\n')
+            incidents_table.append([itype, n])
+        fout.write(make_table(incidents_table))
+        fout.write("\n")
 
         fout.write('A breakdown of Incidents per Box is provided in the following table.\n\n')
 
-        fout.write('|OPQ Box|Location|Incidents|')
+        i_table_header = ["OPQ Box", "Location", "Incidents"]
         for incident in i_stats["incidents"]:
-            fout.write("%s|" % incident)
-        fout.write('\n')
-        fout.write('|---|---|---|')
-        for incident in i_stats["incidents"]:
-            fout.write("---|")
-        fout.write('\n')
+            i_table_header.append(incident)
+        i_table = [i_table_header]
         for box, incidents in i_stats["box_to_total_incidents"].items():
-            fout.write('|%s|%s|%d|' % (box, box_to_location[box], incidents))
+            row = [box, box_to_location[box], incidents]
             for incident in i_stats["incidents"]:
                 if incident in i_stats["box_to_incidents"][box]:
-                    fout.write('%d|' % i_stats["box_to_incidents"][box][incident])
+                    row.append(i_stats["box_to_incidents"][box][incident])
                 else:
-                    fout.write('0|')
-            fout.write('\n')
+                    row.append(0)
+            i_table.append(row)
 
-
+        fout.write(make_table(i_table))
         fout.write('\n')
 
         fout.write('The following figure shows Incidents per Box per day.\n\n')
