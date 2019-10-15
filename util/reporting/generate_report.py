@@ -1,0 +1,475 @@
+import datetime
+import os
+import sys
+import typing
+
+import pymongo
+import matplotlib.dates as md
+import matplotlib.pyplot as plt
+import numpy as np
+
+box_to_location: typing.Dict[str, str] = {
+    "1000": "POST 1",
+    "1001": "Hamilton",
+    "1002": "POST 2",
+    "1003": "LAVA Lab",
+    "1005": "Parking Structure Ph II",
+    "1006": "Frog 1",
+    "1007": "Frog 2",
+    "1008": "Mile's Office",
+    "1009": "Watanabe",
+    "1010": "Holmes",
+    "1021": "Marine Science Building",
+    "1022": "Ag. Engineering",
+    "1023": "Law Library",
+    "1024": "IT Building",
+    "1025": "Kennedy Theater"
+}
+
+
+def any_of_in(a: typing.List, b: typing.List) -> bool:
+    a = set(a)
+    b = set(b)
+    return len(a.intersection(b)) > 0
+
+
+def event_stats(start_time_s: int,
+                end_time_s: int,
+                mongo_client: pymongo.MongoClient):
+    box_to_total_events: typing.Dict[str, int] = {}
+
+    events_coll = mongo_client.opq.events
+    box_ids = [k for k in box_to_location]
+    events = events_coll.find({"target_event_start_timestamp_ms": {"$gte": start_time_s * 1000.0,
+                                                                   "$lte": end_time_s * 1000.0}})
+    for event in events:
+        if not any_of_in(box_ids, event["boxes_triggered"]):
+            continue
+
+        for box in event["boxes_received"]:
+            if box not in box_ids:
+                continue
+            if box not in box_to_total_events:
+                box_to_total_events[box] = 0
+            box_to_total_events[box] += 1
+
+    return {"total_events": sum(box_to_total_events.values()),
+            "events_per_box": box_to_total_events}
+
+
+def incident_stats(start_time_s: int,
+                   end_time_s: int,
+                   mongo_client: pymongo.MongoClient):
+    box_to_total_incidents: typing.Dict[str, int] = {}
+    incident_types: typing.Dict[str, int] = {}
+    box_to_incidents: typing.Dict[str, typing.Dict[str, int]] = {}
+
+    box_ids = [k for k in box_to_location]
+
+    incidents_coll = mongo_client.opq.incidents
+    incidents = incidents_coll.find({"start_timestamp_ms": {"$gte": start_time_s * 1000.0,
+                                                            "$lte": end_time_s * 1000.0},
+                                     "box_id": {"$in": box_ids}})
+
+    for incident in incidents:
+        box = incident["box_id"]
+        if box not in box_to_total_incidents:
+            box_to_total_incidents[box] = 0
+        box_to_total_incidents[box] += 1
+
+        for incident_type in incident["classifications"]:
+            if incident_type not in incident_types:
+                incident_types[incident_type] = 0
+            incident_types[incident_type] += 1
+
+            if box not in box_to_incidents:
+                box_to_incidents[box] = {}
+            if incident_type not in box_to_incidents[box]:
+                box_to_incidents[box][incident_type] = 0
+
+            box_to_incidents[box][incident_type] += 1
+
+    return {"total_incidents": sum(box_to_total_incidents.values()),
+            "box_to_total_incidents": box_to_total_incidents,
+            "incident_types": incident_types,
+            "incidents": [k for k in incident_types],
+            "box_to_incidents": box_to_incidents}
+
+
+def fmt_ts_by_hour(ts_s: int) -> str:
+    dt = datetime.datetime.utcfromtimestamp(ts_s)
+    return dt.strftime("%Y-%m-%d")
+
+
+def plot_events(start_time_s: int,
+                end_time_s: int,
+                report_dir: str,
+                mongo_client: pymongo.MongoClient):
+    events_coll = mongo_client.opq.events
+    box_ids = [k for k in box_to_location]
+    events = events_coll.find({"target_event_start_timestamp_ms": {"$gte": start_time_s * 1000.0,
+                                                                   "$lte": end_time_s * 1000.0}})
+
+    bins = set(map(fmt_ts_by_hour, list(range(start_time_s, end_time_s))))
+    bins = list(bins)
+    bins.sort()
+
+    box_to_bin_to_events = {}
+
+    for box in box_ids:
+        box_to_bin_to_events[box] = {}
+        for bin in bins:
+            box_to_bin_to_events[box][bin] = 0
+
+    for event in events:
+        if not any_of_in(box_ids, event["boxes_triggered"]):
+            continue
+
+        dt_bin = fmt_ts_by_hour(int(event["target_event_start_timestamp_ms"] / 1000.0))
+        for box in event["boxes_received"]:
+            if box in box_ids:
+                box_to_bin_to_events[box][dt_bin] += 1
+
+    def da_bottom(datasets: typing.List[np.ndarray], i: int) -> np.ndarray:
+        d = np.zeros(len(datasets[i]))
+        for j in range(i):
+            d += datasets[j]
+        return d
+
+    plt.figure(figsize=(16, 9))
+    labels = []
+    datasets = []
+    for box in box_to_bin_to_events:
+        labels.append("Box %s (%s)" % (box, box_to_location[box]))
+        datasets.append(np.array(list(box_to_bin_to_events[box].values())))
+
+    for i in range(len(datasets)):
+        if i == 0:
+            plt.bar(list(range(len(bins))), datasets[i], label=labels[i])
+        else:
+            plt.bar(list(range(len(bins))), datasets[i], bottom=da_bottom(datasets, i), label=labels[i])
+
+    bin_to_total = {}
+    for box in box_to_bin_to_events:
+        for bin in box_to_bin_to_events[box]:
+            if bin not in bin_to_total:
+                bin_to_total[bin] = 0
+            bin_to_total[bin] += box_to_bin_to_events[box][bin]
+
+    plt.xticks(list(range(len(bins))), bins)
+    plt.ylabel("# Events")
+    plt.xlabel("Day")
+    plt.title("Events per Day per Device (%s - %s)" % (bins[0], bins[-1]))
+    plt.legend()
+    fig_title = "events-%s-%s.png" % (bins[0], bins[-1])
+    plt.savefig("%s/%s" % (report_dir, fig_title))
+    print("Produced %s" % fig_title)
+    return fig_title
+
+
+def plot_trends(start_time_s: int,
+                end_time_s: int,
+                report_dir: str,
+                mongo_client: pymongo.MongoClient):
+    trends_coll: pymongo.collection.Collection = mongo_client.opq.trends
+
+    fig_titles: typing.List[str] = []
+
+    for box_id, location in box_to_location.items():
+        timestamps = []
+        f_min = []
+        f_avg = []
+        f_max = []
+        v_min = []
+        v_avg = []
+        v_max = []
+        thd_min = []
+        thd_avg = []
+        thd_max = []
+        transient_min = []
+        transient_avg = []
+        transient_max = []
+        trends = trends_coll.find({"timestamp_ms": {"$gte": start_time_s * 1000.0,
+                                                    "$lte": end_time_s * 1000.0},
+                                   "box_id": box_id}).sort("timestamp_ms")
+        for trend in trends:
+            timestamps.append(trend["timestamp_ms"])
+            if "frequency" in trend:
+                f_min.append(trend["frequency"]["min"])
+                f_avg.append(trend["frequency"]["average"])
+                f_max.append(trend["frequency"]["max"])
+            else:
+                f_min.append(0)
+                f_avg.append(0)
+                f_max.append(0)
+
+            if "voltage" in trend:
+                v_min.append(trend["voltage"]["min"])
+                v_avg.append(trend["voltage"]["average"])
+                v_max.append(trend["voltage"]["max"])
+            else:
+                v_min.append(0)
+                v_avg.append(0)
+                v_max.append(0)
+
+            if "thd" in trend:
+                thd_min.append(trend["thd"]["min"])
+                thd_avg.append(trend["thd"]["average"])
+                thd_max.append(trend["thd"]["max"])
+            else:
+                thd_min.append(0)
+                thd_avg.append(0)
+                thd_max.append(0)
+
+            if "transient" in trend:
+                transient_min.append(trend["transient"]["min"])
+                transient_avg.append(trend["transient"]["average"])
+                transient_max.append(trend["transient"]["max"])
+            else:
+                transient_min.append(0)
+                transient_avg.append(0)
+                transient_max.append(0)
+
+        timestamps = list(map(lambda ts: datetime.datetime.utcfromtimestamp(ts / 1000.0), timestamps))
+        xfmt = md.DateFormatter('%d %H:%M:%S')
+        fig, (fax, vax, thdax, transientax) = plt.subplots(4, 1, sharex=True, figsize=(16, 9))
+
+        start_dt = timestamps[0].strftime("%Y-%m-%d %H:%M")
+        end_dt = timestamps[-1].strftime("%Y-%m-%d %H:%M")
+        fig.suptitle("OPQ Box %s (%s): Trends %s - %s UTC" % (box_id, location, start_dt, end_dt), y=1.0, size="large",
+                     weight="bold")
+
+        fax.plot(timestamps, f_min, label="min(F)")
+        fax.plot(timestamps, f_avg, label="avg(F)")
+        fax.plot(timestamps, f_max, label="max(F)")
+        fax.set_title("F")
+        fax.set_ylabel("Hz")
+        fax.legend(loc="upper right")
+
+        vax.plot(timestamps, v_min, label="min(V)")
+        vax.plot(timestamps, v_avg, label="avg(V)")
+        vax.plot(timestamps, v_max, label="max(V)")
+        vax.set_title("V")
+        vax.set_ylabel("$V_{RMS}$")
+        vax.legend(loc="upper right")
+
+        thdax.plot(timestamps, thd_min, label="min(THD)")
+        thdax.plot(timestamps, thd_avg, label="avg(THD)")
+        thdax.plot(timestamps, thd_max, label="max(THD)")
+        thdax.set_title("% THD")
+        thdax.set_ylabel("% THD")
+        thdax.legend(loc="upper right")
+
+        transientax.plot(timestamps, transient_min, label="min(Transient)")
+        transientax.plot(timestamps, transient_avg, label="avg(Transient)")
+        transientax.plot(timestamps, transient_max, label="max(Transient)")
+        transientax.set_title("Transient")
+        transientax.set_ylabel("$P_{V}$")
+        transientax.legend(loc="upper right")
+        transientax.xaxis.set_major_formatter(xfmt)
+
+        fig_title = "trends-%s-%d-%d.png" % (box_id, start_time_s, end_time_s)
+        fig_titles.append(fig_title)
+        fig.savefig("%s/%s" % (report_dir, fig_title))
+        print("Produced %s" % fig_title)
+
+    return fig_titles
+
+
+def plot_incidents(start_time_s: int,
+                   end_time_s: int,
+                   report_dir: str,
+                   mongo_client: pymongo.MongoClient):
+    box_ids = [k for k in box_to_location]
+    incidents_coll = mongo_client.opq.incidents
+    incidents = incidents_coll.find({"start_timestamp_ms": {"$gte": start_time_s * 1000.0,
+                                                            "$lte": end_time_s * 1000.0},
+                                     "box_id": {"$in": box_ids}})
+
+    bins = set(map(fmt_ts_by_hour, list(range(start_time_s, end_time_s))))
+    bins = list(bins)
+    bins.sort()
+
+    box_to_bin_to_incidents = {}
+
+    for box in box_ids:
+        box_to_bin_to_incidents[box] = {}
+        for bin in bins:
+            box_to_bin_to_incidents[box][bin] = 0
+
+    for incident in incidents:
+        dt_bin = fmt_ts_by_hour(int(incident["start_timestamp_ms"] / 1000.0))
+        box = incident["box_id"]
+        box_to_bin_to_incidents[box][dt_bin] += 1
+
+    def da_bottom(datasets: typing.List[np.ndarray], i: int) -> np.ndarray:
+        d = np.zeros(len(datasets[i]))
+        for j in range(i):
+            d += datasets[j]
+        return d
+
+    plt.figure(figsize=(16, 9))
+    labels = []
+    datasets = []
+    for box in box_to_bin_to_incidents:
+        labels.append("Box %s (%s)" % (box, box_to_location[box]))
+        datasets.append(np.array(list(box_to_bin_to_incidents[box].values())))
+
+    for i in range(len(datasets)):
+        if i == 0:
+            plt.bar(list(range(len(bins))), datasets[i], label=labels[i])
+        else:
+            plt.bar(list(range(len(bins))), datasets[i], bottom=da_bottom(datasets, i), label=labels[i])
+
+    bin_to_total = {}
+    for box in box_to_bin_to_incidents:
+        for bin in box_to_bin_to_incidents[box]:
+            if bin not in bin_to_total:
+                bin_to_total[bin] = 0
+            bin_to_total[bin] += box_to_bin_to_incidents[box][bin]
+
+    plt.xticks(list(range(len(bins))), bins)
+    plt.ylabel("# Incidents")
+    plt.xlabel("Day")
+    plt.title("Incidents per Day per Device (%s - %s)" % (bins[0], bins[-1]))
+    plt.legend()
+    fig_name = "incidents-%s-%s.png" % (bins[0], bins[-1])
+    print("Produced %s" % fig_name)
+    plt.savefig("%s/%s" % (report_dir, fig_name))
+    return fig_name
+
+
+def create_report(start_time_s: int,
+                  end_time_s: int):
+    mongo_client = pymongo.MongoClient()
+
+    report_id = "report_%d_%d" % (start_time_s, end_time_s)
+    report_dir = "./%s" % report_id
+    try:
+        os.mkdir(report_dir)
+    except:
+        pass
+
+    start_dt = datetime.datetime.utcfromtimestamp(start_time_s)
+    end_dt = datetime.datetime.utcfromtimestamp(end_time_s)
+    now_dt = datetime.datetime.now()
+
+    print("Generating trend figures...")
+    trend_figures = plot_trends(start_time_s, end_time_s, report_dir, mongo_client)
+    print("Generating event stats...")
+    e_stats = event_stats(start_time_s, end_time_s, mongo_client)
+    print("Generating event figures...")
+    e_fig = plot_events(start_time_s, end_time_s, report_dir, mongo_client)
+    print("Generating incident stats...")
+    i_stats = incident_stats(start_time_s, end_time_s, mongo_client)
+    print("Generating incident figures...")
+    i_fig = plot_incidents(start_time_s, end_time_s, report_dir, mongo_client)
+
+    print("Generating report...")
+    with open("%s/%s.md" % (report_dir, report_id), "w") as fout:
+        # ------------------------------------- Header
+        fout.write('---\n')
+        fout.write('title: "Micro-report on the UHM micro-grid: %s to %s"\n' % (start_dt.strftime("%Y-%m-%d %H:%M"),
+                                                                                end_dt.strftime("%Y-%m-%d %H:%M")))
+        fout.write('date: %s\n' % now_dt.strftime("%Y-%m-%dT%H:%M:%S-10:00"))
+        fout.write('draft: true\n')
+        fout.write('---\n\n')
+
+        # ------------------------------------- Synopsis
+        fout.write('## Synopsis\n\n')
+
+        # ------------------------------------- General Summary
+        fout.write('## General Summary\n\n')
+
+        # ------------------------------------- Trends Summary
+        fout.write('### Trends Summary\n\n')
+        fout.write('Weekly trends measure the minimum, average, and maximum values for Voltage, Frequency, THD, '
+                   'and transients for each OPQ Box at a rate of 1 Hz.\n\n')
+        fout.write('The following figures show Trends for each Box between %s and %s.\n\n' % (start_dt, end_dt))
+
+        for trend_figure in trend_figures:
+            fout.write('![%s](%s)\n' % (trend_figure, trend_figure))
+
+        fout.write('\n')
+
+        # ------------------------------------- Events Summary
+        fout.write('### Events Summary\n\n')
+        fout.write('Events are ranges of PQ data that may (or may not) have PQ issues within them. Events are generated'
+                   ' by two methods. The first method uses Voltage, Frequency, and THD thresholds as defined by IEEE. '
+                   'The second method uses the Napali Trigger which was developed by Sergey as part of his dissertation'
+                   ' research. The Napali trigger uses statistical methods to determine when Boxes may contain PQ '
+                   'issues. This summary of Events examines the number of times that Boxes were triggered due to '
+                   'possible PQ issues.\n\n')
+
+        fout.write('There were a total of %d Events processed.\n\n' % e_stats["total_events"])
+
+        fout.write('The following table shows Events generated per Box.\n\n')
+
+        fout.write('|OPQ Box|Location|Events Generated|\n')
+        fout.write('|-------|--------|----------------|\n')
+        for box, events in e_stats["events_per_box"].items():
+            fout.write('|%s|%s|%d|\n' % (box, box_to_location[box], events))
+        fout.write('\n')
+
+        fout.write('The following figure shows Events per Box per day.\n\n')
+        fout.write('![%s](%s)\n\n' % (e_fig, e_fig))
+
+        # ------------------------------------- Incidents Summary
+        fout.write('### Incidents Summary\n\n')
+
+        fout.write('Incidents are classified PQ issues that were found in the previously provided Events. Incidents are'
+                   ' classified by OPQ Mauka according to various PQ standards. OPQ Mauka provides classifications for'
+                   ' Outages, Voltage, Frequency, and THD related issues.\n\n')
+
+        fout.write("A total of %d Incidents were processed.\n\n" % i_stats["total_incidents"])
+
+        fout.write('A breakdown of Incidents by there type is provided in the following table.\n\n')
+        fout.write('|Incident Type|Total|\n')
+        fout.write('|-------------|-----|\n')
+        for itype, n in i_stats["incident_types"].items():
+            fout.write('|%s|%d|\n' % (itype, n))
+        fout.write('\n')
+
+        fout.write('A breakdown of Incidents per Box is provided in the following table.\n\n')
+
+        fout.write('|OPQ Box|Location|Incidents|')
+        for incident in i_stats["incidents"]:
+            fout.write("%s|" % incident)
+        fout.write('\n')
+        fout.write('|---|---|---|')
+        for incident in i_stats["incidents"]:
+            fout.write("---|")
+        fout.write('\n')
+        for box, incidents in i_stats["box_to_total_incidents"].items():
+            fout.write('|%s|%s|%d|' % (box, box_to_location[box], incidents))
+            for incident in i_stats["incidents"]:
+                if incident in i_stats["box_to_incidents"][box]:
+                    fout.write('%d|' % i_stats["box_to_incidents"][box][incident])
+                else:
+                    fout.write('0|')
+            fout.write('\n')
+
+
+        fout.write('\n')
+
+        fout.write('The following figure shows Incidents per Box per day.\n\n')
+        fout.write('![%s](%s)\n\n' % (i_fig, i_fig))
+
+        # ------------------------------------- Conclusion
+        fout.write('### Conclusion\n\n')
+
+        print("Report generated.")
+
+
+if __name__ == "__main__":
+    try:
+        start_time_s = int(sys.argv[1])
+        end_time_s = int(sys.argv[2])
+        create_report(start_time_s, end_time_s)
+    except IndexError:
+        print("usage: python3 generate_report.py [start time s utc] [end time s utc]")
+        sys.exit(1)
+    except ValueError:
+        print("Error parsing time range.")
+        print("usage: python3 generate_report.py [start time s utc] [end time s utc]")
+        sys.exit(2)
