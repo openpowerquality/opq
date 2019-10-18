@@ -28,6 +28,13 @@ box_to_location: typing.Dict[str, str] = {
     "1025": "Kennedy Theater"
 }
 
+incident_map: typing.Dict[str, str] = {
+    "FREQUENCY_SWELL": "F Swell",
+    "FREQUENCY_SAG": "F Sag",
+    "FREQUENCY_INTERRUPTION": "F Int",
+    "OUTAGE": "Outage"
+}
+
 
 def any_of_in(a: typing.List, b: typing.List) -> bool:
     a = set(a)
@@ -341,9 +348,18 @@ def plot_incidents(start_time_s: int,
     return fig_name
 
 
-def make_table(data: typing.List[typing.List[str]],
+def make_table(data: typing.List[typing.List],
                caption: str,
-               report_dir: str):
+               report_dir: str,
+               sort_by_col: int = -1,
+               sort_reverse: bool = True):
+
+    # Sort data by last column
+    header = data[0]
+    data = sorted(data[1:], key=lambda row: row[sort_by_col], reverse=sort_reverse)
+    data.insert(0, header)
+
+    # Make sure everything is a string
     data = list(map(lambda row: list(map(lambda col: str(col), row)), data))
 
     # First, create a table in tex
@@ -425,21 +441,23 @@ def create_report(start_time_s: int,
     i_fig = plot_incidents(start_time_s, end_time_s, report_dir, mongo_client)
 
     print("Generating Events table...")
+    short_start_dt = start_dt.strftime("%Y-%m-%d")
+    short_end_dt = end_dt.strftime("%Y-%m-%d")
     events_table = [["OPQ Box", "Location", "Events Generated"]]
     for box, events in e_stats["events_per_box"].items():
         events_table.append([box, box_to_location[box], events])
-    make_table(events_table, "Events %s to %s" % (start_dt, end_dt), report_dir)
+    make_table(events_table, "Events %s to %s" % (short_start_dt, short_end_dt), report_dir)
 
     print("Generating Incident Types table...")
     incidents_table = [["Incident Type", "Total"]]
     for itype, n in i_stats["incident_types"].items():
-        incidents_table.append([itype, n])
-    make_table(incidents_table, "Incident Types %s to %s" % (start_dt, end_dt), report_dir)
+        incidents_table.append([incident_map[itype], n])
+    make_table(incidents_table, "Incident Types %s to %s" % (short_start_dt, short_end_dt), report_dir)
 
     print("Generating Incidents table...")
     i_table_header = ["OPQ Box", "Location", "Incidents"]
     for incident in i_stats["incidents"]:
-        i_table_header.append(incident)
+        i_table_header.append(incident_map[incident])
     i_table = [i_table_header]
     for box, incidents in i_stats["box_to_total_incidents"].items():
         row = [box, box_to_location[box], incidents]
@@ -450,10 +468,13 @@ def create_report(start_time_s: int,
                 row.append(0)
         i_table.append(row)
 
-    make_table(i_table, "Incidents %s to %s" % (start_dt, end_dt), report_dir)
+    make_table(i_table, "Incidents %s to %s" % (short_start_dt, short_end_dt), report_dir, sort_by_col=2)
 
     print("Generating report...")
     with open("%s/%s.txt" % (report_dir, report_id), "w") as fout:
+        # ------------------------------------- Title
+        fout.write('Micro-report on the UHM micro-grid: %s to %s\n\n' % (start_dt.strftime("%Y-%m-%d %H:%M"),end_dt.strftime("%Y-%m-%d %H:%M")))
+
         # ------------------------------------- Synopsis
         fout.write('Synopsis\n\n')
 
@@ -517,3 +538,4 @@ if __name__ == "__main__":
         print("Error parsing time range.")
         print("usage: python3 generate_report.py [start time s utc] [end time s utc]")
         sys.exit(2)
+
