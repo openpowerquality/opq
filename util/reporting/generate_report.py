@@ -110,8 +110,6 @@ def create_report(start_time_s: int,
 
         fout.write("A total of %d Incidents were processed.\n\n" % i_stats["total_incidents"])
 
-        fout.write('A breakdown of Incidents by their type is provided in the following table.\n\n')
-
         fout.write('A breakdown of Incidents per Box is provided in the following table.\n\n')
 
         fout.write('The following figure shows Incidents per Box per day.\n\n')
