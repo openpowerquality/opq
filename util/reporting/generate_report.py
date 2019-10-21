@@ -10,6 +10,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 import reports
+import reports.tables
 import reports.trends
 
 
@@ -210,68 +211,6 @@ def plot_incidents(start_time_s: int,
     return fig_name
 
 
-def make_table(data: typing.List[typing.List],
-               caption: str,
-               report_dir: str,
-               sort_by_col: int = -1,
-               sort_reverse: bool = True):
-
-    # Sort data by last column
-    header = data[0]
-    data = sorted(data[1:], key=lambda row: row[sort_by_col], reverse=sort_reverse)
-    data.insert(0, header)
-
-    # Make sure everything is a string
-    data = list(map(lambda row: list(map(lambda col: str(col), row)), data))
-
-    # First, create a table in tex
-    print("Generated latex")
-    align = "l" * len(data[0])
-    header = " & ".join(map(lambda h: "\\textbf{%s}" % h.replace("_", "\\_"), data[0])) + " \\\\"
-    body = ""
-    for r in range(1, len(data)):
-        body += " & ".join(map(lambda v: v.replace("_", "\\_"),data[r])) + " \\\\ \n"
-    out_path = "%s/%s.tex" % (report_dir, caption.replace(" ", "_"))
-    with open("tex_template.tex", "r") as fin:
-        with open(out_path, "w") as fout:
-            fout.write(fin.read()
-                       .replace("_ALIGN_", align)
-                       .replace("_HEADER_", header)
-                       .replace("_BODY_", body)
-                       .replace("_CAPTION_", caption))
-
-    # Make the PDF
-    subprocess.run(["pdflatex", "-output-directory", report_dir, out_path])
-    pdf_path = out_path.replace(".tex", ".pdf")
-    print("Generated PDF")
-
-    # Crop the PDF
-    subprocess.run(["pdfcrop", pdf_path, pdf_path])
-    print("Cropped PDF")
-
-    # Turn it into a PNG
-    png_path = pdf_path.replace(".pdf", ".png")
-    subprocess.run(["convert",
-                    "-background", "white",
-                    "-alpha", "remove",
-                    "-alpha", "off",
-                    "-density", "750",
-                    pdf_path,
-                    "-quality", "100",
-                    png_path])
-    print("Converted PDF to PNG")
-
-    # Cleanup
-    fs = []
-    types = ["aux", "log", "pdf", "tex"]
-    for t in types:
-        fs.extend(glob.glob("%s/*.%s" % (report_dir, t)))
-
-    for f in fs:
-        os.remove(f)
-        print("Removed %s" % f)
-
-
 def create_report(start_time_s: int,
                   end_time_s: int):
     mongo_client = pymongo.MongoClient()
@@ -291,102 +230,97 @@ def create_report(start_time_s: int,
     trend_figures = reports.trends.plot_trends(start_time_s, end_time_s, report_dir, mongo_client)
     # trend_figures = plot_trends(start_time_s, end_time_s, report_dir, mongo_client)
 
-    # print("Generating event stats...")
-    # e_stats = event_stats(start_time_s, end_time_s, mongo_client)
-    #
-    # print("Generating event figures...")
-    # e_fig = plot_events(start_time_s, end_time_s, report_dir, mongo_client)
-    #
-    # print("Generating incident stats...")
-    # i_stats = incident_stats(start_time_s, end_time_s, mongo_client)
-    #
-    # print("Generating incident figures...")
-    # i_fig = plot_incidents(start_time_s, end_time_s, report_dir, mongo_client)
-    #
-    # print("Generating Events table...")
-    # short_start_dt = start_dt.strftime("%Y-%m-%d")
-    # short_end_dt = end_dt.strftime("%Y-%m-%d")
-    # events_table = [["OPQ Box", "Location", "Events Generated"]]
-    # for box, events in e_stats["events_per_box"].items():
-    #     events_table.append([box, reports.box_to_location[box], events])
-    # make_table(events_table, "Events %s to %s" % (short_start_dt, short_end_dt), report_dir)
-    #
-    # print("Generating Incident Types table...")
-    # incidents_table = [["Incident Type", "Total"]]
-    # for itype, n in i_stats["incident_types"].items():
-    #     incidents_table.append([reports.incident_map[itype], n])
-    # make_table(incidents_table, "Incident Types %s to %s" % (short_start_dt, short_end_dt), report_dir)
-    #
-    # print("Generating Incidents table...")
-    # i_table_header = ["OPQ Box", "Location", "Incidents"]
-    # for incident in i_stats["incidents"]:
-    #     i_table_header.append(reports.incident_map[incident])
-    # i_table = [i_table_header]
-    # for box, incidents in i_stats["box_to_total_incidents"].items():
-    #     row = [box, reports.box_to_location[box], incidents]
-    #     for incident in i_stats["incidents"]:
-    #         if incident in i_stats["box_to_incidents"][box]:
-    #             row.append(i_stats["box_to_incidents"][box][incident])
-    #         else:
-    #             row.append(0)
-    #     i_table.append(row)
-    #
-    # make_table(i_table, "Incidents %s to %s" % (short_start_dt, short_end_dt), report_dir, sort_by_col=2)
-    #
-    # print("Generating report...")
-    # with open("%s/%s.txt" % (report_dir, report_id), "w") as fout:
-    #     # ------------------------------------- Title
-    #     fout.write('Micro-report on the UHM micro-grid: %s to %s\n\n' % (start_dt.strftime("%Y-%m-%d %H:%M"),end_dt.strftime("%Y-%m-%d %H:%M")))
-    #
-    #     # ------------------------------------- Synopsis
-    #     fout.write('Synopsis\n\n')
-    #
-    #     # ------------------------------------- General Summary
-    #     fout.write('General Summary\n\n')
-    #
-    #     # ------------------------------------- Trends Summary
-    #     fout.write('Trends Summary\n\n')
-    #
-    #     fout.write('Weekly trends measure the minimum, average, and maximum values for Voltage, Frequency, THD, '
-    #                'and transients for each OPQ Box at a rate of 1 Hz.\n\n')
-    #
-    #     fout.write('The following figures show Trends for each Box between %s and %s.\n\n' % (start_dt, end_dt))
-    #
-    #     # ------------------------------------- Events Summary
-    #     fout.write('Events Summary\n\n')
-    #
-    #     fout.write('Events are ranges of PQ data that may (or may not) have PQ issues within them. Events are generated'
-    #                ' by two methods. The first method uses Voltage, Frequency, and THD thresholds as defined by IEEE. '
-    #                'The second method uses the Napali Trigger which was developed by Sergey as part of his dissertation'
-    #                ' research. The Napali trigger uses statistical methods to determine when Boxes may contain PQ '
-    #                'issues. This summary of Events examines the number of times that Boxes were triggered due to '
-    #                'possible PQ issues.\n\n')
-    #
-    #     fout.write('There were a total of %d Events processed.\n\n' % e_stats["total_events"])
-    #
-    #     fout.write('The following table shows Events generated per Box.\n\n')
-    #
-    #     fout.write('The following figure shows Events per Box per day.\n\n')
-    #
-    #     # ------------------------------------- Incidents Summary
-    #     fout.write('Incidents Summary\n\n')
-    #
-    #     fout.write('Incidents are classified PQ issues that were found in the previously provided Events. Incidents are'
-    #                ' classified by OPQ Mauka according to various PQ standards. OPQ Mauka provides classifications for'
-    #                ' Outages, Voltage, Frequency, and THD related issues.\n\n')
-    #
-    #     fout.write("A total of %d Incidents were processed.\n\n" % i_stats["total_incidents"])
-    #
-    #     fout.write('A breakdown of Incidents by their type is provided in the following table.\n\n')
-    #
-    #     fout.write('A breakdown of Incidents per Box is provided in the following table.\n\n')
-    #
-    #     fout.write('The following figure shows Incidents per Box per day.\n\n')
-    #
-    #     # ------------------------------------- Conclusion
-    #     fout.write('Conclusion\n\n')
-    #
-    #     print("Report generated.")
+    print("Generating event stats...")
+    e_stats = event_stats(start_time_s, end_time_s, mongo_client)
+
+    print("Generating event figures...")
+    e_fig = plot_events(start_time_s, end_time_s, report_dir, mongo_client)
+
+    print("Generating incident stats...")
+    i_stats = incident_stats(start_time_s, end_time_s, mongo_client)
+
+    print("Generating incident figures...")
+    i_fig = plot_incidents(start_time_s, end_time_s, report_dir, mongo_client)
+
+    print("Generating Events table...")
+    short_start_dt = start_dt.strftime("%Y-%m-%d")
+    short_end_dt = end_dt.strftime("%Y-%m-%d")
+    events_table = [["OPQ Box", "Location", "Events Generated"]]
+    for box, events in e_stats["events_per_box"].items():
+        events_table.append([box, reports.box_to_location[box], events])
+    reports.tables.make_table(events_table, "Events %s to %s" % (short_start_dt, short_end_dt), report_dir, sum_cols=[2])
+
+    print("Generating Incidents table...")
+    i_table_header = ["OPQ Box", "Location", "Incidents"]
+    for incident in i_stats["incidents"]:
+        i_table_header.append(reports.incident_map[incident])
+    i_table = [i_table_header]
+    for box, incidents in i_stats["box_to_total_incidents"].items():
+        row = [box, reports.box_to_location[box], incidents]
+        for incident in i_stats["incidents"]:
+            if incident in i_stats["box_to_incidents"][box]:
+                row.append(i_stats["box_to_incidents"][box][incident])
+            else:
+                row.append(0)
+        i_table.append(row)
+
+    sum_cols = list(range(2, len(i_table_header)))
+    reports.tables.make_table(i_table, "Incidents %s to %s" % (short_start_dt, short_end_dt), report_dir, sort_by_col=2, sum_cols=sum_cols)
+
+    print("Generating report...")
+    with open("%s/%s.txt" % (report_dir, report_id), "w") as fout:
+        # ------------------------------------- Title
+        fout.write('Micro-report on the UHM micro-grid: %s to %s\n\n' % (start_dt.strftime("%Y-%m-%d %H:%M"),end_dt.strftime("%Y-%m-%d %H:%M")))
+
+        # ------------------------------------- Synopsis
+        fout.write('Synopsis\n\n')
+
+        # ------------------------------------- General Summary
+        fout.write('General Summary\n\n')
+
+        # ------------------------------------- Trends Summary
+        fout.write('Trends Summary\n\n')
+
+        fout.write('Weekly trends measure the minimum, average, and maximum values for Voltage, Frequency, THD, '
+                   'and transients for each OPQ Box at a rate of 1 Hz.\n\n')
+
+        fout.write('The following figures show Trends for each Box between %s and %s.\n\n' % (start_dt, end_dt))
+
+        # ------------------------------------- Events Summary
+        fout.write('Events Summary\n\n')
+
+        fout.write('Events are ranges of PQ data that may (or may not) have PQ issues within them. Events are generated'
+                   ' by two methods. The first method uses Voltage, Frequency, and THD thresholds as defined by IEEE. '
+                   'The second method uses the Napali Trigger which was developed by Sergey as part of his dissertation'
+                   ' research. The Napali trigger uses statistical methods to determine when Boxes may contain PQ '
+                   'issues. This summary of Events examines the number of times that Boxes were triggered due to '
+                   'possible PQ issues.\n\n')
+
+        fout.write('There were a total of %d Events processed.\n\n' % e_stats["total_events"])
+
+        fout.write('The following table shows Events generated per Box.\n\n')
+
+        fout.write('The following figure shows Events per Box per day.\n\n')
+
+        # ------------------------------------- Incidents Summary
+        fout.write('Incidents Summary\n\n')
+
+        fout.write('Incidents are classified PQ issues that were found in the previously provided Events. Incidents are'
+                   ' classified by OPQ Mauka according to various PQ standards. OPQ Mauka provides classifications for'
+                   ' Outages, Voltage, Frequency, and THD related issues.\n\n')
+
+        fout.write("A total of %d Incidents were processed.\n\n" % i_stats["total_incidents"])
+
+        fout.write('A breakdown of Incidents by their type is provided in the following table.\n\n')
+
+        fout.write('A breakdown of Incidents per Box is provided in the following table.\n\n')
+
+        fout.write('The following figure shows Incidents per Box per day.\n\n')
+
+        # ------------------------------------- Conclusion
+        fout.write('Conclusion\n\n')
+
+        print("Report generated.")
 
 
 if __name__ == "__main__":
