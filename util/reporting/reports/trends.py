@@ -36,6 +36,7 @@ def plot_trends(start_time_s: int,
     frequency_high = 60.0 + (60.0 * .01)
     frequency_low = 60.0 - (60.0 * .01)
     thd_high = 5
+    transient_high = 7
 
     for box_id, location in reports.box_to_location.items():
         timestamps = []
@@ -127,8 +128,8 @@ def plot_trends(start_time_s: int,
     max_f = max(max_f, frequency_high)
     min_thd = min(min_thd, 0)
     max_thd = max(max_thd, thd_high)
-    # min_transient = min(min_transient, voltage_low)
-    # max_transient = max(max_v, voltage_high)
+    min_transient = min(min_transient, 0)
+    max_transient = max(max_transient, transient_high)
     min_x = datetime.datetime.utcfromtimestamp(min_x / 1000.0)
     max_x = datetime.datetime.utcfromtimestamp(max_x / 1000.0)
     for box_id, trends in box_to_trends.items():
@@ -178,7 +179,7 @@ def plot_trends(start_time_s: int,
         thdax.scatter(timestamps, trends["thd_min"], label="min(THD)", s=1)
         thdax.scatter(timestamps, trends["thd_avg"], label="avg(THD)", s=1)
         thdax.scatter(timestamps, trends["thd_max"], label="max(THD)", s=1)
-        thdax.plot(timestamps, [thd_high for i in range(len(timestamps))], linestyle="--", color="red", linewidth=1, label="swell +6%")
+        thdax.plot(timestamps, [thd_high for i in range(len(timestamps))], linestyle="--", color="red", linewidth=1)
         thdax.set_title("% THD")
         thdax.set_ylabel("% THD")
         thdax.set_xlim(xmin=min_x, xmax=max_x)
@@ -188,6 +189,13 @@ def plot_trends(start_time_s: int,
         transientax.scatter(timestamps, trends["transient_min"], label="min(Transient)", s=1)
         transientax.scatter(timestamps, trends["transient_avg"], label="avg(Transient)", s=1)
         transientax.scatter(timestamps, trends["transient_max"], label="max(Transient)", s=1)
+
+        transientax2 = transientax.twinx()
+        transientax2.plot(timestamps, [transient_high for i in range(len(timestamps))], linestyle="--", color="red", linewidth=1)
+        transientax2.get_yaxis().set_major_formatter(matplotlib.ticker.FuncFormatter(lambda x, p: "%.2f" % ((x / 7.0 * 100.0) - 100.0)))
+        transientax2.set_ylim(ymin=min_transient - 5, ymax=max_transient + 5)
+        transientax2.set_ylabel("% Nominal")
+
         transientax.set_title("Transient")
         transientax.set_ylabel("$P_{V}$")
         transientax.legend(loc="upper right")
