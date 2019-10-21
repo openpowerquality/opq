@@ -1,3 +1,4 @@
+import datetime
 import typing
 
 box_to_location: typing.Dict[str, str] = {
@@ -25,7 +26,13 @@ incident_map: typing.Dict[str, str] = {
     "OUTAGE": "Outage"
 }
 
+
 def any_of_in(a: typing.List, b: typing.List) -> bool:
     a = set(a)
     b = set(b)
     return len(a.intersection(b)) > 0
+
+
+def fmt_ts_by_hour(ts_s: int) -> str:
+    dt = datetime.datetime.utcfromtimestamp(ts_s)
+    return dt.strftime("%Y-%m-%d")
