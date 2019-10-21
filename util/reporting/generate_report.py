@@ -6,40 +6,11 @@ import sys
 import typing
 
 import pymongo
-import matplotlib.dates as md
 import matplotlib.pyplot as plt
 import numpy as np
 
-box_to_location: typing.Dict[str, str] = {
-    "1000": "POST 1",
-    "1001": "Hamilton",
-    "1002": "POST 2",
-    "1003": "LAVA Lab",
-    "1005": "Parking Structure Ph II",
-    "1006": "Frog 1",
-    "1007": "Frog 2",
-    "1008": "Mile's Office",
-    "1009": "Watanabe",
-    "1010": "Holmes",
-    "1021": "Marine Science Building",
-    "1022": "Ag. Engineering",
-    "1023": "Law Library",
-    "1024": "IT Building",
-    "1025": "Kennedy Theater"
-}
-
-incident_map: typing.Dict[str, str] = {
-    "FREQUENCY_SWELL": "F Swell",
-    "FREQUENCY_SAG": "F Sag",
-    "FREQUENCY_INTERRUPTION": "F Int",
-    "OUTAGE": "Outage"
-}
-
-
-def any_of_in(a: typing.List, b: typing.List) -> bool:
-    a = set(a)
-    b = set(b)
-    return len(a.intersection(b)) > 0
+import reports
+import reports.trends
 
 
 def event_stats(start_time_s: int,
@@ -48,11 +19,11 @@ def event_stats(start_time_s: int,
     box_to_total_events: typing.Dict[str, int] = {}
 
     events_coll = mongo_client.opq.events
-    box_ids = [k for k in box_to_location]
+    box_ids = [k for k in reports.box_to_location]
     events = events_coll.find({"target_event_start_timestamp_ms": {"$gte": start_time_s * 1000.0,
                                                                    "$lte": end_time_s * 1000.0}})
     for event in events:
-        if not any_of_in(box_ids, event["boxes_triggered"]):
+        if not reports.any_of_in(box_ids, event["boxes_triggered"]):
             continue
 
         for box in event["boxes_received"]:
@@ -73,7 +44,7 @@ def incident_stats(start_time_s: int,
     incident_types: typing.Dict[str, int] = {}
     box_to_incidents: typing.Dict[str, typing.Dict[str, int]] = {}
 
-    box_ids = [k for k in box_to_location]
+    box_ids = [k for k in reports.box_to_location]
 
     incidents_coll = mongo_client.opq.incidents
     incidents = incidents_coll.find({"start_timestamp_ms": {"$gte": start_time_s * 1000.0,
@@ -115,7 +86,7 @@ def plot_events(start_time_s: int,
                 report_dir: str,
                 mongo_client: pymongo.MongoClient):
     events_coll = mongo_client.opq.events
-    box_ids = [k for k in box_to_location]
+    box_ids = [k for k in reports.box_to_location]
     events = events_coll.find({"target_event_start_timestamp_ms": {"$gte": start_time_s * 1000.0,
                                                                    "$lte": end_time_s * 1000.0}})
 
@@ -131,7 +102,7 @@ def plot_events(start_time_s: int,
             box_to_bin_to_events[box][bin] = 0
 
     for event in events:
-        if not any_of_in(box_ids, event["boxes_triggered"]):
+        if not reports.any_of_in(box_ids, event["boxes_triggered"]):
             continue
 
         dt_bin = fmt_ts_by_hour(int(event["target_event_start_timestamp_ms"] / 1000.0))
@@ -149,7 +120,7 @@ def plot_events(start_time_s: int,
     labels = []
     datasets = []
     for box in box_to_bin_to_events:
-        labels.append("Box %s (%s)" % (box, box_to_location[box]))
+        labels.append("Box %s (%s)" % (box, reports.box_to_location[box]))
         datasets.append(np.array(list(box_to_bin_to_events[box].values())))
 
     for i in range(len(datasets)):
@@ -176,120 +147,11 @@ def plot_events(start_time_s: int,
     return fig_title
 
 
-def plot_trends(start_time_s: int,
-                end_time_s: int,
-                report_dir: str,
-                mongo_client: pymongo.MongoClient):
-    trends_coll: pymongo.collection.Collection = mongo_client.opq.trends
-
-    fig_titles: typing.List[str] = []
-
-    for box_id, location in box_to_location.items():
-        timestamps = []
-        f_min = []
-        f_avg = []
-        f_max = []
-        v_min = []
-        v_avg = []
-        v_max = []
-        thd_min = []
-        thd_avg = []
-        thd_max = []
-        transient_min = []
-        transient_avg = []
-        transient_max = []
-        trends = trends_coll.find({"timestamp_ms": {"$gte": start_time_s * 1000.0,
-                                                    "$lte": end_time_s * 1000.0},
-                                   "box_id": box_id}).sort("timestamp_ms")
-        for trend in trends:
-            timestamps.append(trend["timestamp_ms"])
-            if "frequency" in trend:
-                f_min.append(trend["frequency"]["min"])
-                f_avg.append(trend["frequency"]["average"])
-                f_max.append(trend["frequency"]["max"])
-            else:
-                f_min.append(0)
-                f_avg.append(0)
-                f_max.append(0)
-
-            if "voltage" in trend:
-                v_min.append(trend["voltage"]["min"])
-                v_avg.append(trend["voltage"]["average"])
-                v_max.append(trend["voltage"]["max"])
-            else:
-                v_min.append(0)
-                v_avg.append(0)
-                v_max.append(0)
-
-            if "thd" in trend:
-                thd_min.append(trend["thd"]["min"])
-                thd_avg.append(trend["thd"]["average"])
-                thd_max.append(trend["thd"]["max"])
-            else:
-                thd_min.append(0)
-                thd_avg.append(0)
-                thd_max.append(0)
-
-            if "transient" in trend:
-                transient_min.append(trend["transient"]["min"])
-                transient_avg.append(trend["transient"]["average"])
-                transient_max.append(trend["transient"]["max"])
-            else:
-                transient_min.append(0)
-                transient_avg.append(0)
-                transient_max.append(0)
-
-        timestamps = list(map(lambda ts: datetime.datetime.utcfromtimestamp(ts / 1000.0), timestamps))
-        xfmt = md.DateFormatter('%d %H:%M:%S')
-        fig, (fax, vax, thdax, transientax) = plt.subplots(4, 1, sharex=True, figsize=(16, 9))
-
-        start_dt = timestamps[0].strftime("%Y-%m-%d %H:%M")
-        end_dt = timestamps[-1].strftime("%Y-%m-%d %H:%M")
-        fig.suptitle("OPQ Box %s (%s): Trends %s - %s UTC" % (box_id, location, start_dt, end_dt), y=1.0, size="large",
-                     weight="bold")
-
-        fax.plot(timestamps, f_min, label="min(F)")
-        fax.plot(timestamps, f_avg, label="avg(F)")
-        fax.plot(timestamps, f_max, label="max(F)")
-        fax.set_title("F")
-        fax.set_ylabel("Hz")
-        fax.legend(loc="upper right")
-
-        vax.plot(timestamps, v_min, label="min(V)")
-        vax.plot(timestamps, v_avg, label="avg(V)")
-        vax.plot(timestamps, v_max, label="max(V)")
-        vax.set_title("V")
-        vax.set_ylabel("$V_{RMS}$")
-        vax.legend(loc="upper right")
-
-        thdax.plot(timestamps, thd_min, label="min(THD)")
-        thdax.plot(timestamps, thd_avg, label="avg(THD)")
-        thdax.plot(timestamps, thd_max, label="max(THD)")
-        thdax.set_title("% THD")
-        thdax.set_ylabel("% THD")
-        thdax.legend(loc="upper right")
-
-        transientax.plot(timestamps, transient_min, label="min(Transient)")
-        transientax.plot(timestamps, transient_avg, label="avg(Transient)")
-        transientax.plot(timestamps, transient_max, label="max(Transient)")
-        transientax.set_title("Transient")
-        transientax.set_ylabel("$P_{V}$")
-        transientax.legend(loc="upper right")
-        transientax.xaxis.set_major_formatter(xfmt)
-
-        fig_title = "trends-%s-%d-%d.png" % (box_id, start_time_s, end_time_s)
-        fig_titles.append(fig_title)
-        fig.savefig("%s/%s" % (report_dir, fig_title))
-        print("Produced %s" % fig_title)
-
-    return fig_titles
-
-
 def plot_incidents(start_time_s: int,
                    end_time_s: int,
                    report_dir: str,
                    mongo_client: pymongo.MongoClient):
-    box_ids = [k for k in box_to_location]
+    box_ids = [k for k in reports.box_to_location]
     incidents_coll = mongo_client.opq.incidents
     incidents = incidents_coll.find({"start_timestamp_ms": {"$gte": start_time_s * 1000.0,
                                                             "$lte": end_time_s * 1000.0},
@@ -321,7 +183,7 @@ def plot_incidents(start_time_s: int,
     labels = []
     datasets = []
     for box in box_to_bin_to_incidents:
-        labels.append("Box %s (%s)" % (box, box_to_location[box]))
+        labels.append("Box %s (%s)" % (box, reports.box_to_location[box]))
         datasets.append(np.array(list(box_to_bin_to_incidents[box].values())))
 
     for i in range(len(datasets)):
@@ -426,104 +288,105 @@ def create_report(start_time_s: int,
     now_dt = datetime.datetime.now()
 
     print("Generating trend figures...")
-    trend_figures = plot_trends(start_time_s, end_time_s, report_dir, mongo_client)
+    trend_figures = reports.trends.plot_trends(start_time_s, end_time_s, report_dir, mongo_client)
+    # trend_figures = plot_trends(start_time_s, end_time_s, report_dir, mongo_client)
 
-    print("Generating event stats...")
-    e_stats = event_stats(start_time_s, end_time_s, mongo_client)
-
-    print("Generating event figures...")
-    e_fig = plot_events(start_time_s, end_time_s, report_dir, mongo_client)
-
-    print("Generating incident stats...")
-    i_stats = incident_stats(start_time_s, end_time_s, mongo_client)
-
-    print("Generating incident figures...")
-    i_fig = plot_incidents(start_time_s, end_time_s, report_dir, mongo_client)
-
-    print("Generating Events table...")
-    short_start_dt = start_dt.strftime("%Y-%m-%d")
-    short_end_dt = end_dt.strftime("%Y-%m-%d")
-    events_table = [["OPQ Box", "Location", "Events Generated"]]
-    for box, events in e_stats["events_per_box"].items():
-        events_table.append([box, box_to_location[box], events])
-    make_table(events_table, "Events %s to %s" % (short_start_dt, short_end_dt), report_dir)
-
-    print("Generating Incident Types table...")
-    incidents_table = [["Incident Type", "Total"]]
-    for itype, n in i_stats["incident_types"].items():
-        incidents_table.append([incident_map[itype], n])
-    make_table(incidents_table, "Incident Types %s to %s" % (short_start_dt, short_end_dt), report_dir)
-
-    print("Generating Incidents table...")
-    i_table_header = ["OPQ Box", "Location", "Incidents"]
-    for incident in i_stats["incidents"]:
-        i_table_header.append(incident_map[incident])
-    i_table = [i_table_header]
-    for box, incidents in i_stats["box_to_total_incidents"].items():
-        row = [box, box_to_location[box], incidents]
-        for incident in i_stats["incidents"]:
-            if incident in i_stats["box_to_incidents"][box]:
-                row.append(i_stats["box_to_incidents"][box][incident])
-            else:
-                row.append(0)
-        i_table.append(row)
-
-    make_table(i_table, "Incidents %s to %s" % (short_start_dt, short_end_dt), report_dir, sort_by_col=2)
-
-    print("Generating report...")
-    with open("%s/%s.txt" % (report_dir, report_id), "w") as fout:
-        # ------------------------------------- Title
-        fout.write('Micro-report on the UHM micro-grid: %s to %s\n\n' % (start_dt.strftime("%Y-%m-%d %H:%M"),end_dt.strftime("%Y-%m-%d %H:%M")))
-
-        # ------------------------------------- Synopsis
-        fout.write('Synopsis\n\n')
-
-        # ------------------------------------- General Summary
-        fout.write('General Summary\n\n')
-
-        # ------------------------------------- Trends Summary
-        fout.write('Trends Summary\n\n')
-
-        fout.write('Weekly trends measure the minimum, average, and maximum values for Voltage, Frequency, THD, '
-                   'and transients for each OPQ Box at a rate of 1 Hz.\n\n')
-
-        fout.write('The following figures show Trends for each Box between %s and %s.\n\n' % (start_dt, end_dt))
-
-        # ------------------------------------- Events Summary
-        fout.write('Events Summary\n\n')
-
-        fout.write('Events are ranges of PQ data that may (or may not) have PQ issues within them. Events are generated'
-                   ' by two methods. The first method uses Voltage, Frequency, and THD thresholds as defined by IEEE. '
-                   'The second method uses the Napali Trigger which was developed by Sergey as part of his dissertation'
-                   ' research. The Napali trigger uses statistical methods to determine when Boxes may contain PQ '
-                   'issues. This summary of Events examines the number of times that Boxes were triggered due to '
-                   'possible PQ issues.\n\n')
-
-        fout.write('There were a total of %d Events processed.\n\n' % e_stats["total_events"])
-
-        fout.write('The following table shows Events generated per Box.\n\n')
-
-        fout.write('The following figure shows Events per Box per day.\n\n')
-
-        # ------------------------------------- Incidents Summary
-        fout.write('Incidents Summary\n\n')
-
-        fout.write('Incidents are classified PQ issues that were found in the previously provided Events. Incidents are'
-                   ' classified by OPQ Mauka according to various PQ standards. OPQ Mauka provides classifications for'
-                   ' Outages, Voltage, Frequency, and THD related issues.\n\n')
-
-        fout.write("A total of %d Incidents were processed.\n\n" % i_stats["total_incidents"])
-
-        fout.write('A breakdown of Incidents by their type is provided in the following table.\n\n')
-
-        fout.write('A breakdown of Incidents per Box is provided in the following table.\n\n')
-
-        fout.write('The following figure shows Incidents per Box per day.\n\n')
-
-        # ------------------------------------- Conclusion
-        fout.write('Conclusion\n\n')
-
-        print("Report generated.")
+    # print("Generating event stats...")
+    # e_stats = event_stats(start_time_s, end_time_s, mongo_client)
+    #
+    # print("Generating event figures...")
+    # e_fig = plot_events(start_time_s, end_time_s, report_dir, mongo_client)
+    #
+    # print("Generating incident stats...")
+    # i_stats = incident_stats(start_time_s, end_time_s, mongo_client)
+    #
+    # print("Generating incident figures...")
+    # i_fig = plot_incidents(start_time_s, end_time_s, report_dir, mongo_client)
+    #
+    # print("Generating Events table...")
+    # short_start_dt = start_dt.strftime("%Y-%m-%d")
+    # short_end_dt = end_dt.strftime("%Y-%m-%d")
+    # events_table = [["OPQ Box", "Location", "Events Generated"]]
+    # for box, events in e_stats["events_per_box"].items():
+    #     events_table.append([box, reports.box_to_location[box], events])
+    # make_table(events_table, "Events %s to %s" % (short_start_dt, short_end_dt), report_dir)
+    #
+    # print("Generating Incident Types table...")
+    # incidents_table = [["Incident Type", "Total"]]
+    # for itype, n in i_stats["incident_types"].items():
+    #     incidents_table.append([reports.incident_map[itype], n])
+    # make_table(incidents_table, "Incident Types %s to %s" % (short_start_dt, short_end_dt), report_dir)
+    #
+    # print("Generating Incidents table...")
+    # i_table_header = ["OPQ Box", "Location", "Incidents"]
+    # for incident in i_stats["incidents"]:
+    #     i_table_header.append(reports.incident_map[incident])
+    # i_table = [i_table_header]
+    # for box, incidents in i_stats["box_to_total_incidents"].items():
+    #     row = [box, reports.box_to_location[box], incidents]
+    #     for incident in i_stats["incidents"]:
+    #         if incident in i_stats["box_to_incidents"][box]:
+    #             row.append(i_stats["box_to_incidents"][box][incident])
+    #         else:
+    #             row.append(0)
+    #     i_table.append(row)
+    #
+    # make_table(i_table, "Incidents %s to %s" % (short_start_dt, short_end_dt), report_dir, sort_by_col=2)
+    #
+    # print("Generating report...")
+    # with open("%s/%s.txt" % (report_dir, report_id), "w") as fout:
+    #     # ------------------------------------- Title
+    #     fout.write('Micro-report on the UHM micro-grid: %s to %s\n\n' % (start_dt.strftime("%Y-%m-%d %H:%M"),end_dt.strftime("%Y-%m-%d %H:%M")))
+    #
+    #     # ------------------------------------- Synopsis
+    #     fout.write('Synopsis\n\n')
+    #
+    #     # ------------------------------------- General Summary
+    #     fout.write('General Summary\n\n')
+    #
+    #     # ------------------------------------- Trends Summary
+    #     fout.write('Trends Summary\n\n')
+    #
+    #     fout.write('Weekly trends measure the minimum, average, and maximum values for Voltage, Frequency, THD, '
+    #                'and transients for each OPQ Box at a rate of 1 Hz.\n\n')
+    #
+    #     fout.write('The following figures show Trends for each Box between %s and %s.\n\n' % (start_dt, end_dt))
+    #
+    #     # ------------------------------------- Events Summary
+    #     fout.write('Events Summary\n\n')
+    #
+    #     fout.write('Events are ranges of PQ data that may (or may not) have PQ issues within them. Events are generated'
+    #                ' by two methods. The first method uses Voltage, Frequency, and THD thresholds as defined by IEEE. '
+    #                'The second method uses the Napali Trigger which was developed by Sergey as part of his dissertation'
+    #                ' research. The Napali trigger uses statistical methods to determine when Boxes may contain PQ '
+    #                'issues. This summary of Events examines the number of times that Boxes were triggered due to '
+    #                'possible PQ issues.\n\n')
+    #
+    #     fout.write('There were a total of %d Events processed.\n\n' % e_stats["total_events"])
+    #
+    #     fout.write('The following table shows Events generated per Box.\n\n')
+    #
+    #     fout.write('The following figure shows Events per Box per day.\n\n')
+    #
+    #     # ------------------------------------- Incidents Summary
+    #     fout.write('Incidents Summary\n\n')
+    #
+    #     fout.write('Incidents are classified PQ issues that were found in the previously provided Events. Incidents are'
+    #                ' classified by OPQ Mauka according to various PQ standards. OPQ Mauka provides classifications for'
+    #                ' Outages, Voltage, Frequency, and THD related issues.\n\n')
+    #
+    #     fout.write("A total of %d Incidents were processed.\n\n" % i_stats["total_incidents"])
+    #
+    #     fout.write('A breakdown of Incidents by their type is provided in the following table.\n\n')
+    #
+    #     fout.write('A breakdown of Incidents per Box is provided in the following table.\n\n')
+    #
+    #     fout.write('The following figure shows Incidents per Box per day.\n\n')
+    #
+    #     # ------------------------------------- Conclusion
+    #     fout.write('Conclusion\n\n')
+    #
+    #     print("Report generated.")
 
 
 if __name__ == "__main__":
