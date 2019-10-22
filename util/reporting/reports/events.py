@@ -1,6 +1,9 @@
+import datetime
+import math
 import typing
 
 import gridfs
+import matplotlib.dates as md
 import matplotlib.pyplot as plt
 import numpy as np
 import pymongo
@@ -17,9 +20,25 @@ def to_s16bit(data: bytes) -> np.ndarray:
     return np.frombuffer(data, np.int16)
 
 
-def plot_event(event_id: int,
-               report_dir: str,
-               mongo_client: pymongo.MongoClient):
+def ms_to_sample(ms: float) -> float:
+    return ms * 12
+
+
+def sample_to_ms(sample: int) -> float:
+    return sample / 12.0
+
+def sample_to_us(sample: int) -> float:
+    return sample / 12_000.0
+
+def ms_to_us(ms: float) -> float:
+    return ms * 1000.0
+
+
+def plot_event_stacked(event_id: int,
+                       report_dir: str,
+                       mongo_client: pymongo.MongoClient,
+                       include_only_boxes: typing.List[str] = [],
+                       range_ms: typing.Optional[typing.Tuple[float, float]] = None):
     fs = gridfs.GridFS(mongo_client.opq)
 
     box_events_coll = mongo_client.opq.box_events
@@ -27,23 +46,60 @@ def plot_event(event_id: int,
                                            projection={"_id": False,
                                                        "box_id": True,
                                                        "event_id": True,
-                                                       "data_fs_filename": True}))
+                                                       "data_fs_filename": True,
+                                                       "event_start_timestamp_ms": True}))
 
-    fig, ax = plt.subplots(len(box_events), 1, sharex=True, figsize=(16,20))
+    if len(include_only_boxes) > 0:
+        box_events = list(filter(lambda box_event: box_event["box_id"] in include_only_boxes, box_events))
 
+    box_events = sorted(box_events, key=lambda box_event: box_event["box_id"])
+    start_ms = box_events[0]["event_start_timestamp_ms"]
+    start_dt = datetime.datetime.utcfromtimestamp(start_ms / 1000.0)
+
+    fig, ax = plt.subplots(len(box_events), 1, sharex=True, figsize=(16, 20))
+    fig.suptitle("Event #%d @ %s UTC" % (event_id, start_dt.strftime("%Y-%m-%d %H:%M:%S")))
+
+    min_y = 9999999999999999
+    max_y = -min_y
+    min_x = datetime.datetime.utcnow()
+    max_x = datetime.datetime(1970, 1, 1)
     for i in range(len(box_events)):
         calib_constant = mongo_client.opq.opq_boxes.find_one({"box_id": box_events[i]["box_id"]},
-                                                            projection={"_id": False,
-                                                                        "box_id": True,
-                                                                        "calibration_constant": True})["calibration_constant"]
-        data = fs.find_one({"filename": box_events[i]["data_fs_filename"]}).read()
-        data = to_s16bit(data).astype(np.int64) / calib_constant
-        data = data[300:450]
-        ax[i].plot(range(len(data)), data)
+                                                             projection={"_id": False,
+                                                                         "box_id": True,
+                                                                         "calibration_constant": True})[
+            "calibration_constant"]
 
-    plt.show()
+        y_values = fs.find_one({"filename": box_events[i]["data_fs_filename"]}).read()
+        y_values = to_s16bit(y_values).astype(np.int64) / calib_constant
+        event_start_ms = box_events[i]["event_start_timestamp_ms"]
+        x_values = list(map(lambda sample: sample_to_ms(sample) + event_start_ms, range(len(y_values))))
+        x_values = list(map(lambda x: datetime.datetime.utcfromtimestamp(x / 1000.0), x_values))
 
-    print(box_events)
+
+        if range_ms is not None:
+            start_sample = ms_to_sample(range_ms[0])
+            end_sample = ms_to_sample(range_ms[1])
+            x_values = x_values[start_sample:end_sample]
+            y_values = y_values[start_sample:end_sample]
+
+        min_y = min(min_y, min(y_values))
+        max_y = max(max_y, max(y_values))
+        min_x = min(min_x, min(x_values))
+        max_x = max(max_x, max(x_values))
+
+        ax[i].plot(x_values, y_values)
+        ax[i].set_title("OPQ Box %s (%s)" % (box_events[i]["box_id"], reports.box_to_location[box_events[i]["box_id"]]))
+        ax[i].set_ylabel("Voltage")
+
+    for a in ax:
+        a.set_ylim(ymin=min_y - 5, ymax=max_y + 5)
+        a.set_xlim(xmin=min_x, xmax=max_x)
+
+    ax[-1].set_xlabel("Time UTC (MM:SS.$\mu$S)")
+    ax[-1].xaxis.set_major_formatter(md.DateFormatter('%M:%S.%f'))
+
+    plt.savefig("%s/event_%d.png" % (report_dir, event_id))
 
 
 def plot_events(start_time_s: int,
@@ -137,4 +193,6 @@ def event_stats(start_time_s: int,
 
 
 if __name__ == "__main__":
-    plot_event(172509, ".", pymongo.MongoClient())
+    plot_event_stacked(172509, ".", pymongo.MongoClient(),
+                       include_only_boxes=["1001", "1003", "1008", "1009", "1021", "1025"],
+                       range_ms=(325,400))
