@@ -1,10 +1,49 @@
 import typing
 
+import gridfs
 import matplotlib.pyplot as plt
 import numpy as np
 import pymongo
 
 import reports
+
+
+def to_s16bit(data: bytes) -> np.ndarray:
+    """
+    Converts raw bytes into an array of 16 bit integers.
+    :param data:
+    :return:
+    """
+    return np.frombuffer(data, np.int16)
+
+
+def plot_event(event_id: int,
+               report_dir: str,
+               mongo_client: pymongo.MongoClient):
+    fs = gridfs.GridFS(mongo_client.opq)
+
+    box_events_coll = mongo_client.opq.box_events
+    box_events = list(box_events_coll.find({"event_id": event_id},
+                                           projection={"_id": False,
+                                                       "box_id": True,
+                                                       "event_id": True,
+                                                       "data_fs_filename": True}))
+
+    fig, ax = plt.subplots(len(box_events), 1, sharex=True, figsize=(16,20))
+
+    for i in range(len(box_events)):
+        calib_constant = mongo_client.opq.opq_boxes.find_one({"box_id": box_events[i]["box_id"]},
+                                                            projection={"_id": False,
+                                                                        "box_id": True,
+                                                                        "calibration_constant": True})["calibration_constant"]
+        data = fs.find_one({"filename": box_events[i]["data_fs_filename"]}).read()
+        data = to_s16bit(data).astype(np.int64) / calib_constant
+        data = data[300:450]
+        ax[i].plot(range(len(data)), data)
+
+    plt.show()
+
+    print(box_events)
 
 
 def plot_events(start_time_s: int,
@@ -95,3 +134,7 @@ def event_stats(start_time_s: int,
 
     return {"total_events": sum(box_to_total_events.values()),
             "events_per_box": box_to_total_events}
+
+
+if __name__ == "__main__":
+    plot_event(172509, ".", pymongo.MongoClient())
