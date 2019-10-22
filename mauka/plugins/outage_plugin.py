@@ -85,6 +85,10 @@ class OutagePlugin(MaukaPlugin):
                                                                [mongo.IncidentClassification.OUTAGE],
                                                                opq_mongo_client=self.mongo_client,
                                                                copy_data=False)
+                            # Produce a message to the GC
+                            self.produce(Routes.laha_gc, protobuf.pb_util.build_gc_update(self.name,
+                                                                                          protobuf.mauka_pb2.INCIDENTS,
+                                                                                          incident_id))
 
                             self.prev_incident_ids[box_id] = incident_id
 
