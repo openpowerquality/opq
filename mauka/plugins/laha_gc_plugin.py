@@ -171,7 +171,7 @@ class LahaGcPlugin(base_plugin.MaukaPlugin):
                                                                                "box_id": True})
 
         if incident is None:
-            self.logger.warn("gc_update incidents, incident with id=%s not found", str(_id))
+            self.logger.warning("gc_update incidents, incident with id=%s not found", str(_id))
         else:
             query = {"timestamp_ms": {"$gte": incident["start_timestamp_ms"],
                                       "$lte": incident["end_timestamp_ms"]},
@@ -195,13 +195,15 @@ class LahaGcPlugin(base_plugin.MaukaPlugin):
                                                                              "event_id": True})
 
             if event is None:
-                self.logger.warn("gc_update incidents, event with id=%s not found", str(incident["event_id"]))
+                self.logger.warning("gc_update incidents, event with id=%s not found", str(incident["event_id"]))
             else:
                 update_result = self.mongo_client.events_collection.update_one({"event_id": event["event_id"]},
-                                                                               {"$set": {"expire_at": incident["expire_at"]}})
+                                                                               {"$set": {"expire_at": incident["expire"
+                                                                                                               "_at"]}})
 
                 if update_result.modified_count != 1:
-                    self.logger.error("gc_update incidents event expire_at not set for incident_id=%d event_id=%d: ack=%s "
+                    self.logger.error("gc_update incidents event expire_at not set for incident_id=%d event_id=%d:"
+                                      " ack=%s "
                                       "matched=%d modified=%d raw=%s",
                                       incident["incident_id"],
                                       incident["event_id"],
@@ -229,7 +231,7 @@ class LahaGcPlugin(base_plugin.MaukaPlugin):
                                                                          "boxes_received": True})
 
         if event is None:
-            self.logger.warn("gc_update event event with event_id=%s is None", str(_id))
+            self.logger.warning("gc_update event event with event_id=%s is None", str(_id))
         else:
             boxes_received = event["boxes_received"]
 
