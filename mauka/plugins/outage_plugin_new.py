@@ -57,8 +57,7 @@ class OutagePlugin(MaukaPlugin):
                 now = datetime.datetime.utcnow()
                 box_to_max_timestamp: typing.Dict[str, int] = {}
                 box_to_min_timestamp: typing.Dict[str, int] = {}
-                measurements = self.mongo_client.measurements_collection.find({"timestamp_ms": {"$gte": unix_time_millis(self.last_update),
-                                                                                                "$lte": unix_time_millis(now)}},
+                measurements = self.mongo_client.measurements_collection.find({"timestamp_ms": {"$gte": unix_time_millis(self.last_update)}},
                                                                               projection={"_id": False,
                                                                                           "box_id": True,
                                                                                           "timestamp_ms": True})
@@ -108,7 +107,7 @@ class OutagePlugin(MaukaPlugin):
 
                             # Update previous incident
                             self.mongo_client.incidents_collection.update_one({"incident_id": prev_incident_id},
-                                                                              {"$set": {"end_timestamp_ms": unix_time_millis(now)}})
+                                                                              {"$set": {"end_timestamp_ms": int(unix_time_millis(now))}})
                     else:
                         # Outage over
                         if box_id in self.prev_incident_ids:
@@ -116,7 +115,7 @@ class OutagePlugin(MaukaPlugin):
 
                             # Update previous incident
                             self.mongo_client.incidents_collection.update_one({"incident_id": prev_incident_id},
-                                                                              {"$set": {"end_timestamp_ms": box_to_min_timestamp[box_id]}})
+                                                                              {"$set": {"end_timestamp_ms": int(box_to_min_timestamp[box_id])}})
                             del self.prev_incident_ids[box_id]
 
 
