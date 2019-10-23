@@ -1,7 +1,7 @@
 """This module contains classes and functions for classifying power outages."""
-
 import datetime
 import multiprocessing
+import typing
 
 import config
 import mongo
@@ -10,9 +10,6 @@ import protobuf.pb_util
 from plugins.base_plugin import MaukaPlugin
 
 from plugins.routes import Routes
-
-BOX_STATUS_UP = "UP"
-BOX_STATUS_DOWN = "DOWN"
 
 EPOCH = datetime.datetime.utcfromtimestamp(0)
 
@@ -51,34 +48,51 @@ class OutagePlugin(MaukaPlugin):
         super().__init__(conf, [Routes.heartbeat], OutagePlugin.NAME, exit_event)
         self.last_update = datetime.datetime.utcnow()
         self.prev_incident_ids = {}
+        self.box_to_last_seen: typing.Dict[str, int] = {}
 
     def on_message(self, topic: str, mauka_message: protobuf.mauka_pb2.MaukaMessage):
         if protobuf.pb_util.is_heartbeat_message(mauka_message):
             if OutagePlugin.NAME == mauka_message.source:
-                box_statuses = list(self.mongo_client.health_collection.find({"service": "BOX",
-                                                                              "timestamp": {"$gt": self.last_update}},
-                                                                             {"_id": False,
-                                                                              "info": False}))
-                for box_status in box_statuses:
-                    box_id = box_status["serviceID"]
-                    status = box_status["status"]
-                    timestamp = unix_time_millis(box_status["timestamp"])
-                    unplugged = is_unplugged(self.mongo_client, box_id)
+                now = datetime.datetime.utcnow()
+                box_to_max_timestamp: typing.Dict[str, int] = {}
+                box_to_min_timestamp: typing.Dict[str, int] = {}
+                measurements = self.mongo_client.measurements_collection.find(
+                    {"timestamp_ms": {"$gte": unix_time_millis(self.last_update)}},
+                    projection={"_id": False,
+                                "box_id": True,
+                                "timestamp_ms": True})
+                # Find the min and max timestamps for each box
+                for measurement in measurements:
+                    box_id = measurement["box_id"]
+                    timestamp = measurement["timestamp_ms"]
 
-                    # No prev incidents
-                    if box_id not in self.prev_incident_ids:
-                        # No outages
-                        if status == BOX_STATUS_UP:
+                    if box_id not in box_to_max_timestamp:
+                        box_to_max_timestamp[box_id] = 0
+                        box_to_min_timestamp[box_id] = 9999999999999999999999
+
+                    if timestamp > box_to_max_timestamp[box_id]:
+                        box_to_max_timestamp[box_id] = timestamp
+
+                    if timestamp < box_to_min_timestamp[box_id]:
+                        box_to_min_timestamp[box_id] = timestamp
+
+                # Merge the max timestamps for each box into the last seen dictionary
+                self.box_to_last_seen = {**self.box_to_last_seen, **box_to_max_timestamp}
+
+                # Check for outages
+                for box_id, last_seen in self.box_to_last_seen.items():
+                    # Outage
+                    if now - last_seen > 60_000:
+                        if is_unplugged(self.mongo_client, box_id):
+                            if box_id in self.prev_incident_ids:
+                                del self.prev_incident_ids[box_id]
                             continue
 
-                        if status == BOX_STATUS_DOWN and unplugged:
-                            continue
-
-                        # New outage
-                        if status == BOX_STATUS_DOWN and not unplugged:
+                        # Fresh outage
+                        if box_id not in self.prev_incident_ids:
                             incident_id = mongo.store_incident(-1,
                                                                box_id,
-                                                               int(timestamp),
+                                                               int(unix_time_millis(now)),
                                                                -1,
                                                                mongo.IncidentMeasurementType.HEALTH,
                                                                -1.0,
@@ -91,27 +105,24 @@ class OutagePlugin(MaukaPlugin):
                                                                                           incident_id))
 
                             self.prev_incident_ids[box_id] = incident_id
+                        # Ongoing outage
+                        else:
+                            prev_incident_id = self.prev_incident_ids[box_id]
 
-                    # Prev incidents
+                            # Update previous incident
+                            self.mongo_client.incidents_collection.update_one(
+                                {"incident_id": prev_incident_id},
+                                {"$set": {"end_timestamp_ms": int(unix_time_millis(now))}})
+                    # No outage
                     else:
-                        prev_incident_id = self.prev_incident_ids[box_id]
-
-                        # Update previous incident
-                        self.mongo_client.incidents_collection.update_one({"incident_id": prev_incident_id},
-                                                                          {"$set": {"end_timestamp_ms": timestamp}})
-
                         # Outage over
-                        if status == BOX_STATUS_UP or (status == BOX_STATUS_DOWN and unplugged):
+                        if box_id in self.prev_incident_ids:
+                            prev_incident_id = self.prev_incident_ids[box_id]
+
+                            # Update previous incident
+                            self.mongo_client.incidents_collection.update_one(
+                                {"incident_id": prev_incident_id},
+                                {"$set": {"end_timestamp_ms": int(box_to_min_timestamp[box_id])}})
                             del self.prev_incident_ids[box_id]
 
-                        # Outage continues
-
-                self.last_update = datetime.datetime.utcnow()
-
-        else:
-            self.logger.error("Received incorrect mauka message [%s] at %s",
-                              protobuf.pb_util.which_message_oneof(mauka_message),
-                              OutagePlugin.NAME)
-
-# once per hb
-#  get most recent measurements for each box
+                self.last_update = now
