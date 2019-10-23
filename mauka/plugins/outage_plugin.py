@@ -46,14 +46,14 @@ class OutagePlugin(MaukaPlugin):
     def __init__(self, conf: config.MaukaConfig,
                  exit_event: multiprocessing.Event):
         super().__init__(conf, [Routes.heartbeat], OutagePlugin.NAME, exit_event)
-        self.last_update = datetime.datetime.utcnow()
+        self.last_update = unix_time_millis(datetime.datetime.utcnow())
         self.prev_incident_ids = {}
         self.box_to_last_seen: typing.Dict[str, int] = {}
 
     def on_message(self, topic: str, mauka_message: protobuf.mauka_pb2.MaukaMessage):
         if protobuf.pb_util.is_heartbeat_message(mauka_message):
             if OutagePlugin.NAME == mauka_message.source:
-                now = datetime.datetime.utcnow()
+                now = unix_time_millis(datetime.datetime.utcnow())
                 self.debug("Recv outage heartbeat last_update=%s now=%s" % (str(self.last_update), str(now)))
                 box_to_max_timestamp: typing.Dict[str, int] = {}
                 box_to_min_timestamp: typing.Dict[str, int] = {}
