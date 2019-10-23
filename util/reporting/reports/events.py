@@ -56,7 +56,8 @@ def plot_event_stacked(event_id: int,
     start_ms = box_events[0]["event_start_timestamp_ms"]
     start_dt = datetime.datetime.utcfromtimestamp(start_ms / 1000.0)
 
-    fig, ax = plt.subplots(len(box_events), 1, sharex=True, figsize=(16, 20))
+    # fig, ax = plt.subplots(len(box_events), 1, sharex=True, figsize=(16, 20))
+    fig, ax = plt.subplots(len(box_events), 1, sharex=True, figsize=(14, 21))
     fig.suptitle("Event #%d @ %s UTC" % (event_id, start_dt.strftime("%Y-%m-%d %H:%M:%S")))
 
     min_y = 9999999999999999
@@ -122,14 +123,15 @@ def plot_events(start_time_s: int,
         for bin in bins:
             box_to_bin_to_events[box][bin] = 0
 
-    for event in events:
-        if not reports.any_of_in(box_ids, event["boxes_triggered"]):
-            continue
-
-        dt_bin = reports.fmt_ts_by_hour(int(event["target_event_start_timestamp_ms"] / 1000.0))
-        for box in event["boxes_received"]:
-            if box in box_ids:
-                box_to_bin_to_events[box][dt_bin] += 1
+    with open("%s/events.txt" % report_dir, "a") as fout:
+        for event in events:
+            if not reports.any_of_in(box_ids, event["boxes_triggered"]):
+                continue
+            fout.write("%d\n" % event["event_id"])
+            dt_bin = reports.fmt_ts_by_hour(int(event["target_event_start_timestamp_ms"] / 1000.0))
+            for box in event["boxes_received"]:
+                if box in box_ids:
+                    box_to_bin_to_events[box][dt_bin] += 1
 
     def da_bottom(datasets: typing.List[np.ndarray], i: int) -> np.ndarray:
         d = np.zeros(len(datasets[i]))
@@ -193,6 +195,6 @@ def event_stats(start_time_s: int,
 
 
 if __name__ == "__main__":
-    plot_event_stacked(172509, ".", pymongo.MongoClient(),
-                       include_only_boxes=["1001", "1003", "1008", "1009", "1021", "1025"],
-                       range_ms=(325,400))
+    plot_event_stacked(171418, ".", pymongo.MongoClient(),
+                        range_ms=(200,700)
+                       )

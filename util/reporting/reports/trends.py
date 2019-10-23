@@ -55,43 +55,45 @@ def plot_trends(start_time_s: int,
         trends = trends_coll.find({"timestamp_ms": {"$gte": start_time_s * 1000.0,
                                                     "$lte": end_time_s * 1000.0},
                                    "box_id": box_id}).sort("timestamp_ms")
-        for trend in trends:
-            timestamps.append(trend["timestamp_ms"])
-            if "frequency" in trend:
-                f_min.append(trend["frequency"]["min"])
-                f_avg.append(trend["frequency"]["average"])
-                f_max.append(trend["frequency"]["max"])
-            else:
-                f_min.append(0)
-                f_avg.append(0)
-                f_max.append(0)
+        with open("%s/trends.txt" % report_dir, "a") as fout:
+            for trend in trends:
+                fout.write("%s\n" % str(trend))
+                timestamps.append(trend["timestamp_ms"])
+                if "frequency" in trend:
+                    f_min.append(trend["frequency"]["min"])
+                    f_avg.append(trend["frequency"]["average"])
+                    f_max.append(trend["frequency"]["max"])
+                else:
+                    f_min.append(0)
+                    f_avg.append(0)
+                    f_max.append(0)
 
-            if "voltage" in trend:
-                v_min.append(trend["voltage"]["min"])
-                v_avg.append(trend["voltage"]["average"])
-                v_max.append(trend["voltage"]["max"])
-            else:
-                v_min.append(0)
-                v_avg.append(0)
-                v_max.append(0)
+                if "voltage" in trend:
+                    v_min.append(trend["voltage"]["min"])
+                    v_avg.append(trend["voltage"]["average"])
+                    v_max.append(trend["voltage"]["max"])
+                else:
+                    v_min.append(0)
+                    v_avg.append(0)
+                    v_max.append(0)
 
-            if "thd" in trend:
-                thd_min.append(trend["thd"]["min"] * 100.0)
-                thd_avg.append(trend["thd"]["average"] * 100.0)
-                thd_max.append(trend["thd"]["max"] * 100.0)
-            else:
-                thd_min.append(0)
-                thd_avg.append(0)
-                thd_max.append(0)
+                if "thd" in trend:
+                    thd_min.append(trend["thd"]["min"] * 100.0)
+                    thd_avg.append(trend["thd"]["average"] * 100.0)
+                    thd_max.append(trend["thd"]["max"] * 100.0)
+                else:
+                    thd_min.append(0)
+                    thd_avg.append(0)
+                    thd_max.append(0)
 
-            if "transient" in trend:
-                transient_min.append(trend["transient"]["min"])
-                transient_avg.append(trend["transient"]["average"])
-                transient_max.append(trend["transient"]["max"])
-            else:
-                transient_min.append(0)
-                transient_avg.append(0)
-                transient_max.append(0)
+                if "transient" in trend:
+                    transient_min.append(trend["transient"]["min"])
+                    transient_avg.append(trend["transient"]["average"])
+                    transient_max.append(trend["transient"]["max"])
+                else:
+                    transient_min.append(0)
+                    transient_avg.append(0)
+                    transient_max.append(0)
 
 
         min_x = min(min_x, min(timestamps))

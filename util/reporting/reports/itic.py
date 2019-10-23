@@ -56,4 +56,4 @@ def plot_itic(vrms: float, duration_ms: float):
     plt.show()
 
 if __name__ == "__main__":
-    plot_itic(40, 1000)
+    plot_itic(77, 100)

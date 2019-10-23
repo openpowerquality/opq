@@ -1,10 +1,46 @@
+import datetime
 import typing
 
+import gridfs
 import matplotlib.pyplot as plt
 import numpy as np
 import pymongo
 
 import reports
+
+
+
+def plot_incident(incident_id: int,
+                  report_dir: str,
+                  mongo_client: pymongo.MongoClient):
+    grid_fs = gridfs.GridFS(mongo_client.opq)
+    incidents_coll = mongo_client.opq.incidents
+
+    incident = incidents_coll.find_one({"incident_id": incident_id})
+    print(incident)
+    start_ms = incident["start_timestamp_ms"]
+    start_dt = datetime.datetime.utcfromtimestamp(start_ms / 1000.0)
+    wf_y_values = reports.calib_waveform(incident["gridfs_filename"], incident["box_id"], mongo_client)
+    wf_x_values = [datetime.datetime.utcfromtimestamp((start_ms + reports.sample_to_ms(t)) / 1000.0) for t in
+                range(len(wf_y_values))]
+
+    fig, ax = plt.subplots(4, 1, figsize=(16, 9), sharex="all")
+    fig.suptitle("Incident: %d (%s) OPQ Box: %s @ %s UTC" % (
+        incident["incident_id"],
+        incident["classifications"][0],
+        incident["box_id"],
+        start_dt.strftime("%Y-%m-%d %H:%M:%S")
+    ))
+    ax[0].plot(wf_x_values, wf_y_values)
+    ax[0].set_title("Waveform")
+    ax[0].set_ylabel("Voltage")
+
+    vrms_y_values = reports.vrms_waveform(wf_y_values)
+    vrms_x_values = wf_x_values[0::12000]
+    print(vrms_y_values)
+    ax[1].plot(vrms_x_values, vrms_y_values)
+
+    plt.show()
 
 
 def plot_incidents(start_time_s: int,
@@ -28,10 +64,12 @@ def plot_incidents(start_time_s: int,
         for bin in bins:
             box_to_bin_to_incidents[box][bin] = 0
 
-    for incident in incidents:
-        dt_bin = reports.fmt_ts_by_hour(int(incident["start_timestamp_ms"] / 1000.0))
-        box = incident["box_id"]
-        box_to_bin_to_incidents[box][dt_bin] += 1
+    with open("%s/incidents.txt" % report_dir, "a") as fout:
+        for incident in incidents:
+            fout.write("%d %s\n" % (incident["incident_id"], incident["classifications"][0]))
+            dt_bin = reports.fmt_ts_by_hour(int(incident["start_timestamp_ms"] / 1000.0))
+            box = incident["box_id"]
+            box_to_bin_to_incidents[box][dt_bin] += 1
 
     def da_bottom(datasets: typing.List[np.ndarray], i: int) -> np.ndarray:
         d = np.zeros(len(datasets[i]))
@@ -68,6 +106,7 @@ def plot_incidents(start_time_s: int,
     print("Produced %s" % fig_name)
     plt.savefig("%s/%s" % (report_dir, fig_name))
     return fig_name
+
 
 def incident_stats(start_time_s: int,
                    end_time_s: int,
@@ -106,3 +145,84 @@ def incident_stats(start_time_s: int,
             "incident_types": incident_types,
             "incidents": [k for k in incident_types],
             "box_to_incidents": box_to_incidents}
+
+def plot_outage(incident_id: int,
+                report_dir: str,
+                mongo_client: pymongo.MongoClient):
+    measurements_coll = mongo_client.opq.measurements
+    trends_coll = mongo_client.opq.trends
+    health_coll = mongo_client.opq.health
+    incidents_coll = mongo_client.opq.incidents
+
+    incident = incidents_coll.find_one({"incident_id": incident_id})
+    i_start = incident["start_timestamp_ms"]
+    i_end = incident["end_timestamp_ms"]
+    box_id = incident["box_id"]
+    print(datetime.datetime.utcfromtimestamp(i_start / 1000.0))
+    print("outage %d OPQ Box %s (%s) range=%f (%d - %d)" % (
+        incident_id,
+        box_id,
+        reports.box_to_location[box_id],
+        (i_end - i_start),
+        i_start,
+        i_end
+    ))
+
+    h_start = datetime.datetime.utcfromtimestamp(i_start / 1000.0)
+    h_end = datetime.datetime.utcfromtimestamp(i_end / 1000.0)
+    health = health_coll.find({"service": "BOX",
+                               "serviceID": box_id,
+                               "timestamp": {"$gte": h_start,
+                                             "$lte": h_end}})
+
+    print("%d health documents between %s and %s" % (len(list(health)), h_start, h_end))
+
+    measurements = measurements_coll.find({"box_id": box_id,
+                                           "timestamp_ms": {"$gte": i_start,
+                                                            "$lte": i_end}})
+    print("%d measurements" % len(list(measurements)))
+
+    trends = trends_coll.find({"box_id": box_id,
+                               "timestamp_ms": {"$gte": i_start,
+                                                "$lte": i_end}})
+
+    print("%d trends" % len(list(trends)))
+
+def plot_outages(start_ms: int,
+                 end_ms: int,
+                 report_dir: str,
+                 mongo_client: pymongo.MongoClient):
+    incidents_coll = mongo_client.opq.incidents
+    outages = incidents_coll.find({"box_id": {"$in": reports.boxes},
+                                   "start_timestamp_ms": {"$gte": start_ms,
+                                                          "$lte": end_ms},
+                                   "classifications": "OUTAGE"})
+    outages = list(outages)
+    print(outages)
+
+    fig, ax = plt.subplots(1, 1, figsize=(16, 9))
+    fig.suptitle("Outages")
+    for outage in outages:
+        o_start = datetime.datetime.utcfromtimestamp(outage["start_timestamp_ms"] / 1000.0)
+        o_end = datetime.datetime.utcfromtimestamp(outage["end_timestamp_ms"] / 1000.0)
+        box_id = outage["box_id"]
+        ax.plot([o_start, o_end], [int(box_id), int(box_id)],
+                linewidth=15)
+        ax.set_ylabel("OPQ Box")
+        ax.set_xlabel("Time (UTC)")
+
+    plt.savefig("%s/outages-%d-%d.png" % (report_dir, start_ms, end_ms))
+    plt.show()
+
+
+if __name__ == "__main__":
+    # plot_incident(56040, ".", pymongo.MongoClient())
+    # plot_outage(62868, ".", pymongo.MongoClient())
+    # plot_outage(63427, ".", pymongo.MongoClient())
+    with open("/Users/anthony/Development/opq/util/reporting/report_1571133600_1571738400/incidents.txt", "r") as fin:
+        for line in fin.readlines():
+            s = line.strip().split(" ")
+            # print(s)
+            if s[1] == "OUTAGE":
+                plot_outage(int(s[0]), ".", pymongo.MongoClient())
+    # plot_outages(1571133600000, 1571738400000, ".", pymongo.MongoClient())
