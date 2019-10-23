@@ -172,7 +172,7 @@ def plot_trends(start_time_s: int,
         fax2.set_ylim(ymin=min_f-.5, ymax=max_f+.5)
         fax2.set_ylabel("% Nominal")
 
-        fax.set_title("F")
+        fax.set_title("Frequency")
         fax.set_ylabel("Hz")
         fax.set_xlim(xmin=min_x, xmax=max_x)
         fax.set_ylim(ymin=min_f-.5, ymax=max_f+.5)
@@ -189,7 +189,7 @@ def plot_trends(start_time_s: int,
         vax2.set_ylim(ymin=min_v-5, ymax=max_v+5)
         vax2.set_ylabel("% Nominal")
 
-        vax.set_title("V")
+        vax.set_title("Voltage")
         vax.set_ylabel("$V_{RMS}$")
         vax.set_xlim(xmin=min_x, xmax=max_x)
         vax.set_ylim(ymin=min_v-5, ymax=max_v+5)
@@ -224,6 +224,7 @@ def plot_trends(start_time_s: int,
 
         fig_title = "trends-%s-%d-%d.png" % (box_id, start_time_s, end_time_s)
         fig_titles.append(fig_title)
+        plt.subplots_adjust(hspace=.5)
         fig.savefig("%s/%s" % (report_dir, fig_title))
         print("Produced %s" % fig_title)
 
