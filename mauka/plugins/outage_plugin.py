@@ -105,7 +105,7 @@ class OutagePlugin(MaukaPlugin):
                         if box_id not in self.prev_incident_ids:
                             incident_id = mongo.store_incident(-1,
                                                                box_id,
-                                                               int(unix_time_millis(now)),
+                                                               int(now),
                                                                -1,
                                                                mongo.IncidentMeasurementType.HEALTH,
                                                                -1.0,
@@ -121,7 +121,7 @@ class OutagePlugin(MaukaPlugin):
                             # Update previous incident
                             self.mongo_client.incidents_collection.update_one(
                                 {"incident_id": prev_incident_id},
-                                {"$set": {"end_timestamp_ms": int(unix_time_millis(now))}})
+                                {"$set": {"end_timestamp_ms": int(now)}})
                     # No outage
                     else:
                         self.debug("No outage for box_id=%s" % box_id)
