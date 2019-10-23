@@ -54,6 +54,7 @@ class OutagePlugin(MaukaPlugin):
         if protobuf.pb_util.is_heartbeat_message(mauka_message):
             if OutagePlugin.NAME == mauka_message.source:
                 now = datetime.datetime.utcnow()
+                self.debug("Recv outage heartbeat last_update=%s now=%s" % (str(self.last_update), str(now)))
                 box_to_max_timestamp: typing.Dict[str, int] = {}
                 box_to_min_timestamp: typing.Dict[str, int] = {}
                 measurements = self.mongo_client.measurements_collection.find(
@@ -61,7 +62,9 @@ class OutagePlugin(MaukaPlugin):
                     projection={"_id": False,
                                 "box_id": True,
                                 "timestamp_ms": True})
+
                 # Find the min and max timestamps for each box
+                total_measurements = 0
                 for measurement in measurements:
                     box_id = measurement["box_id"]
                     timestamp = measurement["timestamp_ms"]
@@ -76,14 +79,24 @@ class OutagePlugin(MaukaPlugin):
                     if timestamp < box_to_min_timestamp[box_id]:
                         box_to_min_timestamp[box_id] = timestamp
 
+                    total_measurements += 1
+
+                self.debug("Processed %d measurements" % total_measurements)
+                self.debug(str(box_to_max_timestamp))
+                self.debug(str(box_to_min_timestamp))
+
                 # Merge the max timestamps for each box into the last seen dictionary
                 self.box_to_last_seen = {**self.box_to_last_seen, **box_to_max_timestamp}
+                self.debug(str(self.box_to_last_seen))
 
                 # Check for outages
                 for box_id, last_seen in self.box_to_last_seen.items():
                     # Outage
                     if now - last_seen > 60_000:
+                        self.debug("Outage box_id=%s last_seen=%d" % (box_id, last_seen))
+                        # Ignore if box is marked as unplugged
                         if is_unplugged(self.mongo_client, box_id):
+                            self.debug("Ignoring outage because box_id=%s is unplugged" % box_id)
                             if box_id in self.prev_incident_ids:
                                 del self.prev_incident_ids[box_id]
                             continue
@@ -99,30 +112,33 @@ class OutagePlugin(MaukaPlugin):
                                                                [mongo.IncidentClassification.OUTAGE],
                                                                opq_mongo_client=self.mongo_client,
                                                                copy_data=False)
-                            # Produce a message to the GC
-                            self.produce(Routes.laha_gc, protobuf.pb_util.build_gc_update(self.name,
-                                                                                          protobuf.mauka_pb2.INCIDENTS,
-                                                                                          incident_id))
-
+                            self.debug("Fresh outage incident_id=%d box_id=%s" % (incident_id, box_id))
                             self.prev_incident_ids[box_id] = incident_id
                         # Ongoing outage
                         else:
                             prev_incident_id = self.prev_incident_ids[box_id]
-
+                            self.debug("Ongoing outage incident_id=%d box_id=%s" % (prev_incident_id, box_id))
                             # Update previous incident
                             self.mongo_client.incidents_collection.update_one(
                                 {"incident_id": prev_incident_id},
                                 {"$set": {"end_timestamp_ms": int(unix_time_millis(now))}})
                     # No outage
                     else:
+                        self.debug("No outage for box_id=%s" % box_id)
                         # Outage over
                         if box_id in self.prev_incident_ids:
                             prev_incident_id = self.prev_incident_ids[box_id]
+                            self.debug("Outage over incident_id=%d box_id=%s" % (prev_incident_id, box_id))
 
                             # Update previous incident
                             self.mongo_client.incidents_collection.update_one(
                                 {"incident_id": prev_incident_id},
                                 {"$set": {"end_timestamp_ms": int(box_to_min_timestamp[box_id])}})
+
+                            # Produce a message to the GC
+                            self.produce(Routes.laha_gc, protobuf.pb_util.build_gc_update(self.name,
+                                                                                          protobuf.mauka_pb2.INCIDENTS,
+                                                                                          prev_incident_id))
                             del self.prev_incident_ids[box_id]
 
                 self.last_update = now
