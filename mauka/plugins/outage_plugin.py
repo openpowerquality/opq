@@ -58,7 +58,7 @@ class OutagePlugin(MaukaPlugin):
                 box_to_max_timestamp: typing.Dict[str, int] = {}
                 box_to_min_timestamp: typing.Dict[str, int] = {}
                 measurements = self.mongo_client.measurements_collection.find(
-                    {"timestamp_ms": {"$gte": unix_time_millis(self.last_update)}},
+                    {"timestamp_ms": {"$gte": self.last_update}},
                     projection={"_id": False,
                                 "box_id": True,
                                 "timestamp_ms": True})
