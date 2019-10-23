@@ -1,5 +1,4 @@
 import datetime
-import sys
 import typing
 
 import matplotlib.ticker
@@ -8,6 +7,18 @@ import matplotlib.pyplot as plt
 import pymongo
 
 import reports
+
+def center_nominal(min_val: float, max_val: float, nominal: float) -> typing.Tuple[float, float]:
+    delta_min = abs(min_val - nominal)
+    delta_max = abs(max_val - nominal)
+    if delta_min == delta_max:
+        return min_val, max_val
+
+    if delta_min > delta_max:
+        return min_val, max_val + (delta_min - delta_max)
+    else:
+        return min_val - (delta_max - delta_min), max_val
+
 
 
 def plot_trends(start_time_s: int,
@@ -128,25 +139,31 @@ def plot_trends(start_time_s: int,
     max_v = max(max_v, voltage_high)
     min_f = min(min_f, frequency_low)
     max_f = max(max_f, frequency_high)
+    min_v, max_v = center_nominal(min_v, max_v, 120.0)
+    min_f, max_f = center_nominal(min_f, max_f, 60.0)
+    print(min_v, max_v, min_f, max_f)
+
+
     min_thd = min(min_thd, 0)
     max_thd = max(max_thd, thd_high)
     min_transient = min(min_transient, 0)
     max_transient = max(max_transient, transient_high)
     min_x = datetime.datetime.utcfromtimestamp(min_x / 1000.0)
     max_x = datetime.datetime.utcfromtimestamp(max_x / 1000.0)
+
     for box_id, trends in box_to_trends.items():
         timestamps = list(map(lambda ts: datetime.datetime.utcfromtimestamp(ts / 1000.0), trends["timestamps"]))
         xfmt = md.DateFormatter('%d %H:%M:%S')
-        fig, (fax, vax, thdax, transientax) = plt.subplots(4, 1, sharex=True, figsize=(16, 9))
+        fig, (fax, vax, thdax, transientax) = plt.subplots(4, 1, sharex="all", figsize=(16, 9))
 
         start_dt = timestamps[0].strftime("%Y-%m-%d %H:%M")
         end_dt = timestamps[-1].strftime("%Y-%m-%d %H:%M")
         fig.suptitle("OPQ Box %s (%s): Trends %s - %s UTC" % (box_id, reports.box_to_location[box_id], start_dt, end_dt), y=1.0, size="large",
                      weight="bold")
 
-        fax.scatter(timestamps, trends["f_min"], label="min(F)", s=1)
-        fax.scatter(timestamps, trends["f_avg"], label="avg(F)", s=1)
-        fax.scatter(timestamps, trends["f_max"], label="max(F)", s=1)
+        fax.plot(timestamps, trends["f_min"], label="min(F)")
+        # fax.plot(timestamps, trends["f_avg"], label="avg(F)")
+        fax.plot(timestamps, trends["f_max"], label="max(F)")
 
         fax2 = fax.twinx()
         fax2.plot(timestamps, [frequency_high for i in range(len(timestamps))], linestyle="--", color="red", linewidth=1)
@@ -161,9 +178,9 @@ def plot_trends(start_time_s: int,
         fax.set_ylim(ymin=min_f-.5, ymax=max_f+.5)
         fax.legend(loc="upper right")
 
-        vax.scatter(timestamps, trends["v_min"], label="min(V)", s=1)
-        vax.scatter(timestamps, trends["v_avg"], label="avg(V)", s=1)
-        vax.scatter(timestamps, trends["v_max"], label="max(V)", s=1)
+        vax.plot(timestamps, trends["v_min"], label="min(V)")
+        # vax.plot(timestamps, trends["v_avg"], label="avg(V)")
+        vax.plot(timestamps, trends["v_max"], label="max(V)")
 
         vax2 = vax.twinx()
         vax2.plot(timestamps, [voltage_high for i in range(len(timestamps))], linestyle="--", color="red", linewidth=1)
@@ -178,9 +195,9 @@ def plot_trends(start_time_s: int,
         vax.set_ylim(ymin=min_v-5, ymax=max_v+5)
         vax.legend(loc="upper right")
 
-        thdax.scatter(timestamps, trends["thd_min"], label="min(THD)", s=1)
-        thdax.scatter(timestamps, trends["thd_avg"], label="avg(THD)", s=1)
-        thdax.scatter(timestamps, trends["thd_max"], label="max(THD)", s=1)
+        thdax.plot(timestamps, trends["thd_min"], label="min(THD)")
+        # thdax.plot(timestamps, trends["thd_avg"], label="avg(THD)")
+        thdax.plot(timestamps, trends["thd_max"], label="max(THD)")
         thdax.plot(timestamps, [thd_high for i in range(len(timestamps))], linestyle="--", color="red", linewidth=1)
         thdax.set_title("% THD")
         thdax.set_ylabel("% THD")
@@ -188,9 +205,9 @@ def plot_trends(start_time_s: int,
         thdax.set_ylim(ymin=min_thd, ymax=max_thd + 1)
         thdax.legend(loc="upper right")
 
-        transientax.scatter(timestamps, trends["transient_min"], label="min(Transient)", s=1)
-        transientax.scatter(timestamps, trends["transient_avg"], label="avg(Transient)", s=1)
-        transientax.scatter(timestamps, trends["transient_max"], label="max(Transient)", s=1)
+        transientax.plot(timestamps, trends["transient_min"], label="min(Transient)")
+        # transientax.plot(timestamps, trends["transient_avg"], label="avg(Transient)")
+        transientax.plot(timestamps, trends["transient_max"], label="max(Transient)")
 
         transientax2 = transientax.twinx()
         transientax2.plot(timestamps, [transient_high for i in range(len(timestamps))], linestyle="--", color="red", linewidth=1)
