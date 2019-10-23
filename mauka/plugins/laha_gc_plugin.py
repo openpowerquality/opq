@@ -165,34 +165,54 @@ class LahaGcPlugin(base_plugin.MaukaPlugin):
                                                                    projection={"_id": True,
                                                                                "incident_id": True,
                                                                                "event_id": True,
-                                                                               "expire_at": True})
+                                                                               "expire_at": True,
+                                                                               "start_timestamp_ms": True,
+                                                                               "end_timestamp_ms": True,
+                                                                               "box_id": True})
 
         if incident is None:
-            self.logger.error("gc_update incidents, incident with id=%s not found", str(_id))
+            self.logger.warn("gc_update incidents, incident with id=%s not found", str(_id))
+        else:
+            query = {"timestamp_ms": {"$gte": incident["start_timestamp_ms"],
+                                      "$lte": incident["end_timestamp_ms"]},
+                     "box_id": incident["box_id"]}
 
-        event = self.mongo_client.events_collection.find_one({"event_id": incident["event_id"]},
-                                                             projection={"_id": True,
-                                                                         "event_id": True})
+            update = {"$set": {"expire_at": incident["expire_at"]}}
 
-        if event is None:
-            self.logger.error("gc_update incidents, event with id=%s not found", str(incident["event_id"]))
+            # Update trends
+            update_trends_result = self.mongo_client.trends_collection.update_many(query, update)
+            self.debug("Updated expire_at=%d %d trends" % (incident["expire_at"],
+                                                           update_trends_result.modified_count))
 
-        update_result = self.mongo_client.events_collection.update_one({"event_id": event["event_id"]},
-                                                                       {"$set": {"expire_at": incident["expire_at"]}})
+            # Update measurements
+            update_measurements_result = self.mongo_client.measurements_collection.update_many(query, update)
 
-        if update_result.modified_count != 1:
-            self.logger.error("gc_update incidents event expire_at not set for incident_id=%d event_id=%d: ack=%s "
-                              "matched=%d modified=%d raw=%s",
-                              incident["incident_id"],
-                              incident["event_id"],
-                              str(update_result.acknowledged),
-                              update_result.matched_count,
-                              update_result.modified_count,
-                              str(update_result.raw_result))
+            self.debug("Updated expire_at=%d for %d measurements" % (incident["expire_at"],
+                                                                     update_measurements_result.modified_count))
 
-        self.debug("gc_update incidents updated one event expire_at=%s" % str(incident["expire_at"]))
+            event = self.mongo_client.events_collection.find_one({"event_id": incident["event_id"]},
+                                                                 projection={"_id": True,
+                                                                             "event_id": True})
 
-        self.handle_gc_update_from_event(event["event_id"])
+            if event is None:
+                self.logger.warn("gc_update incidents, event with id=%s not found", str(incident["event_id"]))
+            else:
+                update_result = self.mongo_client.events_collection.update_one({"event_id": event["event_id"]},
+                                                                               {"$set": {"expire_at": incident["expire_at"]}})
+
+                if update_result.modified_count != 1:
+                    self.logger.error("gc_update incidents event expire_at not set for incident_id=%d event_id=%d: ack=%s "
+                                      "matched=%d modified=%d raw=%s",
+                                      incident["incident_id"],
+                                      incident["event_id"],
+                                      str(update_result.acknowledged),
+                                      update_result.matched_count,
+                                      update_result.modified_count,
+                                      str(update_result.raw_result))
+
+                self.debug("gc_update incidents updated one event expire_at=%s" % str(incident["expire_at"]))
+
+                self.handle_gc_update_from_event(event["event_id"])
 
     def handle_gc_update_from_event(self, _id: str):
         """
@@ -209,26 +229,26 @@ class LahaGcPlugin(base_plugin.MaukaPlugin):
                                                                          "boxes_received": True})
 
         if event is None:
-            self.logger.error("gc_update event event with event_id=%s is None", str(_id))
+            self.logger.warn("gc_update event event with event_id=%s is None", str(_id))
+        else:
+            boxes_received = event["boxes_received"]
 
-        boxes_received = event["boxes_received"]
+            query = {"timestamp_ms": {"$gte": event["target_event_start_timestamp_ms"],
+                                      "$lte": event["target_event_end_timestamp_ms"]},
+                     "box_id": {"$in": boxes_received}}
 
-        query = {"timestamp_ms": {"$gte": event["target_event_start_timestamp_ms"],
-                                  "$lte": event["target_event_end_timestamp_ms"]},
-                 "box_id": {"$in": boxes_received}}
+            update = {"$set": {"expire_at": event["expire_at"]}}
 
-        update = {"$set": {"expire_at": event["expire_at"]}}
+            # Update trends
+            update_trends_result = self.mongo_client.trends_collection.update_many(query, update)
+            self.debug("Updated expire_at=%d %d trends" % (event["expire_at"],
+                                                           update_trends_result.modified_count))
 
-        # Update trends
-        update_trends_result = self.mongo_client.trends_collection.update_many(query, update)
-        self.debug("Updated expire_at=%d %d trends" % (event["expire_at"],
-                                                       update_trends_result.modified_count))
+            # Update measurements
+            update_measurements_result = self.mongo_client.measurements_collection.update_many(query, update)
 
-        # Update measurements
-        update_measurements_result = self.mongo_client.measurements_collection.update_many(query, update)
-
-        self.debug("Updated expire_at=%d for %d measurements" % (event["expire_at"],
-                                                                 update_measurements_result.modified_count))
+            self.debug("Updated expire_at=%d for %d measurements" % (event["expire_at"],
+                                                                     update_measurements_result.modified_count))
 
     def handle_gc_update_from_trend(self, _id: str):
         """
