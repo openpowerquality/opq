@@ -7,3 +7,4 @@ scipy       # Scientific python
 zmq         # ZeroMQ
 pandas      # Data Wrangling in profilers
 psutil      # System stats, memory, disk, network, etc
+ruptures    # Change point detection

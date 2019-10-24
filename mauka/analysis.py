@@ -4,7 +4,8 @@ This module provides analysis/util functions that may be called from multiple lo
 
 import typing
 
-import numpy
+import numpy as np
+import ruptures as rpt
 
 import constants
 
@@ -45,7 +46,7 @@ def samples_to_ms(samples: float) -> float:
     return samples / constants.SAMPLES_PER_MILLISECOND
 
 
-def segment(array: numpy.ndarray, delta: float) -> typing.List[numpy.ndarray]:
+def segment(array: np.ndarray, delta: float) -> typing.List[np.ndarray]:
     """
     Segments an array by splitting the array into stable segments and throwing away "changing" segments.
     :param array: An array.
@@ -63,12 +64,12 @@ def segment(array: numpy.ndarray, delta: float) -> typing.List[numpy.ndarray]:
         return [array]
 
     if len(array) == 2:
-        if numpy.abs(array[0] - array[1]) < delta:
+        if np.abs(array[0] - array[1]) < delta:
             return [array]
 
         return []
 
-    abs_diffs = numpy.abs(numpy.diff(array))
+    abs_diffs = np.abs(np.diff(array))
     stable = (abs_diffs < delta)
 
     stable_segments = []
@@ -83,4 +84,22 @@ def segment(array: numpy.ndarray, delta: float) -> typing.List[numpy.ndarray]:
                 else:  # append
                     stable_segments.append([i, i + 1])
 
-    return list(map(numpy.array, stable_segments))
+    return list(map(np.array, stable_segments))
+
+
+def segment_array(data: np.ndarray) -> typing.List[np.ndarray]:
+    """
+    Split up data into segments.
+    :param data:
+    :return:
+    """
+    algo = rpt.Pelt().fit(data)
+    segment_idxs = algo.predict(pen=1)
+
+    segments: typing.List[np.ndarray] = []
+    start = 0
+    for idx in segment_idxs:
+        segments.append(data[start:idx])
+        start = idx
+
+    return segments
