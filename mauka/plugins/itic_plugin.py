@@ -103,36 +103,36 @@ def itic_region(rms_voltage: float, duration_ms: float) -> IticRegion:
     """
     percent_nominal = (rms_voltage / 120.0) * 100.0
 
-    # First, let's check the extreme edge cases. This can save us some time computing
-    # point in polygon if we can identify an extreme edge case first.
-    if duration_ms < analysis.c_to_ms(0.01):
-        return IticRegion.NO_INTERRUPTION
-
-    if rms_voltage <= 0:
-        if duration_ms <= 20:
-            return IticRegion.NO_INTERRUPTION
-
-        return IticRegion.NO_DAMAGE
-
-    # In the x and y directions
-    if duration_ms >= 10000 and percent_nominal >= 500:
-        return IticRegion.PROHIBITED
-
-    # In the x-direction
-    if duration_ms >= 10000:
-        if percent_nominal >= 110:
-            return IticRegion.PROHIBITED
-        elif percent_nominal <= 90:
-            return IticRegion.NO_DAMAGE
-
-        return IticRegion.NO_INTERRUPTION
-
-    # In the y-direction
-    if percent_nominal >= 500:
-        if duration_ms <= HUNDREDTH_OF_A_CYCLE:
-            return IticRegion.NO_INTERRUPTION
-
-        return IticRegion.PROHIBITED
+    # # First, let's check the extreme edge cases. This can save us some time computing
+    # # point in polygon if we can identify an extreme edge case first.
+    # if duration_ms < analysis.c_to_ms(0.01):
+    #     return IticRegion.NO_INTERRUPTION
+    #
+    # if rms_voltage <= 0:
+    #     if duration_ms <= 20:
+    #         return IticRegion.NO_INTERRUPTION
+    #
+    #     return IticRegion.NO_DAMAGE
+    #
+    # # In the x and y directions
+    # if duration_ms >= 10000 and percent_nominal >= 500:
+    #     return IticRegion.PROHIBITED
+    #
+    # # In the x-direction
+    # if duration_ms >= 10000:
+    #     if percent_nominal >= 110:
+    #         return IticRegion.PROHIBITED
+    #     elif percent_nominal <= 90:
+    #         return IticRegion.NO_DAMAGE
+    #
+    #     return IticRegion.NO_INTERRUPTION
+    #
+    # # In the y-direction
+    # if percent_nominal >= 500:
+    #     if duration_ms <= HUNDREDTH_OF_A_CYCLE:
+    #         return IticRegion.NO_INTERRUPTION
+    #
+    #     return IticRegion.PROHIBITED
 
     # If the voltage is not an extreme case, we run point in polygon calculations to determine which region its in
     if point_in_polygon(duration_ms, percent_nominal, NO_INTERRUPTION_REGION_POLYGON):
@@ -175,7 +175,8 @@ def itic(mauka_message: protobuf.mauka_pb2.MaukaMessage,
     if len(mauka_message.payload.data) < 0.01:
         maybe_debug(itic_plugin, "Bad payload data length: %d" % len(mauka_message.payload.data))
 
-    segments = analysis.segment(mauka_message.payload.data, segment_threshold)
+    # segments = analysis.segment(mauka_message.payload.data, segment_threshold)
+    segments = analysis.segment_array(mauka_message.payload.data)
 
     maybe_debug(itic_plugin, "Calculating ITIC with {} segments.".format(len(segments)))
 
@@ -184,7 +185,7 @@ def itic(mauka_message: protobuf.mauka_pb2.MaukaMessage,
         start_idx = segment[0]
         end_idx = segment[1] + 1
         subarray = mauka_message.payload.data[start_idx:end_idx]
-        mean_rms = numpy.mean(subarray)
+        mean_rms = subarray.mean()
 
         itic_enum = itic_region(mean_rms, analysis.c_to_ms(len(subarray)))
 

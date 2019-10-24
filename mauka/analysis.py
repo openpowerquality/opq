@@ -93,6 +93,13 @@ def segment_array(data: np.ndarray) -> typing.List[np.ndarray]:
     :param data:
     :return:
     """
+
+    if data is None or len(data) == 0:
+        return []
+
+    if len(data) == 1:
+        return [np.array([1])]
+
     algo = rpt.Pelt().fit(data)
     segment_idxs = algo.predict(pen=1)
 
