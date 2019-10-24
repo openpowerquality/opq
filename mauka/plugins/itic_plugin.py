@@ -158,7 +158,7 @@ def maybe_debug(itic_plugin: typing.Optional['IticPlugin'],
     if itic_plugin is not None:
         itic_plugin.debug(msg)
 
-
+# pylint: disable=W0613
 def itic(mauka_message: protobuf.mauka_pb2.MaukaMessage,
          segment_threshold: float,
          itic_plugin: typing.Optional['IticPlugin'] = None,
