@@ -155,28 +155,40 @@ def itic(mauka_message: protobuf.mauka_pb2.MaukaMessage,
     if len(mauka_message.payload.data) < 0.01:
         maybe_debug(itic_plugin, "Bad payload data length: %d" % len(mauka_message.payload.data))
 
+    maybe_debug(itic_plugin, "Preparing to get segments for %d Vrms values" % len(mauka_message.payload.data))
     # segments = analysis.segment(mauka_message.payload.data, segment_threshold)
-    segments = analysis.segment_array(mauka_message.payload.data)
+    segments = analysis.segment_array(numpy.array(list(mauka_message.payload.data)))
+
+    if len(segments) == 0:
+        maybe_debug(itic_plugin, "No segments found. Ignoring")
+        return []
 
     maybe_debug(itic_plugin, "Calculating ITIC with {} segments.".format(len(segments)))
 
     incident_ids = []
-    for segment in segments:
-        start_idx = segment[0]
-        end_idx = segment[1] + 1
-        subarray = mauka_message.payload.data[start_idx:end_idx]
-        mean_rms = subarray.mean()
+    for i, segment in enumerate(segments):
+        # start_idx = segment[0]
+        # end_idx = segment[1] + 1
+        # subarray = mauka_message.payload.data[start_idx:end_idx]
+        segment_len = analysis.c_to_ms(len(segment))
+        start_t = analysis.c_to_ms(sum([len(segments[x]) for x in range(0, i)]))
+        end_t = start_t + segment_len
+        mean_rms = segment.mean()
+        maybe_debug(itic_plugin, "start=%f end=%f mean=%f" % (start_t, end_t, mean_rms))
 
-        itic_enum = itic_region(mean_rms, analysis.c_to_ms(len(subarray)))
+        itic_enum = itic_region(mean_rms, segment_len)
 
         if itic_enum == IticRegion.NO_INTERRUPTION:
+            maybe_debug(itic_plugin, "NO_INTERRUPTION")
             continue
         else:
-            incident_start_timestamp_ms = mauka_message.payload.start_timestamp_ms + analysis.c_to_ms(start_idx)
-            incident_end_timestamp_ms = mauka_message.payload.start_timestamp_ms + analysis.c_to_ms(end_idx)
+            incident_start_timestamp_ms = mauka_message.payload.start_timestamp_ms + start_t
+            incident_end_timestamp_ms = mauka_message.payload.start_timestamp_ms + end_t
             if itic_enum is IticRegion.PROHIBITED:
+                maybe_debug(itic_plugin, "PROHIBITED")
                 incident_classification = mongo.IncidentClassification.ITIC_PROHIBITED
             else:
+                maybe_debug(itic_plugin, "NO_DAMAGE")
                 incident_classification = mongo.IncidentClassification.ITIC_NO_DAMAGE
 
             incident_id = mongo.store_incident(
@@ -190,6 +202,8 @@ def itic(mauka_message: protobuf.mauka_pb2.MaukaMessage,
                 [],
                 {},
                 mongo_client)
+
+            maybe_debug(itic_plugin, "Stored incident")
 
             maybe_debug(itic_plugin,
                         "Found ITIC incident [{}] from event {} and box {}".format(
