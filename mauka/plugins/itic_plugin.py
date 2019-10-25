@@ -5,13 +5,13 @@ import enum
 import multiprocessing.queues
 import typing
 
+import numpy
 import shapely
 import shapely.geometry
 
 import analysis
 import config
 import mongo
-import numpy
 import plugins.base_plugin
 from plugins.routes import Routes
 import protobuf.mauka_pb2
