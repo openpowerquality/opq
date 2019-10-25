@@ -5,8 +5,8 @@ import enum
 import multiprocessing.queues
 import typing
 
-import matplotlib.path
-import numpy
+import shapely
+import shapely.geometry
 
 import analysis
 import config
@@ -31,51 +31,60 @@ class IticRegion(enum.Enum):
 HUNDREDTH_OF_A_CYCLE = analysis.c_to_ms(0.01)
 """Hundredth of a power cycle in milliseconds"""
 
+MAX_X = 30_000_000
+MAX_Y = 30_000_000
+
 PROHIBITED_REGION_POLYGON = [
-    [HUNDREDTH_OF_A_CYCLE, 500],
-    [1, 200],
-    [3, 140],
-    [3, 120],
-    [20, 120],
-    [500, 120],
-    [500, 110],
-    [10000, 110],
-    [10000, 500],
-    [HUNDREDTH_OF_A_CYCLE, 500]
+    [0.01, MAX_Y],
+    [0.01, 500],
+    [analysis.ms_to_c(1), 200],
+    [analysis.ms_to_c(3), 140],
+    [analysis.ms_to_c(3), 120],
+    [analysis.ms_to_c(20), 120],
+    [analysis.ms_to_c(500), 120],
+    [analysis.ms_to_c(500), 110],
+    [analysis.ms_to_c(10000), 110],
+    [analysis.ms_to_c(MAX_X), 110],
+    [analysis.ms_to_c(MAX_X), MAX_Y],
+    [0.01, MAX_Y]
 ]
 """Polygon representing the prohibited region"""
 
 NO_DAMAGE_REGION_POLYGON = [
-    [20, 0],
-    [20, 40],
-    [20, 70],
-    [500, 70],
-    [500, 80],
-    [10000, 80],
-    [10000, 90],
-    [10000, 0],
-    [20, 0]
+    [analysis.ms_to_c(20), 0],
+    [analysis.ms_to_c(20), 40],
+    [analysis.ms_to_c(20), 70],
+    [analysis.ms_to_c(500), 70],
+    [analysis.ms_to_c(500), 80],
+    [analysis.ms_to_c(10_000), 80],
+    [analysis.ms_to_c(10_000), 90],
+    [analysis.ms_to_c(MAX_X), 90],
+    [analysis.ms_to_c(MAX_X), 0],
+    [analysis.ms_to_c(20), 0]
 ]
 """Polygon representing the no damage region"""
 
 NO_INTERRUPTION_REGION_POLYGON = [
     [0, 0],
-    [0, 500],
-    [HUNDREDTH_OF_A_CYCLE, 500],
-    [1, 200],
-    [3, 140],
-    [3, 120],
-    [20, 120],
-    [500, 120],
-    [500, 110],
-    [10000, 110],
-    [10000, 90],
-    [10000, 80],
-    [500, 80],
-    [500, 70],
-    [20, 70],
-    [20, 40],
-    [20, 0],
+    [0, MAX_Y],
+    [0.01, MAX_Y],
+    [0.01, 500],
+    [analysis.ms_to_c(1), 200],
+    [analysis.ms_to_c(3), 140],
+    [analysis.ms_to_c(3), 120],
+    [analysis.ms_to_c(20), 120],
+    [analysis.ms_to_c(500), 120],
+    [analysis.ms_to_c(500), 110],
+    [analysis.ms_to_c(10_000), 110],
+    [analysis.ms_to_c(MAX_X), 110],
+    [analysis.ms_to_c(MAX_X), 90],
+    [analysis.ms_to_c(10_000), 90],
+    [analysis.ms_to_c(10_000), 80],
+    [analysis.ms_to_c(500), 80],
+    [analysis.ms_to_c(500), 70],
+    [analysis.ms_to_c(20), 70],
+    [analysis.ms_to_c(20), 40],
+    [analysis.ms_to_c(20), 0],
     [0, 0]
 ]
 """Polygon representing the no interruption region"""
@@ -89,8 +98,11 @@ def point_in_polygon(x_point: float, y_point: float, polygon: typing.List[typing
     :param polygon: The polygon to check for inclusion
     :return: Whether or not the given point is in the provided polygon
     """
-    path = matplotlib.path.Path(vertices=numpy.array(polygon), closed=True)
-    return path.contains_point([x_point, y_point])
+    polygon = list(map(lambda xy: (xy[0], xy[1]), polygon))
+    polygon = shapely.geometry.Polygon(polygon)
+    point = shapely.geometry.Point(analysis.ms_to_c(x_point), y_point)
+    return polygon.contains(point) or polygon.intersects(point)
+
 
 
 def itic_region(rms_voltage: float, duration_ms: float) -> IticRegion:
@@ -103,38 +115,6 @@ def itic_region(rms_voltage: float, duration_ms: float) -> IticRegion:
     """
     percent_nominal = (rms_voltage / 120.0) * 100.0
 
-    # # First, let's check the extreme edge cases. This can save us some time computing
-    # # point in polygon if we can identify an extreme edge case first.
-    # if duration_ms < analysis.c_to_ms(0.01):
-    #     return IticRegion.NO_INTERRUPTION
-    #
-    # if rms_voltage <= 0:
-    #     if duration_ms <= 20:
-    #         return IticRegion.NO_INTERRUPTION
-    #
-    #     return IticRegion.NO_DAMAGE
-    #
-    # # In the x and y directions
-    # if duration_ms >= 10000 and percent_nominal >= 500:
-    #     return IticRegion.PROHIBITED
-    #
-    # # In the x-direction
-    # if duration_ms >= 10000:
-    #     if percent_nominal >= 110:
-    #         return IticRegion.PROHIBITED
-    #     elif percent_nominal <= 90:
-    #         return IticRegion.NO_DAMAGE
-    #
-    #     return IticRegion.NO_INTERRUPTION
-    #
-    # # In the y-direction
-    # if percent_nominal >= 500:
-    #     if duration_ms <= HUNDREDTH_OF_A_CYCLE:
-    #         return IticRegion.NO_INTERRUPTION
-    #
-    #     return IticRegion.PROHIBITED
-
-    # If the voltage is not an extreme case, we run point in polygon calculations to determine which region its in
     if point_in_polygon(duration_ms, percent_nominal, NO_INTERRUPTION_REGION_POLYGON):
         return IticRegion.NO_INTERRUPTION
 

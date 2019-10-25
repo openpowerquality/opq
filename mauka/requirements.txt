@@ -1,5 +1,4 @@
 lz4         # lz4 compression
-matplotlib  # Plotting and point-in-polygon algorithms
 numpy       # numpy
 pymongo     # mongo db
 protobuf    # protocol buffers
@@ -8,3 +7,4 @@ zmq         # ZeroMQ
 pandas      # Data Wrangling in profilers
 psutil      # System stats, memory, disk, network, etc
 ruptures    # Change point detection
+shapely     # Point in polygon

@@ -29,7 +29,7 @@ class IticPluginTests(unittest.TestCase):
         self.assertEqual(IticRegion.NO_INTERRUPTION, itic_region(0, 10))
         self.assertEqual(IticRegion.NO_INTERRUPTION, itic_region(0, 20))
         self.assertEqual(IticRegion.NO_DAMAGE, itic_region(0, 21))
-        self.assertEqual(IticRegion.NO_DAMAGE, itic_region(0, 20000000))
+        self.assertEqual(IticRegion.NO_DAMAGE, itic_region(0, 20_000_000))
 
     def test_itic_region_nominal(self):
         """
@@ -39,14 +39,14 @@ class IticPluginTests(unittest.TestCase):
         self.assertEqual(IticRegion.NO_INTERRUPTION, itic_region(percent_nominal_to_rms(109.99), 0))
         self.assertEqual(IticRegion.NO_INTERRUPTION, itic_region(percent_nominal_to_rms(109.99), 3))
         self.assertEqual(IticRegion.NO_INTERRUPTION, itic_region(percent_nominal_to_rms(109.99), 500))
-        self.assertEqual(IticRegion.NO_INTERRUPTION, itic_region(percent_nominal_to_rms(109.99), 10000))
-        self.assertEqual(IticRegion.NO_INTERRUPTION, itic_region(percent_nominal_to_rms(109.99), 1000000))
+        self.assertEqual(IticRegion.NO_INTERRUPTION, itic_region(percent_nominal_to_rms(109.99), 10_000))
+        self.assertEqual(IticRegion.NO_INTERRUPTION, itic_region(percent_nominal_to_rms(109.99), 1_000_000))
 
         self.assertEqual(IticRegion.NO_INTERRUPTION, itic_region(percent_nominal_to_rms(90.01), 0))
         self.assertEqual(IticRegion.NO_INTERRUPTION, itic_region(percent_nominal_to_rms(90.01), 3))
         self.assertEqual(IticRegion.NO_INTERRUPTION, itic_region(percent_nominal_to_rms(90.01), 500))
-        self.assertEqual(IticRegion.NO_INTERRUPTION, itic_region(percent_nominal_to_rms(90.01), 10000))
-        self.assertEqual(IticRegion.NO_INTERRUPTION, itic_region(percent_nominal_to_rms(90.01), 1000000))
+        self.assertEqual(IticRegion.NO_INTERRUPTION, itic_region(percent_nominal_to_rms(90.01), 10_000))
+        self.assertEqual(IticRegion.NO_INTERRUPTION, itic_region(percent_nominal_to_rms(90.01), 1_000_000))
 
     def test_itic_region_prohibited(self):
         """
@@ -56,29 +56,31 @@ class IticPluginTests(unittest.TestCase):
         self.assertEqual(IticRegion.PROHIBITED, itic_region(percent_nominal_to_rms(300), 500))
         self.assertEqual(IticRegion.PROHIBITED, itic_region(percent_nominal_to_rms(600), 3))
         self.assertEqual(IticRegion.PROHIBITED, itic_region(percent_nominal_to_rms(140), 20))
-        self.assertEqual(IticRegion.PROHIBITED, itic_region(percent_nominal_to_rms(500), analysis.c_to_ms(.02)))
-        self.assertEqual(IticRegion.PROHIBITED, itic_region(percent_nominal_to_rms(200), 1))
-        self.assertEqual(IticRegion.PROHIBITED, itic_region(percent_nominal_to_rms(140), 3))
-        self.assertEqual(IticRegion.PROHIBITED, itic_region(percent_nominal_to_rms(121), 3))
-        self.assertEqual(IticRegion.PROHIBITED, itic_region(percent_nominal_to_rms(120), 500))
+        self.assertEqual(IticRegion.PROHIBITED, itic_region(percent_nominal_to_rms(500), 1))
+        self.assertEqual(IticRegion.PROHIBITED, itic_region(percent_nominal_to_rms(200), 1.1))
+        self.assertEqual(IticRegion.PROHIBITED, itic_region(percent_nominal_to_rms(140), 3.1))
+        self.assertEqual(IticRegion.PROHIBITED, itic_region(percent_nominal_to_rms(121), 3.1))
+        self.assertEqual(IticRegion.PROHIBITED, itic_region(percent_nominal_to_rms(121), 500))
+        self.assertEqual(IticRegion.PROHIBITED, itic_region(percent_nominal_to_rms(120), 501))
         self.assertEqual(IticRegion.PROHIBITED, itic_region(percent_nominal_to_rms(110), 501))
+        self.assertEqual(IticRegion.PROHIBITED, itic_region(percent_nominal_to_rms(111), 15_000))
         self.assertEqual(IticRegion.PROHIBITED, itic_region(percent_nominal_to_rms(110), 501))
-        self.assertEqual(IticRegion.PROHIBITED, itic_region(percent_nominal_to_rms(110), 1000000))
-        self.assertEqual(IticRegion.PROHIBITED, itic_region(percent_nominal_to_rms(10000), analysis.c_to_ms(.02)))
+        self.assertEqual(IticRegion.PROHIBITED, itic_region(percent_nominal_to_rms(112), 1_000_000))
+        self.assertEqual(IticRegion.PROHIBITED, itic_region(percent_nominal_to_rms(10_000), analysis.c_to_ms(.02)))
 
-    def test_itic_region_no_damange(self):
+    def test_itic_region_no_damage(self):
         """
         All test results should return a no damage ITIC region. First we'll test a few that are clearly no damange
         and then we will probe around the edge of the no damage region to test edge cases.
         """
         self.assertEqual(IticRegion.NO_DAMAGE, itic_region(percent_nominal_to_rms(40), 500))
-        self.assertEqual(IticRegion.NO_DAMAGE, itic_region(percent_nominal_to_rms(40), 1000000))
+        self.assertEqual(IticRegion.NO_DAMAGE, itic_region(percent_nominal_to_rms(40), 1_000_000))
         self.assertEqual(IticRegion.NO_DAMAGE, itic_region(percent_nominal_to_rms(70), 10000))
-        self.assertEqual(IticRegion.NO_DAMAGE, itic_region(percent_nominal_to_rms(70), 500))
-        self.assertEqual(IticRegion.NO_DAMAGE, itic_region(percent_nominal_to_rms(70), 20.1))
-        self.assertEqual(IticRegion.NO_DAMAGE, itic_region(percent_nominal_to_rms(80), 500.1))
-        self.assertEqual(IticRegion.NO_DAMAGE, itic_region(percent_nominal_to_rms(90), 10000.1))
-        self.assertEqual(IticRegion.NO_DAMAGE, itic_region(percent_nominal_to_rms(90), 1000000))
+        self.assertEqual(IticRegion.NO_DAMAGE, itic_region(percent_nominal_to_rms(70), 501))
+        self.assertEqual(IticRegion.NO_DAMAGE, itic_region(percent_nominal_to_rms(69), 20.1))
+        self.assertEqual(IticRegion.NO_DAMAGE, itic_region(percent_nominal_to_rms(79), 500.1))
+        self.assertEqual(IticRegion.NO_DAMAGE, itic_region(percent_nominal_to_rms(89.9), 10000.1))
+        self.assertEqual(IticRegion.NO_DAMAGE, itic_region(percent_nominal_to_rms(89.9), 1000000))
         self.assertEqual(IticRegion.NO_DAMAGE, itic_region(percent_nominal_to_rms(40), 20.1))
         self.assertEqual(IticRegion.NO_DAMAGE, itic_region(percent_nominal_to_rms(0), 1000000))
 
@@ -100,7 +102,29 @@ class IticPluginTests(unittest.TestCase):
         self.assertEqual(IticRegion.NO_INTERRUPTION, itic_region(percent_nominal_to_rms(140), 2.9))
         self.assertEqual(IticRegion.NO_INTERRUPTION, itic_region(percent_nominal_to_rms(120), 2.9))
         self.assertEqual(IticRegion.NO_INTERRUPTION, itic_region(percent_nominal_to_rms(110), 0.5))
+        self.assertEqual(IticRegion.NO_INTERRUPTION, itic_region(percent_nominal_to_rms(109), 10_000))
         self.assertEqual(IticRegion.NO_INTERRUPTION, itic_region(percent_nominal_to_rms(90), 9999))
         self.assertEqual(IticRegion.NO_INTERRUPTION, itic_region(percent_nominal_to_rms(80), 499))
         self.assertEqual(IticRegion.NO_INTERRUPTION, itic_region(percent_nominal_to_rms(70), 19))
         self.assertEqual(IticRegion.NO_INTERRUPTION, itic_region(percent_nominal_to_rms(40), 19))
+
+    def test_on_line(self):
+        self.assertEqual(IticRegion.NO_INTERRUPTION, itic_region(percent_nominal_to_rms(500), analysis.c_to_ms(0.01)))
+        self.assertEqual(IticRegion.NO_INTERRUPTION, itic_region(percent_nominal_to_rms(1_000_000), analysis.c_to_ms(0.01)))
+        self.assertEqual(IticRegion.NO_INTERRUPTION, itic_region(percent_nominal_to_rms(200), 1))
+        self.assertEqual(IticRegion.NO_INTERRUPTION, itic_region(percent_nominal_to_rms(140), 3))
+        self.assertEqual(IticRegion.NO_INTERRUPTION, itic_region(percent_nominal_to_rms(120), 3))
+        self.assertEqual(IticRegion.NO_INTERRUPTION, itic_region(percent_nominal_to_rms(120), 500))
+        self.assertEqual(IticRegion.NO_INTERRUPTION, itic_region(percent_nominal_to_rms(110), 500))
+
+        # self.assertEqual(IticRegion.NO_INTERRUPTION, itic_region(percent_nominal_to_rms(110), 800))
+
+        self.assertEqual(IticRegion.NO_INTERRUPTION, itic_region(percent_nominal_to_rms(0), 20))
+        self.assertEqual(IticRegion.NO_INTERRUPTION, itic_region(percent_nominal_to_rms(40), 20))
+        self.assertEqual(IticRegion.NO_INTERRUPTION, itic_region(percent_nominal_to_rms(70), 20))
+        self.assertEqual(IticRegion.NO_INTERRUPTION, itic_region(percent_nominal_to_rms(70), 500))
+        self.assertEqual(IticRegion.NO_INTERRUPTION, itic_region(percent_nominal_to_rms(80), 500))
+        self.assertEqual(IticRegion.NO_INTERRUPTION, itic_region(percent_nominal_to_rms(80), 10_000))
+        self.assertEqual(IticRegion.NO_INTERRUPTION, itic_region(percent_nominal_to_rms(90), 10_000))
+        self.assertEqual(IticRegion.NO_INTERRUPTION, itic_region(percent_nominal_to_rms(90), 100_000))
+        self.assertEqual(IticRegion.NO_INTERRUPTION, itic_region(percent_nominal_to_rms(90), 1_000_000))
