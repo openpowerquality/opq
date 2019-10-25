@@ -194,7 +194,7 @@ def itic(mauka_message: protobuf.mauka_pb2.MaukaMessage,
         start_t = analysis.c_to_ms(sum([len(segments[x]) for x in range(0, i)]))
         end_t = start_t + segment_len
         mean_rms = segment.mean()
-        maybe_debug(itic_plugin, "start=%d end=%d mean=%f" % (start_t, end_t, mean_rms))
+        maybe_debug(itic_plugin, "start=%f end=%f mean=%f" % (start_t, end_t, mean_rms))
 
         itic_enum = itic_region(mean_rms, segment_len)
 
