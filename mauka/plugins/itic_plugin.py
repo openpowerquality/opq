@@ -114,7 +114,7 @@ def itic_region(rms_voltage: float, duration_ms: float) -> IticRegion:
     :param duration_ms: The duration of the voltage event in milliseconds
     :return: The appropriate ITIC region enum
     """
-    percent_nominal = (rms_voltage / 120.0) * 100.0
+    percent_nominal = analysis.rms_to_percent_nominal(rms_voltage)
 
     if point_in_polygon(duration_ms, percent_nominal, NO_INTERRUPTION_REGION_POLYGON):
         return IticRegion.NO_INTERRUPTION
