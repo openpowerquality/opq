@@ -87,7 +87,8 @@ def segment(array: np.ndarray, delta: float) -> typing.List[np.ndarray]:
 
     return list(map(np.array, stable_segments))
 
-
+# pylint: disable=W0703
+# pylint: disable=C0103
 def segment_array(data: np.ndarray) -> typing.List[np.ndarray]:
     """
     Split up data into segments.
