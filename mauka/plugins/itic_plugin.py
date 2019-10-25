@@ -179,6 +179,10 @@ def itic(mauka_message: protobuf.mauka_pb2.MaukaMessage,
     # segments = analysis.segment(mauka_message.payload.data, segment_threshold)
     segments = analysis.segment_array(mauka_message.payload.data)
 
+    if len(segments) == 0:
+        maybe_debug(itic_plugin, "No segments found. Ignoring")
+        return []
+
     maybe_debug(itic_plugin, "Calculating ITIC with {} segments.".format(len(segments)))
 
     incident_ids = []
