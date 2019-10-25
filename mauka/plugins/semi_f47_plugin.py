@@ -18,9 +18,8 @@ from plugins.routes import Routes
 MAX_X_MS = 1_000_000
 
 SEMI_F47_VIOLATION_POLYGON = [
-    (0, 0),
-    (1, 0),
-    (1, 50),
+    (1.001, 0),
+    (1.001, 50),
     (analysis.ms_to_c(200), 50),
     (analysis.ms_to_c(200), 70),
     (analysis.ms_to_c(500), 70),
@@ -29,7 +28,7 @@ SEMI_F47_VIOLATION_POLYGON = [
     (analysis.ms_to_c(10_000), 90),
     (analysis.ms_to_c(MAX_X_MS), 90),
     (analysis.ms_to_c(MAX_X_MS), 0),
-    (0, 0),
+    (1.001, 0),
 ]
 
 POLYGON = shapely.geometry.Polygon(SEMI_F47_VIOLATION_POLYGON)
@@ -42,6 +41,11 @@ def point_in_poly(x_point: float, y_point: float) -> bool:
     :param y_point: The y-coord.
     :return: True if it is, False otherwise.
     """
+
+    # Semi-F47 extended states all devices should be able to ride out a sag of up to 1 cycle.
+    if x_point <= 1:
+        return False
+
     point = shapely.geometry.Point(x_point, y_point)
     return POLYGON.contains(point) or POLYGON.intersects(point)
 
@@ -60,14 +64,10 @@ def semi_violation(mongo_client: mongo.OpqMongoClient,
 
     for i, segment in enumerate(segments):
         segment_len_c = len(segment)
-
-        if segment_len_c == 1:
-            continue
-
         segment_len_ms = analysis.c_to_ms(segment_len_c)
         segment_mean = segment.mean()
 
-        if point_in_poly(segment_len_c, segment_mean):
+        if point_in_poly(segment_len_c, analysis.rms_to_percent_nominal(segment_mean)):
             # New SEMI F47 violation
             start_t = analysis.c_to_ms(sum([len(segments[x]) for x in range(0, i)]))
             end_t = start_t + segment_len_ms
@@ -118,3 +118,4 @@ def rerun(mongo_client: mongo.OpqMongoClient, mauka_message):
     if protobuf.pb_util.is_payload(mauka_message, protobuf.mauka_pb2.VOLTAGE_RMS_WINDOWED):
         client = mongo.get_default_client(mongo_client)
         semi_violation(client, mauka_message)
+

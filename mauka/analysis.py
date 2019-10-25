@@ -47,6 +47,13 @@ def samples_to_ms(samples: float) -> float:
     return samples / constants.SAMPLES_PER_MILLISECOND
 
 
+def percent_nominal_to_rms(percent_nominal: float) -> float:
+    return (percent_nominal * 120.0) / 100
+
+
+def rms_to_percent_nominal(rms_voltage: float) -> float:
+    return (rms_voltage / 120.0) * 100.0
+
 def segment(array: np.ndarray, delta: float) -> typing.List[np.ndarray]:
     """
     Segments an array by splitting the array into stable segments and throwing away "changing" segments.

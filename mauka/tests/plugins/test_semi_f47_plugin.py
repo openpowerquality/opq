@@ -1,49 +1,37 @@
-import numpy
-from plugins.semi_f47_plugin import viol_check, PU
-
 import unittest
 
+from analysis import ms_to_c
+from plugins.semi_f47_plugin import point_in_poly, SEMI_F47_VIOLATION_POLYGON
+
+
 class SemiF47PluginTests(unittest.TestCase):
+    def test_lt_one_cycle(self):
+        self.assertFalse(point_in_poly(0, 0))
+        self.assertFalse(point_in_poly(1, 0))
+        self.assertFalse(point_in_poly(1, 10_000))
 
-    ## code to check the functionality of viol_check in plugins.SemiF47
+    def test_no_violation(self):
+        self.assertFalse(point_in_poly(1.1, 50.1))
+        self.assertFalse(point_in_poly(ms_to_c(100), 50.1))
+        self.assertFalse(point_in_poly(ms_to_c(100), 1_000_000))
+        self.assertFalse(point_in_poly(ms_to_c(300), 70.1))
+        self.assertFalse(point_in_poly(ms_to_c(300), 1_000_000))
+        self.assertFalse(point_in_poly(ms_to_c(500), 80.1))
+        self.assertFalse(point_in_poly(ms_to_c(10_000), 1_000_000))
 
-    #VRMS values. each data point in the array is 200 sample times long
+    def test_violation(self):
+        self.assertTrue(point_in_poly(2, 49.9))
+        self.assertTrue(point_in_poly(ms_to_c(100), 49.9))
+        self.assertTrue(point_in_poly(ms_to_c(200), 49.9))
+        self.assertTrue(point_in_poly(ms_to_c(201), 69.9))
+        self.assertTrue(point_in_poly(ms_to_c(500), 69.9))
+        self.assertTrue(point_in_poly(ms_to_c(501), 79.9))
+        self.assertTrue(point_in_poly(ms_to_c(10000), 79.9))
+        self.assertTrue(point_in_poly(ms_to_c(10001), 89.9))
+        self.assertTrue(point_in_poly(ms_to_c(1_000_000), 89.9))
 
-    values_lvl_5=numpy.random.uniform((0.5-0.05)*PU,
-                                      (0.5+0.05)*PU, 13)
-    
-    values_lvl_7=numpy.random.uniform((0.7-0.05)*PU,
-                                      (0.7+0.05)*PU, 41)
-    
-    values_lvl_8=numpy.random.uniform((0.8-0.05)*PU,
-                                      (0.8+0.05)*PU, 59)
-    
-    values_lvl_5_1=numpy.random.uniform((0.5-0.05)*PU,
-                                      (0.5+0.05)*PU, 11)
-    
-    values_lvl_7_1=numpy.random.uniform((0.7-0.05)*PU,
-                                      (0.7+0.05)*PU, 62)
-    
-    values_other=numpy.random.uniform(105,PU+1.0,20)
-    values_other_1=numpy.random.uniform(105,PU+1.0,30)
-    
-    vol=numpy.concatenate((values_other,values_lvl_8,values_lvl_5_1,
-                           values_lvl_7,values_lvl_5,
-                           values_other_1,values_lvl_7_1))
-    def test_SemiF47_level_0_5(self):
-        """
-        If the voltage is at 0.5 x PU (PU=120) for >=200 ms then an error
-        with time indices of the array 
-        """
-        self.assertEqual(viol_check(self.vol,5), [[131, 143]])
-    
-    def test_SemiF47_level_0_7(self):
-        """
-        If the voltage is at 0.7 x PU (PU=120) for >=500 ms then an error
-        with time indices of the array 
-        """
-        self.assertEqual(viol_check(self.vol,7), [[90, 130], [174, 235]])
-        
-    def test_SemiF47_level_0_8(self):
-                self.assertEqual(viol_check(self.vol,8), [])
-
+    def test_line(self):
+        for xy in SEMI_F47_VIOLATION_POLYGON:
+            x = xy[0]
+            y = xy[1]
+            self.assertTrue(point_in_poly(x, y))
