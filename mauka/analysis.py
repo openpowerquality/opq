@@ -2,6 +2,7 @@
 This module provides analysis/util functions that may be called from multiple locations.
 """
 
+import logging
 import typing
 
 import numpy as np
@@ -100,13 +101,17 @@ def segment_array(data: np.ndarray) -> typing.List[np.ndarray]:
     if len(data) == 1:
         return [np.array([1])]
 
-    algo = rpt.Pelt().fit(data)
-    segment_idxs = algo.predict(pen=1)
+    try:
+        algo = rpt.Pelt().fit(data)
+        segment_idxs = algo.predict(pen=1)
 
-    segments: typing.List[np.ndarray] = []
-    start = 0
-    for idx in segment_idxs:
-        segments.append(data[start:idx])
-        start = idx
+        segments: typing.List[np.ndarray] = []
+        start = 0
+        for idx in segment_idxs:
+            segments.append(data[start:idx])
+            start = idx
 
-    return segments
+        return segments
+    except Exception as e:
+        logging.error(str(e))
+        return []
