@@ -196,13 +196,16 @@ def itic(mauka_message: protobuf.mauka_pb2.MaukaMessage,
         itic_enum = itic_region(mean_rms, analysis.c_to_ms(len(subarray)))
 
         if itic_enum == IticRegion.NO_INTERRUPTION:
+            maybe_debug(itic_plugin, "NO_INTERRUPTION")
             continue
         else:
             incident_start_timestamp_ms = mauka_message.payload.start_timestamp_ms + analysis.c_to_ms(start_idx)
             incident_end_timestamp_ms = mauka_message.payload.start_timestamp_ms + analysis.c_to_ms(end_idx)
             if itic_enum is IticRegion.PROHIBITED:
+                maybe_debug(itic_plugin, "PROHIBITED")
                 incident_classification = mongo.IncidentClassification.ITIC_PROHIBITED
             else:
+                maybe_debug(itic_plugin, "NO_DAMAGE")
                 incident_classification = mongo.IncidentClassification.ITIC_NO_DAMAGE
 
             incident_id = mongo.store_incident(
@@ -216,6 +219,8 @@ def itic(mauka_message: protobuf.mauka_pb2.MaukaMessage,
                 [],
                 {},
                 mongo_client)
+
+            maybe_debug(itic_plugin, "Stored incident")
 
             maybe_debug(itic_plugin,
                         "Found ITIC incident [{}] from event {} and box {}".format(
