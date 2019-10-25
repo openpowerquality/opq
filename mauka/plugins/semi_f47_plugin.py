@@ -2,13 +2,13 @@
 This module contains the plugin definition for classifying voltage incidents by the Semi F47 standard.
 """
 
-import logging
 import typing
 
 import shapely.geometry
 
 import analysis
 import config
+from log import maybe_debug
 import mongo
 import plugins.base_plugin
 import protobuf.mauka_pb2
@@ -51,7 +51,8 @@ def point_in_poly(x_point: float, y_point: float) -> bool:
 
 
 def semi_violation(mongo_client: mongo.OpqMongoClient,
-                   mauka_message: protobuf.mauka_pb2.MaukaMessage) -> typing.List[int]:
+                   mauka_message: protobuf.mauka_pb2.MaukaMessage,
+                   plugin: typing.Optional['SemiF47Plugin'] = None) -> typing.List[int]:
     """
     Calculate semi violations.
     :param mongo_client: Mongo client for DB access.
@@ -60,12 +61,16 @@ def semi_violation(mongo_client: mongo.OpqMongoClient,
     incident_ids = []
 
     data = protobuf.pb_util.repeated_as_ndarray(mauka_message.payload.data)
+    maybe_debug("Recv %d Vrms values" % len(data), plugin)
     segments = analysis.segment_array(data)
+    maybe_debug("Found %d segments" % len(segments), plugin)
 
     for i, segment in enumerate(segments):
         segment_len_c = len(segment)
         segment_len_ms = analysis.c_to_ms(segment_len_c)
         segment_mean = segment.mean()
+
+        maybe_debug("Segment len c=%d ms=%f mean=%f" % (segment_len_c, segment_len_ms, segment_mean), plugin)
 
         if point_in_poly(segment_len_c, analysis.rms_to_percent_nominal(segment_mean)):
             # New SEMI F47 violation
@@ -73,6 +78,8 @@ def semi_violation(mongo_client: mongo.OpqMongoClient,
             end_t = start_t + segment_len_ms
             incident_start_timestamp_ms = mauka_message.payload.start_timestamp_ms + start_t
             incident_end_timestamp_ms = mauka_message.payload.start_timestamp_ms + end_t
+            maybe_debug("Semi F47 Violation from %f to %f" % (incident_start_timestamp_ms,
+                                                              incident_end_timestamp_ms), plugin)
 
             incident_id = mongo.store_incident(mauka_message.payload.event_id,
                                                mauka_message.payload.box_id,
@@ -84,8 +91,11 @@ def semi_violation(mongo_client: mongo.OpqMongoClient,
                                                [],
                                                {},
                                                mongo_client)
+            maybe_debug("Incident with id=%d stored" % incident_id, plugin)
 
             incident_ids.append(incident_id)
+        else:
+            maybe_debug("No Semi F47 Violation", plugin)
 
     return incident_ids
 
@@ -101,7 +111,7 @@ class SemiF47Plugin(plugins.base_plugin.MaukaPlugin):
     def on_message(self, topic: str, mauka_message: protobuf.mauka_pb2.MaukaMessage):
         if protobuf.pb_util.is_payload(mauka_message, protobuf.mauka_pb2.VOLTAGE_RMS_WINDOWED):
             self.debug("Recv windowed voltage")
-            incident_ids = semi_violation(self.mongo_client, mauka_message)
+            incident_ids = semi_violation(self.mongo_client, mauka_message, self)
             for incident_id in incident_ids:
                 # Produce a message to the GC
                 self.produce(Routes.laha_gc, protobuf.pb_util.build_gc_update(self.name,
@@ -118,4 +128,3 @@ def rerun(mongo_client: mongo.OpqMongoClient, mauka_message):
     if protobuf.pb_util.is_payload(mauka_message, protobuf.mauka_pb2.VOLTAGE_RMS_WINDOWED):
         client = mongo.get_default_client(mongo_client)
         semi_violation(client, mauka_message)
-

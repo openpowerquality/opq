@@ -48,11 +48,22 @@ def samples_to_ms(samples: float) -> float:
 
 
 def percent_nominal_to_rms(percent_nominal: float) -> float:
+    """
+    Converts percent nominal Voltage into an RMS value.
+    :param percent_nominal: The percent nominal voltage.
+    :return: Voltage RMS
+    """
     return (percent_nominal * 120.0) / 100
 
 
 def rms_to_percent_nominal(rms_voltage: float) -> float:
+    """
+    Converts RMS voltage to percent nominal voltage.
+    :param rms_voltage: The RMS voltage.
+    :return: Percent nominal voltage.
+    """
     return (rms_voltage / 120.0) * 100.0
+
 
 def segment(array: np.ndarray, delta: float) -> typing.List[np.ndarray]:
     """
@@ -93,6 +104,7 @@ def segment(array: np.ndarray, delta: float) -> typing.List[np.ndarray]:
                     stable_segments.append([i, i + 1])
 
     return list(map(np.array, stable_segments))
+
 
 # pylint: disable=W0703
 # pylint: disable=C0103
