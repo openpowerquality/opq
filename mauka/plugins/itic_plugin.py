@@ -178,7 +178,7 @@ def itic(mauka_message: protobuf.mauka_pb2.MaukaMessage,
     maybe_debug(itic_plugin, "Preparing to get segments for %d Vrms values" % len(mauka_message.payload.data))
     maybe_debug(itic_plugin, "data type %s" % str(type(mauka_message.payload.data)))
     # segments = analysis.segment(mauka_message.payload.data, segment_threshold)
-    segments = analysis.segment_array(mauka_message.payload.data)
+    segments = analysis.segment_array(numpy.array(list(mauka_message.payload.data)))
 
     if len(segments) == 0:
         maybe_debug(itic_plugin, "No segments found. Ignoring")
