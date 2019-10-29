@@ -6,6 +6,23 @@ import gridfs
 import numpy as np
 import pymongo
 
+SAMPLES_PER_CYCLE = 200.0
+"""Number of samples per electrical cycle for OPQ box"""
+
+SAMPLES_PER_MILLISECOND = 12.0
+
+SAMPLE_RATE_HZ = 12000.0
+"""Sample rate of OPQ box"""
+
+CYCLES_PER_SECOND = 60.0
+"""Cycles per second"""
+
+CYCLES_PER_MILLISECOND = 0.06
+
+MILLISECONDS_PER_SECOND = 1000.0
+
+NOMINAL_VRMS = 120.0
+
 box_to_location: typing.Dict[str, str] = {
     "1000": "POST 1",
     "1001": "Hamilton",
@@ -85,7 +102,7 @@ def vrms(samples: np.ndarray) -> float:
     return math.sqrt(summed_sqs / len(samples))
 
 
-def vrms_waveform(waveform: np.ndarray, window_size: int = 12_000) -> np.ndarray:
+def vrms_waveform(waveform: np.ndarray, window_size: int = 200) -> np.ndarray:
     """
     Calculated Vrms of a waveform using a given window size. In most cases, our window size should be the
     number of samples in a cycle.
@@ -105,3 +122,32 @@ def vrms_waveform(waveform: np.ndarray, window_size: int = 12_000) -> np.ndarray
         rms_voltages.append(vrms(waveform))
 
     return np.array(rms_voltages)
+
+def percent_nominal(nominal: float, actual: float) -> float:
+    return actual / nominal * 100.0
+
+
+def perecent_nominal_from_zero(nominal: float, actual: float) -> float:
+    return percent_nominal(nominal, actual) - 100.0
+
+
+def cycles_to_s(cycles: float) -> float:
+    return cycles / 60.0
+
+
+def ms_to_s(ms: float) -> float:
+    return ms / 1000.0
+
+
+def ms_to_c(duration_ms: float) -> float:
+    """
+    Convert a duration in milliseconds to cycles.
+    :param duration_ms: milliseconds
+    :return: cycles
+    """
+    return duration_ms * CYCLES_PER_MILLISECOND
+
+
+def s_to_c(s: float) -> float:
+    return s * 1000.0 * 60.0
+

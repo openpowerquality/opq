@@ -24,6 +24,64 @@ def ms_to_c(ms: float) -> float:
 def s_to_c(s: float) -> float:
     return s * 1000.0 * 60.0
 
+MAX_X = 30_000_000
+MAX_Y = 30_000_000
+
+PROHIBITED_REGION_POLYGON = [
+    [0.01, MAX_Y],
+    [0.01, 500],
+    [ms_to_c(1), 200],
+    [ms_to_c(3), 140],
+    [ms_to_c(3), 120],
+    [ms_to_c(20), 120],
+    [ms_to_c(500), 120],
+    [ms_to_c(500), 110],
+    [ms_to_c(10000), 110],
+    [ms_to_c(MAX_X), 110],
+    [ms_to_c(MAX_X), MAX_Y],
+    [0.01, MAX_Y]
+]
+"""Polygon representing the prohibited region"""
+
+NO_DAMAGE_REGION_POLYGON = [
+    [ms_to_c(20), 0],
+    [ms_to_c(20), 40],
+    [ms_to_c(20), 70],
+    [ms_to_c(500), 70],
+    [ms_to_c(500), 80],
+    [ms_to_c(10_000), 80],
+    [ms_to_c(10_000), 90],
+    [ms_to_c(MAX_X), 90],
+    [ms_to_c(MAX_X), 0],
+    [ms_to_c(20), 0]
+]
+"""Polygon representing the no damage region"""
+
+NO_INTERRUPTION_REGION_POLYGON = [
+    [0, 0],
+    [0, MAX_Y],
+    [0.01, MAX_Y],
+    [0.01, 500],
+    [ms_to_c(1), 200],
+    [ms_to_c(3), 140],
+    [ms_to_c(3), 120],
+    [ms_to_c(20), 120],
+    [ms_to_c(500), 120],
+    [ms_to_c(500), 110],
+    [ms_to_c(10_000), 110],
+    [ms_to_c(MAX_X), 110],
+    [ms_to_c(MAX_X), 90],
+    [ms_to_c(10_000), 90],
+    [ms_to_c(10_000), 80],
+    [ms_to_c(500), 80],
+    [ms_to_c(500), 70],
+    [ms_to_c(20), 70],
+    [ms_to_c(20), 40],
+    [ms_to_c(20), 0],
+    [0, 0]
+]
+"""Polygon representing the no interruption region"""
+
 
 def plot_itic(vrms: float, duration_ms: float):
     max_x = max(s_to_c(15), ms_to_c(duration_ms))

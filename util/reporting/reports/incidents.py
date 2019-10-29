@@ -1,46 +1,111 @@
 import datetime
 import typing
 
-import gridfs
+import matplotlib.dates as md
 import matplotlib.pyplot as plt
 import numpy as np
 import pymongo
+import shapely.geometry as geom
 
 import reports
+import reports.itic as itic
 
+MAX_X_MS = 1_000_000
 
+SEMI_F47_VIOLATION_POLYGON = [
+    (1.001, 0),
+    (1.001, 50),
+    (reports.ms_to_c(200), 50),
+    (reports.ms_to_c(200), 70),
+    (reports.ms_to_c(500), 70),
+    (reports.ms_to_c(500), 80),
+    (reports.ms_to_c(10_000), 80),
+    (reports.ms_to_c(10_000), 90),
+    (reports.ms_to_c(MAX_X_MS), 90),
+    (reports.ms_to_c(MAX_X_MS), 0),
+    (1.001, 0),
+]
 
-def plot_incident(incident_id: int,
-                  report_dir: str,
-                  mongo_client: pymongo.MongoClient):
-    grid_fs = gridfs.GridFS(mongo_client.opq)
+def plot_voltage_incident(incident_id: int,
+                          report_dir: str,
+                          mongo_client: pymongo.MongoClient):
     incidents_coll = mongo_client.opq.incidents
 
     incident = incidents_coll.find_one({"incident_id": incident_id})
-    print(incident)
+
     start_ms = incident["start_timestamp_ms"]
     start_dt = datetime.datetime.utcfromtimestamp(start_ms / 1000.0)
     wf_y_values = reports.calib_waveform(incident["gridfs_filename"], incident["box_id"], mongo_client)
     wf_x_values = [datetime.datetime.utcfromtimestamp((start_ms + reports.sample_to_ms(t)) / 1000.0) for t in
-                range(len(wf_y_values))]
+                   range(len(wf_y_values))]
 
-    fig, ax = plt.subplots(4, 1, figsize=(16, 9), sharex="all")
-    fig.suptitle("Incident: %d (%s) OPQ Box: %s @ %s UTC" % (
+    voltage_high = 120.0 + (120.0 * .06)
+    voltage_low = 120.0 - (120.0 * .06)
+
+    fig, ax = plt.subplots(3, 1, figsize=(16, 9))
+    fig.suptitle("Incident: %d (%s) OPQ Box: %s (%s) @ %s UTC" % (
         incident["incident_id"],
         incident["classifications"][0],
         incident["box_id"],
+        reports.box_to_location[incident["box_id"]],
         start_dt.strftime("%Y-%m-%d %H:%M:%S")
     ))
-    ax[0].plot(wf_x_values, wf_y_values)
-    ax[0].set_title("Waveform")
+    ax[0].plot(wf_x_values, wf_y_values, color="blue")
+    ax[0].set_title("Waveform and $V_{RMS}$")
     ax[0].set_ylabel("Voltage")
+    ax[0].set_xlabel("Time M:S.nS")
+    ax[0].tick_params(axis="y", colors="blue")
+    ax[0].yaxis.label.set_color("blue")
+
+    ax2 = ax[0].twinx()
 
     vrms_y_values = reports.vrms_waveform(wf_y_values)
-    vrms_x_values = wf_x_values[0::12000]
-    print(vrms_y_values)
-    ax[1].plot(vrms_x_values, vrms_y_values)
+    vrms_x_values = wf_x_values[0::200]
 
-    plt.show()
+    mean_rms = vrms_y_values.mean()
+    duration_c = len(vrms_x_values)
+
+
+    ax2.plot(vrms_x_values, vrms_y_values, color="red")
+    ax2.plot(vrms_x_values, [voltage_low for _ in vrms_x_values], linestyle="--", color="red", linewidth=1)
+    ax2.plot(vrms_x_values, [voltage_high for _ in vrms_x_values], linestyle="--", color="red", linewidth=1)
+    ax2.set_ylabel("$V_{RMS}$")
+    ax2.tick_params(axis="y", colors="red")
+    ax2.yaxis.label.set_color("red")
+    xfmt = md.DateFormatter('%M:%S.%f')
+    ax2.xaxis.set_major_formatter(xfmt)
+
+    ax[1].plot(*geom.Polygon(itic.PROHIBITED_REGION_POLYGON).exterior.xy, color="red", label="Prohibited Region Bounds")
+    ax[1].plot(*geom.Polygon(itic.NO_DAMAGE_REGION_POLYGON).exterior.xy, color="blue", label="No-Damage Region Bounds")
+    print(reports.percent_nominal(120.0, mean_rms))
+    ax[1].scatter([duration_c], [reports.percent_nominal(120.0, mean_rms)], linewidth=5, color="black", label="ITIC Value")
+
+    ax[1].set_xscale("log")
+    ax[1].set_ylim((1, 500))
+    ax[1].set_xlim(xmax=15 * 60 * 1000)
+    ax[1].set_ylabel("% Nominal Voltage")
+    ax[1].set_xlabel("Duration Cycles")
+    ax[1].set_title("ITIC")
+
+    ax[1].text(1000, 300, "Prohibited Region", fontsize=12)
+    ax[1].text(.1, 150, "No Interruption Region", fontsize=12)
+    ax[1].text(10000, 30, "No Damage Region", fontsize=12)
+
+    ax[1].legend()
+
+    ax[2].set_title("Semi F47")
+    ax[2].plot(*geom.Polygon(SEMI_F47_VIOLATION_POLYGON).exterior.xy, color="red")
+    ax[2].set_xscale("log")
+    ax[2].set_ylim((1, 100))
+    ax[2].set_ylabel("% Nominal Voltage")
+    ax[2].set_xlabel("Duration Cycles")
+    ax[2].set_xlim(xmax=(reports.ms_to_c(1_000_000)))
+    ax[2].text(1, 80, "Semi F47 Nominal Region", fontsize=12)
+    ax[2].text(10**2, 40, "Semi F47 Violation Region", fontsize=12)
+    ax[2].scatter([duration_c], [reports.percent_nominal(120.0, mean_rms)], linewidth=5, color="black", label="Semi F47 Value")
+    ax[2].legend(loc="lower right")
+    plt.subplots_adjust(hspace=.5)
+    plt.savefig("%s/voltage-incident-%d.png" % (report_dir, incident_id))
 
 
 def plot_incidents(start_time_s: int,
@@ -146,6 +211,7 @@ def incident_stats(start_time_s: int,
             "incidents": [k for k in incident_types],
             "box_to_incidents": box_to_incidents}
 
+
 def plot_outage(incident_id: int,
                 report_dir: str,
                 mongo_client: pymongo.MongoClient):
@@ -170,10 +236,9 @@ def plot_outage(incident_id: int,
     h_start = datetime.datetime.utcfromtimestamp(i_start / 1000.0)
     h_end = datetime.datetime.utcfromtimestamp(i_end / 1000.0)
 
-
     measurements = list(measurements_coll.find({"box_id": box_id,
-                                           "timestamp_ms": {"$gte": i_start,
-                                                            "$lte": i_end}}))
+                                                "timestamp_ms": {"$gte": i_start,
+                                                                 "$lte": i_end}}))
     print("%d measurements" % len(list(measurements)))
 
     trends = trends_coll.find({"box_id": box_id,
@@ -190,6 +255,7 @@ def plot_outage(incident_id: int,
     ax.plot(m_x, m_y)
 
     plt.show()
+
 
 def plot_outages(start_ms: int,
                  end_ms: int,
@@ -209,6 +275,7 @@ def plot_outages(start_ms: int,
         o_start = datetime.datetime.utcfromtimestamp(outage["start_timestamp_ms"] / 1000.0)
         o_end = datetime.datetime.utcfromtimestamp(outage["end_timestamp_ms"] / 1000.0)
         box_id = outage["box_id"]
+        print(box_id, o_start, o_end)
         ax.plot([o_start, o_end], [int(box_id), int(box_id)],
                 linewidth=15)
         ax.set_ylabel("OPQ Box")
@@ -219,13 +286,15 @@ def plot_outages(start_ms: int,
 
 
 if __name__ == "__main__":
-    # plot_incident(56040, ".", pymongo.MongoClient())
+    plot_voltage_incident(71905, "/Users/anthony/Development/opq/util/reporting/report_1571738400_1572343200", pymongo.MongoClient())
+    plot_voltage_incident(71906, "/Users/anthony/Development/opq/util/reporting/report_1571738400_1572343200", pymongo.MongoClient())
+    plot_voltage_incident(71907, "/Users/anthony/Development/opq/util/reporting/report_1571738400_1572343200", pymongo.MongoClient())
     # plot_outage(62868, ".", pymongo.MongoClient())
-    plot_outage(73319, ".", pymongo.MongoClient())
+    # plot_outage(73319, ".", pymongo.MongoClient())
     # with open("/Users/anthony/Development/opq/util/reporting/report_1571133600_1571738400/incidents.txt", "r") as fin:
     #     for line in fin.readlines():
     #         s = line.strip().split(" ")
     #         # print(s)
     #         if s[1] == "OUTAGE":
     #             plot_outage(int(s[0]), ".", pymongo.MongoClient())
-    # plot_outages(1571133600000, 1571738400000, ".", pymongo.MongoClient())
+    # plot_outages(1571738400000, 1572343200000, ".", pymongo.MongoClient())
