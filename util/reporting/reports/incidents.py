@@ -151,7 +151,6 @@ def plot_outage(incident_id: int,
                 mongo_client: pymongo.MongoClient):
     measurements_coll = mongo_client.opq.measurements
     trends_coll = mongo_client.opq.trends
-    health_coll = mongo_client.opq.health
     incidents_coll = mongo_client.opq.incidents
 
     incident = incidents_coll.find_one({"incident_id": incident_id})
@@ -170,16 +169,11 @@ def plot_outage(incident_id: int,
 
     h_start = datetime.datetime.utcfromtimestamp(i_start / 1000.0)
     h_end = datetime.datetime.utcfromtimestamp(i_end / 1000.0)
-    health = health_coll.find({"service": "BOX",
-                               "serviceID": box_id,
-                               "timestamp": {"$gte": h_start,
-                                             "$lte": h_end}})
 
-    print("%d health documents between %s and %s" % (len(list(health)), h_start, h_end))
 
-    measurements = measurements_coll.find({"box_id": box_id,
+    measurements = list(measurements_coll.find({"box_id": box_id,
                                            "timestamp_ms": {"$gte": i_start,
-                                                            "$lte": i_end}})
+                                                            "$lte": i_end}}))
     print("%d measurements" % len(list(measurements)))
 
     trends = trends_coll.find({"box_id": box_id,
@@ -187,6 +181,15 @@ def plot_outage(incident_id: int,
                                                 "$lte": i_end}})
 
     print("%d trends" % len(list(trends)))
+
+    fig, ax = plt.subplots(1, 1, figsize=(16, 9))
+    m_x = list(map(lambda m: datetime.datetime.utcfromtimestamp(m["timestamp_ms"] / 1000.0), measurements))
+    m_y = list(map(lambda m: m["voltage"], measurements))
+    print(m_x)
+    print(m_y)
+    ax.plot(m_x, m_y)
+
+    plt.show()
 
 def plot_outages(start_ms: int,
                  end_ms: int,
@@ -218,11 +221,11 @@ def plot_outages(start_ms: int,
 if __name__ == "__main__":
     # plot_incident(56040, ".", pymongo.MongoClient())
     # plot_outage(62868, ".", pymongo.MongoClient())
-    # plot_outage(63427, ".", pymongo.MongoClient())
-    with open("/Users/anthony/Development/opq/util/reporting/report_1571133600_1571738400/incidents.txt", "r") as fin:
-        for line in fin.readlines():
-            s = line.strip().split(" ")
-            # print(s)
-            if s[1] == "OUTAGE":
-                plot_outage(int(s[0]), ".", pymongo.MongoClient())
+    plot_outage(73319, ".", pymongo.MongoClient())
+    # with open("/Users/anthony/Development/opq/util/reporting/report_1571133600_1571738400/incidents.txt", "r") as fin:
+    #     for line in fin.readlines():
+    #         s = line.strip().split(" ")
+    #         # print(s)
+    #         if s[1] == "OUTAGE":
+    #             plot_outage(int(s[0]), ".", pymongo.MongoClient())
     # plot_outages(1571133600000, 1571738400000, ".", pymongo.MongoClient())

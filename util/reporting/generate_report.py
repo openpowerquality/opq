@@ -47,7 +47,8 @@ def create_report(start_time_s: int,
     events_table = [["OPQ Box", "Location", "Events Generated"]]
     for box, events in e_stats["events_per_box"].items():
         events_table.append([box, reports.box_to_location[box], events])
-    reports.tables.make_table(events_table, "Events %s to %s" % (short_start_dt, short_end_dt), report_dir, sum_cols=[2])
+    reports.tables.make_table(events_table, "Events %s to %s" % (short_start_dt, short_end_dt), report_dir,
+                              sum_cols=[2])
 
     print("Generating Incidents table...")
     i_table_header = ["OPQ Box", "Location", "Incidents"]
@@ -64,18 +65,20 @@ def create_report(start_time_s: int,
         i_table.append(row)
 
     sum_cols = list(range(2, len(i_table_header)))
-    reports.tables.make_table(i_table, "Incidents %s to %s" % (short_start_dt, short_end_dt), report_dir, sort_by_col=2, sum_cols=sum_cols)
+    reports.tables.make_table(i_table, "Incidents %s to %s" % (short_start_dt, short_end_dt), report_dir, sort_by_col=2,
+                              sum_cols=sum_cols)
 
     print("Generating report...")
     with open("%s/%s.txt" % (report_dir, report_id), "w") as fout:
         # ------------------------------------- Title
-        fout.write('Micro-report on the UHM micro-grid: %s to %s\n\n' % (start_dt.strftime("%Y-%m-%d %H:%M"),end_dt.strftime("%Y-%m-%d %H:%M")))
-
-        # ------------------------------------- Synopsis
-        fout.write('Synopsis\n\n')
+        fout.write('Micro-report on the UHM micro-grid: %s to %s\n\n' % (start_dt.strftime("%m/%d"),
+                                                                         end_dt.strftime("%m/%d")))
 
         # ------------------------------------- General Summary
         fout.write('General Summary\n\n')
+        fout.write('University of Hawaii at Manoa micro-grid report on data from %s to %s UTC.\n\n' % (
+            start_dt.strftime("%m-%d-%Y %H:%M"),
+            end_dt.strftime("%m-%d-%Y  %H:%M")))
 
         # ------------------------------------- Trends Summary
         fout.write('Trends Summary\n\n')
@@ -132,4 +135,3 @@ if __name__ == "__main__":
         print("Error parsing time range.")
         print("usage: python3 generate_report.py [start time s utc] [end time s utc]")
         sys.exit(2)
-
