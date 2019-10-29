@@ -44,8 +44,8 @@ def plot_trends(start_time_s: int,
 
     voltage_high = 120.0 + (120.0 * .06)
     voltage_low = 120.0 - (120.0 * .06)
-    frequency_high = 60.0 + (60.0 * .01)
-    frequency_low = 60.0 - (60.0 * .01)
+    frequency_high = 60.0 + (60.0 * .003)
+    frequency_low = 60.0 - (60.0 * .003)
     thd_high = 5
     transient_high = 7
 
