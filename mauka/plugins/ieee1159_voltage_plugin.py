@@ -26,6 +26,32 @@ IEEE_1159_TOLERANCE_RANGES = [
     [analysis.percent_nominal_to_rms(1.1), analysis.percent_nominal_to_rms(1.8)], # 5
 ]
 
+class Ieee1159Incident:
+    def __init__(self,
+                 payload: protobuf.mauka_pb2.Payload,
+                 segment_start_cycles: float,
+                 incident_start_cycles: float,
+                 incident_end_cycles: float,
+                 incident_classification: mongo.IncidentClassification):
+        self.payload = payload
+        self.incident_start_idx = segment_start_cycles + incident_start_cycles
+        self.incident_end_idx = segment_start_cycles + incident_end_cycles
+        self.incident_classification = incident_classification
+
+    def store_incident(self, opq_mongo_client: mongo.OpqMongoClient) -> int:
+        return mongo.store_incident(
+                self.payload.event_id,
+                self.payload.box_id,
+                self.payload.start_timestamp_ms + analysis.c_to_ms(self.incident_start_idx),
+                self.payload.start_timestamp_ms + analysis.c_to_ms(self.incident_end_idx),
+                mongo.IncidentMeasurementType.VOLTAGE,
+                -1,
+                [self.incident_classification],
+                [],
+                {},
+                opq_mongo_client
+        )
+
 def check_range(r: typing.List[float],
                 min_cycles: float,
                 max_cycles: float) -> typing.List[typing.List[float]]:
@@ -41,10 +67,9 @@ def classify_incidents(mauka_message: protobuf.mauka_pb2.MaukaMessage,
                        opq_mongo_client: mongo.OpqMongoClient,
                        incident_indicies: typing.List[typing.List[float]],
                        segment_start_c: float,
-                       incident_type: mongo.IncidentClassification,
-                       ieee_duration: mongo.IncidentIeeeDuration) -> typing.List[int]:
+                       incident_type: mongo.IncidentClassification) -> typing.List[Ieee1159Incident]:
 
-    incident_ids = []
+    incidents = []
 
     for indicies in incident_indicies:
         start_idx = indicies[0]
@@ -52,25 +77,12 @@ def classify_incidents(mauka_message: protobuf.mauka_pb2.MaukaMessage,
         start_c = segment_start_c + start_idx
         end_c = segment_start_c + end_idx
 
-        incident_id = mongo.store_incident(
-            mauka_message.payload.event_id,
-            mauka_message.payload.box_id,
-            mauka_message.payload.start_timestamp_ms + analysis.c_to_ms(start_idx),
-            mauka_message.payload.start_timestamp_ms + analysis.c_to_ms(end_idx),
-            mongo.IncidentMeasurementType.VOLTAGE,
-            -1,
-            [incident_type],
-            [],
-            {},
-            opq_mongo_client
-        )
-        incident_ids.append(incident_id)
-
-    return incident_ids
+    return incidents
 
 
 
-def ieee1159_voltage(mauka_message: protobuf.mauka_pb2.MaukaMessage, rms_features: np.ndarray,
+def ieee1159_voltage(mauka_message: protobuf.mauka_pb2.MaukaMessage,
+                     rms_features: np.ndarray,
                      opq_mongo_client: mongo.OpqMongoClient = None) -> typing.List[int]:
     """
     Calculate the ieee1159 voltage incidents and add them to the mongo database
@@ -160,11 +172,11 @@ class Ieee1159VoltagePlugin(plugins.base_plugin.MaukaPlugin):
                                                 mauka_message.payload.data
                                             ),
                                             self.mongo_client)
-            for incident_id in incident_ids:
-                # Produce a message to the GC
-                self.produce(Routes.laha_gc, protobuf.pb_util.build_gc_update(self.name,
-                                                                              protobuf.mauka_pb2.INCIDENTS,
-                                                                              incident_id))
+            # for incident_id in incident_ids:
+            #     # Produce a message to the GC
+            #     self.produce(Routes.laha_gc, protobuf.pb_util.build_gc_update(self.name,
+            #                                                                   protobuf.mauka_pb2.INCIDENTS,
+            #                                                                   incident_id))
 
         else:
             self.logger.error("Received incorrect mauka message [%s] at IticPlugin",
