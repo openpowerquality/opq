@@ -1,5 +1,5 @@
 [package]
-name = "rust_lib_sandbox"
+name = "mauka_native"
 version = "0.1.0"
 authors = ["anthonyjchriste <achriste@hawaii.edu>"]
 edition = "2018"

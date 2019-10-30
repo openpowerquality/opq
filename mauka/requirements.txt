@@ -8,3 +8,4 @@ pandas      # Data Wrangling in profilers
 psutil      # System stats, memory, disk, network, etc
 ruptures    # Change point detection
 shapely     # Point in polygon
+maturin     # Py <---> Rust
