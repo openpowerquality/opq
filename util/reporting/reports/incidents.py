@@ -251,9 +251,8 @@ def plot_outage(incident_id: int,
     fig, ax = plt.subplots(1, 1, figsize=(16, 9))
     m_x = list(map(lambda m: datetime.datetime.utcfromtimestamp(m["timestamp_ms"] / 1000.0), measurements))
     m_y = list(map(lambda m: m["voltage"], measurements))
-    print(m_x)
-    print(m_y)
     ax.plot(m_x, m_y)
+    ax.set_xlim((h_start, h_end))
     plt.savefig("%s/outage-%d.png" % (report_dir, incident_id))
     plt.show()
 
