@@ -1,0 +1,23 @@
+\documentclass{article}
+\pagestyle{empty}
+
+\usepackage[utf8]{inputenc}
+\usepackage{tabularx}
+\usepackage{ltablex}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{caption}
+
+\begin{document}
+    \begin{table}
+        \centering
+        \begin{tabularx}{\textwidth}{_ALIGN_}
+            \toprule
+            _HEADER_
+            \midrule
+            _BODY_
+            \bottomrule
+        \end{tabularx}
+        \caption*{_CAPTION_}
+    \end{table}
+\end{document}

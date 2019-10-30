@@ -9,6 +9,7 @@ import shapely.geometry as geom
 
 import reports
 import reports.itic as itic
+import reports.tables as tables
 
 MAX_X_MS = 1_000_000
 
@@ -253,7 +254,7 @@ def plot_outage(incident_id: int,
     print(m_x)
     print(m_y)
     ax.plot(m_x, m_y)
-
+    plt.savefig("%s/outage-%d.png" % (report_dir, incident_id))
     plt.show()
 
 
@@ -267,34 +268,45 @@ def plot_outages(start_ms: int,
                                                           "$lte": end_ms},
                                    "classifications": "OUTAGE"})
     outages = list(outages)
-    print(outages)
+    outages = sorted(outages, key=lambda outage: outage["box_id"])
 
     fig, ax = plt.subplots(1, 1, figsize=(16, 9))
-    fig.suptitle("Outages")
+    start_dt = datetime.datetime.utcfromtimestamp(start_ms / 1000.0)
+    end_dt = datetime.datetime.utcfromtimestamp(end_ms / 1000.0)
+    fig.suptitle("Outages %s to %s" % (start_dt.strftime("%Y-%m-%d"),
+                                       end_dt.strftime("%Y-%m-%d")))
+    outage_table = [["OPQ Box", "Location", "Incident \\#", "Outage Start", "Outage End", "Duration (s)"]]
     for outage in outages:
+        plot_outage(outage["incident_id"], report_dir, mongo_client)
         o_start = datetime.datetime.utcfromtimestamp(outage["start_timestamp_ms"] / 1000.0)
         o_end = datetime.datetime.utcfromtimestamp(outage["end_timestamp_ms"] / 1000.0)
         box_id = outage["box_id"]
-        print(box_id, o_start, o_end)
+        print("%s (%s) %s to %s (%s)" % (
+            box_id,
+            reports.box_to_location[box_id],
+            o_start,
+            o_end,
+            (o_end - o_start)
+        ))
+        outage_table.append([box_id,
+                             reports.box_to_location[box_id],
+                             outage["incident_id"],
+                             o_start.strftime("%m-%d %H:%M:%S"),
+                             o_end.strftime("%m-%d %H:%M:%S"),
+                             (o_end - o_start).total_seconds()
+                             ])
         ax.plot([o_start, o_end], [int(box_id), int(box_id)],
                 linewidth=15)
         ax.set_ylabel("OPQ Box")
         ax.set_xlabel("Time (UTC)")
+    tables.make_table(outage_table, "Outages %s to %s" % (o_start.strftime("%Y-%m-%d"), o_end.strftime("%Y-%m-%d")), report_dir, sort_by_col=5)
+
+
 
     plt.savefig("%s/outages-%d-%d.png" % (report_dir, start_ms, end_ms))
     plt.show()
 
 
 if __name__ == "__main__":
-    plot_voltage_incident(71905, "/Users/anthony/Development/opq/util/reporting/report_1571738400_1572343200", pymongo.MongoClient())
-    plot_voltage_incident(71906, "/Users/anthony/Development/opq/util/reporting/report_1571738400_1572343200", pymongo.MongoClient())
-    plot_voltage_incident(71907, "/Users/anthony/Development/opq/util/reporting/report_1571738400_1572343200", pymongo.MongoClient())
-    # plot_outage(62868, ".", pymongo.MongoClient())
-    # plot_outage(73319, ".", pymongo.MongoClient())
-    # with open("/Users/anthony/Development/opq/util/reporting/report_1571133600_1571738400/incidents.txt", "r") as fin:
-    #     for line in fin.readlines():
-    #         s = line.strip().split(" ")
-    #         # print(s)
-    #         if s[1] == "OUTAGE":
-    #             plot_outage(int(s[0]), ".", pymongo.MongoClient())
-    # plot_outages(1571738400000, 1572343200000, ".", pymongo.MongoClient())
+    # plot_voltage_incident(71905, "/Users/anthony/Development/opq/util/reporting/report_1571738400_1572343200", pymongo.MongoClient())
+    plot_outages(1571738400000, 1572343200000, "/Users/anthony/Development/opq/util/reporting/report_1571738400_1572343200", pymongo.MongoClient())
