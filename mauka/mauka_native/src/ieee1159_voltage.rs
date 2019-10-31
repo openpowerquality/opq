@@ -422,4 +422,54 @@ mod tests {
         let incident = res.get(0).unwrap();
         assert_eq!(&incident.incident_classification, "Momentary:Interruption");
     }
+
+    #[test]
+    fn classify_momentary_sag() {
+        let bmap = bound_map();
+        let range = Range {
+            bound: Bound::new(0.1, 0.9, Some(&pu_to_rms)),
+            start_idx: 0,
+            end_idx: 30,
+            start_ts_ms: 0.0,
+            end_ts_ms: c_to_ms(30.0),
+        };
+        let res = classify_range(&range, &bmap);
+        assert_eq!(res.len(), 2);
+        let incident = res.get(1).unwrap();
+        assert_eq!(&incident.incident_classification, "Momentary:Sag");
+        let range = Range {
+            end_idx: (s_to_c(3.0)) as usize,
+            end_ts_ms: c_to_ms(s_to_c(3.0)),
+            ..range
+        };
+        let res = classify_range(&range, &bmap);
+        assert_eq!(res.len(), 1);
+        let incident = res.get(0).unwrap();
+        assert_eq!(&incident.incident_classification, "Momentary:Sag");
+    }
+
+    #[test]
+    fn classify_momentary_swell() {
+        let bmap = bound_map();
+        let range = Range {
+            bound: Bound::new(1.1, 1.8, Some(&pu_to_rms)),
+            start_idx: 0,
+            end_idx: 30,
+            start_ts_ms: 0.0,
+            end_ts_ms: c_to_ms(30.0),
+        };
+        let res = classify_range(&range, &bmap);
+        assert_eq!(res.len(), 1);
+        let incident = res.get(0).unwrap();
+        assert_eq!(&incident.incident_classification, "Momentary:Swell");
+        let range = Range {
+            end_idx: (s_to_c(3.0)) as usize,
+            end_ts_ms: c_to_ms(s_to_c(3.0)),
+            ..range
+        };
+        let res = classify_range(&range, &bmap);
+        assert_eq!(res.len(), 1);
+        let incident = res.get(0).unwrap();
+        assert_eq!(&incident.incident_classification, "Momentary:Swell");
+    }
 }
