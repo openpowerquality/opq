@@ -1,7 +1,6 @@
 const C_PER_S: f64 = 60.0;
 const C_PER_MS: f64 = 0.06;
 const MS_PER_S: f64 = 1_000.0;
-const MS_PER_C: f64 = 16.66666666666;
 
 #[inline]
 pub fn s_to_ms(s: f64) -> f64 {
