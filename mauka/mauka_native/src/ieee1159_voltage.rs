@@ -3,72 +3,6 @@ use crate::arrays;
 use crate::arrays::Bound;
 use std::collections::HashMap;
 
-pub fn classify_segments(start_time_ms: f64, data: &Vec<f64>) {
-    let bounds = bound_map();
-    classify_data(start_time_ms, data, &bounds.keys().collect());
-}
-
-#[derive(Debug)]
-pub struct CycleRange {
-    gt_min: bool,
-    no_upper: bool,
-    pub min_c: f64,
-    pub max_c: f64,
-}
-
-impl CycleRange {
-    pub fn new(min_c: f64, max_c: f64) -> CycleRange {
-        CycleRange {
-            min_c,
-            max_c,
-            gt_min: false,
-            no_upper: false,
-        }
-    }
-
-    pub fn from_ms_ms(min_ms: f64, max_ms: f64) -> CycleRange {
-        CycleRange::new(ms_to_c(min_ms), ms_to_c(max_ms))
-    }
-
-    pub fn from_c_ms(min_c: f64, max_ms: f64) -> CycleRange {
-        CycleRange::new(min_c, ms_to_c(max_ms))
-    }
-
-    pub fn from_c_s(min_c: f64, max_s: f64) -> CycleRange {
-        CycleRange::new(min_c, s_to_c(max_s))
-    }
-
-    pub fn from_s_s(min_s: f64, max_s: f64) -> CycleRange {
-        CycleRange::new(s_to_c(min_s), s_to_c(max_s))
-    }
-
-    pub fn contains(&self, range: &arrays::Range) -> bool {
-        if self.gt_min {
-            if self.no_upper {
-                range.range_c() > self.min_c
-            } else {
-                range.range_c() > self.min_c && range.range_c() <= self.max_c
-            }
-        } else {
-            if self.no_upper {
-                range.range_c() >= self.min_c
-            } else {
-                range.range_c() >= self.min_c && range.range_c() <= self.max_c
-            }
-        }
-    }
-
-    pub fn set_gt_min(mut self) -> Self {
-        self.gt_min = true;
-        self
-    }
-
-    pub fn set_no_upper(mut self) -> Self {
-        self.no_upper = true;
-        self
-    }
-}
-
 fn bound_map() -> HashMap<Bound, Vec<(CycleRange, String)>> {
     let mut bmap: HashMap<Bound, Vec<(CycleRange, String)>> = HashMap::new();
     bmap.insert(
@@ -136,19 +70,91 @@ fn bound_map() -> HashMap<Bound, Vec<(CycleRange, String)>> {
     bmap
 }
 
-fn classify_data(segment_start_ms: f64, data: &Vec<f64>, bounds: &Vec<&Bound>) {
-    let ranges = arrays::bounded_ranges(segment_start_ms, data, bounds);
-    classify_ranges(&ranges);
+#[derive(Debug)]
+pub struct CycleRange {
+    gt_min: bool,
+    no_upper: bool,
+    pub min_c: f64,
+    pub max_c: f64,
 }
 
-fn classify_ranges(ranges: &Vec<arrays::Range>) {}
+impl CycleRange {
+    pub fn new(min_c: f64, max_c: f64) -> CycleRange {
+        CycleRange {
+            min_c,
+            max_c,
+            gt_min: false,
+            no_upper: false,
+        }
+    }
+
+    pub fn from_ms_ms(min_ms: f64, max_ms: f64) -> CycleRange {
+        CycleRange::new(ms_to_c(min_ms), ms_to_c(max_ms))
+    }
+
+    pub fn from_c_ms(min_c: f64, max_ms: f64) -> CycleRange {
+        CycleRange::new(min_c, ms_to_c(max_ms))
+    }
+
+    pub fn from_c_s(min_c: f64, max_s: f64) -> CycleRange {
+        CycleRange::new(min_c, s_to_c(max_s))
+    }
+
+    pub fn from_s_s(min_s: f64, max_s: f64) -> CycleRange {
+        CycleRange::new(s_to_c(min_s), s_to_c(max_s))
+    }
+
+    pub fn contains(&self, range: &arrays::Range) -> bool {
+        if self.gt_min {
+            if self.no_upper {
+                range.range_c() > self.min_c
+            } else {
+                range.range_c() > self.min_c && range.range_c() <= self.max_c
+            }
+        } else if self.no_upper {
+            range.range_c() >= self.min_c
+        } else {
+            range.range_c() >= self.min_c && range.range_c() <= self.max_c
+        }
+    }
+
+    pub fn set_gt_min(mut self) -> Self {
+        self.gt_min = true;
+        self
+    }
+
+    pub fn set_no_upper(mut self) -> Self {
+        self.no_upper = true;
+        self
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct Ieee1159VoltageIncident {
+    pub start_time_ms: f64,
+    pub end_time_ms: f64,
+    pub start_idx: usize,
+    pub end_idx: usize,
+    pub incident_classification: String,
+}
+
+pub fn classify_rms(start_time_ms: f64, data: &Vec<f64>) -> Vec<Ieee1159VoltageIncident> {
+    let bounds = bound_map();
+    let ranges = arrays::bounded_ranges(start_time_ms, data, &bounds.keys().collect());
+    ranges
+        .iter()
+        .map(|r| classify_range(r, &bounds))
+        .filter(|r| r.is_some())
+        .map(|r| r.unwrap())
+        .collect()
+}
 
 fn classify_range(
     range: &arrays::Range,
     bound_map: &HashMap<Bound, Vec<(CycleRange, String)>>,
-) -> Vec<Ieee1159VoltageIncident> {
+) -> Option<Ieee1159VoltageIncident> {
     match bound_map.get(&range.bound) {
-        None => vec![],
+        None => None,
         Some(cycle_ranges) => {
             let mut res = vec![];
             for (cycle_range, incident_classification) in cycle_ranges {
@@ -162,18 +168,13 @@ fn classify_range(
                     })
                 }
             }
-            res
+            if !&res.is_empty() {
+                res.last().cloned()
+            } else {
+                None
+            }
         }
     }
-}
-
-#[derive(Debug)]
-struct Ieee1159VoltageIncident {
-    pub start_time_ms: f64,
-    pub end_time_ms: f64,
-    pub start_idx: usize,
-    pub end_idx: usize,
-    pub incident_classification: String,
 }
 
 #[cfg(test)]
@@ -344,8 +345,7 @@ mod tests {
         };
 
         let res = classify_range(&range, &bmap);
-        assert_eq!(res.len(), 1);
-        let incident = res.get(0).unwrap();
+        let incident = res.unwrap();
         assert_eq!(incident.start_idx, 1);
         assert_eq!(incident.end_idx, 2);
         assert_eq!(incident.start_time_ms, 0.0);
@@ -361,13 +361,20 @@ mod tests {
         };
 
         let res = classify_range(&range, &bmap);
-        assert_eq!(res.len(), 1);
-        let incident = res.get(0).unwrap();
+        let incident = res.unwrap();
         assert_eq!(incident.start_idx, 0);
         assert_eq!(incident.end_idx, 29);
         assert_eq!(incident.start_time_ms, 0.0);
         assert_eq!(incident.end_time_ms, c_to_ms(29.0));
         assert_eq!(&incident.incident_classification, "Instantaneous:Sag");
+
+        let range = Range {
+            end_idx: 31,
+            end_ts_ms: c_to_ms(31.0),
+            ..range
+        };
+        let res = classify_range(&range, &bmap);
+        assert_ne!(res.unwrap().incident_classification, "Instantaneous:Sag");
     }
 
     #[test]
@@ -382,20 +389,26 @@ mod tests {
         };
 
         let res = classify_range(&range, &bmap);
-        assert_eq!(res.len(), 1);
-        let incident = res.get(0).unwrap();
+        let incident = res.unwrap();
         assert_eq!(&incident.incident_classification, "Instantaneous:Swell");
 
         let range = Range {
-            end_idx: 29,
-            end_ts_ms: c_to_ms(29.0),
+            end_idx: 30,
+            end_ts_ms: c_to_ms(30.0),
             ..range
         };
 
         let res = classify_range(&range, &bmap);
-        assert_eq!(res.len(), 1);
-        let incident = res.get(0).unwrap();
+        let incident = res.unwrap();
         assert_eq!(&incident.incident_classification, "Instantaneous:Swell");
+
+        let range = Range {
+            end_idx: 31,
+            end_ts_ms: c_to_ms(31.0),
+            ..range
+        };
+        let res = classify_range(&range, &bmap);
+        assert!(res.is_none());
     }
 
     #[test]
@@ -409,8 +422,7 @@ mod tests {
             end_ts_ms: c_to_ms(1.0),
         };
         let res = classify_range(&range, &bmap);
-        assert_eq!(res.len(), 1);
-        let incident = res.get(0).unwrap();
+        let incident = res.unwrap();
         assert_eq!(&incident.incident_classification, "Momentary:Interruption");
         let range = Range {
             end_idx: (s_to_c(3.0) - 1.0) as usize,
@@ -418,9 +430,19 @@ mod tests {
             ..range
         };
         let res = classify_range(&range, &bmap);
-        assert_eq!(res.len(), 1);
-        let incident = res.get(0).unwrap();
+        let incident = res.unwrap();
         assert_eq!(&incident.incident_classification, "Momentary:Interruption");
+
+        let range = Range {
+            end_idx: (s_to_c(3.0) as usize + 1) as usize,
+            end_ts_ms: c_to_ms(s_to_c(3.0) + 1.0),
+            ..range
+        };
+        let res = classify_range(&range, &bmap);
+        assert_ne!(
+            res.unwrap().incident_classification,
+            "Momentary:Interruption"
+        );
     }
 
     #[test]
@@ -434,8 +456,7 @@ mod tests {
             end_ts_ms: c_to_ms(30.0),
         };
         let res = classify_range(&range, &bmap);
-        assert_eq!(res.len(), 2);
-        let incident = res.get(1).unwrap();
+        let incident = res.unwrap();
         assert_eq!(&incident.incident_classification, "Momentary:Sag");
         let range = Range {
             end_idx: (s_to_c(3.0)) as usize,
@@ -443,24 +464,40 @@ mod tests {
             ..range
         };
         let res = classify_range(&range, &bmap);
-        assert_eq!(res.len(), 1);
-        let incident = res.get(0).unwrap();
+
+        let incident = res.unwrap();
         assert_eq!(&incident.incident_classification, "Momentary:Sag");
+
+        let range = Range {
+            end_idx: 29,
+            end_ts_ms: c_to_ms(29.0),
+            ..range
+        };
+        let res = classify_range(&range, &bmap);
+        assert_ne!(res.unwrap().incident_classification, "Momentary:Sag");
+
+        let range = Range {
+            end_idx: (s_to_c(3.0) as usize + 1) as usize,
+            end_ts_ms: c_to_ms(s_to_c(3.0) + 1.0),
+            ..range
+        };
+        let res = classify_range(&range, &bmap);
+        assert_ne!(res.unwrap().incident_classification, "Momentary:Sag");
     }
 
     #[test]
     fn classify_momentary_swell() {
         let bmap = bound_map();
         let range = Range {
-            bound: Bound::new(1.1, 1.8, Some(&pu_to_rms)),
+            bound: Bound::new(1.1, 1.4, Some(&pu_to_rms)),
             start_idx: 0,
             end_idx: 30,
             start_ts_ms: 0.0,
             end_ts_ms: c_to_ms(30.0),
         };
         let res = classify_range(&range, &bmap);
-        assert_eq!(res.len(), 1);
-        let incident = res.get(0).unwrap();
+
+        let incident = res.unwrap();
         assert_eq!(&incident.incident_classification, "Momentary:Swell");
         let range = Range {
             end_idx: (s_to_c(3.0)) as usize,
@@ -468,8 +505,220 @@ mod tests {
             ..range
         };
         let res = classify_range(&range, &bmap);
-        assert_eq!(res.len(), 1);
-        let incident = res.get(0).unwrap();
+
+        let incident = res.unwrap();
         assert_eq!(&incident.incident_classification, "Momentary:Swell");
+
+        let range = Range {
+            end_idx: 29,
+            end_ts_ms: c_to_ms(29.0),
+            ..range
+        };
+        let res = classify_range(&range, &bmap);
+        assert!(res.is_none());
+
+        let range = Range {
+            end_idx: (s_to_c(3.0) as usize + 1) as usize,
+            end_ts_ms: c_to_ms(s_to_c(3.0) + 1.0),
+            ..range
+        };
+        let res = classify_range(&range, &bmap);
+        assert!(res.is_none())
+    }
+
+    #[test]
+    fn classify_temporary_interruption() {
+        let bmap = bound_map();
+        let range = Range {
+            bound: Bound::new(0.0, 0.1, Some(&pu_to_rms)),
+            start_idx: 0,
+            end_idx: s_to_c(3.0) as usize + 1,
+            start_ts_ms: 0.0,
+            end_ts_ms: c_to_ms(s_to_c(3.0) + 1.0),
+        };
+        let res = classify_range(&range, &bmap);
+
+        let incident = res.unwrap();
+        assert_eq!(&incident.incident_classification, "Temporary:Interruption");
+        let range = Range {
+            end_idx: (s_to_c(60.0)) as usize,
+            end_ts_ms: c_to_ms(s_to_c(60.0)),
+            ..range
+        };
+        let res = classify_range(&range, &bmap);
+
+        let incident = res.unwrap();
+        assert_eq!(&incident.incident_classification, "Temporary:Interruption");
+
+        let range = Range {
+            end_idx: (s_to_c(3.0)) as usize,
+            end_ts_ms: c_to_ms(s_to_c(3.0)),
+            ..range
+        };
+        let res = classify_range(&range, &bmap);
+        let incident = res.unwrap();
+        assert_ne!(&incident.incident_classification, "Temporary:Interruption");
+
+        let range = Range {
+            end_idx: (s_to_c(60.0) as usize + 1) as usize,
+            end_ts_ms: c_to_ms(s_to_c(60.0) + 1.0),
+            ..range
+        };
+        let res = classify_range(&range, &bmap);
+        assert!(res.is_none())
+    }
+
+    #[test]
+    fn classify_temporary_sag() {
+        let bmap = bound_map();
+        let range = Range {
+            bound: Bound::new(0.1, 0.9, Some(&pu_to_rms)),
+            start_idx: 0,
+            end_idx: s_to_c(3.0) as usize + 1,
+            start_ts_ms: 0.0,
+            end_ts_ms: c_to_ms(s_to_c(3.0) + 1.0),
+        };
+        let res = classify_range(&range, &bmap);
+
+        let incident = res.unwrap();
+        assert_eq!(&incident.incident_classification, "Temporary:Sag");
+        let range = Range {
+            end_idx: (s_to_c(60.0)) as usize,
+            end_ts_ms: c_to_ms(s_to_c(60.0)),
+            ..range
+        };
+        let res = classify_range(&range, &bmap);
+
+        let incident = res.unwrap();
+        assert_eq!(&incident.incident_classification, "Temporary:Sag");
+
+        let range = Range {
+            end_idx: (s_to_c(3.0)) as usize,
+            end_ts_ms: c_to_ms(s_to_c(3.0)),
+            ..range
+        };
+        let res = classify_range(&range, &bmap);
+        let incident = res.unwrap();
+        assert_ne!(&incident.incident_classification, "Temporary:Sag");
+
+        let range = Range {
+            end_idx: (s_to_c(60.0) as usize + 1) as usize,
+            end_ts_ms: c_to_ms(s_to_c(60.0) + 1.0),
+            ..range
+        };
+        let res = classify_range(&range, &bmap);
+        assert!(res.is_none())
+    }
+
+    #[test]
+    fn classify_temporary_swell() {
+        let bmap = bound_map();
+        let range = Range {
+            bound: Bound::new(1.1, 1.2, Some(&pu_to_rms)),
+            start_idx: 0,
+            end_idx: s_to_c(3.0) as usize + 1,
+            start_ts_ms: 0.0,
+            end_ts_ms: c_to_ms(s_to_c(3.0) + 1.0),
+        };
+        let res = classify_range(&range, &bmap);
+
+        let incident = res.unwrap();
+        assert_eq!(&incident.incident_classification, "Temporary:Swell");
+
+        let range = Range {
+            end_idx: (s_to_c(60.0)) as usize,
+            end_ts_ms: c_to_ms(s_to_c(60.0)),
+            ..range
+        };
+        let res = classify_range(&range, &bmap);
+        let incident = res.unwrap();
+        assert_eq!(&incident.incident_classification, "Temporary:Swell");
+
+        let range = Range {
+            end_idx: (s_to_c(3.0)) as usize,
+            end_ts_ms: c_to_ms(s_to_c(3.0)),
+            ..range
+        };
+        let res = classify_range(&range, &bmap);
+        assert!(res.is_none());
+
+        let range = Range {
+            end_idx: (s_to_c(60.0) as usize + 1) as usize,
+            end_ts_ms: c_to_ms(s_to_c(60.0) + 1.0),
+            ..range
+        };
+        let res = classify_range(&range, &bmap);
+        let incident = res.unwrap();
+        assert_ne!(&incident.incident_classification, "Temporary:Swell");
+    }
+
+    #[test]
+    fn classify_undervoltage() {
+        let bmap = bound_map();
+        let range = Range {
+            bound: Bound::new(0.8, 0.9, Some(&pu_to_rms)),
+            start_idx: 0,
+            end_idx: s_to_c(60.0) as usize + 1,
+            start_ts_ms: 0.0,
+            end_ts_ms: c_to_ms(s_to_c(60.0) + 1.0),
+        };
+        let res = classify_range(&range, &bmap);
+
+        let incident = res.unwrap();
+        assert_eq!(&incident.incident_classification, "Undervoltage");
+
+        let range = Range {
+            end_idx: (s_to_c(1_000_000.0)) as usize,
+            end_ts_ms: c_to_ms(s_to_c(1_000_000.0)),
+            ..range
+        };
+        let res = classify_range(&range, &bmap);
+
+        let incident = res.unwrap();
+        assert_eq!(&incident.incident_classification, "Undervoltage");
+
+        let range = Range {
+            end_idx: (s_to_c(60.0)) as usize,
+            end_ts_ms: c_to_ms(s_to_c(60.0)),
+            ..range
+        };
+        let res = classify_range(&range, &bmap);
+        assert!(res.is_none())
+    }
+
+    #[test]
+    fn classify_overvoltage() {
+        let bmap = bound_map();
+        let range = Range {
+            bound: Bound::new(1.1, 1.2, Some(&pu_to_rms)),
+            start_idx: 0,
+            end_idx: s_to_c(60.0) as usize + 1,
+            start_ts_ms: 0.0,
+            end_ts_ms: c_to_ms(s_to_c(60.0) + 1.0),
+        };
+        let res = classify_range(&range, &bmap);
+
+        let incident = res.unwrap();
+        assert_eq!(&incident.incident_classification, "Overvoltage");
+
+        let range = Range {
+            end_idx: (s_to_c(1_000_000.0)) as usize,
+            end_ts_ms: c_to_ms(s_to_c(1_000_000.0)),
+            ..range
+        };
+        let res = classify_range(&range, &bmap);
+
+        let incident = res.unwrap();
+        assert_eq!(&incident.incident_classification, "Overvoltage");
+
+        let range = Range {
+            end_idx: (s_to_c(60.0)) as usize,
+            end_ts_ms: c_to_ms(s_to_c(60.0)),
+            ..range
+        };
+        let res = classify_range(&range, &bmap);
+
+        let incident = res.unwrap();
+        assert_ne!(&incident.incident_classification, "Overvoltage");
     }
 }
