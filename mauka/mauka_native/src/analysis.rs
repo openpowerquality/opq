@@ -38,6 +38,16 @@ pub fn ms_plus_c(ms: f64, c: f64) -> f64 {
     ms + c_to_ms(c)
 }
 
+#[inline]
+pub fn percent_nominal_to_rms(percent_nominal: f64) -> f64 {
+    (percent_nominal * 120.0) / 100.0
+}
+
+#[inline]
+pub fn pu_to_rms(pu: f64) -> f64 {
+    120.0 * pu
+}
+
 #[cfg(test)]
 mod tests {
     use crate::analysis::*;
@@ -76,5 +86,17 @@ mod tests {
     #[test]
     fn test_ms_plus_c() {
         assert_eq!(ms_plus_c(0.0, 60.0), 1_000.0)
+    }
+
+    #[test]
+    fn test_percent_nominal_to_rms() {
+        assert_eq!(percent_nominal_to_rms(100.0), 120.0)
+    }
+
+    #[test]
+    fn test_pu_to_rms() {
+        assert_eq!(pu_to_rms(1.0), 120.0);
+        assert_eq!(pu_to_rms(0.1), 12.0);
+        assert_eq!(pu_to_rms(1.1), 132.0);
     }
 }
