@@ -1,14 +1,24 @@
 use crate::analysis::*;
 
 pub fn generate_vrms_waveform(pu: f64, c: usize) -> Vec<f64> {
-    // Start every waveform with 60 cycles of nominal
-    let mut wf: Vec<f64> = (0..60).map(|_| 120.0).collect();
+    generate_vrms_waveform_detailed(pu, c, 120.0, 60, 60)
+}
+
+pub fn generate_vrms_waveform_detailed(
+    pu: f64,
+    c: usize,
+    nominal: f64,
+    start_c: usize,
+    end_c: usize,
+) -> Vec<f64> {
+    // Start every waveform with nominal
+    let mut wf: Vec<f64> = (0..start_c).map(|_| nominal).collect();
 
     // Add the deviation
     wf.append(&mut (0..c).map(|_| pu_to_rms(pu)).collect());
 
-    // Finish with another 60 cycles of nominal
-    wf.append(&mut (0..60).map(|_| 120.0).collect());
+    // Finish with nominal
+    wf.append(&mut (0..end_c).map(|_| nominal).collect());
 
     wf
 }

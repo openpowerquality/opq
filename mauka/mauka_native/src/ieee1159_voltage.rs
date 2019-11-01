@@ -187,7 +187,8 @@ mod tests {
     use crate::analysis::*;
     use crate::arrays::{Bound, Range};
     use crate::ieee1159_voltage::{bound_map, classify_range, classify_rms, CycleRange};
-    use crate::test_utils::generate_vrms_waveform;
+    use crate::test_utils::{generate_vrms_waveform, generate_vrms_waveform_detailed};
+    use std::iter::FromIterator;
 
     #[test]
     fn cycle_range_create_new() {
@@ -1254,5 +1255,55 @@ mod tests {
             incident.start_idx + (s_to_c(60.0) + 1.0) as usize
         );
         assert_eq!(incident.incident_classification, "Overvoltage");
+    }
+
+    #[test]
+    fn classify_rms_start_instantaneous_sag() {
+        let data = generate_vrms_waveform_detailed(0.5, 15, 120.0, 0, 60);
+        let res = classify_rms(0.0, &data);
+        let incident = res.get(0).unwrap();
+        assert_eq!(incident.start_idx, 0);
+        assert_eq!(incident.end_idx, 15);
+        assert_eq!(incident.start_time_ms, 0.0);
+        assert_eq!(incident.end_time_ms, c_to_ms(15.0));
+        assert_eq!(incident.incident_classification, "Instantaneous:Sag");
+    }
+
+    #[test]
+    fn classify_rms_end_instantaneous_sag() {
+        let data = generate_vrms_waveform_detailed(0.5, 15, 120.0, 60, 0);
+        let res = classify_rms(0.0, &data);
+        let incident = res.get(0).unwrap();
+        assert_eq!(incident.start_idx, 60);
+        assert_eq!(incident.end_idx, 75);
+        assert_eq!(incident.start_time_ms, c_to_ms(60.0));
+        assert_eq!(
+            incident.end_time_ms,
+            ms_plus_c(incident.start_time_ms, 15.0)
+        );
+        assert_eq!(incident.incident_classification, "Instantaneous:Sag");
+    }
+
+    #[test]
+    fn classify_rms_entire_instantaneous_sag() {
+        let data = generate_vrms_waveform_detailed(0.5, 15, 120.0, 0, 0);
+        let res = classify_rms(0.0, &data);
+        let incident = res.get(0).unwrap();
+        assert_eq!(incident.start_idx, 0);
+        assert_eq!(incident.end_idx, 15);
+        assert_eq!(incident.start_time_ms, 0.0);
+        assert_eq!(
+            incident.end_time_ms,
+            ms_plus_c(incident.start_time_ms, 15.0)
+        );
+        assert_eq!(incident.incident_classification, "Instantaneous:Sag");
+    }
+
+    #[test]
+    fn classify_rms_multiple() {
+        let mut data = generate_vrms_waveform(0.5, 15);
+        data.append(&mut generate_vrms_waveform(1.2, 15));
+        let res = classify_rms(0.0, &data);
+        assert_eq!(res.len(), 2);
     }
 }
