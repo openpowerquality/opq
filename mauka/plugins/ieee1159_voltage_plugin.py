@@ -1,3 +1,4 @@
+# pylint: disable=I1101
 """
 This plugin calculates the IEEE 1159 voltage events
 """
@@ -5,12 +6,12 @@ This plugin calculates the IEEE 1159 voltage events
 import typing
 import multiprocessing
 
-import log
-import mongo
-import mauka_native
 import numpy as np
 
 import config
+import log
+import mongo
+import mauka_native
 import plugins.base_plugin
 from plugins.routes import Routes
 import protobuf.mauka_pb2

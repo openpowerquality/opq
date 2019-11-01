@@ -534,7 +534,8 @@ def store_incident(event_id: int,
     mongo_client = get_default_client(opq_mongo_client)
     incident_id = next_available_incident_id(mongo_client)
     location = get_location(box_id, mongo_client)
-    ieee_duration = ieee_duration.value if ieee_duration is not None else get_ieee_duration(end_timestamp_ms - start_timestamp_ms).value
+    ieee_duration = ieee_duration.value if ieee_duration is not None else get_ieee_duration(end_timestamp_ms -
+                                                                                            start_timestamp_ms).value
     expire_at = timestamp_s_plus_s(mongo_client.get_ttl("incidents"))
 
     if copy_data:
