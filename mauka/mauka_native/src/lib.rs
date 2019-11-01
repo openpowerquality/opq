@@ -6,7 +6,8 @@ pub mod arrays;
 pub mod ieee1159_voltage;
 pub mod test_utils;
 
-#[pyclass]
+#[pyclass(dict)]
+#[derive(Debug)]
 struct Ieee1159VoltageIncident {
     pub start_time_ms: f64,
     pub end_time_ms: f64,
@@ -41,6 +42,10 @@ impl Ieee1159VoltageIncident {
     fn incident_classifcation(&self) -> PyResult<String> {
         Ok(self.incident_classification.clone())
     }
+
+    fn __str__(&self) -> PyResult<String> {
+        Ok(format!("{:#?}", self))
+    }
 }
 
 impl From<&ieee1159_voltage::Ieee1159VoltageIncident> for Ieee1159VoltageIncident {
@@ -64,7 +69,7 @@ fn classify_rms(start_ts_ms: f64, data: Vec<f64>) -> PyResult<Vec<Ieee1159Voltag
 }
 
 #[pymodule]
-fn mauka_native(py: Python, m: &PyModule) -> PyResult<()> {
+fn mauka_native(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_wrapped(wrap_pyfunction!(classify_rms))?;
 
     Ok(())
