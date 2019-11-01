@@ -373,6 +373,8 @@ class IncidentClassification(enum.Enum):
     MULTIPLE_ZERO_CROSSING_TRANSIENT = "MULTIPLE_ZERO_CROSSING_TRANSIENT"
     UNDEFINED = "UNDEFINED"
     OUTAGE = "OUTAGE"
+    OVERVOLTAGE = "OVERVOLTAGE"
+    UNDERVOLTAGE = "UNDERVOLTAGE"
 
 
 class IncidentIeeeDuration(enum.Enum):
@@ -512,7 +514,8 @@ def store_incident(event_id: int,
                    annotations: typing.List = None,
                    metadata: typing.Dict = None,
                    opq_mongo_client: OpqMongoClient = None,
-                   copy_data: bool = True) -> int:
+                   copy_data: bool = True,
+                   ieee_duration: typing.Optional[IEEEDuration] = None) -> int:
     """
     Creates and stores an incident in the database.
     :param event_id: The event_id that this incident is associated with.
@@ -531,7 +534,7 @@ def store_incident(event_id: int,
     mongo_client = get_default_client(opq_mongo_client)
     incident_id = next_available_incident_id(mongo_client)
     location = get_location(box_id, mongo_client)
-    ieee_duration = get_ieee_duration(end_timestamp_ms - start_timestamp_ms).value
+    ieee_duration = ieee_duration.value if ieee_duration is not None else get_ieee_duration(end_timestamp_ms - start_timestamp_ms).value
     expire_at = timestamp_s_plus_s(mongo_client.get_ttl("incidents"))
 
     if copy_data:

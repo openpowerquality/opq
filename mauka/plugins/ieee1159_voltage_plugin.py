@@ -5,142 +5,75 @@ This plugin calculates the IEEE 1159 voltage events
 import typing
 import multiprocessing
 
+import log
 import mongo
-import numpy as np
 import mauka_native
+import numpy as np
 
-import analysis
 import config
-import constants
 import plugins.base_plugin
 from plugins.routes import Routes
 import protobuf.mauka_pb2
 import protobuf.pb_util
 
-IEEE_1159_TOLERANCE_RANGES = [
-    [analysis.percent_nominal_to_rms(0.0), analysis.percent_nominal_to_rms(0.1)], # 0
-    [analysis.percent_nominal_to_rms(0.1), analysis.percent_nominal_to_rms(0.9)], # 1
-    [analysis.percent_nominal_to_rms(0.8), analysis.percent_nominal_to_rms(0.9)], # 2
-    [analysis.percent_nominal_to_rms(1.1), analysis.percent_nominal_to_rms(1.2)], # 3
-    [analysis.percent_nominal_to_rms(1.1), analysis.percent_nominal_to_rms(1.4)], # 4
-    [analysis.percent_nominal_to_rms(1.1), analysis.percent_nominal_to_rms(1.8)], # 5
-]
 
-class Ieee1159Incident:
-    def __init__(self,
-                 payload: protobuf.mauka_pb2.Payload,
-                 segment_start_cycles: float,
-                 incident_start_cycles: float,
-                 incident_end_cycles: float,
-                 incident_classification: mongo.IncidentClassification):
-        self.payload = payload
-        self.incident_start_idx = segment_start_cycles + incident_start_cycles
-        self.incident_end_idx = segment_start_cycles + incident_end_cycles
-        self.incident_classification = incident_classification
+INCIDENT_MAP = {
+    "Momentary:Interruption": mongo.IncidentClassification.VOLTAGE_INTERRUPTION,
+    "Temporary:Interruption": mongo.IncidentClassification.VOLTAGE_INTERRUPTION,
+    "Instantaneous:Sag": mongo.IncidentClassification.VOLTAGE_SAG,
+    "Momentary:Sag": mongo.IncidentClassification.VOLTAGE_SAG,
+    "Temporary:Sag": mongo.IncidentClassification.VOLTAGE_SAG,
+    "Instantaneous:Swell": mongo.IncidentClassification.VOLTAGE_SWELL,
+    "Momentary:Swell": mongo.IncidentClassification.VOLTAGE_SWELL,
+    "Temporary:Swell": mongo.IncidentClassification.VOLTAGE_SWELL,
+    "Overvoltage": mongo.IncidentClassification.OVERVOLTAGE,
+    "Undervoltage": mongo.IncidentClassification.UNDERVOLTAGE
+}
 
-    def store_incident(self, opq_mongo_client: mongo.OpqMongoClient) -> int:
-        return mongo.store_incident(
-                self.payload.event_id,
-                self.payload.box_id,
-                self.payload.start_timestamp_ms + analysis.c_to_ms(self.incident_start_idx),
-                self.payload.start_timestamp_ms + analysis.c_to_ms(self.incident_end_idx),
-                mongo.IncidentMeasurementType.VOLTAGE,
-                -1,
-                [self.incident_classification],
-                [],
-                {},
-                opq_mongo_client
-        )
-
-def check_range(r: typing.List[float],
-                min_cycles: float,
-                max_cycles: float) -> typing.List[typing.List[float]]:
-    res = []
-    for i in range(1, len(r), 2):
-        len_cycles = r[i] - r[i - 1] + 1
-        if min_cycles <= len_cycles <= max_cycles:
-            res.append([r[i - 1], r[i]])
-
-    return res
-
-def classify_incidents(mauka_message: protobuf.mauka_pb2.MaukaMessage,
-                       opq_mongo_client: mongo.OpqMongoClient,
-                       incident_indicies: typing.List[typing.List[float]],
-                       segment_start_c: float,
-                       incident_type: mongo.IncidentClassification) -> typing.List[Ieee1159Incident]:
-
-    incidents = []
-
-    for indicies in incident_indicies:
-        start_idx = indicies[0]
-        end_idx = indicies[1]
-        start_c = segment_start_c + start_idx
-        end_c = segment_start_c + end_idx
-
-    return incidents
-
+DURATION_MAP = {
+    "Momentary:Interruption": mongo.IEEEDuration.MOMENTARY,
+    "Temporary:Interruption": mongo.IEEEDuration.TEMPORARY,
+    "Instantaneous:Sag": mongo.IEEEDuration.INSTANTANEOUS,
+    "Momentary:Sag": mongo.IEEEDuration.MOMENTARY,
+    "Temporary:Sag": mongo.IEEEDuration.TEMPORARY,
+    "Instantaneous:Swell": mongo.IEEEDuration.INSTANTANEOUS,
+    "Momentary:Swell": mongo.IEEEDuration.MOMENTARY,
+    "Temporary:Swell": mongo.IEEEDuration.TEMPORARY,
+    "Overvoltage": mongo.IEEEDuration.SUSTAINED,
+    "Undervoltage": mongo.IEEEDuration.SUSTAINED
+}
 
 
 def ieee1159_voltage(mauka_message: protobuf.mauka_pb2.MaukaMessage,
-                     rms_features: np.ndarray,
-                     opq_mongo_client: mongo.OpqMongoClient = None) -> typing.List[int]:
+                     opq_mongo_client: mongo.OpqMongoClient,
+                     ieee1159_voltage_plugin: typing.Optional['Ieee1159VoltagePlugin'] = None) -> typing.List[int]:
     """
     Calculate the ieee1159 voltage incidents and add them to the mongo database
     """
-    # incidents, cycle_offsets = classify_ieee1159_voltage(rms_features)
-    incident_ids = []
-    segments = analysis.segment_array(rms_features)
+    data: typing.List[float] = list(mauka_message.payload.data)
+    log.maybe_debug("Found %d Vrms values." % len(data), ieee1159_voltage_plugin)
+    incidents = mauka_native.classify_rms(mauka_message.payload.start_timestamp_ms, data)
+    log.maybe_debug("Found %d Incidents." % len(incidents), ieee1159_voltage_plugin)
+    incident_ids: typing.List[int] = []
+    array_data: np.ndarray = np.array(data)
+    array_data = array_data - 120.0
 
-    for idx, segment in enumerate(segments):
-        ranges = mauka_native.ranges(list(segment), IEEE_1159_TOLERANCE_RANGES)
-        segment_start_c = [len(segments[i]) for i in range(idx)]
-
-        # Instantaneous sag 0.5 - 30 cycles 0.1 - 0.9 pu
-        vals = check_range(ranges[1], 0.5, 30)
-
-        # Instantaneous swell 0.5 - 30 cycles 1.1 - 1.8 pu
-        vals = check_range(ranges[5], 0.5, 30)
-
-        # Momentary interruption 0.5 cycles - 3s 0.0 - 0.1 pu
-        vals = check_range(ranges[0], 0.5, analysis.ms_to_c(3_000))
-
-        # Momentary sag 30 cycles to 3s 0.1 - 0.9 pu
-        vals = check_range(ranges[1], 30, analysis.ms_to_c(3_000))
-
-        # Momentary swell 30 cycles to 3s 1.1 - 1.4 pu
-        vals = check_range(ranges[4], 30, analysis.ms_to_c(3_000))
-
-        # Temporary interruption 3s to 1m 0.0 - 0.1 pu
-        vals = check_range(ranges[0], analysis.ms_to_c(3_000), analysis.ms_to_c(60_000))
-
-        # Temporary sag 3s to 1m 0.1 - 0.9 pu
-        vals = check_range(ranges[1], analysis.ms_to_c(3_000), analysis.ms_to_c(60_000))
-
-        # Temporary swell 3s to 1m 1.1 - 1.2 pu
-        vals = check_range(ranges[3], analysis.ms_to_c(3_000), analysis.ms_to_c(60_000))
-
-        # Undervoltage 1m - inf, 0.8 - 0.9 pu
-        vals = check_range(ranges[2], analysis.ms_to_c(60_000), analysis.ms_to_c(60_000 * 60 * 60 * 24))
-
-        # Overvoltage 1m - inf 1.1 - 1.2 pu
-        vals = check_range(ranges[3], analysis.ms_to_c(60_000), analysis.ms_to_c(60_000 * 60 * 60 * 24))
-
-
-
-        # incident_id = mongo.store_incident(
-        #     mauka_message.payload.event_id,
-        #     mauka_message.payload.box_id,
-        #     mauka_message.payload.start_timestamp_ms + analysis.c_to_ms(start_idx),
-        #     mauka_message.payload.start_timestamp_ms + analysis.c_to_ms(end_idx),
-        #     mongo.IncidentMeasurementType.VOLTAGE,
-        #     max_deviation,
-        #     [incident],
-        #     [],
-        #     {},
-        #     opq_mongo_client
-        # )
-        #
-        # incident_ids.append(incident_id)
+    for incident in incidents:
+        incident_id = mongo.store_incident(
+            mauka_message.payload.event_id,
+            mauka_message.payload.box_id,
+            incident.start_time_ms,
+            incident.end_time_ms,
+            mongo.IncidentMeasurementType.VOLTAGE,
+            max(np.abs(array_data.min()), np.abs(array_data.max())),
+            [INCIDENT_MAP[incident.incident_classification]],
+            [],
+            {},
+            opq_mongo_client,
+            ieee_duration=DURATION_MAP[incident.incident_classification]
+        )
+        log.maybe_debug("Stored incident with id=%s" % incident_id, ieee1159_voltage_plugin)
+        incident_ids.append(incident_id)
 
     return incident_ids
 
@@ -167,19 +100,13 @@ class Ieee1159VoltagePlugin(plugins.base_plugin.MaukaPlugin):
         """
         self.debug("on_message")
         if protobuf.pb_util.is_payload(mauka_message, protobuf.mauka_pb2.VOLTAGE_RMS_WINDOWED):
-            incident_ids = ieee1159_voltage(mauka_message,
-                                            protobuf.pb_util.repeated_as_ndarray(
-                                                mauka_message.payload.data
-                                            ),
-                                            self.mongo_client)
-            # for incident_id in incident_ids:
-            #     # Produce a message to the GC
-            #     self.produce(Routes.laha_gc, protobuf.pb_util.build_gc_update(self.name,
-            #                                                                   protobuf.mauka_pb2.INCIDENTS,
-            #                                                                   incident_id))
+            incident_ids = ieee1159_voltage(mauka_message, self.mongo_client)
+            for incident_id in incident_ids:
+                # Produce a message to the GC
+                self.produce(Routes.laha_gc, protobuf.pb_util.build_gc_update(self.name,
+                                                                              protobuf.mauka_pb2.INCIDENTS,
+                                                                              incident_id))
 
         else:
             self.logger.error("Received incorrect mauka message [%s] at IticPlugin",
                               protobuf.pb_util.which_message_oneof(mauka_message))
-
-if __name
