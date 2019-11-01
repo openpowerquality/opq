@@ -101,7 +101,7 @@ class Ieee1159VoltagePlugin(plugins.base_plugin.MaukaPlugin):
         """
         self.debug("on_message")
         if protobuf.pb_util.is_payload(mauka_message, protobuf.mauka_pb2.VOLTAGE_RMS_WINDOWED):
-            incident_ids = ieee1159_voltage(mauka_message, self.mongo_client)
+            incident_ids = ieee1159_voltage(mauka_message, self.mongo_client, self)
             for incident_id in incident_ids:
                 # Produce a message to the GC
                 self.produce(Routes.laha_gc, protobuf.pb_util.build_gc_update(self.name,
