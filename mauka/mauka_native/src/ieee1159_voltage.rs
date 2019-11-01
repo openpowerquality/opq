@@ -6,7 +6,7 @@ use std::collections::HashMap;
 fn bound_map() -> HashMap<Bound, Vec<(CycleRange, String)>> {
     let mut bmap: HashMap<Bound, Vec<(CycleRange, String)>> = HashMap::new();
     bmap.insert(
-        Bound::new(0.0, 0.1, Some(&pu_to_rms)),
+        Bound::new(0.0, 0.1, Some(&pu_to_rms)).set_lt_max(),
         vec![
             (
                 CycleRange::from_c_s(0.5, 3.0),
@@ -154,7 +154,12 @@ fn classify_range(
     bound_map: &HashMap<Bound, Vec<(CycleRange, String)>>,
 ) -> Option<Ieee1159VoltageIncident> {
     match bound_map.get(&range.bound) {
-        None => None,
+        None => {
+            println!("{:#?}", range);
+            println!("No cycle range found");
+            println!("{:#?}", bound_map);
+            None
+        }
         Some(cycle_ranges) => {
             let mut res = vec![];
             for (cycle_range, incident_classification) in cycle_ranges {
@@ -181,7 +186,8 @@ fn classify_range(
 mod tests {
     use crate::analysis::*;
     use crate::arrays::{Bound, Range};
-    use crate::ieee1159_voltage::{bound_map, classify_range, CycleRange};
+    use crate::ieee1159_voltage::{bound_map, classify_range, classify_rms, CycleRange};
+    use crate::test_utils::generate_vrms_waveform;
 
     #[test]
     fn cycle_range_create_new() {
@@ -720,5 +726,533 @@ mod tests {
 
         let incident = res.unwrap();
         assert_ne!(&incident.incident_classification, "Overvoltage");
+    }
+
+    #[test]
+    fn classify_rms_instantaneous_sag() {
+        let data = generate_vrms_waveform(0.1, 1);
+        let res = classify_rms(0.0, &data);
+        let incident = res.get(0).unwrap();
+
+        assert_eq!(incident.start_time_ms, c_to_ms(60.0));
+        assert_eq!(incident.end_time_ms, ms_plus_c(incident.start_time_ms, 1.0));
+        assert_eq!(incident.start_idx, 60);
+        assert_eq!(incident.end_idx, 61);
+        assert_eq!(incident.incident_classification, "Instantaneous:Sag");
+
+        let data = generate_vrms_waveform(0.9, 1);
+        let res = classify_rms(0.0, &data);
+        let incident = res.get(0).unwrap();
+
+        assert_eq!(incident.start_time_ms, c_to_ms(60.0));
+        assert_eq!(incident.end_time_ms, ms_plus_c(incident.start_time_ms, 1.0));
+        assert_eq!(incident.start_idx, 60);
+        assert_eq!(incident.end_idx, 61);
+        assert_eq!(incident.incident_classification, "Instantaneous:Sag");
+
+        let data = generate_vrms_waveform(0.1, 29);
+        let res = classify_rms(0.0, &data);
+        let incident = res.get(0).unwrap();
+
+        assert_eq!(incident.start_time_ms, c_to_ms(60.0));
+        assert_eq!(
+            incident.end_time_ms,
+            ms_plus_c(incident.start_time_ms, 29.0)
+        );
+        assert_eq!(incident.start_idx, 60);
+        assert_eq!(incident.end_idx, 89);
+        assert_eq!(incident.incident_classification, "Instantaneous:Sag");
+
+        let data = generate_vrms_waveform(0.9, 29);
+        let res = classify_rms(0.0, &data);
+        let incident = res.get(0).unwrap();
+
+        assert_eq!(incident.start_time_ms, c_to_ms(60.0));
+        assert_eq!(
+            incident.end_time_ms,
+            ms_plus_c(incident.start_time_ms, 29.0)
+        );
+        assert_eq!(incident.start_idx, 60);
+        assert_eq!(incident.end_idx, 89);
+        assert_eq!(incident.incident_classification, "Instantaneous:Sag");
+    }
+
+    #[test]
+    fn classify_rms_instantaneous_swell() {
+        let data = generate_vrms_waveform(1.1, 1);
+        let res = classify_rms(0.0, &data);
+        let incident = res.get(0).unwrap();
+
+        assert_eq!(incident.start_time_ms, c_to_ms(60.0));
+        assert_eq!(incident.end_time_ms, ms_plus_c(incident.start_time_ms, 1.0));
+        assert_eq!(incident.start_idx, 60);
+        assert_eq!(incident.end_idx, 61);
+        assert_eq!(incident.incident_classification, "Instantaneous:Swell");
+
+        let data = generate_vrms_waveform(1.8, 1);
+        let res = classify_rms(0.0, &data);
+        let incident = res.get(0).unwrap();
+
+        assert_eq!(incident.start_time_ms, c_to_ms(60.0));
+        assert_eq!(incident.end_time_ms, ms_plus_c(incident.start_time_ms, 1.0));
+        assert_eq!(incident.start_idx, 60);
+        assert_eq!(incident.end_idx, 61);
+        assert_eq!(incident.incident_classification, "Instantaneous:Swell");
+
+        let data = generate_vrms_waveform(1.1, 29);
+        let res = classify_rms(0.0, &data);
+        let incident = res.get(0).unwrap();
+
+        assert_eq!(incident.start_time_ms, c_to_ms(60.0));
+        assert_eq!(
+            incident.end_time_ms,
+            ms_plus_c(incident.start_time_ms, 29.0)
+        );
+        assert_eq!(incident.start_idx, 60);
+        assert_eq!(incident.end_idx, 89);
+        assert_eq!(incident.incident_classification, "Instantaneous:Swell");
+
+        let data = generate_vrms_waveform(1.8, 29);
+        let res = classify_rms(0.0, &data);
+        let incident = res.get(0).unwrap();
+
+        assert_eq!(incident.start_time_ms, c_to_ms(60.0));
+        assert_eq!(
+            incident.end_time_ms,
+            ms_plus_c(incident.start_time_ms, 29.0)
+        );
+        assert_eq!(incident.start_idx, 60);
+        assert_eq!(incident.end_idx, 89);
+        assert_eq!(incident.incident_classification, "Instantaneous:Swell");
+    }
+
+    #[test]
+    fn classify_rms_momentary_interruption() {
+        let data = generate_vrms_waveform(0.0, 1);
+        let res = classify_rms(0.0, &data);
+        let incident = res.get(0).unwrap();
+
+        assert_eq!(incident.start_time_ms, c_to_ms(60.0));
+        assert_eq!(incident.end_time_ms, ms_plus_c(incident.start_time_ms, 1.0));
+        assert_eq!(incident.start_idx, 60);
+        assert_eq!(incident.end_idx, 61);
+        assert_eq!(incident.incident_classification, "Momentary:Interruption");
+
+        let data = generate_vrms_waveform(0.09, 1);
+        let res = classify_rms(0.0, &data);
+        let incident = res.get(0).unwrap();
+
+        assert_eq!(incident.start_time_ms, c_to_ms(60.0));
+        assert_eq!(incident.end_time_ms, ms_plus_c(incident.start_time_ms, 1.0));
+        assert_eq!(incident.start_idx, 60);
+        assert_eq!(incident.end_idx, 61);
+        assert_eq!(incident.incident_classification, "Momentary:Interruption");
+
+        let data = generate_vrms_waveform(0.0, 30);
+        let res = classify_rms(0.0, &data);
+        let incident = res.get(0).unwrap();
+
+        assert_eq!(incident.start_time_ms, c_to_ms(60.0));
+        assert_eq!(
+            incident.end_time_ms,
+            ms_plus_c(incident.start_time_ms, 30.0)
+        );
+        assert_eq!(incident.start_idx, 60);
+        assert_eq!(incident.end_idx, 90);
+        assert_eq!(incident.incident_classification, "Momentary:Interruption");
+
+        let data = generate_vrms_waveform(0.09, 30);
+        let res = classify_rms(0.0, &data);
+        let incident = res.get(0).unwrap();
+
+        assert_eq!(incident.start_time_ms, c_to_ms(60.0));
+        assert_eq!(
+            incident.end_time_ms,
+            ms_plus_c(incident.start_time_ms, 30.0)
+        );
+        assert_eq!(incident.start_idx, 60);
+        assert_eq!(incident.end_idx, 90);
+        assert_eq!(incident.incident_classification, "Momentary:Interruption");
+    }
+
+    #[test]
+    fn classify_rms_momentary_sag() {
+        let data = generate_vrms_waveform(0.1, 30);
+        let res = classify_rms(0.0, &data);
+        let incident = res.get(0).unwrap();
+
+        assert_eq!(incident.start_time_ms, c_to_ms(60.0));
+        assert_eq!(
+            incident.end_time_ms,
+            ms_plus_c(incident.start_time_ms, 30.0)
+        );
+        assert_eq!(incident.start_idx, 60);
+        assert_eq!(incident.end_idx, 90);
+        assert_eq!(incident.incident_classification, "Momentary:Sag");
+
+        let data = generate_vrms_waveform(0.9, 30);
+        let res = classify_rms(0.0, &data);
+        let incident = res.get(0).unwrap();
+
+        assert_eq!(incident.start_time_ms, c_to_ms(60.0));
+        assert_eq!(
+            incident.end_time_ms,
+            ms_plus_c(incident.start_time_ms, 30.0)
+        );
+        assert_eq!(incident.start_idx, 60);
+        assert_eq!(incident.end_idx, 90);
+        assert_eq!(incident.incident_classification, "Momentary:Sag");
+
+        let data = generate_vrms_waveform(0.1, s_to_c(3.0) as usize);
+        let res = classify_rms(0.0, &data);
+        let incident = res.get(0).unwrap();
+
+        assert_eq!(incident.start_time_ms, c_to_ms(60.0));
+        assert_eq!(
+            incident.end_time_ms,
+            ms_plus_c(incident.start_time_ms, s_to_c(3.0))
+        );
+        assert_eq!(incident.start_idx, 60);
+        assert_eq!(incident.end_idx, incident.start_idx + s_to_c(3.0) as usize);
+        assert_eq!(incident.incident_classification, "Momentary:Sag");
+
+        let data = generate_vrms_waveform(0.9, s_to_c(3.0) as usize);
+        let res = classify_rms(0.0, &data);
+        let incident = res.get(0).unwrap();
+
+        assert_eq!(incident.start_time_ms, c_to_ms(60.0));
+        assert_eq!(
+            incident.end_time_ms,
+            ms_plus_c(incident.start_time_ms, s_to_c(3.0))
+        );
+        assert_eq!(incident.start_idx, 60);
+        assert_eq!(incident.end_idx, incident.start_idx + s_to_c(3.0) as usize);
+        assert_eq!(incident.incident_classification, "Momentary:Sag");
+    }
+
+    #[test]
+    fn classify_rms_momentary_swell() {
+        let data = generate_vrms_waveform(1.1, 30);
+        let res = classify_rms(0.0, &data);
+        let incident = res.get(0).unwrap();
+
+        assert_eq!(incident.start_time_ms, c_to_ms(60.0));
+        assert_eq!(
+            incident.end_time_ms,
+            ms_plus_c(incident.start_time_ms, 30.0)
+        );
+        assert_eq!(incident.start_idx, 60);
+        assert_eq!(incident.end_idx, 90);
+        assert_eq!(incident.incident_classification, "Momentary:Swell");
+
+        let data = generate_vrms_waveform(1.4, 30);
+        let res = classify_rms(0.0, &data);
+        let incident = res.get(0).unwrap();
+
+        assert_eq!(incident.start_time_ms, c_to_ms(60.0));
+        assert_eq!(
+            incident.end_time_ms,
+            ms_plus_c(incident.start_time_ms, 30.0)
+        );
+        assert_eq!(incident.start_idx, 60);
+        assert_eq!(incident.end_idx, 90);
+        assert_eq!(incident.incident_classification, "Momentary:Swell");
+
+        let data = generate_vrms_waveform(1.1, s_to_c(3.0) as usize);
+        let res = classify_rms(0.0, &data);
+        let incident = res.get(0).unwrap();
+
+        assert_eq!(incident.start_time_ms, c_to_ms(60.0));
+        assert_eq!(
+            incident.end_time_ms,
+            ms_plus_c(incident.start_time_ms, s_to_c(3.0))
+        );
+        assert_eq!(incident.start_idx, 60);
+        assert_eq!(incident.end_idx, incident.start_idx + s_to_c(3.0) as usize);
+        assert_eq!(incident.incident_classification, "Momentary:Swell");
+
+        let data = generate_vrms_waveform(1.4, s_to_c(3.0) as usize);
+        let res = classify_rms(0.0, &data);
+        let incident = res.get(0).unwrap();
+
+        assert_eq!(incident.start_time_ms, c_to_ms(60.0));
+        assert_eq!(
+            incident.end_time_ms,
+            ms_plus_c(incident.start_time_ms, s_to_c(3.0))
+        );
+        assert_eq!(incident.start_idx, 60);
+        assert_eq!(incident.end_idx, incident.start_idx + s_to_c(3.0) as usize);
+        assert_eq!(incident.incident_classification, "Momentary:Swell");
+    }
+
+    #[test]
+    fn classify_rms_temporary_interruption() {
+        let data = generate_vrms_waveform(0.0, (s_to_c(3.0) + 1.0) as usize);
+        let res = classify_rms(0.0, &data);
+        let incident = res.get(0).unwrap();
+
+        assert_eq!(incident.start_time_ms, c_to_ms(60.0));
+        assert_eq!(
+            incident.end_time_ms,
+            ms_plus_c(incident.start_time_ms, s_to_c(3.0) + 1.0)
+        );
+        assert_eq!(incident.start_idx, 60);
+        assert_eq!(
+            incident.end_idx,
+            incident.start_idx + (s_to_c(3.0) + 1.0) as usize
+        );
+        assert_eq!(incident.incident_classification, "Temporary:Interruption");
+
+        let data = generate_vrms_waveform(0.09, (s_to_c(3.0) + 1.0) as usize);
+        let res = classify_rms(0.0, &data);
+        let incident = res.get(0).unwrap();
+
+        assert_eq!(incident.start_time_ms, c_to_ms(60.0));
+        assert_eq!(
+            incident.end_time_ms,
+            ms_plus_c(incident.start_time_ms, s_to_c(3.0) + 1.0)
+        );
+        assert_eq!(incident.start_idx, 60);
+        assert_eq!(
+            incident.end_idx,
+            incident.start_idx + (s_to_c(3.0) + 1.0) as usize
+        );
+        assert_eq!(incident.incident_classification, "Temporary:Interruption");
+
+        let data = generate_vrms_waveform(0.0, (s_to_c(60.0)) as usize);
+        let res = classify_rms(0.0, &data);
+        let incident = res.get(0).unwrap();
+
+        assert_eq!(incident.start_time_ms, c_to_ms(60.0));
+        assert_eq!(
+            incident.end_time_ms,
+            ms_plus_c(incident.start_time_ms, s_to_c(60.0))
+        );
+        assert_eq!(incident.start_idx, 60);
+        assert_eq!(
+            incident.end_idx,
+            incident.start_idx + (s_to_c(60.0)) as usize
+        );
+        assert_eq!(incident.incident_classification, "Temporary:Interruption");
+
+        let data = generate_vrms_waveform(0.09, (s_to_c(60.0)) as usize);
+        let res = classify_rms(0.0, &data);
+        let incident = res.get(0).unwrap();
+
+        assert_eq!(incident.start_time_ms, c_to_ms(60.0));
+        assert_eq!(
+            incident.end_time_ms,
+            ms_plus_c(incident.start_time_ms, s_to_c(60.0))
+        );
+        assert_eq!(incident.start_idx, 60);
+        assert_eq!(
+            incident.end_idx,
+            incident.start_idx + (s_to_c(60.0)) as usize
+        );
+        assert_eq!(incident.incident_classification, "Temporary:Interruption");
+    }
+
+    #[test]
+    fn classify_rms_temporary_sag() {
+        let data = generate_vrms_waveform(0.1, (s_to_c(3.0) + 1.0) as usize);
+        let res = classify_rms(0.0, &data);
+        let incident = res.get(0).unwrap();
+
+        assert_eq!(incident.start_time_ms, c_to_ms(60.0));
+        assert_eq!(
+            incident.end_time_ms,
+            ms_plus_c(incident.start_time_ms, s_to_c(3.0) + 1.0)
+        );
+        assert_eq!(incident.start_idx, 60);
+        assert_eq!(
+            incident.end_idx,
+            incident.start_idx + (s_to_c(3.0) + 1.0) as usize
+        );
+        assert_eq!(incident.incident_classification, "Temporary:Sag");
+
+        let data = generate_vrms_waveform(0.9, (s_to_c(3.0) + 1.0) as usize);
+        let res = classify_rms(0.0, &data);
+        let incident = res.get(0).unwrap();
+
+        assert_eq!(incident.start_time_ms, c_to_ms(60.0));
+        assert_eq!(
+            incident.end_time_ms,
+            ms_plus_c(incident.start_time_ms, s_to_c(3.0) + 1.0)
+        );
+        assert_eq!(incident.start_idx, 60);
+        assert_eq!(
+            incident.end_idx,
+            incident.start_idx + (s_to_c(3.0) + 1.0) as usize
+        );
+        assert_eq!(incident.incident_classification, "Temporary:Sag");
+
+        let data = generate_vrms_waveform(0.1, (s_to_c(60.0)) as usize);
+        let res = classify_rms(0.0, &data);
+        let incident = res.get(0).unwrap();
+
+        assert_eq!(incident.start_time_ms, c_to_ms(60.0));
+        assert_eq!(
+            incident.end_time_ms,
+            ms_plus_c(incident.start_time_ms, s_to_c(60.0))
+        );
+        assert_eq!(incident.start_idx, 60);
+        assert_eq!(
+            incident.end_idx,
+            incident.start_idx + (s_to_c(60.0)) as usize
+        );
+        assert_eq!(incident.incident_classification, "Temporary:Sag");
+
+        let data = generate_vrms_waveform(0.9, (s_to_c(60.0)) as usize);
+        let res = classify_rms(0.0, &data);
+        let incident = res.get(0).unwrap();
+
+        assert_eq!(incident.start_time_ms, c_to_ms(60.0));
+        assert_eq!(
+            incident.end_time_ms,
+            ms_plus_c(incident.start_time_ms, s_to_c(60.0))
+        );
+        assert_eq!(incident.start_idx, 60);
+        assert_eq!(
+            incident.end_idx,
+            incident.start_idx + (s_to_c(60.0)) as usize
+        );
+        assert_eq!(incident.incident_classification, "Temporary:Sag");
+    }
+
+    #[test]
+    fn classify_rms_temporary_swell() {
+        let data = generate_vrms_waveform(1.1, (s_to_c(3.0) + 1.0) as usize);
+        let res = classify_rms(0.0, &data);
+        let incident = res.get(0).unwrap();
+
+        assert_eq!(incident.start_time_ms, c_to_ms(60.0));
+        assert_eq!(
+            incident.end_time_ms,
+            ms_plus_c(incident.start_time_ms, s_to_c(3.0) + 1.0)
+        );
+        assert_eq!(incident.start_idx, 60);
+        assert_eq!(
+            incident.end_idx,
+            incident.start_idx + (s_to_c(3.0) + 1.0) as usize
+        );
+        assert_eq!(incident.incident_classification, "Temporary:Swell");
+
+        let data = generate_vrms_waveform(1.2, (s_to_c(3.0) + 1.0) as usize);
+        let res = classify_rms(0.0, &data);
+        let incident = res.get(0).unwrap();
+
+        assert_eq!(incident.start_time_ms, c_to_ms(60.0));
+        assert_eq!(
+            incident.end_time_ms,
+            ms_plus_c(incident.start_time_ms, s_to_c(3.0) + 1.0)
+        );
+        assert_eq!(incident.start_idx, 60);
+        assert_eq!(
+            incident.end_idx,
+            incident.start_idx + (s_to_c(3.0) + 1.0) as usize
+        );
+        assert_eq!(incident.incident_classification, "Temporary:Swell");
+
+        let data = generate_vrms_waveform(1.1, (s_to_c(60.0)) as usize);
+        let res = classify_rms(0.0, &data);
+        let incident = res.get(0).unwrap();
+
+        assert_eq!(incident.start_time_ms, c_to_ms(60.0));
+        assert_eq!(
+            incident.end_time_ms,
+            ms_plus_c(incident.start_time_ms, s_to_c(60.0))
+        );
+        assert_eq!(incident.start_idx, 60);
+        assert_eq!(
+            incident.end_idx,
+            incident.start_idx + (s_to_c(60.0)) as usize
+        );
+        assert_eq!(incident.incident_classification, "Temporary:Swell");
+
+        let data = generate_vrms_waveform(1.2, (s_to_c(60.0)) as usize);
+        let res = classify_rms(0.0, &data);
+        let incident = res.get(0).unwrap();
+
+        assert_eq!(incident.start_time_ms, c_to_ms(60.0));
+        assert_eq!(
+            incident.end_time_ms,
+            ms_plus_c(incident.start_time_ms, s_to_c(60.0))
+        );
+        assert_eq!(incident.start_idx, 60);
+        assert_eq!(
+            incident.end_idx,
+            incident.start_idx + (s_to_c(60.0)) as usize
+        );
+        assert_eq!(incident.incident_classification, "Temporary:Swell");
+    }
+
+    #[test]
+    fn classify_rms_undervoltage() {
+        let data = generate_vrms_waveform(0.8, (s_to_c(60.0) + 1.0) as usize);
+        let res = classify_rms(0.0, &data);
+        let incident = res.get(0).unwrap();
+
+        assert_eq!(incident.start_time_ms, c_to_ms(60.0));
+        assert_eq!(
+            incident.end_time_ms,
+            ms_plus_c(incident.start_time_ms, s_to_c(60.0) + 1.0)
+        );
+        assert_eq!(incident.start_idx, 60);
+        assert_eq!(
+            incident.end_idx,
+            incident.start_idx + (s_to_c(60.0) + 1.0) as usize
+        );
+        assert_eq!(incident.incident_classification, "Undervoltage");
+
+        let data = generate_vrms_waveform(0.9, (s_to_c(60.0) + 1.0) as usize);
+        let res = classify_rms(0.0, &data);
+        let incident = res.get(0).unwrap();
+
+        assert_eq!(incident.start_time_ms, c_to_ms(60.0));
+        assert_eq!(
+            incident.end_time_ms,
+            ms_plus_c(incident.start_time_ms, s_to_c(60.0) + 1.0)
+        );
+        assert_eq!(incident.start_idx, 60);
+        assert_eq!(
+            incident.end_idx,
+            incident.start_idx + (s_to_c(60.0) + 1.0) as usize
+        );
+        assert_eq!(incident.incident_classification, "Undervoltage");
+    }
+
+    #[test]
+    fn classify_rms_overvoltage() {
+        let data = generate_vrms_waveform(1.1, (s_to_c(60.0) + 1.0) as usize);
+        let res = classify_rms(0.0, &data);
+        let incident = res.get(0).unwrap();
+
+        assert_eq!(incident.start_time_ms, c_to_ms(60.0));
+        assert_eq!(
+            incident.end_time_ms,
+            ms_plus_c(incident.start_time_ms, s_to_c(60.0) + 1.0)
+        );
+        assert_eq!(incident.start_idx, 60);
+        assert_eq!(
+            incident.end_idx,
+            incident.start_idx + (s_to_c(60.0) + 1.0) as usize
+        );
+        assert_eq!(incident.incident_classification, "Overvoltage");
+
+        let data = generate_vrms_waveform(1.2, (s_to_c(60.0) + 1.0) as usize);
+        let res = classify_rms(0.0, &data);
+        let incident = res.get(0).unwrap();
+
+        assert_eq!(incident.start_time_ms, c_to_ms(60.0));
+        assert_eq!(
+            incident.end_time_ms,
+            ms_plus_c(incident.start_time_ms, s_to_c(60.0) + 1.0)
+        );
+        assert_eq!(incident.start_idx, 60);
+        assert_eq!(
+            incident.end_idx,
+            incident.start_idx + (s_to_c(60.0) + 1.0) as usize
+        );
+        assert_eq!(incident.incident_classification, "Overvoltage");
     }
 }

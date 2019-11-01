@@ -7,14 +7,31 @@ pub struct Bound {
     pub key: String,
     pub min: f64,
     pub max: f64,
+    lt_max: bool,
 }
 
 impl Bound {
     pub fn new(min: f64, max: f64, value_transform: Option<&dyn Fn(f64) -> f64>) -> Bound {
+        let min = value_transform.map(|f| f(min)).unwrap_or(min);
+        let max = value_transform.map(|f| f(max)).unwrap_or(max);
         Bound {
             key: format!("{},{}", min, max),
-            min: value_transform.map(|f| f(min)).unwrap_or(min),
-            max: value_transform.map(|f| f(max)).unwrap_or(max),
+            min,
+            max,
+            lt_max: false,
+        }
+    }
+
+    pub fn set_lt_max(mut self) -> Self {
+        self.lt_max = true;
+        self
+    }
+
+    pub fn contains(&self, v: f64) -> bool {
+        if self.lt_max {
+            v >= self.min && v < self.max
+        } else {
+            v >= self.min && v <= self.max
         }
     }
 }
@@ -87,7 +104,7 @@ pub fn bounded_ranges(start_ts_ms: f64, data: &Vec<f64>, bounds: &Vec<&Bound>) -
 
     for (i, v) in data.iter().enumerate() {
         for bound in bounds {
-            if *v >= bound.min && *v <= bound.max {
+            if bound.contains(*v) {
                 range_map.entry(bound).or_insert_with(|| {
                     Range::new(bound.min, bound.max, i, ms_plus_c(start_ts_ms, i as f64))
                 });

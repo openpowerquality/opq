@@ -1,6 +1,6 @@
 use crate::analysis::*;
 
-fn generate_vrms_waveform(pu: f64, c: usize) -> Vec<f64> {
+pub fn generate_vrms_waveform(pu: f64, c: usize) -> Vec<f64> {
     // Start every waveform with 60 cycles of nominal
     let mut wf: Vec<f64> = (0..60).map(|_| 120.0).collect();
 
