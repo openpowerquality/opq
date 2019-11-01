@@ -188,7 +188,6 @@ mod tests {
     use crate::arrays::{Bound, Range};
     use crate::ieee1159_voltage::{bound_map, classify_range, classify_rms, CycleRange};
     use crate::test_utils::{generate_vrms_waveform, generate_vrms_waveform_detailed};
-    use std::iter::FromIterator;
 
     #[test]
     fn cycle_range_create_new() {
