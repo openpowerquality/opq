@@ -27,11 +27,74 @@ def ms_to_sample(ms: float) -> float:
 def sample_to_ms(sample: int) -> float:
     return sample / 12.0
 
+
 def sample_to_us(sample: int) -> float:
     return sample / 12_000.0
 
+
 def ms_to_us(ms: float) -> float:
     return ms * 1000.0
+
+
+def plot_single_event(event_id: int,
+                      report_dir: str,
+                      mongo_client: pymongo.MongoClient,
+                      box_id: str,
+                      range_samples: typing.Optional[typing.Tuple[float, float]] = None):
+    fs = gridfs.GridFS(mongo_client.opq)
+    box_events_coll: pymongo.collection.Collection = mongo_client.opq.box_events
+    query = {"event_id": event_id,
+             "box_id": box_id}
+    projection = {"_id": False,
+                  "box_id": True,
+                  "event_id": True,
+                  "data_fs_filename": True,
+                  "event_start_timestamp_ms": True}
+
+    box_event = box_events_coll.find_one(query, projection=projection)
+
+    if box_event is not None:
+        fig, ax = plt.subplots(1, 1, figsize=(16, 9))
+        event_start_ms = box_event["event_start_timestamp_ms"]
+        calib_constant = mongo_client.opq.opq_boxes.find_one({"box_id": box_id},
+                                                             projection={"_id": False,
+                                                                         "box_id": True,
+                                                                         "calibration_constant": True})[
+            "calibration_constant"]
+
+
+        waveform = fs.find_one({"filename": box_event["data_fs_filename"]}).read()
+        waveform = to_s16bit(waveform).astype(np.int64) / calib_constant
+        x_values = [event_start_ms + reports.sample_to_ms(i) for i in range(0, len(waveform))]
+        x_values = list(map(lambda ts: datetime.datetime.utcfromtimestamp(ts / 1000.0), x_values))
+
+        start_idx = 0 if range_samples is None else range_samples[0]
+        end_idx = len(waveform) if range_samples is None else range_samples[1]
+
+        waveform = waveform[start_idx:end_idx]
+        x_values = x_values[start_idx:end_idx]
+
+        fig.suptitle("OPQ Event #%d OPQ Box %s (%s) @ %s" % (
+            event_id,
+            box_id,
+            reports.box_to_location[box_id],
+            x_values[0].strftime("%Y-%m-%d %H:%M")
+        ))
+        ax.plot(x_values, waveform, color="blue")
+        ax.set_xlabel("Date/Time UTC")
+        ax.set_ylabel("Voltage")
+        ax.tick_params(axis="y", colors="blue")
+        ax.yaxis.label.set_color("blue")
+
+        ax2 = ax.twinx()
+        vrms_y_values = reports.vrms_waveform(waveform)
+        vrms_x_values = x_values[0::200]
+        ax2.plot(vrms_x_values, vrms_y_values, color="red")
+        ax2.tick_params(axis="y", colors="red")
+        ax2.yaxis.label.set_color("red")
+        ax2.set_ylabel("$V_{RMS}$")
+
+        plt.savefig("%s/event-single-%d.png" % (report_dir, event_id))
 
 
 def plot_event_stacked(event_id: int,
@@ -76,7 +139,6 @@ def plot_event_stacked(event_id: int,
         event_start_ms = box_events[i]["event_start_timestamp_ms"]
         x_values = list(map(lambda sample: sample_to_ms(sample) + event_start_ms, range(len(y_values))))
         x_values = list(map(lambda x: datetime.datetime.utcfromtimestamp(x / 1000.0), x_values))
-
 
         if range_ms is not None:
             start_sample = ms_to_sample(range_ms[0])
@@ -195,6 +257,8 @@ def event_stats(start_time_s: int,
 
 
 if __name__ == "__main__":
-    plot_event_stacked(171418, ".", pymongo.MongoClient(),
-                        range_ms=(200,700)
-                       )
+    plot_single_event(262503,
+                      "/Users/anthony/Development/opq/util/reporting/report_1572343200_1572948000",
+                      pymongo.MongoClient(),
+                      "1021",
+                      (375_000, 425_000))
