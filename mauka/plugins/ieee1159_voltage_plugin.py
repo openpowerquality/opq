@@ -6,8 +6,8 @@ This plugin calculates the IEEE 1159 voltage events
 import typing
 import multiprocessing
 
-import mauka_native
 import numpy as np
+import mauka_native
 
 import config
 import log
