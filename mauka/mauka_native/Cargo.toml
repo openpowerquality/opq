@@ -11,6 +11,7 @@ name = "mauka_native"
 crate-type = ["cdylib"]
 
 [dependencies]
+rustfft="3.0.0"
 
 [dependencies.pyo3]
 version = "0.8"
