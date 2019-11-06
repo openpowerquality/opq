@@ -41,6 +41,9 @@ def create_report(start_time_s: int,
     print("Generating incident figures...")
     i_fig = reports.incidents.plot_incidents(start_time_s, end_time_s, report_dir, mongo_client)
 
+    print("Generating outage figures...")
+    reports.incidents.plot_outages(start_time_s * 1000.0, end_time_s * 1000.0, report_dir, mongo_client)
+
     print("Generating Events table...")
     short_start_dt = start_dt.strftime("%Y-%m-%d")
     short_end_dt = end_dt.strftime("%Y-%m-%d")

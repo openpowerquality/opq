@@ -254,7 +254,6 @@ def plot_outage(incident_id: int,
     ax.plot(m_x, m_y)
     ax.set_xlim((h_start, h_end))
     plt.savefig("%s/outage-%d.png" % (report_dir, incident_id))
-    plt.show()
 
 
 def plot_outages(start_ms: int,
@@ -299,11 +298,7 @@ def plot_outages(start_ms: int,
         ax.set_ylabel("OPQ Box")
         ax.set_xlabel("Time (UTC)")
     tables.make_table(outage_table, "Outages %s to %s" % (o_start.strftime("%Y-%m-%d"), o_end.strftime("%Y-%m-%d")), report_dir, sort_by_col=5)
-
-
-
     plt.savefig("%s/outages-%d-%d.png" % (report_dir, start_ms, end_ms))
-    plt.show()
 
 
 if __name__ == "__main__":
