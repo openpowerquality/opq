@@ -189,6 +189,9 @@ def incident_stats(start_time_s: int,
                                      "box_id": {"$in": box_ids}})
 
     for incident in incidents:
+        if "OUTAGE" in incident["classifications"] and incident["end_timestamp_ms"] - incident["start_timestamp_ms"] < 60_000:
+            continue
+
         box = incident["box_id"]
         if box not in box_to_total_incidents:
             box_to_total_incidents[box] = 0
@@ -274,18 +277,23 @@ def plot_outages(start_ms: int,
     fig.suptitle("Outages %s to %s" % (start_dt.strftime("%Y-%m-%d"),
                                        end_dt.strftime("%Y-%m-%d")))
     outage_table = [["OPQ Box", "Location", "Incident \\#", "Outage Start", "Outage End", "Duration (s)"]]
+    box_ids = set()
     for outage in outages:
-        plot_outage(outage["incident_id"], report_dir, mongo_client)
+        if outage["end_timestamp_ms"] - outage["start_timestamp_ms"] < 60_000:
+            continue
+
+        # plot_outage(outage["incident_id"], report_dir, mongo_client)
         o_start = datetime.datetime.utcfromtimestamp(outage["start_timestamp_ms"] / 1000.0)
         o_end = datetime.datetime.utcfromtimestamp(outage["end_timestamp_ms"] / 1000.0)
         box_id = outage["box_id"]
-        print("%s (%s) %s to %s (%s)" % (
-            box_id,
-            reports.box_to_location[box_id],
-            o_start,
-            o_end,
-            (o_end - o_start)
-        ))
+        box_ids.add(int(box_id))
+        # print("%s (%s) %s to %s (%s)" % (
+        #     box_id,
+        #     reports.box_to_location[box_id],
+        #     o_start,
+        #     o_end,
+        #     (o_end - o_start)
+        # ))
         outage_table.append([box_id,
                              reports.box_to_location[box_id],
                              outage["incident_id"],
@@ -297,7 +305,10 @@ def plot_outages(start_ms: int,
                 linewidth=15)
         ax.set_ylabel("OPQ Box")
         ax.set_xlabel("Time (UTC)")
-    tables.make_table(outage_table, "Outages %s to %s" % (o_start.strftime("%Y-%m-%d"), o_end.strftime("%Y-%m-%d")), report_dir, sort_by_col=5)
+
+    ax.set_yticks(list(box_ids))
+
+    tables.make_table(outage_table, "Outages %s to %s" % (start_dt.strftime("%Y-%m-%d"), end_dt.strftime("%Y-%m-%d")), report_dir, sort_by_col=5)
     plt.savefig("%s/outages-%d-%d.png" % (report_dir, start_ms, end_ms))
 
 
