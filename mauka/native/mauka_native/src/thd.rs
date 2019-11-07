@@ -77,13 +77,13 @@ fn thd_window(mut window: Vec<Complex32>, fft: Arc<dyn FFT<f32>>) -> f32 {
 
 #[cfg(test)]
 mod tests {
-    use crate::test_utils::{close_to, square_wave};
-    use crate::thd::{percent_thd, SAMPLES_PER_WINDOW};
+    use crate::test_utils::{add_signals, close_to, sin, square_wave, thd_signal};
+    use crate::thd::{percent_thd, CYCLES_PER_SEC, SAMPLES_PER_WINDOW};
 
     // We can use the fact that a 50% duty cycle square wave generates THD at 48.3%
     // https://www.allaboutcircuits.com/technical-articles/the-importance-of-total-harmonic-distortion/
     #[test]
-    fn percent_thd_one_window() {
+    fn percent_thd_one_window_sq() {
         let samples = square_wave(1.0, 60.0, 12_000.0, SAMPLES_PER_WINDOW);
         let thds = percent_thd(samples);
         assert_eq!(thds.len(), 1);
@@ -91,11 +91,49 @@ mod tests {
     }
 
     #[test]
-    fn percent_thd_two_windows() {
+    fn percent_thd_two_windows_sq() {
         let samples = square_wave(1.0, 60.0, 12_000.0, SAMPLES_PER_WINDOW * 2);
         let thds = percent_thd(samples);
         assert_eq!(thds.len(), 2);
         assert!(close_to(thds[0], 48.3, 0.1));
         assert!(close_to(thds[1], 48.3, 0.1));
+    }
+
+    #[test]
+    fn percent_thd_one_window_50() {
+        let samples = thd_signal(50.0, SAMPLES_PER_WINDOW);
+        let thds = percent_thd(samples);
+        assert_eq!(thds.len(), 1);
+        let thd = thds[0];
+        assert!(close_to(thd, 50.0, 0.01));
+    }
+
+    #[test]
+    fn percent_thd_one_window_6() {
+        let samples = thd_signal(6.0, SAMPLES_PER_WINDOW);
+        let thds = percent_thd(samples);
+        assert_eq!(thds.len(), 1);
+        let thd = thds[0];
+        assert!(close_to(thd, 6.0, 0.01));
+    }
+
+    #[test]
+    fn percent_thd_one_window_1() {
+        let samples = thd_signal(1.0, SAMPLES_PER_WINDOW);
+        let thds = percent_thd(samples);
+        assert_eq!(thds.len(), 1);
+        let thd = thds[0];
+        assert!(close_to(thd, 1.0, 0.01));
+    }
+
+    #[test]
+    fn percent_thd_two_window_6() {
+        let samples = thd_signal(6.0, SAMPLES_PER_WINDOW * 2);
+        let thds = percent_thd(samples);
+        assert_eq!(thds.len(), 2);
+        let thd = thds[0];
+        assert!(close_to(thd, 6.0, 0.01));
+        let thd = thds[1];
+        assert!(close_to(thd, 6.0, 0.01));
     }
 }

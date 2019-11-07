@@ -56,6 +56,26 @@ pub fn close_to(v: f32, to: f32, err: f32) -> bool {
     (v - to).abs() < err
 }
 
+pub fn add_signals(a: &Vec<f32>, b: &Vec<f32>) -> Vec<f32> {
+    assert!(a.len() == b.len());
+
+    let mut res = vec![];
+
+    for i in 0..a.len() {
+        res.push(a[i] + b[i]);
+    }
+
+    res
+}
+
+pub fn thd_signal(percent_thd: f32, samples: usize) -> Vec<f32> {
+    let samples_60 = sin(1.0, 60.0, 12_000.0, samples);
+    let amp_120 = 1.0 * (percent_thd / 100.0);
+    let samples_120 = sin(amp_120, 120.0, 12_000.0, samples);
+
+    add_signals(&samples_60, &samples_120)
+}
+
 #[cfg(test)]
 mod tests {
     use crate::test_utils::generate_vrms_waveform;
