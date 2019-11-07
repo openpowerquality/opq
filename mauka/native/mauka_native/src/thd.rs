@@ -25,7 +25,7 @@ impl From<&arrays::Range> for ThdIncident {
     }
 }
 
-fn thd(start_time_ms: f64, samples: Vec<f32>) -> Vec<ThdIncident> {
+pub fn thd(start_time_ms: f64, samples: Vec<f32>) -> Vec<ThdIncident> {
     let thds: Vec<f64> = percent_thd(samples).iter().map(|i| *i as f64).collect();
     let bound = arrays::Bound::new(6.0, 0.0, None).set_no_upper();
     let ranges = arrays::bounded_ranges(start_time_ms, &thds, &vec![&bound]);
