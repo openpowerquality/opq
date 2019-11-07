@@ -7,7 +7,7 @@ import typing
 import multiprocessing
 
 import numpy as np
-import mauka_native
+import mauka_native_py
 
 import config
 import log
@@ -53,7 +53,7 @@ def ieee1159_voltage(mauka_message: protobuf.mauka_pb2.MaukaMessage,
     """
     data: typing.List[float] = list(mauka_message.payload.data)
     log.maybe_debug("Found %d Vrms values." % len(data), ieee1159_voltage_plugin)
-    incidents = mauka_native.classify_rms(mauka_message.payload.start_timestamp_ms, data)
+    incidents = mauka_native_py.classify_rms(mauka_message.payload.start_timestamp_ms, data)
     log.maybe_debug("Found %d Incidents." % len(incidents), ieee1159_voltage_plugin)
     incident_ids: typing.List[int] = []
     array_data: np.ndarray = np.array(data)

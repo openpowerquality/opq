@@ -96,8 +96,12 @@ impl From<&thd::ThdIncident> for ThdIncident {
 }
 
 #[pyfunction]
-fn classify_thd(start_ts_ms: f64, data: Vec<f32>) -> PyResult<Vec<ThdIncident>> {
-    Ok(thd::thd(start_ts_ms, data)
+fn classify_thd(
+    start_ts_ms: f64,
+    thd_threshold_percent: f64,
+    data: Vec<f32>,
+) -> PyResult<Vec<ThdIncident>> {
+    Ok(thd::thd(start_ts_ms, thd_threshold_percent, data)
         .iter()
         .map(|i| i.into())
         .collect())

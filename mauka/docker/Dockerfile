@@ -18,9 +18,9 @@ ENV PATH="/root/.cargo/bin:$PATH"
 RUN pip3 install --no-cache --trusted-host pypi.python.org numpy \
     && pip3 install --no-cache --trusted-host pypi.python.org -r mauka/requirements.txt
 
-RUN cd /build/mauka/mauka_native        \
+RUN cd /build/mauka/native/mauka_native_py \
     && maturin build --release --strip  \
-    && pip3 install target/wheels/mauka_native-0.1.0-cp37-cp37m-manylinux1_x86_64.whl
+    && pip3 install target/wheels/mauka_native_py-0.1.0-cp37-cp37m-manylinux1_x86_64.whl
 
 # Cleanup
 RUN apt-get purge -y            \
