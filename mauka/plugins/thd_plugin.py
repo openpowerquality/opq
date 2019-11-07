@@ -42,7 +42,7 @@ def thd(mauka_message: protobuf.mauka_pb2.MaukaMessage,
         log.maybe_debug("Stored incident with id=%s" % incident_id, thd_plugin)
         incident_ids.append(incident_id)
 
-    return []
+    return incident_ids
 
 
 class ThdPlugin(plugins.base_plugin.MaukaPlugin):
