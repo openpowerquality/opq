@@ -65,7 +65,7 @@ fn classify_rms(start_ts_ms: f64, data: Vec<f64>) -> PyResult<Vec<Ieee1159Voltag
 }
 
 #[pymodule]
-fn mauka_native(_py: Python, m: &PyModule) -> PyResult<()> {
+fn mauka_native_py(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_wrapped(wrap_pyfunction!(classify_rms))?;
 
     Ok(())
