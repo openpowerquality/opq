@@ -1,4 +1,5 @@
 use crate::analysis::*;
+use std::f32::consts::PI;
 
 pub fn generate_vrms_waveform(pu: f64, c: usize) -> Vec<f64> {
     generate_vrms_waveform_detailed(pu, c, 120.0, 60, 60)
@@ -21,6 +22,21 @@ pub fn generate_vrms_waveform_detailed(
     wf.append(&mut (0..end_c).map(|_| nominal).collect());
 
     wf
+}
+
+const TWO_PI: f32 = 2.0 * PI;
+const CYCLES_PER_SECOND: f32 = 60.0;
+const SAMPLES_PER_SECOND: f32 = 12_000.0;
+const SAMPLES_PER_CYCLE: f32 = 200.0;
+
+pub fn sin(amplitude: f32, cycles_per_s: f32, samples_per_s: f32, samples: usize) -> Vec<f32> {
+    (0..samples)
+        .map(|i| amplitude * (cycles_per_s * TWO_PI * i as f32 / samples_per_s).sin())
+        .collect()
+}
+
+pub fn opq_sin(samples: usize) -> Vec<f32> {
+    sin(23520.0, CYCLES_PER_SECOND, SAMPLES_PER_SECOND, samples)
 }
 
 #[cfg(test)]

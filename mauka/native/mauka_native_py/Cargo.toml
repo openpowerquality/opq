@@ -1,18 +1,18 @@
 [package]
-name = "mauka_native"
+name = "mauka_native_py"
 version = "0.1.0"
-authors = ["anthonyjchriste <achriste@hawaii.edu>"]
+authors = ["opq <achriste@hawaii.edu>"]
 edition = "2018"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [lib]
-name = "mauka_native"
+name = "mauka_native_py"
 crate-type = ["cdylib"]
-
-[dependencies]
-rustfft="3.0.0"
 
 [dependencies.pyo3]
 version = "0.8"
 features = ["extension-module"]
+
+[dependencies]
+mauka_native = { path = "../mauka_native" }

@@ -62,3 +62,16 @@ fn thd_window(mut window: Vec<Complex32>, fft: Arc<dyn FFT<f32>>) -> f32 {
 
     harmonics.sqrt() / sixty_hz_power
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::test_utils::opq_sin;
+    use crate::thd::percent_thd;
+
+    #[test]
+    fn test() {
+        let samples = opq_sin(1200);
+        println!("{:#?}", percent_thd(samples));
+        assert!(false)
+    }
+}

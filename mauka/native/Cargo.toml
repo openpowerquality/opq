@@ -1,0 +1,6 @@
+[workspace]
+
+members = [
+    "mauka_native",
+    "mauka_native_py"
+]
