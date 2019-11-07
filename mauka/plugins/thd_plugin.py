@@ -17,14 +17,32 @@ import protobuf.pb_util
 
 
 def thd(mauka_message: protobuf.mauka_pb2.MaukaMessage,
+        thd_threshold_percent: float,
         opq_mongo_client: mongo.OpqMongoClient,
         thd_plugin: typing.Optional['ThdPlugin'] = None) -> typing.List[int]:
     data: typing.List[float] = list(mauka_message.payload.data)
-    log.maybe_debug("Found %d Vrms values." % len(data), thd_plugin)
-    incidents = mauka_native_py.classify_rms(mauka_message.payload.start_timestamp_ms, data)
-    log.maybe_debug("Found %d Incidents." % len(incidents), thd_plugin)
+    log.maybe_debug("Found %d samples." % len(data), thd_plugin)
+    incidents = mauka_native_py.classify_thd(mauka_message.payload.start_timestamp_ms, thd_threshold_percent, data)
+    log.maybe_debug("Found %d THD Incidents." % len(incidents), thd_plugin)
     incident_ids: typing.List[int] = []
-    pass
+
+    for incident in incidents:
+        incident_id = mongo.store_incident(
+            mauka_message.payload.event_id,
+            mauka_message.payload.box_id,
+            incident.start_time_ms,
+            incident.end_time_ms,
+            mongo.IncidentMeasurementType.VOLTAGE,
+            -1,
+            [mongo.IncidentClassification.EXCESSIVE_THD],
+            [],
+            {},
+            opq_mongo_client
+        )
+        log.maybe_debug("Stored incident with id=%s" % incident_id, thd_plugin)
+        incident_ids.append(incident_id)
+
+    return []
 
 
 class ThdPlugin(plugins.base_plugin.MaukaPlugin):
@@ -41,7 +59,6 @@ class ThdPlugin(plugins.base_plugin.MaukaPlugin):
         """
         super().__init__(conf, [Routes.adc_samples, Routes.thd_request_event], ThdPlugin.NAME, exit_event)
         self.threshold_percent = float(self.config.get("plugins.ThdPlugin.threshold.percent"))
-        self.sliding_window_ms = float(self.config.get("plugins.ThdPlugin.window.size.ms"))
 
     def on_message(self, topic, mauka_message):
         """
@@ -54,7 +71,7 @@ class ThdPlugin(plugins.base_plugin.MaukaPlugin):
             self.debug("on_message {}:{} len:{}".format(mauka_message.payload.event_id,
                                                         mauka_message.payload.box_id,
                                                         len(mauka_message.payload.data)))
-            incident_ids = thd(mauka_message, self.mongo_client, self)
+            incident_ids = thd(mauka_message, self.threshold_percent, self.mongo_client, self)
 
             for incident_id in incident_ids:
                 # Produce a message to the GC
