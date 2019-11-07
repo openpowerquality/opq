@@ -1,3 +1,4 @@
+# pylint: disable=I1101, E1101
 """
 This plugin calculates total harmonic distortion (THD) over waveforms.
 """
@@ -7,7 +8,6 @@ import typing
 import mauka_native_py
 
 import config
-import constants
 import mongo
 import log
 import plugins.base_plugin
@@ -20,6 +20,14 @@ def thd(mauka_message: protobuf.mauka_pb2.MaukaMessage,
         thd_threshold_percent: float,
         opq_mongo_client: mongo.OpqMongoClient,
         thd_plugin: typing.Optional['ThdPlugin'] = None) -> typing.List[int]:
+    """
+    Calculates THD per cycle over a range of data.
+    :param mauka_message: The Mauka message.
+    :param thd_threshold_percent: The THD threshold percent.
+    :param opq_mongo_client: An instance of an OPQ mongo client.
+    :param thd_plugin: An instance of the THD plugin.
+    :return: A list of incident ids (if any)
+    """
     data: typing.List[float] = list(mauka_message.payload.data)
     log.maybe_debug("Found %d samples." % len(data), thd_plugin)
     incidents = mauka_native_py.classify_thd(mauka_message.payload.start_timestamp_ms, thd_threshold_percent, data)
