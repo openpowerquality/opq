@@ -39,6 +39,23 @@ pub fn opq_sin(samples: usize) -> Vec<f32> {
     sin(23520.0, CYCLES_PER_SECOND, SAMPLES_PER_SECOND, samples)
 }
 
+pub fn square_wave(
+    amplitutde: f32,
+    cycles_per_s: f32,
+    samples_per_s: f32,
+    samples: usize,
+) -> Vec<f32> {
+    let samples = sin(amplitutde, cycles_per_s, samples_per_s, samples);
+    samples
+        .iter()
+        .map(|i| if i.signum() > 0.0 { amplitutde } else { 0.0 })
+        .collect()
+}
+
+pub fn close_to(v: f32, to: f32, err: f32) -> bool {
+    (v - to).abs() < err
+}
+
 #[cfg(test)]
 mod tests {
     use crate::test_utils::generate_vrms_waveform;
@@ -46,8 +63,8 @@ mod tests {
     #[test]
     fn test_gen_wf() {
         let wf = generate_vrms_waveform(0.1, 60);
-        assert!(&wf[0..59].iter().all(|v| *v == 120.0));
-        assert!(&wf[60..119].iter().all(|v| *v == 12.0));
-        assert!(&wf[120..].iter().all(|v| *v == 120.0));
+        assert!(&wf[0..59].iter().all(|v| (*v - 120.0f64).abs() < 0.01));
+        assert!(&wf[60..119].iter().all(|v| (*v - 12.0).abs() < 0.01));
+        assert!(&wf[120..].iter().all(|v| (*v - 120.0).abs() < 0.01));
     }
 }

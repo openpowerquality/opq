@@ -8,6 +8,7 @@ pub struct Bound {
     pub min: f64,
     pub max: f64,
     lt_max: bool,
+    no_upper: bool,
 }
 
 impl Bound {
@@ -19,6 +20,7 @@ impl Bound {
             min,
             max,
             lt_max: false,
+            no_upper: false,
         }
     }
 
@@ -27,8 +29,15 @@ impl Bound {
         self
     }
 
+    pub fn set_no_upper(mut self) -> Self {
+        self.no_upper = true;
+        self
+    }
+
     pub fn contains(&self, v: f64) -> bool {
-        if self.lt_max {
+        if self.no_upper {
+            v >= self.min
+        } else if self.lt_max {
             v >= self.min && v < self.max
         } else {
             v >= self.min && v <= self.max
