@@ -1,4 +1,4 @@
-use mauka_native::{ieee1159_voltage, thd};
+use mauka_native::{arrays, ieee1159_voltage, thd};
 use pyo3::prelude::*;
 use pyo3::wrap_pyfunction;
 
@@ -107,11 +107,85 @@ fn classify_thd(
         .collect())
 }
 
+// -------------------------------- Arrays
+#[pyclass(dict)]
+#[derive(Debug)]
+struct Range {
+    bound_key: String,
+    bound_min: f64,
+    bound_max: f64,
+    pub start_idx: usize,
+    pub end_idx: usize,
+    pub start_ts_ms: f64,
+    pub end_ts_ms: f64,
+}
+
+#[pymethods]
+impl Range {
+    #[getter(bound_key)]
+    fn bound_key(&self) -> PyResult<String> {
+        Ok(self.bound_key.clone())
+    }
+
+    #[getter(bound_min)]
+    fn bound_min(&self) -> PyResult<f64> {
+        Ok(self.bound_min)
+    }
+
+    #[getter(bound_max)]
+    fn bound_max(&self) -> PyResult<f64> {
+        Ok(self.bound_max)
+    }
+
+    #[getter(start_idx)]
+    fn start_idx(&self) -> PyResult<usize> {
+        Ok(self.start_idx)
+    }
+
+    #[getter(end_idx)]
+    fn end_idx(&self) -> PyResult<usize> {
+        Ok(self.end_idx)
+    }
+
+    #[getter(start_ts_ms)]
+    fn start_ts_ms(&self) -> PyResult<f64> {
+        Ok(self.start_ts_ms)
+    }
+
+    #[getter(end_ts_ms)]
+    fn end_ts_ms(&self) -> PyResult<f64> {
+        Ok(self.end_ts_ms)
+    }
+}
+
+impl From<&arrays::Range> for Range {
+    fn from(range: &arrays::Range) -> Self {
+        Range {
+            bound_key: range.bound.key.clone(),
+            bound_min: range.bound.min,
+            bound_max: range.bound.max,
+            start_idx: range.start_idx,
+            end_idx: range.end_idx,
+            start_ts_ms: range.start_ts_ms,
+            end_ts_ms: range.end_ts_ms,
+        }
+    }
+}
+
+#[pyfunction]
+fn bounded_ranges(start_ts_ms: f64, data: Vec<f64>, bounds: Vec<Vec<f64>>) -> PyResult<Vec<Range>> {
+    let bounds: Vec<arrays::Bound> = bounds.iter().map(|bound| bound.into()).collect();
+    let bounds: Vec<&arrays::Bound> = bounds.iter().map(|bound| bound).collect();
+    let ranges = arrays::bounded_ranges(start_ts_ms, &data, &bounds);
+    Ok(ranges.iter().map(|range| range.into()).collect())
+}
+
 // -------------------------------- Module setup
 #[pymodule]
 fn mauka_native_py(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_wrapped(wrap_pyfunction!(classify_rms))?;
     m.add_wrapped(wrap_pyfunction!(classify_thd))?;
+    m.add_wrapped(wrap_pyfunction!(bounded_ranges))?;
 
     Ok(())
 }

@@ -218,7 +218,8 @@ PHASE_IDX = 2
 OFFSET_IDX = 3
 
 
-def frequency_per_cycle(data: np.ndarray) -> List[float]:
+def frequency_per_cycle(data: np.ndarray,
+                        do_plot: bool = False) -> List[float]:
     """
     Calculates the fundamental frequency per cycle.
     :param data: Data to calculate frequency over.
@@ -243,7 +244,8 @@ def frequency_per_cycle(data: np.ndarray) -> List[float]:
                            amp_guess=prev_fit[AMP_IDX],
                            freq_guess=prev_fit[FREQ_IDX],
                            phase_guess=prev_fit[PHASE_IDX],
-                           offset_guess=prev_fit[OFFSET_IDX])
+                           offset_guess=prev_fit[OFFSET_IDX],
+                           do_plot=do_plot)
             freq = fit[FREQ_IDX]
             prev_fit = fit
         else:
