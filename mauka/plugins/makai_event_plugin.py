@@ -11,6 +11,7 @@ import numpy
 from scipy import optimize
 from scipy import signal
 
+import analysis
 import config
 import constants
 import mongo
@@ -230,11 +231,7 @@ def acquire_data(mongo_client: mongo.OpqMongoClient,
                                                         event_id,
                                                         box_id,
                                                         protobuf.mauka_pb2.FREQUENCY_WINDOWED,
-                                                        frequency_waveform(waveform_calibrated,
-                                                                           frequency_samples_per_window,
-                                                                           filter_order,
-                                                                           filter_cutoff_frequency,
-                                                                           filter_down_sample_factor),
+                                                        analysis.frequency_per_cycle(waveform_calibrated),
                                                         start_timestamp,
                                                         end_timestamp)
 
