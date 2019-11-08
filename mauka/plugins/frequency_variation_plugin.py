@@ -56,8 +56,8 @@ def find_frequency_variation_incidents(mauka_message: mauka_pb2.MaukaMessage,
                 {},
                 opq_mongo_client
             )
-            log.maybe_debug("Stored incident with id=%s" % incident_id, plugin)
             incident_ids.append(incident_id)
+            log.maybe_debug("Stored incident with id=%s" % incident_id, plugin)
         elif incident_range.bound_min == bounds[1][0] and incident_range.bound_max == bounds[1][1]:
             # Frequency swell
             log.maybe_debug("frequency_swell", plugin)
@@ -73,8 +73,8 @@ def find_frequency_variation_incidents(mauka_message: mauka_pb2.MaukaMessage,
                 {},
                 opq_mongo_client
             )
-            log.maybe_debug("Stored incident with id=%s" % incident_id, plugin)
             incident_ids.append(incident_id)
+            log.maybe_debug("Stored incident with id=%s" % incident_id, plugin)
         else:
             # Unknown
             log.maybe_debug("Unknown range bounds = %d, %d" % (incident_range.bound_min, incident_range.bound_max),
@@ -120,11 +120,15 @@ class FrequencyVariationPlugin(plugins.base_plugin.MaukaPlugin):
                                                               self.mongo_client,
                                                               self)
 
+            self.debug("Preparing to update GC for %d incident_ids" % incident_ids)
             for incident_id in incident_ids:
                 # Produce a message to the GC
                 self.produce(Routes.laha_gc, protobuf.pb_util.build_gc_update(self.name,
                                                                               protobuf.mauka_pb2.INCIDENTS,
                                                                               incident_id))
+                self.debug("Updated GC for incident %d" % incident_id)
+
+            self.debug("Done analyzing data from event %d" % mauka_message.payload.event_id)
         else:
             self.logger.error("Received incorrect mauka message [%s] at FrequencyVariationPlugin",
                               protobuf.pb_util.which_message_oneof(mauka_message))
