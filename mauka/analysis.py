@@ -5,7 +5,7 @@ This module provides analysis/util functions that may be called from multiple lo
 import logging
 from typing import List, Optional
 
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 import numpy as np
 import ruptures as rpt
 import scipy.fftpack as fft
@@ -199,14 +199,14 @@ def fit_data(y_values: np.ndarray,
         amp_guess, freq_guess, phase_guess, offset_guess
     ])
 
-    if do_plot:
-        _, ax = plt.subplots(1, 1, figsize=(16, 9))
-        ax.scatter(x_values, y_values, color="blue", label="Data", linewidths=.1)
-        ax.plot(x_values, fit_fn(x_values, amp_guess, freq_guess, phase_guess, offset_guess), color="green",
-                label="Best Guess")
-        ax.plot(x_values, fit_fn(x_values, *fit[0]), color="red", label="Best Fit")
-        ax.legend()
-        plt.show()
+    # if do_plot:
+    #     _, ax = plt.subplots(1, 1, figsize=(16, 9))
+    #     ax.scatter(x_values, y_values, color="blue", label="Data", linewidths=.1)
+    #     ax.plot(x_values, fit_fn(x_values, amp_guess, freq_guess, phase_guess, offset_guess), color="green",
+    #             label="Best Guess")
+    #     ax.plot(x_values, fit_fn(x_values, *fit[0]), color="red", label="Best Fit")
+    #     ax.legend()
+    #     plt.show()
 
     return fit[0]
 
