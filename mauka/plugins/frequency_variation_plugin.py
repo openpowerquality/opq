@@ -120,7 +120,7 @@ class FrequencyVariationPlugin(plugins.base_plugin.MaukaPlugin):
                                                               self.mongo_client,
                                                               self)
 
-            self.debug("Preparing to update GC for %d incident_ids" % incident_ids)
+            self.debug("Preparing to update GC for %d incident_ids" % len(incident_ids))
             for incident_id in incident_ids:
                 # Produce a message to the GC
                 self.produce(Routes.laha_gc, protobuf.pb_util.build_gc_update(self.name,
