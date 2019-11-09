@@ -16,6 +16,19 @@ import protobuf.pb_util
 import mongo
 
 
+def print_range(incident_range, plugin):
+    log.maybe_debug("%s\n%f\n%f\n%f\n%f\n%f\n%f\n" % (
+        incident_range.bound_key,
+        incident_range.bound_min,
+        incident_range.bound_max,
+        incident_range.start_idx,
+        incident_range.end_idx,
+        incident_range.start_ts_ms,
+        incident_range.end_ts_ms
+    ),
+                    plugin)
+
+
 def find_frequency_variation_incidents(mauka_message: mauka_pb2.MaukaMessage,
                                        frequency_threshold_low: float,
                                        frequency_threshold_high: float,
@@ -34,13 +47,15 @@ def find_frequency_variation_incidents(mauka_message: mauka_pb2.MaukaMessage,
 
     incident_ids: typing.List[int] = []
     for incident_range in ranges:
+        print_range(incident_range, plugin)
         if incident_range.end_idx - incident_range.start_idx < min_incident_len_c:
-            log.maybe_debug("Ignoring incident with len_c = %f" % incident_range.end_idx - incident_range.start_idx,
+            log.maybe_debug("Ignoring incident with len_c = %f" % (incident_range.end_idx - incident_range.start_idx),
                             plugin)
             continue
-
+        log.maybe_debug("Before finding max_deviation", plugin)
         max_deviation = 60.0 - max(min(frequencies_per_cycle[incident_range.start_idx:incident_range.end_idx]),
                                    max(frequencies_per_cycle[incident_range.start_idx:incident_range.end_idx]))
+        log.maybe_debug("After finding max_deviation", plugin)
         log.maybe_debug("max_deviation=%f" % max_deviation, plugin)
         if incident_range.bound_min == bounds[0][0] and incident_range.bound_max == bounds[0][1]:
             log.maybe_debug("frequency_sag", plugin)
