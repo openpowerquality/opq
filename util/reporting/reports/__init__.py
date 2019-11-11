@@ -48,7 +48,8 @@ incident_map: typing.Dict[str, str] = {
     "FREQUENCY_SAG": "F Sag",
     "FREQUENCY_INTERRUPTION": "F Int",
     "VOLTAGE_SAG": "V Sag",
-    "OUTAGE": "Outage"
+    "OUTAGE": "Outage",
+    "EXCESSIVE_THD": "THD"
 }
 
 
