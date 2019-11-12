@@ -191,6 +191,5 @@ if __name__ == "__main__":
     mongo_client = pymongo.MongoClient()
     # waveform = reports.calib_waveform("incident_92169", "1025", mongo_client)
     # plot_waveform(waveform, 1573259173006, "Test", ".")
-    plot_incident(92169, ".", mongo_client)
-    plot_incident(122957, ".", mongo_client)
-    plot_incident(123173, ".", mongo_client)
+    plot_incident(101664, ".", mongo_client)
+
