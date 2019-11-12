@@ -169,8 +169,7 @@ def fit_data(y_values: np.ndarray,
              amp_guess: Optional[float] = None,
              freq_guess: Optional[float] = None,
              phase_guess: Optional[float] = None,
-             offset_guess: Optional[float] = None,
-             do_plot: bool = False) -> np.ndarray:
+             offset_guess: Optional[float] = None) -> np.ndarray:
     """
     Fits a sine function to the given data. Either computes the best guess params or uses what are provided in.
     :param y_values: The samples.
@@ -199,15 +198,6 @@ def fit_data(y_values: np.ndarray,
         amp_guess, freq_guess, phase_guess, offset_guess
     ])
 
-    # if do_plot:
-    #     _, ax = plt.subplots(1, 1, figsize=(16, 9))
-    #     ax.scatter(x_values, y_values, color="blue", label="Data", linewidths=.1)
-    #     ax.plot(x_values, fit_fn(x_values, amp_guess, freq_guess, phase_guess, offset_guess), color="green",
-    #             label="Best Guess")
-    #     ax.plot(x_values, fit_fn(x_values, *fit[0]), color="red", label="Best Fit")
-    #     ax.legend()
-    #     plt.show()
-
     return fit[0]
 
 
@@ -218,8 +208,7 @@ PHASE_IDX = 2
 OFFSET_IDX = 3
 
 
-def frequency_per_cycle(data: np.ndarray,
-                        do_plot: bool = False) -> List[float]:
+def frequency_per_cycle(data: np.ndarray) -> List[float]:
     """
     Calculates the fundamental frequency per cycle.
     :param data: Data to calculate frequency over.
@@ -244,8 +233,7 @@ def frequency_per_cycle(data: np.ndarray,
                            amp_guess=prev_fit[AMP_IDX],
                            freq_guess=prev_fit[FREQ_IDX],
                            phase_guess=prev_fit[PHASE_IDX],
-                           offset_guess=prev_fit[OFFSET_IDX],
-                           do_plot=do_plot)
+                           offset_guess=prev_fit[OFFSET_IDX])
             freq = fit[FREQ_IDX]
             prev_fit = fit
         else:

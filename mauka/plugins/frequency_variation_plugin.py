@@ -1,3 +1,4 @@
+# pylint: disable=I1101, E1101
 """
 This plugin detects, classifies, and stores frequency variation incidents.
 Frequency variations are classified as +/-0.10hz as specified by IEEE standards
@@ -17,6 +18,11 @@ import mongo
 
 
 def print_range(incident_range, plugin):
+    """
+    Prints out a range object for debugging.
+    :param incident_range: The range to print.
+    :param plugin: An instance of this plugin.
+    """
     log.maybe_debug("%s\n%f\n%f\n%f\n%f\n%f\n%f\n" % (
         incident_range.bound_key,
         incident_range.bound_min,
@@ -35,6 +41,16 @@ def find_frequency_variation_incidents(mauka_message: mauka_pb2.MaukaMessage,
                                        min_incident_len_c: float,
                                        opq_mongo_client: mongo.OpqMongoClient,
                                        plugin: typing.Optional['FrequencyVariationPlugin'] = None) -> typing.List[int]:
+    """
+    Finds frequency variation incidents.
+    :param mauka_message: The mauka message containing the waveform payload.
+    :param frequency_threshold_low: The low f threshold.
+    :param frequency_threshold_high: The high f thresholds.
+    :param min_incident_len_c: The minimum incident length.
+    :param opq_mongo_client: An instance of a mongo client.
+    :param plugin: An instance of this plugin.
+    :return: A list of incident ids.
+    """
     frequencies_per_cycle: typing.List[float] = list(mauka_message.payload.data)
     log.maybe_debug("Found %d frequencies" % len(frequencies_per_cycle), plugin)
     bounds = [[0.0, frequency_threshold_low],

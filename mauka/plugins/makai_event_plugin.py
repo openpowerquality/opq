@@ -159,9 +159,9 @@ AcquireDataType = typing.Tuple[
 
 def acquire_data(mongo_client: mongo.OpqMongoClient,
                  makai_event_plugin: 'MakaiEventPlugin',
-                 event_id: int, box_id: str, name: str, filter_order: int,
-                 filter_cutoff_frequency: float, frequency_samples_per_window: int,
-                 filter_down_sample_factor: int) -> AcquireDataType:
+                 event_id: int,
+                 box_id: str,
+                 name: str) -> AcquireDataType:
     """
     Given an event_id, acquire the raw data for each box associated with the given event. Perform feature
     extraction of the raw data and publish those features for downstream plugins.
@@ -250,11 +250,6 @@ class MakaiEventPlugin(plugins.base_plugin.MaukaPlugin):
     def __init__(self, conf: config.MaukaConfig, exit_event: multiprocessing.Event):
         super().__init__(conf, [Routes.makai_event], MakaiEventPlugin.NAME, exit_event)
         self.get_data_after_s = float(self.config["plugins.MakaiEventPlugin.getDataAfterS"])
-        self.filter_order = int(self.config.get("plugins.MakaiEventPlugin.filterOrder"))
-        self.cutoff_frequency = float(self.config.get("plugins.MakaiEventPlugin.cutoffFrequency"))
-        self.samples_per_window = int(constants.SAMPLES_PER_CYCLE) * int(self.config.get(
-            "plugins.MakaiEventPlugin.frequencyWindowCycles"))
-        self.down_sample_factor = int(self.config.get("plugins.MakaiEventPlugin.frequencyDownSampleRate"))
 
     def acquire_and_produce(self, event_id: int):
         """
@@ -271,11 +266,7 @@ class MakaiEventPlugin(plugins.base_plugin.MaukaPlugin):
                                                                                               self,
                                                                                               event_id,
                                                                                               box_id,
-                                                                                              self.name,
-                                                                                              self.filter_order,
-                                                                                              self.cutoff_frequency,
-                                                                                              self.samples_per_window,
-                                                                                              self.down_sample_factor)
+                                                                                              self.name)
             self.produce(Routes.adc_samples, adc_samples)
             self.produce(Routes.raw_voltage, raw_voltage)
             self.produce(Routes.rms_windowed_voltage, rms_windowed_voltage)
