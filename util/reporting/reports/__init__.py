@@ -7,6 +7,7 @@ import gridfs
 import numpy as np
 import pymongo
 import scipy.fftpack as fft
+import matplotlib.pyplot as plt
 import scipy.optimize
 
 import reports.constants as constants
@@ -225,14 +226,27 @@ def fit_data(y_values: np.ndarray,
         amp_guess, freq_guess, phase_guess, offset_guess
     ])
 
-    # if do_plot:
-    #     _, ax = plt.subplots(1, 1, figsize=(16, 9))
-    #     ax.scatter(x_values, y_values, color="blue", label="Data", linewidths=.1)
-    #     ax.plot(x_values, fit_fn(x_values, amp_guess, freq_guess, phase_guess, offset_guess), color="green",
-    #             label="Best Guess")
-    #     ax.plot(x_values, fit_fn(x_values, *fit[0]), color="red", label="Best Fit")
-    #     ax.legend()
-    #     plt.show()
+    if do_plot:
+        _, ax = plt.subplots(1, 1, figsize=(16, 9))
+        ax: plt.Axes = ax
+        ax.scatter(x_values, y_values, color="blue", label="Data", linewidths=.1)
+        ax.plot(x_values, fit_fn(x_values, amp_guess, freq_guess, phase_guess, offset_guess), color="green",
+                label="Best Guess")
+        ax.plot(x_values, fit_fn(x_values, *fit[0]), color="red", label="Best Fit")
+        ax.set_title("Guess (Freq=%f Amp=%f Phase=%f Offset=%f) Fit (Freq=%f Amp=%f Phase=%f Offset=%f)" % (
+            freq_guess,
+            amp_guess,
+            phase_guess,
+            offset_guess,
+            fit[0][FREQ_IDX],
+            fit[0][AMP_IDX],
+            fit[0][PHASE_IDX],
+            fit[0][OFFSET_IDX]
+        ))
+        ax.set_xlabel("Samples")
+        ax.set_ylabel("Voltage")
+        ax.legend()
+        plt.show()
 
     return fit[0]
 

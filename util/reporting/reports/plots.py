@@ -75,7 +75,8 @@ class IncidentData:
 
 def plot_incident(incident_id: int,
                   report_dir: str,
-                  mongo_client: pymongo.MongoClient):
+                  mongo_client: pymongo.MongoClient,
+                  plot_incident_fft_fit: bool = False):
     incident_data = IncidentData(incident_id, mongo_client)
 
     fig, axes = plt.subplots(4, 1, figsize=(16, 9))
@@ -186,10 +187,13 @@ def plot_incident(incident_id: int,
         incident_id
     ))
 
+    if plot_incident_fft_fit:
+        reports.frequency_per_cycle(incident_data.incident_waveform, True)
+
 
 if __name__ == "__main__":
     mongo_client = pymongo.MongoClient()
     # waveform = reports.calib_waveform("incident_92169", "1025", mongo_client)
     # plot_waveform(waveform, 1573259173006, "Test", ".")
-    plot_incident(101664, ".", mongo_client)
+    plot_incident(101664, ".", mongo_client, True)
 
