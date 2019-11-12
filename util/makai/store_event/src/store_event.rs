@@ -18,7 +18,5 @@ pub fn store_event(event_num : u32, path : String, client : Arc<ClientInner>)->R
         })
     };
     println!("{:?}", ev);
-
-
     Ok(())
 }
