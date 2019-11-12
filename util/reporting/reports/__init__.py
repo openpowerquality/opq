@@ -157,6 +157,15 @@ def ms_to_c(duration_ms: float) -> float:
 def s_to_c(s: float) -> float:
     return s * 1000.0 * 60.0
 
+def ms_to_samples(ms: float) -> float:
+    return ms * 12.0
+
+def samples_to_cycles(samples: float) -> float:
+    return samples / 200.0
+
+def cycles_to_samples(cycles: float) -> float:
+    return cycles * 200.0
+
 def fit_fn(x: np.ndarray, amplitude: float, frequency: float, phase: float, offset: float):
     """
     A function used to fit sine waves to power data.
