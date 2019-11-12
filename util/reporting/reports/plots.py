@@ -1,3 +1,4 @@
+from datetime import timedelta as td
 from datetime import datetime as dt
 from typing import List, Optional, Tuple
 
@@ -28,6 +29,7 @@ class IncidentData:
         box_events_coll: pymongo.collection.Collection = mongo_client["opq"]["box_events"]
         box_event = box_events_coll.find_one({"event_id": self.event_id,
                                               "box_id": self.box_id})
+
         self.event_start_timestamp_ms = box_event["event_start_timestamp_ms"]
         self.event_end_timestamp_ms = box_event["event_end_timestamp_ms"]
         event_data_fs_filename = box_event["data_fs_filename"]
@@ -35,6 +37,7 @@ class IncidentData:
         self.event_waveform = reports.calib_waveform(event_data_fs_filename, self.box_id, mongo_client)
         self.event_waveform_timestamps = list(map(lambda i: self.event_start_timestamp_ms + reports.sample_to_ms(i),
                                                   range(len(self.event_waveform))))
+
         self.event_waveform_dts = list(map(lambda ts: dt.utcfromtimestamp(ts / 1000.0), self.event_waveform_timestamps))
 
         self.event_vrms_values = reports.vrms_waveform(self.event_waveform)
@@ -49,8 +52,10 @@ class IncidentData:
         # Incident data
         incident_start_delta_ms = self.incident_start_timestamp_ms - self.event_start_timestamp_ms
         incident_end_delta_ms = self.incident_end_timestamp_ms - self.event_start_timestamp_ms
-        incident_start_idx = int(reports.ms_to_samples(incident_start_delta_ms) - (incident_buffer_start_c * 200))
-        incident_end_idx = int(reports.ms_to_samples(incident_end_delta_ms) + (incident_buffer_end_c * 200))
+        incident_start_idx = max(0, int(reports.ms_to_samples(incident_start_delta_ms) - (incident_buffer_start_c * 200)))
+        incident_end_idx = min(len(self.event_waveform), int(reports.ms_to_samples(incident_end_delta_ms) + (incident_buffer_end_c * 200)))
+
+        print(incident_start_idx, incident_end_idx)
 
         self.incident_waveform = self.event_waveform[incident_start_idx: incident_end_idx]
         self.incident_waveform_dts = self.event_waveform_dts[incident_start_idx: incident_end_idx]
@@ -99,7 +104,8 @@ def plot_incident(incident_id: int,
     ax_incident_waveform.set_ylabel("Voltage")
     ax_incident_waveform.tick_params(axis="y", colors="blue")
     ax_incident_waveform.yaxis.label.set_color("blue")
-    ax_incident_waveform.set_xlim(xmin=incident_data.incident_waveform_dts[0], xmax=incident_data.incident_waveform_dts[-1])
+    ax_incident_waveform.set_xlim(xmin=incident_data.incident_waveform_dts[0] - td(seconds=1.0/120.0),
+                                  xmax=incident_data.incident_waveform_dts[-1] + td(seconds=1.0/120.0))
 
     ax_incident_vrms: plt.Axes = ax_incident_waveform.twinx()
     ax_incident_vrms.plot(incident_data.incident_vrms_dts, incident_data.incident_vrms_values, color="black")
@@ -120,7 +126,8 @@ def plot_incident(incident_id: int,
     ax_incident_freq.set_ylabel("Frequency (Hz)")
     ax_incident_freq.tick_params(axis="y", colors="blue")
     ax_incident_freq.yaxis.label.set_color("blue")
-    ax_incident_freq.set_xlim(xmin=incident_data.incident_waveform_dts[0], xmax=incident_data.incident_waveform_dts[-1])
+    ax_incident_freq.set_xlim(xmin=incident_data.incident_waveform_dts[0] - td(seconds=1.0/120.0),
+                              xmax=incident_data.incident_waveform_dts[-1] + td(seconds=1.0/120.0))
 
     ax_incident_thd = ax_incident_freq.twinx()
     ax_incident_thd.plot(incident_data.incident_thd_dts, incident_data.incident_thd_values, color="black")
@@ -141,7 +148,8 @@ def plot_incident(incident_id: int,
     ax_event_waveform.set_ylabel("Voltage")
     ax_event_waveform.tick_params(axis="y", colors="blue")
     ax_event_waveform.yaxis.label.set_color("blue")
-    ax_event_waveform.set_xlim(xmin=incident_data.event_waveform_dts[0], xmax=incident_data.event_waveform_dts[-1])
+    ax_event_waveform.set_xlim(xmin=incident_data.event_waveform_dts[0] - td(seconds=1.0/120.0),
+                               xmax=incident_data.event_waveform_dts[-1] + td(seconds=1.0/120.0))
 
     ax_event_vrms: plt.Axes = ax_event_waveform.twinx()
     ax_event_vrms.plot(incident_data.event_vrms_dts, incident_data.event_vrms_values, color="black")
@@ -163,7 +171,8 @@ def plot_incident(incident_id: int,
     ax_event_freqs.set_ylabel("Frequency (Hz)")
     ax_event_freqs.tick_params(axis="y", colors="blue")
     ax_event_freqs.yaxis.label.set_color("blue")
-    ax_event_freqs.set_xlim(xmin=incident_data.event_waveform_dts[0], xmax=incident_data.event_waveform_dts[-1])
+    ax_event_freqs.set_xlim(xmin=incident_data.event_waveform_dts[0] - td(seconds=1.0/120.0),
+                            xmax=incident_data.event_waveform_dts[-1] + td(seconds=1.0/120.0))
 
     ax_event_thds: plt.Axes = ax_event_freqs.twinx()
     ax_event_thds.plot(incident_data.event_thd_dts, incident_data.event_thd_values, color="black")
@@ -183,3 +192,5 @@ if __name__ == "__main__":
     # waveform = reports.calib_waveform("incident_92169", "1025", mongo_client)
     # plot_waveform(waveform, 1573259173006, "Test", ".")
     plot_incident(92169, ".", mongo_client)
+    plot_incident(122957, ".", mongo_client)
+    plot_incident(123173, ".", mongo_client)
