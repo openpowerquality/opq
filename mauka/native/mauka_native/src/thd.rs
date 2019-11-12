@@ -32,7 +32,7 @@ pub fn thd(start_time_ms: f64, thd_threshold_percent: f64, samples: Vec<f32>) ->
     ranges.iter().map(|range| range.into()).collect()
 }
 
-fn percent_thd(samples: Vec<f32>) -> Vec<f32> {
+pub fn percent_thd(samples: Vec<f32>) -> Vec<f32> {
     let samples_len = samples.len();
 
     // Not enough samples

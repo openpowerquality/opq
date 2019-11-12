@@ -107,6 +107,11 @@ fn classify_thd(
         .collect())
 }
 
+#[pyfunction]
+fn percent_thd_per_cycle(data: Vec<f32>) -> PyResult<Vec<f32>> {
+    Ok(thd::percent_thd(data))
+}
+
 // -------------------------------- Arrays
 #[pyclass(dict)]
 #[derive(Debug)]
@@ -186,6 +191,7 @@ fn mauka_native_py(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_wrapped(wrap_pyfunction!(classify_rms))?;
     m.add_wrapped(wrap_pyfunction!(classify_thd))?;
     m.add_wrapped(wrap_pyfunction!(bounded_ranges))?;
+    m.add_wrapped(wrap_pyfunction!(percent_thd_per_cycle))?;
 
     Ok(())
 }
