@@ -62,40 +62,47 @@ def semi_violation(mongo_client: mongo.OpqMongoClient,
 
     data = protobuf.pb_util.repeated_as_ndarray(mauka_message.payload.data)
     maybe_debug("Recv %d Vrms values" % len(data), plugin)
-    segments = analysis.segment_array(data)
-    maybe_debug("Found %d segments" % len(segments), plugin)
+    try:
+        segments = analysis.segment_array(data)
+        maybe_debug("Found %d segments" % len(segments), plugin)
+    except Exception as e:
+        plugin.logger.error("Error segmenting data for semi f47 plugin: %s", str(e))
+        segments = []
 
     for i, segment in enumerate(segments):
-        segment_len_c = len(segment)
-        segment_len_ms = analysis.c_to_ms(segment_len_c)
-        segment_mean = segment.mean()
+        try:
+            segment_len_c = len(segment)
+            segment_len_ms = analysis.c_to_ms(segment_len_c)
+            segment_mean = segment.mean()
 
-        maybe_debug("Segment len c=%d ms=%f mean=%f" % (segment_len_c, segment_len_ms, segment_mean), plugin)
+            maybe_debug("Segment len c=%d ms=%f mean=%f" % (segment_len_c, segment_len_ms, segment_mean), plugin)
 
-        if point_in_poly(segment_len_c, analysis.rms_to_percent_nominal(segment_mean)):
-            # New SEMI F47 violation
-            start_t = analysis.c_to_ms(sum([len(segments[x]) for x in range(0, i)]))
-            end_t = start_t + segment_len_ms
-            incident_start_timestamp_ms = mauka_message.payload.start_timestamp_ms + start_t
-            incident_end_timestamp_ms = mauka_message.payload.start_timestamp_ms + end_t
-            maybe_debug("Semi F47 Violation from %f to %f" % (incident_start_timestamp_ms,
-                                                              incident_end_timestamp_ms), plugin)
+            if point_in_poly(segment_len_c, analysis.rms_to_percent_nominal(segment_mean)):
+                # New SEMI F47 violation
+                start_t = analysis.c_to_ms(sum([len(segments[x]) for x in range(0, i)]))
+                end_t = start_t + segment_len_ms
+                incident_start_timestamp_ms = mauka_message.payload.start_timestamp_ms + start_t
+                incident_end_timestamp_ms = mauka_message.payload.start_timestamp_ms + end_t
+                maybe_debug("Semi F47 Violation from %f to %f" % (incident_start_timestamp_ms,
+                                                                  incident_end_timestamp_ms), plugin)
 
-            incident_id = mongo.store_incident(mauka_message.payload.event_id,
-                                               mauka_message.payload.box_id,
-                                               incident_start_timestamp_ms,
-                                               incident_end_timestamp_ms,
-                                               mongo.IncidentMeasurementType.VOLTAGE,
-                                               segment_mean - 120.0,
-                                               [mongo.IncidentClassification.SEMI_F47_VIOLATION],
-                                               [],
-                                               {},
-                                               mongo_client)
-            maybe_debug("Incident with id=%d stored" % incident_id, plugin)
+                incident_id = mongo.store_incident(mauka_message.payload.event_id,
+                                                   mauka_message.payload.box_id,
+                                                   incident_start_timestamp_ms,
+                                                   incident_end_timestamp_ms,
+                                                   mongo.IncidentMeasurementType.VOLTAGE,
+                                                   segment_mean - 120.0,
+                                                   [mongo.IncidentClassification.SEMI_F47_VIOLATION],
+                                                   [],
+                                                   {},
+                                                   mongo_client)
+                maybe_debug("Incident with id=%d stored" % incident_id, plugin)
 
-            incident_ids.append(incident_id)
-        else:
-            maybe_debug("No Semi F47 Violation", plugin)
+                incident_ids.append(incident_id)
+            else:
+                maybe_debug("No Semi F47 Violation", plugin)
+        except Exception as e:
+            plugin.logger.error("Error dealing with semi f47 incident: %s", str(e))
 
     return incident_ids
 

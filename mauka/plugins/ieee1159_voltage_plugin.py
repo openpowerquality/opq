@@ -53,28 +53,35 @@ def ieee1159_voltage(mauka_message: protobuf.mauka_pb2.MaukaMessage,
     """
     data: typing.List[float] = list(mauka_message.payload.data)
     log.maybe_debug("Found %d Vrms values." % len(data), ieee1159_voltage_plugin)
-    incidents = mauka_native_py.classify_rms(mauka_message.payload.start_timestamp_ms, data)
-    log.maybe_debug("Found %d Incidents." % len(incidents), ieee1159_voltage_plugin)
+    try:
+        incidents = mauka_native_py.classify_rms(mauka_message.payload.start_timestamp_ms, data)
+        log.maybe_debug("Found %d Incidents." % len(incidents), ieee1159_voltage_plugin)
+    except Exception as e:
+        ieee1159_voltage_plugin.logger.error("Error getting V incidents: %s", str(e))
+        incidents = []
     incident_ids: typing.List[int] = []
     array_data: np.ndarray = np.array(data)
     array_data = array_data - 120.0
 
     for incident in incidents:
-        incident_id = mongo.store_incident(
-            mauka_message.payload.event_id,
-            mauka_message.payload.box_id,
-            incident.start_time_ms,
-            incident.end_time_ms,
-            mongo.IncidentMeasurementType.VOLTAGE,
-            max(np.abs(array_data.min()), np.abs(array_data.max())),
-            [INCIDENT_MAP[incident.incident_classification]],
-            [],
-            {},
-            opq_mongo_client,
-            ieee_duration=DURATION_MAP[incident.incident_classification]
-        )
-        log.maybe_debug("Stored incident with id=%s" % incident_id, ieee1159_voltage_plugin)
-        incident_ids.append(incident_id)
+        try:
+            incident_id = mongo.store_incident(
+                mauka_message.payload.event_id,
+                mauka_message.payload.box_id,
+                incident.start_time_ms,
+                incident.end_time_ms,
+                mongo.IncidentMeasurementType.VOLTAGE,
+                max(np.abs(array_data.min()), np.abs(array_data.max())),
+                [INCIDENT_MAP[incident.incident_classification]],
+                [],
+                {},
+                opq_mongo_client,
+                ieee_duration=DURATION_MAP[incident.incident_classification]
+            )
+            log.maybe_debug("Stored incident with id=%s" % incident_id, ieee1159_voltage_plugin)
+            incident_ids.append(incident_id)
+        except Exception as e:
+            ieee1159_voltage_plugin.logger.error("Error storing V incident: %s", str(e))
 
     return incident_ids
 

@@ -158,7 +158,11 @@ def itic(mauka_message: protobuf.mauka_pb2.MaukaMessage,
 
     maybe_debug(itic_plugin, "Preparing to get segments for %d Vrms values" % len(mauka_message.payload.data))
     # segments = analysis.segment(mauka_message.payload.data, segment_threshold)
-    segments = analysis.segment_array(numpy.array(list(mauka_message.payload.data)))
+    try:
+        segments = analysis.segment_array(numpy.array(list(mauka_message.payload.data)))
+    except Exception as e:
+        itic_plugin.logger.error("Error segmenting data for ITIC plugin: %s", str(e))
+        segments = []
 
     if len(segments) == 0:
         maybe_debug(itic_plugin, "No segments found. Ignoring")
@@ -168,51 +172,51 @@ def itic(mauka_message: protobuf.mauka_pb2.MaukaMessage,
 
     incident_ids = []
     for i, segment in enumerate(segments):
-        # start_idx = segment[0]
-        # end_idx = segment[1] + 1
-        # subarray = mauka_message.payload.data[start_idx:end_idx]
-        segment_len = analysis.c_to_ms(len(segment))
-        start_t = analysis.c_to_ms(sum([len(segments[x]) for x in range(0, i)]))
-        end_t = start_t + segment_len
-        mean_rms = segment.mean()
-        maybe_debug(itic_plugin, "start=%f end=%f mean=%f" % (start_t, end_t, mean_rms))
+        try:
+            segment_len = analysis.c_to_ms(len(segment))
+            start_t = analysis.c_to_ms(sum([len(segments[x]) for x in range(0, i)]))
+            end_t = start_t + segment_len
+            mean_rms = segment.mean()
+            maybe_debug(itic_plugin, "start=%f end=%f mean=%f" % (start_t, end_t, mean_rms))
 
-        itic_enum = itic_region(mean_rms, segment_len)
+            itic_enum = itic_region(mean_rms, segment_len)
 
-        if itic_enum == IticRegion.NO_INTERRUPTION:
-            maybe_debug(itic_plugin, "NO_INTERRUPTION")
-            continue
-        else:
-            incident_start_timestamp_ms = mauka_message.payload.start_timestamp_ms + start_t
-            incident_end_timestamp_ms = mauka_message.payload.start_timestamp_ms + end_t
-            if itic_enum is IticRegion.PROHIBITED:
-                maybe_debug(itic_plugin, "PROHIBITED")
-                incident_classification = mongo.IncidentClassification.ITIC_PROHIBITED
+            if itic_enum == IticRegion.NO_INTERRUPTION:
+                maybe_debug(itic_plugin, "NO_INTERRUPTION")
+                continue
             else:
-                maybe_debug(itic_plugin, "NO_DAMAGE")
-                incident_classification = mongo.IncidentClassification.ITIC_NO_DAMAGE
+                incident_start_timestamp_ms = mauka_message.payload.start_timestamp_ms + start_t
+                incident_end_timestamp_ms = mauka_message.payload.start_timestamp_ms + end_t
+                if itic_enum is IticRegion.PROHIBITED:
+                    maybe_debug(itic_plugin, "PROHIBITED")
+                    incident_classification = mongo.IncidentClassification.ITIC_PROHIBITED
+                else:
+                    maybe_debug(itic_plugin, "NO_DAMAGE")
+                    incident_classification = mongo.IncidentClassification.ITIC_NO_DAMAGE
 
-            incident_id = mongo.store_incident(
-                mauka_message.payload.event_id,
-                mauka_message.payload.box_id,
-                incident_start_timestamp_ms,
-                incident_end_timestamp_ms,
-                mongo.IncidentMeasurementType.VOLTAGE,
-                mean_rms - 120.0,
-                [incident_classification],
-                [],
-                {},
-                mongo_client)
+                incident_id = mongo.store_incident(
+                    mauka_message.payload.event_id,
+                    mauka_message.payload.box_id,
+                    incident_start_timestamp_ms,
+                    incident_end_timestamp_ms,
+                    mongo.IncidentMeasurementType.VOLTAGE,
+                    mean_rms - 120.0,
+                    [incident_classification],
+                    [],
+                    {},
+                    mongo_client)
 
-            maybe_debug(itic_plugin, "Stored incident")
+                maybe_debug(itic_plugin, "Stored incident")
 
-            maybe_debug(itic_plugin,
-                        "Found ITIC incident [{}] from event {} and box {}".format(
-                            itic_enum,
-                            mauka_message.event_id,
-                            mauka_message.box_id))
+                maybe_debug(itic_plugin,
+                            "Found ITIC incident [{}] from event {} and box {}".format(
+                                itic_enum,
+                                mauka_message.event_id,
+                                mauka_message.box_id))
 
-            incident_ids.append(incident_id)
+                incident_ids.append(incident_id)
+        except Exception as e:
+            itic_plugin.logger.error("Error storing ITIC incident: %s", str(e))
 
     return incident_ids
 
@@ -254,25 +258,3 @@ class IticPlugin(plugins.base_plugin.MaukaPlugin):
             self.logger.error("Received incorrect mauka message [%s] at IticPlugin",
                               protobuf.pb_util.which_message_oneof(mauka_message))
 
-
-def rerun(mauka_message: protobuf.mauka_pb2.MaukaMessage,
-          segment_threshold: float,
-          logger,
-          mongo_client: mongo.OpqMongoClient = None):
-    """
-    Rerun ITIC analysis over the given mauka_message.
-    :param mauka_message: The mauka_message containing a box event to re-analyze.
-    :param segment_threshold: The threshold for the segmentation algorithm
-    :param logger: The application logger
-    :param mongo_client: An optional instance of a mongo client
-    """
-    client = mongo.get_default_client(mongo_client)
-
-    if protobuf.pb_util.is_payload(mauka_message, protobuf.mauka_pb2.VOLTAGE_RMS_WINDOWED):
-        itic(mauka_message,
-             segment_threshold,
-             logger,
-             client)
-    else:
-        logger.error("Received incorrect mauka message [%s] at IticPlugin rerun",
-                     protobuf.pb_util.which_message_oneof(mauka_message))

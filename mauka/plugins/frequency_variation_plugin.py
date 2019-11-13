@@ -56,60 +56,67 @@ def find_frequency_variation_incidents(mauka_message: mauka_pb2.MaukaMessage,
     bounds = [[0.0, frequency_threshold_low],
               [frequency_threshold_high, 1_000_000]]
     log.maybe_debug("Using bounds=%s" % str(bounds), plugin)
-    ranges = native.bounded_ranges(mauka_message.payload.start_timestamp_ms,
-                                   frequencies_per_cycle,
-                                   bounds)
-    log.maybe_debug("Found %d ranges" % (len(ranges)), plugin)
+    try:
+        ranges = native.bounded_ranges(mauka_message.payload.start_timestamp_ms,
+                                       frequencies_per_cycle,
+                                       bounds)
+        log.maybe_debug("Found %d F ranges" % (len(ranges)), plugin)
+    except Exception as e:
+        plugin.logger.error("Error getting F ranges: %s", str(e))
+        ranges = []
 
     incident_ids: typing.List[int] = []
     for incident_range in ranges:
-        print_range(incident_range, plugin)
-        if incident_range.end_idx - incident_range.start_idx < min_incident_len_c:
-            log.maybe_debug("Ignoring incident with len_c = %f" % (incident_range.end_idx - incident_range.start_idx),
-                            plugin)
-            continue
-        log.maybe_debug("Before finding max_deviation", plugin)
-        max_deviation = 60.0 - max(min(frequencies_per_cycle[incident_range.start_idx:incident_range.end_idx]),
-                                   max(frequencies_per_cycle[incident_range.start_idx:incident_range.end_idx]))
-        log.maybe_debug("After finding max_deviation", plugin)
-        log.maybe_debug("max_deviation=%f" % max_deviation, plugin)
-        if incident_range.bound_min == bounds[0][0] and incident_range.bound_max == bounds[0][1]:
-            log.maybe_debug("frequency_sag", plugin)
-            incident_id = mongo.store_incident(
-                mauka_message.payload.event_id,
-                mauka_message.payload.box_id,
-                incident_range.start_ts_ms,
-                incident_range.end_ts_ms,
-                mongo.IncidentMeasurementType.FREQUENCY,
-                max_deviation,
-                [mongo.IncidentClassification.FREQUENCY_SAG],
-                [],
-                {},
-                opq_mongo_client
-            )
-            incident_ids.append(incident_id)
-            log.maybe_debug("Stored incident with id=%s" % incident_id, plugin)
-        elif incident_range.bound_min == bounds[1][0] and incident_range.bound_max == bounds[1][1]:
-            # Frequency swell
-            log.maybe_debug("frequency_swell", plugin)
-            incident_id = mongo.store_incident(
-                mauka_message.payload.event_id,
-                mauka_message.payload.box_id,
-                incident_range.start_ts_ms,
-                incident_range.end_ts_ms,
-                mongo.IncidentMeasurementType.FREQUENCY,
-                max_deviation,
-                [mongo.IncidentClassification.FREQUENCY_SWELL],
-                [],
-                {},
-                opq_mongo_client
-            )
-            incident_ids.append(incident_id)
-            log.maybe_debug("Stored incident with id=%s" % incident_id, plugin)
-        else:
-            # Unknown
-            log.maybe_debug("Unknown range bounds = %d, %d" % (incident_range.bound_min, incident_range.bound_max),
-                            plugin)
+        try:
+            print_range(incident_range, plugin)
+            if incident_range.end_idx - incident_range.start_idx < min_incident_len_c:
+                log.maybe_debug("Ignoring incident with len_c = %f" % (incident_range.end_idx - incident_range.start_idx),
+                                plugin)
+                continue
+            log.maybe_debug("Before finding max_deviation", plugin)
+            max_deviation = 60.0 - max(min(frequencies_per_cycle[incident_range.start_idx:incident_range.end_idx]),
+                                       max(frequencies_per_cycle[incident_range.start_idx:incident_range.end_idx]))
+            log.maybe_debug("After finding max_deviation", plugin)
+            log.maybe_debug("max_deviation=%f" % max_deviation, plugin)
+            if incident_range.bound_min == bounds[0][0] and incident_range.bound_max == bounds[0][1]:
+                log.maybe_debug("frequency_sag", plugin)
+                incident_id = mongo.store_incident(
+                    mauka_message.payload.event_id,
+                    mauka_message.payload.box_id,
+                    incident_range.start_ts_ms,
+                    incident_range.end_ts_ms,
+                    mongo.IncidentMeasurementType.FREQUENCY,
+                    max_deviation,
+                    [mongo.IncidentClassification.FREQUENCY_SAG],
+                    [],
+                    {},
+                    opq_mongo_client
+                )
+                incident_ids.append(incident_id)
+                log.maybe_debug("Stored incident with id=%s" % incident_id, plugin)
+            elif incident_range.bound_min == bounds[1][0] and incident_range.bound_max == bounds[1][1]:
+                # Frequency swell
+                log.maybe_debug("frequency_swell", plugin)
+                incident_id = mongo.store_incident(
+                    mauka_message.payload.event_id,
+                    mauka_message.payload.box_id,
+                    incident_range.start_ts_ms,
+                    incident_range.end_ts_ms,
+                    mongo.IncidentMeasurementType.FREQUENCY,
+                    max_deviation,
+                    [mongo.IncidentClassification.FREQUENCY_SWELL],
+                    [],
+                    {},
+                    opq_mongo_client
+                )
+                incident_ids.append(incident_id)
+                log.maybe_debug("Stored incident with id=%s" % incident_id, plugin)
+            else:
+                # Unknown
+                log.maybe_debug("Unknown range bounds = %d, %d" % (incident_range.bound_min, incident_range.bound_max),
+                                plugin)
+        except Exception as e:
+            plugin.logger("Error storing frequency variation incident: %s", str(e))
 
     return incident_ids
 
