@@ -28,27 +28,35 @@ def thd(mauka_message: protobuf.mauka_pb2.MaukaMessage,
     :param thd_plugin: An instance of the THD plugin.
     :return: A list of incident ids (if any)
     """
-    data: typing.List[float] = list(mauka_message.payload.data)
-    log.maybe_debug("Found %d samples." % len(data), thd_plugin)
-    incidents = mauka_native_py.classify_thd(mauka_message.payload.start_timestamp_ms, thd_threshold_percent, data)
-    log.maybe_debug("Found %d THD Incidents." % len(incidents), thd_plugin)
+    try:
+        data: typing.List[float] = list(mauka_message.payload.data)
+        log.maybe_debug("Found %d samples." % len(data), thd_plugin)
+        incidents = mauka_native_py.classify_thd(mauka_message.payload.start_timestamp_ms, thd_threshold_percent, data)
+        log.maybe_debug("Found %d THD Incidents." % len(incidents), thd_plugin)
+    except Exception as e:
+        incidents = []
+        thd_plugin.logger.error("Error finding THD incidents: %s", str(e))
+
     incident_ids: typing.List[int] = []
 
     for incident in incidents:
-        incident_id = mongo.store_incident(
-            mauka_message.payload.event_id,
-            mauka_message.payload.box_id,
-            incident.start_time_ms,
-            incident.end_time_ms,
-            mongo.IncidentMeasurementType.VOLTAGE,
-            -1,
-            [mongo.IncidentClassification.EXCESSIVE_THD],
-            [],
-            {},
-            opq_mongo_client
-        )
-        log.maybe_debug("Stored incident with id=%s" % incident_id, thd_plugin)
-        incident_ids.append(incident_id)
+        try:
+            incident_id = mongo.store_incident(
+                mauka_message.payload.event_id,
+                mauka_message.payload.box_id,
+                incident.start_time_ms,
+                incident.end_time_ms,
+                mongo.IncidentMeasurementType.VOLTAGE,
+                -1,
+                [mongo.IncidentClassification.EXCESSIVE_THD],
+                [],
+                {},
+                opq_mongo_client
+            )
+            log.maybe_debug("Stored incident with id=%s" % incident_id, thd_plugin)
+            incident_ids.append(incident_id)
+        except Exception as e:
+            thd_plugin.logger.error("Error storing THD incident %s", str(e))
 
     return incident_ids
 
