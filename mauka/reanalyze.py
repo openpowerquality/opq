@@ -1,4 +1,5 @@
 import argparse
+import time
 
 from plugins.routes import Routes
 import protobuf.pb_util
@@ -12,6 +13,7 @@ def reanalyze_event(event_id: int,
         zmq_context: zmq.Context = zmq.Context()
         zmq_pub_socket: zmq.Socket = zmq_context.socket(zmq.PUB)
         zmq_pub_socket.connect(zmq_push_ep)
+        time.sleep(0.1)
         makai_event = protobuf.pb_util.build_makai_event("makai_event_bridge", event_id)
         mauka_message_bytes = protobuf.pb_util.serialize_message(makai_event)
         print(makai_event, len(mauka_message_bytes))

@@ -170,10 +170,6 @@ def acquire_data(mongo_client: mongo.OpqMongoClient,
     :param mongo_client: The mongo client to use to make this request.
     :param event_id: The event id to acquire data for.
     :param name: The name of the service requesting data.
-    :param filter_order:
-    :param filter_cutoff_frequency:
-    :param frequency_samples_per_window:
-    :param filter_down_sample_factor:
     """
     box_event = mongo_client.box_events_collection.find_one({"event_id": event_id,
                                                              "box_id": box_id})
@@ -276,6 +272,8 @@ class MakaiEventPlugin(plugins.base_plugin.MaukaPlugin):
             self.produce(Routes.raw_voltage, raw_voltage)
             self.produce(Routes.rms_windowed_voltage, rms_windowed_voltage)
             self.produce(Routes.windowed_frequency, frequency_windowed)
+            self.debug("Produced data for box_event=%s" % str(box_event))
+        self.debug("Done with acquire_and_produce")
 
     def on_message(self, topic, mauka_message):
         if protobuf.pb_util.is_makai_event_message(mauka_message):
