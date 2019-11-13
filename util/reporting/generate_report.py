@@ -26,6 +26,7 @@ def create_report(start_time_s: int,
     end_dt = datetime.datetime.utcfromtimestamp(end_time_s)
     now_dt = datetime.datetime.now()
 
+
     print("Generating trend figures...")
     trend_figures = reports.trends.plot_trends(start_time_s, end_time_s, report_dir, mongo_client)
 
@@ -54,12 +55,12 @@ def create_report(start_time_s: int,
                               sum_cols=[2])
 
     print("Generating Incidents table...")
-    i_table_header = ["OPQ Box", "Location", "Incidents"]
+    i_table_header = ["Box", "Cnt"]
     for incident in i_stats["incidents"]:
         i_table_header.append(reports.incident_map[incident])
     i_table = [i_table_header]
     for box, incidents in i_stats["box_to_total_incidents"].items():
-        row = [box, reports.box_to_location[box], incidents]
+        row = [box, incidents]
         for incident in i_stats["incidents"]:
             if incident in i_stats["box_to_incidents"][box]:
                 row.append(i_stats["box_to_incidents"][box][incident])
@@ -67,8 +68,8 @@ def create_report(start_time_s: int,
                 row.append(0)
         i_table.append(row)
 
-    sum_cols = list(range(2, len(i_table_header)))
-    reports.tables.make_table(i_table, "Incidents %s to %s" % (short_start_dt, short_end_dt), report_dir, sort_by_col=2,
+    sum_cols = list(range(1, len(i_table_header)))
+    reports.tables.make_table(i_table, "Incidents %s to %s" % (short_start_dt, short_end_dt), report_dir, sort_by_col=1,
                               sum_cols=sum_cols)
 
     print("Generating report...")

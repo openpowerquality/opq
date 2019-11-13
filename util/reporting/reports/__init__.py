@@ -50,12 +50,16 @@ box_to_location: typing.Dict[str, str] = {
 boxes = [k for k in box_to_location]
 
 incident_map: typing.Dict[str, str] = {
-    "FREQUENCY_SWELL": "F Swell",
-    "FREQUENCY_SAG": "F Sag",
-    "FREQUENCY_INTERRUPTION": "F Int",
-    "VOLTAGE_SAG": "V Sag",
+    "FREQUENCY_SWELL": "FSwell",
+    "FREQUENCY_SAG": "FSag",
+    "FREQUENCY_INTERRUPTION": "FInt",
+    "VOLTAGE_SAG": "VSag",
+    "VOLTAGE_SWELL": "VSwell",
+    "VOLTAGE_INTERRUPTION": "VInt",
+    "SEMI_F47_VIOLATION": "SemiF47",
     "OUTAGE": "Outage",
-    "EXCESSIVE_THD": "THD"
+    "EXCESSIVE_THD": "THD",
+    "ITIC_NO_DAMAGE": "IticND"
 }
 
 
