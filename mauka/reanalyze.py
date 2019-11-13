@@ -22,6 +22,6 @@ if __name__ == "__main__":
                         type=int)
     parser.add_argument("zmq_push_ep")
     args = parser.parse_args()
-    event_id = args.incident_id
+    event_id = args.event_id
     zmq_push_ep = args.zmq_push_ep
     reanalyze_event(event_id)
