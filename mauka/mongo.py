@@ -532,6 +532,9 @@ def store_incident(incident_id: int,
     :param copy_data: Should data be copied from measurements and waveforms?
     """
 
+    if incident_id is None:
+        return None
+
     mongo_client = get_default_client(opq_mongo_client)
     # incident_id = next_available_incident_id(mongo_client)
     location = get_location(box_id, mongo_client)
