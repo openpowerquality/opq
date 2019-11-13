@@ -35,6 +35,8 @@ MAKAI_DATA_RESPONSE = "get_data_response"
 MAKAI_COMMAND_TO_PLUGIN_RESPONSE = "command_to_plugin_response"
 BOX_MEASUREMENT_RATE_REQUEST = "box_measurement_rate_request"
 BOX_MEASUREMENT_RATE_RESPONSE = "box_measurement_rate_response"
+INCIDENT_ID_REQ = "incident_id_req"
+INCIDENT_ID_RESP = "incident_id_resp"
 
 # pylint: disable=C0103
 logger = log.get_logger(__name__)
@@ -326,7 +328,7 @@ def build_makai_trigger_commands(start_timestamp_ms,
 
 def build_makai_rate_change_commands(box_ids: typing.List[str],
                                      measurement_window_cycles: int) -> typing.List[
-                                         typing.Tuple[opqbox3_pb2.Command, str]]:
+    typing.Tuple[opqbox3_pb2.Command, str]]:
     """
     Builds commands for OPQ Boxes to change the measurement rate.
     :param box_ids: The box ids to change the measurement rate for.
@@ -459,6 +461,19 @@ def build_box_measurement_rate_response(source: str, box_id: str, measurement_ra
     mauka_message = build_mauka_message(source)
     mauka_message.box_measurement_rate_response.box_id = box_id
     mauka_message.box_measurement_rate_response.measurement_rate = measurement_rate
+    return mauka_message
+
+
+def build_incident_id_req(source: str, req_id: int) -> mauka_pb2.MaukaMessage:
+    mauka_message = build_mauka_message(source)
+    mauka_message.incident_id_req.req_id = req_id
+    return mauka_message
+
+
+def build_incident_id_resp(source: str, resp_id: int, incident_id: int) -> mauka_pb2.MaukaMessage:
+    mauka_message = build_mauka_message(source)
+    mauka_message.incident_id_resp.resp_id = resp_id
+    mauka_message.incident_id_resp.incident_id = incident_id
     return mauka_message
 
 
@@ -705,6 +720,14 @@ def is_box_measurement_rate_response(mauka_message: mauka_pb2.MaukaMessage) -> b
     :return: True if it is, False otherwise.
     """
     return which_message_oneof(mauka_message) == BOX_MEASUREMENT_RATE_RESPONSE
+
+
+def is_incident_id_req(mauka_message: mauka_pb2.MaukaMessage) -> bool:
+    return which_message_oneof(mauka_message) == INCIDENT_ID_REQ
+
+
+def is_incident_id_resp(mauka_message: mauka_pb2.MaukaMessage) -> bool:
+    return which_message_oneof(mauka_message) == INCIDENT_ID_RESP
 
 
 def repeated_as_ndarray(repeated) -> numpy.ndarray:

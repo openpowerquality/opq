@@ -42,6 +42,7 @@ def thd(mauka_message: protobuf.mauka_pb2.MaukaMessage,
     for incident in incidents:
         try:
             incident_id = mongo.store_incident(
+                thd_plugin.request_next_available_incident_id(),
                 mauka_message.payload.event_id,
                 mauka_message.payload.box_id,
                 incident.start_time_ms,

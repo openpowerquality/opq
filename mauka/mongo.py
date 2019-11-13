@@ -504,7 +504,8 @@ def store_box_event(event_id: int,
     return mongo_client.box_events_collection.insert_one(box_event).inserted_id
 
 
-def store_incident(event_id: int,
+def store_incident(incident_id: int,
+                   event_id: int,
                    box_id: str,
                    start_timestamp_ms: int,
                    end_timestamp_ms: int,
@@ -532,7 +533,7 @@ def store_incident(event_id: int,
     """
 
     mongo_client = get_default_client(opq_mongo_client)
-    incident_id = next_available_incident_id(mongo_client)
+    # incident_id = next_available_incident_id(mongo_client)
     location = get_location(box_id, mongo_client)
     ieee_duration = ieee_duration.value if ieee_duration is not None else get_ieee_duration(end_timestamp_ms -
                                                                                             start_timestamp_ms).value

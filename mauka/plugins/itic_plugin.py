@@ -195,6 +195,7 @@ def itic(mauka_message: protobuf.mauka_pb2.MaukaMessage,
                     incident_classification = mongo.IncidentClassification.ITIC_NO_DAMAGE
 
                 incident_id = mongo.store_incident(
+                    itic_plugin.request_next_available_incident_id(),
                     mauka_message.payload.event_id,
                     mauka_message.payload.box_id,
                     incident_start_timestamp_ms,

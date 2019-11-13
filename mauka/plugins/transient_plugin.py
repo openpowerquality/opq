@@ -440,6 +440,7 @@ class TransientPlugin(plugins.base_plugin.MaukaPlugin):
 
             for incident in incidents:
                 incident_id = mongo.store_incident(
+                    self.request_next_available_incident_id(),
                     incident["event_id"],
                     incident["box_id"],
                     incident["incident_start_ts"],

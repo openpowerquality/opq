@@ -6,6 +6,7 @@ import json
 import multiprocessing
 import signal
 import threading
+import time
 import typing
 
 # noinspection PyPackageRequirements
@@ -159,6 +160,28 @@ class MaukaPlugin:
         self.bytes_published: int = 0
 
         self.plugin_state: str = PluginState.IDLE.name
+
+        # ZMQ channel for getting incident ids
+        self.zmq_incident_id_req_socket = self.zmq_context.socket(zmq.REQ)
+        self.zmq_incident_id_req_socket.connect(self.config.get("zmq.incident_id_provider.interface"))
+
+    def request_next_available_incident_id(self) -> typing.Optional[int]:
+        req_id = int(time.time())
+        req = protobuf.pb_util.build_incident_id_req(self.name, req_id)
+        self.zmq_incident_id_req_socket.send(protobuf.pb_util.serialize_message(req))
+        resp: bytes = self.zmq_incident_id_req_socket.recv()
+        mauka_message: protobuf.mauka_pb2.MaukaMessage = protobuf.pb_util.deserialize_mauka_message(resp)
+        if protobuf.pb_util.is_incident_id_resp(mauka_message):
+            if mauka_message.incident_id_resp.resp_id == req_id:
+                return mauka_message.incident_id_resp.incident_id
+            else:
+                self.logger.error("Incident req id %d != incident resp id %d",
+                                  req_id,
+                                  mauka_message.incident_id_resp.resp_id)
+                return None
+        else:
+            self.logger.error("Received an incorrect message for an incident id response")
+            return None
 
     def update_received(self, bytes_received: int):
         """

@@ -81,6 +81,7 @@ def find_frequency_variation_incidents(mauka_message: mauka_pb2.MaukaMessage,
             if incident_range.bound_min == bounds[0][0] and incident_range.bound_max == bounds[0][1]:
                 log.maybe_debug("frequency_sag", plugin)
                 incident_id = mongo.store_incident(
+                    plugin.request_next_available_incident_id(),
                     mauka_message.payload.event_id,
                     mauka_message.payload.box_id,
                     incident_range.start_ts_ms,
@@ -98,6 +99,7 @@ def find_frequency_variation_incidents(mauka_message: mauka_pb2.MaukaMessage,
                 # Frequency swell
                 log.maybe_debug("frequency_swell", plugin)
                 incident_id = mongo.store_incident(
+                    plugin.request_next_available_incident_id(),
                     mauka_message.payload.event_id,
                     mauka_message.payload.box_id,
                     incident_range.start_ts_ms,

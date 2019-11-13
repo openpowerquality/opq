@@ -66,6 +66,7 @@ def ieee1159_voltage(mauka_message: protobuf.mauka_pb2.MaukaMessage,
     for incident in incidents:
         try:
             incident_id = mongo.store_incident(
+                ieee1159_voltage_plugin.request_next_available_incident_id(),
                 mauka_message.payload.event_id,
                 mauka_message.payload.box_id,
                 incident.start_time_ms,

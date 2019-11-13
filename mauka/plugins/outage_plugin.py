@@ -103,7 +103,8 @@ class OutagePlugin(MaukaPlugin):
 
                         # Fresh outage
                         if box_id not in self.prev_incident_ids:
-                            incident_id = mongo.store_incident(-1,
+                            incident_id = mongo.store_incident(self.request_next_available_incident_id(),
+                                                               -1,
                                                                box_id,
                                                                int(now),
                                                                -1,

@@ -86,7 +86,8 @@ def semi_violation(mongo_client: mongo.OpqMongoClient,
                 maybe_debug("Semi F47 Violation from %f to %f" % (incident_start_timestamp_ms,
                                                                   incident_end_timestamp_ms), plugin)
 
-                incident_id = mongo.store_incident(mauka_message.payload.event_id,
+                incident_id = mongo.store_incident(plugin.request_next_available_incident_id(),
+                                                   mauka_message.payload.event_id,
                                                    mauka_message.payload.box_id,
                                                    incident_start_timestamp_ms,
                                                    incident_end_timestamp_ms,

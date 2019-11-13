@@ -97,6 +97,8 @@ def main():
     if conf.get("mauka.startEventBroker"):
         makai_bridge_event_process = services.brokers.start_makai_event_bridge(conf)
 
+    incident_id_process = services.brokers.start_incident_id_service(conf)
+
     # start-stop-daemon sends a SIGTERM, we need to handle it to gracefully shutdown mauka
     def sigterm_handler(signum, frame):
         """
@@ -123,6 +125,10 @@ def main():
         if makai_bridge_event_process is not None:
             logger.info("Killing makai event bridge process")
             makai_bridge_event_process.terminate()
+
+        if incident_id_process is not None:
+            logger.info("Killing incident id process")
+            incident_id_process.terminate()
 
         logger.info("Goodbye")
         sys.exit(0)
