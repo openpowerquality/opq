@@ -192,48 +192,51 @@ def acquire_data(mongo_client: mongo.OpqMongoClient,
 
     makai_event_plugin.debug("Extracted timestamps %d-%d" % (start_timestamp, end_timestamp))
 
-    adc_samples = protobuf.pb_util.build_payload(name,
-                                                 event_id,
-                                                 box_id,
-                                                 protobuf.mauka_pb2.ADC_SAMPLES,
-                                                 waveform,
-                                                 start_timestamp,
-                                                 end_timestamp)
+    try:
+        adc_samples = protobuf.pb_util.build_payload(name,
+                                                     event_id,
+                                                     box_id,
+                                                     protobuf.mauka_pb2.ADC_SAMPLES,
+                                                     waveform,
+                                                     start_timestamp,
+                                                     end_timestamp)
 
-    makai_event_plugin.debug("Got ADC samples")
+        makai_event_plugin.debug("Got ADC samples")
 
-    raw_voltage = protobuf.pb_util.build_payload(name,
-                                                 event_id,
-                                                 box_id,
-                                                 protobuf.mauka_pb2.VOLTAGE_RAW,
-                                                 waveform_calibrated,
-                                                 start_timestamp,
-                                                 end_timestamp)
+        raw_voltage = protobuf.pb_util.build_payload(name,
+                                                     event_id,
+                                                     box_id,
+                                                     protobuf.mauka_pb2.VOLTAGE_RAW,
+                                                     waveform_calibrated,
+                                                     start_timestamp,
+                                                     end_timestamp)
 
-    makai_event_plugin.debug("Got raw voltage")
+        makai_event_plugin.debug("Got raw voltage")
 
-    rms_windowed_voltage = protobuf.pb_util.build_payload(name,
-                                                          event_id,
-                                                          box_id,
-                                                          protobuf.mauka_pb2.VOLTAGE_RMS_WINDOWED,
-                                                          vrms_waveform(waveform_calibrated,
-                                                                        int(constants.SAMPLES_PER_CYCLE)),
-                                                          start_timestamp,
-                                                          end_timestamp)
+        rms_windowed_voltage = protobuf.pb_util.build_payload(name,
+                                                              event_id,
+                                                              box_id,
+                                                              protobuf.mauka_pb2.VOLTAGE_RMS_WINDOWED,
+                                                              vrms_waveform(waveform_calibrated,
+                                                                            int(constants.SAMPLES_PER_CYCLE)),
+                                                              start_timestamp,
+                                                              end_timestamp)
 
-    makai_event_plugin.debug("Got rms windowed voltage")
+        makai_event_plugin.debug("Got rms windowed voltage")
 
-    frequency_windowed = protobuf.pb_util.build_payload(name,
-                                                        event_id,
-                                                        box_id,
-                                                        protobuf.mauka_pb2.FREQUENCY_WINDOWED,
-                                                        analysis.frequency_per_cycle(waveform_calibrated),
-                                                        start_timestamp,
-                                                        end_timestamp)
+        frequency_windowed = protobuf.pb_util.build_payload(name,
+                                                            event_id,
+                                                            box_id,
+                                                            protobuf.mauka_pb2.FREQUENCY_WINDOWED,
+                                                            analysis.frequency_per_cycle(waveform_calibrated),
+                                                            start_timestamp,
+                                                            end_timestamp)
 
-    makai_event_plugin.debug("Got windowed frequency")
+        makai_event_plugin.debug("Got windowed frequency")
 
-    return adc_samples, raw_voltage, rms_windowed_voltage, frequency_windowed
+        return adc_samples, raw_voltage, rms_windowed_voltage, frequency_windowed
+    except Exception as e:
+        makai_event_plugin.logger.warning("Encountered an error while converting data: %s", str(e))
 
 
 class MakaiEventPlugin(plugins.base_plugin.MaukaPlugin):

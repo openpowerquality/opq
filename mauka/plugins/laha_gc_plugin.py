@@ -202,7 +202,7 @@ class LahaGcPlugin(base_plugin.MaukaPlugin):
                                                                                                                "_at"]}})
 
                 if update_result.modified_count != 1:
-                    self.logger.error("gc_update incidents event expire_at not set for incident_id=%d event_id=%d:"
+                    self.logger.warn("gc_update incidents event expire_at not set for incident_id=%d event_id=%d:"
                                       " ack=%s "
                                       "matched=%d modified=%d raw=%s",
                                       incident["incident_id"],
