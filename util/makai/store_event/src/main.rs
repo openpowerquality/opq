@@ -17,6 +17,8 @@ use std::sync::Arc;
 
 mod config;
 use crate::config::Settings;
+use std::string::FromUtf8Error;
+
 mod store_event;
 mod error_type;
 
@@ -50,12 +52,21 @@ fn main() {
     let client = Client::connect(&settings.mongo_host, settings.mongo_port).unwrap();
 
     loop{
-        let ev_str = match ev_broker.recv_string(0){
-            Ok(s) => { match s{
-                Ok(str) => {str},
-                Err(_) => {println!("Not a valid event number "); return;},
-            }},
+        let msg = match ev_broker.recv_multipart(0){
+            Ok(s) => {s},
             Err(e) => {println!("Could not get an event number {}", e); return;},
+
+        };
+        if msg.len() < 2 {
+            println!("Message needs more parts");
+            return ;
+        }
+
+        let ev_str = match String::from_utf8(msg[1].clone()){
+            Ok(s) => {s},
+            Err(e) => {
+                println!("Could not parse an event number {}", e); return;
+            },
         };
 
         let ev_id = match ev_str.parse::<u32>(){
