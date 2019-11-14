@@ -1,6 +1,6 @@
 [package]
 name = "mauka_native_py"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["opq <achriste@hawaii.edu>"]
 edition = "2018"
 
