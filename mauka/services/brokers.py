@@ -134,7 +134,7 @@ def start_incident_id_service(mauka_config: config.MaukaConfig):
             mauka_message: protobuf.pb_util.mauka_pb2.MaukaMessage = protobuf.pb_util.deserialize_mauka_message(req)
             if protobuf.pb_util.is_incident_id_req(mauka_message):
                 resp = protobuf.pb_util.build_incident_id_resp("incident_id_service",
-                                                               mauka_message.incident_id_req.req.id,
+                                                               mauka_message.incident_id_req.req_id,
                                                                incident_id_service.get_and_inc())
                 zmq_req_socket.send(protobuf.pb_util.serialize_message(resp))
             else:
