@@ -33,9 +33,9 @@ def thd(mauka_message: protobuf.mauka_pb2.MaukaMessage,
         log.maybe_debug("Found %d samples." % len(data), thd_plugin)
         incidents = mauka_native_py.classify_thd(mauka_message.payload.start_timestamp_ms, thd_threshold_percent, data)
         log.maybe_debug("Found %d THD Incidents." % len(incidents), thd_plugin)
-    except Exception as e:
+    except Exception as exception:
         incidents = []
-        thd_plugin.logger.error("Error finding THD incidents: %s", str(e))
+        thd_plugin.logger.error("Error finding THD incidents: %s", str(exception))
 
     incident_ids: typing.List[int] = []
 
@@ -56,8 +56,8 @@ def thd(mauka_message: protobuf.mauka_pb2.MaukaMessage,
             )
             log.maybe_debug("Stored incident with id=%s" % incident_id, thd_plugin)
             incident_ids.append(incident_id)
-        except Exception as e:
-            thd_plugin.logger.error("Error storing THD incident %s", str(e))
+        except Exception as exception:
+            thd_plugin.logger.error("Error storing THD incident %s", str(exception))
 
     return incident_ids
 

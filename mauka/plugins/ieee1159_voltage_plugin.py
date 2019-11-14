@@ -56,8 +56,8 @@ def ieee1159_voltage(mauka_message: protobuf.mauka_pb2.MaukaMessage,
     try:
         incidents = mauka_native_py.classify_rms(mauka_message.payload.start_timestamp_ms, data)
         log.maybe_debug("Found %d Incidents." % len(incidents), ieee1159_voltage_plugin)
-    except Exception as e:
-        ieee1159_voltage_plugin.logger.error("Error getting V incidents: %s", str(e))
+    except Exception as exception:
+        ieee1159_voltage_plugin.logger.error("Error getting V incidents: %s", str(exception))
         incidents = []
     incident_ids: typing.List[int] = []
     array_data: np.ndarray = np.array(data)
@@ -81,8 +81,8 @@ def ieee1159_voltage(mauka_message: protobuf.mauka_pb2.MaukaMessage,
             )
             log.maybe_debug("Stored incident with id=%s" % incident_id, ieee1159_voltage_plugin)
             incident_ids.append(incident_id)
-        except Exception as e:
-            ieee1159_voltage_plugin.logger.error("Error storing V incident: %s", str(e))
+        except Exception as exception:
+            ieee1159_voltage_plugin.logger.error("Error storing V incident: %s", str(exception))
 
     return incident_ids
 

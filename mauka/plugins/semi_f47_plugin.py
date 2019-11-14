@@ -65,8 +65,8 @@ def semi_violation(mongo_client: mongo.OpqMongoClient,
     try:
         segments = analysis.segment_array(data)
         maybe_debug("Found %d segments" % len(segments), plugin)
-    except Exception as e:
-        plugin.logger.error("Error segmenting data for semi f47 plugin: %s", str(e))
+    except Exception as exception:
+        plugin.logger.error("Error segmenting data for semi f47 plugin: %s", str(exception))
         segments = []
 
     for i, segment in enumerate(segments):
@@ -102,8 +102,8 @@ def semi_violation(mongo_client: mongo.OpqMongoClient,
                 incident_ids.append(incident_id)
             else:
                 maybe_debug("No Semi F47 Violation", plugin)
-        except Exception as e:
-            plugin.logger.error("Error dealing with semi f47 incident: %s", str(e))
+        except Exception as exception:
+            plugin.logger.error("Error dealing with semi f47 incident: %s", str(exception))
 
     return incident_ids
 

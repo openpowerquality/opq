@@ -201,8 +201,8 @@ def acquire_data(mongo_client: mongo.OpqMongoClient,
                                                      start_timestamp,
                                                      end_timestamp)
         makai_event_plugin.debug("Got ADC samples")
-    except Exception as e:
-        makai_event_plugin.logger.error("Error getting ADC_SAMPLES %s", str(e))
+    except Exception as exception:
+        makai_event_plugin.logger.error("Error getting ADC_SAMPLES %s", str(exception))
         adc_samples = protobuf.pb_util.build_payload(name,
                                                      event_id,
                                                      box_id,
@@ -220,8 +220,8 @@ def acquire_data(mongo_client: mongo.OpqMongoClient,
                                                      start_timestamp,
                                                      end_timestamp)
         makai_event_plugin.debug("Got raw voltage")
-    except Exception as e:
-        makai_event_plugin.logger.error("Error getting VOLTAGE_RAW: %s", str(e))
+    except Exception as exception:
+        makai_event_plugin.logger.error("Error getting VOLTAGE_RAW: %s", str(exception))
         raw_voltage = protobuf.pb_util.build_payload(name,
                                                      event_id,
                                                      box_id,
@@ -240,8 +240,8 @@ def acquire_data(mongo_client: mongo.OpqMongoClient,
                                                               start_timestamp,
                                                               end_timestamp)
         makai_event_plugin.debug("Got rms windowed voltage")
-    except Exception as e:
-        makai_event_plugin.logger.error("Error getting VOLTAGE_RMS_WINDOWED: %s", str(e))
+    except Exception as exception:
+        makai_event_plugin.logger.error("Error getting VOLTAGE_RMS_WINDOWED: %s", str(exception))
         rms_windowed_voltage = protobuf.pb_util.build_payload(name,
                                                               event_id,
                                                               box_id,
@@ -259,7 +259,7 @@ def acquire_data(mongo_client: mongo.OpqMongoClient,
                                                             start_timestamp,
                                                             end_timestamp)
         makai_event_plugin.debug("Got windowed frequency")
-    except Exception as e:
+    except Exception as exception:
         frequency_windowed = protobuf.pb_util.build_payload(name,
                                                             event_id,
                                                             box_id,
@@ -267,7 +267,7 @@ def acquire_data(mongo_client: mongo.OpqMongoClient,
                                                             [],
                                                             start_timestamp,
                                                             end_timestamp)
-        makai_event_plugin.logger.error("Error getting FREQUENCY_WINDOWED: %s", str(e))
+        makai_event_plugin.logger.error("Error getting FREQUENCY_WINDOWED: %s", str(exception))
 
     return adc_samples, raw_voltage, rms_windowed_voltage, frequency_windowed
 

@@ -160,8 +160,8 @@ def itic(mauka_message: protobuf.mauka_pb2.MaukaMessage,
     # segments = analysis.segment(mauka_message.payload.data, segment_threshold)
     try:
         segments = analysis.segment_array(numpy.array(list(mauka_message.payload.data)))
-    except Exception as e:
-        itic_plugin.logger.error("Error segmenting data for ITIC plugin: %s", str(e))
+    except Exception as exception:
+        itic_plugin.logger.error("Error segmenting data for ITIC plugin: %s", str(exception))
         segments = []
 
     if len(segments) == 0:
@@ -216,8 +216,8 @@ def itic(mauka_message: protobuf.mauka_pb2.MaukaMessage,
                                 mauka_message.box_id))
 
                 incident_ids.append(incident_id)
-        except Exception as e:
-            itic_plugin.logger.error("Error storing ITIC incident: %s", str(e))
+        except Exception as exception:
+            itic_plugin.logger.error("Error storing ITIC incident: %s", str(exception))
 
     return incident_ids
 

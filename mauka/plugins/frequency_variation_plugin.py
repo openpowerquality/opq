@@ -61,8 +61,8 @@ def find_frequency_variation_incidents(mauka_message: mauka_pb2.MaukaMessage,
                                        frequencies_per_cycle,
                                        bounds)
         log.maybe_debug("Found %d F ranges" % (len(ranges)), plugin)
-    except Exception as e:
-        plugin.logger.error("Error getting F ranges: %s", str(e))
+    except Exception as exception:
+        plugin.logger.error("Error getting F ranges: %s", str(exception))
         ranges = []
 
     incident_ids: typing.List[int] = []
@@ -70,7 +70,8 @@ def find_frequency_variation_incidents(mauka_message: mauka_pb2.MaukaMessage,
         try:
             print_range(incident_range, plugin)
             if incident_range.end_idx - incident_range.start_idx < min_incident_len_c:
-                log.maybe_debug("Ignoring incident with len_c = %f" % (incident_range.end_idx - incident_range.start_idx),
+                log.maybe_debug("Ignoring incident with len_c = %f" %
+                                (incident_range.end_idx - incident_range.start_idx),
                                 plugin)
                 continue
             log.maybe_debug("Before finding max_deviation", plugin)
@@ -117,8 +118,8 @@ def find_frequency_variation_incidents(mauka_message: mauka_pb2.MaukaMessage,
                 # Unknown
                 log.maybe_debug("Unknown range bounds = %d, %d" % (incident_range.bound_min, incident_range.bound_max),
                                 plugin)
-        except Exception as e:
-            plugin.logger("Error storing frequency variation incident: %s", str(e))
+        except Exception as exception:
+            plugin.logger("Error storing frequency variation incident: %s", str(exception))
 
     return incident_ids
 
