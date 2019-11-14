@@ -163,7 +163,7 @@ class MaukaPlugin:
 
         # ZMQ channel for getting incident ids
         self.zmq_incident_id_req_socket = self.zmq_context.socket(zmq.REQ)
-        self.zmq_incident_id_req_socket.connect(self.config.get("zmq.incident_id_provider.interface"))
+        self.zmq_incident_id_req_socket.connect(self.config.get("zmq.incident_id_provider.req.interface"))
 
     def request_next_available_incident_id(self) -> typing.Optional[int]:
         req_id = int(time.time())

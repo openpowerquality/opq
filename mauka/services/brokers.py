@@ -127,7 +127,7 @@ def start_incident_id_service(mauka_config: config.MaukaConfig):
 
         zmq_context: zmq.Context = zmq.Context()
         zmq_req_socket: zmq.Socket = zmq_context.socket(zmq.REP)
-        zmq_req_socket.bind(conf.get("zmq.incident_id_provider.interface"))
+        zmq_req_socket.bind(conf.get("zmq.incident_id_provider.rep.interface"))
 
         while True:
             req: bytes = zmq_req_socket.recv()

@@ -14,7 +14,8 @@
   "zmq.mauka.plugin.pub.interface": "tcp://localhost:9882",
   "zmq.mauka.plugin.sub.interface": "tcp://localhost:9883",
 
-  "zmq.incident_id_provider.interface": "tcp://localhost:9777",
+  "zmq.incident_id_provider.rep.interface": "tcp://*:9777",
+  "zmq.incident_id_provider.req.interface": "tcp://localhost:9777",
 
   "zmq.mauka.plugin.management.rep.interface": "tcp://*:12000",
   "zmq.mauka.plugin.management.req.interface": "tcp://localhost:12000",
