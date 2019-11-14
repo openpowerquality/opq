@@ -258,4 +258,3 @@ class IticPlugin(plugins.base_plugin.MaukaPlugin):
         else:
             self.logger.error("Received incorrect mauka message [%s] at IticPlugin",
                               protobuf.pb_util.which_message_oneof(mauka_message))
-

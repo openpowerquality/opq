@@ -165,7 +165,12 @@ class MaukaPlugin:
         self.zmq_incident_id_req_socket = self.zmq_context.socket(zmq.REQ)
         self.zmq_incident_id_req_socket.connect(self.config.get("zmq.incident_id_provider.req.interface"))
 
+    # pylint: disable=E1101
     def request_next_available_incident_id(self) -> typing.Optional[int]:
+        """
+        Requests the next available incident id from the incident id provider service.
+        :return: The next available incident id or None.
+        """
         req_id = int(time.time())
         req = protobuf.pb_util.build_incident_id_req(self.name, req_id)
         self.zmq_incident_id_req_socket.send(protobuf.pb_util.serialize_message(req))
