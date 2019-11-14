@@ -101,6 +101,12 @@ def start_makai_event_bridge(mauka_config: config.MaukaConfig):
 
 
 def start_incident_id_service(mauka_config: config.MaukaConfig):
+    """
+    Starts the incident id service.
+    :param mauka_config: An instance of a MaukaConfig.
+    :return: This process'es handle.
+    """
+    # pylint: disable=E1101
     def _run(conf: config.MaukaConfig):
         import logging
         import signal
