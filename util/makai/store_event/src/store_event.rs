@@ -154,7 +154,7 @@ pub fn store_event(
         }
     };
     manifest_file
-        .write(serde_json::to_string(&man).unwrap().as_bytes())
+        .write(serde_json::to_string_pretty(&man).unwrap().as_bytes())
         .unwrap();
 
     Ok(())
