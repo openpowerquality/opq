@@ -38,7 +38,7 @@ pub fn store_event(
         },
         Err(_) => return Err(StoreError::NoSuchEvent { id: event_num }),
     };
-    if ev.get_array("MONGO_EVENTS_TRIGGERED_FIELD").unwrap().len() < 2 {
+    if ev.get_array("boxes_received").unwrap().len() < 1 {
         return Ok(());
     }
 
@@ -106,7 +106,7 @@ pub fn store_event(
         let mut outfile = File::create(&data_path).unwrap();
         for i in 0..bytes.len() / 2 {
             let mut ipoint: i16 = bytes[i * 2] as i16;
-            ipoint |= (bytes[i * 2] as i16) << 8;
+            ipoint |= (bytes[i * 2 + 1] as i16) << 8;
             let fpoint = (ipoint as f64) / boxen_to_const.get(box_id).unwrap();
             outfile.write(format!("{}\n", fpoint).as_bytes()).unwrap();
         }
@@ -118,7 +118,7 @@ pub fn store_event(
             .find(
                 Some(doc!(
                     "box_id": box_id,
-                    "timestamp_ms": doc!("$gt": start, "$lte": end)
+                    "timestamp_ms": doc!("$gt": start-2000, "$lte": end + 2000)
                 )),
                 None,
             )
@@ -126,7 +126,6 @@ pub fn store_event(
 
         let data_path = root_path.clone() + "/" + &box_id.to_string() + ".trend";
         let mut outfile = File::create(&data_path).unwrap();
-
         for result in cursor {
             if let Ok(item) = result {
                 let ts = item.get_i64("timestamp_ms").unwrap();
@@ -136,7 +135,7 @@ pub fn store_event(
                 let trans = item.get_f64("transient").unwrap();
 
                 outfile
-                    .write(format!("{} {} {} {} {}", ts, v, f, thd, trans).as_bytes())
+                    .write(format!("{} {} {} {} {}\n", ts, v, f, thd, trans).as_bytes())
                     .unwrap();
             }
         }

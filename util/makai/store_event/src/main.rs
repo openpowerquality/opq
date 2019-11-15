@@ -18,10 +18,14 @@ mod config;
 use crate::config::Settings;
 use std::time::Duration;
 
+use env_logger;
+
+
 mod error_type;
 mod store_event;
 
 fn main() {
+    env_logger::init();
     let args: Vec<String> = env::args().collect();
     let settings = match Settings::load_from_file(args[1].clone()) {
         Ok(s) => s,
@@ -33,8 +37,9 @@ fn main() {
 
     let ctx = zmq::Context::new();
     let ev_broker = ctx.socket(zmq::SUB).unwrap();
+    println!{"Connecting to the event service: {}", settings.zmq_event_endpoint}
+    ev_broker.set_subscribe(b"").unwrap();
     ev_broker.connect(&settings.zmq_event_endpoint).unwrap();
-    ev_broker.set_subscribe("".as_bytes()).unwrap();
 
     match fs::create_dir_all(&settings.path) {
         Ok(_) => println!("Created directory: {}", settings.path),
@@ -46,7 +51,7 @@ fn main() {
 
     //Mongo bullshit
     let client = Client::connect(&settings.mongo_host, settings.mongo_port).unwrap();
-
+    println!("Finished init");
     loop {
         let msg = match ev_broker.recv_multipart(0) {
             Ok(s) => s,
@@ -75,6 +80,7 @@ fn main() {
                 return;
             }
         };
+        println!("Event id: {}", ev_id);
         let path = settings.path.clone();
         let client_copy = client.clone();
         let delay = Duration::from_millis(settings.grace_ms);

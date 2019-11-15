@@ -1,8 +1,8 @@
 {
-  "zmq_event_endpoint" : "tcp://127.0.0.1:10001",
+  "zmq_event_endpoint" : "tcp://localhost:10000",
   "mongo_host" : "localhost",
-  "mongo_port" : 2000,
+  "mongo_port" : 27017,
   "path" : "./data",
-  "grace_ms" : 3000
+  "grace_ms" : 30000
 
 }
