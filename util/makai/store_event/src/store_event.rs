@@ -12,10 +12,18 @@ use std::io::Write;
 use std::sync::Arc;
 
 #[derive(Serialize)]
+struct BoxEvent {
+    id: String,
+    start: i64,
+    end: i64,
+}
+
+#[derive(Serialize)]
 struct Manifest {
     ev_id: u32,
     start: i64,
     end: i64,
+    box_event: Vec<BoxEvent>,
 }
 
 pub fn store_event(
@@ -45,22 +53,12 @@ pub fn store_event(
     let start = ev.get_i64("target_event_start_timestamp_ms").unwrap();
     let end = ev.get_i64("target_event_end_timestamp_ms").unwrap();
 
-    let man = Manifest {
+    let mut man = Manifest {
         ev_id: event_num,
         start,
         end,
+        box_event : vec![]
     };
-    let mut manifest_file = match File::create(root_path.clone() + "/manifest") {
-        Ok(file) => file,
-        Err(_) => {
-            return Err(StoreError::CouldNotCreate {
-                path: root_path.clone() + "/manifest",
-            })
-        }
-    };
-    manifest_file
-        .write(serde_json::to_string(&man).unwrap().as_bytes())
-        .unwrap();
 
     //now for Boxes:
     let mut boxen_to_fs = HashMap::new();
@@ -79,7 +77,13 @@ pub fn store_event(
         if let Ok(item) = result {
             let fs_name = item.get_str("data_fs_filename").unwrap().to_string();
             let fs_id = item.get_str("box_id").unwrap().to_string();
-            boxen_to_fs.insert(fs_id, fs_name);
+            boxen_to_fs.insert(fs_id.clone(), fs_name);
+            let bev = BoxEvent{
+                id: fs_id,
+                start: item.get_i64("event_start_timestamp_ms").unwrap(),
+                end: item.get_i64("event_end_timestamp_ms").unwrap()
+            };
+            man.box_event.push(bev);
         }
     }
 
@@ -118,7 +122,7 @@ pub fn store_event(
             .find(
                 Some(doc!(
                     "box_id": box_id,
-                    "timestamp_ms": doc!("$gt": start-2000, "$lte": end + 2000)
+                    "timestamp_ms": doc!("$gt": start - 2000, "$lte": end + 2000)
                 )),
                 None,
             )
@@ -140,6 +144,18 @@ pub fn store_event(
             }
         }
     }
+    //Manifest:
+    let mut manifest_file = match File::create(root_path.clone() + "/manifest") {
+        Ok(file) => file,
+        Err(_) => {
+            return Err(StoreError::CouldNotCreate {
+                path: root_path.clone() + "/manifest",
+            })
+        }
+    };
+    manifest_file
+        .write(serde_json::to_string(&man).unwrap().as_bytes())
+        .unwrap();
 
     Ok(())
 }

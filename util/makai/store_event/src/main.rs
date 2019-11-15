@@ -20,7 +20,6 @@ use std::time::Duration;
 
 use env_logger;
 
-
 mod error_type;
 mod store_event;
 
@@ -37,7 +36,7 @@ fn main() {
 
     let ctx = zmq::Context::new();
     let ev_broker = ctx.socket(zmq::SUB).unwrap();
-    println!{"Connecting to the event service: {}", settings.zmq_event_endpoint}
+    println! {"Connecting to the event service: {}", settings.zmq_event_endpoint}
     ev_broker.set_subscribe(b"").unwrap();
     ev_broker.connect(&settings.zmq_event_endpoint).unwrap();
 
