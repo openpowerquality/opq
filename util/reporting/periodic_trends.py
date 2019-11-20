@@ -31,11 +31,13 @@ class Trend:
     def __str__(self):
         return "(%s %d (%s) %f %f %f)" % (self.box_id, self.timestamp_ms, self.dt, self.minv, self.meanv, self.maxv)
 
+
+# noinspection PyTypeChecker
 def analyze_trends(trends: List[Trend],
                    report_dir: str):
-    fig, axes = plt.subplots(3, 1, figsize=(16, 9), sharex="all")
+    fig, axes = plt.subplots(3, 2, figsize=(18, 12))
     fig: plt.Figure = fig
-    axes: List[plt.Axes] = axes
+    axes: List[List[plt.Axes]] = axes
 
     # Organize the trend data
     dts = np.array(list(map(lambda trend: trend.dt, trends)))
@@ -44,16 +46,28 @@ def analyze_trends(trends: List[Trend],
     maxes = np.array(list(map(lambda trend: trend.maxv, trends)))
 
     # Plot the trends
-    ax_trend = axes[0]
+    ax_trend = axes[0][0]
     ax_trend.plot(dts, mins, label="Min $V_{RMS}$")
     ax_trend.plot(dts, means, label="Mean $V_{RMS}$")
     ax_trend.plot(dts, maxes, label="Max $V_{RMS}$")
+    ax_trend.set_xlim(xmin=dts[0], xmax=dts[-1])
 
     ax_trend.set_title("$V_{RMS}$ Trends with Peaks")
     ax_trend.set_ylabel("$V_{RMS}$")
 
+    # Trent hist
+    ax_trend_hist = axes[0][1]
+    ax_trend_hist.hist([mins, means, maxes], bins=100, stacked=True, density=True, label=["Min $V_{RMS}$",
+                                                                                          "Mean $V_{RMS}$",
+                                                                                          "Max $V_{RMS}$"])
+    ax_trend_hist.set_title("Histogram of Trend Values")
+    ax_trend_hist.set_ylabel("Percent Density")
+    ax_trend_hist.set_xlabel("$V_{RMS}$")
+    ax_trend_hist.set_ylim(ymax=0.2)
+    ax_trend_hist.legend()
+
     # Find those peaks
-    max_peaks, _ = signal.find_peaks(maxes, threshold=.5)
+    max_peaks, _ = signal.find_peaks(maxes, threshold=.5, distance=30)
     ax_trend.plot(dts[max_peaks], maxes[max_peaks], "X", label="Swell Peaks")
 
     min_peaks, _ = signal.find_peaks(-mins, threshold=2)
@@ -62,26 +76,72 @@ def analyze_trends(trends: List[Trend],
     ax_trend.legend()
 
     # Determine periodicity
-    ax_periodic = axes[1]
-    mins_diff = list(map(lambda td: td.seconds / 60.0, np.diff(dts[min_peaks])))
+    ax_periodic = axes[1][0]
+    mins_diff = np.array(list(map(lambda td: td.seconds / 60.0, np.diff(dts[min_peaks]))))
     ax_periodic.plot(dts[min_peaks[1:]], mins_diff, label="Delta Min Peaks")
 
-    maxes_diff = list(map(lambda td: td.seconds / 60.0, np.diff(dts[max_peaks])))
+    maxes_diff = np.array(list(map(lambda td: td.seconds / 60.0, np.diff(dts[max_peaks]))))
     ax_periodic.plot(dts[max_peaks[1:]], maxes_diff, label="Delta Max Peaks", color="green")
+    max_mean = maxes_diff.mean()
+    ax_periodic.plot(dts, [max_mean for _ in dts], color="green", linestyle="--", label="Mean(Delta Max Peaks)")
+    min_mean = mins_diff.mean()
+    ax_periodic.plot(dts, [min_mean for _ in dts], color="blue", linestyle="--", label="Mean(Delta Min Peaks)")
 
     ax_periodic.set_ylabel("Minutes")
     ax_periodic.set_title("Peak Periodicity (Minutes)")
+    ax_periodic.set_xlim(xmin=dts[0], xmax=dts[-1])
     ax_periodic.legend()
 
+    # Periodicity Hist
+    ax_periodic_hist = axes[1][1]
+    ax_periodic_hist.hist([mins_diff, maxes_diff], bins=50, stacked=True, density=True, label=["Delta Min Peaks",
+                                                                                               "Delta Max Peaks"],
+                          color=["blue", "green"])
+    ax_periodic_hist.set_title("Histogram of Peak Periodicity")
+    ax_periodic_hist.set_ylabel("Percent Density")
+    ax_periodic_hist.set_xlabel("Minutes")
+    ax_periodic_hist.legend()
+
     # Determine on cycle
-    ax_on_cycle = axes[2]
-    on_cycles = []
+    ax_on_cycle = axes[2][0]
+    on_cycle_dts = []
+    on_cycle = []
+
+    def first_swell_idx_after_sag(sag_idx: int) -> int:
+        if sag_idx >= max_peaks[-1]:
+            return -1
+
+        return list(filter(lambda i: i >= sag_idx, max_peaks))[0]
+
     for idx in min_peaks:
         sag_dt = dts[idx]
-        swell_dt = dts[max_peaks[max_peaks > idx][0]]
-        diff = (swell_dt - sag_dt).seconds
-        on_cycles.append(diff)
-    print(on_cycles)
+        swell_idx = first_swell_idx_after_sag(idx)
+        if swell_idx >= 0:
+            swell_dt = dts[swell_idx]
+            diff = (swell_dt - sag_dt).seconds / 60.0
+            on_cycle.append(diff)
+            on_cycle_dts.append(swell_dt)
+
+    on_cycle = np.array(on_cycle)
+    ax_on_cycle.plot(on_cycle_dts, on_cycle, label="On-Cycle")
+
+    on_mean = on_cycle.mean()
+    ax_on_cycle.plot(dts, [on_mean for _ in dts], color="blue", linestyle="--", label="Mean(On-Cycle)")
+
+    ax_on_cycle.set_ylabel("Minutes")
+    ax_on_cycle.set_xlabel("Time (UTC)")
+    ax_on_cycle.set_title("Estimated On-cycle (Sag to next Swell) Minutes")
+    ax_on_cycle.set_xlim(xmin=dts[0], xmax=dts[-1])
+    ax_on_cycle.legend()
+
+    # On cycle hist
+    # Periodicity Hist
+    ax_on_hist = axes[2][1]
+    ax_on_hist.hist(on_cycle, bins=50, density=True, label="On-Cycle")
+    ax_on_hist.set_title("Histogram of On-Cycle")
+    ax_on_hist.set_ylabel("Percent Density")
+    ax_on_hist.set_xlabel("Minutes")
+    ax_on_hist.legend()
 
     # Finalize the plot
     fig.suptitle("Voltage Trends OPQ Box %s (%s) from %s UTC to %s UTC" % (
@@ -91,8 +151,9 @@ def analyze_trends(trends: List[Trend],
         dts[-1].strftime("%Y-%m-%d %H:%M")
     ))
 
-
+    plt.subplots_adjust(hspace=.5)
     plt.savefig("%s/periodic_voltage_trends.png" % report_dir)
+    plt.show()
 
 def get_voltage_trends(start_ts_s: int,
                        end_ts_s: int,
@@ -116,5 +177,5 @@ def get_voltage_trends(start_ts_s: int,
 
 
 if __name__ == "__main__":
-    trends = get_voltage_trends(1574113481, 1574199881, "1021")
+    trends = get_voltage_trends(1573605390, 1574199881, "1021")
     analyze_trends(trends, ".")
