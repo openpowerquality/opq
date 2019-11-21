@@ -316,6 +316,8 @@ if __name__ == "__main__":
     # plot_itic_semi47_incident(129295, ".", mongo_client)
     # plot_itic_semi47_incident(129291, ".", mongo_client)
     # plot_itic_semi47_incident(129164, ".", mongo_client)
-    plot_incident(129240, ".", mongo_client)
+    plot_incident(129359, ".", mongo_client)
+    plot_incident(129358, ".", mongo_client)
+    plot_incident(129360, ".", mongo_client)
 
 
