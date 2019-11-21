@@ -9,11 +9,14 @@ mod box_list;
 
 use std::env;
 use std::thread;
-
+use std::sync::{Arc, Mutex};
+use std::collections::HashMap;
+use std::time::{SystemTime};
 
 use crate::box_command::{BoxCommand, CommandType};
 use crate::box_response::BoxResponse;
 use crate::config::Settings;
+
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -30,16 +33,18 @@ fn main() {
     let mut threads = vec![];
 
     let ctx = zmq::Context::new();
-    let mut rsp_manager = BoxResponse::new(&settings, &ctx);
+    let ts_counter : Arc<Mutex<HashMap<u32, SystemTime>>> = Arc::new(Mutex::new(HashMap::new()));
+    let mut rsp_manager = BoxResponse::new(&settings, &ctx, ts_counter.clone());
     threads.push(thread::spawn(move || {
         rsp_manager.run_loop();
     }));
 
-    let mut cmd_manager = BoxCommand::new(&settings, &ctx);
+    let mut cmd_manager = BoxCommand::new(&settings, &ctx, ts_counter.clone());
     for id in box_list {
         cmd_manager.send_command(id, CommandType::Info);
     }
-    for t in threads{
-        t.join().unwrap();
-    }
+
+    let tout = std::time::Duration::from_millis(5000);
+    thread::sleep(tout);
+
 }
