@@ -10,6 +10,7 @@ import shapely.geometry as geom
 import reports
 import reports.itic as itic
 import reports.tables as tables
+import reports.plots as plots
 
 MAX_X_MS = 1_000_000
 
@@ -112,7 +113,8 @@ def plot_voltage_incident(incident_id: int,
 def plot_incidents(start_time_s: int,
                    end_time_s: int,
                    report_dir: str,
-                   mongo_client: pymongo.MongoClient):
+                   mongo_client: pymongo.MongoClient,
+                   plot_voltage_incidents: bool = False):
     box_ids = [k for k in reports.box_to_location]
     incidents_coll = mongo_client.opq.incidents
     incidents = incidents_coll.find({"start_timestamp_ms": {"$gte": start_time_s * 1000.0,
@@ -132,10 +134,16 @@ def plot_incidents(start_time_s: int,
 
     with open("%s/incidents.txt" % report_dir, "a") as fout:
         for incident in incidents:
-            fout.write("%d %s\n" % (incident["incident_id"], incident["classifications"][0]))
+            classification: str = incident["classifications"][0]
+            incident_id: int = incident["incident_id"]
+            fout.write("%d %s\n" % (incident_id, classification))
             dt_bin = reports.fmt_ts_by_hour(int(incident["start_timestamp_ms"] / 1000.0))
             box = incident["box_id"]
             box_to_bin_to_incidents[box][dt_bin] += 1
+
+            if plot_voltage_incidents and "voltage" in classification.lower():
+                plots.plot_incident(incident_id, report_dir, mongo_client)
+
 
     def da_bottom(datasets: typing.List[np.ndarray], i: int) -> np.ndarray:
         d = np.zeros(len(datasets[i]))

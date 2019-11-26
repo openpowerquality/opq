@@ -12,7 +12,8 @@ import reports.trends
 
 
 def create_report(start_time_s: int,
-                  end_time_s: int):
+                  end_time_s: int,
+                  plot_voltage_incidents: bool = False):
     mongo_client = pymongo.MongoClient()
 
     report_id = "report_%d_%d" % (start_time_s, end_time_s)
@@ -40,7 +41,7 @@ def create_report(start_time_s: int,
     i_stats = reports.incidents.incident_stats(start_time_s, end_time_s, mongo_client)
 
     print("Generating incident figures...")
-    i_fig = reports.incidents.plot_incidents(start_time_s, end_time_s, report_dir, mongo_client)
+    i_fig = reports.incidents.plot_incidents(start_time_s, end_time_s, report_dir, mongo_client, plot_voltage_incidents)
 
     print("Generating outage figures...")
     reports.incidents.plot_outages(start_time_s * 1000.0, end_time_s * 1000.0, report_dir, mongo_client)
@@ -92,6 +93,26 @@ def create_report(start_time_s: int,
 
         fout.write('The following figures show Trends for each Box between %s and %s.\n\n' % (start_dt, end_dt))
 
+        # ------------------------------------- Phenomena
+        fout.write('Phenomena\n\n')
+
+        fout.write('Phenomena are an abstract concept for Anthony’s PhD dissertation that provide actionable insights '
+                   'and context on top of classified Incidents. In terms of PQ monitoring, Phenomena provide added '
+                   'context on top of PQ Incidents.\n\n')
+
+        # ------------------------------------- Incidents Summary
+        fout.write('Incidents Summary\n\n')
+
+        fout.write('Incidents are classified PQ issues that were found in the previously provided Events. Incidents are'
+                   ' classified by OPQ Mauka according to various PQ standards. OPQ Mauka provides classifications for'
+                   ' Outages, Voltage, Frequency, and THD related issues.\n\n')
+
+        fout.write("A total of %d Incidents were processed.\n\n" % i_stats["total_incidents"])
+
+        fout.write('A breakdown of Incidents per Box is provided in the following table.\n\n')
+
+        fout.write('The following figure shows Incidents per Box per day.\n\n')
+
         # ------------------------------------- Events Summary
         fout.write('Events Summary\n\n')
 
@@ -108,18 +129,8 @@ def create_report(start_time_s: int,
 
         fout.write('The following figure shows Events per Box per day.\n\n')
 
-        # ------------------------------------- Incidents Summary
-        fout.write('Incidents Summary\n\n')
-
-        fout.write('Incidents are classified PQ issues that were found in the previously provided Events. Incidents are'
-                   ' classified by OPQ Mauka according to various PQ standards. OPQ Mauka provides classifications for'
-                   ' Outages, Voltage, Frequency, and THD related issues.\n\n')
-
-        fout.write("A total of %d Incidents were processed.\n\n" % i_stats["total_incidents"])
-
-        fout.write('A breakdown of Incidents per Box is provided in the following table.\n\n')
-
-        fout.write('The following figure shows Incidents per Box per day.\n\n')
+        # ------------------------------------- Peculiarities in the UHM Micro-grid
+        fout.write('Peculiarities in the UHM Micro-grid\n\n')
 
         # ------------------------------------- Conclusion
         fout.write('Conclusion\n\n')
@@ -131,7 +142,7 @@ if __name__ == "__main__":
     try:
         start_time_s = int(sys.argv[1])
         end_time_s = int(sys.argv[2])
-        create_report(start_time_s, end_time_s)
+        create_report(start_time_s, end_time_s, plot_voltage_incidents=True)
     except IndexError:
         print("usage: python3 generate_report.py [start time s utc] [end time s utc]")
         sys.exit(1)
