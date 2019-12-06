@@ -3,9 +3,10 @@ use reqwest::Client;
 
 pub mod auth;
 pub mod conf;
-pub mod mongo;
+
 pub mod resources;
 pub mod scraper;
+mod storage_server;
 
 fn main() -> Result<(), String> {
     env_logger::init();
@@ -20,7 +21,6 @@ fn main() -> Result<(), String> {
     //    let feature_ids = meters.feature_ids(&config.features);
     //    log::info!("{} feature ids loaded.", feature_ids.len());
 
-    let (_mongo_client, ground_truth_coll) = mongo::init(&config)?;
     log::info!("MongoClient loaded.");
 
     let client = Client::builder()
@@ -31,7 +31,7 @@ fn main() -> Result<(), String> {
 
     let credentials = auth::post_login(&client, &config.username, &config.password)?;
     log::info!("Acquired credentials.");
-
+    let mut storage_service = crate::storage_server::StorageService::new(config.path.clone());
     log::info!("Beginning data scrape.");
     for feature in &config.features {
         let feature_ids = meters.feature_ids(feature);
@@ -61,10 +61,8 @@ fn main() -> Result<(), String> {
                 match maybe_graph {
                     Ok(graph) => {
                         let data_points: Vec<scraper::DataPoint> = graph.into();
+                        storage_service.store_datapoint(data_points);
 
-                        if let Err(e) = mongo::store_data_points(&ground_truth_coll, &data_points) {
-                            log::error!("Error storing data: {}", e);
-                        }
                     }
                     Err(err) => log::error!("Could not parse data from {}: {:?}", data, err),
                 }

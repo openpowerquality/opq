@@ -175,8 +175,8 @@ pub struct GraphPoint {
 
 #[derive(Deserialize, Serialize, Debug)]
 pub struct DataPoint {
-    #[serde(rename = "_id")]
-    pub id: bson::oid::ObjectId,
+    //#[serde(rename = "_id")]
+    //pub id: bson::oid::ObjectId,
     #[serde(rename = "meter-name")]
     pub meter_name: String,
     #[serde(rename = "sample-type")]
@@ -193,7 +193,7 @@ pub struct DataPoint {
 impl From<GraphPoint> for DataPoint {
     fn from(graph_point: GraphPoint) -> Self {
         DataPoint {
-            id: bson::oid::ObjectId::new().unwrap(),
+            //id: bson::oid::ObjectId::new().unwrap(),
             meter_name: graph_point.entity_name,
             sample_type: graph_point.tag_name,
             ts_s: to_ts(&graph_point.full_date_time_utc) as i32,

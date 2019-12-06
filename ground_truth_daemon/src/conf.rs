@@ -14,6 +14,7 @@ pub struct GroundTruthDaemonConfig {
     pub features_db: String,
     pub mongo_host: String,
     pub mongo_port: u16,
+    pub path : String
 }
 
 impl GroundTruthDaemonConfig {

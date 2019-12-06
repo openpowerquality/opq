@@ -23,5 +23,6 @@
   "collect_range": [],
   "features_db": "resources.json",
   "mongo_host": "localhost",
-  "mongo_port": 27017
+  "mongo_port": 27017,
+  "path" : "./data"
 }
