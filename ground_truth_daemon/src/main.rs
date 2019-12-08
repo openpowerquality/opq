@@ -1,5 +1,7 @@
 use log;
 use reqwest::Client;
+use std::thread::sleep;
+use std::time::Duration;
 
 pub mod auth;
 pub mod conf;
@@ -35,40 +37,79 @@ fn main() -> Result<(), String> {
     log::info!("Beginning data scrape.");
     for feature in &config.features {
         let feature_ids = meters.feature_ids(feature);
+        for feature_id in feature_ids {
+            sleep(Duration::from_secs(1));
+            let end_ts_s = if config.is_ranged() {
+                config.end_range_s()
+            } else {
+                scraper::ts_s()
+            };
 
-        let end_ts_s = if config.is_ranged() {
-            config.end_range_s()
-        } else {
-            scraper::ts_s()
-        };
+            let start_ts_s = if config.is_ranged() {
+                config.start_range_s()
+            } else {
+                end_ts_s - (config.collect_last_s as u64)
+            };
 
-        let start_ts_s = if config.is_ranged() {
-            config.start_range_s()
-        } else {
-            end_ts_s - (config.collect_last_s as u64)
-        };
+            log::info!(
+                "Scraping data for feature={} feature_ids={:?}",
+                feature,
+                &feature_id
+            );
+            match scraper::scrape_data(
+                &client,
+                &credentials,
+                vec![feature_id],
+                start_ts_s,
+                end_ts_s,
+            ) {
+                Ok(data) => {
+                    let maybe_graph: Result<scraper::Graph, serde_json::error::Error> =
+                        serde_json::from_str(&data);
 
-        log::info!(
-            "Scraping data for feature={} feature_ids={:?}",
-            feature,
-            &feature_ids
-        );
-        match scraper::scrape_data(&client, &credentials, feature_ids, start_ts_s, end_ts_s) {
-            Ok(data) => {
-                let maybe_graph: Result<scraper::Graph, serde_json::error::Error> =
-                    serde_json::from_str(&data);
-
-                match maybe_graph {
-                    Ok(graph) => {
-                        let data_points: Vec<scraper::DataPoint> = graph.into();
-                        storage_service.store_datapoint(data_points);
-
+                    match maybe_graph {
+                        Ok(graph) => {
+                            let data_points: Vec<scraper::DataPoint> = graph.into();
+                            storage_service.store_datapoint(data_points);
+                        }
+                        Err(err) => log::error!("Could not parse data from {}: {:?}", data, err),
                     }
-                    Err(err) => log::error!("Could not parse data from {}: {:?}", data, err),
                 }
+                Err(err) => log::error!("Error scraping data: {}", err),
             }
-            Err(err) => log::error!("Error scraping data: {}", err),
         }
+        //        let end_ts_s = if config.is_ranged() {
+        //            config.end_range_s()
+        //        } else {
+        //            scraper::ts_s()
+        //        };
+        //
+        //        let start_ts_s = if config.is_ranged() {
+        //            config.start_range_s()
+        //        } else {
+        //            end_ts_s - (config.collect_last_s as u64)
+        //        };
+        //
+        //        log::info!(
+        //            "Scraping data for feature={} feature_ids={:?}",
+        //            feature,
+        //            &feature_ids
+        //        );
+        //        match scraper::scrape_data(&client, &credentials, feature_ids, start_ts_s, end_ts_s) {
+        //            Ok(data) => {
+        //                let maybe_graph: Result<scraper::Graph, serde_json::error::Error> =
+        //                    serde_json::from_str(&data);
+        //
+        //                match maybe_graph {
+        //                    Ok(graph) => {
+        //                        let data_points: Vec<scraper::DataPoint> = graph.into();
+        //                        storage_service.store_datapoint(data_points);
+        //                    }
+        //                    Err(err) => log::error!("Could not parse data from {}: {:?}", data, err),
+        //                }
+        //            }
+        //            Err(err) => log::error!("Error scraping data: {}", err),
+        //        }
     }
 
     log::info!("Finished data scrape.");

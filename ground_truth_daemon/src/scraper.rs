@@ -4,6 +4,7 @@ use reqwest::Client;
 use chrono;
 use chrono::{Datelike, TimeZone, Timelike};
 use serde::{Deserialize, Serialize};
+use std::thread::sleep;
 use std::time::{SystemTime, UNIX_EPOCH};
 
 #[derive(Serialize)]
@@ -87,7 +88,7 @@ pub fn scrape_data(
 
     match res.text() {
         Ok(txt) => {
-            log::debug!("Data scrape response text: \n{}\n", &txt);
+            log::debug!("Data scrape response text: \n{}\n", &txt.len());
             Ok(txt)
         }
         Err(err) => Err(format!(
