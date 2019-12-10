@@ -1,7 +1,6 @@
 use crate::conf::GroundTruthDaemonConfig;
 use crate::scraper::DataPoint;
-use bson::Document;
-use mongodb::{coll::Collection, db::ThreadedDatabase, ThreadedClient};
+
 
 pub fn init(
     config: &GroundTruthDaemonConfig,

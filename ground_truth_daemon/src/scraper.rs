@@ -4,6 +4,7 @@ use reqwest::Client;
 use chrono;
 use chrono::{Datelike, TimeZone, Timelike};
 use serde::{Deserialize, Serialize};
+use std::thread::sleep;
 use std::time::{SystemTime, UNIX_EPOCH};
 
 #[derive(Serialize)]
@@ -87,7 +88,7 @@ pub fn scrape_data(
 
     match res.text() {
         Ok(txt) => {
-            log::debug!("Data scrape response text: \n{}\n", &txt);
+            log::debug!("Data scrape response text: \n{}\n", &txt.len());
             Ok(txt)
         }
         Err(err) => Err(format!(
@@ -175,8 +176,8 @@ pub struct GraphPoint {
 
 #[derive(Deserialize, Serialize, Debug)]
 pub struct DataPoint {
-    #[serde(rename = "_id")]
-    pub id: bson::oid::ObjectId,
+    //#[serde(rename = "_id")]
+    //pub id: bson::oid::ObjectId,
     #[serde(rename = "meter-name")]
     pub meter_name: String,
     #[serde(rename = "sample-type")]
@@ -193,7 +194,7 @@ pub struct DataPoint {
 impl From<GraphPoint> for DataPoint {
     fn from(graph_point: GraphPoint) -> Self {
         DataPoint {
-            id: bson::oid::ObjectId::new().unwrap(),
+            //id: bson::oid::ObjectId::new().unwrap(),
             meter_name: graph_point.entity_name,
             sample_type: graph_point.tag_name,
             ts_s: to_ts(&graph_point.full_date_time_utc) as i32,

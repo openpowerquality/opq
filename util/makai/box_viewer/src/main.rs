@@ -34,7 +34,7 @@ fn main() {
 
     let ctx = zmq::Context::new();
     let ts_counter : Arc<Mutex<HashMap<u32, SystemTime>>> = Arc::new(Mutex::new(HashMap::new()));
-    let mut rsp_manager = BoxResponse::new(&settings, &ctx, ts_counter.clone());
+    let mut rsp_manager = BoxResponse::new(&settings, &ct   x, ts_counter.clone());
     threads.push(thread::spawn(move || {
         rsp_manager.run_loop();
     }));
