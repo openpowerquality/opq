@@ -33,3 +33,7 @@ uhm_meter_to_opq_box: Dict[str, str] = {}
 for opq_box, uhm_meters in opq_box_to_uhm_meters.items():
     for uhm_meter in uhm_meters:
         uhm_meter_to_opq_box[uhm_meter] = opq_box
+
+if __name__ == "__main__":
+    for uhm_meter in uhm_meter_to_opq_box.keys():
+        print(f'"{uhm_meter}",')
