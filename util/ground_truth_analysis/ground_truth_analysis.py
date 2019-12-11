@@ -5,7 +5,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pymongo
 import pymongo.database
-import scipy.stats
 
 
 class DataPoint:
@@ -45,40 +44,6 @@ def parse_file(path: str) -> List[DataPoint]:
         return list(map(DataPoint.from_line, lines))
 
 
-def plot_path(path: str) -> None:
-    fig, ax = plt.subplots(1, 1, figsize=(16, 9))
-    fig: plt.Figure = fig
-    ax: plt.Axes = ax
-
-    split_path = path.split("/")
-    feature = split_path[-1]
-    meter = split_path[-2]
-
-    data_points: List[DataPoint] = parse_file(path)
-    dts: List[datetime.datetime] = list(
-        map(lambda data_point: datetime.datetime.utcfromtimestamp(data_point.ts_s), data_points))
-    # actuals: List[float] = list(map(lambda data_point: data_point.actual_v, data_points))
-    mins: List[float] = list(map(lambda data_point: data_point.min_v, data_points))
-    maxes: List[float] = list(map(lambda data_point: data_point.max_v, data_points))
-    averages: List[float] = list(map(lambda data_point: data_point.avg_v, data_points))
-
-    # ax.plot(dts, actuals)
-    ax.plot(dts, mins, label="Min")
-    ax.plot(dts, maxes, label="Max")
-    ax.plot(dts, averages, label="Average")
-
-    ax.set_xlabel("Time (UTC)")
-    ax.set_ylabel(f"{feature}")
-    ax.set_title(f"{meter} {feature} {dts[0].strftime('%Y-%m-%d')} to {dts[-1].strftime('%Y-%m-%d')}")
-
-    ax.legend()
-    fig.show()
-
-
-def plot_dir(path: str) -> None:
-    pass
-
-
 def plot_frequency(opq_start_ts_s: int,
                    opq_end_ts_s: int,
                    opq_box_id: str,
@@ -115,16 +80,69 @@ def plot_frequency(opq_start_ts_s: int,
     gt_dts: List[datetime.datetime] = list(map(datetime.datetime.utcfromtimestamp, gt_ts))
     gt_f: List[float] = list(map(lambda data_point: data_point.avg_v, data_points))
 
-    fig, ax = plt.subplots(1, 1, figsize=(16, 9))
+    # Align the samples
+    opq_dts: Set[datetime.datetime] = set(map(lambda dt: datetime.datetime(dt.year, dt.month, dt.day, dt.hour, dt.minute), dts))
+    uhm_dts: Set[datetime.datetime] = set(map(lambda dt: datetime.datetime(dt.year, dt.month, dt.day, dt.hour, dt.minute), gt_dts))
+    intersecting_dts: Set[datetime.datetime] = opq_dts.intersection(uhm_dts)
+
+    aligned_opq_dts = []
+    aligned_uhm_dts = []
+    aligned_opq_freqs = []
+    aligned_uhm_freqs = []
+
+    for i, dt in enumerate(dts):
+        new_dt = datetime.datetime(dt.year, dt.month, dt.day, dt.hour, dt.minute)
+        if new_dt in intersecting_dts:
+            aligned_opq_dts.append(dt)
+            aligned_opq_freqs.append(frequencies[i])
+
+    for i, dt in enumerate(gt_dts):
+        new_dt = datetime.datetime(dt.year, dt.month, dt.day, dt.hour, dt.minute)
+        if new_dt in intersecting_dts:
+            aligned_uhm_dts.append(dt)
+            aligned_uhm_freqs.append(gt_f[i])
+
+    aligned_opq_freqs = np.array(aligned_opq_freqs)
+    aligned_uhm_freqs = np.array(aligned_uhm_freqs)
+
+    fig, ax = plt.subplots(3, 1, figsize=(16, 9), sharex="all")
     fig: plt.Figure = fig
-    ax: plt.Axes = ax
+    ax: List[plt.Axes] = ax
 
-    ax.plot(dts, frequencies, label=f"Trends (OPQ Box {opq_box_id})")
-    ax.plot(gt_dts, gt_f, label=f"Ground Truth ({uhm_sensor})")
+    # OPQ
+    ax_opq = ax[0]
+    ax_opq.plot(aligned_opq_dts, aligned_opq_freqs, label=f"Trends (OPQ Box {opq_box_id})")
+    ax_opq.set_ylabel("Frequency (Hz)")
+    ax_opq.set_title(f"OPQ Box {opq_box_id} Mean={aligned_opq_freqs.mean()} Std={aligned_opq_freqs.std()}")
+    ax_opq.legend()
 
-    ax.set_title(f"Frequency Ground Truth Comparison: {opq_box_id} vs {uhm_sensor} {dts[0].strftime('%Y-%m-%d')} to {dts[-1].strftime('%Y-%m-%d')}")
+    # UHM
+    ax_uhm = ax[1]
+    ax_uhm.plot(aligned_uhm_dts, aligned_uhm_freqs, label=f"Ground Truth ({uhm_sensor})")
+    ax_uhm.set_ylabel("Frequency (Hz)")
+    ax_uhm.set_title(f"UHM Meter {uhm_sensor} Mean={aligned_uhm_freqs.mean()} Std={aligned_uhm_freqs.std()}")
+    ax_uhm.legend()
 
-    ax.legend()
+    # Diff
+    ax_diff = ax[2]
+    if len(aligned_uhm_freqs) == len(aligned_opq_freqs):
+        diff: np.ndarray = aligned_opq_freqs - aligned_uhm_freqs
+        ax_diff.plot(aligned_opq_dts, diff, label=f"Diff")
+        ax_diff.legend()
+        ax_diff.set_ylabel("Difference")
+        ax_diff.set_title(f"Difference ({opq_box_id} - {uhm_sensor})  Mean={diff.mean()} Std={diff.std()}")
+    else:
+        diff: np.ndarray = aligned_opq_freqs[1:] - aligned_uhm_freqs
+        ax_diff.plot(aligned_opq_dts[1:], diff, label=f"Diff")
+        ax_diff.legend()
+        ax_diff.set_ylabel("Difference")
+        ax_diff.set_title(f"Difference ({opq_box_id} - {uhm_sensor})  Mean={diff.mean()} Std={diff.std()}")
+
+    ax_diff.set_ylabel("Frequency Diff (Hz)")
+    ax_diff.set_xlabel("Time (UTC)")
+
+    fig.suptitle(f"Frequency Ground Truth Comparison: {opq_box_id} vs {uhm_sensor} {dts[0].strftime('%Y-%m-%d')} to {dts[-1].strftime('%Y-%m-%d')}")
+
     fig.savefig(f"{out_dir}/f_{opq_box_id}_{uhm_sensor}.png")
 
 
