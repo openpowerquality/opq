@@ -8,7 +8,7 @@ import pymongo.database
 
 import util.align_data as align
 import util.io as io
-
+import util
 
 
 def plot_frequency(opq_start_ts_s: int,
@@ -56,7 +56,9 @@ def plot_frequency(opq_start_ts_s: int,
     max_y = max(aligned_opq_freqs.max(), aligned_uhm_freqs.max())
 
     fig, ax = plt.subplots(3, 1, figsize=(16, 9), sharex="all")
+    # noinspection Mypy
     fig: plt.Figure = fig
+    # noinspection Mypy
     ax: List[plt.Axes] = ax
 
     # OPQ
@@ -83,7 +85,6 @@ def plot_frequency(opq_start_ts_s: int,
     ax_diff.set_ylabel("Difference")
     ax_diff.set_title(f"Difference ({opq_box_id} - {uhm_sensor})  Mean={diff.mean()} Std={diff.std()}")
 
-
     ax_diff.set_ylabel("Frequency Diff (Hz)")
     ax_diff.set_xlabel("Time (UTC)")
 
@@ -92,3 +93,18 @@ def plot_frequency(opq_start_ts_s: int,
         f"{aligned_opq_dts[-1].strftime('%Y-%m-%d')}")
 
     fig.savefig(f"{out_dir}/f_{opq_box_id}_{uhm_sensor}.png")
+
+
+def compare_frequencies(opq_start_ts_s: int,
+                        opq_end_ts_s: int,
+                        ground_truth_root: str,
+                        mongo_client: pymongo.MongoClient,
+                        out_dir: str) -> None:
+    for opq_box, uhm_meters in util.opq_box_to_uhm_meters.items():
+        for uhm_meter in uhm_meters:
+            try:
+                print(f"plot_frequency {opq_box} {uhm_meter}")
+                plot_frequency(opq_start_ts_s, opq_end_ts_s, opq_box, ground_truth_root, uhm_meter, mongo_client,
+                               out_dir)
+            except Exception as e:
+                print(e, "...ignoring...")

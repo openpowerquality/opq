@@ -10,3 +10,4 @@ util/docker-utils/*.gz
 Cargo.lock
 **/target/*
 **/*.so
+.mypy_cache
