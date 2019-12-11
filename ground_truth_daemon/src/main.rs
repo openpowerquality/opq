@@ -43,9 +43,11 @@ fn main() -> Result<(), String> {
         let mut feature_id_cnt: usize = 1;
         for feature_id in feature_ids {
             log::debug!(
-                "feature {}/{} sensor {}/{}",
+                "feature {} {}/{} sensor {} {}/{}",
+                feature,
                 feature_cnt,
                 total_features,
+                feature_id,
                 feature_id_cnt,
                 total_feature_ids
             );
