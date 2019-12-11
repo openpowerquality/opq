@@ -41,9 +41,15 @@ impl Meters {
 
         let whitelist: HashSet<&str> = HashSet::from_iter(whitelist.iter().cloned());
 
-        for meter in &self.meters {
+        let whitelisted_meters: Vec<&Meter> = self
+            .meters
+            .iter()
+            .filter(|meter| whitelist.contains(&meter.meter_name[..]))
+            .collect();
+
+        for meter in whitelisted_meters {
             for feature in &meter.features {
-                if feature.name == *feature_str && whitelist.contains(&meter.meter_name[..]) {
+                if feature.name == *feature_str {
                     resource_ids.push(feature.tag_id.clone());
                 }
             }
