@@ -37,6 +37,7 @@ BOX_MEASUREMENT_RATE_REQUEST = "box_measurement_rate_request"
 BOX_MEASUREMENT_RATE_RESPONSE = "box_measurement_rate_response"
 INCIDENT_ID_REQ = "incident_id_req"
 INCIDENT_ID_RESP = "incident_id_resp"
+ANNOTATION_REQUEST = "annotation_request"
 
 # pylint: disable=C0103
 logger = log.get_logger(__name__)
@@ -328,7 +329,7 @@ def build_makai_trigger_commands(start_timestamp_ms,
 
 def build_makai_rate_change_commands(box_ids: typing.List[str],
                                      measurement_window_cycles: int) -> typing.List[
-                                         typing.Tuple[opqbox3_pb2.Command, str]]:
+    typing.Tuple[opqbox3_pb2.Command, str]]:
     """
     Builds commands for OPQ Boxes to change the measurement rate.
     :param box_ids: The box ids to change the measurement rate for.
@@ -487,6 +488,24 @@ def build_incident_id_resp(source: str, resp_id: int, incident_id: int) -> mauka
     mauka_message = build_mauka_message(source)
     mauka_message.incident_id_resp.resp_id = resp_id
     mauka_message.incident_id_resp.incident_id = incident_id
+    return mauka_message
+
+
+def build_annotation_request(source: str,
+                             req_id: int,
+                             incident_ids: typing.List[int],
+                             event_ids: typing.List[int],
+                             annotation: str,
+                             start_timestamp_ms: float,
+                             end_timestamp_ms: float) -> mauka_pb2.MaukaMessage:
+    mauka_message: mauka_pb2.MaukaMessage = build_mauka_message(source)
+    mauka_message.annotation_request.req_id = req_id
+    mauka_message.annotation_request.incidents_ids[:] = incident_ids
+    mauka_message.annotation_request.event_ids[:] = event_ids
+    mauka_message.annotation_request.annotation = annotation
+    mauka_message.annotation_request.start_timestamp_ms = start_timestamp_ms
+    mauka_message.annotation_request.end_timestamp_ms = end_timestamp_ms
+
     return mauka_message
 
 
@@ -751,6 +770,10 @@ def is_incident_id_resp(mauka_message: mauka_pb2.MaukaMessage) -> bool:
     :return: True if it is, False otherwise.
     """
     return which_message_oneof(mauka_message) == INCIDENT_ID_RESP
+
+
+def is_annotation_request(mauka_message: mauka_pb2.MaukaMessage) -> bool:
+    return which_message_oneof(mauka_message) == ANNOTATION_REQUEST
 
 
 def repeated_as_ndarray(repeated) -> numpy.ndarray:

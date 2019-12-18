@@ -182,4 +182,6 @@ message AnnotationRequest {
     repeated uint32 incidents_ids = 2;
     repeated uint32 event_ids = 3;
     string annotation = 4;
+    double start_timestamp_ms = 5;
+    double end_timestamp_ms = 6;
 }
