@@ -19,6 +19,7 @@ message MaukaMessage {
                     BoxMeasurementRateResponse box_measurement_rate_response = 14;
                     IncidentIdReq incident_id_req = 15;
                     IncidentIdResp incident_id_resp = 16;
+                    AnnotationRequest annotation_request = 17;
     }
 }
 

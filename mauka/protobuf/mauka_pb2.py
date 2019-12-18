@@ -21,7 +21,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='',
   syntax='proto3',
   serialized_options=None,
-  serialized_pb=_b('\n\x0bmauka.proto\"\xc5\x05\n\x0cMaukaMessage\x12\x14\n\x0ctimestamp_ms\x18\x01 \x01(\x04\x12\x0e\n\x06source\x18\x02 \x01(\t\x12\x1b\n\x07payload\x18\x03 \x01(\x0b\x32\x08.PayloadH\x00\x12\x1f\n\theartbeat\x18\x04 \x01(\x0b\x32\n.HeartbeatH\x00\x12\"\n\x0bmakai_event\x18\x05 \x01(\x0b\x32\x0b.MakaiEventH\x00\x12#\n\x0bmeasurement\x18\x06 \x01(\x0b\x32\x0c.MeasurementH\x00\x12&\n\rmakai_trigger\x18\x07 \x01(\x0b\x32\r.MakaiTriggerH\x00\x12\x15\n\x04laha\x18\x08 \x01(\x0b\x32\x05.LahaH\x00\x12*\n\x0ftrigger_request\x18\t \x01(\x0b\x32\x0f.TriggerRequestH\x00\x12*\n\x0ftriggered_event\x18\n \x01(\x0b\x32\x0f.TriggeredEventH\x00\x12G\n\x1ethreshold_optimization_request\x18\x0b \x01(\x0b\x32\x1d.ThresholdOptimizationRequestH\x00\x12;\n\x18\x62ox_optimization_request\x18\x0c \x01(\x0b\x32\x17.BoxOptimizationRequestH\x00\x12\x42\n\x1c\x62ox_measurement_rate_request\x18\r \x01(\x0b\x32\x1a.BoxMeasurementRateRequestH\x00\x12\x44\n\x1d\x62ox_measurement_rate_response\x18\x0e \x01(\x0b\x32\x1b.BoxMeasurementRateResponseH\x00\x12)\n\x0fincident_id_req\x18\x0f \x01(\x0b\x32\x0e.IncidentIdReqH\x00\x12+\n\x10incident_id_resp\x18\x10 \x01(\x0b\x32\x0f.IncidentIdRespH\x00\x42\t\n\x07message\"\x93\x01\n\x07Payload\x12\x10\n\x08\x65vent_id\x18\x01 \x01(\r\x12\x0e\n\x06\x62ox_id\x18\x02 \x01(\t\x12\x0c\n\x04\x64\x61ta\x18\x03 \x03(\x01\x12\"\n\x0cpayload_type\x18\x04 \x01(\x0e\x32\x0c.PayloadType\x12\x1a\n\x12start_timestamp_ms\x18\x05 \x01(\x04\x12\x18\n\x10\x65nd_timestamp_ms\x18\x06 \x01(\x04\"o\n\tHeartbeat\x12\"\n\x1alast_received_timestamp_ms\x18\x01 \x01(\x04\x12\x18\n\x10on_message_count\x18\x02 \x01(\r\x12\x0e\n\x06status\x18\x03 \x01(\t\x12\x14\n\x0cplugin_state\x18\x04 \x01(\t\"\x1e\n\nMakaiEvent\x12\x10\n\x08\x65vent_id\x18\x01 \x01(\r\"y\n\x0eTriggeredEvent\x12\x0c\n\x04\x64\x61ta\x18\x01 \x03(\x05\x12\x13\n\x0bincident_id\x18\x02 \x01(\x05\x12\x0e\n\x06\x62ox_id\x18\x03 \x01(\t\x12\x1a\n\x12start_timestamp_ms\x18\x04 \x01(\x03\x12\x18\n\x10\x65nd_timestamp_ms\x18\x05 \x01(\x03\"h\n\x0bMeasurement\x12\x0e\n\x06\x62ox_id\x18\x01 \x01(\t\x12\x14\n\x0ctimestamp_ms\x18\x02 \x01(\x04\x12\x11\n\tfrequency\x18\x03 \x01(\x01\x12\x13\n\x0bvoltage_rms\x18\x04 \x01(\x01\x12\x0b\n\x03thd\x18\x05 \x01(\x01\"\x87\x01\n\x0cMakaiTrigger\x12 \n\x18\x65vent_start_timestamp_ms\x18\x01 \x01(\x04\x12\x1e\n\x16\x65vent_end_timestamp_ms\x18\x02 \x01(\x04\x12\x12\n\nevent_type\x18\x03 \x01(\t\x12\x11\n\tmax_value\x18\x04 \x01(\x01\x12\x0e\n\x06\x62ox_id\x18\x05 \x01(\t\"\x86\x01\n\x04Laha\x12\x13\n\x03ttl\x18\x01 \x01(\x0b\x32\x04.TtlH\x00\x12 \n\ngc_trigger\x18\x02 \x01(\x0b\x32\n.GcTriggerH\x00\x12\x1e\n\tgc_update\x18\x03 \x01(\x0b\x32\t.GcUpdateH\x00\x12\x1a\n\x07gc_stat\x18\x04 \x01(\x0b\x32\x07.GcStatH\x00\x42\x0b\n\tlaha_type\"(\n\x03Ttl\x12\x12\n\ncollection\x18\x01 \x01(\t\x12\r\n\x05ttl_s\x18\x02 \x01(\r\"*\n\tGcTrigger\x12\x1d\n\ngc_domains\x18\x01 \x03(\x0e\x32\t.GcDomain\"6\n\x08GcUpdate\x12\x1e\n\x0b\x66rom_domain\x18\x01 \x01(\x0e\x32\t.GcDomain\x12\n\n\x02id\x18\x02 \x01(\r\"6\n\x06GcStat\x12\x1c\n\tgc_domain\x18\x01 \x01(\x0e\x32\t.GcDomain\x12\x0e\n\x06gc_cnt\x18\x02 \x01(\x04\"l\n\x0eTriggerRequest\x12\x1a\n\x12start_timestamp_ms\x18\x01 \x01(\x04\x12\x18\n\x10\x65nd_timestamp_ms\x18\x02 \x01(\x04\x12\x0f\n\x07\x62ox_ids\x18\x03 \x03(\t\x12\x13\n\x0bincident_id\x18\x04 \x01(\x04\"\xf6\x03\n\x1cThresholdOptimizationRequest\x12\x15\n\rdefault_ref_f\x18\x01 \x01(\x01\x12\x15\n\rdefault_ref_v\x18\x02 \x01(\x01\x12\'\n\x1f\x64\x65\x66\x61ult_threshold_percent_f_low\x18\x03 \x01(\x01\x12(\n default_threshold_percent_f_high\x18\x04 \x01(\x01\x12\'\n\x1f\x64\x65\x66\x61ult_threshold_percent_v_low\x18\x05 \x01(\x01\x12(\n default_threshold_percent_v_high\x18\x06 \x01(\x01\x12*\n\"default_threshold_percent_thd_high\x18\x07 \x01(\x01\x12\x0e\n\x06\x62ox_id\x18\x08 \x01(\t\x12\r\n\x05ref_f\x18\t \x01(\x01\x12\r\n\x05ref_v\x18\n \x01(\x01\x12\x1f\n\x17threshold_percent_f_low\x18\x0b \x01(\x01\x12 \n\x18threshold_percent_f_high\x18\x0c \x01(\x01\x12\x1f\n\x17threshold_percent_v_low\x18\r \x01(\x01\x12 \n\x18threshold_percent_v_high\x18\x0e \x01(\x01\x12\"\n\x1athreshold_percent_thd_high\x18\x0f \x01(\x01\"L\n\x16\x42oxOptimizationRequest\x12\x0f\n\x07\x62ox_ids\x18\x01 \x03(\t\x12!\n\x19measurement_window_cycles\x18\x02 \x01(\r\",\n\x19\x42oxMeasurementRateRequest\x12\x0f\n\x07\x62ox_ids\x18\x01 \x03(\t\"F\n\x1a\x42oxMeasurementRateResponse\x12\x0e\n\x06\x62ox_id\x18\x01 \x01(\t\x12\x18\n\x10measurement_rate\x18\x02 \x01(\r\"\x1f\n\rIncidentIdReq\x12\x0e\n\x06req_id\x18\x01 \x01(\r\"6\n\x0eIncidentIdResp\x12\x0f\n\x07resp_id\x18\x01 \x01(\r\x12\x13\n\x0bincident_id\x18\x02 \x01(\r\"a\n\x11\x41nnotationRequest\x12\x0e\n\x06req_id\x18\x01 \x01(\r\x12\x15\n\rincidents_ids\x18\x02 \x03(\r\x12\x11\n\tevent_ids\x18\x03 \x03(\r\x12\x12\n\nannotation\x18\x04 \x01(\t*r\n\x0bPayloadType\x12\x0f\n\x0b\x41\x44\x43_SAMPLES\x10\x00\x12\x0f\n\x0bVOLTAGE_RAW\x10\x01\x12\x0f\n\x0bVOLTAGE_RMS\x10\x02\x12\x18\n\x14VOLTAGE_RMS_WINDOWED\x10\x03\x12\x16\n\x12\x46REQUENCY_WINDOWED\x10\x04*_\n\x08GcDomain\x12\x10\n\x0cMEASUREMENTS\x10\x00\x12\n\n\x06TRENDS\x10\x01\x12\n\n\x06\x45VENTS\x10\x02\x12\r\n\tINCIDENTS\x10\x03\x12\r\n\tPHENOMENA\x10\x04\x12\x0b\n\x07SAMPLES\x10\x05\x62\x06proto3')
+  serialized_pb=_b('\n\x0bmauka.proto\"\xf7\x05\n\x0cMaukaMessage\x12\x14\n\x0ctimestamp_ms\x18\x01 \x01(\x04\x12\x0e\n\x06source\x18\x02 \x01(\t\x12\x1b\n\x07payload\x18\x03 \x01(\x0b\x32\x08.PayloadH\x00\x12\x1f\n\theartbeat\x18\x04 \x01(\x0b\x32\n.HeartbeatH\x00\x12\"\n\x0bmakai_event\x18\x05 \x01(\x0b\x32\x0b.MakaiEventH\x00\x12#\n\x0bmeasurement\x18\x06 \x01(\x0b\x32\x0c.MeasurementH\x00\x12&\n\rmakai_trigger\x18\x07 \x01(\x0b\x32\r.MakaiTriggerH\x00\x12\x15\n\x04laha\x18\x08 \x01(\x0b\x32\x05.LahaH\x00\x12*\n\x0ftrigger_request\x18\t \x01(\x0b\x32\x0f.TriggerRequestH\x00\x12*\n\x0ftriggered_event\x18\n \x01(\x0b\x32\x0f.TriggeredEventH\x00\x12G\n\x1ethreshold_optimization_request\x18\x0b \x01(\x0b\x32\x1d.ThresholdOptimizationRequestH\x00\x12;\n\x18\x62ox_optimization_request\x18\x0c \x01(\x0b\x32\x17.BoxOptimizationRequestH\x00\x12\x42\n\x1c\x62ox_measurement_rate_request\x18\r \x01(\x0b\x32\x1a.BoxMeasurementRateRequestH\x00\x12\x44\n\x1d\x62ox_measurement_rate_response\x18\x0e \x01(\x0b\x32\x1b.BoxMeasurementRateResponseH\x00\x12)\n\x0fincident_id_req\x18\x0f \x01(\x0b\x32\x0e.IncidentIdReqH\x00\x12+\n\x10incident_id_resp\x18\x10 \x01(\x0b\x32\x0f.IncidentIdRespH\x00\x12\x30\n\x12\x61nnotation_request\x18\x11 \x01(\x0b\x32\x12.AnnotationRequestH\x00\x42\t\n\x07message\"\x93\x01\n\x07Payload\x12\x10\n\x08\x65vent_id\x18\x01 \x01(\r\x12\x0e\n\x06\x62ox_id\x18\x02 \x01(\t\x12\x0c\n\x04\x64\x61ta\x18\x03 \x03(\x01\x12\"\n\x0cpayload_type\x18\x04 \x01(\x0e\x32\x0c.PayloadType\x12\x1a\n\x12start_timestamp_ms\x18\x05 \x01(\x04\x12\x18\n\x10\x65nd_timestamp_ms\x18\x06 \x01(\x04\"o\n\tHeartbeat\x12\"\n\x1alast_received_timestamp_ms\x18\x01 \x01(\x04\x12\x18\n\x10on_message_count\x18\x02 \x01(\r\x12\x0e\n\x06status\x18\x03 \x01(\t\x12\x14\n\x0cplugin_state\x18\x04 \x01(\t\"\x1e\n\nMakaiEvent\x12\x10\n\x08\x65vent_id\x18\x01 \x01(\r\"y\n\x0eTriggeredEvent\x12\x0c\n\x04\x64\x61ta\x18\x01 \x03(\x05\x12\x13\n\x0bincident_id\x18\x02 \x01(\x05\x12\x0e\n\x06\x62ox_id\x18\x03 \x01(\t\x12\x1a\n\x12start_timestamp_ms\x18\x04 \x01(\x03\x12\x18\n\x10\x65nd_timestamp_ms\x18\x05 \x01(\x03\"h\n\x0bMeasurement\x12\x0e\n\x06\x62ox_id\x18\x01 \x01(\t\x12\x14\n\x0ctimestamp_ms\x18\x02 \x01(\x04\x12\x11\n\tfrequency\x18\x03 \x01(\x01\x12\x13\n\x0bvoltage_rms\x18\x04 \x01(\x01\x12\x0b\n\x03thd\x18\x05 \x01(\x01\"\x87\x01\n\x0cMakaiTrigger\x12 \n\x18\x65vent_start_timestamp_ms\x18\x01 \x01(\x04\x12\x1e\n\x16\x65vent_end_timestamp_ms\x18\x02 \x01(\x04\x12\x12\n\nevent_type\x18\x03 \x01(\t\x12\x11\n\tmax_value\x18\x04 \x01(\x01\x12\x0e\n\x06\x62ox_id\x18\x05 \x01(\t\"\x86\x01\n\x04Laha\x12\x13\n\x03ttl\x18\x01 \x01(\x0b\x32\x04.TtlH\x00\x12 \n\ngc_trigger\x18\x02 \x01(\x0b\x32\n.GcTriggerH\x00\x12\x1e\n\tgc_update\x18\x03 \x01(\x0b\x32\t.GcUpdateH\x00\x12\x1a\n\x07gc_stat\x18\x04 \x01(\x0b\x32\x07.GcStatH\x00\x42\x0b\n\tlaha_type\"(\n\x03Ttl\x12\x12\n\ncollection\x18\x01 \x01(\t\x12\r\n\x05ttl_s\x18\x02 \x01(\r\"*\n\tGcTrigger\x12\x1d\n\ngc_domains\x18\x01 \x03(\x0e\x32\t.GcDomain\"6\n\x08GcUpdate\x12\x1e\n\x0b\x66rom_domain\x18\x01 \x01(\x0e\x32\t.GcDomain\x12\n\n\x02id\x18\x02 \x01(\r\"6\n\x06GcStat\x12\x1c\n\tgc_domain\x18\x01 \x01(\x0e\x32\t.GcDomain\x12\x0e\n\x06gc_cnt\x18\x02 \x01(\x04\"l\n\x0eTriggerRequest\x12\x1a\n\x12start_timestamp_ms\x18\x01 \x01(\x04\x12\x18\n\x10\x65nd_timestamp_ms\x18\x02 \x01(\x04\x12\x0f\n\x07\x62ox_ids\x18\x03 \x03(\t\x12\x13\n\x0bincident_id\x18\x04 \x01(\x04\"\xf6\x03\n\x1cThresholdOptimizationRequest\x12\x15\n\rdefault_ref_f\x18\x01 \x01(\x01\x12\x15\n\rdefault_ref_v\x18\x02 \x01(\x01\x12\'\n\x1f\x64\x65\x66\x61ult_threshold_percent_f_low\x18\x03 \x01(\x01\x12(\n default_threshold_percent_f_high\x18\x04 \x01(\x01\x12\'\n\x1f\x64\x65\x66\x61ult_threshold_percent_v_low\x18\x05 \x01(\x01\x12(\n default_threshold_percent_v_high\x18\x06 \x01(\x01\x12*\n\"default_threshold_percent_thd_high\x18\x07 \x01(\x01\x12\x0e\n\x06\x62ox_id\x18\x08 \x01(\t\x12\r\n\x05ref_f\x18\t \x01(\x01\x12\r\n\x05ref_v\x18\n \x01(\x01\x12\x1f\n\x17threshold_percent_f_low\x18\x0b \x01(\x01\x12 \n\x18threshold_percent_f_high\x18\x0c \x01(\x01\x12\x1f\n\x17threshold_percent_v_low\x18\r \x01(\x01\x12 \n\x18threshold_percent_v_high\x18\x0e \x01(\x01\x12\"\n\x1athreshold_percent_thd_high\x18\x0f \x01(\x01\"L\n\x16\x42oxOptimizationRequest\x12\x0f\n\x07\x62ox_ids\x18\x01 \x03(\t\x12!\n\x19measurement_window_cycles\x18\x02 \x01(\r\",\n\x19\x42oxMeasurementRateRequest\x12\x0f\n\x07\x62ox_ids\x18\x01 \x03(\t\"F\n\x1a\x42oxMeasurementRateResponse\x12\x0e\n\x06\x62ox_id\x18\x01 \x01(\t\x12\x18\n\x10measurement_rate\x18\x02 \x01(\r\"\x1f\n\rIncidentIdReq\x12\x0e\n\x06req_id\x18\x01 \x01(\r\"6\n\x0eIncidentIdResp\x12\x0f\n\x07resp_id\x18\x01 \x01(\r\x12\x13\n\x0bincident_id\x18\x02 \x01(\r\"a\n\x11\x41nnotationRequest\x12\x0e\n\x06req_id\x18\x01 \x01(\r\x12\x15\n\rincidents_ids\x18\x02 \x03(\r\x12\x11\n\tevent_ids\x18\x03 \x03(\r\x12\x12\n\nannotation\x18\x04 \x01(\t*r\n\x0bPayloadType\x12\x0f\n\x0b\x41\x44\x43_SAMPLES\x10\x00\x12\x0f\n\x0bVOLTAGE_RAW\x10\x01\x12\x0f\n\x0bVOLTAGE_RMS\x10\x02\x12\x18\n\x14VOLTAGE_RMS_WINDOWED\x10\x03\x12\x16\n\x12\x46REQUENCY_WINDOWED\x10\x04*_\n\x08GcDomain\x12\x10\n\x0cMEASUREMENTS\x10\x00\x12\n\n\x06TRENDS\x10\x01\x12\n\n\x06\x45VENTS\x10\x02\x12\r\n\tINCIDENTS\x10\x03\x12\r\n\tPHENOMENA\x10\x04\x12\x0b\n\x07SAMPLES\x10\x05\x62\x06proto3')
 )
 
 _PAYLOADTYPE = _descriptor.EnumDescriptor(
@@ -53,8 +53,8 @@ _PAYLOADTYPE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=2723,
-  serialized_end=2837,
+  serialized_start=2773,
+  serialized_end=2887,
 )
 _sym_db.RegisterEnumDescriptor(_PAYLOADTYPE)
 
@@ -92,8 +92,8 @@ _GCDOMAIN = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=2839,
-  serialized_end=2934,
+  serialized_start=2889,
+  serialized_end=2984,
 )
 _sym_db.RegisterEnumDescriptor(_GCDOMAIN)
 
@@ -231,6 +231,13 @@ _MAUKAMESSAGE = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='annotation_request', full_name='MaukaMessage.annotation_request', index=16,
+      number=17, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
@@ -247,7 +254,7 @@ _MAUKAMESSAGE = _descriptor.Descriptor(
       index=0, containing_type=None, fields=[]),
   ],
   serialized_start=16,
-  serialized_end=725,
+  serialized_end=775,
 )
 
 
@@ -312,8 +319,8 @@ _PAYLOAD = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=728,
-  serialized_end=875,
+  serialized_start=778,
+  serialized_end=925,
 )
 
 
@@ -364,8 +371,8 @@ _HEARTBEAT = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=877,
-  serialized_end=988,
+  serialized_start=927,
+  serialized_end=1038,
 )
 
 
@@ -395,8 +402,8 @@ _MAKAIEVENT = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=990,
-  serialized_end=1020,
+  serialized_start=1040,
+  serialized_end=1070,
 )
 
 
@@ -454,8 +461,8 @@ _TRIGGEREDEVENT = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1022,
-  serialized_end=1143,
+  serialized_start=1072,
+  serialized_end=1193,
 )
 
 
@@ -513,8 +520,8 @@ _MEASUREMENT = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1145,
-  serialized_end=1249,
+  serialized_start=1195,
+  serialized_end=1299,
 )
 
 
@@ -572,8 +579,8 @@ _MAKAITRIGGER = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1252,
-  serialized_end=1387,
+  serialized_start=1302,
+  serialized_end=1437,
 )
 
 
@@ -627,8 +634,8 @@ _LAHA = _descriptor.Descriptor(
       name='laha_type', full_name='Laha.laha_type',
       index=0, containing_type=None, fields=[]),
   ],
-  serialized_start=1390,
-  serialized_end=1524,
+  serialized_start=1440,
+  serialized_end=1574,
 )
 
 
@@ -665,8 +672,8 @@ _TTL = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1526,
-  serialized_end=1566,
+  serialized_start=1576,
+  serialized_end=1616,
 )
 
 
@@ -696,8 +703,8 @@ _GCTRIGGER = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1568,
-  serialized_end=1610,
+  serialized_start=1618,
+  serialized_end=1660,
 )
 
 
@@ -734,8 +741,8 @@ _GCUPDATE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1612,
-  serialized_end=1666,
+  serialized_start=1662,
+  serialized_end=1716,
 )
 
 
@@ -772,8 +779,8 @@ _GCSTAT = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1668,
-  serialized_end=1722,
+  serialized_start=1718,
+  serialized_end=1772,
 )
 
 
@@ -824,8 +831,8 @@ _TRIGGERREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1724,
-  serialized_end=1832,
+  serialized_start=1774,
+  serialized_end=1882,
 )
 
 
@@ -953,8 +960,8 @@ _THRESHOLDOPTIMIZATIONREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1835,
-  serialized_end=2337,
+  serialized_start=1885,
+  serialized_end=2387,
 )
 
 
@@ -991,8 +998,8 @@ _BOXOPTIMIZATIONREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2339,
-  serialized_end=2415,
+  serialized_start=2389,
+  serialized_end=2465,
 )
 
 
@@ -1022,8 +1029,8 @@ _BOXMEASUREMENTRATEREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2417,
-  serialized_end=2461,
+  serialized_start=2467,
+  serialized_end=2511,
 )
 
 
@@ -1060,8 +1067,8 @@ _BOXMEASUREMENTRATERESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2463,
-  serialized_end=2533,
+  serialized_start=2513,
+  serialized_end=2583,
 )
 
 
@@ -1091,8 +1098,8 @@ _INCIDENTIDREQ = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2535,
-  serialized_end=2566,
+  serialized_start=2585,
+  serialized_end=2616,
 )
 
 
@@ -1129,8 +1136,8 @@ _INCIDENTIDRESP = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2568,
-  serialized_end=2622,
+  serialized_start=2618,
+  serialized_end=2672,
 )
 
 
@@ -1181,8 +1188,8 @@ _ANNOTATIONREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2624,
-  serialized_end=2721,
+  serialized_start=2674,
+  serialized_end=2771,
 )
 
 _MAUKAMESSAGE.fields_by_name['payload'].message_type = _PAYLOAD
@@ -1199,6 +1206,7 @@ _MAUKAMESSAGE.fields_by_name['box_measurement_rate_request'].message_type = _BOX
 _MAUKAMESSAGE.fields_by_name['box_measurement_rate_response'].message_type = _BOXMEASUREMENTRATERESPONSE
 _MAUKAMESSAGE.fields_by_name['incident_id_req'].message_type = _INCIDENTIDREQ
 _MAUKAMESSAGE.fields_by_name['incident_id_resp'].message_type = _INCIDENTIDRESP
+_MAUKAMESSAGE.fields_by_name['annotation_request'].message_type = _ANNOTATIONREQUEST
 _MAUKAMESSAGE.oneofs_by_name['message'].fields.append(
   _MAUKAMESSAGE.fields_by_name['payload'])
 _MAUKAMESSAGE.fields_by_name['payload'].containing_oneof = _MAUKAMESSAGE.oneofs_by_name['message']
@@ -1241,6 +1249,9 @@ _MAUKAMESSAGE.fields_by_name['incident_id_req'].containing_oneof = _MAUKAMESSAGE
 _MAUKAMESSAGE.oneofs_by_name['message'].fields.append(
   _MAUKAMESSAGE.fields_by_name['incident_id_resp'])
 _MAUKAMESSAGE.fields_by_name['incident_id_resp'].containing_oneof = _MAUKAMESSAGE.oneofs_by_name['message']
+_MAUKAMESSAGE.oneofs_by_name['message'].fields.append(
+  _MAUKAMESSAGE.fields_by_name['annotation_request'])
+_MAUKAMESSAGE.fields_by_name['annotation_request'].containing_oneof = _MAUKAMESSAGE.oneofs_by_name['message']
 _PAYLOAD.fields_by_name['payload_type'].enum_type = _PAYLOADTYPE
 _LAHA.fields_by_name['ttl'].message_type = _TTL
 _LAHA.fields_by_name['gc_trigger'].message_type = _GCTRIGGER
