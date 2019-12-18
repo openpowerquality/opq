@@ -175,3 +175,10 @@ message IncidentIdResp {
     uint32 resp_id = 1;
     uint32 incident_id = 2;
 }
+
+message AnnotationRequest {
+    uint32 req_id = 1;
+    repeated uint32 incidents_ids = 2;
+    repeated uint32 event_ids = 3;
+    string annotation = 4;
+}
