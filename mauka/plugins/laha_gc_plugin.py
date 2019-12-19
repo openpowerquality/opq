@@ -12,7 +12,6 @@ import protobuf.pb_util as util_pb2
 import protobuf.mauka_pb2 as mauka_pb2
 
 
-
 def timestamp_s() -> int:
     """
     Returns the current timestamp as seconds since the epoch UTC.
@@ -41,7 +40,7 @@ class LahaGcPlugin(base_plugin.MaukaPlugin):
         now = timestamp_s()
         delete_result = self.mongo_client.measurements_collection.delete_many({"expire_at": {"$lt": now}})
         self.produce(Routes.gc_stat, util_pb2.build_gc_stat(
-            self.NAME, mauka_pb2.MEASUREMENTS, delete_result.deleted_count))
+                self.NAME, mauka_pb2.MEASUREMENTS, delete_result.deleted_count))
         self.debug("Garbage collected %d measurements" % delete_result.deleted_count)
 
     def handle_gc_trigger_trends(self):
@@ -116,7 +115,7 @@ class LahaGcPlugin(base_plugin.MaukaPlugin):
 
         delete_result = self.mongo_client.incidents_collection.delete_many({"expire_at": {"$lt": now}})
         self.produce(Routes.gc_stat, util_pb2.build_gc_stat(
-            self.NAME, mauka_pb2.INCIDENTS, delete_result.deleted_count))
+                self.NAME, mauka_pb2.INCIDENTS, delete_result.deleted_count))
         self.debug("Garbage collected %d incidents and associated gridfs data" % delete_result.deleted_count)
 
     def handle_gc_trigger_phenomena(self):
@@ -128,7 +127,7 @@ class LahaGcPlugin(base_plugin.MaukaPlugin):
         delete_result = self.mongo_client.phenomena_collection.delete_many({"expire_at": {"$lt": now}})
         self.produce(Routes.gc_stat, util_pb2.build_gc_stat(
                 self.NAME, mauka_pb2.PHENOMENA, delete_result.deleted_count))
-        self.debug("Garbage collected %d incidents and associated gridfs data" % delete_result.deleted_count)
+        self.debug("Garbage collected %d Phenomena" % delete_result.deleted_count)
 
     def handle_gc_trigger(self, gc_trigger: mauka_pb2.GcTrigger):
         """
@@ -163,12 +162,62 @@ class LahaGcPlugin(base_plugin.MaukaPlugin):
         projection = {"phenomena_id": True,
                       "start_ts_ms": True,
                       "end_ts_ms": True,
+                      "affected_opq_boxes": True,
                       "related_incident_ids": True,
                       "related_event_ids": True,
                       "expire_at": True}
 
         phenomena = self.mongo_client.phenomena_collection.find_one({"phenomena_id": _id},
                                                                     projection=projection)
+
+        if phenomena is None:
+            self.logger.warning("gc_update phenomena, phenomena with id=%s not found", str(_id))
+        else:
+            # Update Incidents
+            incident_ids = phenomena["related_incident_ids"]
+            incident_query = {"incident_id": {"$in": incident_ids}}
+            incident_update = {"$set": {"expire_at": phenomena["expire_at"]}}
+
+            update_incidents_result = self.mongo_client.incidents_collection.update_many(incident_query,
+                                                                                         incident_update)
+
+            for incident_id in incident_ids:
+                self.handle_gc_update_from_incident(incident_id)
+
+            # Update Events
+            event_ids = phenomena["related_event_ids"]
+            event_query = {"event_id": {"$in": event_ids}}
+            event_update = {"$set": {"expire_at": phenomena["expire_at"]}}
+
+            update_events_result = self.mongo_client.events_collection.update_many(event_query, event_update)
+
+            for event_id in event_ids:
+                self.handle_gc_update_from_event(event_id)
+
+            # Update Trends
+            affected_opq_boxes = phenomena["affected_opq_boxes"]
+            trends_query = {"timestamp_ms": {"$gte": phenomena["start_ts_ms"],
+                                             "$lte": phenomena["end_ts_ms"]},
+                            "box_id": {"$in": affected_opq_boxes}}
+
+            trends_update = {"$set": {"expire_at": phenomena["expire_at"]}}
+
+            update_trends_result = self.mongo_client.trends_collection.update_many(trends_query, trends_update)
+            self.debug("Updated expire_at=%d %d trends" % (phenomena["expire_at"],
+                                                           update_trends_result.modified_count))
+
+            # Update Measurements
+            measurements_query = {"timestamp_ms": {"$gte": phenomena["start_ts_ms"],
+                                                   "$lte": phenomena["end_ts_ms"]},
+                                  "box_id": {"$in": affected_opq_boxes}}
+
+            measurements_update = {"$set": {"expire_at": phenomena["expire_at"]}}
+
+            update_measurements_result = self.mongo_client.measurements_collection.update_many(measurements_query, measurements_update)
+            self.debug("Updated expire_at=%d %d measurements" % (phenomena["expire_at"],
+                                                           update_measurements_result.modified_count))
+
+            pass
 
     def handle_gc_update_from_incident(self, _id: str):
         """
