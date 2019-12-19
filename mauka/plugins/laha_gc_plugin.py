@@ -166,7 +166,9 @@ class LahaGcPlugin(base_plugin.MaukaPlugin):
                       "related_incident_ids": True,
                       "related_event_ids": True,
                       "expire_at": True}
-        phenomena = self.mongo_client.phenomena_collection.find_one({"phenomena_id": _id})
+
+        phenomena = self.mongo_client.phenomena_collection.find_one({"phenomena_id": _id},
+                                                                    projection=projection)
 
     def handle_gc_update_from_incident(self, _id: str):
         """
