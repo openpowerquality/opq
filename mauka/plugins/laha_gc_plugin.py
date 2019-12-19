@@ -124,6 +124,11 @@ class LahaGcPlugin(base_plugin.MaukaPlugin):
         GCs phenomena.
         """
         self.debug("gc_trigger phenomena")
+        now = timestamp_s()
+        delete_result = self.mongo_client.phenomena_collection.delete_many({"expire_at": {"$lt": now}})
+        self.produce(Routes.gc_stat, util_pb2.build_gc_stat(
+                self.NAME, mauka_pb2.PHENOMENA, delete_result.deleted_count))
+        self.debug("Garbage collected %d incidents and associated gridfs data" % delete_result.deleted_count)
 
     def handle_gc_trigger(self, gc_trigger: mauka_pb2.GcTrigger):
         """
@@ -154,6 +159,14 @@ class LahaGcPlugin(base_plugin.MaukaPlugin):
         :param _id: The _id of the phenomena document.
         """
         self.debug("gc_update phenomena")
+
+        projection = {"phenomena_id": True,
+                      "start_ts_ms": True,
+                      "end_ts_ms": True,
+                      "related_incident_ids": True,
+                      "related_event_ids": True,
+                      "expire_at": True}
+        phenomena = self.mongo_client.phenomena_collection.find_one({"phenomena_id": _id})
 
     def handle_gc_update_from_incident(self, _id: str):
         """
