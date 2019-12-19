@@ -416,10 +416,29 @@ def next_available_incident_id(opq_mongo_client: OpqMongoClient) -> int:
     :return: Next available incident id
     """
     mongo_client = get_default_client(opq_mongo_client)
+    projection = {"_id": False, "incident_id": True}
     if mongo_client.incidents_collection.count() > 0:
-        last_incident = mongo_client.incidents_collection.find().sort("incident_id", pymongo.DESCENDING).limit(1)[0]
+        last_incident = mongo_client.incidents_collection.find(projection=projection).sort(
+                "incident_id", pymongo.DESCENDING).limit(1)[0]
         last_incident_id = last_incident["incident_id"]
         return last_incident_id + 1
+
+    return 1
+
+
+def next_available_phenomena_id(opq_mongo_client: OpqMongoClient) -> int:
+    """
+    Returns the next available phenomena id using the database as a source of truth
+    :param opq_mongo_client: An optional mongo client to use for DB access (will be created if not-provided)
+    :return: Next available incident id
+    """
+    mongo_client = get_default_client(opq_mongo_client)
+    if mongo_client.incidents_collection.count() > 0:
+        projection = {"_id": False, "phenomena_id": True}
+        last_phenomena = mongo_client.phenomena_collection.find(projection=projection).sort(
+                "phenomena_id", pymongo.DESCENDING).limit(1)[0]
+        last_phenomena_id = last_phenomena["phenomena_id"]
+        return last_phenomena_id + 1
 
     return 1
 
@@ -562,7 +581,7 @@ def store_incident(incident_id: int,
         incident_end_idx = int(min(len(event_adc_samples),
                                    round(analysis.ms_to_samples(delta_end_ms)) + constants.SAMPLES_PER_MILLISECOND))
         incident_adc_samples_bytes = event_adc_samples[incident_start_idx:incident_end_idx].astype(
-            numpy.int16).tobytes()
+                numpy.int16).tobytes()
 
         gridfs_filename = "incident_{}".format(incident_id)
         mongo_client.write_incident_waveform(incident_id, gridfs_filename, incident_adc_samples_bytes)
@@ -591,6 +610,56 @@ def store_incident(incident_id: int,
     mongo_client.incidents_collection.insert_one(incident)
 
     return incident_id
+
+
+def store_phenomena(opq_mongo_client: OpqMongoClient,
+                    start_ts_ms: int,
+                    end_ts_ms: int,
+                    affected_opq_boxes: typing.List[str],
+                    related_incident_ids: typing.List[int],
+                    related_event_ids: typing.List[int],
+                    phenomena_type: typing.Dict) -> int:
+    phenomena_id: int = next_available_phenomena_id(opq_mongo_client)
+    expire_at: int = timestamp_s_plus_s(opq_mongo_client.get_ttl("phenomena"))
+
+    now_ms: int = timestamp_ms()
+
+    phenomena: typing.Dict = {
+        "phenomena_id": phenomena_id,
+        "created_ts_ms": now_ms,
+        "updated_ts_ms": now_ms,
+        "start_ts_ms": start_ts_ms,
+        "end_ts_ms": end_ts_ms,
+        "is_active": True,
+        "affected_opq_boxes": affected_opq_boxes,
+        "related_incident_ids": related_incident_ids,
+        "related_event_ids": related_event_ids,
+        "phenomena_type": phenomena_type,
+        "expire_at": expire_at
+    }
+
+    opq_mongo_client.phenomena_collection.insert_one(phenomena)
+
+    return phenomena_id
+
+
+def store_annotation_phenomena(opq_mongo_client: OpqMongoClient,
+                               start_ts_ms: int,
+                               end_ts_ms: int,
+                               affected_opq_boxes: typing.List[str],
+                               related_incident_ids: typing.List[int],
+                               related_event_ids: typing.List[int],
+                               annotation: str) -> int:
+    phenomena_type: typing.Dict = {"type": "annotation",
+                                   "annotation": annotation}
+
+    return store_phenomena(opq_mongo_client,
+                           start_ts_ms,
+                           end_ts_ms,
+                           affected_opq_boxes,
+                           related_incident_ids,
+                           related_event_ids,
+                           phenomena_type)
 
 
 def get_box_event(event_id: int, box_id: str, opq_mongo_client: OpqMongoClient = None) -> typing.Dict:
