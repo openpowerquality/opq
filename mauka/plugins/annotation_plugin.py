@@ -1,5 +1,5 @@
 """
-This module contains the plugin for producting Annotation Phenomena.
+This module contains the plugin for producing Annotation Phenomena.
 """
 
 from typing import Dict, List, Set
@@ -19,14 +19,14 @@ def perform_annotation(opq_mongo_client: mongo.OpqMongoClient,
                        annotation: str,
                        start_timestamp_ms: int,
                        end_timestamp_ms: int) -> int:
-
     incidents_query: Dict = {
         "incident_id": {"$in": incident_ids}
     }
 
     incidents_projection: Dict[str, bool] = {
         "_id": False,
-        "box_id": True
+        "box_id": True,
+        "event_id": True
     }
 
     box_events_query: Dict = {
@@ -46,6 +46,8 @@ def perform_annotation(opq_mongo_client: mongo.OpqMongoClient,
 
     incident_box_ids: Set[str] = set(map(lambda doc: doc["box_id"], incident_docs))
     box_event_box_ids: Set[str] = set(map(lambda doc: doc["box_id"], box_event_docs))
+    box_event_ids_from_incidents: Set[int] = set(map(lambda doc: doc["event_id"], box_event_docs))
+    all_event_ids: List[int] = list(box_event_ids_from_incidents.union(set(event_ids)))
     affected_box_ids: List[str] = list(incident_box_ids.union(box_event_box_ids))
 
     return mongo.store_annotation_phenomena(opq_mongo_client,
@@ -53,7 +55,7 @@ def perform_annotation(opq_mongo_client: mongo.OpqMongoClient,
                                             end_timestamp_ms,
                                             affected_box_ids,
                                             incident_ids,
-                                            event_ids,
+                                            all_event_ids,
                                             annotation)
 
 
