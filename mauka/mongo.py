@@ -437,8 +437,8 @@ def next_available_phenomena_id(opq_mongo_client: OpqMongoClient) -> int:
         projection = {"_id": False, "phenomena_id": True}
         last_phenomena = mongo_client.phenomena_collection.find(projection=projection).sort(
                 "phenomena_id", pymongo.DESCENDING).limit(1)[0]
-        last_phenomena_id = last_phenomena["phenomena_id"]
-        return last_phenomena_id + 1
+        last_phenomena_id = int(last_phenomena["phenomena_id"])
+        return int(last_phenomena_id + 1)
 
     return 1
 

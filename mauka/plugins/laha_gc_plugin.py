@@ -187,6 +187,9 @@ class LahaGcPlugin(base_plugin.MaukaPlugin):
             update_incidents_result = self.mongo_client.incidents_collection.update_many(incident_query,
                                                                                          incident_update)
 
+            self.debug(f"Updated {update_incidents_result.modified_count} of {update_incidents_result.matched_count} "
+                       f"matched incidents TTL={phenomena_expire_at}")
+
             for incident_id in phenomena_related_incident_ids:
                 self.handle_gc_update_from_incident(incident_id)
 
@@ -195,6 +198,9 @@ class LahaGcPlugin(base_plugin.MaukaPlugin):
             event_update = {"$set": {"expire_at": phenomena_expire_at}}
 
             update_events_result = self.mongo_client.events_collection.update_many(event_query, event_update)
+
+            self.debug(f"Updated {update_events_result.modified_count} of {update_events_result.matched_count} "
+                       f"matched events TTL={phenomena_expire_at}")
 
             for event_id in phenomena_related_event_ids:
                 self.handle_gc_update_from_event(event_id)
@@ -207,8 +213,8 @@ class LahaGcPlugin(base_plugin.MaukaPlugin):
             trends_update = {"$set": {"expire_at": phenomena_expire_at}}
 
             update_trends_result = self.mongo_client.trends_collection.update_many(trends_query, trends_update)
-            self.debug("Updated expire_at=%d %d trends" % (phenomena_expire_at,
-                                                           update_trends_result.modified_count))
+            self.debug("Updated expire_at=%d %d trends from phenomena" % (phenomena_expire_at,
+                                                                          update_trends_result.modified_count))
 
             # Update Measurements
             measurements_query = {"timestamp_ms": {"$gte": phenomena_start_ts_ms,
@@ -219,8 +225,8 @@ class LahaGcPlugin(base_plugin.MaukaPlugin):
 
             update_measurements_result = self.mongo_client.measurements_collection.update_many(measurements_query,
                                                                                                measurements_update)
-            self.debug("Updated expire_at=%d %d measurements" % (phenomena_expire_at,
-                                                                 update_measurements_result.modified_count))
+            self.debug("Updated expire_at=%d %d measurements from phenomena" % (phenomena_expire_at,
+                                                                                update_measurements_result.modified_count))
 
     def handle_gc_update_from_incident(self, _id: str):
         """

@@ -222,9 +222,14 @@ def build_gc_update(source: str,
     :param _id: The _id of the document creating this update.
     :return: A GcUpdate message.
     """
+    print(str(from_domain), _id)
+    print("1")
     mauka_message = build_mauka_message(source)
+    print("2")
     mauka_message.laha.gc_update.from_domain = from_domain
+    print("3")
     mauka_message.laha.gc_update.id = int(_id) if isinstance(_id, str) else _id
+    print("4")
     return mauka_message
 
 

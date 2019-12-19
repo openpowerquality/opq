@@ -78,8 +78,13 @@ class AnnotationPlugin(plugins.base_plugin.MaukaPlugin):
                                                    mauka_message.annotation_request.start_timestamp_ms,
                                                    mauka_message.annotation_request.end_timestamp_ms)
 
-            self.produce(Routes.laha_gc, protobuf.pb_util.build_gc_update(self.name,
-                                                                          protobuf.mauka_pb2.PHENOMENA,
-                                                                          phenomena_id))
+            self.debug(f"Made phenomena with id={phenomena_id}")
+
+            gc_update = protobuf.pb_util.build_gc_update(self.name,
+                                                         protobuf.mauka_pb2.PHENOMENA,
+                                                         phenomena_id)
+            self.debug(f"Preparing to send gc_update={str(gc_update)}")
+
+            self.produce(Routes.laha_gc, gc_update)
         else:
             self.logger.error("Received incorrect message type for AnnotationPlugin: %s", str(mauka_message))
