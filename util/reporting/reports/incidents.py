@@ -142,7 +142,10 @@ def plot_incidents(start_time_s: int,
             box_to_bin_to_incidents[box][dt_bin] += 1
 
             if plot_voltage_incidents and "voltage" in classification.lower():
-                plots.plot_incident(incident_id, report_dir, mongo_client)
+                try:
+                    plots.plot_incident(incident_id, report_dir, mongo_client)
+                except Exception as e:
+                    print(f"Could not plot incident={incident_id}: {str(e)}")
 
 
     def da_bottom(datasets: typing.List[np.ndarray], i: int) -> np.ndarray:
