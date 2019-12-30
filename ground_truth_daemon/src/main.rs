@@ -75,6 +75,7 @@ fn main() -> Result<(), String> {
                 vec![feature_id],
                 start_ts_s,
                 end_ts_s,
+                5,
             ) {
                 Ok(data) => {
                     let maybe_graph: Result<scraper::Graph, serde_json::error::Error> =

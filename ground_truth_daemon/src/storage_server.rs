@@ -4,6 +4,7 @@ use std::fs::File;
 
 use crate::scraper::DataPoint;
 use std::io::Write;
+use std::path::Path;
 
 #[derive(Default)]
 struct SampleTypes {
@@ -70,4 +71,27 @@ impl StorageService {
             self.files.get_mut(&point.meter_name).unwrap().write(point);
         }
     }
+}
+
+pub fn store_data_points(base_path: &Path, data: Vec<DataPoint>) {
+    let data_dir = base_path.join(Path::new(&data[0].meter_name));
+    let out_path = data_dir.join(&data[0].sample_type);
+    std::fs::create_dir_all(data_dir).unwrap();
+    let sample_points: Vec<String> = data
+        .iter()
+        .map(|point| {
+            format!(
+                "{} {} {} {} {} {}\n",
+                point.ts_s, point.actual, point.min, point.max, point.avg, point.stddev,
+            )
+        })
+        .collect();
+    let mut out_file = File::create(out_path).unwrap();
+    for sample_point in sample_points {
+        out_file.write(sample_point.as_bytes()).unwrap();
+    }
+
+    //    for point in data {
+    //        out_file.write(point).unwrap();
+    //    }
 }

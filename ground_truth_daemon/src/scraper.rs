@@ -5,6 +5,7 @@ use chrono;
 use chrono::{Datelike, TimeZone, Timelike};
 use serde::{Deserialize, Serialize};
 use std::thread::sleep;
+use std::time::Duration;
 use std::time::{SystemTime, UNIX_EPOCH};
 
 #[derive(Serialize)]
@@ -58,12 +59,21 @@ pub fn scrape_data(
     feature_ids: Vec<String>,
     start_ts_s: u64,
     end_ts_s: u64,
+    tries: usize,
 ) -> Result<String, String> {
+    if tries == 0 {
+        let warn = format!("Max tries exceeded for {:?}", &feature_ids);
+        log::warn!("{}", warn);
+        return Err(warn);
+    }
+
+    log::debug!("tries={}", tries);
+
     let req = ScrapeRequestParams::new(
         credentials.connection_id.clone(),
         start_ts_s,
         end_ts_s,
-        feature_ids,
+        feature_ids.clone(),
     );
     let mut res = client.get("https://energydata.hawaii.edu/api/reports/GetAnalyticsGraphAndGridData/GetAnalyticsGraphAndGridData")
         .header("__RequestVerificationToken", credentials.request_verification_token.clone())
@@ -91,10 +101,18 @@ pub fn scrape_data(
             log::debug!("Data scrape response text: \n{}\n", &txt.len());
             Ok(txt)
         }
-        Err(err) => Err(format!(
-            "Error getting body from data scrape response: {:?}",
-            err
-        )),
+        Err(err) => {
+            log::warn!("Error getting body from data scrape response: {:?}", err);
+            sleep(Duration::from_secs(1));
+            scrape_data(
+                client,
+                credentials,
+                feature_ids,
+                start_ts_s,
+                end_ts_s,
+                tries - 1,
+            )
+        }
     }
 }
 
