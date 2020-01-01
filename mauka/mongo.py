@@ -643,6 +643,27 @@ def store_phenomena(opq_mongo_client: OpqMongoClient,
     return phenomena_id
 
 
+def store_periodic_phenomena(opq_mongo_client: OpqMongoClient,
+                             start_ts_ms: int,
+                             end_ts_ms: int,
+                             affected_opq_boxes: typing.List[str],
+                             related_incident_ids: typing.List[int],
+                             related_event_ids: typing.List[int],
+                             period_s: float,
+                             std_s: float) -> int:
+    phenomena_type: typing.Dict = {"type": "periodic",
+                                   "period_s": period_s,
+                                   "std_s": std_s}
+
+    return store_phenomena(opq_mongo_client,
+                           start_ts_ms,
+                           end_ts_ms,
+                           affected_opq_boxes,
+                           related_incident_ids,
+                           related_event_ids,
+                           phenomena_type)
+
+
 def store_annotation_phenomena(opq_mongo_client: OpqMongoClient,
                                start_ts_ms: int,
                                end_ts_ms: int,
