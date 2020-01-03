@@ -39,7 +39,7 @@ def future_phenomena_already_exists(box_id: str,
                                              "start_ts_ms": True,
                                              "end_ts_ms": True}
 
-    phenomena_docs: List[Dict] = phenomena_coll.find(phenomena_query, projection=phenomena_projection)
+    phenomena_docs: List[Dict] = list(phenomena_coll.find(phenomena_query, projection=phenomena_projection))
 
     return len(phenomena_docs) > 0
 
