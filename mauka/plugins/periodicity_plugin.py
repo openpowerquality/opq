@@ -161,9 +161,9 @@ def get_measurements_map(start_time_s: int,
     measurements = list(
             map(lambda doc: Measurement(doc["box_id"],
                                         doc["timestamp_ms"],
-                                        doc["voltage"],
-                                        doc["thd"],
-                                        doc["frequency"]),
+                                        doc["voltage"] if "voltage" in doc else 0.0,
+                                        doc["thd"] if "thd" in doc else 0.0,
+                                        doc["frequency"] if "frequency" in doc else 0.0),
                 list(cursor)))
 
     return functools.reduce(
