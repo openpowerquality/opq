@@ -14,6 +14,7 @@ import mongo
 import plugins.annotation_plugin
 import plugins.box_optimization_plugin
 import plugins.frequency_variation_plugin
+import plugins.future_phenomena_plugin
 import plugins.laha_gc_plugin
 import plugins.transient_plugin
 import plugins.itic_plugin
@@ -79,6 +80,7 @@ def main():
     plugin_manager.register_plugin(plugins.annotation_plugin.AnnotationPlugin)
     plugin_manager.register_plugin(plugins.box_optimization_plugin.BoxOptimizationPlugin)
     plugin_manager.register_plugin(plugins.frequency_variation_plugin.FrequencyVariationPlugin)
+    plugin_manager.register_plugin(plugins.future_phenomena_plugin.FuturePlugin)
     plugin_manager.register_plugin(plugins.ieee1159_voltage_plugin.Ieee1159VoltagePlugin)
     plugin_manager.register_plugin(plugins.itic_plugin.IticPlugin)
     plugin_manager.register_plugin(plugins.laha_gc_plugin.LahaGcPlugin)
