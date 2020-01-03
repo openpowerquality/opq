@@ -7,8 +7,8 @@ RUN apt-get update -y       \
            python3-dev
 
 # Rust
-RUN curl -s https://sh.rustup.rs -sSf | sh -s -- -y --default-toolchain nightly
-ENV PATH="/root/.cargo/bin:$PATH"
+#RUN curl -s https://sh.rustup.rs -sSf | sh -s -- -y --default-toolchain nightly
+#ENV PATH="/root/.cargo/bin:$PATH"
 
 WORKDIR /build
 
@@ -16,12 +16,12 @@ ADD build /build
 
 # Some of the requirements depend on numpy to be installed first (looking at you Pandas)
 RUN pip3 install --no-cache --trusted-host pypi.python.org numpy \
-    && pip3 install --no-cache --trusted-host pypi.python.org -r mauka/requirements.txt \
-    && cd /build/mauka/native/mauka_native_py \
-    && maturin build --release --strip  \
-    && cd /build/mauka/native \
-    && ls -al target/wheels \
-    && pip3 install target/wheels/mauka_native_py-0.1.1-cp37-cp37m-manylinux1_x86_64.whl
+    && pip3 install --no-cache --trusted-host pypi.python.org -r mauka/requirements.txt
+#    && cd /build/mauka/native/mauka_native_py \
+#    && maturin build --release --strip  \
+#    && cd /build/mauka/native \
+#    && ls -al target/wheels \
+#    && pip3 install target/wheels/mauka_native_py-0.1.1-cp37-cp37m-manylinux1_x86_64.whl
 
 # Cleanup
 RUN apt-get purge -y            \
