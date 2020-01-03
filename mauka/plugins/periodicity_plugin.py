@@ -348,26 +348,26 @@ def check_for_periodic_phenomena(interval_s: float,
     for box_id, measurements in all_measurements.items():
         maybe_debug(f"Preparing to search for voltage cycles for {box_id} with {len(measurements)} measurements",
                     periodicity_plugin)
-        # try:
-        cycle_result: Optional[CycleResult] = search_for_sub_daily_voltage_cycles(box_id, measurements)
-        if cycle_result is not None:
-            maybe_debug("Got cycle result", periodicity_plugin)
-            phenomena_id: Optional[int] = handle_cycle_result(cycle_result,
-                                                              box_id,
-                                                              opq_mongo_client,
-                                                              periodicity_plugin)
-            if phenomena_id is not None:
-                gc_update = protobuf.pb_util.build_gc_update(PeriodicityPlugin.NAME,
-                                                             protobuf.mauka_pb2.PHENOMENA,
-                                                             phenomena_id)
-                periodicity_plugin.produce(Routes.laha_gc, gc_update)
-                maybe_debug(f"Performed GC update for {phenomena_id}", periodicity_plugin)
+        try:
+            cycle_result: Optional[CycleResult] = search_for_sub_daily_voltage_cycles(box_id, measurements)
+            if cycle_result is not None:
+                maybe_debug("Got cycle result", periodicity_plugin)
+                phenomena_id: Optional[int] = handle_cycle_result(cycle_result,
+                                                                  box_id,
+                                                                  opq_mongo_client,
+                                                                  periodicity_plugin)
+                if phenomena_id is not None:
+                    gc_update = protobuf.pb_util.build_gc_update(PeriodicityPlugin.NAME,
+                                                                 protobuf.mauka_pb2.PHENOMENA,
+                                                                 phenomena_id)
+                    periodicity_plugin.produce(Routes.laha_gc, gc_update)
+                    maybe_debug(f"Performed GC update for {phenomena_id}", periodicity_plugin)
+                else:
+                    maybe_debug("Did not get phenomena id", periodicity_plugin)
             else:
-                maybe_debug("Did not get phenomena id", periodicity_plugin)
-        else:
-            maybe_debug("Did not get cycle result", periodicity_plugin)
-        # except Exception as e:
-        #     periodicity_plugin.logger.error("Error: %s", str(e))
+                maybe_debug("Did not get cycle result", periodicity_plugin)
+        except Exception as e:
+            periodicity_plugin.logger.error("Error: %s", str(e))
 
     timer: threading.Timer = threading.Timer(interval_s,
                                              check_for_periodic_phenomena,
