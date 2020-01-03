@@ -285,7 +285,7 @@ def handle_cycle_result(cycle_result: CycleResult,
 
             for i, timestamp in enumerate(cycle_result.timestamps_s()):
                 if timestamp not in peaks_ts_set:
-                    related_period_timestamps_to_add.append(peaks_ts[i])
+                    related_period_timestamps_to_add.append(timestamp)
                     related_period_deviations_to_add.append(cycle_result.peak_diffs_from_mean[i])
 
             maybe_debug(f"Adding {len(related_period_timestamps_to_add)} timestamps and {len(related_period_deviations_to_add)} deviations",
