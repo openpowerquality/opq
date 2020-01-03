@@ -650,10 +650,17 @@ def store_periodic_phenomena(opq_mongo_client: OpqMongoClient,
                              related_incident_ids: typing.List[int],
                              related_event_ids: typing.List[int],
                              period_s: float,
-                             std_s: float) -> int:
+                             std_s: float,
+                             period_timestamps: typing.List[float],
+                             deviation_from_mean_values: typing.List[float],
+                             peaks: int,
+                             ) -> int:
     phenomena_type: typing.Dict = {"type": "periodic",
                                    "period_s": period_s,
-                                   "std_s": std_s}
+                                   "std_s": std_s,
+                                   "period_timestamps": period_timestamps,
+                                   "deviation_from_mean_values": deviation_from_mean_values,
+                                   "peaks": peaks}
 
     return store_phenomena(opq_mongo_client,
                            start_ts_ms,
