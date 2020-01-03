@@ -203,8 +203,8 @@ def find_events(cycle_result: CycleResult,
     events_coll: pymongo.collection.Collection = opq_mongo_client.events_collection
     event_queries: List[Dict] = []
     for ts_s in cycle_result.timestamps_s():
-        start_ts_ms: int = round((ts_s - 15) * 1000.0)
-        end_ts_ms: int = round((ts_s + 15) * 1000.0)
+        start_ts_ms: int = round((ts_s - 5) * 1000.0)
+        end_ts_ms: int = round((ts_s + 5) * 1000.0)
 
         event_queries.append({"target_event_start_timestamp_ms": {"$gte": start_ts_ms,
                                                                   "$lte": end_ts_ms}})
