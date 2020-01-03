@@ -203,8 +203,8 @@ def find_events(cycle_result: CycleResult,
     events_coll: pymongo.collection.Collection = opq_mongo_client.events_collection
     event_queries: List[Dict] = []
     for ts_s in cycle_result.timestamps_s():
-        start_ts_ms: int = round((ts_s - cycle_result.std_diff) * 1000.0)
-        end_ts_ms: int = round((ts_s + cycle_result.std_diff) * 1000.0)
+        start_ts_ms: int = round((ts_s - 120) * 1000.0)
+        end_ts_ms: int = round((ts_s + 120) * 1000.0)
 
         event_queries.append({"target_event_start_timestamp_ms": {"$gte": start_ts_ms,
                                                                   "$lte": end_ts_ms}})
@@ -386,7 +386,7 @@ class PeriodicityPlugin(plugins.base_plugin.MaukaPlugin):
     def __init__(self, conf: config.MaukaConfig, exit_event):
         super().__init__(conf, [], PeriodicityPlugin.NAME, exit_event)
         self.debug("Preparing to start checking for periodic phenomena")
-        check_for_periodic_phenomena(120,
+        check_for_periodic_phenomena(3600,
                                      self.mongo_client,
                                      self)
 
