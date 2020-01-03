@@ -22,6 +22,7 @@ import plugins.outage_plugin
 import plugins.status_plugin
 import plugins.thd_plugin
 import plugins.ieee1159_voltage_plugin
+import plugins.periodicity_plugin
 import plugins.semi_f47_plugin
 import plugins.system_stats_plugin
 import plugins.threshold_optimization_plugin
@@ -83,6 +84,7 @@ def main():
     plugin_manager.register_plugin(plugins.laha_gc_plugin.LahaGcPlugin)
     plugin_manager.register_plugin(plugins.makai_event_plugin.MakaiEventPlugin)
     plugin_manager.register_plugin(plugins.outage_plugin.OutagePlugin)
+    plugin_manager.register_plugin(plugins.periodicity_plugin.PeriodicityPlugin)
     plugin_manager.register_plugin(plugins.semi_f47_plugin.SemiF47Plugin)
     plugin_manager.register_plugin(plugins.status_plugin.StatusPlugin)
     plugin_manager.register_plugin(plugins.system_stats_plugin.SystemStatsPlugin)

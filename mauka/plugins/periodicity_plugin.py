@@ -5,6 +5,7 @@ import collections
 import datetime
 import functools
 from dataclasses import dataclass
+import time
 from typing import DefaultDict, Dict, List, Optional, Set, TypeVar
 import threading
 
@@ -239,7 +240,8 @@ def handle_cycle_result(cycle_result: CycleResult,
         event_ids_from_events: Set[int] = set(map(lambda event: event["event_id"], affected_events))
         event_ids: List[int] = list(event_ids_from_incidents.union(event_ids_from_events))
 
-        maybe_debug(f"Found {len(incident_ids)} related incident ids and {len(event_ids)} event ids")
+        maybe_debug(f"Found {len(incident_ids)} related incident ids and {len(event_ids)} event ids",
+                    periodicity_plugin)
 
         # Check to see if a periodic incident already exists
         phenomena_query: Dict = {"phenomena_type.type": "periodic",
@@ -248,7 +250,9 @@ def handle_cycle_result(cycle_result: CycleResult,
         phenomena_projection: Dict[str, bool] = {"_id": False,
                                                  "phenomena_id": True,
                                                  "phenomena_type": True,
-                                                 "affected_opq_boxes": True}
+                                                 "affected_opq_boxes": True,
+                                                 "related_event_ids": True,
+                                                 "related_incident_ids": True}
 
         phenomena_doc: Dict = opq_mongo_client.phenomena_collection.find_one(phenomena_query,
                                                                              projection=phenomena_projection)
@@ -296,12 +300,12 @@ def handle_cycle_result(cycle_result: CycleResult,
                                      "expire_at": mongo.timestamp_s_plus_s(opq_mongo_client.get_ttl("phenomena"))}}
 
             # Update metrics
-            prev_std_s: float = phenomena_doc["std_s"]
+            prev_std_s: float = phenomena_doc["phenomena_type"]["std_s"]
             if cycle_result.std_diff < prev_std_s:
                 maybe_debug("Updating metrics", periodicity_plugin)
                 update["$set"]["phenomena_type.std_s"] = cycle_result.std_diff
                 update["$set"]["phenomena_type.period_s"] = cycle_result.mean_diff
-                update["$set"]["peaks"] = cycle_result.peaks
+                update["$set"]["phenomena_type.peaks"] = cycle_result.peaks
             else:
                 maybe_debug("Not updating metrics", periodicity_plugin)
 
@@ -332,9 +336,6 @@ def check_for_periodic_phenomena(interval_s: float,
                                  periodicity_plugin: 'PeriodicityPlugin'):
     """
 
-    :param interval_s:
-    :param mongo_client:
-    :return:
     """
     maybe_debug("Collecting measurements for past 24 hours", periodicity_plugin)
     mongo_client: pymongo.MongoClient = opq_mongo_client.client
@@ -344,25 +345,32 @@ def check_for_periodic_phenomena(interval_s: float,
     for box_id, measurements in all_measurements.items():
         maybe_debug(f"Preparing to search for voltage cycles for {box_id} with {len(measurements)} measurements",
                     periodicity_plugin)
-        cycle_result: CycleResult = search_for_sub_daily_voltage_cycles(box_id, measurements)
-        if cycle_result is not None:
-            maybe_debug("Got cycle result", periodicity_plugin)
-            phenomena_id: Optional[int] = handle_cycle_result(cycle_result,
-                                                              box_id,
-                                                              opq_mongo_client,
-                                                              periodicity_plugin)
-            if phenomena_id is not None:
-                gc_update = protobuf.pb_util.build_gc_update(PeriodicityPlugin.NAME,
-                                                             protobuf.mauka_pb2.PHENOMENA,
-                                                             phenomena_id)
-                periodicity_plugin.produce(Routes.laha_gc, gc_update)
-                maybe_debug(f"Performed GC update for {phenomena_id}", periodicity_plugin)
+        try:
+            cycle_result: Optional[CycleResult] = search_for_sub_daily_voltage_cycles(box_id, measurements)
+            if cycle_result is not None:
+                maybe_debug("Got cycle result", periodicity_plugin)
+                phenomena_id: Optional[int] = handle_cycle_result(cycle_result,
+                                                                  box_id,
+                                                                  opq_mongo_client,
+                                                                  periodicity_plugin)
+                if phenomena_id is not None:
+                    gc_update = protobuf.pb_util.build_gc_update(PeriodicityPlugin.NAME,
+                                                                 protobuf.mauka_pb2.PHENOMENA,
+                                                                 phenomena_id)
+                    periodicity_plugin.produce(Routes.laha_gc, gc_update)
+                    maybe_debug(f"Performed GC update for {phenomena_id}", periodicity_plugin)
+                else:
+                    maybe_debug("Did not get phenomena id", periodicity_plugin)
             else:
-                maybe_debug("Did not get phenomena id", periodicity_plugin)
-        else:
-            maybe_debug("Did not get cycle result", periodicity_plugin)
+                maybe_debug("Did not get cycle result", periodicity_plugin)
+        except Exception as e:
+            periodicity_plugin.logger.error("Error: %s", str(e))
 
-    timer: threading.Timer = threading.Timer(interval_s, check_for_periodic_phenomena, (interval_s,))
+    timer: threading.Timer = threading.Timer(interval_s,
+                                             check_for_periodic_phenomena,
+                                             (interval_s,
+                                              opq_mongo_client,
+                                              periodicity_plugin))
     timer.start()
 
 
@@ -373,7 +381,8 @@ class PeriodicityPlugin(plugins.base_plugin.MaukaPlugin):
     NAME: str = "PeriodicityPlugin"
 
     def __init__(self, conf: config.MaukaConfig, exit_event):
-        super().__init__(conf, [Routes.makai_event], PeriodicityPlugin.NAME, exit_event)
+        super().__init__(conf, [], PeriodicityPlugin.NAME, exit_event)
+        self.debug("Preparing to start checking for periodic phenomena")
         check_for_periodic_phenomena(120,
                                      self.mongo_client,
                                      self)
