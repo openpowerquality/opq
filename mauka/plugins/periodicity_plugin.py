@@ -193,7 +193,7 @@ def find_incidents(cycle_result: CycleResult,
                                             "event_id": True,
                                             "start_timestamp_ms": True}
 
-    incidents_cursor: pymongo.cursor.Cursor = incidents_coll.find(incident_query, incident_projection)
+    incidents_cursor: pymongo.cursor.Cursor = incidents_coll.find(incident_query, projection=incident_projection)
 
     return list(incidents_cursor)
 
@@ -205,6 +205,7 @@ def find_events(cycle_result: CycleResult,
     for ts_s in cycle_result.timestamps_s():
         start_ts_ms: int = round((ts_s - cycle_result.std_diff) * 1000.0)
         end_ts_ms: int = round((ts_s + cycle_result.std_diff) * 1000.0)
+
         event_queries.append({"target_event_start_timestamp_ms": {"$gte": start_ts_ms,
                                                                   "$lte": end_ts_ms}})
 
@@ -216,7 +217,7 @@ def find_events(cycle_result: CycleResult,
                                           "target_event_start_timestamp_ms": True,
                                           "event_id": True}
 
-    events_cursor: pymongo.cursor.Cursor = events_coll.find(events_query, events_projection)
+    events_cursor: pymongo.cursor.Cursor = events_coll.find(events_query, projection=events_projection)
 
     return list(events_cursor)
 
