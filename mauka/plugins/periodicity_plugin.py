@@ -184,7 +184,7 @@ def find_incidents(cycle_result: CycleResult,
 
     incident_query: Dict = {"box_id": cycle_result.box_id,
                             "classifications": "VOLTAGE_SAG",
-                            "$and": incident_queries}
+                            "$or": incident_queries}
 
     incident_projection: Dict[str, bool] = {"_id": False,
                                             "box_id": True,
@@ -210,7 +210,7 @@ def find_events(cycle_result: CycleResult,
                                                                   "$lte": end_ts_ms}})
 
     events_query: Dict = {"boxes_received": cycle_result.box_id,
-                          "$and": event_queries}
+                          "$or": event_queries}
 
     events_projection: Dict[str, bool] = {"_id": False,
                                           "box_id": True,
