@@ -643,6 +643,43 @@ def store_phenomena(opq_mongo_client: OpqMongoClient,
     return phenomena_id
 
 
+def store_future_phenomena(opq_mongo_client: OpqMongoClient,
+                           start_ts_ms: int,
+                           end_ts_ms: int,
+                           affected_opq_boxes: typing.List[str],
+                           related_incident_ids: typing.List[int],
+                           related_event_ids: typing.List[int],
+                           on_feature: str,
+                           default_measurement_cycles: float,
+                           default_percent_deviation_low: float,
+                           default_percent_deviation_high: float,
+                           altered_measurement_cycles: float,
+                           altered_percent_deviation_low: float,
+                           altered_percent_deviation_high: float,
+                           periodic_phenomena_id: int,
+                           checked: bool,
+                           realized: bool):
+    phenomena_type: typing.Dict = {"type": "future",
+                                   "on_feature": on_feature,
+                                   "default_measurement_cycles": default_measurement_cycles,
+                                   "default_percent_deviation_low": default_percent_deviation_low,
+                                   "default_percent_deviation_high": default_percent_deviation_high,
+                                   "altered_measurement_cycles": altered_measurement_cycles,
+                                   "altered_percent_deviation_low": altered_percent_deviation_low,
+                                   "altered_percent_deviation_high": altered_percent_deviation_high,
+                                   "periodic_phenomena_id": periodic_phenomena_id,
+                                   "checked": checked,
+                                   "realized": realized}
+
+    return store_phenomena(opq_mongo_client,
+                           start_ts_ms,
+                           end_ts_ms,
+                           affected_opq_boxes,
+                           related_incident_ids,
+                           related_event_ids,
+                           phenomena_type)
+
+
 def store_periodic_phenomena(opq_mongo_client: OpqMongoClient,
                              start_ts_ms: int,
                              end_ts_ms: int,
