@@ -206,7 +206,7 @@ def find_events(cycle_result: CycleResult,
         event_queries.append({"target_event_start_timestamp_ms": {"$gte": start_ts_ms,
                                                                   "$lte": end_ts_ms}})
 
-    events_query: Dict = {"box_id": cycle_result.box_id,
+    events_query: Dict = {"boxes_received": cycle_result.box_id,
                           "$and": event_queries}
 
     events_projection: Dict[str, bool] = {"_id": False,
