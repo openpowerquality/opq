@@ -75,8 +75,8 @@ def adjust_metrics(box_id: str,
                    measurement_cycles: int,
                    future_plugin: 'FuturePlugin'):
     future_plugin.debug(
-        f"Adjusting metrics for box_id={box_id} v_low={percent_voltage_low} v_high={percent_voltage_high} m_cycles="
-        f"{measurement_cycles}")
+            f"Adjusting metrics for box_id={box_id} v_low={percent_voltage_low} v_high={percent_voltage_high} m_cycles="
+            f"{measurement_cycles}")
     adjust_measurements_rate(box_id, measurement_cycles, future_plugin)
     adjust_event_thresholds(box_id, percent_voltage_low, percent_voltage_high, future_plugin)
     future_plugin.debug("Done adjusting metrics")
@@ -143,11 +143,11 @@ def create_new_future_phenomena(start_ts_ms: int,
     end_ts_s: float = end_ts_ms / 1_000.0
 
     future_plugin.debug(
-        f"adjust start_ts_s={start_ts_s} ({datetime.datetime.utcfromtimestamp(start_ts_s)}) which is "
-        f"{start_ts_s - mongo.timestamp_s()} seconds from now")
+            f"adjust start_ts_s={start_ts_s} ({datetime.datetime.utcfromtimestamp(start_ts_s)}) which is "
+            f"{start_ts_s - mongo.timestamp_s()} seconds from now")
     future_plugin.debug(
-        f"adjust end_ts_s={end_ts_s} ({datetime.datetime.utcfromtimestamp(end_ts_s)}) which is "
-        f"{end_ts_s - mongo.timestamp_s()} seconds from now")
+            f"adjust end_ts_s={end_ts_s} ({datetime.datetime.utcfromtimestamp(end_ts_s)}) which is "
+            f"{end_ts_s - mongo.timestamp_s()} seconds from now")
 
     scheduler.enterabs(start_ts_s,
                        1,
@@ -158,14 +158,14 @@ def create_new_future_phenomena(start_ts_ms: int,
                         altered_measurement_cycles,
                         future_plugin))
 
-    a = scheduler.enterabs(end_ts_s,
-                           1,
-                           adjust_metrics,
-                           (box_id,
-                            default_percent_deviation_low,
-                            default_percent_deviation_high,
-                            default_measurement_cycles,
-                            future_plugin))
+    scheduler.enterabs(end_ts_s,
+                       1,
+                       adjust_metrics,
+                       (box_id,
+                        default_percent_deviation_low,
+                        default_percent_deviation_high,
+                        default_measurement_cycles,
+                        future_plugin))
 
     return phenomena_id
 
@@ -185,7 +185,7 @@ def handle_periodic_doc(phenomena_doc: Dict,
 
     now_s: int = mongo.timestamp_s()
     future_period_timestamps_s: List[int] = list(
-        filter(lambda ts: ts > now_s, map(lambda ts: ts + period_s, period_timestamps)))
+            filter(lambda ts: ts > now_s, map(lambda ts: ts + period_s, period_timestamps)))
 
     future_plugin.debug(f"Found {len(future_period_timestamps_s)} future_period_timestamps_s")
 
@@ -334,7 +334,8 @@ def schedule_future_phenomena(interval_s: float,
 
     # Create new phenomena
     for periodic_doc in periodic_docs:
-        phenomena_ids: List[int] = handle_periodic_doc(periodic_doc, opq_mongo_client, phenomena_coll, scheduler, future_plugin)
+        phenomena_ids: List[int] = handle_periodic_doc(periodic_doc, opq_mongo_client, phenomena_coll, scheduler,
+                                                       future_plugin)
         if len(phenomena_ids) > 0:
             future_plugin.debug(f"Found new phenomena_ids={phenomena_ids}")
             new_phenomena_ids.extend(phenomena_ids)
@@ -351,7 +352,9 @@ def schedule_future_phenomena(interval_s: float,
                                           "phenomena_type": True,
                                           "start_ts_ms": True,
                                           "end_ts_ms": True,
-                                          "affected_opq_boxes": True}
+                                          "affected_opq_boxes": True,
+                                          "related_event_ids": True,
+                                          "related_incident_ids": True}
 
     future_docs: List[Dict] = list(phenomena_coll.find(future_query, projection=future_projection))
     future_plugin.debug(f"Checking for Events and Incidents in {len(future_docs)} future phenomena")
