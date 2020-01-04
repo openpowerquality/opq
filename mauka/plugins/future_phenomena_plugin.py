@@ -174,7 +174,7 @@ def handle_periodic_doc(phenomena_doc: Dict,
                         opq_mongo_client: mongo.OpqMongoClient,
                         phenomena_coll: pymongo.collection.Collection,
                         scheduler: sched.scheduler,
-                        future_plugin: 'FuturePlugin') -> Optional[int]:
+                        future_plugin: 'FuturePlugin') -> List[int]:
     future_plugin.debug("Handling periodic doc")
     box_id: str = phenomena_doc["affected_opq_boxes"][0]
     periodic_phenomena: Dict = phenomena_doc["phenomena_type"]
@@ -197,6 +197,7 @@ def handle_periodic_doc(phenomena_doc: Dict,
 
         future_plugin.debug(f"Found additional {len(future_period_timestamps_s)} future_period_timestamps_s")
 
+    phenomena_ids: List[int] = []
     for future_timestamp_s in future_period_timestamps_s:
         future_timestamp_ms: int = future_timestamp_s * 1000
 
@@ -214,10 +215,10 @@ def handle_periodic_doc(phenomena_doc: Dict,
                                                        opq_mongo_client,
                                                        scheduler,
                                                        future_plugin)
-            return phenomena_id
+            phenomena_ids.append(phenomena_ids)
         else:
             future_plugin.debug("Future phenomena already exists, ignoring...")
-            return None
+    return phenomena_ids
 
 
 def find_incidents(box_id: str,
@@ -333,10 +334,10 @@ def schedule_future_phenomena(interval_s: float,
 
     # Create new phenomena
     for periodic_doc in periodic_docs:
-        phenomena_id = handle_periodic_doc(periodic_doc, opq_mongo_client, phenomena_coll, scheduler, future_plugin)
-        if phenomena_id is not None:
-            future_plugin.debug(f"Found new phenomena_id={phenomena_id}")
-            new_phenomena_ids.append(phenomena_id)
+        phenomena_ids: List[int] = handle_periodic_doc(periodic_doc, opq_mongo_client, phenomena_coll, scheduler, future_plugin)
+        if len(phenomena_ids) > 0:
+            future_plugin.debug(f"Found new phenomena_ids={phenomena_ids}")
+            new_phenomena_ids.extend(phenomena_ids)
 
     # Check status of old phenomena
     now_ms: int = mongo.timestamp_s()
