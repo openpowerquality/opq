@@ -367,11 +367,11 @@ def schedule_future_phenomena(interval_s: float,
     future_plugin.debug(f"all_phenomena_ids={len(all_phenomena_ids)}")
 
     # Update GC for new phenomena ids
-    for phenomena_id in all_phenomena_ids:
-        gc_update = protobuf.pb_util.build_gc_update(FuturePlugin.NAME,
-                                                     protobuf.mauka_pb2.PHENOMENA,
-                                                     phenomena_id)
-        future_plugin.produce(Routes.laha_gc, gc_update)
+    # for phenomena_id in all_phenomena_ids:
+    #     gc_update = protobuf.pb_util.build_gc_update(FuturePlugin.NAME,
+    #                                                  protobuf.mauka_pb2.PHENOMENA,
+    #                                                  phenomena_id)
+    #     future_plugin.produce(Routes.laha_gc, gc_update)
 
     future_plugin.debug(f"scheduler_queue={str(scheduler.queue)}")
 
