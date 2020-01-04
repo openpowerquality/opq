@@ -347,7 +347,7 @@ def schedule_future_phenomena(interval_s: float,
         if phenomena_id is not None:
             old_phenomena_ids.append(phenomena_id)
 
-    all_phenomena_ids: List[int] = new_phenomena_ids.extend(old_phenomena_ids)
+    all_phenomena_ids: List[int] = new_phenomena_ids + old_phenomena_ids
 
     future_plugin.debug(f"all_phenomena_ids={len(all_phenomena_ids)}")
 
