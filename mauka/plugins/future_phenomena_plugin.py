@@ -373,7 +373,7 @@ def schedule_future_phenomena(interval_s: float,
                                                      phenomena_id)
         future_plugin.produce(Routes.laha_gc, gc_update)
 
-    future_plugin.debug(str(scheduler.queue))
+    future_plugin.debug(f"scheduler_queue={str(scheduler.queue)}")
 
     timer: threading.Timer = threading.Timer(interval_s,
                                              schedule_future_phenomena,
