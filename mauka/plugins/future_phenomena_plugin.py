@@ -83,7 +83,11 @@ def create_new_future_phenomena(start_ts_ms: int,
                                 periodic_phenomena_id: int,
                                 opq_mongo_client: mongo.OpqMongoClient,
                                 scheduler: sched.scheduler,
-                                future_plugin: 'FuturePlugin') -> int:
+                                future_plugin: 'FuturePlugin') -> Optional[int]:
+    if start_ts_ms < mongo.timestamp_ms():
+        future_plugin.debug(f"start ts {start_ts_ms} > now {mongo.timestamp_ms()}")
+        return None
+
     future_plugin.debug("Creating new future phenomena...")
     makai_config_doc: threshold_plugin.MakaiConfigType = opq_mongo_client.makai_config_collection.find_one()
     makai_config: threshold_plugin.MakaiConfig = threshold_plugin.MakaiConfig(makai_config_doc)
@@ -133,8 +137,8 @@ def create_new_future_phenomena(start_ts_ms: int,
     start_ts_s: float = start_ts_ms / 1_000.0
     end_ts_s: float = end_ts_ms / 1_000.0
 
-    future_plugin.debug(f"adjust start_ts_s={start_ts_s} which is {start_ts_s - mongo.timestamp_s()} seconds from now")
-    future_plugin.debug(f"adjust end_ts_s={start_ts_s} which is {end_ts_s - mongo.timestamp_s()} seconds from now")
+    future_plugin.debug(f"adjust start_ts_s={start_ts_s} ({datetime.datetime.utcfromtimestamp(start_ts_s)}) which is {start_ts_s - mongo.timestamp_s()} seconds from now")
+    future_plugin.debug(f"adjust end_ts_s={end_ts_s} ({datetime.datetime.utcfromtimestamp(end_ts_s)}) which is {end_ts_s - mongo.timestamp_s()} seconds from now")
 
 
     scheduler.enterabs(start_ts_s,
@@ -170,7 +174,7 @@ def handle_periodic_doc(phenomena_doc: Dict,
     period_s: float = periodic_phenomena["period_s"]
     std_s: float = periodic_phenomena["std_s"]
     period_timestamps: List[int] = periodic_phenomena["period_timestamps"]
-    last_period_timestamp: int = period_timestamps[-1]
+    last_period_timestamp: int = max(period_timestamps)
 
     future_timestamp_s: int = round(last_period_timestamp + period_s)
     future_timestamp_ms: int = round((last_period_timestamp + period_s) * 1000.0)
@@ -192,6 +196,7 @@ def handle_periodic_doc(phenomena_doc: Dict,
         return phenomena_id
     else:
         future_plugin.debug("Future phenomena already exists, ignoring...")
+        return None
 
 
 def find_incidents(box_id: str,
