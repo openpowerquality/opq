@@ -189,12 +189,13 @@ def handle_periodic_doc(phenomena_doc: Dict,
 
     future_plugin.debug(f"Found {len(future_period_timestamps_s)} future_period_timestamps_s")
 
-    i = 3600 * 4
-    while i > 0:
-        future_period_timestamps_s.append(future_period_timestamps_s[-1] + period_s)
-        i -= period_s
+    if len(future_period_timestamps_s) > 0:
+        i = 3600 * 4
+        while i > 0:
+            future_period_timestamps_s.append(future_period_timestamps_s[-1] + period_s)
+            i -= period_s
 
-    future_plugin.debug(f"Found additional {len(future_period_timestamps_s)} future_period_timestamps_s")
+        future_plugin.debug(f"Found additional {len(future_period_timestamps_s)} future_period_timestamps_s")
 
     for future_timestamp_s in future_period_timestamps_s:
         future_timestamp_ms: int = future_timestamp_s * 1000
