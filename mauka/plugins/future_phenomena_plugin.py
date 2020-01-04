@@ -74,7 +74,9 @@ def adjust_metrics(box_id: str,
                    percent_voltage_high: float,
                    measurement_cycles: int,
                    future_plugin: 'FuturePlugin'):
-    future_plugin.debug(f"Adjusting metrics for box_id={box_id} v_low={percent_voltage_low} v_high={percent_voltage_high} m_cycles={measurement_cycles}")
+    future_plugin.debug(
+        f"Adjusting metrics for box_id={box_id} v_low={percent_voltage_low} v_high={percent_voltage_high} m_cycles="
+        f"{measurement_cycles}")
     adjust_measurements_rate(box_id, measurement_cycles, future_plugin)
     adjust_event_thresholds(box_id, percent_voltage_low, percent_voltage_high, future_plugin)
     future_plugin.debug("Done adjusting metrics")
@@ -140,9 +142,12 @@ def create_new_future_phenomena(start_ts_ms: int,
     start_ts_s: float = start_ts_ms / 1_000.0 - 60.0
     end_ts_s: float = end_ts_ms / 1_000.0
 
-    future_plugin.debug(f"adjust start_ts_s={start_ts_s} ({datetime.datetime.utcfromtimestamp(start_ts_s)}) which is {start_ts_s - mongo.timestamp_s()} seconds from now")
-    future_plugin.debug(f"adjust end_ts_s={end_ts_s} ({datetime.datetime.utcfromtimestamp(end_ts_s)}) which is {end_ts_s - mongo.timestamp_s()} seconds from now")
-
+    future_plugin.debug(
+        f"adjust start_ts_s={start_ts_s} ({datetime.datetime.utcfromtimestamp(start_ts_s)}) which is "
+        f"{start_ts_s - mongo.timestamp_s()} seconds from now")
+    future_plugin.debug(
+        f"adjust end_ts_s={end_ts_s} ({datetime.datetime.utcfromtimestamp(end_ts_s)}) which is "
+        f"{end_ts_s - mongo.timestamp_s()} seconds from now")
 
     scheduler.enterabs(start_ts_s,
                        1,
@@ -153,14 +158,14 @@ def create_new_future_phenomena(start_ts_ms: int,
                         altered_measurement_cycles,
                         future_plugin))
 
-    scheduler.enterabs(end_ts_s,
-                       1,
-                       adjust_metrics,
-                       (box_id,
-                        default_percent_deviation_low,
-                        default_percent_deviation_high,
-                        default_measurement_cycles,
-                        future_plugin))
+    a = scheduler.enterabs(end_ts_s,
+                           1,
+                           adjust_metrics,
+                           (box_id,
+                            default_percent_deviation_low,
+                            default_percent_deviation_high,
+                            default_measurement_cycles,
+                            future_plugin))
 
     return phenomena_id
 
@@ -179,9 +184,17 @@ def handle_periodic_doc(phenomena_doc: Dict,
     period_timestamps: List[int] = periodic_phenomena["period_timestamps"]
 
     now_s: int = mongo.timestamp_s()
-    future_period_timestamps_s: List[int] = list(filter(lambda ts: ts > now_s, map(lambda ts: ts + period_s, period_timestamps)))
+    future_period_timestamps_s: List[int] = list(
+        filter(lambda ts: ts > now_s, map(lambda ts: ts + period_s, period_timestamps)))
 
     future_plugin.debug(f"Found {len(future_period_timestamps_s)} future_period_timestamps_s")
+
+    i = 3600
+    while i > 0:
+        future_period_timestamps_s.append(future_period_timestamps_s[-1] + period_s)
+        i -= period_s
+
+    future_plugin.debug(f"Found additional {len(future_period_timestamps_s)} future_period_timestamps_s")
 
     for future_timestamp_s in future_period_timestamps_s:
         future_timestamp_ms: int = future_timestamp_s * 1000
@@ -308,7 +321,7 @@ def schedule_future_phenomena(interval_s: float,
     """
 
     """
-
+    future_plugin.debug("schedule_future_phenomena")
     phenomena_coll: pymongo.collection.Collection = opq_mongo_client.phenomena_collection
     periodic_query: Dict = {"phenomena_type.type": "periodic"}
     periodic_docs: List[Dict] = list(phenomena_coll.find(periodic_query))
