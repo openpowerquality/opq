@@ -140,32 +140,46 @@ def create_new_future_phenomena(start_ts_ms: int,
 
     # Schedule modifying the metrics
     start_ts_s: float = start_ts_ms / 1_000.0 - 60.0
-    end_ts_s: float = end_ts_ms / 1_000.0
+    end_ts_s: float = end_ts_ms / 1_000.0 + 60.0
+    now: int = mongo.timestamp_s()
 
     future_plugin.debug(
             f"adjust start_ts_s={start_ts_s} ({datetime.datetime.utcfromtimestamp(start_ts_s)}) which is "
-            f"{start_ts_s - mongo.timestamp_s()} seconds from now")
+            f"{start_ts_s - now} seconds from now")
     future_plugin.debug(
             f"adjust end_ts_s={end_ts_s} ({datetime.datetime.utcfromtimestamp(end_ts_s)}) which is "
-            f"{end_ts_s - mongo.timestamp_s()} seconds from now")
+            f"{end_ts_s - now} seconds from now")
 
-    scheduler.enterabs(start_ts_s,
-                       1,
-                       adjust_metrics,
-                       (box_id,
-                        altered_percent_deviation_low,
-                        altered_percent_deviation_high,
-                        altered_measurement_cycles,
-                        future_plugin))
+    adjust_start_timer = threading.Timer(start_ts_s - now, adjust_metrics, (box_id,
+                                                                            altered_percent_deviation_low,
+                                                                            altered_percent_deviation_high,
+                                                                            altered_measurement_cycles,
+                                                                            future_plugin))
+    adjust_end_timer = threading.Timer(end_ts_s - now, adjust_metrics, (box_id,
+                                                                        altered_percent_deviation_low,
+                                                                        altered_percent_deviation_high,
+                                                                        altered_measurement_cycles,
+                                                                        future_plugin))
+    adjust_start_timer.start()
+    adjust_end_timer.start()
 
-    scheduler.enterabs(end_ts_s,
-                       1,
-                       adjust_metrics,
-                       (box_id,
-                        default_percent_deviation_low,
-                        default_percent_deviation_high,
-                        default_measurement_cycles,
-                        future_plugin))
+    # scheduler.enterabs(start_ts_s,
+    #                    1,
+    #                    adjust_metrics,
+    #                    (box_id,
+    #                     altered_percent_deviation_low,
+    #                     altered_percent_deviation_high,
+    #                     altered_measurement_cycles,
+    #                     future_plugin))
+    #
+    # scheduler.enterabs(end_ts_s,
+    #                    1,
+    #                    adjust_metrics,
+    #                    (box_id,
+    #                     default_percent_deviation_low,
+    #                     default_percent_deviation_high,
+    #                     default_measurement_cycles,
+    #                     future_plugin))
 
     return phenomena_id
 
