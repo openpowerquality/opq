@@ -189,7 +189,7 @@ def handle_periodic_doc(phenomena_doc: Dict,
 
     future_plugin.debug(f"Found {len(future_period_timestamps_s)} future_period_timestamps_s")
 
-    i = 3600
+    i = 3600 * 4
     while i > 0:
         future_period_timestamps_s.append(future_period_timestamps_s[-1] + period_s)
         i -= period_s
