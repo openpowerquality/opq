@@ -356,6 +356,7 @@ def schedule_future_phenomena(interval_s: float,
     timer: threading.Timer = threading.Timer(interval_s,
                                              schedule_future_phenomena,
                                              (interval_s,
+                                              scheduler,
                                               opq_mongo_client,
                                               future_plugin))
     timer.start()
