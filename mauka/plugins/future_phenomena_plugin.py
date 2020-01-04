@@ -340,7 +340,7 @@ def schedule_future_phenomena(interval_s: float,
             new_phenomena_ids.extend(phenomena_ids)
 
     # Check status of old phenomena
-    now_ms: int = mongo.timestamp_s()
+    now_ms: int = mongo.timestamp_ms()
 
     future_query: Dict = {"phenomena_type.type": "future",
                           "end_ts_ms": {"$lte": now_ms},
