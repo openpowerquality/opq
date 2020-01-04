@@ -1,19 +1,13 @@
 """
 This module contains the plugin for Future Phenomena.
 """
-import collections
 import datetime
-import functools
-from dataclasses import dataclass
 import sched
 import time
-from typing import DefaultDict, Dict, List, Optional, Set, TypeVar
+from typing import Dict, List, Optional, Set
 import threading
 
 import config
-import numpy as np
-import scipy.signal
-from log import maybe_debug
 import mongo
 import plugins.base_plugin
 import protobuf.mauka_pb2
@@ -87,7 +81,6 @@ def create_new_future_phenomena(start_ts_ms: int,
                                 box_id: str,
                                 periodic_phenomena_id: int,
                                 opq_mongo_client: mongo.OpqMongoClient,
-                                scheduler: sched.scheduler,
                                 future_plugin: 'FuturePlugin') -> Optional[int]:
     if start_ts_ms < mongo.timestamp_ms():
         future_plugin.debug(f"start ts {start_ts_ms} > now {mongo.timestamp_ms()}")
@@ -139,8 +132,8 @@ def create_new_future_phenomena(start_ts_ms: int,
                                                      False)
 
     # Schedule modifying the metrics
-    start_ts_s: float = start_ts_ms / 1_000.0 - 60.0
-    end_ts_s: float = end_ts_ms / 1_000.0 + 60.0
+    start_ts_s: float = start_ts_ms / 1_000.0
+    end_ts_s: float = end_ts_ms / 1_000.0
     now: int = mongo.timestamp_s()
 
     future_plugin.debug(
@@ -187,7 +180,6 @@ def create_new_future_phenomena(start_ts_ms: int,
 def handle_periodic_doc(phenomena_doc: Dict,
                         opq_mongo_client: mongo.OpqMongoClient,
                         phenomena_coll: pymongo.collection.Collection,
-                        scheduler: sched.scheduler,
                         future_plugin: 'FuturePlugin') -> List[int]:
     future_plugin.debug("Handling periodic doc")
     box_id: str = phenomena_doc["affected_opq_boxes"][0]
@@ -219,15 +211,14 @@ def handle_periodic_doc(phenomena_doc: Dict,
                                                future_timestamp_ms,
                                                phenomena_coll):
             future_plugin.debug("Future phenomena does not exist, creating one")
-            start_ts_ms: int = round((future_timestamp_s - std_s) * 1000.0)
-            end_ts_ms: int = round((future_timestamp_s + std_s) * 1000.0)
+            start_ts_ms: int = round((future_timestamp_s - std_s - 60.0) * 1000.0)
+            end_ts_ms: int = round((future_timestamp_s + std_s + 60.0) * 1000.0)
 
             phenomena_id = create_new_future_phenomena(start_ts_ms,
                                                        end_ts_ms,
                                                        box_id,
                                                        periodic_phenomena_id,
                                                        opq_mongo_client,
-                                                       scheduler,
                                                        future_plugin)
             phenomena_ids.append(phenomena_id)
         else:
@@ -331,7 +322,6 @@ def handle_future_doc(future_doc: Dict,
 
 
 def schedule_future_phenomena(interval_s: float,
-                              scheduler: sched.scheduler,
                               opq_mongo_client: mongo.OpqMongoClient,
                               future_plugin: 'FuturePlugin'):
     """
@@ -348,7 +338,7 @@ def schedule_future_phenomena(interval_s: float,
 
     # Create new phenomena
     for periodic_doc in periodic_docs:
-        phenomena_ids: List[int] = handle_periodic_doc(periodic_doc, opq_mongo_client, phenomena_coll, scheduler,
+        phenomena_ids: List[int] = handle_periodic_doc(periodic_doc, opq_mongo_client, phenomena_coll,
                                                        future_plugin)
         if len(phenomena_ids) > 0:
             future_plugin.debug(f"Found new phenomena_ids={phenomena_ids}")
@@ -390,12 +380,10 @@ def schedule_future_phenomena(interval_s: float,
     #                                                  phenomena_id)
     #     future_plugin.produce(Routes.laha_gc, gc_update)
 
-    future_plugin.debug(f"scheduler_queue={str(scheduler.queue)}")
 
     timer: threading.Timer = threading.Timer(interval_s,
                                              schedule_future_phenomena,
                                              (interval_s,
-                                              scheduler,
                                               opq_mongo_client,
                                               future_plugin))
     timer.start()
@@ -410,9 +398,7 @@ class FuturePlugin(plugins.base_plugin.MaukaPlugin):
     def __init__(self, conf: config.MaukaConfig, exit_event):
         super().__init__(conf, [], FuturePlugin.NAME, exit_event)
         self.debug("Starting the FuturePlugin")
-        scheduler: sched.scheduler = sched.scheduler(time.time, time.sleep)
         schedule_future_phenomena(60,
-                                  scheduler,
                                   self.mongo_client,
                                   self)
 
