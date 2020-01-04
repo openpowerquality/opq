@@ -156,9 +156,9 @@ def create_new_future_phenomena(start_ts_ms: int,
                                                                             altered_measurement_cycles,
                                                                             future_plugin))
     adjust_end_timer = threading.Timer(end_ts_s - now, adjust_metrics, (box_id,
-                                                                        altered_percent_deviation_low,
-                                                                        altered_percent_deviation_high,
-                                                                        altered_measurement_cycles,
+                                                                        default_percent_deviation_low,
+                                                                        default_percent_deviation_high,
+                                                                        default_measurement_cycles,
                                                                         future_plugin))
     adjust_start_timer.start()
     adjust_end_timer.start()

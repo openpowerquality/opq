@@ -57,7 +57,7 @@ def build_mauka_message(source: str,
     Instantiates a MaukaMessage.
     :param source: Where this message is created from (plugin name or service name)
     :param timestamp_ms: When this message was created (ms since epoch)
-    :return: Insantiated MaukaMessage
+    :return: Instantiated MaukaMessage
     """
     mauka_message = mauka_pb2.MaukaMessage()
     mauka_message.source = source
