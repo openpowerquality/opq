@@ -53,7 +53,7 @@ def adjust_event_thresholds(box_id: str,
                             percent_voltage_high: float,
                             future_plugin: 'FuturePlugin') -> None:
     threshold_optimization_req: protobuf.mauka_pb2.MaukaMessage = protobuf.pb_util.build_threshold_optimization_request(
-            "FuturePhenomena",
+            "FuturePlugin",
             threshold_percent_v_low=percent_voltage_low,
             threshold_percent_v_high=percent_voltage_high,
             box_id=box_id
