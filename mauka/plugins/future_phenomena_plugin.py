@@ -134,7 +134,7 @@ def create_new_future_phenomena(start_ts_ms: int,
                                                      False)
 
     # Schedule modifying the metrics
-    start_ts_s: float = start_ts_ms / 1_000.0
+    start_ts_s: float = start_ts_ms / 1_000.0 - 60.0
     end_ts_s: float = end_ts_ms / 1_000.0
 
     future_plugin.debug(f"adjust start_ts_s={start_ts_s} ({datetime.datetime.utcfromtimestamp(start_ts_s)}) which is {start_ts_s - mongo.timestamp_s()} seconds from now")
@@ -174,29 +174,31 @@ def handle_periodic_doc(phenomena_doc: Dict,
     period_s: float = periodic_phenomena["period_s"]
     std_s: float = periodic_phenomena["std_s"]
     period_timestamps: List[int] = periodic_phenomena["period_timestamps"]
-    last_period_timestamp: int = max(period_timestamps)
 
-    future_timestamp_s: int = round(last_period_timestamp + period_s)
-    future_timestamp_ms: int = round((last_period_timestamp + period_s) * 1000.0)
+    now_s: int = mongo.timestamp_s()
+    future_period_timestamps_s: List[int] = list(filter(lambda ts: ts > now_s, map(lambda ts: ts + period_s, period_timestamps)))
 
-    if not future_phenomena_already_exists(box_id,
-                                           future_timestamp_ms,
-                                           phenomena_coll):
-        future_plugin.debug("Future phenomena does not exist, creating one")
-        start_ts_ms: int = round((future_timestamp_s - std_s) * 1000.0)
-        end_ts_ms: int = round((future_timestamp_s + std_s) * 1000.0)
+    for future_timestamp_s in future_period_timestamps_s:
+        future_timestamp_ms: int = future_timestamp_s * 1000
 
-        phenomena_id = create_new_future_phenomena(start_ts_ms,
-                                                   end_ts_ms,
-                                                   box_id,
-                                                   periodic_phenomena_id,
-                                                   opq_mongo_client,
-                                                   scheduler,
-                                                   future_plugin)
-        return phenomena_id
-    else:
-        future_plugin.debug("Future phenomena already exists, ignoring...")
-        return None
+        if not future_phenomena_already_exists(box_id,
+                                               future_timestamp_ms,
+                                               phenomena_coll):
+            future_plugin.debug("Future phenomena does not exist, creating one")
+            start_ts_ms: int = round((future_timestamp_s - std_s) * 1000.0)
+            end_ts_ms: int = round((future_timestamp_s + std_s) * 1000.0)
+
+            phenomena_id = create_new_future_phenomena(start_ts_ms,
+                                                       end_ts_ms,
+                                                       box_id,
+                                                       periodic_phenomena_id,
+                                                       opq_mongo_client,
+                                                       scheduler,
+                                                       future_plugin)
+            return phenomena_id
+        else:
+            future_plugin.debug("Future phenomena already exists, ignoring...")
+            return None
 
 
 def find_incidents(box_id: str,
@@ -341,6 +343,8 @@ def schedule_future_phenomena(interval_s: float,
             old_phenomena_ids.append(phenomena_id)
 
     all_phenomena_ids: List[int] = new_phenomena_ids.extend(old_phenomena_ids)
+
+    future_plugin.debug(f"all_phenomena_ids={len(all_phenomena_ids)}")
 
     # Update GC for new phenomena ids
 

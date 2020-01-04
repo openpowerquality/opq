@@ -40,7 +40,7 @@ class LahaGcPlugin(base_plugin.MaukaPlugin):
         now = timestamp_s()
         delete_result = self.mongo_client.measurements_collection.delete_many({"expire_at": {"$lt": now}})
         self.produce(Routes.gc_stat, util_pb2.build_gc_stat(
-            self.NAME, mauka_pb2.MEASUREMENTS, delete_result.deleted_count))
+                self.NAME, mauka_pb2.MEASUREMENTS, delete_result.deleted_count))
         self.debug("Garbage collected %d measurements" % delete_result.deleted_count)
 
     def handle_gc_trigger_trends(self):
@@ -115,7 +115,7 @@ class LahaGcPlugin(base_plugin.MaukaPlugin):
 
         delete_result = self.mongo_client.incidents_collection.delete_many({"expire_at": {"$lt": now}})
         self.produce(Routes.gc_stat, util_pb2.build_gc_stat(
-            self.NAME, mauka_pb2.INCIDENTS, delete_result.deleted_count))
+                self.NAME, mauka_pb2.INCIDENTS, delete_result.deleted_count))
         self.debug("Garbage collected %d incidents and associated gridfs data" % delete_result.deleted_count)
 
     def handle_gc_trigger_phenomena(self):
@@ -126,7 +126,7 @@ class LahaGcPlugin(base_plugin.MaukaPlugin):
         now = timestamp_s()
         delete_result = self.mongo_client.phenomena_collection.delete_many({"expire_at": {"$lt": now}})
         self.produce(Routes.gc_stat, util_pb2.build_gc_stat(
-            self.NAME, mauka_pb2.PHENOMENA, delete_result.deleted_count))
+                self.NAME, mauka_pb2.PHENOMENA, delete_result.deleted_count))
         self.debug("Garbage collected %d Phenomena" % delete_result.deleted_count)
 
     def handle_gc_trigger(self, gc_trigger: mauka_pb2.GcTrigger):
@@ -275,15 +275,16 @@ class LahaGcPlugin(base_plugin.MaukaPlugin):
                                                                                                                "_at"]}})
 
                 if update_result.modified_count != 1:
-                    self.logger.warning("gc_update incidents event expire_at not set for incident_id=%d event_id=%d:"
-                                        " ack=%s "
-                                        "matched=%d modified=%d raw=%s",
-                                        incident["incident_id"],
-                                        incident["event_id"],
-                                        str(update_result.acknowledged),
-                                        update_result.matched_count,
-                                        update_result.modified_count,
-                                        str(update_result.raw_result))
+                    pass
+                    self.debug("gc_update incidents event expire_at not set for incident_id=%d event_id=%d:"
+                               " ack=%s "
+                               "matched=%d modified=%d raw=%s",
+                               incident["incident_id"],
+                               incident["event_id"],
+                               str(update_result.acknowledged),
+                               update_result.matched_count,
+                               update_result.modified_count,
+                               str(update_result.raw_result))
 
                 self.debug("gc_update incidents updated one event expire_at=%s" % str(incident["expire_at"]))
 
