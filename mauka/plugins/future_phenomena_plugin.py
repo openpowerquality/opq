@@ -229,7 +229,7 @@ def handle_periodic_doc(phenomena_doc: Dict,
                                                        opq_mongo_client,
                                                        scheduler,
                                                        future_plugin)
-            phenomena_ids.append(phenomena_ids)
+            phenomena_ids.append(phenomena_id)
         else:
             future_plugin.debug("Future phenomena already exists, ignoring...")
     return phenomena_ids
