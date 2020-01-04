@@ -387,7 +387,7 @@ class FuturePlugin(plugins.base_plugin.MaukaPlugin):
         super().__init__(conf, [], FuturePlugin.NAME, exit_event)
         self.debug("Starting the FuturePlugin")
         scheduler: sched.scheduler = sched.scheduler(time.time, time.sleep)
-        schedule_future_phenomena(300,
+        schedule_future_phenomena(60,
                                   scheduler,
                                   self.mongo_client,
                                   self)
