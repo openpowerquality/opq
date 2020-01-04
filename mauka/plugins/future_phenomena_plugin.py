@@ -51,6 +51,7 @@ def adjust_measurements_rate(box_id: str,
                                                                                                       [box_id],
                                                                                                       measurement_cycles)
     future_plugin.produce(Routes.box_optimization_request, mauka_message)
+    future_plugin.debug("Done producing box optimization request")
 
 
 def adjust_event_thresholds(box_id: str,
@@ -65,6 +66,7 @@ def adjust_event_thresholds(box_id: str,
     )
 
     future_plugin.produce(Routes.threshold_optimization_request, threshold_optimization_req)
+    future_plugin.debug("Done producing threshold optimization request.")
 
 
 def adjust_metrics(box_id: str,
@@ -75,6 +77,7 @@ def adjust_metrics(box_id: str,
     future_plugin.debug(f"Adjusting metrics for box_id={box_id} v_low={percent_voltage_low} v_high={percent_voltage_high} m_cycles={measurement_cycles}")
     adjust_measurements_rate(box_id, measurement_cycles, future_plugin)
     adjust_event_thresholds(box_id, percent_voltage_low, percent_voltage_high, future_plugin)
+    future_plugin.debug("Done adjusting metrics")
 
 
 def create_new_future_phenomena(start_ts_ms: int,
@@ -177,6 +180,8 @@ def handle_periodic_doc(phenomena_doc: Dict,
 
     now_s: int = mongo.timestamp_s()
     future_period_timestamps_s: List[int] = list(filter(lambda ts: ts > now_s, map(lambda ts: ts + period_s, period_timestamps)))
+
+    future_plugin.debug(f"Found {len(future_period_timestamps_s)} future_period_timestamps_s")
 
     for future_timestamp_s in future_period_timestamps_s:
         future_timestamp_ms: int = future_timestamp_s * 1000
