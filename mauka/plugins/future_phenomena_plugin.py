@@ -2,8 +2,6 @@
 This module contains the plugin for Future Phenomena.
 """
 import datetime
-import sched
-import time
 from typing import Dict, List, Optional, Set
 import threading
 
@@ -41,9 +39,10 @@ def future_phenomena_already_exists(box_id: str,
 def adjust_measurements_rate(box_id: str,
                              measurement_cycles: int,
                              future_plugin: 'FuturePlugin'):
-    mauka_message = protobuf.mauka_pb2.MaukaMessage = protobuf.pb_util.build_box_optimization_request("FuturePlugin",
-                                                                                                      [box_id],
-                                                                                                      measurement_cycles)
+    from protobuf.pb_util import build_box_optimization_request
+    mauka_message = build_box_optimization_request("FuturePlugin",
+                                                   [box_id],
+                                                   measurement_cycles)
     future_plugin.produce(Routes.box_optimization_request, mauka_message)
     future_plugin.debug("Done producing box optimization request")
 
@@ -52,11 +51,12 @@ def adjust_event_thresholds(box_id: str,
                             percent_voltage_low: float,
                             percent_voltage_high: float,
                             future_plugin: 'FuturePlugin') -> None:
-    threshold_optimization_req: protobuf.mauka_pb2.MaukaMessage = protobuf.pb_util.build_threshold_optimization_request(
-            "FuturePlugin",
-            threshold_percent_v_low=percent_voltage_low,
-            threshold_percent_v_high=percent_voltage_high,
-            box_id=box_id
+    from protobuf.pb_util import build_threshold_optimization_request
+    threshold_optimization_req = build_threshold_optimization_request(
+        "FuturePlugin",
+        threshold_percent_v_low=percent_voltage_low,
+        threshold_percent_v_high=percent_voltage_high,
+        box_id=box_id
     )
 
     future_plugin.produce(Routes.threshold_optimization_request, threshold_optimization_req)
@@ -69,8 +69,8 @@ def adjust_metrics(box_id: str,
                    measurement_cycles: int,
                    future_plugin: 'FuturePlugin'):
     future_plugin.debug(
-            f"Adjusting metrics for box_id={box_id} v_low={percent_voltage_low} v_high={percent_voltage_high} m_cycles="
-            f"{measurement_cycles}")
+        f"Adjusting metrics for box_id={box_id} v_low={percent_voltage_low} v_high={percent_voltage_high} m_cycles="
+        f"{measurement_cycles}")
     adjust_measurements_rate(box_id, measurement_cycles, future_plugin)
     adjust_event_thresholds(box_id, percent_voltage_low, percent_voltage_high, future_plugin)
     future_plugin.debug("Done adjusting metrics")
@@ -137,11 +137,11 @@ def create_new_future_phenomena(start_ts_ms: int,
     now: int = mongo.timestamp_s()
 
     future_plugin.debug(
-            f"adjust start_ts_s={start_ts_s} ({datetime.datetime.utcfromtimestamp(start_ts_s)}) which is "
-            f"{start_ts_s - now} seconds from now")
+        f"adjust start_ts_s={start_ts_s} ({datetime.datetime.utcfromtimestamp(start_ts_s)}) which is "
+        f"{start_ts_s - now} seconds from now")
     future_plugin.debug(
-            f"adjust end_ts_s={end_ts_s} ({datetime.datetime.utcfromtimestamp(end_ts_s)}) which is "
-            f"{end_ts_s - now} seconds from now")
+        f"adjust end_ts_s={end_ts_s} ({datetime.datetime.utcfromtimestamp(end_ts_s)}) which is "
+        f"{end_ts_s - now} seconds from now")
 
     adjust_start_timer = threading.Timer(start_ts_s - now, adjust_metrics, (box_id,
                                                                             altered_percent_deviation_low,
@@ -191,7 +191,7 @@ def handle_periodic_doc(phenomena_doc: Dict,
 
     now_s: int = mongo.timestamp_s()
     future_period_timestamps_s: List[int] = list(
-            filter(lambda ts: ts > now_s, map(lambda ts: ts + period_s, period_timestamps)))
+        filter(lambda ts: ts > now_s, map(lambda ts: ts + period_s, period_timestamps)))
 
     future_plugin.debug(f"Found {len(future_period_timestamps_s)} future_period_timestamps_s")
 
@@ -379,7 +379,6 @@ def schedule_future_phenomena(interval_s: float,
     #                                                  protobuf.mauka_pb2.PHENOMENA,
     #                                                  phenomena_id)
     #     future_plugin.produce(Routes.laha_gc, gc_update)
-
 
     timer: threading.Timer = threading.Timer(interval_s,
                                              schedule_future_phenomena,
