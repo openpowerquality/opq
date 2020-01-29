@@ -325,4 +325,13 @@ def plot_outages(start_ms: int,
 
 if __name__ == "__main__":
     # plot_voltage_incident(71905, "/Users/anthony/Development/opq/util/reporting/report_1571738400_1572343200", pymongo.MongoClient())
-    plot_outages(1572343200000, 1572948000000, "/Users/anthony/Development/opq/util/reporting/report_1572343200_1572948000", pymongo.MongoClient())
+    # plot_outages(1572343200000, 1572948000000, "/Users/anthony/Development/opq/util/reporting/report_1572343200_1572948000", pymongo.MongoClient())
+    mongo_client = pymongo.MongoClient()
+    plot_voltage_incident(419186, '.', mongo_client)
+    plot_voltage_incident(419201, '.', mongo_client)
+    plot_voltage_incident(419208, '.', mongo_client)
+    plot_voltage_incident(419217, '.', mongo_client)
+    plot_voltage_incident(419196, '.', mongo_client)
+    plot_voltage_incident(419206, '.', mongo_client)
+    plot_voltage_incident(419210, '.', mongo_client)
+    plot_voltage_incident(419219, '.', mongo_client)

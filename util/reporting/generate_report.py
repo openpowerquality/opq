@@ -139,14 +139,17 @@ def create_report(start_time_s: int,
 
 
 if __name__ == "__main__":
-    try:
-        start_time_s = int(sys.argv[1])
-        end_time_s = int(sys.argv[2])
-        create_report(start_time_s, end_time_s, plot_voltage_incidents=True)
-    except IndexError:
-        print("usage: python3 generate_report.py [start time s utc] [end time s utc]")
-        sys.exit(1)
-    except ValueError:
-        print("Error parsing time range.")
-        print("usage: python3 generate_report.py [start time s utc] [end time s utc]")
-        sys.exit(2)
+    start_time_s = int(sys.argv[1])
+    end_time_s = int(sys.argv[2])
+    create_report(start_time_s, end_time_s, plot_voltage_incidents=True)
+    # try:
+    #     start_time_s = int(sys.argv[1])
+    #     end_time_s = int(sys.argv[2])
+    #     create_report(start_time_s, end_time_s, plot_voltage_incidents=False)
+    # except IndexError:
+    #     print("usage: python3 generate_report.py [start time s utc] [end time s utc]")
+    #     sys.exit(1)
+    # except ValueError:
+    #     print("Error parsing time range.")
+    #     print("usage: python3 generate_report.py [start time s utc] [end time s utc]")
+    #     sys.exit(2)

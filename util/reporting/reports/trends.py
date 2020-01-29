@@ -50,6 +50,9 @@ def plot_trends(start_time_s: int,
     transient_high = 7
 
     for box_id, location in reports.box_to_location.items():
+        if box_id == "1009":
+            continue
+
         timestamps = []
         f_min = []
         f_avg = []
@@ -66,10 +69,14 @@ def plot_trends(start_time_s: int,
         trends = trends_coll.find({"timestamp_ms": {"$gte": start_time_s * 1000.0,
                                                     "$lte": end_time_s * 1000.0},
                                    "box_id": box_id}).sort("timestamp_ms")
+
+        # print(box_id, location, len(list(trends)))
+
         with open("%s/trends.txt" % report_dir, "a") as fout:
             for trend in trends:
                 fout.write("%s\n" % str(trend))
                 timestamps.append(trend["timestamp_ms"])
+                # print("ts", trend["timestamp_ms"])
                 if "frequency" in trend:
                     f_min.append(trend["frequency"]["min"])
                     f_avg.append(trend["frequency"]["average"])
@@ -106,17 +113,18 @@ def plot_trends(start_time_s: int,
                     transient_avg.append(0)
                     transient_max.append(0)
 
-        if box_id != "1008":
-            min_x = min(min_x, min(timestamps))
-            max_x = max(max_x, max(timestamps))
-            min_v = min(min_v, min(v_min))
-            max_v = max(max_v, max(v_max))
-            min_f = min(min_f, min(f_min))
-            max_f = max(max_f, max(f_max))
-            min_thd = min(min_thd, min(thd_min))
-            max_thd = max(max_thd, max(thd_max))
-            min_transient = min(min_transient, min(transient_min))
-            max_transient = max(max_transient, max(transient_max))
+        # if box_id != "1008":
+        print(box_id, len(timestamps))
+        min_x = min(min_x, min(timestamps))
+        max_x = max(max_x, max(timestamps))
+        min_v = min(min_v, min(v_min))
+        max_v = max(max_v, max(v_max))
+        min_f = min(min_f, min(f_min))
+        max_f = max(max_f, max(f_max))
+        min_thd = min(min_thd, min(thd_min))
+        max_thd = max(max_thd, max(thd_max))
+        min_transient = min(min_transient, min(transient_min))
+        max_transient = max(max_transient, max(transient_max))
 
         if box_id not in box_to_trends:
             box_to_trends[box_id] = {}
@@ -170,15 +178,15 @@ def plot_trends(start_time_s: int,
         fax2.plot(timestamps, [frequency_high for i in range(len(timestamps))], linestyle="--", color="red", linewidth=1)
         fax2.plot(timestamps, [frequency_low for i in range(len(timestamps))], linestyle="--", color="red", linewidth=1)
         fax2.get_yaxis().set_major_formatter(matplotlib.ticker.FuncFormatter(lambda x, p: "%.2f" % ((x / 60.0 * 100.0) - 100.0)))
-        if box_id != "1008":
-            fax2.set_ylim(ymin=min_f-.5, ymax=max_f+.5)
+        # if box_id != "1008":
+        fax2.set_ylim(ymin=min_f-.5, ymax=max_f+.5)
         fax2.set_ylabel("% Nominal")
 
         fax.set_title("Frequency")
         fax.set_ylabel("Hz")
         fax.set_xlim(xmin=min_x, xmax=max_x)
-        if box_id != "1008":
-            fax.set_ylim(ymin=min_f-.5, ymax=max_f+.5)
+        # if box_id != "1008":
+        fax.set_ylim(ymin=min_f-.5, ymax=max_f+.5)
         fax.legend(loc="upper right")
 
         vax.plot(timestamps, trends["v_min"], label="min(V)")
@@ -189,15 +197,15 @@ def plot_trends(start_time_s: int,
         vax2.plot(timestamps, [voltage_high for i in range(len(timestamps))], linestyle="--", color="red", linewidth=1)
         vax2.plot(timestamps, [voltage_low for i in range(len(timestamps))], linestyle="--", color="red", linewidth=1)
         vax2.get_yaxis().set_major_formatter(matplotlib.ticker.FuncFormatter(lambda x, p: "%.2f" % ((x / 120.0 * 100.0) - 100.0)))
-        if box_id != "1008":
-            vax2.set_ylim(ymin=min_v-5, ymax=max_v+5)
+        # if box_id != "1008":
+        vax2.set_ylim(ymin=min_v-5, ymax=max_v+5)
         vax2.set_ylabel("% Nominal")
 
         vax.set_title("Voltage")
         vax.set_ylabel("$V_{RMS}$")
         vax.set_xlim(xmin=min_x, xmax=max_x)
-        if box_id != "1008":
-            vax.set_ylim(ymin=min_v-5, ymax=max_v+5)
+        # if box_id != "1008":
+        vax.set_ylim(ymin=min_v-5, ymax=max_v+5)
         vax.legend(loc="upper right")
 
         thdax.plot(timestamps, trends["thd_min"], label="min(THD)")
@@ -207,8 +215,8 @@ def plot_trends(start_time_s: int,
         thdax.set_title("% THD")
         thdax.set_ylabel("% THD")
         thdax.set_xlim(xmin=min_x, xmax=max_x)
-        if box_id != "1008":
-            thdax.set_ylim(ymin=min_thd, ymax=max_thd + 1)
+        # if box_id != "1008":
+        thdax.set_ylim(ymin=min_thd, ymax=max_thd + 1)
         thdax.legend(loc="upper right")
 
         transientax.plot(timestamps, trends["transient_min"], label="min(Transient)")
@@ -218,16 +226,16 @@ def plot_trends(start_time_s: int,
         transientax2 = transientax.twinx()
         transientax2.plot(timestamps, [transient_high for i in range(len(timestamps))], linestyle="--", color="red", linewidth=1)
         transientax2.get_yaxis().set_major_formatter(matplotlib.ticker.FuncFormatter(lambda x, p: "%.2f" % ((x / 7.0 * 100.0) - 100.0)))
-        if box_id != "1008":
-            transientax2.set_ylim(ymin=min_transient - 5, ymax=max_transient + 5)
+        # if box_id != "1008":
+        transientax2.set_ylim(ymin=min_transient - 5, ymax=max_transient + 5)
         transientax2.set_ylabel("% Nominal")
 
         transientax.set_title("Transient")
         transientax.set_ylabel("$P_{V}$")
         transientax.legend(loc="upper right")
         transientax.set_xlim(xmin=min_x, xmax=max_x)
-        if box_id != "1008":
-            transientax.set_ylim(ymin=min_transient - 5, ymax=max_transient + 5)
+        # if box_id != "1008":
+        transientax.set_ylim(ymin=min_transient - 5, ymax=max_transient + 5)
         transientax.xaxis.set_major_formatter(xfmt)
 
         fig_title = "trends-%s-%d-%d.png" % (box_id, start_time_s, end_time_s)
