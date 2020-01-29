@@ -23,8 +23,8 @@ def insert_annotation_into_mauka(start_ts_ms: int,
 
         annotation_request: mauka_pb2.MaukaMessage = pb_util.build_annotation_request("make_annotation.py",
                                                                                       int(time.time()),
-                                                                                      incident_ids,
-                                                                                      event_ids,
+                                                                                      incident_ids if incident_ids is not None else [],
+                                                                                      event_ids if event_ids is not None else [],
                                                                                       annotation,
                                                                                       start_ts_ms,
                                                                                       end_ts_ms)
@@ -57,11 +57,15 @@ def main() -> None:
 
     args = parser.parse_args()
 
+    print(args)
+
     insert_annotation_into_mauka(args.start_ts_ms,
                                  args.end_ts_ms,
                                  args.incident_ids,
                                  args.event_ids,
                                  args.annotation)
+
+    print("Annotation inserted.")
 
 
 if __name__ == "__main__":

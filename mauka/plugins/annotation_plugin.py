@@ -20,13 +20,15 @@ def perform_annotation(opq_mongo_client: mongo.OpqMongoClient,
                        start_timestamp_ms: int,
                        end_timestamp_ms: int) -> int:
     incidents_query: Dict = {
-        "incident_id": {"$in": incident_ids}
+        "$or": [{"incident_id": {"$in": incident_ids}},
+                {"event_id": {"$in": event_ids}}],
     }
 
     incidents_projection: Dict[str, bool] = {
         "_id": False,
         "box_id": True,
-        "event_id": True
+        "event_id": True,
+        "incident_id": True
     }
 
     box_events_query: Dict = {
@@ -44,6 +46,7 @@ def perform_annotation(opq_mongo_client: mongo.OpqMongoClient,
     box_event_docs: List[Dict] = list(opq_mongo_client.box_events_collection.find(box_events_query,
                                                                                   projection=box_events_projection))
 
+    incident_ids_all: List[str] = list(map(lambda doc: doc["incident_id"], incident_docs))
     incident_box_ids: Set[str] = set(map(lambda doc: doc["box_id"], incident_docs))
     box_event_box_ids: Set[str] = set(map(lambda doc: doc["box_id"], box_event_docs))
     box_event_ids_from_incidents: Set[int] = set(map(lambda doc: doc["event_id"], box_event_docs))
@@ -54,7 +57,7 @@ def perform_annotation(opq_mongo_client: mongo.OpqMongoClient,
                                             start_timestamp_ms,
                                             end_timestamp_ms,
                                             affected_box_ids,
-                                            incident_ids,
+                                            incident_ids_all,
                                             all_event_ids,
                                             annotation)
 
