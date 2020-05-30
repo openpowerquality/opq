@@ -7,7 +7,7 @@ This repository provides the schematics for the second generation Open Power Qua
 # PSU Design
 Main power for the board is provided by the IRM-10-5 module. Hot side is powered via ADUM5010 chipscale isolated DC-DC converter.
 
-![ADUM5010 PSU design](https://raw.githubusercontent.com/openpowerquality/box/master/images/power-isolation.png)
+![ADUM5010 PSU design](https://github.com/openpowerquality/opq/raw/master/box/images/power-isolation.png)
 
 Design notes:
   * 2A of power on the isolated side
