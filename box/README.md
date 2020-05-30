@@ -13,7 +13,8 @@ Design notes:
   * 2A of power on the isolated side
   * 0.22uF super capacitor.(~1s interruption protection)
   * 250mW of power on the HOT side.
-  * 
+  
+  
 # Measurement isolation design
 
 ![capacitive PSU](https://github.com/openpowerquality/opq/raw/master/box/images/measurement-isolation.png)
@@ -56,12 +57,11 @@ We recently produced an engineering sample of this design:
 
 
 # Additional design documents
-
  
-  * [OPQBOX2 pdf schematic](https://github.com/openpowerquality/box/blob/master/Schematics/opqbox2_schematic.pdf?raw=true)
-  * [Bill of Materials](https://raw.githubusercontent.com/openpowerquality/box/master/Schematics/BOM.txt)
-  * [Mentor graphics PADS schematic of OPQBOX2](https://github.com/openpowerquality/box/blob/master/Schematics/opqbox2.sch?raw=true)
-  * [PADS library](https://github.com/openpowerquality/box/tree/master/Schematics/Library)
+  * [OPQBOX2 pdf schematic](https://github.com/openpowerquality/opq/blob/master/box/Schematics/v2/opqbox2_schematic.pdf)
+  * [Bill of Materials](https://raw.githubusercontent.com/openpowerquality/opq/master/box/Schematics/v2/BOM.txt)
+  * [Mentor graphics PADS schematic of OPQBOX2](https://github.com/openpowerquality/opq/blob/master/box/Schematics/v2/opqbox2.sch)
+  * [PADS library](https://github.com/openpowerquality/opq/tree/master/box/Schematics/v2/Library)
   
 # Changes From OPQBox Version 1
 
