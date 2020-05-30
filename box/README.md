@@ -16,7 +16,7 @@ Design notes:
   * 
 # Measurement isolation design
 
-![capacitive PSU](https://raw.githubusercontent.com/openpowerquality/box/master/images/measurement-isolation.png)
+![capacitive PSU](https://github.com/openpowerquality/opq/raw/master/box/images/measurement-isolation.png)
 
 Design notes:
 
